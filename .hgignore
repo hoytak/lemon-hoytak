@@ -1,0 +1,9 @@
+syntax: glob
+*.obj
+*.orig
+*.rej
+*~
+*.o
+
+syntax: regexp
+html/.*
