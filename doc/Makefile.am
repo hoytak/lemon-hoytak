@@ -9,7 +9,6 @@ doc:
 	  cd doc; \
 	  doxygen Doxyfile; \
 	  cd ..; \
-	  cp $(srcdir)/doc/icons/geom/ftv2* doc/html; \
 	fi
 
 doc-clean:
@@ -19,7 +18,6 @@ doc-clean:
 	  cd doc; \
 	  doxygen Doxyfile; \
 	  cd ..; \
-	  cp $(srcdir)/doc/icons/geom/ftv2* doc/html; \
 	fi
 
 clean-local:

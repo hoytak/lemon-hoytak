@@ -4,6 +4,14 @@ syntax: glob
 *.rej
 *~
 *.o
+.#.*
+Makefile.in
+aclocal.m4
+config.h.in
+configure
 
 syntax: regexp
 html/.*
+autom4te.cache/.*
+build-aux/.*
+objs.*/.*
