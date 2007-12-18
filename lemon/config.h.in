@@ -1,0 +1,5 @@
+/* Define to 1 if you have CPLEX. */
+#undef HAVE_CPLEX
+
+/* Define to 1 if you have GLPK. */
+#undef HAVE_GLPK
