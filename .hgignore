@@ -9,6 +9,18 @@ Makefile.in
 aclocal.m4
 config.h.in
 configure
+Makefile
+config.h
+config.log
+config.status
+libtool
+stamp-h1
+lemon/lemon.pc
+lemon/libemon.la
+lemon/stamp-h2
+doc/Doxyfile
+lemon/.dirstamp
+lemon/.libs/*
 
 syntax: regexp
 html/.*
