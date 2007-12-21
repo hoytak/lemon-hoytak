@@ -737,7 +737,7 @@ namespace lemon {
     ///
     double exponential(double lambda=1.0)
     {
-      return -std::log(real<double>())/lambda;
+      return -std::log(1.0-real<double>())/lambda;
     }
 
     /// Gamma distribution with given integer shape
@@ -782,6 +782,33 @@ namespace lemon {
       return theta*(xi-gamma(int(std::floor(k))));
     }
     
+    /// Weibull distribution
+
+    /// This function generates a Weibull distribution random number.
+    /// 
+    ///\param k shape parameter (<tt>k>0</tt>)
+    ///\param lambda scale parameter (<tt>lambda>0</tt>)
+    ///
+    double weibull(double k,double lambda)
+    {
+      return lambda*pow(-std::log(1.0-real<double>()),1.0/k);
+    }  
+      
+    /// Pareto distribution
+
+    /// This function generates a Pareto distribution random number.
+    /// 
+    ///\param x_min location parameter (<tt>x_min>0</tt>)
+    ///\param k shape parameter (<tt>k>0</tt>)
+    ///
+    ///\warning This function used inverse transform sampling, therefore may
+    ///suffer from numerical unstability.
+    ///
+    ///\todo Implement a numerically stable method
+    double pareto(double x_min,double k)
+    {
+      return x_min*pow(1.0-real<double>(),1.0/k);
+    }  
       
     ///@}
     
