@@ -798,16 +798,12 @@ namespace lemon {
 
     /// This function generates a Pareto distribution random number.
     /// 
-    ///\param x_min location parameter (<tt>x_min>0</tt>)
     ///\param k shape parameter (<tt>k>0</tt>)
+    ///\param x_min location parameter (<tt>x_min>0</tt>)
     ///
-    ///\warning This function used inverse transform sampling, therefore may
-    ///suffer from numerical unstability.
-    ///
-    ///\todo Implement a numerically stable method
-    double pareto(double x_min,double k)
+    double pareto(double k,double x_min)
     {
-      return x_min*pow(1.0-real<double>(),1.0/k);
+      return exponential(gamma(k,1.0/x_min));
     }  
       
     ///@}
