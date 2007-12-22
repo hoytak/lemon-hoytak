@@ -6,7 +6,7 @@ m4_define([lemon_version_minor], [6])
 m4_define([lemon_version_micro], [90])
 m4_define([lemon_version_nano], [])
 m4_define([lemon_version_tag], [hg])
-m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg tip --template '{node|short}']))])
+m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg id]))])
 m4_define([lemon_version], [lemon_version_major().lemon_version_minor()ifelse(lemon_version_micro(), [], [], [.lemon_version_micro()])ifelse(lemon_version_nano(), [], [], [.lemon_version_nano()])ifelse(lemon_version_tag(), [], [], lemon_version_tag(), [hg], [[_]lemon_version_tag()[_]lemon_hg_revision()], [[_]lemon_version_tag()])])
 
 AC_PREREQ([2.59])
