@@ -247,7 +247,9 @@ namespace lemon {
   /// The current map has the \c [0..size-1] keyset and the values
   /// are stored in a \c std::vector<T>  container. It can be used with
   /// some data structures, for example \c UnionFind, \c BinHeap, when 
-  /// the used items are small integer numbers.
+  /// the used items are small integer numbers. 
+  ///
+  /// \todo Revise its name
   template <typename T>
   class IntegerMap {
 
@@ -346,8 +348,9 @@ namespace lemon {
   }
   
 
-  ///Convert the \c Value of a map to another type.
-
+  ///\brief Convert the \c Value of a map to another type using
+  ///the default conversion.
+  ///
   ///This \c concepts::ReadMap "read only map"
   ///converts the \c Value of a maps to type \c T.
   ///Its \c Key is inherited from \c M.
@@ -368,8 +371,6 @@ namespace lemon {
     /// \brief The subscript operator.
     ///
     /// The subscript operator.
-    /// \param k The key
-    /// \return The target of the arc 
     Value operator[](const Key& k) const {return m[k];}
   };
   
@@ -388,6 +389,8 @@ namespace lemon {
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read maps. This map adaptor wraps the given
   ///map to simple read map.
+  ///
+  /// \todo Revise the misleading name
   template<typename M> 
   class SimpleMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -405,10 +408,12 @@ namespace lemon {
 
   ///Simple writeable wrapping of the map
 
-  ///This \c concepts::ReadMap "read only map" returns the simple
+  ///This \c concepts::WriteMap "write map" returns the simple
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read-write maps. This map adaptor wraps the
   ///given map to simple read-write map.
+  ///
+  /// \todo Revise the misleading name
   template<typename M> 
   class SimpleWriteMap : public MapBase<typename M::Key, typename M::Value> {
     M& m;
@@ -493,7 +498,7 @@ namespace lemon {
     Value operator[](Key k) const {return m[k] + v;}
   };
 
-  ///Shift a map with a constant.
+  ///Shift a map with a constant. This map is also writable.
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the sum of the
   ///given map and a constant value. It makes also possible to write the map.
@@ -549,7 +554,8 @@ namespace lemon {
   ///of the values of the two
   ///given maps. Its \c Key and \c Value will be inherited from \c M1.
   ///The \c Key and \c Value of \c M2 must be convertible to those of \c M1.
-
+  ///
+  /// \todo Revise the misleading name
   template<typename M1, typename M2> 
   class SubMap : public MapBase<typename M1::Key, typename M1::Value> {
     const M1& m1;
@@ -641,7 +647,7 @@ namespace lemon {
     Value operator[](Key k) const {return v * m[k];}
   };
 
-  ///Scales a maps with a constant.
+  ///Scales a maps with a constant (ReadWrite version).
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the value of the
   ///given map multiplied from the left side with a constant value. It can
@@ -858,7 +864,7 @@ namespace lemon {
     Value operator[](Key k) const {return -m[k];}
   };
   
-  ///Negative value of a map
+  ///Negative value of a map (ReadWrite version)
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the negative
   ///value of the value returned by the
@@ -905,18 +911,6 @@ namespace lemon {
   ///must be comparable to <tt>0</tt> and the unary <tt>-</tt>
   ///operator must be defined for it, of course.
   ///
-  ///\bug We need a unified way to handle the situation below:
-  ///\code
-  ///  struct _UnConvertible {};
-  ///  template<class A> inline A t_abs(A a) {return _UnConvertible();}
-  ///  template<> inline int t_abs<>(int n) {return abs(n);}
-  ///  template<> inline long int t_abs<>(long int n) {return labs(n);}
-  ///  template<> inline long long int t_abs<>(long long int n) {return ::llabs(n);}
-  ///  template<> inline float t_abs<>(float n) {return fabsf(n);}
-  ///  template<> inline double t_abs<>(double n) {return fabs(n);}
-  ///  template<> inline long double t_abs<>(long double n) {return fabsl(n);}
-  ///\endcode
-  
 
   template<typename M> 
   class AbsMap : public MapBase<typename M::Key, typename M::Value> {
@@ -1041,6 +1035,8 @@ namespace lemon {
   ///
   ///The \c Key and \c Value will be inherited from \c M1.
   ///The \c Key and \c Value of M2 must be convertible from those of \c M1.
+  ///
+  /// \todo Why is it needed?
   template<typename  M1, typename M2> 
   class ForkMap : public MapBase<typename M1::Key, typename M1::Value> {
     const M1& m1;
@@ -1124,7 +1120,7 @@ namespace lemon {
     Value operator[](Key k) const {return !m[k];}
   };
 
-  ///Logical 'not' of a map with writing possibility
+  ///Logical 'not' of a map (ReadWrie version)
   
   ///This bool \c concepts::ReadWriteMap "read-write map" returns the 
   ///logical negation of value returned by the given map. When it is set,
@@ -1187,15 +1183,16 @@ namespace lemon {
   }
   
 
-  /// \brief Writable bool map for store each true assigned elements.
+  /// \brief Writable bool map for logging each true assigned elements
   ///
-  /// Writable bool map to store each true assigned elements. It will
+  /// Writable bool map for logging each true assigned elements, i.e it
   /// copies all the keys set to true to the given iterator.
   ///
   /// \note The container of the iterator should contain space 
   /// for each element.
   ///
-  /// The next example shows how can you write the nodes directly
+  /// The following example shows how you can write the edges found by the Prim
+  /// algorithm directly
   /// to the standard output.
   ///\code
   /// typedef IdMap<Graph, Edge> EdgeIdMap;
@@ -1209,6 +1206,8 @@ namespace lemon {
   ///
   /// prim(graph, cost, writerMap);
   ///\endcode
+  ///
+  ///\todo Revise the name of this class and the relates ones.
   template <typename _Iterator, 
             typename _Functor =
             _maps_bits::Identity<typename _maps_bits::
@@ -1226,12 +1225,12 @@ namespace lemon {
     StoreBoolMap(Iterator it, const Functor& functor = Functor()) 
       : _begin(it), _end(it), _functor(functor) {}
 
-    /// Gives back the given iterator set for the first time.
+    /// Gives back the given iterator set for the first key
     Iterator begin() const {
       return _begin;
     }
  
-    /// Gives back the iterator after the last set operation.
+    /// Gives back the the 'after the last' iterator
     Iterator end() const {
       return _end;
     }
@@ -1249,14 +1248,14 @@ namespace lemon {
     Functor _functor;
   };
 
-  /// \brief Writable bool map for store each true assigned elements in 
-  /// a back insertable container.
+  /// \brief Writable bool map for logging each true assigned elements in 
+  /// a back insertable container
   ///
-  /// Writable bool map for store each true assigned elements in a back 
-  /// insertable container. It will push back all the keys set to true into
-  /// the container. It can be used to retrieve the items into a standard
-  /// container. The next example shows how can you store the undirected
-  /// arcs in a vector with prim algorithm.
+  /// Writable bool map for logging each true assigned elements by pushing
+  /// back them into a back insertable container.
+  /// It can be used to retrieve the items into a standard
+  /// container. The next example shows how you can store the
+  /// edges found by the Prim algorithm in a vector.
   ///
   ///\code
   /// vector<Edge> span_tree_edges;
@@ -1288,10 +1287,10 @@ namespace lemon {
     Functor functor;
   };
 
-  /// \brief Writable bool map for store each true assigned elements in 
+  /// \brief Writable bool map for storing each true assignments in 
   /// a front insertable container.
   ///
-  /// Writable bool map for store each true assigned elements in a front 
+  /// Writable bool map for storing each true assignment in a front 
   /// insertable container. It will push front all the keys set to \c true into
   /// the container. For example see the BackInserterBoolMap.
   template <typename Container,
@@ -1319,12 +1318,14 @@ namespace lemon {
     Functor functor;
   };
 
-  /// \brief Writable bool map for store each true assigned elements in 
+  /// \brief Writable bool map for storing each true assigned elements in 
   /// an insertable container.
   ///
-  /// Writable bool map for store each true assigned elements in an 
+  /// Writable bool map for storing each true assigned elements in an 
   /// insertable container. It will insert all the keys set to \c true into
-  /// the container. If you want to store the cut arcs of the strongly
+  /// the container.
+  ///
+  /// For example, if you want to store the cut arcs of the strongly
   /// connected components in a set you can use the next code:
   ///
   ///\code
@@ -1369,7 +1370,7 @@ namespace lemon {
   /// The value can set 
   /// the container.
   ///
-  /// The next code finds the connected components of the undirected digraph
+  /// The following code finds the connected components of a graph
   /// and stores it in the \c comp map:
   ///\code
   /// typedef Graph::NodeMap<int> ComponentMap;
@@ -1417,7 +1418,7 @@ namespace lemon {
       fill = _fill;
     } 
 
-    /// Setter function of the map
+    /// Set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	map.set(key, fill);
@@ -1430,11 +1431,12 @@ namespace lemon {
   };
 
 
-  /// \brief Writable bool map which stores for each true assigned elements  
-  /// the setting order number.
-  ///
+  /// \brief Writable bool map which stores the sequence number of 
+  /// true assignments.  
+  /// 
   /// Writable bool map which stores for each true assigned elements  
-  /// the setting order number. It make easy to calculate the leaving
+  /// the sequence number of this setting.
+  /// It makes it easy to calculate the leaving
   /// order of the nodes in the \c Dfs algorithm.
   ///
   ///\code
@@ -1453,9 +1455,9 @@ namespace lemon {
   /// }
   ///\endcode
   ///
-  /// The discovering order can be stored a little harder because the
+  /// The storing of the discovering order is more difficult because the
   /// ReachedMap should be readable in the dfs algorithm but the setting
-  /// order map is not readable. Now we should use the fork map:
+  /// order map is not readable. Thus we must use the fork map:
   ///
   ///\code
   /// typedef Digraph::NodeMap<int> OrderMap;

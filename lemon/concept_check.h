@@ -16,10 +16,10 @@
  *
  */
 
-// Modified for use in LEMON.
-// We should really consider using Boost...
+// This file contains a modified version of the concept checking
+// utility from BOOST.
+// See the appropriate copyright notice below.
 
-//
 // (C) Copyright Jeremy Siek 2000.
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
