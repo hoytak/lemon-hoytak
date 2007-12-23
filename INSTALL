@@ -1,0 +1,117 @@
+Installation Instructions
+=========================
+
+   Since you are reading this I assume you already obtained one of the release
+tarballs and successfully extracted it. The latest version of LEMON is
+available at our webpage (http://lemon.cs.elte.hu/).
+
+   In order to install LEMON from the extracted source tarball you have to
+issue the following commands:
+
+  1. `cd lemon-x.y.z'
+
+     This changes to the directory which was created when you extracted the
+     sources. The x.y.z part is a version number.
+
+  2. `./configure'
+
+     This runs the configure shell script, which does some checks and
+     configuration (creates makefiles etc).
+
+  3. `make'
+
+     This command compiles the non-template part of LEMON into libemon.a file.
+     It also compiles the benchmark and demo programs when enabled.
+
+  4. `make check'
+
+     This step is optional, but recommended. It runs the test programs that we
+     developed for LEMON to check whether the library works properly on your
+     platform.
+
+  5. `make install'
+
+     This command installs LEMON under /usr/local (you will need root
+     privileges to be able to do that). If you want to install it to some
+     other location, then pass the --prefix=DIRECTORY flag to configure in
+     step 1. For example: `./configure --prefix=/home/username/lemon'
+
+
+Configure Flags
+===============
+
+   You can pass the following flags to configure in step 1
+(see ./configure --help for more):
+
+CXX=comp
+
+  Change the C++ compiler to 'comp'.
+
+CXXFLAGS='flags'
+
+  Pass the 'flags' to the compiler. For example
+  CXXFLAGS='-O3 -march=pentium-m'
+  turns  on generation of aggressively optimized
+  Pentium-M specific code.
+
+--enable-demo
+
+   Build the demo programs too.
+
+--disable-demo
+
+   Do not build the demo programs (default).
+
+--enable-benchmark
+
+   Build the benchmark programs too.
+
+--disable-benchmark
+
+   Do not build the benchmark programs (default).
+
+--with-glpk[=PREFIX]
+
+   Enable GLPK support (default). You should specify the prefix too if
+   you installed GLPK to some non-standard location (e.g. your home
+   directory). If it is not found, GLPK support will be disabled.
+
+--with-glpk-includedir=DIR
+
+   The directory where the GLPK header files are located. This is only
+   useful when the GLPK headers and libraries are not under the same
+   prefix (which is unlikely).
+
+--with-glpk-libdir=DIR
+
+   The directory where the GLPK libraries are located. This is only
+   useful when the GLPK headers and libraries are not under the same
+   prefix (which is unlikely).
+
+--without-glpk
+
+   Disable GLPK support.
+
+--with-cplex[=PREFIX]
+
+   Enable CPLEX support (default). You should specify the prefix too
+   if you installed CPLEX to some non-standard location
+   (e.g. /opt/ilog/cplex75). If it is not found, CPLEX support will be
+   disabled.
+
+--with-cplex-includedir=DIR
+
+   The directory where the CPLEX header files are located. This is
+   only useful when the CPLEX headers and libraries are not under the
+   same prefix (e.g.  /usr/local/cplex/cplex75/include).
+
+--with-cplex-libdir=DIR
+
+   The directory where the CPLEX libraries are located. This is only
+   useful when the CPLEX headers and libraries are not under the same
+   prefix (e.g.
+   /usr/local/cplex/cplex75/lib/i86_linux2_glibc2.2_gcc3.0/static_pic_mt).
+
+--without-cplex
+
+   Disable CPLEX support.

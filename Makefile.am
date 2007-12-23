@@ -4,6 +4,7 @@ AM_CPPFLAGS = -I$(top_srcdir)
 LDADD = $(top_builddir)/lemon/libemon.la
 
 EXTRA_DIST = \
+	LICENSE \
 	m4/lx_check_cplex.m4 \
 	m4/lx_check_glpk.m4 \
 	m4/lx_check_soplex.m4
