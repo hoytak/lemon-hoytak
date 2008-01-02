@@ -22,65 +22,66 @@
 
 using namespace std;
 using namespace lemon;
+
 int main()
 {
-
-  cout << "Testing classes `dim2::Point' and `dim2::BoundingBox'." << endl;
+  cout << "Testing classes 'dim2::Point' and 'dim2::BoundingBox'." << endl;
 
   typedef dim2::Point<int> Point;
-	
-  Point seged;
-  check(seged.size()==2, "Wrong vector addition");
+
+  Point p;
+  check(p.size()==2, "Wrong vector initialization.");
 
   Point a(1,2);
   Point b(3,4);
+  check(a[0]==1 && a[1]==2, "Wrong vector initialization.");
 
-  check(a[0]==1 && a[1]==2, "Wrong vector addition");
+  p = a+b;
+  check(p.x==4 && p.y==6, "Wrong vector addition.");
 
-  seged = a+b;
-  check(seged.x==4 && seged.y==6, "Wrong vector addition");
+  p = a-b;
+  check(p.x==-2 && p.y==-2, "Wrong vector subtraction.");
 
-  seged = a-b;
-  check(seged.x==-2 && seged.y==-2, "a-b");
-
-  check(a.normSquare()==5,"Wrong norm calculation");
-  check(a*b==11, "a*b");
+  check(a.normSquare()==5,"Wrong vector norm calculation.");
+  check(a*b==11, "Wrong vector scalar product.");
 
   int l=2;
-  seged = a*l;
-  check(seged.x==2 && seged.y==4, "a*l");
+  p = a*l;
+  check(p.x==2 && p.y==4, "Wrong vector multiplication by a scalar.");
 
-  seged = b/l;
-  check(seged.x==1 && seged.y==2, "b/l");
+  p = b/l;
+  check(p.x==1 && p.y==2, "Wrong vector division by a scalar.");
 
   typedef dim2::BoundingBox<int> BB;
-  BB doboz1;
-  check(doboz1.empty(), "It should be empty.");
-	
-  doboz1.add(a);
-  check(!doboz1.empty(), "It should not be empty.");
-  doboz1.add(b);
+  BB box1;
+  check(box1.empty(), "It should be empty.");
 
-  check(doboz1.bottomLeft().x==1 && 
-        doboz1.bottomLeft().y==2 &&
-        doboz1.topRight().x==3 && 
-        doboz1.topRight().y==4,  
-        "added points to box");
+  box1.add(a);
+  check(!box1.empty(), "It should not be empty.");
+  box1.add(b);
 
-  seged.x=2;seged.y=3;
-  check(doboz1.inside(seged),"It should be inside.");
+  check(box1.bottomLeft().x==1 &&
+        box1.bottomLeft().y==2 &&
+        box1.topRight().x==3 &&
+        box1.topRight().y==4,
+        "Wrong addition of points to box.");
 
-  seged.x=1;seged.y=3;
-  check(doboz1.inside(seged),"It should be inside.");
+  p.x=2; p.y=3;
+  check(box1.inside(p), "It should be inside.");
 
-  seged.x=0;seged.y=3;
-  check(!doboz1.inside(seged),"It should not be inside.");
+  p.x=1; p.y=3;
+  check(box1.inside(p), "It should be inside.");
 
-  BB doboz2(seged);
-  check(!doboz2.empty(),
+  p.x=0; p.y=3;
+  check(!box1.inside(p), "It should not be inside.");
+
+  BB box2(p);
+  check(!box2.empty(),
         "It should not be empty. Constructed from 1 point.");
 
-  doboz2.add(doboz1);
-  check(doboz2.inside(seged),
+  box2.add(box1);
+  check(box2.inside(p),
         "It should be inside. Incremented a box with another one.");
+
+  return 0;
 }
