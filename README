@@ -1,0 +1,60 @@
+------------------------------------------------------------------
+LEMON - a Library of Efficient Models and Optimization in Networks
+------------------------------------------------------------------
+
+LEMON is the abbreviation of Library of Efficient Models and
+Optimization in Networks. It is an open source library written in
+C++. It provides a set of easy-to-use implementation of common data
+structures and algorithms in the area of optimization and helps
+implementing new ones. It is an especially suitable tool to solve the
+design and optimization problems of telecommunications networks. To
+achieve wide usability, a fundamental design requirement is the
+genericity of interface of data structures and algorithms. LEMON is an
+open source library end invites people all around the world in its
+development.
+
+--------
+Contents
+--------
+
+COPYING, LICENSE
+
+  Copying, distribution and modification conditions and terms.
+
+INSTALL
+
+  For general building and installation instructions, see the file
+
+lemon/
+
+  Source code of LEMON itself.
+
+doc/
+
+  Documentation of LEMON. The starting page is doc/html/index/html.
+  The documentation installs into the directory
+
+    /usr/local/share/doc/lemon/html
+
+  or -- if you use different prefix -- into
+
+    ${prefix}/share/doc/lemon/html
+
+  (see also INSTALL).
+
+demo/
+
+  Some demonstration programs to make you easier to getting familiar
+  with LEMON. Use --enable-demo configure option to also compile these
+  codes (see also INSTALL).
+
+test/
+
+  Contains programs to check the integrity and correctness of
+  LEMON. The command 'make check' performs these tests.
+
+benchmark/
+  
+  Contains programs measuring the performance of LEMON. Use
+  --enable-benchmark configure option to also compile these codes (see
+  also INSTALL).
