@@ -23,7 +23,7 @@ COPYING, LICENSE
 
 INSTALL
 
-  For general building and installation instructions, see the file
+  For general building and installation instructions, see the file.
 
 lemon/
 
@@ -31,7 +31,7 @@ lemon/
 
 doc/
 
-  Documentation of LEMON. The starting page is doc/html/index/html.
+  Documentation of LEMON. The starting page is doc/html/index.html.
   The documentation installs into the directory
 
     /usr/local/share/doc/lemon/html
@@ -44,9 +44,9 @@ doc/
 
 demo/
 
-  Some demonstration programs to make you easier to getting familiar
-  with LEMON. Use --enable-demo configure option to also compile these
-  codes (see also INSTALL).
+  Some demonstration programs to make you easier to get familiar with
+  LEMON. Use --enable-demo configure option to also compile these codes
+  (see also INSTALL).
 
 test/
 
