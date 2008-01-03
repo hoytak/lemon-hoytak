@@ -696,7 +696,7 @@ namespace lemon {
     
     /// \brief Returns a random bool
     ///
-    /// It returns a random bool with given probability of true result
+    /// It returns a random bool with given probability of true result.
     bool boolean(double p) {
       return operator()() < p;
     }
@@ -719,7 +719,7 @@ namespace lemon {
     }
     /// Gauss distribution with given mean and standard deviation
 
-    /// Gauss distribution with given mean and standard deviation
+    /// Gauss distribution with given mean and standard deviation.
     /// \sa gauss()
     double gauss(double mean,double std_dev)
     {
@@ -809,7 +809,7 @@ namespace lemon {
 
     ///@{
     
-    /// Uniform distribution on the full unit circle.
+    /// Uniform distribution on the full unit circle
 
     /// Uniform distribution on the full unit circle.
     ///
