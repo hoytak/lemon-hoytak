@@ -24,7 +24,7 @@
 
 namespace lemon {
 
-  /// \brief Dummy type to make it easier to make invalid iterators.
+  /// \brief Dummy type to make it easier to create invalid iterators.
   ///
   /// See \ref INVALID for the usage.
   struct Invalid {
@@ -34,8 +34,8 @@ namespace lemon {
     bool operator< (Invalid) { return false; }
   };
   
-  /// Invalid iterators.
-  
+  /// \brief Invalid iterators.
+  ///
   /// \ref Invalid is a global type that converts to each iterator
   /// in such a way that the value of the target iterator will be invalid.
 

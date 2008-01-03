@@ -5,6 +5,9 @@ syntax: glob
 *~
 *.o
 .#.*
+*.log
+*.lo
+*.tar.*
 Makefile.in
 aclocal.m4
 config.h.in
@@ -19,11 +22,13 @@ lemon/lemon.pc
 lemon/libemon.la
 lemon/stamp-h2
 doc/Doxyfile
-lemon/.dirstamp
-lemon/.libs/*
+.dirstamp
+.libs/*
+.deps/*
 
 syntax: regexp
-html/.*
-autom4te.cache/.*
-build-aux/.*
-objs.*/.*
+^doc/html/.*
+^autom4te.cache/.*
+^build-aux/.*
+^objs.*/.*
+^test/[a-z_]*$

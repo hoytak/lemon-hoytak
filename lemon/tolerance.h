@@ -48,9 +48,13 @@ namespace lemon {
   ///\sa Tolerance<double>
   ///\sa Tolerance<long double>
   ///\sa Tolerance<int>
+#if defined __GNUC__ && !defined __STRICT_ANSI__  
   ///\sa Tolerance<long long int>
+#endif
   ///\sa Tolerance<unsigned int>
+#if defined __GNUC__ && !defined __STRICT_ANSI__  
   ///\sa Tolerance<unsigned long long int>
+#endif
 
   template<class T>
   class Tolerance
@@ -130,7 +134,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     bool negative(Value a) const { return -_epsilon>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    bool nonZero(Value a) const { return positive(a)||negative(a); };
+    bool nonZero(Value a) const { return positive(a)||negative(a); }
 
     ///@}
 
@@ -181,7 +185,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     bool negative(Value a) const { return -_epsilon>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    bool nonZero(Value a) const { return positive(a)||negative(a); };
+    bool nonZero(Value a) const { return positive(a)||negative(a); }
 
     ///@}
 
@@ -232,7 +236,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     bool negative(Value a) const { return -_epsilon>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    bool nonZero(Value a) const { return positive(a)||negative(a); };
+    bool nonZero(Value a) const { return positive(a)||negative(a); }
 
     ///@}
 
@@ -265,7 +269,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value a) { return 0>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0; };
+    static bool nonZero(Value a) { return a!=0; }
 
     ///@}
 
@@ -298,7 +302,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value) { return false; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0; };
+    static bool nonZero(Value a) { return a!=0; }
 
     ///@}
 
@@ -332,7 +336,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value a) { return 0>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;};
+    static bool nonZero(Value a) { return a!=0;}
 
     ///@}
 
@@ -365,7 +369,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value) { return false; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;};
+    static bool nonZero(Value a) { return a!=0;}
 
     ///@}
 
@@ -402,7 +406,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value a) { return 0>a; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;};
+    static bool nonZero(Value a) { return a!=0;}
 
     ///@}
 
@@ -437,7 +441,7 @@ namespace lemon {
     ///Returns \c true if \c a is \e surely negative
     static bool negative(Value) { return false; }
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;};
+    static bool nonZero(Value a) { return a!=0;}
 
     ///@}
 
