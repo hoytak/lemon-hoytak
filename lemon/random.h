@@ -73,8 +73,6 @@
 ///\ingroup misc
 ///\file
 ///\brief Mersenne Twister random number generator
-///
-///\author Balazs Dezso
 
 namespace lemon {
 
@@ -516,12 +514,10 @@ namespace lemon {
   /// generator which name is \ref lemon::rnd "rnd". Usually it is a
   /// good programming convenience to use this global generator to get
   /// random numbers.
-  ///
-  /// \author Balazs Dezso
   class Random {
   private:
 
-    // architecture word
+    // Architecture word
     typedef unsigned long Word;
     
     _random_bits::RandomCore<Word> core;
@@ -723,8 +719,8 @@ namespace lemon {
     }
     /// Gauss distribution with given mean and standard deviation
 
+    /// Gauss distribution with given mean and standard deviation
     /// \sa gauss()
-    ///
     double gauss(double mean,double std_dev)
     {
       return gauss()*std_dev+mean;
@@ -814,6 +810,9 @@ namespace lemon {
     ///@{
     
     /// Uniform distribution on the full unit circle.
+
+    /// Uniform distribution on the full unit circle.
+    ///
     dim2::Point<double> disc() 
     {
       double V1,V2;

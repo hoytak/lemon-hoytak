@@ -24,6 +24,6 @@
 namespace lemon {
   /// \brief Global random number generator instance
   ///
-  /// A global mersenne twister random number generator instance
+  /// A global Mersenne Twister random number generator instance.
   Random rnd;
 }
