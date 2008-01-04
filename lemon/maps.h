@@ -1308,7 +1308,7 @@ namespace lemon {
             _maps_bits::Identity<typename Container::value_type> >
   class BackInserterBoolMap {
   public:
-    typedef typename Container::value_type Key;
+    typedef typename Functor::argument_type Key;
     typedef bool Value;
 
     /// Constructor
@@ -1343,7 +1343,7 @@ namespace lemon {
             _maps_bits::Identity<typename Container::value_type> >
   class FrontInserterBoolMap {
   public:
-    typedef typename Container::value_type Key;
+    typedef typename Functor::argument_type Key;
     typedef bool Value;
 
     /// Constructor
