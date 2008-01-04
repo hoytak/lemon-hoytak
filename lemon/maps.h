@@ -44,9 +44,9 @@ namespace lemon {
   template<typename K, typename T>
   class MapBase {
   public:
-    ///\e
+    /// The key type of the map.
     typedef K Key;
-    ///\e
+    /// The value type of the map. (The type of objects associated with the keys).
     typedef T Value;
   };
 
@@ -249,9 +249,9 @@ namespace lemon {
     };
   };
 
-  /// \brief Map for storing values for the range \c [0..size-1] range keys
+  /// \brief Map for storing values for keys from the range <tt>[0..size-1]</tt>
   ///
-  /// The current map has the \c [0..size-1] keyset and the values
+  /// The current map has the <tt>[0..size-1]</tt> keyset and the values
   /// are stored in a \c std::vector<T>  container. It can be used with
   /// some data structures, for example \c UnionFind, \c BinHeap, when 
   /// the used items are small integer numbers. 
@@ -829,7 +829,7 @@ namespace lemon {
   ///
   ///For example if \c m1 and \c m2 are both \c double valued maps, then 
   ///\code
-  ///combineMap<double>(m1,m2,std::plus<double>())
+  ///combineMap(m1,m2,std::plus<double>())
   ///\endcode
   ///is equivalent to
   ///\code
@@ -962,8 +962,9 @@ namespace lemon {
   ///of a given functor.
   ///
   ///Template parameters \c K and \c V will become its
-  ///\c Key and \c Value. They must be given explicitly
-  ///because a functor does not provide such typedefs.
+  ///\c Key and \c Value. 
+  ///In most cases they have to be given explicitly because a 
+  ///functor typically does not provide such typedefs.
   ///
   ///Parameter \c F is the type of the used functor.
   ///
@@ -1240,6 +1241,8 @@ namespace lemon {
   ///\endcode
   ///
   ///\sa BackInserterBoolMap 
+  ///\sa FrontInserterBoolMap 
+  ///\sa InserterBoolMap 
   ///
   ///\todo Revise the name of this class and the related ones.
   template <typename _Iterator, 
