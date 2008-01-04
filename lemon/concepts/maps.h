@@ -41,9 +41,9 @@ namespace lemon {
     class ReadMap
     {
     public:
-      /// Map's key type.
+      /// The key type of the map.
       typedef K Key;    
-      /// Map's value type. (The type of objects associated with the keys).
+      /// The value type of the map. (The type of objects associated with the keys).
       typedef T Value;
 
       /// Returns the value associated with a key.
@@ -81,9 +81,9 @@ namespace lemon {
     class WriteMap
     {
     public:
-      /// Map's key type.
+      /// The key type of the map.
       typedef K Key;    
-      /// Map's value type. (The type of objects associated with the keys).
+      /// The value type of the map. (The type of objects associated with the keys).
       typedef T Value;
 
       /// Sets the value associated with a key.
@@ -119,12 +119,12 @@ namespace lemon {
     ///
     template<typename K, typename T>
     class ReadWriteMap : public ReadMap<K,T>,
-			    public WriteMap<K,T>
+			 public WriteMap<K,T>
     {
     public:
-      /// Map's key type.
+      /// The key type of the map.
       typedef K Key;    
-      /// Map's value type. (The type of objects associated with the keys).
+      /// The value type of the map. (The type of objects associated with the keys).
       typedef T Value;
 
       /// Returns the value associated with a key.
@@ -152,13 +152,13 @@ namespace lemon {
     public:
       /// Tag for reference maps.
       typedef True ReferenceMapTag;
-      /// Map's key type.
+      /// The key type of the map.
       typedef K Key;    
-      /// Map's value type. (The type of objects associated with the keys).
+      /// The value type of the map. (The type of objects associated with the keys).
       typedef T Value;
-      /// Map's reference type.
+      /// The reference type of the map.
       typedef R Reference;
-      /// Map's const reference type.
+      /// The const reference type of the map.
       typedef CR ConstReference;
 
     protected:
