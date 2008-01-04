@@ -1351,7 +1351,7 @@ namespace lemon {
     /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
-	container.push_front(key);
+	container.push_front(functor(key));
       }
     }
     
@@ -1408,7 +1408,7 @@ namespace lemon {
     /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
-	it = container.insert(it, key);
+	it = container.insert(it, functor(key));
         ++it;
       }
     }
