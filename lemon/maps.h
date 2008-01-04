@@ -52,9 +52,10 @@ namespace lemon {
 
   /// Null map. (a.k.a. DoNothingMap)
 
-  /// If you have to provide a map only for its type definitions,
-  /// or if you have to provide a writable map, but
-  /// data written to it will sent to <tt>/dev/null</tt>...
+  /// This map can be used if you have to provide a map only for
+  /// its type definitions, or if you have to provide a writable map, 
+  /// but data written to it is not required (i.e. it will be sent to 
+  /// <tt>/dev/null</tt>).
   template<typename K, typename T>
   class NullMap : public MapBase<K, T> {
   public:
@@ -68,6 +69,10 @@ namespace lemon {
     void set(const K&, const T&) {}
   };
 
+  ///Returns a \c NullMap class
+
+  ///This function just returns a \c NullMap class.
+  ///\relates NullMap
   template <typename K, typename V> 
   NullMap<K, V> nullMap() {
     return NullMap<K, V>();
@@ -90,13 +95,15 @@ namespace lemon {
 
     /// Default constructor
 
+    /// Default constructor.
     /// The value of the map will be uninitialized. 
     /// (More exactly it will be default constructed.)
     ConstMap() {}
-    ///\e
+    
+    /// Constructor with specified initial value
 
-    /// \param _v The initial value of the map.
-    ///
+    /// Constructor with specified initial value.
+    /// \param _v is the initial value of the map.
     ConstMap(const T &_v) : v(_v) {}
     
     ///\e
@@ -158,8 +165,8 @@ namespace lemon {
 
   ///Map based on std::map
 
-  ///This is essentially a wrapper for \c std::map. With addition that
-  ///you can specify a default value different from \c Value() .
+  ///This is essentially a wrapper for \c std::map with addition that
+  ///you can specify a default value different from \c Value().
   template <typename K, typename T, typename Compare = std::less<K> >
   class StdMap {
     template <typename K1, typename T1, typename C1>
@@ -321,9 +328,9 @@ namespace lemon {
   /// \addtogroup map_adaptors
   /// @{
 
-  /// \brief Identity mapping.
+  /// \brief Identity map.
   ///
-  /// This mapping gives back the given key as value without any
+  /// This map gives back the given key as value without any
   /// modification. 
   template <typename T>
   class IdentityMap : public MapBase<T, T> {
@@ -352,7 +359,7 @@ namespace lemon {
   ///the default conversion.
   ///
   ///This \c concepts::ReadMap "read only map"
-  ///converts the \c Value of a maps to type \c T.
+  ///converts the \c Value of a map to type \c T.
   ///Its \c Key is inherited from \c M.
   template <typename M, typename T> 
   class ConvertMap : public MapBase<typename M::Key, T> {
@@ -364,8 +371,8 @@ namespace lemon {
 
     ///Constructor
 
-    ///Constructor
-    ///\param _m is the underlying map
+    ///Constructor.
+    ///\param _m is the underlying map.
     ConvertMap(const M &_m) : m(_m) {};
 
     /// \brief The subscript operator.
@@ -374,23 +381,25 @@ namespace lemon {
     Value operator[](const Key& k) const {return m[k];}
   };
   
-  ///Returns an \c ConvertMap class
+  ///Returns a \c ConvertMap class
 
-  ///This function just returns an \c ConvertMap class.
+  ///This function just returns a \c ConvertMap class.
   ///\relates ConvertMap
   template<typename T, typename M>
   inline ConvertMap<M, T> convertMap(const M &m) {
     return ConvertMap<M, T>(m);
   }
 
-  ///Simple wrapping of the map
+  ///Simple wrapping of a map
 
   ///This \c concepts::ReadMap "read only map" returns the simple
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read maps. This map adaptor wraps the given
   ///map to simple read map.
   ///
-  /// \todo Revise the misleading name
+  ///\sa SimpleWriteMap
+  ///
+  /// \todo Revise the misleading name 
   template<typename M> 
   class SimpleMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -406,12 +415,14 @@ namespace lemon {
     Value operator[](Key k) const {return m[k];}
   };
 
-  ///Simple writeable wrapping of the map
+  ///Simple writable wrapping of the map
 
   ///This \c concepts::WriteMap "write map" returns the simple
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read-write maps. This map adaptor wraps the
   ///given map to simple read-write map.
+  ///
+  ///\sa SimpleMap
   ///
   /// \todo Revise the misleading name
   template<typename M> 
@@ -434,9 +445,9 @@ namespace lemon {
   ///Sum of two maps
 
   ///This \c concepts::ReadMap "read only map" returns the sum of the two
-  ///given maps. Its \c Key and \c Value will be inherited from \c M1.
+  ///given maps.
+  ///Its \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of M2 must be convertible to those of \c M1.
-
   template<typename M1, typename M2> 
   class AddMap : public MapBase<typename M1::Key, typename M1::Value> {
     const M1& m1;
@@ -468,17 +479,19 @@ namespace lemon {
 
   ///This \c concepts::ReadMap "read only map" returns the sum of the
   ///given map and a constant value.
-  ///Its \c Key and \c Value is inherited from \c M.
+  ///Its \c Key and \c Value are inherited from \c M.
   ///
   ///Actually,
   ///\code
   ///  ShiftMap<X> sh(x,v);
   ///\endcode
-  ///is equivalent with
+  ///is equivalent to
   ///\code
   ///  ConstMap<X::Key, X::Value> c_tmp(v);
   ///  AddMap<X, ConstMap<X::Key, X::Value> > sh(x,v);
   ///\endcode
+  ///
+  ///\sa ShiftWriteMap
   template<typename M, typename C = typename M::Value> 
   class ShiftMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -490,29 +503,21 @@ namespace lemon {
 
     ///Constructor
 
-    ///Constructor
-    ///\param _m is the undelying map
-    ///\param _v is the shift value
+    ///Constructor.
+    ///\param _m is the undelying map.
+    ///\param _v is the shift value.
     ShiftMap(const M &_m, const C &_v ) : m(_m), v(_v) {};
     ///\e
     Value operator[](Key k) const {return m[k] + v;}
   };
 
-  ///Shift a map with a constant. This map is also writable.
+  ///Shift a map with a constant (ReadWrite version).
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the sum of the
   ///given map and a constant value. It makes also possible to write the map.
-  ///Its \c Key and \c Value is inherited from \c M.
+  ///Its \c Key and \c Value are inherited from \c M.
   ///
-  ///Actually,
-  ///\code
-  ///  ShiftMap<X> sh(x,v);
-  ///\endcode
-  ///is equivalent with
-  ///\code
-  ///  ConstMap<X::Key, X::Value> c_tmp(v);
-  ///  AddMap<X, ConstMap<X::Key, X::Value> > sh(x,v);
-  ///\endcode
+  ///\sa ShiftMap
   template<typename M, typename C = typename M::Value> 
   class ShiftWriteMap : public MapBase<typename M::Key, typename M::Value> {
     M& m;
@@ -524,9 +529,9 @@ namespace lemon {
 
     ///Constructor
 
-    ///Constructor
-    ///\param _m is the undelying map
-    ///\param _v is the shift value
+    ///Constructor.
+    ///\param _m is the undelying map.
+    ///\param _v is the shift value.
     ShiftWriteMap(M &_m, const C &_v ) : m(_m), v(_v) {};
     /// \e
     Value operator[](Key k) const {return m[k] + v;}
@@ -534,15 +539,19 @@ namespace lemon {
     void set(Key k, const Value& c) { m.set(k, c - v); }
   };
   
-  ///Returns an \c ShiftMap class
+  ///Returns a \c ShiftMap class
 
-  ///This function just returns an \c ShiftMap class.
+  ///This function just returns a \c ShiftMap class.
   ///\relates ShiftMap
   template<typename M, typename C> 
   inline ShiftMap<M, C> shiftMap(const M &m,const C &v) {
     return ShiftMap<M, C>(m,v);
   }
 
+  ///Returns a \c ShiftWriteMap class
+
+  ///This function just returns a \c ShiftWriteMap class.
+  ///\relates ShiftWriteMap
   template<typename M, typename C> 
   inline ShiftWriteMap<M, C> shiftMap(M &m,const C &v) {
     return ShiftWriteMap<M, C>(m,v);
@@ -551,8 +560,8 @@ namespace lemon {
   ///Difference of two maps
 
   ///This \c concepts::ReadMap "read only map" returns the difference
-  ///of the values of the two
-  ///given maps. Its \c Key and \c Value will be inherited from \c M1.
+  ///of the values of the two given maps.
+  ///Its \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of \c M2 must be convertible to those of \c M1.
   ///
   /// \todo Revise the misleading name
@@ -584,11 +593,9 @@ namespace lemon {
   ///Product of two maps
 
   ///This \c concepts::ReadMap "read only map" returns the product of the
-  ///values of the two
-  ///given
-  ///maps. Its \c Key and \c Value will be inherited from \c M1.
+  ///values of the two given maps.
+  ///Its \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of \c M2 must be convertible to those of \c M1.
-
   template<typename M1, typename M2> 
   class MulMap : public MapBase<typename M1::Key, typename M1::Value> {
     const M1& m1;
@@ -613,21 +620,23 @@ namespace lemon {
     return MulMap<M1, M2>(m1,m2);
   }
  
-  ///Scales a maps with a constant.
+  ///Scales a map with a constant.
 
   ///This \c concepts::ReadMap "read only map" returns the value of the
   ///given map multiplied from the left side with a constant value.
-  ///Its \c Key and \c Value is inherited from \c M.
+  ///Its \c Key and \c Value are inherited from \c M.
   ///
   ///Actually,
   ///\code
   ///  ScaleMap<X> sc(x,v);
   ///\endcode
-  ///is equivalent with
+  ///is equivalent to
   ///\code
   ///  ConstMap<X::Key, X::Value> c_tmp(v);
   ///  MulMap<X, ConstMap<X::Key, X::Value> > sc(x,v);
   ///\endcode
+  ///
+  ///\sa ScaleWriteMap
   template<typename M, typename C = typename M::Value> 
   class ScaleMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -639,20 +648,23 @@ namespace lemon {
 
     ///Constructor
 
-    ///Constructor
-    ///\param _m is the undelying map
-    ///\param _v is the scaling value
+    ///Constructor.
+    ///\param _m is the undelying map.
+    ///\param _v is the scaling value.
     ScaleMap(const M &_m, const C &_v ) : m(_m), v(_v) {};
     /// \e
     Value operator[](Key k) const {return v * m[k];}
   };
 
-  ///Scales a maps with a constant (ReadWrite version).
+  ///Scales a map with a constant (ReadWrite version).
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the value of the
   ///given map multiplied from the left side with a constant value. It can
-  ///be used as write map also if the given multiplier is not zero.
-  ///Its \c Key and \c Value is inherited from \c M.
+  ///also be used as write map if the \c / operator is defined between
+  ///\c Value and \c C and the given multiplier is not zero.
+  ///Its \c Key and \c Value are inherited from \c M.
+  ///
+  ///\sa ScaleMap
   template<typename M, typename C = typename M::Value> 
   class ScaleWriteMap : public MapBase<typename M::Key, typename M::Value> {
     M& m;
@@ -664,9 +676,9 @@ namespace lemon {
 
     ///Constructor
 
-    ///Constructor
-    ///\param _m is the undelying map
-    ///\param _v is the scaling value
+    ///Constructor.
+    ///\param _m is the undelying map.
+    ///\param _v is the scaling value.
     ScaleWriteMap(M &_m, const C &_v ) : m(_m), v(_v) {};
     /// \e
     Value operator[](Key k) const {return v * m[k];}
@@ -674,15 +686,19 @@ namespace lemon {
     void set(Key k, const Value& c) { m.set(k, c / v);}
   };
   
-  ///Returns an \c ScaleMap class
+  ///Returns a \c ScaleMap class
 
-  ///This function just returns an \c ScaleMap class.
+  ///This function just returns a \c ScaleMap class.
   ///\relates ScaleMap
   template<typename M, typename C> 
   inline ScaleMap<M, C> scaleMap(const M &m,const C &v) {
     return ScaleMap<M, C>(m,v);
   }
 
+  ///Returns a \c ScaleWriteMap class
+
+  ///This function just returns a \c ScaleWriteMap class.
+  ///\relates ScaleWriteMap
   template<typename M, typename C> 
   inline ScaleWriteMap<M, C> scaleMap(M &m,const C &v) {
     return ScaleWriteMap<M, C>(m,v);
@@ -691,10 +707,9 @@ namespace lemon {
   ///Quotient of two maps
 
   ///This \c concepts::ReadMap "read only map" returns the quotient of the
-  ///values of the two
-  ///given maps. Its \c Key and \c Value will be inherited from \c M1.
+  ///values of the two given maps.
+  ///Its \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of \c M2 must be convertible to those of \c M1.
-
   template<typename M1, typename M2> 
   class DivMap : public MapBase<typename M1::Key, typename M1::Value> {
     const M1& m1;
@@ -722,18 +737,19 @@ namespace lemon {
   ///Composition of two maps
 
   ///This \c concepts::ReadMap "read only map" returns the composition of
-  ///two
-  ///given maps. That is to say, if \c m1 is of type \c M1 and \c m2 is
-  ///of \c M2,
+  ///two given maps.
+  ///That is to say, if \c m1 is of type \c M1 and \c m2 is of \c M2,
   ///then for
   ///\code
   ///  ComposeMap<M1, M2> cm(m1,m2);
   ///\endcode
-  /// <tt>cm[x]</tt> will be equal to <tt>m1[m2[x]]</tt>
+  /// <tt>cm[x]</tt> will be equal to <tt>m1[m2[x]]</tt>.
   ///
-  ///Its \c Key is inherited from \c M2 and its \c Value is from
-  ///\c M1.
-  ///The \c M2::Value must be convertible to \c M1::Key.
+  ///Its \c Key is inherited from \c M2 and its \c Value is from \c M1.
+  ///\c M2::Value must be convertible to \c M1::Key.
+  ///
+  ///\sa CombineMap
+  ///
   ///\todo Check the requirements.
   template <typename M1, typename M2> 
   class ComposeMap : public MapBase<typename M2::Key, typename M1::Value> {
@@ -757,37 +773,37 @@ namespace lemon {
     typename M1::Value
     operator[](Key k) const {return m1[m2[k]];}
   };
+
   ///Returns a \c ComposeMap class
 
   ///This function just returns a \c ComposeMap class.
-  ///
   ///\relates ComposeMap
   template <typename M1, typename M2> 
   inline ComposeMap<M1, M2> composeMap(const M1 &m1,const M2 &m2) {
     return ComposeMap<M1, M2>(m1,m2);
   }
   
-  ///Combines of two maps using an STL (binary) functor.
+  ///Combine of two maps using an STL (binary) functor.
 
-  ///Combines of two maps using an STL (binary) functor.
-  ///
+  ///Combine of two maps using an STL (binary) functor.
   ///
   ///This \c concepts::ReadMap "read only map" takes two maps and a
-  ///binary functor and returns the composition of
-  ///the two
+  ///binary functor and returns the composition of the two
   ///given maps unsing the functor. 
   ///That is to say, if \c m1 and \c m2 is of type \c M1 and \c M2
-  ///and \c f is of \c F,
-  ///then for
+  ///and \c f is of \c F, then for
   ///\code
-  ///  CombineMap<M1, M2,F,V> cm(m1,m2,f);
+  ///  CombineMap<M1,M2,F,V> cm(m1,m2,f);
   ///\endcode
   /// <tt>cm[x]</tt> will be equal to <tt>f(m1[x],m2[x])</tt>
   ///
   ///Its \c Key is inherited from \c M1 and its \c Value is \c V.
-  ///The \c M2::Value and \c M1::Value must be convertible to the corresponding
+  ///\c M2::Value and \c M1::Value must be convertible to the corresponding
   ///input parameter of \c F and the return type of \c F must be convertible
   ///to \c V.
+  ///
+  ///\sa ComposeMap
+  ///
   ///\todo Check the requirements.
   template<typename M1, typename M2, typename F,
 	   typename V = typename F::result_type> 
@@ -815,13 +831,13 @@ namespace lemon {
   ///\code
   ///combineMap<double>(m1,m2,std::plus<double>())
   ///\endcode
-  ///is equivalent with
+  ///is equivalent to
   ///\code
   ///addMap(m1,m2)
   ///\endcode
   ///
   ///This function is specialized for adaptable binary function
-  ///classes and c++ functions.
+  ///classes and C++ functions.
   ///
   ///\relates CombineMap
   template<typename M1, typename M2, typename F, typename V> 
@@ -845,11 +861,11 @@ namespace lemon {
   ///Negative value of a map
 
   ///This \c concepts::ReadMap "read only map" returns the negative
-  ///value of the
-  ///value returned by the
-  ///given map. Its \c Key and \c Value will be inherited from \c M.
+  ///value of the value returned by the given map.
+  ///Its \c Key and \c Value are inherited from \c M.
   ///The unary \c - operator must be defined for \c Value, of course.
-
+  ///
+  ///\sa NegWriteMap
   template<typename M> 
   class NegMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -867,10 +883,11 @@ namespace lemon {
   ///Negative value of a map (ReadWrite version)
 
   ///This \c concepts::ReadWriteMap "read-write map" returns the negative
-  ///value of the value returned by the
-  ///given map. Its \c Key and \c Value will be inherited from \c M.
+  ///value of the value returned by the given map.
+  ///Its \c Key and \c Value are inherited from \c M.
   ///The unary \c - operator must be defined for \c Value, of course.
-
+  ///
+  /// \sa NegMap
   template<typename M> 
   class NegWriteMap : public MapBase<typename M::Key, typename M::Value> {
     M& m;
@@ -896,6 +913,10 @@ namespace lemon {
     return NegMap<M>(m);
   }
 
+  ///Returns a \c NegWriteMap class
+
+  ///This function just returns a \c NegWriteMap class.
+  ///\relates NegWriteMap
   template <typename M> 
   inline NegWriteMap<M> negMap(M &m) {
     return NegWriteMap<M>(m);
@@ -904,14 +925,10 @@ namespace lemon {
   ///Absolute value of a map
 
   ///This \c concepts::ReadMap "read only map" returns the absolute value
-  ///of the
-  ///value returned by the
-  ///given map. Its \c Key and \c Value will be inherited
-  ///from <tt>M</tt>. <tt>Value</tt>
-  ///must be comparable to <tt>0</tt> and the unary <tt>-</tt>
+  ///of the value returned by the given map.
+  ///Its \c Key and \c Value are inherited from \c M. 
+  ///\c Value must be comparable to \c 0 and the unary \c -
   ///operator must be defined for it, of course.
-  ///
-
   template<typename M> 
   class AbsMap : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -930,9 +947,9 @@ namespace lemon {
 
   };
   
-  ///Returns a \c AbsMap class
+  ///Returns an \c AbsMap class
 
-  ///This function just returns a \c AbsMap class.
+  ///This function just returns an \c AbsMap class.
   ///\relates AbsMap
   template<typename M> 
   inline AbsMap<M> absMap(const M &m) {
@@ -942,14 +959,15 @@ namespace lemon {
   ///Converts an STL style functor to a map
 
   ///This \c concepts::ReadMap "read only map" returns the value
-  ///of a
-  ///given map.
+  ///of a given functor.
   ///
   ///Template parameters \c K and \c V will become its
-  ///\c Key and \c Value. They must be given explicitely
+  ///\c Key and \c Value. They must be given explicitly
   ///because a functor does not provide such typedefs.
   ///
   ///Parameter \c F is the type of the used functor.
+  ///
+  ///\sa MapFunctor
   template<typename F, 
 	   typename K = typename F::argument_type, 
 	   typename V = typename F::result_type> 
@@ -971,7 +989,7 @@ namespace lemon {
   ///This function just returns a \c FunctorMap class.
   ///
   ///It is specialized for adaptable function classes and
-  ///c++ functions.
+  ///C++ functions.
   ///\relates FunctorMap
   template<typename K, typename V, typename F> inline 
   FunctorMap<F, K, V> functorMap(const F &f) {
@@ -999,6 +1017,8 @@ namespace lemon {
   ///For the sake of convenience it also works as
   ///a ususal \c concepts::ReadMap "readable map",
   ///i.e. <tt>operator[]</tt> and the \c Key and \c Value typedefs also exist.
+  ///
+  ///\sa FunctorMap
   template <typename M> 
   class MapFunctor : public MapBase<typename M::Key, typename M::Value> {
     const M& m;
@@ -1033,8 +1053,10 @@ namespace lemon {
   ///parameters and each read request will be passed just to the
   ///first map. This class is the just readable map type of the ForkWriteMap.
   ///
-  ///The \c Key and \c Value will be inherited from \c M1.
+  ///The \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of M2 must be convertible from those of \c M1.
+  ///
+  ///\sa ForkWriteMap
   ///
   /// \todo Why is it needed?
   template<typename  M1, typename M2> 
@@ -1061,8 +1083,10 @@ namespace lemon {
   ///then the read operations will return the
   ///corresponding values of \c M1.
   ///
-  ///The \c Key and \c Value will be inherited from \c M1.
+  ///The \c Key and \c Value are inherited from \c M1.
   ///The \c Key and \c Value of M2 must be convertible from those of \c M1.
+  ///
+  ///\sa ForkMap
   template<typename  M1, typename M2> 
   class ForkWriteMap : public MapBase<typename M1::Key, typename M1::Value> {
     M1& m1;
@@ -1080,16 +1104,19 @@ namespace lemon {
     void set(Key k, const Value &v) {m1.set(k,v); m2.set(k,v);}
   };
   
-  ///Returns an \c ForkMap class
+  ///Returns a \c ForkMap class
 
-  ///This function just returns an \c ForkMap class.
-  ///
+  ///This function just returns a \c ForkMap class.
   ///\relates ForkMap
   template <typename M1, typename M2> 
   inline ForkMap<M1, M2> forkMap(const M1 &m1, const M2 &m2) {
     return ForkMap<M1, M2>(m1,m2);
   }
 
+  ///Returns a \c ForkWriteMap class
+
+  ///This function just returns a \c ForkWriteMap class.
+  ///\relates ForkWriteMap
   template <typename M1, typename M2> 
   inline ForkWriteMap<M1, M2> forkMap(M1 &m1, M2 &m2) {
     return ForkWriteMap<M1, M2>(m1,m2);
@@ -1102,10 +1129,10 @@ namespace lemon {
   ///Logical 'not' of a map
   
   ///This bool \c concepts::ReadMap "read only map" returns the 
-  ///logical negation of
-  ///value returned by the
-  ///given map. Its \c Key and will be inherited from \c M,
-  ///its Value is <tt>bool</tt>.
+  ///logical negation of the value returned by the given map.
+  ///Its \c Key is inherited from \c M, its Value is \c bool.
+  ///
+  ///\sa NotWriteMap
   template <typename M> 
   class NotMap : public MapBase<typename M::Key, bool> {
     const M& m;
@@ -1123,10 +1150,11 @@ namespace lemon {
   ///Logical 'not' of a map (ReadWrie version)
   
   ///This bool \c concepts::ReadWriteMap "read-write map" returns the 
-  ///logical negation of value returned by the given map. When it is set,
+  ///logical negation of the value returned by the given map. When it is set,
   ///the opposite value is set to the original map.
-  ///Its \c Key and will be inherited from \c M,
-  ///its Value is <tt>bool</tt>.
+  ///Its \c Key is inherited from \c M, its Value is \c bool.
+  ///
+  ///\sa NotMap
   template <typename M> 
   class NotWriteMap : public MapBase<typename M::Key, bool> {
     M& m;
@@ -1152,6 +1180,10 @@ namespace lemon {
     return NotMap<M>(m);
   }
   
+  ///Returns a \c NotWriteMap class
+  
+  ///This function just returns a \c NotWriteMap class.
+  ///\relates NotWriteMap
   template <typename M> 
   inline NotWriteMap<M> notMap(M &m) {
     return NotWriteMap<M>(m);
@@ -1183,10 +1215,10 @@ namespace lemon {
   }
   
 
-  /// \brief Writable bool map for logging each true assigned elements
+  /// \brief Writable bool map for logging each \c true assigned element
   ///
-  /// Writable bool map for logging each true assigned elements, i.e it
-  /// copies all the keys set to true to the given iterator.
+  /// Writable bool map for logging each \c true assigned element, i.e it
+  /// copies all the keys set to \c true to the given iterator.
   ///
   /// \note The container of the iterator should contain space 
   /// for each element.
@@ -1207,7 +1239,9 @@ namespace lemon {
   /// prim(graph, cost, writerMap);
   ///\endcode
   ///
-  ///\todo Revise the name of this class and the relates ones.
+  ///\sa BackInserterBoolMap 
+  ///
+  ///\todo Revise the name of this class and the related ones.
   template <typename _Iterator, 
             typename _Functor =
             _maps_bits::Identity<typename _maps_bits::
@@ -1235,7 +1269,7 @@ namespace lemon {
       return _end;
     }
 
-    /// Setter function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) const {
       if (value) {
 	*_end++ = _functor(key);
@@ -1248,11 +1282,11 @@ namespace lemon {
     Functor _functor;
   };
 
-  /// \brief Writable bool map for logging each true assigned elements in 
-  /// a back insertable container
+  /// \brief Writable bool map for logging each \c true assigned element in 
+  /// a back insertable container.
   ///
-  /// Writable bool map for logging each true assigned elements by pushing
-  /// back them into a back insertable container.
+  /// Writable bool map for logging each \c true assigned element by pushing
+  /// them into a back insertable container.
   /// It can be used to retrieve the items into a standard
   /// container. The next example shows how you can store the
   /// edges found by the Prim algorithm in a vector.
@@ -1262,6 +1296,10 @@ namespace lemon {
   /// BackInserterBoolMap<vector<Edge> > inserter_map(span_tree_edges);
   /// prim(graph, cost, inserter_map);
   ///\endcode
+  ///
+  ///\sa StoreBoolMap
+  ///\sa FrontInserterBoolMap
+  ///\sa InserterBoolMap
   template <typename Container,
             typename Functor =
             _maps_bits::Identity<typename Container::value_type> >
@@ -1275,7 +1313,7 @@ namespace lemon {
                         const Functor& _functor = Functor()) 
       : container(_container), functor(_functor) {}
 
-    /// Setter function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	container.push_back(functor(key));
@@ -1287,12 +1325,16 @@ namespace lemon {
     Functor functor;
   };
 
-  /// \brief Writable bool map for storing each true assignments in 
+  /// \brief Writable bool map for logging each \c true assigned element in 
   /// a front insertable container.
   ///
-  /// Writable bool map for storing each true assignment in a front 
-  /// insertable container. It will push front all the keys set to \c true into
-  /// the container. For example see the BackInserterBoolMap.
+  /// Writable bool map for logging each \c true assigned element by pushing
+  /// them into a front insertable container.
+  /// It can be used to retrieve the items into a standard
+  /// container. For example see \ref BackInserterBoolMap.
+  ///
+  ///\sa BackInserterBoolMap
+  ///\sa InserterBoolMap
   template <typename Container,
             typename Functor =
             _maps_bits::Identity<typename Container::value_type> >
@@ -1306,7 +1348,7 @@ namespace lemon {
                          const Functor& _functor = Functor()) 
       : container(_container), functor(_functor) {}
 
-    /// Setter function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	container.push_front(key);
@@ -1318,10 +1360,10 @@ namespace lemon {
     Functor functor;
   };
 
-  /// \brief Writable bool map for storing each true assigned elements in 
+  /// \brief Writable bool map for storing each \c true assigned element in 
   /// an insertable container.
   ///
-  /// Writable bool map for storing each true assigned elements in an 
+  /// Writable bool map for storing each \c true assigned element in an 
   /// insertable container. It will insert all the keys set to \c true into
   /// the container.
   ///
@@ -1333,6 +1375,9 @@ namespace lemon {
   /// InserterBoolMap<set<Arc> > inserter_map(cut_arcs);
   /// stronglyConnectedCutArcs(digraph, cost, inserter_map);
   ///\endcode
+  ///
+  ///\sa BackInserterBoolMap
+  ///\sa FrontInserterBoolMap
   template <typename Container,
             typename Functor =
             _maps_bits::Identity<typename Container::value_type> >
@@ -1341,16 +1386,26 @@ namespace lemon {
     typedef typename Container::value_type Key;
     typedef bool Value;
 
-    /// Constructor
+    /// Constructor with specified iterator
+    
+    /// Constructor with specified iterator.
+    /// \param _container The container for storing the elements.
+    /// \param _it The elements will be inserted before this iterator.
+    /// \param _functor The functor that is used when an element is stored.
     InserterBoolMap(Container& _container, typename Container::iterator _it,
                     const Functor& _functor = Functor()) 
       : container(_container), it(_it), functor(_functor) {}
 
     /// Constructor
+
+    /// Constructor without specified iterator.
+    /// The elements will be inserted before <tt>_container.end()</tt>.
+    /// \param _container The container for storing the elements.
+    /// \param _functor The functor that is used when an element is stored.
     InserterBoolMap(Container& _container, const Functor& _functor = Functor())
       : container(_container), it(_container.end()), functor(_functor) {}
 
-    /// Setter function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	it = container.insert(it, key);
@@ -1364,11 +1419,11 @@ namespace lemon {
     Functor functor;
   };
 
-  /// \brief Fill the true set elements with a given value.
+  /// \brief Writable bool map for filling each \c true assigned element with a 
+  /// given value.
   ///
-  /// Writable bool map to fill the elements set to \c true with a given value.
-  /// The value can set 
-  /// the container.
+  /// Writable bool map for filling each \c true assigned element with a 
+  /// given value. The value can set the container.
   ///
   /// The following code finds the connected components of a graph
   /// and stores it in the \c comp map:
@@ -1418,7 +1473,7 @@ namespace lemon {
       fill = _fill;
     } 
 
-    /// Set function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	map.set(key, fill);
@@ -1431,10 +1486,10 @@ namespace lemon {
   };
 
 
-  /// \brief Writable bool map which stores the sequence number of 
-  /// true assignments.  
+  /// \brief Writable bool map for storing the sequence number of 
+  /// \c true assignments.  
   /// 
-  /// Writable bool map which stores for each true assigned elements  
+  /// Writable bool map that stores for each \c true assigned elements  
   /// the sequence number of this setting.
   /// It makes it easy to calculate the leaving
   /// order of the nodes in the \c Dfs algorithm.
