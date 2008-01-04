@@ -34,6 +34,9 @@ namespace lemon {
     /// @{
 
     /// Readable map concept
+
+    /// Readable map concept.
+    ///
     template<typename K, typename T>
     class ReadMap
     {
@@ -45,7 +48,7 @@ namespace lemon {
 
       /// Returns the value associated with a key.
 
-      /// \bug Value should n't need to be default constructible.
+      /// \bug Value shouldn't need to be default constructible.
       ///
       Value operator[](const Key &) const {return Value();}
 
@@ -71,6 +74,9 @@ namespace lemon {
 
 
     /// Writable map concept
+    
+    /// Writable map concept.
+    ///
     template<typename K, typename T>
     class WriteMap
     {
@@ -107,7 +113,10 @@ namespace lemon {
       };
     };
 
-    ///Read/Writable map concept
+    /// Read/Writable map concept
+    
+    /// Read/writable map concept.
+    ///
     template<typename K, typename T>
     class ReadWriteMap : public ReadMap<K,T>,
 			    public WriteMap<K,T>
@@ -133,7 +142,10 @@ namespace lemon {
     };
   
   
-    ///Dereferable map concept
+    /// Dereferable map concept
+    
+    /// Dereferable map concept.
+    ///
     template<typename K, typename T, typename R, typename CR>
     class ReferenceMap : public ReadWriteMap<K,T>
     {
@@ -156,12 +168,11 @@ namespace lemon {
       ///Returns a reference to the value associated to a key.
       Reference operator[](const Key &) { return tmp; }
       ///Returns a const reference to the value associated to a key.
-      ConstReference operator[](const Key &) const
-      { return tmp; }
+      ConstReference operator[](const Key &) const { return tmp; }
       /// Sets the value associated with a key.
       void set(const Key &k,const Value &t) { operator[](k)=t; }
 
-      // \todo rethink this concept
+      /// \todo Rethink this concept. 
       template<typename _ReferenceMap>
       struct ReferenceMapConcept {
 
@@ -190,5 +201,7 @@ namespace lemon {
     // @}
 
   } //namespace concepts
+
 } //namespace lemon
+
 #endif // LEMON_CONCEPT_MAPS_H

@@ -33,8 +33,8 @@
 
 // See http://www.boost.org/libs/concept_check for documentation.
 
-#ifndef LEMON_BOOST_CONCEPT_CHECKS_HPP
-#define LEMON_BOOST_CONCEPT_CHECKS_HPP
+#ifndef LEMON_CONCEPT_CHECKS_H
+#define LEMON_CONCEPT_CHECKS_H
 
 namespace lemon {
 
@@ -102,4 +102,4 @@ namespace lemon {
 
 } // namespace lemon
 
-#endif // LEMON_BOOST_CONCEPT_CHECKS_HPP
+#endif // LEMON_CONCEPT_CHECKS_H
