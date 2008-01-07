@@ -533,10 +533,10 @@ namespace lemon {
     };//class Boundingbox
 
 
-  ///Map of x-coordinates of a \ref Point "Point"-map
+  ///Map of x-coordinates of a Point map
 
   ///\ingroup maps
-  ///Map of x-coordinates of a \ref Point "Point"-map.
+  ///Map of x-coordinates of a \ref dim2::Point "Point"-map.
   ///
   template<class M>
   class XMap 
@@ -570,7 +570,7 @@ namespace lemon {
     return XMap<M>(m);
   }
 
-  ///Constant (read only) version of \ref XMap
+  ///Constant (read only) version of XMap
 
   ///\ingroup maps
   ///Constant (read only) version of \ref XMap
@@ -600,7 +600,7 @@ namespace lemon {
     return ConstXMap<M>(m);
   }
 
-  ///Map of y-coordinates of a \ref Point "Point"-map
+  ///Map of y-coordinates of a Point map
     
   ///\ingroup maps
   ///Map of y-coordinates of a \ref Point "Point"-map.
@@ -637,7 +637,7 @@ namespace lemon {
     return YMap<M>(m);
   }
 
-  ///Constant (read only) version of \ref YMap
+  ///Constant (read only) version of YMap
 
   ///\ingroup maps
   ///Constant (read only) version of \ref YMap
@@ -668,8 +668,8 @@ namespace lemon {
   }
 
 
-    ///\brief Map of the \ref Point::normSquare() "normSquare()"
-    ///of a \ref Point "Point"-map
+    ///\brief Map of the normSquare()
+    ///of a Point map
     ///
     ///Map of the \ref Point::normSquare() "normSquare()"
     ///of a \ref Point "Point"-map.

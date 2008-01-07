@@ -174,13 +174,13 @@ namespace lemon {
   public:
 
     typedef True ReferenceMapTag;
-    ///\e
+    ///Key type
     typedef K Key;
-    ///\e
+    ///Value type
     typedef T Value;
-    ///\e
+    ///Reference Type
     typedef T& Reference;
-    ///\e
+    ///Const reference type
     typedef const T& ConstReference;
 
   private:

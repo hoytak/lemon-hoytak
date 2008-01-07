@@ -41,7 +41,7 @@ namespace lemon {
   ///as a result of a probably inexact computation.
   ///
   ///This is an abstract class, it should be specialized for all numerical
-  ///data types. These specialized classes like \ref Tolerance\<double\>
+  ///data types. These specialized classes like Tolerance<double>
   ///may offer additional tuning parameters.
   ///
   ///\sa Tolerance<float>
@@ -91,9 +91,9 @@ namespace lemon {
   };
 
 
-  ///Float specialization of \ref Tolerance.
+  ///Float specialization of Tolerance.
 
-  ///Float specialization of \ref Tolerance.
+  ///Float specialization of Tolerance.
   ///\sa Tolerance
   ///\relates Tolerance
   template<>
@@ -142,9 +142,9 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Double specialization of \ref Tolerance.
+  ///Double specialization of Tolerance.
 
-  ///Double specialization of \ref Tolerance.
+  ///Double specialization of Tolerance.
   ///\sa Tolerance
   ///\relates Tolerance
   template<>
@@ -193,9 +193,9 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Long double specialization of \ref Tolerance.
+  ///Long double specialization of Tolerance.
 
-  ///Long double specialization of \ref Tolerance.
+  ///Long double specialization of Tolerance.
   ///\sa Tolerance
   ///\relates Tolerance
   template<>
@@ -244,9 +244,9 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Integer specialization of \ref Tolerance.
+  ///Integer specialization of Tolerance.
 
-  ///Integer specialization of \ref Tolerance.
+  ///Integer specialization of Tolerance.
   ///\sa Tolerance
   template<>
   class Tolerance<int>
@@ -256,7 +256,7 @@ namespace lemon {
     typedef int Value;
 
     ///\name Comparisons
-    ///See \ref Tolerance for more details.
+    ///See Tolerance for more details.
 
     ///@{
 
@@ -277,7 +277,7 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Unsigned integer specialization of \ref Tolerance.
+  ///Unsigned integer specialization of Tolerance.
 
   ///Unsigned integer specialization of \ref Tolerance.
   ///\sa Tolerance
@@ -289,7 +289,7 @@ namespace lemon {
     typedef unsigned int Value;
 
     ///\name Comparisons
-    ///See \ref Tolerance for more details.
+    ///See Tolerance for more details.
 
     ///@{
 
@@ -311,9 +311,9 @@ namespace lemon {
   };
   
 
-  ///Long integer specialization of \ref Tolerance.
+  ///Long integer specialization of Tolerance.
 
-  ///Long integer specialization of \ref Tolerance.
+  ///Long integer specialization of Tolerance.
   ///\sa Tolerance
   template<>
   class Tolerance<long int>
@@ -323,7 +323,7 @@ namespace lemon {
     typedef long int Value;
 
     ///\name Comparisons
-    ///See \ref Tolerance for more details.
+    ///See Tolerance for more details.
 
     ///@{
 
@@ -344,7 +344,7 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Unsigned long integer specialization of \ref Tolerance.
+  ///Unsigned long integer specialization of Tolerance.
 
   ///Unsigned long integer specialization of \ref Tolerance.
   ///\sa Tolerance
@@ -356,7 +356,7 @@ namespace lemon {
     typedef unsigned long int Value;
 
     ///\name Comparisons
-    ///See \ref Tolerance for more details.
+    ///See Tolerance for more details.
 
     ///@{
 
@@ -379,7 +379,7 @@ namespace lemon {
 
 #if defined __GNUC__ && !defined __STRICT_ANSI__
 
-  ///Long long integer specialization of \ref Tolerance.
+  ///Long long integer specialization of Tolerance.
 
   ///Long long integer specialization of \ref Tolerance.
   ///\warning This class (more exactly, type <tt>long long</tt>)
@@ -414,7 +414,7 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-  ///Unsigned long long integer specialization of \ref Tolerance.
+  ///Unsigned long long integer specialization of Tolerance.
 
   ///Unsigned long long integer specialization of \ref Tolerance.
   ///\warning This class (more exactly, type <tt>unsigned long long</tt>)
