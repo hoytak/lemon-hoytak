@@ -163,20 +163,22 @@ namespace lemon {
   ///This is essentially a wrapper for \c std::map with addition that
   ///you can specify a default value different from \c Value().
   template <typename K, typename T, typename Compare = std::less<K> >
-  class StdMap {
+  class StdMap : public MapBase<K, T> {
     template <typename K1, typename T1, typename C1>
     friend class StdMap;
   public:
 
-    typedef True ReferenceMapTag;
+    typedef MapBase<K, T> Parent;
     ///\e
-    typedef K Key;
+    typedef typename Parent::Key Key;
     ///\e
-    typedef T Value;
+    typedef typename Parent::Value Value;
     ///\e
     typedef T& Reference;
     ///\e
     typedef const T& ConstReference;
+
+    typedef True ReferenceMapTag;
 
   private:
     
@@ -239,6 +241,27 @@ namespace lemon {
     }    
 
   };
+  
+  ///Returns a \ref StdMap class
+
+  ///This function just returns a \ref StdMap class with specified 
+  ///default value.
+  ///\relates StdMap
+  template<typename K, typename V, typename Compare = std::less<K> > 
+  inline StdMap<K, V, Compare> stdMap(const V& value = V()) {
+    return StdMap<K, V, Compare>(value);
+  }
+
+  ///Returns a \ref StdMap class created from an appropriate std::map
+
+  ///This function just returns a \ref StdMap class created from an 
+  ///appropriate std::map.
+  ///\relates StdMap
+  template<typename K, typename V, typename Compare = std::less<K> > 
+  inline StdMap<K, V, Compare> stdMap( const std::map<K, V, Compare> &map, 
+                                       const V& value = V() ) {
+    return StdMap<K, V, Compare>(map, value);
+  }
 
   /// \brief Map for storing values for keys from the range <tt>[0..size-1]</tt>
   ///
@@ -249,22 +272,24 @@ namespace lemon {
   ///
   /// \todo Revise its name
   template <typename T>
-  class IntegerMap {
+  class IntegerMap : public MapBase<int, T> {
 
     template <typename T1>
     friend class IntegerMap;
 
   public:
 
-    typedef True ReferenceMapTag;
+    typedef MapBase<int, T> Parent;
     ///\e
-    typedef int Key;
+    typedef typename Parent::Key Key;
     ///\e
-    typedef T Value;
+    typedef typename Parent::Value Value;
     ///\e
     typedef T& Reference;
     ///\e
     typedef const T& ConstReference;
+
+    typedef True ReferenceMapTag;
 
   private:
     
@@ -313,6 +338,15 @@ namespace lemon {
     }
 
   };
+  
+  ///Returns an \ref IntegerMap class
+
+  ///This function just returns an \ref IntegerMap class.
+  ///\relates IntegerMap
+  template<typename T>
+  inline IntegerMap<T> integerMap(int size = 0, const T& value = T()) {
+    return IntegerMap<T>(size, value);
+  }
 
   /// @}
 
@@ -405,6 +439,15 @@ namespace lemon {
     ///\e
     Value operator[](Key k) const {return m[k];}
   };
+  
+  ///Returns a \ref SimpleMap class
+
+  ///This function just returns a \ref SimpleMap class.
+  ///\relates SimpleMap
+  template<typename M>
+  inline SimpleMap<M> simpleMap(const M &m) {
+    return SimpleMap<M>(m);
+  }
 
   ///Simple writable wrapping of a map
 
@@ -432,6 +475,15 @@ namespace lemon {
     ///\e
     void set(Key k, const Value& c) { m.set(k, c); }
   };
+
+  ///Returns a \ref SimpleWriteMap class
+
+  ///This function just returns a \ref SimpleWriteMap class.
+  ///\relates SimpleWriteMap
+  template<typename M>
+  inline SimpleWriteMap<M> simpleWriteMap(M &m) {
+    return SimpleWriteMap<M>(m);
+  }
 
   ///Sum of two maps
 
