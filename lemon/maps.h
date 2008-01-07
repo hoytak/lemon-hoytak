@@ -115,11 +115,6 @@ namespace lemon {
     }    
 
     template<typename T1>
-    struct rebind {
-      typedef ConstMap<K, T1> other;
-    };
-
-    template<typename T1>
     ConstMap(const ConstMap<K, T1> &, const T &_v) : v(_v) {}
   };
 
@@ -243,10 +238,6 @@ namespace lemon {
       _map.clear();
     }    
 
-    template <typename T1, typename C1 = std::less<T1> >
-    struct rebind {
-      typedef StdMap<Key, T1, C1> other;
-    };
   };
 
   /// \brief Map for storing values for keys from the range <tt>[0..size-1]</tt>
@@ -392,7 +383,7 @@ namespace lemon {
 
   ///Simple wrapping of a map
 
-  ///This \c concepts::ReadMap "read only map" returns the simple
+  ///This \ref concepts::ReadMap "read only map" returns the simple
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read maps. This map adaptor wraps the given
   ///map to simple read map.
@@ -415,9 +406,9 @@ namespace lemon {
     Value operator[](Key k) const {return m[k];}
   };
 
-  ///Simple writable wrapping of the map
+  ///Simple writable wrapping of a map
 
-  ///This \c concepts::WriteMap "write map" returns the simple
+  ///This \ref concepts::WriteMap "write map" returns the simple
   ///wrapping of the given map. Sometimes the reference maps cannot be
   ///combined with simple read-write maps. This map adaptor wraps the
   ///given map to simple read-write map.
@@ -1553,7 +1544,7 @@ namespace lemon {
       return counter;
     }
 
-    /// Setter function of the map
+    /// The \c set function of the map
     void set(const Key& key, Value value) {
       if (value) {
 	map.set(key, counter++);
