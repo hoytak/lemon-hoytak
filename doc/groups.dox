@@ -568,8 +568,8 @@ The stuff here is subject to change.
 Some demo programs are listed here. Their full source codes can be found in
 the \c demo subdirectory of the source tree.
 
-The standard compilation procedure (<tt>./configure;make</tt>) will compile
-them, as well. 
+It order to compile them, use <tt>--enable-demo</tt> configure option when
+build the library.
 
 */
 

@@ -38,7 +38,7 @@ XmlReader
 
 
 \warning In some cases we diverge from these rules.
-This primary done because STL uses different naming convention and
+This is primary done because STL uses different naming convention and
 in certain cases
 it is beneficial to provide STL compatible interface.
 
@@ -93,6 +93,14 @@ The names of class and instance member variables and auto variables (=variables 
 
 \code
 all_lower_case_with_underscores 
+\endcode
+
+\subsection pri-loc-var Private member variables
+
+Private member variables should start with underscore
+
+\code
+_start_with_underscores
 \endcode
 
 \subsection cs-excep Exceptions
