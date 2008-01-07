@@ -1,0 +1,585 @@
+/* -*- C++ -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library
+ *
+ * Copyright (C) 2003-2008
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+/**
+@defgroup datas Data Structures
+This group describes the several graph structures implemented in LEMON.
+*/
+
+/**
+@defgroup graphs Graph Structures
+@ingroup datas
+\brief Graph structures implemented in LEMON.
+
+The implementation of combinatorial algorithms heavily relies on 
+efficient graph implementations. LEMON offers data structures which are 
+planned to be easily used in an experimental phase of implementation studies, 
+and thereafter the program code can be made efficient by small modifications. 
+
+The most efficient implementation of diverse applications require the
+usage of different physical graph implementations. These differences
+appear in the size of graph we require to handle, memory or time usage
+limitations or in the set of operations through which the graph can be
+accessed.  LEMON provides several physical graph structures to meet
+the diverging requirements of the possible users.  In order to save on
+running time or on memory usage, some structures may fail to provide
+some graph features like edge or node deletion.
+
+Alteration of standard containers need a very limited number of 
+operations, these together satisfy the everyday requirements. 
+In the case of graph structures, different operations are needed which do 
+not alter the physical graph, but gives another view. If some nodes or 
+edges have to be hidden or the reverse oriented graph have to be used, then 
+this is the case. It also may happen that in a flow implementation 
+the residual graph can be accessed by another algorithm, or a node-set 
+is to be shrunk for another algorithm. 
+LEMON also provides a variety of graphs for these requirements called 
+\ref graph_adaptors "graph adaptors". Adaptors cannot be used alone but only 
+in conjunction with other graph representation. 
+
+You are free to use the graph structure that fit your requirements
+the best, most graph algorithms and auxiliary data structures can be used
+with any graph structures. 
+*/
+
+/**
+@defgroup semi_adaptors Semi-Adaptors Classes for Graphs
+@ingroup graphs
+\brief Graph types between real graphs and graph adaptors.
+
+Graph types between real graphs and graph adaptors. These classes wrap
+graphs to give new functionality as the adaptors do it. On the other
+hand they are not light-weight structures as the adaptors.
+*/
+
+/**
+@defgroup maps Maps 
+@ingroup datas
+\brief Some special purpose map to make life easier.
+
+LEMON provides several special maps that e.g. combine
+new maps from existing ones.
+*/
+
+/**
+@defgroup graph_maps Graph Maps 
+@ingroup maps
+\brief Special Graph-Related Maps.
+
+These maps are specifically designed to assign values to the nodes and edges of
+graphs.
+*/
+
+
+/**
+\defgroup map_adaptors Map Adaptors
+\ingroup maps
+\brief Tools to create new maps from existing ones
+
+Map adaptors are used to create "implicit" maps from other maps.
+
+Most of them are \ref lemon::concepts::ReadMap "ReadMap"s. They can
+make arithmetic operations between one or two maps (negation, scaling,
+addition, multiplication etc.) or e.g. convert a map to another one
+of different Value type.
+
+The typical usage of this classes is the passing implicit maps to
+algorithms.  If a function type algorithm is called then the function
+type map adaptors can be used comfortable. For example let's see the
+usage of map adaptors with the \c graphToEps() function:
+\code
+  Color nodeColor(int deg) {
+    if (deg >= 2) {
+      return Color(0.5, 0.0, 0.5);
+    } else if (deg == 1) {
+      return Color(1.0, 0.5, 1.0);
+    } else {
+      return Color(0.0, 0.0, 0.0);
+    }
+  }
+  
+  Graph::NodeMap<int> degree_map(graph);
+  
+  graphToEps(graph, "graph.eps")
+    .coords(coords).scaleToA4().undirected()
+    .nodeColors(composeMap(functorMap(nodeColor), degree_map)) 
+    .run();
+\endcode 
+The \c functorMap() function makes an \c int to \c Color map from the
+\e nodeColor() function. The \c composeMap() compose the \e degree_map
+and the previous created map. The composed map is proper function to
+get color of each node.
+
+The usage with class type algorithms is little bit harder. In this
+case the function type map adaptors can not be used, because the
+function map adaptors give back temporarly objects.
+\code
+  Graph graph;
+  
+  typedef Graph::EdgeMap<double> DoubleEdgeMap;
+  DoubleEdgeMap length(graph);
+  DoubleEdgeMap speed(graph);
+  
+  typedef DivMap<DoubleEdgeMap, DoubleEdgeMap> TimeMap;
+  
+  TimeMap time(length, speed);
+  
+  Dijkstra<Graph, TimeMap> dijkstra(graph, time);
+  dijkstra.run(source, target);
+\endcode
+
+We have a length map and a maximum speed map on a graph. The minimum
+time to pass the edge can be calculated as the division of the two
+maps which can be done implicitly with the \c DivMap template
+class. We use the implicit minimum time map as the length map of the
+\c Dijkstra algorithm.
+*/
+
+/**
+@defgroup matrices Matrices 
+@ingroup datas
+\brief Two dimensional data storages.
+
+Two dimensional data storages.
+*/
+
+/**
+@defgroup paths Path Structures
+@ingroup datas
+\brief Path structures implemented in LEMON.
+
+LEMON provides flexible data structures
+to work with paths.
+
+All of them have similar interfaces, and it can be copied easily with
+assignment operator and copy constructor. This make it easy and
+efficient to have e.g. the Dijkstra algorithm to store its result in
+any kind of path structure.
+
+\sa lemon::concepts::Path
+
+*/
+
+/**
+@defgroup auxdat Auxiliary Data Structures
+@ingroup datas
+\brief Some data structures implemented in LEMON.
+
+This group describes the data structures implemented in LEMON in
+order to make it easier to implement combinatorial algorithms.
+*/
+
+
+/**
+@defgroup algs Algorithms
+\brief This group describes the several algorithms
+implemented in LEMON.
+
+This group describes the several algorithms
+implemented in LEMON.
+*/
+
+/**
+@defgroup search Graph Search
+@ingroup algs
+\brief This group contains the common graph
+search algorithms.
+
+This group contains the common graph
+search algorithms like Bfs and Dfs.
+*/
+
+/**
+@defgroup shortest_path Shortest Path algorithms
+@ingroup algs
+\brief This group describes the algorithms
+for finding shortest paths.
+
+This group describes the algorithms for finding shortest paths in
+graphs.
+
+*/
+
+/** 
+@defgroup max_flow Maximum Flow algorithms 
+@ingroup algs 
+\brief This group describes the algorithms for finding maximum flows.
+
+This group describes the algorithms for finding maximum flows and
+feasible circulations.
+
+The maximum flow problem is to find a flow between a single-source and
+single-target that is maximum. Formally, there is \f$G=(V,A)\f$
+directed graph, an \f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity
+function and given \f$s, t \in V\f$ source and target node. The
+maximum flow is the solution of the next optimization problem:
+
+\f[ 0 \le f_a \le c_a \f]
+\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv} \quad u \in V \setminus \{s,t\}\f]
+\f[ \max \sum_{v\in\delta^{+}(s)}f_{uv} - \sum_{v\in\delta^{-}(s)}f_{vu}\f]
+
+The lemon contains several algorithms for solve maximum flow problems:
+- \ref lemon::EdmondsKarp "Edmonds-Karp" 
+- \ref lemon::Preflow "Goldberg's Preflow algorithm"
+- \ref lemon::DinitzSleatorTarjan "Dinitz's blocking flow algorithm with dynamic tree"
+- \ref lemon::GoldbergTarjan "Preflow algorithm with dynamic trees"
+
+In most cases the \ref lemon::Preflow "preflow" algorithm provides the
+fastest method to compute the maximum flow. All impelementations
+provides functions for query the minimum cut, which is the dual linear
+programming probelm of the maximum flow.
+
+*/
+
+/**
+@defgroup min_cost_flow Minimum Cost Flow algorithms
+@ingroup algs
+
+\brief This group describes the algorithms
+for finding minimum cost flows and circulations.
+
+This group describes the algorithms for finding minimum cost flows and
+circulations.  
+*/
+
+/**
+@defgroup min_cut Minimum Cut algorithms 
+@ingroup algs 
+
+\brief This group describes the algorithms for finding minimum cut in
+graphs.
+
+This group describes the algorithms for finding minimum cut in graphs.
+
+The minimum cut problem is to find a non-empty and non-complete
+\f$X\f$ subset of the vertices with minimum overall capacity on
+outgoing arcs. Formally, there is \f$G=(V,A)\f$ directed graph, an
+\f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity function. The minimum
+cut is the solution of the next optimization problem:
+
+\f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}\sum_{uv\in A, u\in X, v\not\in X}c_{uv}\f]
+
+The lemon contains several algorithms related to minimum cut problems:
+
+- \ref lemon::HaoOrlin "Hao-Orlin algorithm" for calculate minimum cut
+  in directed graphs  
+- \ref lemon::NagamochiIbaraki "Nagamochi-Ibaraki algorithm" for
+  calculate minimum cut in undirected graphs
+- \ref lemon::GomoryHuTree "Gomory-Hu tree computation" for calculate all
+  pairs minimum cut in undirected graphs
+
+If you want to find minimum cut just between two distinict nodes,
+please see the \ref max_flow "Maximum Flow page".
+
+*/
+
+/**
+@defgroup graph_prop Connectivity and other graph properties
+@ingroup algs
+\brief This group describes the algorithms
+for discover the graph properties
+
+This group describes the algorithms for discover the graph properties
+like connectivity, bipartiteness, euler property, simplicity, etc...
+
+\image html edge_biconnected_components.png
+\image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
+*/
+
+/**
+@defgroup planar Planarity embedding and drawing
+@ingroup algs
+\brief This group contains algorithms for planarity embedding and drawing
+
+This group contains algorithms for planarity checking, embedding and drawing.
+
+\image html planar.png
+\image latex planar.eps "Plane graph" width=\textwidth
+*/
+
+/**
+@defgroup matching Matching algorithms 
+@ingroup algs
+\brief This group describes the algorithms
+for find matchings in graphs and bipartite graphs.
+
+This group provides some algorithm objects and function to calculate
+matchings in graphs and bipartite graphs. The general matching problem is
+finding a subset of the edges which does not shares common endpoints.
+ 
+There are several different algorithms for calculate matchings in
+graphs.  The matching problems in bipartite graphs are generally
+easier than in general graphs. The goal of the matching optimization
+can be the finding maximum cardinality, maximum weight or minimum cost
+matching. The search can be constrained to find perfect or
+maximum cardinality matching.
+
+Lemon contains the next algorithms:
+- \ref lemon::MaxBipartiteMatching "MaxBipartiteMatching" Hopcroft-Karp 
+  augmenting path algorithm for calculate maximum cardinality matching in 
+  bipartite graphs
+- \ref lemon::PrBipartiteMatching "PrBipartiteMatching" Push-Relabel 
+  algorithm for calculate maximum cardinality matching in bipartite graphs 
+- \ref lemon::MaxWeightedBipartiteMatching "MaxWeightedBipartiteMatching" 
+  Successive shortest path algorithm for calculate maximum weighted matching 
+  and maximum weighted bipartite matching in bipartite graph
+- \ref lemon::MinCostMaxBipartiteMatching "MinCostMaxBipartiteMatching" 
+  Successive shortest path algorithm for calculate minimum cost maximum 
+  matching in bipartite graph
+- \ref lemon::MaxMatching "MaxMatching" Edmond's blossom shrinking algorithm
+  for calculate maximum cardinality matching in general graph
+- \ref lemon::MaxWeightedMatching "MaxWeightedMatching" Edmond's blossom
+  shrinking algorithm for calculate maximum weighted matching in general
+  graph
+- \ref lemon::MaxWeightedPerfectMatching "MaxWeightedPerfectMatching"
+  Edmond's blossom shrinking algorithm for calculate maximum weighted
+  perfect matching in general graph
+
+\image html bipartite_matching.png
+\image latex bipartite_matching.eps "Bipartite Matching" width=\textwidth
+
+*/
+
+/**
+@defgroup spantree Minimum Spanning Tree algorithms
+@ingroup algs
+\brief This group contains the algorithms for finding a minimum cost spanning
+tree in a graph
+
+This group contains the algorithms for finding a minimum cost spanning
+tree in a graph
+*/
+
+
+/**
+@defgroup auxalg Auxiliary algorithms
+@ingroup algs
+\brief Some algorithms implemented in LEMON.
+
+This group describes the algorithms in LEMON in order to make 
+it easier to implement complex algorithms.
+*/
+
+/**
+@defgroup approx Approximation algorithms
+\brief Approximation algorithms
+
+Approximation and heuristic algorithms
+*/
+
+/**
+@defgroup gen_opt_group General Optimization Tools
+\brief This group describes some general optimization frameworks
+implemented in LEMON.
+
+This group describes some general optimization frameworks
+implemented in LEMON.
+
+*/
+
+/**
+@defgroup lp_group Lp and Mip solvers
+@ingroup gen_opt_group
+\brief Lp and Mip solver interfaces for LEMON.
+
+This group describes Lp and Mip solver interfaces for LEMON. The
+various LP solvers could be used in the same manner with this
+interface.
+
+*/
+
+/** 
+@defgroup lp_utils Tools for Lp and Mip solvers 
+@ingroup lp_group
+\brief This group adds some helper tools to the Lp and Mip solvers
+implemented in LEMON.
+
+This group adds some helper tools to general optimization framework
+implemented in LEMON.
+*/
+
+/**
+@defgroup metah Metaheuristics
+@ingroup gen_opt_group
+\brief Metaheuristics for LEMON library.
+
+This group contains some metaheuristic optimization tools.
+*/
+
+/**
+@defgroup utils Tools and Utilities 
+\brief Tools and Utilities for Programming in LEMON
+
+Tools and Utilities for Programming in LEMON
+*/
+
+/**
+@defgroup gutils Basic Graph Utilities
+@ingroup utils
+\brief This group describes some simple basic graph utilities.
+
+This group describes some simple basic graph utilities.
+*/
+
+/**
+@defgroup misc Miscellaneous Tools
+@ingroup utils
+Here you can find several useful tools for development,
+debugging and testing.
+*/
+
+
+/**
+@defgroup timecount Time measuring and Counting
+@ingroup misc
+Here you can find simple tools for measuring the performance
+of algorithms.
+*/
+
+/**
+@defgroup graphbits Tools for Graph Implementation
+@ingroup utils
+\brief Tools to Make It Easier to Make Graphs.
+
+This group describes the tools that makes it easier to make graphs and
+the maps that dynamically update with the graph changes.
+*/
+
+/**
+@defgroup exceptions Exceptions
+@ingroup utils
+This group contains the exceptions thrown by LEMON library
+*/
+
+/**
+@defgroup io_group Input-Output
+\brief Several Graph Input-Output methods
+
+Here you can find tools for importing and exporting graphs 
+and graph related data. Now it supports the LEMON format, the
+\c DIMACS format and the encapsulated postscript format.
+*/
+
+/**
+@defgroup lemon_io Lemon Input-Output
+@ingroup io_group
+\brief Reading and writing LEMON format
+
+Methods for reading and writing LEMON format. More about this
+format you can find on the \ref graph-io-page "Graph Input-Output"
+tutorial pages.
+*/
+
+/**
+@defgroup section_io Section readers and writers
+@ingroup lemon_io
+\brief Section readers and writers for lemon Input-Output.
+
+Here you can find which section readers and writers can attach to
+the LemonReader and LemonWriter.
+*/
+
+/**
+@defgroup item_io Item Readers and Writers
+@ingroup lemon_io
+\brief Item readers and writers for lemon Input-Output.
+
+The Input-Output classes can handle more data type by example
+as map or attribute value. Each of these should be written and
+read some way. The module make possible to do this.  
+*/
+
+/**
+@defgroup eps_io Postscript exporting
+@ingroup io_group
+\brief General \c EPS drawer and graph exporter
+
+This group contains general \c EPS drawing methods and special
+graph exporting tools. 
+*/
+
+
+/**
+@defgroup concept Concepts
+\brief Skeleton classes and concept checking classes
+
+This group describes the data/algorithm skeletons and concept checking
+classes implemented in LEMON.
+
+The purpose of the classes in this group is fourfold.
+ 
+- These classes contain the documentations of the concepts. In order
+  to avoid document multiplications, an implementation of a concept
+  simply refers to the corresponding concept class.
+
+- These classes declare every functions, <tt>typedef</tt>s etc. an
+  implementation of the concepts should provide, however completely
+  without implementations and real data structures behind the
+  interface. On the other hand they should provide nothing else. All
+  the algorithms working on a data structure meeting a certain concept
+  should compile with these classes. (Though it will not run properly,
+  of course.) In this way it is easily to check if an algorithm
+  doesn't use any extra feature of a certain implementation.
+
+- The concept descriptor classes also provide a <em>checker class</em>
+  that makes it possible check whether a certain implementation of a
+  concept indeed provides all the required features.
+
+- Finally, They can serve as a skeleton of a new implementation of a concept.
+
+*/
+
+
+/**
+@defgroup graph_concepts Graph Structure Concepts
+@ingroup concept
+\brief Skeleton and concept checking classes for graph structures
+
+This group contains the skeletons and concept checking classes of LEMON's
+graph structures and helper classes used to implement these.
+*/
+
+/* --- Unused group
+@defgroup experimental Experimental Structures and Algorithms
+This group contains some Experimental structures and algorithms.
+The stuff here is subject to change.
+*/
+
+/**
+\anchor demoprograms
+
+@defgroup demos Demo programs
+
+Some demo programs are listed here. Their full source codes can be found in
+the \c demo subdirectory of the source tree.
+
+The standard compilation procedure (<tt>./configure;make</tt>) will compile
+them, as well. 
+
+*/
+
+/**
+@defgroup tools Standalone utility applications
+
+Some utility applications are listed here. 
+
+The standard compilation procedure (<tt>./configure;make</tt>) will compile
+them, as well. 
+
+*/
+

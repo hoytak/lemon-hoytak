@@ -1,0 +1,79 @@
+/* -*- C++ -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library
+ *
+ * Copyright (C) 2003-2008
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+/**
+\dir demo
+\brief A collection of demo application.
+
+This directory contains several simple demo application, mainly
+for educational purposes.
+*/
+
+/**
+\dir doc
+\brief Auxiliary (and the whole generated) documentation.
+
+Auxiliary (and the whole generated) documentation.
+*/
+
+/**
+\dir test
+\brief Test programs.
+
+This directory contains several test programs that check the consistency
+of the code.
+*/
+
+/**
+\dir tools
+\brief Some useful executables
+
+This directory contains the sources of some useful complete executables.
+
+*/
+
+
+
+/**
+\dir lemon
+\brief Base include directory of LEMON
+
+This is the base directory of lemon includes, so each include file must be
+prefixed with this, e.g.
+\code
+#include<lemon/list_graph.h>
+#include<lemon/dijkstra.h>
+\endcode
+*/
+
+/**
+\dir concepts
+\brief Concept descriptors and checking classes
+
+This directory contains the concept descriptors and concept checkers. As a user
+you typically don't have to deal with these files.
+*/
+
+/**
+\dir bits
+\brief Implementation helper files
+
+This directory contains some helper classes to implement graphs, maps and
+some other classes. As a user you typically don't have to deal with these 
+files.
+*/

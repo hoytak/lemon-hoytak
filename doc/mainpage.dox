@@ -1,0 +1,60 @@
+/* -*- C++ -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library
+ *
+ * Copyright (C) 2003-2008
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+/**
+\mainpage LEMON Documentation
+
+\section intro Introduction
+
+\subsection whatis What is LEMON
+
+LEMON stands for
+<b>L</b>ibrary of <b>E</b>fficient <b>M</b>odels
+and <b>O</b>ptimization in <b>N</b>etworks.
+It is a C++ template
+library aimed at combinatorial optimization tasks which
+often involve in working
+with graphs.
+
+<b>
+LEMON is an <a class="el" href="http://opensource.org/">open&nbsp;source</a>
+project.
+You are free to use it in your commercial or
+non-commercial applications under very permissive
+\ref license "license terms".
+</b>
+
+\subsection howtoread How to read the documentation
+
+If you want to get a quick start and see the most important features then 
+take a look at our \ref quicktour
+"Quick Tour to LEMON" which will guide you along.
+
+If you already feel like using our library, see the page that tells you 
+\ref getstart "How to start using LEMON".
+
+If you 
+want to see how LEMON works, see 
+some \ref demoprograms "demo programs"!
+
+If you know what you are looking for then try to find it under the
+<a class="el" href="modules.html">Modules</a>
+section.
+
+
+*/
