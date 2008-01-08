@@ -48,6 +48,7 @@ namespace lemon {
 
       /// Returns the value associated with a key.
 
+      /// Returns the value associated with a key.
       /// \bug Value shouldn't need to be default constructible.
       ///
       Value operator[](const Key &) const {return Value();}
@@ -113,7 +114,7 @@ namespace lemon {
       };
     };
 
-    /// Read/Writable map concept
+    /// Read/writable map concept
     
     /// Read/writable map concept.
     ///
@@ -146,6 +147,7 @@ namespace lemon {
     
     /// Dereferable map concept.
     ///
+    /// \todo Rethink this concept.
     template<typename K, typename T, typename R, typename CR>
     class ReferenceMap : public ReadWriteMap<K,T>
     {
@@ -165,14 +167,13 @@ namespace lemon {
       Value tmp;
     public:
 
-      ///Returns a reference to the value associated to a key.
+      ///Returns a reference to the value associated with a key.
       Reference operator[](const Key &) { return tmp; }
-      ///Returns a const reference to the value associated to a key.
+      ///Returns a const reference to the value associated with a key.
       ConstReference operator[](const Key &) const { return tmp; }
       /// Sets the value associated with a key.
       void set(const Key &k,const Value &t) { operator[](k)=t; }
 
-      /// \todo Rethink this concept. 
       template<typename _ReferenceMap>
       struct ReferenceMapConcept {
 
