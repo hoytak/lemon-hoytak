@@ -26,6 +26,7 @@ namespace lemon {
 
   /// \brief Dummy type to make it easier to create invalid iterators.
   ///
+  /// Dummy type to make it easier to create invalid iterators.
   /// See \ref INVALID for the usage.
   struct Invalid {
   public:

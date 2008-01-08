@@ -17,7 +17,7 @@
  */
 
 ///\file
-///\brief Some basic non inline function and static global data.
+///\brief Some basic non-inline functions and static global data.
 
 #include<lemon/tolerance.h>
 #include<lemon/bits/invalid.h>

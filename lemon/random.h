@@ -510,7 +510,7 @@ namespace lemon {
   /// bool h = rnd.boolean(0.8);            // P(h = true) = 0.8
   ///\endcode
   ///
-  /// The lemon provides a global instance of the random number
+  /// LEMON provides a global instance of the random number
   /// generator which name is \ref lemon::rnd "rnd". Usually it is a
   /// good programming convenience to use this global generator to get
   /// random numbers.
@@ -526,12 +526,12 @@ namespace lemon {
 
   public:
 
-    /// \brief Constructor
+    /// \brief Default constructor
     ///
     /// Constructor with constant seeding.
     Random() { core.initState(); }
 
-    /// \brief Constructor
+    /// \brief Constructor with seed
     ///
     /// Constructor with seed. The current number type will be converted
     /// to the architecture word type.
@@ -540,7 +540,7 @@ namespace lemon {
       _random_bits::Initializer<Number, Word>::init(core, seed);
     }
 
-    /// \brief Constructor
+    /// \brief Constructor with array seeding
     ///
     /// Constructor with array seeding. The given range should contain
     /// any number type and the numbers will be converted to the
@@ -577,7 +577,7 @@ namespace lemon {
     /// \brief Returns a random real number from the range [0, 1)
     ///
     /// It returns a random real number from the range [0, 1). The
-    /// default Number type is double.
+    /// default Number type is \c double.
     template <typename Number>
     Number real() {
       return _random_bits::RealConversion<Number, Word>::convert(core);
@@ -653,8 +653,8 @@ namespace lemon {
     /// \brief Returns a random non-negative integer
     ///
     /// It returns a random non-negative integer uniformly from the
-    /// whole range of the current \c Number type.  The default result
-    /// type of this function is unsigned int.
+    /// whole range of the current \c Number type. The default result
+    /// type of this function is <tt>unsigned int</tt>.
     template <typename Number>
     Number uinteger() {
       return _random_bits::IntConversion<Number, Word>::convert(core);
@@ -668,7 +668,7 @@ namespace lemon {
     ///
     /// It returns a random integer uniformly from the whole range of
     /// the current \c Number type. The default result type of this
-    /// function is int.
+    /// function is \c int.
     template <typename Number>
     Number integer() {
       static const int nb = std::numeric_limits<Number>::digits + 
@@ -689,7 +689,7 @@ namespace lemon {
       return bool_producer.convert(core);
     }
 
-    ///\name Nonuniform distributions
+    ///\name Non-uniform distributions
     ///
     
     ///@{

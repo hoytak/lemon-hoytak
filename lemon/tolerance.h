@@ -36,25 +36,21 @@ namespace lemon {
   ///handle the comparison of numbers that are obtained
   ///as a result of a probably inexact computation.
   ///
-  ///Tolerance is a class to provide a basic way to
+  ///\ref Tolerance is a class to provide a basic way to
   ///handle the comparison of numbers that are obtained
   ///as a result of a probably inexact computation.
   ///
   ///This is an abstract class, it should be specialized for all numerical
-  ///data types. These specialized classes like Tolerance<double>
+  ///data types. These specialized classes like \ref Tolerance<double>
   ///may offer additional tuning parameters.
   ///
   ///\sa Tolerance<float>
   ///\sa Tolerance<double>
   ///\sa Tolerance<long double>
   ///\sa Tolerance<int>
-#if defined __GNUC__ && !defined __STRICT_ANSI__  
   ///\sa Tolerance<long long int>
-#endif
   ///\sa Tolerance<unsigned int>
-#if defined __GNUC__ && !defined __STRICT_ANSI__  
   ///\sa Tolerance<unsigned long long int>
-#endif
 
   template<class T>
   class Tolerance
@@ -63,7 +59,7 @@ namespace lemon {
     typedef T Value;
 
     ///\name Comparisons
-    ///The concept is that these bool functions return with \c true only if
+    ///The concept is that these bool functions return \c true only if
     ///the related comparisons hold even if some numerical error appeared
     ///during the computations.
 
@@ -107,21 +103,21 @@ namespace lemon {
 
     ///Constructor setting the epsilon tolerance to the default value.
     Tolerance() : _epsilon(def_epsilon) {}
-    ///Constructor setting the epsilon tolerance.
+    ///Constructor setting the epsilon tolerance to the given value.
     Tolerance(float e) : _epsilon(e) {}
 
-    ///Return the epsilon value.
+    ///Returns the epsilon value.
     Value epsilon() const {return _epsilon;}
-    ///Set the epsilon value.
+    ///Sets the epsilon value.
     void epsilon(Value e) {_epsilon=e;}
 
-    ///Return the default epsilon value.
+    ///Returns the default epsilon value.
     static Value defaultEpsilon() {return def_epsilon;}
-    ///Set the default epsilon value.
+    ///Sets the default epsilon value.
     static void defaultEpsilon(Value e) {def_epsilon=e;}
 
     ///\name Comparisons
-    ///See class Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -158,21 +154,21 @@ namespace lemon {
 
     ///Constructor setting the epsilon tolerance to the default value.
     Tolerance() : _epsilon(def_epsilon) {}
-    ///Constructor setting the epsilon tolerance.
+    ///Constructor setting the epsilon tolerance to the given value.
     Tolerance(double e) : _epsilon(e) {}
 
-    ///Return the epsilon value.
+    ///Returns the epsilon value.
     Value epsilon() const {return _epsilon;}
-    ///Set the epsilon value.
+    ///Sets the epsilon value.
     void epsilon(Value e) {_epsilon=e;}
 
-    ///Return the default epsilon value.
+    ///Returns the default epsilon value.
     static Value defaultEpsilon() {return def_epsilon;}
-    ///Set the default epsilon value.
+    ///Sets the default epsilon value.
     static void defaultEpsilon(Value e) {def_epsilon=e;}
 
     ///\name Comparisons
-    ///See class Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -209,21 +205,21 @@ namespace lemon {
 
     ///Constructor setting the epsilon tolerance to the default value.
     Tolerance() : _epsilon(def_epsilon) {}
-    ///Constructor setting the epsilon tolerance.
+    ///Constructor setting the epsilon tolerance to the given value.
     Tolerance(long double e) : _epsilon(e) {}
 
-    ///Return the epsilon value.
+    ///Returns the epsilon value.
     Value epsilon() const {return _epsilon;}
-    ///Set the epsilon value.
+    ///Sets the epsilon value.
     void epsilon(Value e) {_epsilon=e;}
 
-    ///Return the default epsilon value.
+    ///Returns the default epsilon value.
     static Value defaultEpsilon() {return def_epsilon;}
-    ///Set the default epsilon value.
+    ///Sets the default epsilon value.
     static void defaultEpsilon(Value e) {def_epsilon=e;}
 
     ///\name Comparisons
-    ///See class Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -256,7 +252,7 @@ namespace lemon {
     typedef int Value;
 
     ///\name Comparisons
-    ///See Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -289,7 +285,7 @@ namespace lemon {
     typedef unsigned int Value;
 
     ///\name Comparisons
-    ///See Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -323,7 +319,7 @@ namespace lemon {
     typedef long int Value;
 
     ///\name Comparisons
-    ///See Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 
@@ -356,7 +352,7 @@ namespace lemon {
     typedef unsigned long int Value;
 
     ///\name Comparisons
-    ///See Tolerance for more details.
+    ///See \ref Tolerance for more details.
 
     ///@{
 

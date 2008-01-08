@@ -27,8 +27,7 @@
 ///\brief A simple two dimensional vector and a bounding box implementation 
 ///
 /// The class \ref lemon::dim2::Point "dim2::Point" implements
-///a two dimensional vector with the usual
-/// operations.
+/// a two dimensional vector with the usual operations.
 ///
 /// The class \ref lemon::dim2::BoundingBox "dim2::BoundingBox"
 /// can be used to determine
@@ -49,9 +48,7 @@ namespace lemon {
   /// A simple two dimensional vector (plainvector) implementation
 
   /// A simple two dimensional vector (plainvector) implementation
-  ///with the usual vector
-  /// operators.
-  ///
+  /// with the usual vector operations.
   template<typename T>
     class Point {
 
@@ -70,7 +67,7 @@ namespace lemon {
       ///Construct an instance from coordinates
       Point(T a, T b) : x(a), y(b) { }
 
-      ///The dimension of the vector.
+      ///Returns the dimension of the vector (i.e. returns 2).
 
       ///The dimension of the vector.
       ///This function always returns 2. 
@@ -96,14 +93,14 @@ namespace lemon {
         return x*x+y*y;
       }
   
-      ///Increment the left hand side by u
+      ///Increment the left hand side by \c u
       Point<T>& operator +=(const Point<T>& u) {
         x += u.x;
         y += u.y;
         return *this;
       }
   
-      ///Decrement the left hand side by u
+      ///Decrement the left hand side by \c u
       Point<T>& operator -=(const Point<T>& u) {
         x -= u.x;
         y -= u.y;
@@ -315,6 +312,7 @@ namespace lemon {
       ///Return \c true if the bounding box is empty (i.e. return \c false
       ///if at least one point was added to the box or the coordinates of
       ///the box were set).
+      ///
       ///The coordinates of an empty bounding box are not defined. 
       bool empty() const {
         return _empty;
@@ -325,66 +323,66 @@ namespace lemon {
         _empty=1;
       }
 
-      ///Give back the bottom left corner
+      ///Give back the bottom left corner of the box
 
-      ///Give back the bottom left corner.
+      ///Give back the bottom left corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> bottomLeft() const {
         return bottom_left;
       }
 
-      ///Set the bottom left corner
+      ///Set the bottom left corner of the box
 
-      ///Set the bottom left corner.
+      ///Set the bottom left corner of the box.
       ///It should only be used for non-empty box.
       void bottomLeft(Point<T> p) {
 	bottom_left = p;
       }
 
-      ///Give back the top right corner
+      ///Give back the top right corner of the box
 
-      ///Give back the top right corner.
+      ///Give back the top right corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> topRight() const {
         return top_right;
       }
 
-      ///Set the top right corner
+      ///Set the top right corner of the box
 
-      ///Set the top right corner.
+      ///Set the top right corner of the box.
       ///It should only be used for non-empty box.
       void topRight(Point<T> p) {
 	top_right = p;
       }
 
-      ///Give back the bottom right corner
+      ///Give back the bottom right corner of the box
 
-      ///Give back the bottom right corner.
+      ///Give back the bottom right corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> bottomRight() const {
         return Point<T>(top_right.x,bottom_left.y);
       }
 
-      ///Set the bottom right corner
+      ///Set the bottom right corner of the box
 
-      ///Set the bottom right corner.
+      ///Set the bottom right corner of the box.
       ///It should only be used for non-empty box.
       void bottomRight(Point<T> p) {
 	top_right.x = p.x;
 	bottom_left.y = p.y;
       }
  
-      ///Give back the top left corner
+      ///Give back the top left corner of the box
 
-      ///Give back the top left corner.
+      ///Give back the top left corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> topLeft() const {
         return Point<T>(bottom_left.x,top_right.y);
       }
 
-      ///Set the top left corner
+      ///Set the top left corner of the box
 
-      ///Set the top left corner.
+      ///Set the top left corner of the box.
       ///It should only be used for non-empty box.
       void topLeft(Point<T> p) {
 	top_right.y = p.y;
@@ -533,10 +531,10 @@ namespace lemon {
     };//class Boundingbox
 
 
-  ///Map of x-coordinates of a Point map
+  ///Map of x-coordinates of a \ref Point "Point"-map
 
   ///\ingroup maps
-  ///Map of x-coordinates of a \ref dim2::Point "Point"-map.
+  ///Map of x-coordinates of a \ref Point "Point"-map.
   ///
   template<class M>
   class XMap 
@@ -570,7 +568,7 @@ namespace lemon {
     return XMap<M>(m);
   }
 
-  ///Constant (read only) version of XMap
+  ///Constant (read only) version of \ref XMap
 
   ///\ingroup maps
   ///Constant (read only) version of \ref XMap
@@ -600,7 +598,7 @@ namespace lemon {
     return ConstXMap<M>(m);
   }
 
-  ///Map of y-coordinates of a Point map
+  ///Map of y-coordinates of a \ref Point "Point"-map
     
   ///\ingroup maps
   ///Map of y-coordinates of a \ref Point "Point"-map.
@@ -637,7 +635,7 @@ namespace lemon {
     return YMap<M>(m);
   }
 
-  ///Constant (read only) version of YMap
+  ///Constant (read only) version of \ref YMap
 
   ///\ingroup maps
   ///Constant (read only) version of \ref YMap
@@ -668,13 +666,12 @@ namespace lemon {
   }
 
 
-    ///\brief Map of the normSquare()
-    ///of a Point map
-    ///
-    ///Map of the \ref Point::normSquare() "normSquare()"
-    ///of a \ref Point "Point"-map.
-    ///\ingroup maps
-    ///
+  ///\brief Map of the \ref Point::normSquare() "normSquare()"
+  ///of a \ref Point "Point"-map
+  ///
+  ///Map of the \ref Point::normSquare() "normSquare()"
+  ///of a \ref Point "Point"-map.
+  ///\ingroup maps
   template<class M>
   class NormSquareMap 
   {
