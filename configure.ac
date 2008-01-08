@@ -2,8 +2,8 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Version information.
 m4_define([lemon_version_major], [0])
-m4_define([lemon_version_minor], [6])
-m4_define([lemon_version_micro], [90])
+m4_define([lemon_version_minor], [99])
+m4_define([lemon_version_micro], [])
 m4_define([lemon_version_nano], [])
 m4_define([lemon_version_tag], [hg])
 m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg id -i]))])
