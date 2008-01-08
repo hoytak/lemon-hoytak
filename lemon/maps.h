@@ -250,9 +250,30 @@ namespace lemon {
   ///This function just returns a \c StdMap class with specified 
   ///default value.
   ///\relates StdMap
-  template<typename K, typename V, typename Compare = std::less<K> > 
+  template<typename K, typename V, typename Compare> 
   inline StdMap<K, V, Compare> stdMap(const V& value = V()) {
     return StdMap<K, V, Compare>(value);
+  }
+  
+  ///Returns a \c StdMap class
+
+  ///This function just returns a \c StdMap class with specified 
+  ///default value.
+  ///\relates StdMap
+  template<typename K, typename V> 
+  inline StdMap<K, V, std::less<K> > stdMap(const V& value = V()) {
+    return StdMap<K, V, std::less<K> >(value);
+  }
+  
+  ///Returns a \c StdMap class created from an appropriate std::map
+
+  ///This function just returns a \c StdMap class created from an 
+  ///appropriate std::map.
+  ///\relates StdMap
+  template<typename K, typename V, typename Compare> 
+  inline StdMap<K, V, Compare> stdMap( const std::map<K, V, Compare> &map, 
+                                       const V& value = V() ) {
+    return StdMap<K, V, Compare>(map, value);
   }
 
   ///Returns a \c StdMap class created from an appropriate std::map
@@ -260,10 +281,10 @@ namespace lemon {
   ///This function just returns a \c StdMap class created from an 
   ///appropriate std::map.
   ///\relates StdMap
-  template<typename K, typename V, typename Compare = std::less<K> > 
-  inline StdMap<K, V, Compare> stdMap( const std::map<K, V, Compare> &map, 
-                                       const V& value = V() ) {
-    return StdMap<K, V, Compare>(map, value);
+  template<typename K, typename V> 
+  inline StdMap<K, V, std::less<K> > stdMap( const std::map<K, V, std::less<K> > &map, 
+                                             const V& value = V() ) {
+    return StdMap<K, V, std::less<K> >(map, value);
   }
 
   /// \brief Map for storing values for keys from the range <tt>[0..size-1]</tt>
