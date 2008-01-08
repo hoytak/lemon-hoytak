@@ -18,7 +18,7 @@
 
 /**
 @defgroup datas Data Structures
-This group describes the several graph structures implemented in LEMON.
+This group describes the several data structures implemented in LEMON.
 */
 
 /**
@@ -50,7 +50,7 @@ the residual graph can be accessed by another algorithm, or a node-set
 is to be shrunk for another algorithm. 
 LEMON also provides a variety of graphs for these requirements called 
 \ref graph_adaptors "graph adaptors". Adaptors cannot be used alone but only 
-in conjunction with other graph representation. 
+in conjunction with other graph representations. 
 
 You are free to use the graph structure that fit your requirements
 the best, most graph algorithms and auxiliary data structures can be used
@@ -58,21 +58,23 @@ with any graph structures.
 */
 
 /**
-@defgroup semi_adaptors Semi-Adaptors Classes for Graphs
+@defgroup semi_adaptors Semi-Adaptor Classes for Graphs
 @ingroup graphs
 \brief Graph types between real graphs and graph adaptors.
 
-Graph types between real graphs and graph adaptors. These classes wrap
-graphs to give new functionality as the adaptors do it. On the other
-hand they are not light-weight structures as the adaptors.
+This group describes some graph types between real graphs and graph adaptors.
+These classes wrap graphs to give new functionality as the adaptors do it. 
+On the other hand they are not light-weight structures as the adaptors.
 */
 
 /**
 @defgroup maps Maps 
 @ingroup datas
-\brief Some special purpose map to make life easier.
+\brief Map structures implemented in LEMON.
 
-LEMON provides several special maps that e.g. combine
+This group describes the map structures implemented in LEMON.
+
+LEMON provides several special purpose maps that e.g. combine
 new maps from existing ones.
 */
 
@@ -81,8 +83,8 @@ new maps from existing ones.
 @ingroup maps
 \brief Special Graph-Related Maps.
 
-These maps are specifically designed to assign values to the nodes and edges of
-graphs.
+This group describes maps that are specifically designed to assign
+values to the nodes and edges of graphs.
 */
 
 
@@ -91,14 +93,15 @@ graphs.
 \ingroup maps
 \brief Tools to create new maps from existing ones
 
-Map adaptors are used to create "implicit" maps from other maps.
+This group describes map adaptors that are used to create "implicit"
+maps from other maps.
 
 Most of them are \ref lemon::concepts::ReadMap "ReadMap"s. They can
 make arithmetic operations between one or two maps (negation, scaling,
 addition, multiplication etc.) or e.g. convert a map to another one
 of different Value type.
 
-The typical usage of this classes is the passing implicit maps to
+The typical usage of this classes is passing implicit maps to
 algorithms.  If a function type algorithm is called then the function
 type map adaptors can be used comfortable. For example let's see the
 usage of map adaptors with the \c graphToEps() function:
@@ -127,7 +130,7 @@ get color of each node.
 
 The usage with class type algorithms is little bit harder. In this
 case the function type map adaptors can not be used, because the
-function map adaptors give back temporarly objects.
+function map adaptors give back temporary objects.
 \code
   Graph graph;
   
@@ -153,9 +156,9 @@ class. We use the implicit minimum time map as the length map of the
 /**
 @defgroup matrices Matrices 
 @ingroup datas
-\brief Two dimensional data storages.
+\brief Two dimensional data storages implemented in LEMON.
 
-Two dimensional data storages.
+This group describes two dimensional data storages implemented in LEMON.
 */
 
 /**
@@ -163,11 +166,11 @@ Two dimensional data storages.
 @ingroup datas
 \brief Path structures implemented in LEMON.
 
-LEMON provides flexible data structures
-to work with paths.
+This group describes the path structures implemented in LEMON.
 
-All of them have similar interfaces, and it can be copied easily with
-assignment operator and copy constructor. This make it easy and
+LEMON provides flexible data structures to work with paths.
+All of them have similar interfaces and they can be copied easily with
+assignment operators and copy constructors. This makes it easy and
 efficient to have e.g. the Dijkstra algorithm to store its result in
 any kind of path structure.
 
@@ -178,9 +181,9 @@ any kind of path structure.
 /**
 @defgroup auxdat Auxiliary Data Structures
 @ingroup datas
-\brief Some data structures implemented in LEMON.
+\brief Auxiliary data structures implemented in LEMON.
 
-This group describes the data structures implemented in LEMON in
+This group describes some data structures implemented in LEMON in
 order to make it easier to implement combinatorial algorithms.
 */
 
@@ -197,52 +200,48 @@ implemented in LEMON.
 /**
 @defgroup search Graph Search
 @ingroup algs
-\brief This group contains the common graph
-search algorithms.
+\brief Common graph search algorithms.
 
-This group contains the common graph
-search algorithms like Bfs and Dfs.
+This group describes the common graph search algorithms like 
+Breadth-first search (Bfs) and Depth-first search (Dfs).
 */
 
 /**
 @defgroup shortest_path Shortest Path algorithms
 @ingroup algs
-\brief This group describes the algorithms
-for finding shortest paths.
+\brief Algorithms for finding shortest paths.
 
-This group describes the algorithms for finding shortest paths in
-graphs.
-
+This group describes the algorithms for finding shortest paths in graphs.
 */
 
 /** 
 @defgroup max_flow Maximum Flow algorithms 
 @ingroup algs 
-\brief This group describes the algorithms for finding maximum flows.
+\brief Algorithms for finding maximum flows.
 
 This group describes the algorithms for finding maximum flows and
 feasible circulations.
 
-The maximum flow problem is to find a flow between a single-source and
-single-target that is maximum. Formally, there is \f$G=(V,A)\f$
+The maximum flow problem is to find a flow between a single source and
+a single target that is maximum. Formally, there is a \f$G=(V,A)\f$
 directed graph, an \f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity
 function and given \f$s, t \in V\f$ source and target node. The
-maximum flow is the solution of the next optimization problem:
+maximum flow is the \f$f_a\f$ solution of the next optimization problem:
 
 \f[ 0 \le f_a \le c_a \f]
-\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv} \quad u \in V \setminus \{s,t\}\f]
+\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv} \qquad \forall u \in V \setminus \{s,t\}\f]
 \f[ \max \sum_{v\in\delta^{+}(s)}f_{uv} - \sum_{v\in\delta^{-}(s)}f_{vu}\f]
 
-The lemon contains several algorithms for solve maximum flow problems:
+LEMON contains several algorithms for solving maximum flow problems:
 - \ref lemon::EdmondsKarp "Edmonds-Karp" 
 - \ref lemon::Preflow "Goldberg's Preflow algorithm"
-- \ref lemon::DinitzSleatorTarjan "Dinitz's blocking flow algorithm with dynamic tree"
+- \ref lemon::DinitzSleatorTarjan "Dinitz's blocking flow algorithm with dynamic trees"
 - \ref lemon::GoldbergTarjan "Preflow algorithm with dynamic trees"
 
-In most cases the \ref lemon::Preflow "preflow" algorithm provides the
+In most cases the \ref lemon::Preflow "Preflow" algorithm provides the
 fastest method to compute the maximum flow. All impelementations
-provides functions for query the minimum cut, which is the dual linear
-programming probelm of the maximum flow.
+provides functions to query the minimum cut, which is the dual linear
+programming problem of the maximum flow.
 
 */
 
@@ -250,8 +249,7 @@ programming probelm of the maximum flow.
 @defgroup min_cost_flow Minimum Cost Flow algorithms
 @ingroup algs
 
-\brief This group describes the algorithms
-for finding minimum cost flows and circulations.
+\brief Algorithms for finding minimum cost flows and circulations.
 
 This group describes the algorithms for finding minimum cost flows and
 circulations.  
@@ -261,8 +259,7 @@ circulations.
 @defgroup min_cut Minimum Cut algorithms 
 @ingroup algs 
 
-\brief This group describes the algorithms for finding minimum cut in
-graphs.
+\brief Algorithms for finding minimum cut in graphs.
 
 This group describes the algorithms for finding minimum cut in graphs.
 
@@ -270,17 +267,17 @@ The minimum cut problem is to find a non-empty and non-complete
 \f$X\f$ subset of the vertices with minimum overall capacity on
 outgoing arcs. Formally, there is \f$G=(V,A)\f$ directed graph, an
 \f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity function. The minimum
-cut is the solution of the next optimization problem:
+cut is the \f$X\f$ solution of the next optimization problem:
 
 \f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}\sum_{uv\in A, u\in X, v\not\in X}c_{uv}\f]
 
-The lemon contains several algorithms related to minimum cut problems:
+LEMON contains several algorithms related to minimum cut problems:
 
-- \ref lemon::HaoOrlin "Hao-Orlin algorithm" for calculate minimum cut
+- \ref lemon::HaoOrlin "Hao-Orlin algorithm" to calculate minimum cut
   in directed graphs  
-- \ref lemon::NagamochiIbaraki "Nagamochi-Ibaraki algorithm" for
+- \ref lemon::NagamochiIbaraki "Nagamochi-Ibaraki algorithm" to
   calculate minimum cut in undirected graphs
-- \ref lemon::GomoryHuTree "Gomory-Hu tree computation" for calculate all
+- \ref lemon::GomoryHuTree "Gomory-Hu tree computation" to calculate all
   pairs minimum cut in undirected graphs
 
 If you want to find minimum cut just between two distinict nodes,
@@ -291,11 +288,10 @@ please see the \ref max_flow "Maximum Flow page".
 /**
 @defgroup graph_prop Connectivity and other graph properties
 @ingroup algs
-\brief This group describes the algorithms
-for discover the graph properties
+\brief Algorithms for discovering the graph properties
 
-This group describes the algorithms for discover the graph properties
-like connectivity, bipartiteness, euler property, simplicity, etc...
+This group describes the algorithms for discovering the graph properties
+like connectivity, bipartiteness, euler property, simplicity etc.
 
 \image html edge_biconnected_components.png
 \image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
@@ -304,9 +300,9 @@ like connectivity, bipartiteness, euler property, simplicity, etc...
 /**
 @defgroup planar Planarity embedding and drawing
 @ingroup algs
-\brief This group contains algorithms for planarity embedding and drawing
+\brief Algorithms for planarity checking, embedding and drawing
 
-This group contains algorithms for planarity checking, embedding and drawing.
+This group describes the algorithms for planarity checking, embedding and drawing.
 
 \image html planar.png
 \image latex planar.eps "Plane graph" width=\textwidth
@@ -315,10 +311,9 @@ This group contains algorithms for planarity checking, embedding and drawing.
 /**
 @defgroup matching Matching algorithms 
 @ingroup algs
-\brief This group describes the algorithms
-for find matchings in graphs and bipartite graphs.
+\brief Algorithms for finding matchings in graphs and bipartite graphs.
 
-This group provides some algorithm objects and function to calculate
+This group contains algorithm objects and functions to calculate
 matchings in graphs and bipartite graphs. The general matching problem is
 finding a subset of the edges which does not shares common endpoints.
  
@@ -358,10 +353,9 @@ Lemon contains the next algorithms:
 /**
 @defgroup spantree Minimum Spanning Tree algorithms
 @ingroup algs
-\brief This group contains the algorithms for finding a minimum cost spanning
-tree in a graph
+\brief Algorithms for finding a minimum cost spanning tree in a graph.
 
-This group contains the algorithms for finding a minimum cost spanning
+This group describes the algorithms for finding a minimum cost spanning
 tree in a graph
 */
 
@@ -369,17 +363,18 @@ tree in a graph
 /**
 @defgroup auxalg Auxiliary algorithms
 @ingroup algs
-\brief Some algorithms implemented in LEMON.
+\brief Auxiliary algorithms implemented in LEMON.
 
-This group describes the algorithms in LEMON in order to make 
-it easier to implement complex algorithms.
+This group describes some algorithms implemented in LEMON
+in order to make it easier to implement complex algorithms.
 */
 
 /**
 @defgroup approx Approximation algorithms
-\brief Approximation algorithms
+\brief Approximation algorithms.
 
-Approximation and heuristic algorithms
+This group describes the approximation and heuristic algorithms
+implemented in LEMON.
 */
 
 /**
@@ -406,8 +401,7 @@ interface.
 /** 
 @defgroup lp_utils Tools for Lp and Mip solvers 
 @ingroup lp_group
-\brief This group adds some helper tools to the Lp and Mip solvers
-implemented in LEMON.
+\brief Helper tools to the Lp and Mip solvers.
 
 This group adds some helper tools to general optimization framework
 implemented in LEMON.
@@ -418,20 +412,20 @@ implemented in LEMON.
 @ingroup gen_opt_group
 \brief Metaheuristics for LEMON library.
 
-This group contains some metaheuristic optimization tools.
+This group describes some metaheuristic optimization tools.
 */
 
 /**
 @defgroup utils Tools and Utilities 
-\brief Tools and Utilities for Programming in LEMON
+\brief Tools and utilities for programming in LEMON
 
-Tools and Utilities for Programming in LEMON
+Tools and utilities for programming in LEMON.
 */
 
 /**
 @defgroup gutils Basic Graph Utilities
 @ingroup utils
-\brief This group describes some simple basic graph utilities.
+\brief Simple basic graph utilities.
 
 This group describes some simple basic graph utilities.
 */
@@ -439,40 +433,45 @@ This group describes some simple basic graph utilities.
 /**
 @defgroup misc Miscellaneous Tools
 @ingroup utils
-Here you can find several useful tools for development,
+\brief Tools for development, debugging and testing.
+
+This group describes several useful tools for development,
 debugging and testing.
 */
-
 
 /**
 @defgroup timecount Time measuring and Counting
 @ingroup misc
-Here you can find simple tools for measuring the performance
+\brief Simple tools for measuring the performance of algorithms.
+
+This group describes simple tools for measuring the performance
 of algorithms.
 */
 
 /**
 @defgroup graphbits Tools for Graph Implementation
 @ingroup utils
-\brief Tools to Make It Easier to Make Graphs.
+\brief Tools to make it easier to create graphs.
 
-This group describes the tools that makes it easier to make graphs and
+This group describes the tools that makes it easier to create graphs and
 the maps that dynamically update with the graph changes.
 */
 
 /**
 @defgroup exceptions Exceptions
 @ingroup utils
-This group contains the exceptions thrown by LEMON library
+\brief Exceptions defined in LEMON.
+
+This group describes the exceptions defined in LEMON.
 */
 
 /**
 @defgroup io_group Input-Output
-\brief Several Graph Input-Output methods
+\brief Graph Input-Output methods
 
-Here you can find tools for importing and exporting graphs 
+This group describes the tools for importing and exporting graphs 
 and graph related data. Now it supports the LEMON format, the
-\c DIMACS format and the encapsulated postscript format.
+\c DIMACS format and the encapsulated postscript (EPS) format.
 */
 
 /**
@@ -480,8 +479,8 @@ and graph related data. Now it supports the LEMON format, the
 @ingroup io_group
 \brief Reading and writing LEMON format
 
-Methods for reading and writing LEMON format. More about this
-format you can find on the \ref graph-io-page "Graph Input-Output"
+This group describes methods for reading and writing LEMON format. 
+You can find more about this format on the \ref graph-io-page "Graph Input-Output"
 tutorial pages.
 */
 
@@ -490,8 +489,8 @@ tutorial pages.
 @ingroup lemon_io
 \brief Section readers and writers for lemon Input-Output.
 
-Here you can find which section readers and writers can attach to
-the LemonReader and LemonWriter.
+This group describes section readers and writers that can be attached to
+\ref LemonReader and \ref LemonWriter.
 */
 
 /**
@@ -509,7 +508,7 @@ read some way. The module make possible to do this.
 @ingroup io_group
 \brief General \c EPS drawer and graph exporter
 
-This group contains general \c EPS drawing methods and special
+This group describes general \c EPS drawing methods and special
 graph exporting tools. 
 */
 
@@ -537,7 +536,7 @@ The purpose of the classes in this group is fourfold.
   doesn't use any extra feature of a certain implementation.
 
 - The concept descriptor classes also provide a <em>checker class</em>
-  that makes it possible check whether a certain implementation of a
+  that makes it possible to check whether a certain implementation of a
   concept indeed provides all the required features.
 
 - Finally, They can serve as a skeleton of a new implementation of a concept.
@@ -550,13 +549,13 @@ The purpose of the classes in this group is fourfold.
 @ingroup concept
 \brief Skeleton and concept checking classes for graph structures
 
-This group contains the skeletons and concept checking classes of LEMON's
+This group describes the skeletons and concept checking classes of LEMON's
 graph structures and helper classes used to implement these.
 */
 
 /* --- Unused group
 @defgroup experimental Experimental Structures and Algorithms
-This group contains some Experimental structures and algorithms.
+This group describes some Experimental structures and algorithms.
 The stuff here is subject to change.
 */
 
@@ -570,7 +569,6 @@ the \c demo subdirectory of the source tree.
 
 It order to compile them, use <tt>--enable-demo</tt> configure option when
 build the library.
-
 */
 
 /**
@@ -580,6 +578,5 @@ Some utility applications are listed here.
 
 The standard compilation procedure (<tt>./configure;make</tt>) will compile
 them, as well. 
-
 */
 
