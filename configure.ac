@@ -137,9 +137,9 @@ echo GLPK support.................. : $lx_glpk_found
 echo CPLEX support................. : $lx_cplex_found
 echo SOPLEX support................ : $lx_soplex_found
 echo
-echo build benchmarks.............. : $enable_benchmark
-echo build demo programs........... : $enable_demo
-echo build additional tools........ : $enable_tools
+echo Build benchmarks.............. : $enable_benchmark
+echo Build demo programs........... : $enable_demo
+echo Build additional tools........ : $enable_tools
 echo
 echo The packace will be installed in
 echo -n '  '
@@ -152,5 +152,5 @@ echo
 echo '*********************************************************************'
 
 echo
-echo configure complete, now type \'make\' and then \'make install\'.
+echo Configure complete, now type \'make\' and then \'make install\'.
 echo
