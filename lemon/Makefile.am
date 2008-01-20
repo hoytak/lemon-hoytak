@@ -21,7 +21,17 @@ lemon_HEADERS += \
         lemon/tolerance.h
 
 bits_HEADERS += \
+	lemon/bits/alteration_notifier.h \
+	lemon/bits/array_map.h \
+	lemon/bits/base_extender.h \
+	lemon/bits/default_map.h \
         lemon/bits/invalid.h \
-        lemon/bits/utility.h
+	lemon/bits/map_extender.h \
+        lemon/bits/utility.h \
+	lemon/bits/vector_map.h
 
 concept_HEADERS +=
+	lemon/concept_check.h \
+	lemon/concepts/digraph.h \
+	lemon/concepts/graph.h \
+	lemon/concepts/graph_components.h
