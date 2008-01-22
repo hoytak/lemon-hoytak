@@ -121,7 +121,7 @@ namespace lemon {
 		    const std::string &help,
 		    int value=0, bool obl=false);
 
-    ///Add a new floating type option
+    ///Add a new floating point type option
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
@@ -296,8 +296,8 @@ namespace lemon {
     ///Magic type for operator[]
     
     ///This is the type of the return value of ArgParser::operator[]().
-    ///It automatically converts to int, double, bool or std::string, if it
-    ///match the type of the option, otherwise it throws an exception.
+    ///It automatically converts to int, double, bool or std::string if
+    ///the type of the option matches, otherwise it throws an exception.
     ///(i.e. it performs runtime type checking).
     class RefType 
     {
