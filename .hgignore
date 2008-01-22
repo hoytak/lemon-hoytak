@@ -32,3 +32,4 @@ syntax: regexp
 ^build-aux/.*
 ^objs.*/.*
 ^test/[a-z_]*$
+^demo/.*_demo$
