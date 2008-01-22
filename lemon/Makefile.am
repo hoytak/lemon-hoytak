@@ -16,6 +16,7 @@ lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
 
 lemon_HEADERS += \
         lemon/dim2.h \
+	lemon/maps.h \
         lemon/random.h \
 	lemon/list_graph.h \
         lemon/tolerance.h
@@ -25,13 +26,16 @@ bits_HEADERS += \
 	lemon/bits/array_map.h \
 	lemon/bits/base_extender.h \
 	lemon/bits/default_map.h \
+	lemon/bits/graph_extender.h \
         lemon/bits/invalid.h \
 	lemon/bits/map_extender.h \
+	lemon/bits/traits.h \
         lemon/bits/utility.h \
 	lemon/bits/vector_map.h
 
-concept_HEADERS +=
+concept_HEADERS += \
 	lemon/concept_check.h \
 	lemon/concepts/digraph.h \
 	lemon/concepts/graph.h \
+	lemon/concepts/maps.h \
 	lemon/concepts/graph_components.h

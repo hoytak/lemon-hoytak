@@ -2,6 +2,8 @@ EXTRA_DIST += \
 	test/Makefile
 
 noinst_HEADERS += \
+	test/digraph_test.h \
+	test/map_test.h \
         test/test_tools.h
 
 check_PROGRAMS += \
