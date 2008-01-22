@@ -27,6 +27,11 @@ clean-local:
 doc/html:
 	$(MAKE) $(AM_MAKEFLAGS) doc-clean
 
+update-external-tags:
+	wget -O doc/libstdc++.tag.tmp http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/libstdc++.tag && \
+	mv doc/libstdc++.tag.tmp doc/libstdc++.tag || \
+	rm doc/libstdc++.tag.tmp
+
 if WANT_DOC
 
 install-data-local: doc/html
