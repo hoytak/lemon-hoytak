@@ -26,43 +26,16 @@ AC_PROG_INSTALL
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
+AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
+
 if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes; then
   CXXFLAGS="$CXXFLAGS -Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
 fi
-
-AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
 
 dnl Checks for libraries.
 LX_CHECK_GLPK
 LX_CHECK_CPLEX
 LX_CHECK_SOPLEX
-
-dnl Enable/disable installing the documentation
-AC_ARG_ENABLE([doc],
-AS_HELP_STRING([--enable-doc@<:@=yes|no|full@:>@], [build the documentation (full enables internal documentation too) @<:@default=yes@:>@])
-AS_HELP_STRING([--disable-doc], [do not build the documentation]),
-              [], [enable_doc=yes])
-
-AC_MSG_CHECKING([whether to build the documention])
-case "$enable_doc" in
-  yes)
-    DOXYGEN_INTERNAL_DOCS=NO
-    AC_MSG_RESULT([yes])
-    ;;
-  full)
-    DOXYGEN_INTERNAL_DOCS=YES
-    AC_MSG_RESULT([full])
-    ;;
-  no)
-    DOXYGEN_INTERNAL_DOCS=NO
-    AC_MSG_RESULT([no])
-    ;;
-  *)
-    AC_MSG_ERROR([bad value $enable_doc for option --enable-doc])
-    ;;
-esac
-AC_SUBST(DOXYGEN_INTERNAL_DOCS)
-AM_CONDITIONAL([WANT_DOC], [test x"$enable_doc" != x"no"])
 
 dnl Disable/enable building the demo programs
 AC_ARG_ENABLE([demo],
@@ -144,10 +117,6 @@ echo
 echo The packace will be installed in
 echo -n '  '
 echo $prefix.
-echo
-echo The documentation will be installed in
-echo -n '  '
-eval echo ${datadir}/doc/$PACKAGE.
 echo
 echo '*********************************************************************'
 
