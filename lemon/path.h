@@ -43,14 +43,15 @@ namespace lemon {
   /// \param Digraph The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
-  /// lemon path type stores just this list. As a consequence it
-  /// cannot enumerate the nodes in the path and the zero length paths
-  /// cannot store the source.
+  /// lemon path type stores just this list. As a consequence, it
+  /// cannot enumerate the nodes of the path and the source node of
+  /// a zero length path is undefined.
   ///
   /// This implementation is a back and front insertable and erasable
   /// path type. It can be indexed in O(1) time. The front and back
-  /// insertion and erasure is amortized O(1) time. The
-  /// impelementation is based on two opposite organized vectors.
+  /// insertion and erase is done in O(1) (amortized) time. The
+  /// implementation uses two vectors for storing the front and back
+  /// insertions.
   template <typename _Digraph>
   class Path {
   public:
@@ -65,8 +66,8 @@ namespace lemon {
 
     /// \brief Template copy constructor
     ///
-    /// This path can be initialized with any other path type. It just
-    /// makes a copy of the given path.
+    /// This constuctor initializes the path from any other path type.
+    /// It simply makes a copy of the given path.
     template <typename CPath>
     Path(const CPath& cpath) {
       copyPath(*this, cpath);
@@ -74,8 +75,7 @@ namespace lemon {
 
     /// \brief Template copy assignment
     ///
-    /// This path can be initialized with any other path type. It just
-    /// makes a copy of the given path.
+    /// This operator makes a copy of a path of any other type.
     template <typename CPath>
     Path& operator=(const CPath& cpath) {
       copyPath(*this, cpath);
@@ -92,7 +92,7 @@ namespace lemon {
       ArcIt() {}
       /// \brief Invalid constructor
       ArcIt(Invalid) : path(0), idx(-1) {}
-      /// \brief Initializate the constructor to the first arc of path
+      /// \brief Initializate the iterator to the first arc of path
       ArcIt(const Path &_path) 
         : path(&_path), idx(_path.empty() ? -1 : 0) {}
 
@@ -129,13 +129,13 @@ namespace lemon {
 
     /// \brief Length of the path.
     int length() const { return head.size() + tail.size(); }
-    /// \brief Returns whether the path is empty.
+    /// \brief Return whether the path is empty.
     bool empty() const { return head.empty() && tail.empty(); }
 
-    /// \brief Resets the path to an empty path.
+    /// \brief Reset the path to an empty one.
     void clear() { head.clear(); tail.clear(); }
 
-    /// \brief Gives back the nth arc.
+    /// \brief The nth arc.
     ///
     /// \pre n is in the [0..length() - 1] range
     const Arc& nth(int n) const {
@@ -143,14 +143,14 @@ namespace lemon {
         *(tail.begin() + (n - head.size()));
     }
 
-    /// \brief Initializes arc iterator to point to the nth arc
+    /// \brief Initialize arc iterator to point to the nth arc
     ///
     /// \pre n is in the [0..length() - 1] range
     ArcIt nthIt(int n) const {
       return ArcIt(*this, n);
     }
 
-    /// \brief Gives back the first arc of the path
+    /// \brief The first arc of the path
     const Arc& front() const {
       return head.empty() ? tail.front() : head.back();
     }
@@ -175,7 +175,7 @@ namespace lemon {
       }
     }
 
-    /// \brief Gives back the last arc of the path
+    /// \brief The last arc of the path
     const Arc& back() const {
       return tail.empty() ? head.front() : tail.back();
     }
@@ -198,8 +198,6 @@ namespace lemon {
         head.resize(head.size() - halfsize - 1);
       }
     }
-
-
 
     typedef True BuildTag;
 
@@ -323,13 +321,13 @@ namespace lemon {
 
     /// \brief Length of the path.
     int length() const { return data.size(); }
-    /// \brief Returns whether the path is empty.
+    /// \brief Return true if the path is empty.
     bool empty() const { return data.empty(); }
 
-    /// \brief Resets the path to an empty path.
+    /// \brief Reset the path to an empty one.
     void clear() { data.clear(); }
 
-    /// \brief Gives back the nth arc.
+    /// \brief The nth arc.
     ///
     /// \pre n is in the [0..length() - 1] range
     const Arc& nth(int n) const {
@@ -341,12 +339,12 @@ namespace lemon {
       return ArcIt(*this, n);
     }
 
-    /// \brief Gives back the first arc of the path.
+    /// \brief The first arc of the path.
     const Arc& front() const {
       return data.front();
     }
 
-    /// \brief Gives back the last arc of the path.
+    /// \brief The last arc of the path.
     const Arc& back() const {
       return data.back();
     }
@@ -506,9 +504,9 @@ namespace lemon {
       Node *node;
     };
 
-    /// \brief Gives back the nth arc.
+    /// \brief The nth arc.
     ///
-    /// Gives back the nth arc in O(n) time.
+    /// This function looks for the nth arc in O(n) time.
     /// \pre n is in the [0..length() - 1] range
     const Arc& nth(int n) const {
       Node *node = first;
@@ -538,10 +536,10 @@ namespace lemon {
       return len;
     }
 
-    /// \brief Returns whether the path is empty.
+    /// \brief Return true if the path is empty.
     bool empty() const { return first == 0; }
 
-    /// \brief Resets the path to an empty path.
+    /// \brief Reset the path to an empty one.
     void clear() {
       while (first != 0) {
         last = first->next;
@@ -551,7 +549,7 @@ namespace lemon {
       }
     }
 
-    /// \brief Gives back the first arc of the path
+    /// \brief The first arc of the path
     const Arc& front() const {
       return first->arc;
     }
@@ -584,7 +582,7 @@ namespace lemon {
       alloc.deallocate(node, 1);
     }
 
-    /// \brief Gives back the last arc of the path.
+    /// \brief The last arc of the path.
     const Arc& back() const {
       return last->arc;
     }
@@ -617,9 +615,9 @@ namespace lemon {
       alloc.deallocate(node, 1);
     }
 
-    /// \brief Splicing the given path to the current path.
+    /// \brief Splice a path to the back of the current path.
     ///
-    /// It splices the \c tpath to the back of the current path and \c
+    /// It splices \c tpath to the back of the current path and \c
     /// tpath becomes empty. The time complexity of this function is
     /// O(1).
     void spliceBack(ListPath& tpath) {
@@ -636,9 +634,9 @@ namespace lemon {
       tpath.first = tpath.last = 0;
     }
 
-    /// \brief Splicing the given path to the current path.
+    /// \brief Splice a path to the front of the current path.
     ///
-    /// It splices the \c tpath before the current path and \c tpath
+    /// It splices \c tpath before the current path and \c tpath
     /// becomes empty. The time complexity of this function
     /// is O(1).
     void spliceFront(ListPath& tpath) {
@@ -655,12 +653,12 @@ namespace lemon {
       tpath.first = tpath.last = 0;
     }
 
-    /// \brief Splicing the given path into the current path.
+    /// \brief Splice a path into the current path.
     ///
     /// It splices the \c tpath into the current path before the
     /// position of \c it iterator and \c tpath becomes empty. The
-    /// time complexity of this function is O(1). If the \c it is \c
-    /// INVALID then it will splice behind the current path.
+    /// time complexity of this function is O(1). If the \c it is
+    /// \c INVALID then it will splice behind the current path.
     void splice(ArcIt it, ListPath& tpath) {
       if (it.node) {
         if (tpath.first) {
@@ -688,15 +686,15 @@ namespace lemon {
       tpath.first = tpath.last = 0;
     }
 
-    /// \brief Spliting the current path.
+    /// \brief Split the current path.
     ///
-    /// It splits the current path into two parts. The part before \c
-    /// it iterator will remain in the current path and the part from
-    /// the it will put into the \c tpath. If the \c tpath had arcs
-    /// before the operation they will be removed first.  The time
-    /// complexity of this function is O(1) plus the clearing of \c
-    /// tpath. If the \c it is \c INVALID then it just clears \c
-    /// tpath.
+    /// It splits the current path into two parts. The part before
+    /// the iterator \c it will remain in the current path and the part
+    /// starting with
+    /// \c it will put into \c tpath. If \c tpath have arcs
+    /// before the operation they are removed first.  The time
+    /// complexity of this function is O(1) plus the the time of emtying
+    /// \c tpath. If \c it is \c INVALID then it just clears \c tpath
     void split(ArcIt it, ListPath& tpath) {
       tpath.clear();
       if (it.node) {
@@ -738,13 +736,16 @@ namespace lemon {
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
-  /// cannot enumerate the nodes in the path and the zero length paths
-  /// cannot store the source.
+  /// cannot enumerate the nodes in the path and the source node of
+  /// a zero length path is undefined.
   ///
-  /// This implementation is completly static, so it cannot be
-  /// modified exclude the assign an other path. It is intented to be
-  /// used when you want to store a large number of paths because it is
-  /// the most memory efficient path type in the lemon.
+  /// This implementation is completly static, i.e. it can be copy constucted
+  /// or copy assigned from another path, but otherwise it cannot be
+  /// modified.
+  ///
+  /// Being the the most memory efficient path type in LEMON,
+  /// it is intented to be
+  /// used when you want to store a large number of paths.
   template <typename _Digraph>
   class StaticPath {
   public:
@@ -759,8 +760,7 @@ namespace lemon {
     
     /// \brief Template copy constructor
     ///
-    /// This path can be initialized with any other path type. It just
-    /// makes a copy of the given path.
+    /// This path can be initialized from any other path type.
     template <typename CPath>
     StaticPath(const CPath& cpath) : arcs(0) {
       copyPath(*this, cpath);
@@ -775,7 +775,7 @@ namespace lemon {
 
     /// \brief Template copy assignment
     ///
-    /// This path can be initialized with any other path type. It just
+    /// This path can be made equal to any other path type. It simply
     /// makes a copy of the given path.
     template <typename CPath>
     StaticPath& operator=(const CPath& cpath) {
@@ -831,37 +831,37 @@ namespace lemon {
       int idx;
     };
 
-    /// \brief Gives back the nth arc.
+    /// \brief The nth arc.
     ///
     /// \pre n is in the [0..length() - 1] range
     const Arc& nth(int n) const {
       return arcs[n];
     }
 
-    /// \brief Initializes arc iterator to point to the nth arc.
+    /// \brief The arc iterator pointing to the nth arc.
     ArcIt nthIt(int n) const {
       return ArcIt(*this, n);
     }
 
-    /// \brief Gives back the length of the path.
+    /// \brief The length of the path.
     int length() const { return len; }
 
-    /// \brief Returns true when the path is empty.
+    /// \brief Return true when the path is empty.
     int empty() const { return len == 0; }
 
-    /// \break Erase all arc in the digraph.
+    /// \break Erase all arcs in the digraph.
     void clear() {
       len = 0;
       if (arcs) delete[] arcs;
       arcs = 0;
     }
 
-    /// \brief Gives back the first arc of the path.
+    /// \brief The first arc of the path.
     const Arc& front() const {
       return arcs[0];
     }
 
-    /// \brief Gives back the last arc of the path.
+    /// \brief The last arc of the path.
     const Arc& back() const {
       return arcs[len - 1];
     }

@@ -90,18 +90,19 @@ namespace lemon {
   }
 
 
-  /// \brief Make of copy of a path.
+  /// \brief Make a copy of a path.
   ///
-  ///  Make of copy of a path.
+  ///  This function makes a copy of a path.
   template <typename Target, typename Source>
   void copyPath(Target& target, const Source& source) {
     checkConcept<concepts::PathDumper<typename Source::Digraph>, Source>();
     _path_bits::PathCopySelector<Target, Source>::copy(target, source);
   }
 
-  /// \brief Checks the path's consistency.
+  /// \brief Check the consistency of a path.
   ///
-  /// Checks that each arc's target is the next's source. 
+  /// This function checks that the target of each arc is the same
+  /// as the source of the next one. 
   /// 
   template <typename Digraph, typename Path>
   bool checkPath(const Digraph& digraph, const Path& path) {
@@ -117,31 +118,31 @@ namespace lemon {
     return true;
   }
 
-  /// \brief Gives back the source of the path
+  /// \brief The source of a path
   ///
-  /// Gives back the source of the path.
+  /// This function returns the source of the given path.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathSource(const Digraph& digraph, const Path& path) {
     return digraph.source(path.front());
   }
 
-  /// \brief Gives back the target of the path
+  /// \brief The target of a path
   ///
-  /// Gives back the target of the path.
+  /// This function returns the target of the given path.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathTarget(const Digraph& digraph, const Path& path) {
     return digraph.target(path.back());
   }
 
-  /// \brief Class which helps to iterate the nodes of a path
+  /// \brief Class which helps to iterate through the nodes of a path
   ///
   /// In a sense, the path can be treated as a list of arcs. The
-  /// lemon path type stores just this list. As a consequence it
+  /// lemon path type stores only this list. As a consequence, it
   /// cannot enumerate the nodes in the path and the zero length paths
-  /// cannot store the node.
+  /// cannot have a source node.
   ///
   /// This class implements the node iterator of a path structure. To
-  /// provide this feature, the underlying digraph should be given to
+  /// provide this feature, the underlying digraph should be passed to
   /// the constructor of the iterator.
   template <typename Path>
   class PathNodeIt {
