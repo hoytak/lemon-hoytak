@@ -103,6 +103,19 @@ namespace lemon {
     std::vector<OtherArg> _others_help;
     std::vector<std::string> _file_args;
     std::string _command_name;
+
+    
+  private:
+    //Bind a function to an option.
+
+    //\param name The name of the option. The leading '-' must be omitted.
+    //\param help A help string.
+    //\retval func The function to be called when the option is given. It
+    //  must be of type "void f(void *)"
+    //\param data Data to be passed to \c func
+    ArgParser &funcOption(const std::string &name,
+		    const std::string &help,
+		    void (*func)(void *),void *data);
     
   public:
 
@@ -151,17 +164,6 @@ namespace lemon {
     ArgParser &stringOption(const std::string &name,
 		      const std::string &help,
 		      std::string value="", bool obl=false);
-    
-    ///Bind a function to an option.
-
-    ///\param name The name of the option. The leading '-' must be omitted.
-    ///\param help A help string.
-    ///\retval func The function to be called when the option is given. It
-    ///  must be of type "void f(void *)"
-    ///\param data Data to be passed to \c func
-    ArgParser &funcOption(const std::string &name,
-		    const std::string &help,
-		    void (*func)(void *),void *data);
 
     ///\name Options with an external strorage.
     ///Using this functions, the value of the option will be directly written
