@@ -18,7 +18,6 @@ lemon_HEADERS += \
         lemon/dim2.h \
 	lemon/maps.h \
 	lemon/path.h \
-	lemon/path_utils.h \
         lemon/random.h \
 	lemon/list_graph.h \
         lemon/tolerance.h
