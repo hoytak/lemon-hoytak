@@ -254,7 +254,7 @@ namespace lemon {
             curr[length - shift] ^ mask[curr[-1] & 1ul];
           --curr;
         }
-        curr[0] = (((curr[0] & hiMask) | (curr[length - 1] & loMask)) >> 1) ^
+        state[0] = (((state[0] & hiMask) | (curr[length - 1] & loMask)) >> 1) ^
           curr[length - shift] ^ mask[curr[length - 1] & 1ul];
 
       }
