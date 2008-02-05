@@ -487,20 +487,20 @@ tutorial pages.
 /**
 @defgroup section_io Section readers and writers
 @ingroup lemon_io
-\brief Section readers and writers for lemon Input-Output.
+\brief Section readers and writers for LEMON Input-Output.
 
-This group describes section readers and writers that can be attached to
-\ref LemonReader and \ref LemonWriter.
+This group describes section reader and writer classes that can be 
+attached to \ref LemonReader and \ref LemonWriter.
 */
 
 /**
-@defgroup item_io Item Readers and Writers
+@defgroup item_io Item readers and writers
 @ingroup lemon_io
-\brief Item readers and writers for lemon Input-Output.
+\brief Item readers and writers for LEMON Input-Output.
 
-The Input-Output classes can handle more data type by example
-as map or attribute value. Each of these should be written and
-read some way. The module make possible to do this.  
+This group describes reader and writer classes for various data types
+(e.g. map or attribute values). These classes can be attached to
+\ref LemonReader and \ref LemonWriter.
 */
 
 /**
