@@ -111,12 +111,12 @@ namespace lemon {
     }
 
 
-    void first(Arc& e) const { 
+    void first(Arc& arc) const { 
       int n;
       for(n = first_node; 
 	  n!=-1 && nodes[n].first_in == -1; 
 	  n = nodes[n].next);
-      e.id = (n == -1) ? -1 : nodes[n].first_in;
+      arc.id = (n == -1) ? -1 : nodes[n].first_in;
     }
 
     void next(Arc& arc) const {
@@ -293,35 +293,37 @@ namespace lemon {
 
   typedef DigraphExtender<ListDigraphBase> ExtendedListDigraphBase;
 
-  /// \addtogroup digraphs
+  /// \addtogroup graphs
   /// @{
 
-  ///A list digraph class.
+  ///A general directed graph structure. 
 
-  ///This is a simple and fast digraph implementation.
+  ///\ref ListDigraph is a simple and fast <em>directed graph</em> 
+  ///implementation based on static linked lists that are stored in 
+  ///\c std::vector structures.   
   ///
   ///It conforms to the \ref concepts::Digraph "Digraph concept" and it
-  ///also provides several additional useful extra functionalities.
-  ///The most of the member functions and nested classes are
-  ///documented only in the concept class.
+  ///also provides several useful additional functionalities.
+  ///Most of the member functions and nested classes are documented
+  ///only in the concept class.
   ///
   ///An important extra feature of this digraph implementation is that
   ///its maps are real \ref concepts::ReferenceMap "reference map"s.
   ///
-  ///\sa concepts::Digraph.
+  ///\sa concepts::Digraph
 
   class ListDigraph : public ExtendedListDigraphBase {
   private:
-    ///ListDigraph is \e not copy constructible. Use DigraphCopy() instead.
+    ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
     
-    ///ListDigraph is \e not copy constructible. Use DigraphCopy() instead.
+    ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
     ///
     ListDigraph(const ListDigraph &) :ExtendedListDigraphBase() {};
     ///\brief Assignment of ListDigraph to another one is \e not allowed.
-    ///Use DigraphCopy() instead.
+    ///Use copyDigraph() instead.
 
     ///Assignment of ListDigraph to another one is \e not allowed.
-    ///Use DigraphCopy() instead.
+    ///Use copyDigraph() instead.
     void operator=(const ListDigraph &) {}
   public:
 
@@ -335,8 +337,8 @@ namespace lemon {
 
     ///Add a new node to the digraph.
     
-    /// \return the new node.
-    ///
+    ///Add a new node to the digraph.
+    ///\return the new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new arc to the digraph.
@@ -348,25 +350,27 @@ namespace lemon {
       return Parent::addArc(s, t); 
     }
 
-    /// Changes the target of \c e to \c n
+    /// Change the target of \c e to \c n
 
-    /// Changes the target of \c e to \c n
+    /// Change the target of \c e to \c n
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s referencing
     ///the changed arc remain valid. However <tt>InArcIt</tt>s are
     ///invalidated.
+    ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     void changeTarget(Arc e, Node n) { 
       Parent::changeTarget(e,n); 
     }
-    /// Changes the source of \c e to \c n
+    /// Change the source of \c e to \c n
 
-    /// Changes the source of \c e to \c n
+    /// Change the source of \c e to \c n
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s referencing
     ///the changed arc remain valid. However <tt>OutArcIt</tt>s are
     ///invalidated.
+    ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     void changeSource(Arc e, Node n) { 
@@ -378,6 +382,7 @@ namespace lemon {
     ///\note The <tt>ArcIt</tt>s referencing the changed arc remain
     ///valid. However <tt>OutArcIt</tt>s and <tt>InArcIt</tt>s are
     ///invalidated.
+    ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     void reverseArc(Arc e) {
@@ -386,7 +391,9 @@ namespace lemon {
       changeSource(e,t);
     }
 
-    /// Using this it is possible to avoid the superfluous memory
+    /// Reserve memory for nodes.
+
+    /// Using this function it is possible to avoid the superfluous memory
     /// allocation: if you know that the digraph you want to build will
     /// be very large (e.g. it will contain millions of nodes and/or arcs)
     /// then it is worth reserving space for this amount before starting
@@ -394,10 +401,9 @@ namespace lemon {
     /// \sa reserveArc
     void reserveNode(int n) { nodes.reserve(n); };
 
-    /// \brief Using this it is possible to avoid the superfluous memory
-    /// allocation.
+    /// Reserve memory for arcs.
 
-    /// Using this it is possible to avoid the superfluous memory
+    /// Using this function it is possible to avoid the superfluous memory
     /// allocation: if you know that the digraph you want to build will
     /// be very large (e.g. it will contain millions of nodes and/or arcs)
     /// then it is worth reserving space for this amount before starting
@@ -408,16 +414,15 @@ namespace lemon {
     ///Contract two nodes.
 
     ///This function contracts two nodes.
-    ///
     ///Node \p b will be removed but instead of deleting
     ///incident arcs, they will be joined to \p a.
     ///The last parameter \p r controls whether to remove loops. \c true
     ///means that loops will be removed.
     ///
-    ///\note The <tt>ArcIt</tt>s
-    ///referencing a moved arc remain
+    ///\note The <tt>ArcIt</tt>s referencing a moved arc remain
     ///valid. However <tt>InArcIt</tt>s and <tt>OutArcIt</tt>s
     ///may be invalidated.
+    ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     void contract(Node a, Node b, bool r = true) 
@@ -452,8 +457,9 @@ namespace lemon {
     ///be invalidated.  
     ///
     ///\warning This functionality cannot be used together with the
-    ///Snapshot feature.  \todo It could be implemented in a bit
-    ///faster way.
+    ///Snapshot feature.
+    ///
+    ///\todo It could be implemented in a bit faster way.
     Node split(Node n, bool connect = true) {
       Node b = addNode();
       for(OutArcIt e(*this,n);e!=INVALID;) {
@@ -471,9 +477,11 @@ namespace lemon {
     ///This function splits an arc. First a new node \c b is added to
     ///the digraph, then the original arc is re-targeted to \c
     ///b. Finally an arc from \c b to the original target is added.
-    ///\return The newly created node.  
-    ///\warning This functionality
-    ///cannot be used together with the Snapshot feature.
+    ///
+    ///\return The newly created node.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     Node split(Arc e) {
       Node b = addNode();
       addArc(b,target(e));
@@ -482,16 +490,16 @@ namespace lemon {
     }
       
     /// \brief Class to make a snapshot of the digraph and restore
-    /// to it later.
+    /// it later.
     ///
-    /// Class to make a snapshot of the digraph and to restore it
-    /// later.
+    /// Class to make a snapshot of the digraph and restore it later.
     ///
     /// The newly added nodes and arcs can be removed using the
     /// restore() function.
     ///
-    /// \warning Arc and node deletions cannot be restored. This
-    /// events invalidate the snapshot. 
+    /// \warning Arc and node deletions and other modifications (e.g.
+    /// contracting, splitting, reversing arcs or nodes) cannot be 
+    /// restored. These events invalidate the snapshot. 
     class Snapshot {
     protected:
 
@@ -776,9 +784,9 @@ namespace lemon {
     public:
       Edge() {}
       Edge (Invalid) { id = -1; }
-      bool operator==(const Edge& arc) const {return id == arc.id;}
-      bool operator!=(const Edge& arc) const {return id != arc.id;}
-      bool operator<(const Edge& arc) const {return id < arc.id;}
+      bool operator==(const Edge& edge) const {return id == edge.id;}
+      bool operator!=(const Edge& edge) const {return id != edge.id;}
+      bool operator<(const Edge& edge) const {return id < edge.id;}
     };
 
     class Arc {
@@ -909,20 +917,20 @@ namespace lemon {
     }
 
     void firstInc(Edge &e, bool& d, const Node& v) const {
-      int de = nodes[v.id].first_out;
-      if (de != -1 ) {
-        e.id = de / 2;
-        d = ((de & 1) == 1);
+      int a = nodes[v.id].first_out;
+      if (a != -1 ) {
+        e.id = a / 2;
+        d = ((a & 1) == 1);
       } else {
         e.id = -1;
         d = true;
       }
     }
     void nextInc(Edge &e, bool& d) const {
-      int de = (arcs[(e.id * 2) | (d ? 1 : 0)].next_out);
-      if (de != -1 ) {
-        e.id = de / 2;
-        d = ((de & 1) == 1);
+      int a = (arcs[(e.id * 2) | (d ? 1 : 0)].next_out);
+      if (a != -1 ) {
+        e.id = a / 2;
+        d = ((a & 1) == 1);
       } else {
         e.id = -1;
         d = true;
@@ -1008,8 +1016,8 @@ namespace lemon {
 
     }
     
-    void erase(const Edge& arc) {
-      int n = arc.id * 2;
+    void erase(const Edge& edge) {
+      int n = edge.id * 2;
       
       if (arcs[n].next_out != -1) {
 	arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
@@ -1089,40 +1097,40 @@ namespace lemon {
 
   };
 
-//   typedef GraphExtender<UndirDigraphExtender<ListDigraphBase> > 
-//   ExtendedListGraphBase;
-
   typedef GraphExtender<ListGraphBase> ExtendedListGraphBase;
 
 
-
-  /// \addtogroup digraphs
+  /// \addtogroup graphs
   /// @{
 
-  ///An undirected list digraph class.
+  ///A general undirected graph structure.
 
-  ///This is a simple and fast undirected digraph implementation.
+  ///\ref ListGraph is a simple and fast <em>undirected graph</em> 
+  ///implementation based on static linked lists that are stored in 
+  ///\c std::vector structures. 
   ///
-  ///An important extra feature of this digraph implementation is that
+  ///It conforms to the \ref concepts::Graph "Graph concept" and it
+  ///also provides several useful additional functionalities.
+  ///Most of the member functions and nested classes are documented
+  ///only in the concept class.
+  ///
+  ///An important extra feature of this graph implementation is that
   ///its maps are real \ref concepts::ReferenceMap "reference map"s.
   ///
-  ///It conforms to the
-  ///\ref concepts::Graph "Graph concept".
-  ///
-  ///\sa concepts::Graph.
-  ///
+  ///\sa concepts::Graph
+
   class ListGraph : public ExtendedListGraphBase {
   private:
-    ///ListGraph is \e not copy constructible. Use GraphCopy() instead.
+    ///ListGraph is \e not copy constructible. Use copyGraph() instead.
 
-    ///ListGraph is \e not copy constructible. Use GraphCopy() instead.
+    ///ListGraph is \e not copy constructible. Use copyGraph() instead.
     ///
     ListGraph(const ListGraph &) :ExtendedListGraphBase()  {};
     ///\brief Assignment of ListGraph to another one is \e not allowed.
-    ///Use GraphCopy() instead.
+    ///Use copyGraph() instead.
 
     ///Assignment of ListGraph to another one is \e not allowed.
-    ///Use GraphCopy() instead.
+    ///Use copyGraph() instead.
     void operator=(const ListGraph &) {}
   public:
     /// Constructor
@@ -1133,49 +1141,58 @@ namespace lemon {
 
     typedef ExtendedListGraphBase Parent;
 
-    typedef Parent::OutArcIt IncArcIt;
+    typedef Parent::OutArcIt IncEdgeIt;
 
-    /// \brief Add a new node to the digraph.
+    /// \brief Add a new node to the graph.
     ///
+    /// Add a new node to the graph.
     /// \return the new node.
-    ///
     Node addNode() { return Parent::addNode(); }
 
-    /// \brief Add a new edge to the digraph.
+    /// \brief Add a new edge to the graph.
     ///
-    /// Add a new arc to the digraph with source node \c s
+    /// Add a new edge to the graph with source node \c s
     /// and target node \c t.
     /// \return the new edge.
     Edge addEdge(const Node& s, const Node& t) { 
       return Parent::addEdge(s, t); 
     }
-    /// \brief Changes the source of \c e to \c n
+    /// \brief Change the source of \c e to \c n
     ///
-    /// Changes the source of \c e to \c n
+    /// This function changes the source of \c e to \c n.
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s
     ///referencing the changed arc remain
     ///valid. However <tt>OutArcIt</tt>s are invalidated.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     void changeSource(Edge e, Node n) { 
       Parent::changeSource(e,n); 
     }    
-    /// \brief Changes the target of \c e to \c n
+    /// \brief Change the target of \c e to \c n
     ///
-    /// Changes the target of \c e to \c n
+    /// This function changes the target of \c e to \c n.
     ///
     /// \note The <tt>ArcIt</tt>s referencing the changed arc remain
     /// valid. However the other iterators may be invalidated.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     void changeTarget(Edge e, Node n) { 
       Parent::changeTarget(e,n); 
     }
-    /// \brief Changes the source of \c e to \c n
+    /// \brief Change the source of \c e to \c n
     ///
-    /// Changes the source of \c e to \c n. It changes the proper
-    /// node of the represented edge.
+    /// This function changes the source of \c e to \c n. 
+    /// It also changes the proper node of the represented edge.
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s
     ///referencing the changed arc remain
     ///valid. However <tt>OutArcIt</tt>s are invalidated.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     void changeSource(Arc e, Node n) { 
       if (Parent::direction(e)) {
         Parent::changeSource(e,n);
@@ -1183,14 +1200,17 @@ namespace lemon {
         Parent::changeTarget(e,n);
       } 
     }
-    /// \brief Changes the target of \c e to \c n
+    /// \brief Change the target of \c e to \c n
     ///
-    /// Changes the target of \c e to \c n. It changes the proper
-    /// node of the represented edge.
+    /// This function changes the target of \c e to \c n. 
+    /// It also changes the proper node of the represented edge.
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s
     ///referencing the changed arc remain
     ///valid. However <tt>InArcIt</tt>s are invalidated.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     void changeTarget(Arc e, Node n) { 
       if (Parent::direction(e)) {
         Parent::changeTarget(e,n);
@@ -1201,7 +1221,6 @@ namespace lemon {
     /// \brief Contract two nodes.
     ///
     /// This function contracts two nodes.
-    ///
     /// Node \p b will be removed but instead of deleting
     /// its neighboring arcs, they will be joined to \p a.
     /// The last parameter \p r controls whether to remove loops. \c true
@@ -1209,9 +1228,12 @@ namespace lemon {
     ///
     /// \note The <tt>ArcIt</tt>s referencing a moved arc remain
     /// valid.
+    ///
+    ///\warning This functionality cannot be used together with the
+    ///Snapshot feature.
     void contract(Node a, Node b, bool r = true) {
-      for(IncArcIt e(*this, b); e!=INVALID;) {
-	IncArcIt f = e; ++f;
+      for(IncEdgeIt e(*this, b); e!=INVALID;) {
+	IncEdgeIt f = e; ++f;
 	if (r && runningNode(e) == a) {
 	  erase(e);
 	} else if (source(e) == b) {
@@ -1225,17 +1247,17 @@ namespace lemon {
     }
 
 
-    /// \brief Class to make a snapshot of the digraph and restore
-    /// to it later.
+    /// \brief Class to make a snapshot of the graph and restore
+    /// it later.
     ///
-    /// Class to make a snapshot of the digraph and to restore it
-    /// later.
+    /// Class to make a snapshot of the graph and restore it later.
     ///
     /// The newly added nodes and edges can be removed
     /// using the restore() function.
     ///
-    /// \warning Arc and node deletions cannot be restored. This
-    /// events invalidate the snapshot. 
+    /// \warning Edge and node deletions and other modifications
+    /// (e.g. changing nodes of edges, contracting nodes) cannot be 
+    /// restored. These events invalidate the snapshot.
     class Snapshot {
     protected:
 
@@ -1303,51 +1325,51 @@ namespace lemon {
         
       protected:
 
-        virtual void add(const Edge& arc) {
-          snapshot.addEdge(arc);
+        virtual void add(const Edge& edge) {
+          snapshot.addEdge(edge);
         }
-        virtual void add(const std::vector<Edge>& arcs) {
-          for (int i = arcs.size() - 1; i >= 0; ++i) {
-            snapshot.addEdge(arcs[i]);
+        virtual void add(const std::vector<Edge>& edges) {
+          for (int i = edges.size() - 1; i >= 0; ++i) {
+            snapshot.addEdge(edges[i]);
           }
         }
-        virtual void erase(const Edge& arc) {
-          snapshot.eraseEdge(arc);
+        virtual void erase(const Edge& edge) {
+          snapshot.eraseEdge(edge);
         }
-        virtual void erase(const std::vector<Edge>& arcs) {
-          for (int i = 0; i < int(arcs.size()); ++i) {
-            snapshot.eraseEdge(arcs[i]);
+        virtual void erase(const std::vector<Edge>& edges) {
+          for (int i = 0; i < int(edges.size()); ++i) {
+            snapshot.eraseEdge(edges[i]);
           }
         }
         virtual void build() {
-          Edge arc;
-          std::vector<Edge> arcs;
-          for (notifier()->first(arc); arc != INVALID; 
-               notifier()->next(arc)) {
-            arcs.push_back(arc);
+          Edge edge;
+          std::vector<Edge> edges;
+          for (notifier()->first(edge); edge != INVALID; 
+               notifier()->next(edge)) {
+            edges.push_back(edge);
           }
-          for (int i = arcs.size() - 1; i >= 0; --i) {
-            snapshot.addEdge(arcs[i]);
+          for (int i = edges.size() - 1; i >= 0; --i) {
+            snapshot.addEdge(edges[i]);
           }
         }
         virtual void clear() {
-          Edge arc;
-          for (notifier()->first(arc); arc != INVALID; 
-               notifier()->next(arc)) {
-            snapshot.eraseEdge(arc);
+          Edge edge;
+          for (notifier()->first(edge); edge != INVALID; 
+               notifier()->next(edge)) {
+            snapshot.eraseEdge(edge);
           }
         }
 
         Snapshot& snapshot;
       };
-      
-      ListGraph *digraph;
+
+      ListGraph *graph;
 
       NodeObserverProxy node_observer_proxy;
-      EdgeObserverProxy arc_observer_proxy;
+      EdgeObserverProxy edge_observer_proxy;
 
       std::list<Node> added_nodes;
-      std::list<Edge> added_arcs;
+      std::list<Edge> added_edges;
 
 
       void addNode(const Node& node) {
@@ -1358,37 +1380,37 @@ namespace lemon {
           std::find(added_nodes.begin(), added_nodes.end(), node);
         if (it == added_nodes.end()) {
           clear();
-          arc_observer_proxy.detach();
+          edge_observer_proxy.detach();
           throw NodeNotifier::ImmediateDetach();
         } else {
           added_nodes.erase(it);
         }
       }
 
-      void addEdge(const Edge& arc) {
-        added_arcs.push_front(arc);        
+      void addEdge(const Edge& edge) {
+        added_edges.push_front(edge);        
       }
-      void eraseEdge(const Edge& arc) {
+      void eraseEdge(const Edge& edge) {
         std::list<Edge>::iterator it = 
-          std::find(added_arcs.begin(), added_arcs.end(), arc);
-        if (it == added_arcs.end()) {
+          std::find(added_edges.begin(), added_edges.end(), edge);
+        if (it == added_edges.end()) {
           clear();
           node_observer_proxy.detach();
           throw EdgeNotifier::ImmediateDetach();
         } else {
-          added_arcs.erase(it);
-        }        
+          added_edges.erase(it);
+        }
       }
 
-      void attach(ListGraph &_digraph) {
-	digraph = &_digraph;
-	node_observer_proxy.attach(digraph->notifier(Node()));
-        arc_observer_proxy.attach(digraph->notifier(Edge()));
+      void attach(ListGraph &_graph) {
+	graph = &_graph;
+	node_observer_proxy.attach(graph->notifier(Node()));
+        edge_observer_proxy.attach(graph->notifier(Edge()));
       }
             
       void detach() {
 	node_observer_proxy.detach();
-	arc_observer_proxy.detach();
+	edge_observer_proxy.detach();
       }
 
       bool attached() const {
@@ -1397,7 +1419,7 @@ namespace lemon {
 
       void clear() {
         added_nodes.clear();
-        added_arcs.clear();        
+        added_edges.clear();        
       }
 
     public:
@@ -1407,32 +1429,32 @@ namespace lemon {
       /// Default constructor.
       /// To actually make a snapshot you must call save().
       Snapshot() 
-        : digraph(0), node_observer_proxy(*this), 
-          arc_observer_proxy(*this) {}
+        : graph(0), node_observer_proxy(*this), 
+          edge_observer_proxy(*this) {}
       
       /// \brief Constructor that immediately makes a snapshot.
       ///      
-      /// This constructor immediately makes a snapshot of the digraph.
-      /// \param _digraph The digraph we make a snapshot of.
-      Snapshot(ListGraph &_digraph) 
+      /// This constructor immediately makes a snapshot of the graph.
+      /// \param _graph The graph we make a snapshot of.
+      Snapshot(ListGraph &_graph) 
         : node_observer_proxy(*this), 
-          arc_observer_proxy(*this) {
-	attach(_digraph);
+          edge_observer_proxy(*this) {
+	attach(_graph);
       }
       
       /// \brief Make a snapshot.
       ///
-      /// Make a snapshot of the digraph.
+      /// Make a snapshot of the graph.
       ///
       /// This function can be called more than once. In case of a repeated
       /// call, the previous snapshot gets lost.
-      /// \param _digraph The digraph we make the snapshot of.
-      void save(ListGraph &_digraph) {
+      /// \param _graph The graph we make the snapshot of.
+      void save(ListGraph &_graph) {
         if (attached()) {
           detach();
           clear();
         }
-        attach(_digraph);
+        attach(_graph);
       }
       
       /// \brief Undo the changes until the last snapshot.
@@ -1440,13 +1462,13 @@ namespace lemon {
       /// Undo the changes until the last snapshot created by save().
       void restore() {
 	detach();
-	for(std::list<Edge>::iterator it = added_arcs.begin(); 
-            it != added_arcs.end(); ++it) {
-	  digraph->erase(*it);
+	for(std::list<Edge>::iterator it = added_edges.begin(); 
+            it != added_edges.end(); ++it) {
+	  graph->erase(*it);
 	}
 	for(std::list<Node>::iterator it = added_nodes.begin(); 
             it != added_nodes.end(); ++it) {
-	  digraph->erase(*it);
+	  graph->erase(*it);
 	}
         clear();
       }
