@@ -624,6 +624,39 @@ namespace lemon {
       /// \brief Target node of the directed arc.
       Node target(Arc) const { return INVALID; }
 
+      /// \brief Returns the id of the node.
+      int id(Node) const { return -1; } 
+
+      /// \brief Returns the id of the edge.
+      int id(Edge) const { return -1; } 
+
+      /// \brief Returns the id of the arc.
+      int id(Arc) const { return -1; } 
+
+      /// \brief Returns the node with the given id.
+      ///
+      /// \pre The argument should be a valid node id in the graph.
+      Node nodeFromId(int) const { return INVALID; } 
+
+      /// \brief Returns the edge with the given id.
+      ///
+      /// \pre The argument should be a valid edge id in the graph.
+      Edge edgeFromId(int) const { return INVALID; } 
+
+      /// \brief Returns the arc with the given id.
+      ///
+      /// \pre The argument should be a valid arc id in the graph.
+      Arc arcFromId(int) const { return INVALID; } 
+
+      /// \brief Returns an upper bound on the node IDs.
+      int maxNodeId() const { return -1; } 
+
+      /// \brief Returns an upper bound on the edge IDs.
+      int maxEdgeId() const { return -1; } 
+
+      /// \brief Returns an upper bound on the arc IDs.
+      int maxArcId() const { return -1; } 
+
       void first(Node&) const {}
       void next(Node&) const {}
 
@@ -639,9 +672,22 @@ namespace lemon {
       void firstIn(Arc&, Node) const {}
       void nextIn(Arc&) const {}
 
-
       void firstInc(Edge &, bool &, const Node &) const {}
       void nextInc(Edge &, bool &) const {}
+
+      // The second parameter is dummy.
+      Node fromId(int, Node) const { return INVALID; }
+      // The second parameter is dummy.
+      Edge fromId(int, Edge) const { return INVALID; }
+      // The second parameter is dummy.
+      Arc fromId(int, Arc) const { return INVALID; }
+
+      // Dummy parameter.
+      int maxId(Node) const { return -1; } 
+      // Dummy parameter.
+      int maxId(Edge) const { return -1; } 
+      // Dummy parameter.
+      int maxId(Arc) const { return -1; } 
 
       /// \brief Base node of the iterator
       ///
@@ -689,6 +735,7 @@ namespace lemon {
       struct Constraints {
 	void constraints() {
 	  checkConcept<IterableGraphComponent<>, Graph>();
+	  checkConcept<IDableGraphComponent<>, Graph>();
 	  checkConcept<MappableGraphComponent<>, Graph>();
 	}
       };

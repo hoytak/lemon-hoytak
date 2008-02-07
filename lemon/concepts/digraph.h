@@ -348,6 +348,28 @@ namespace lemon {
       ///
       Node source(Arc) const { return INVALID; }
 
+      /// \brief Returns the ID of the node.
+      int id(Node) const { return -1; } 
+
+      /// \brief Returns the ID of the arc.
+      int id(Arc) const { return -1; } 
+
+      /// \brief Returns the node with the given ID.
+      ///
+      /// \pre The argument should be a valid node ID in the graph.
+      Node nodeFromId(int) const { return INVALID; } 
+
+      /// \brief Returns the arc with the given ID.
+      ///
+      /// \pre The argument should be a valid arc ID in the graph.
+      Arc arcFromId(int) const { return INVALID; } 
+
+      /// \brief Returns an upper bound on the node IDs.
+      int maxNodeId() const { return -1; } 
+
+      /// \brief Returns an upper bound on the arc IDs.
+      int maxArcId() const { return -1; } 
+
       void first(Node&) const {}
       void next(Node&) const {}
 
@@ -360,6 +382,16 @@ namespace lemon {
 
       void firstOut(Arc&, const Node&) const {}
       void nextOut(Arc&) const {}
+
+      // The second parameter is dummy.
+      Node fromId(int, Node) const { return INVALID; }
+      // The second parameter is dummy.
+      Arc fromId(int, Arc) const { return INVALID; }
+
+      // Dummy parameter.
+      int maxId(Node) const { return -1; } 
+      // Dummy parameter.
+      int maxId(Arc) const { return -1; } 
 
       /// \brief The base node of the iterator.
       ///
@@ -439,6 +471,7 @@ namespace lemon {
       struct Constraints {
         void constraints() {
           checkConcept<IterableDigraphComponent<>, Digraph>();
+	  checkConcept<IDableDigraphComponent<>, Digraph>();
           checkConcept<MappableDigraphComponent<>, Digraph>();
         }
       };
