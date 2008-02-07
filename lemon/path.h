@@ -29,6 +29,7 @@
 
 #include <lemon/error.h>
 #include <lemon/bits/invalid.h>
+#include <lemon/concepts/path.h>
 
 namespace lemon {
 

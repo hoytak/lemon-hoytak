@@ -3,10 +3,13 @@ EXTRA_DIST += \
 
 noinst_HEADERS += \
 	test/digraph_test.h \
+	test/heap_test.h \
 	test/map_test.h \
         test/test_tools.h
 
 check_PROGRAMS += \
+	test/bfs_test \
+	test/dfs_test \
 	test/digraph_test \
         test/dim_test \
 	test/graph_test \
@@ -19,10 +22,13 @@ check_PROGRAMS += \
 TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
+test_bfs_test_SOURCES = test/bfs_test.cc
+test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
 #test_error_test_SOURCES = test/error_test.cc
 test_graph_test_SOURCES = test/graph_test.cc
+# test_heap_test_SOURCES = test/heap_test.cc
 test_maps_test_SOURCES = test/maps_test.cc
 test_path_test_SOURCES = test/path_test.cc
 test_random_test_SOURCES = test/random_test.cc
