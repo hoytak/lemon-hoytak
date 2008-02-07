@@ -20,6 +20,7 @@ lemon_HEADERS += \
 	lemon/error.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
+	lemon/math.h \
         lemon/random.h \
         lemon/tolerance.h
 
