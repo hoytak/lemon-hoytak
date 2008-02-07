@@ -17,6 +17,7 @@ lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
 lemon_HEADERS += \
         lemon/dim2.h \
 	lemon/maps.h \
+	lemon/math.h \
         lemon/random.h \
 	lemon/list_graph.h \
         lemon/tolerance.h
