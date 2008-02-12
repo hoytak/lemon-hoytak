@@ -55,7 +55,6 @@ namespace lemon {
 
       template<typename _ReadMap>
       struct Constraints {
-
 	void constraints() {
 	  Value val = m[key];
 	  val = m[key];
@@ -175,10 +174,9 @@ namespace lemon {
       void set(const Key &k,const Value &t) { operator[](k)=t; }
 
       template<typename _ReferenceMap>
-      struct ReferenceMapConcept {
-
+      struct Constraints {
 	void constraints() {
-	  checkConcept<ReadWriteMap, _ReferenceMap >();
+	  checkConcept<ReadWriteMap<K, T>, _ReferenceMap >();
 	  m[key] = val;
 	  val  = m[key];
 	  m[key] = ref;
@@ -191,10 +189,10 @@ namespace lemon {
 
 	typename _ReferenceMap::Key& own_key;
 	typename _ReferenceMap::Value& own_val;
-	typename _ReferenceMap::Reference& own_ref;
+	typename _ReferenceMap::Reference own_ref;
 	Key& key;
 	Value& val;
-	Reference& ref;
+	Reference ref;
 	_ReferenceMap& m;
       };
     };
