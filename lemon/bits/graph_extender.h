@@ -20,6 +20,7 @@
 #define LEMON_BITS_GRAPH_EXTENDER_H
 
 #include <lemon/bits/invalid.h>
+#include <lemon/bits/utility.h>
 
 #include <lemon/bits/map_extender.h>
 #include <lemon/bits/default_map.h>
@@ -332,6 +333,8 @@ namespace lemon {
     
     typedef Base Parent;
     typedef GraphExtender Digraph;
+
+    typedef True UndirectedTag;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
