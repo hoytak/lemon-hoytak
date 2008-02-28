@@ -828,16 +828,16 @@ namespace lemon {
       ///
       /// This iterator goes trough the incident arcs of a certain
       /// node of a graph.
-      typedef GraphIncIt<Graph, Edge, Node, 'u'> IncArcIt;
+      typedef GraphIncIt<Graph, Edge, Node, 'u'> IncEdgeIt;
       /// \brief The base node of the iterator.
       ///
       /// Gives back the base node of the iterator.
-      Node baseNode(const IncArcIt&) const { return INVALID; }
+      Node baseNode(const IncEdgeIt&) const { return INVALID; }
 
       /// \brief The running node of the iterator.
       ///
       /// Gives back the running node of the iterator.
-      Node runningNode(const IncArcIt&) const { return INVALID; }
+      Node runningNode(const IncEdgeIt&) const { return INVALID; }
 
       /// @}
 
@@ -865,10 +865,10 @@ namespace lemon {
             checkConcept<GraphItemIt<_Graph, typename _Graph::Edge>,
               typename _Graph::EdgeIt >();
             checkConcept<GraphIncIt<_Graph, typename _Graph::Edge, 
-              typename _Graph::Node, 'u'>, typename _Graph::IncArcIt>();
+              typename _Graph::Node, 'u'>, typename _Graph::IncEdgeIt>();
             
             typename _Graph::Node n;
-            typename _Graph::IncArcIt ueit(INVALID);
+            typename _Graph::IncEdgeIt ueit(INVALID);
             n = graph.baseNode(ueit);
             n = graph.runningNode(ueit);
           }

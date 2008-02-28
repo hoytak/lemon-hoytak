@@ -63,7 +63,7 @@ namespace lemon {
     /// The EdgeIt is an iterator for the edges. We can use
     /// the EdgeMap to map values for the edges. The InArcIt and
     /// OutArcIt iterates on the same edges but with opposite
-    /// direction. The IncArcIt iterates also on the same edges
+    /// direction. The IncEdgeIt iterates also on the same edges
     /// as the OutArcIt and InArcIt but it is not convertible to Arc just
     /// to Edge.  
     class Graph {
@@ -270,41 +270,41 @@ namespace lemon {
       ///
       ///\code
       /// int count=0;
-      /// for(Graph::IncArcIt e(g, n); e!=INVALID; ++e) ++count;
+      /// for(Graph::IncEdgeIt e(g, n); e!=INVALID; ++e) ++count;
       ///\endcode
-      class IncArcIt : public Edge {
+      class IncEdgeIt : public Edge {
       public:
         /// Default constructor
 
         /// @warning The default constructor sets the iterator
         /// to an undefined value.
-        IncArcIt() { }
+        IncEdgeIt() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
-        IncArcIt(const IncArcIt& e) : Edge(e) { }
+        IncEdgeIt(const IncEdgeIt& e) : Edge(e) { }
         /// Initialize the iterator to be invalid.
 
         /// Initialize the iterator to be invalid.
         ///
-        IncArcIt(Invalid) { }
+        IncEdgeIt(Invalid) { }
         /// This constructor sets the iterator to first incident arc.
     
         /// This constructor set the iterator to the first incident arc of
         /// the node.
-        IncArcIt(const Graph&, const Node&) { }
-        /// Edge -> IncArcIt conversion
+        IncEdgeIt(const Graph&, const Node&) { }
+        /// Edge -> IncEdgeIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
         /// This feature necessitates that each time we 
         /// iterate the arc-set, the iteration order is the same.
-        IncArcIt(const Graph&, const Edge&) { }
+        IncEdgeIt(const Graph&, const Edge&) { }
         /// Next incident arc
 
         /// Assign the iterator to the next incident arc
 	/// of the corresponding node.
-        IncArcIt& operator++() { return *this; }
+        IncEdgeIt& operator++() { return *this; }
       };
 
       /// The directed arc type.
@@ -720,14 +720,14 @@ namespace lemon {
       /// \brief Base node of the iterator
       ///
       /// Returns the base node of the iterator
-      Node baseNode(IncArcIt) const {
+      Node baseNode(IncEdgeIt) const {
 	return INVALID;
       }
       
       /// \brief Running node of the iterator
       ///
       /// Returns the running node of the iterator
-      Node runningNode(IncArcIt) const {
+      Node runningNode(IncEdgeIt) const {
 	return INVALID;
       }
 
