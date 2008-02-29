@@ -18,11 +18,13 @@ lemon_HEADERS += \
         lemon/concept_check.h \
         lemon/dim2.h \
 	lemon/error.h \
+	lemon/kruskal.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
         lemon/random.h \
-        lemon/tolerance.h
+        lemon/tolerance.h \
+	lemon/unionfind.h
 
 bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \
