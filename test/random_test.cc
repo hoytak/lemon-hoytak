@@ -33,4 +33,5 @@ int main()
   a=lemon::rnd.gamma(4);
   //Does gamma work with integer k?
   a=lemon::rnd.gamma(4.0,0);
+  a=lemon::rnd.poisson(.5);
 }
