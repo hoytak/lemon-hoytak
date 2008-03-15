@@ -86,8 +86,8 @@ namespace lemon {
 
   /// Constant map.
 
-  /// This is a \ref concepts::ReadMap "readable" map which assigns a
-  /// specified value to each key.
+  /// This \ref concepts::ReadMap "readable map" assigns a specified
+  /// value to each key.
   ///
   /// In other aspects it is equivalent to \ref NullMap.
   /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
@@ -149,8 +149,8 @@ namespace lemon {
 
   /// Constant map with inlined constant value.
 
-  /// This is a \ref concepts::ReadMap "readable" map which assigns a
-  /// specified value to each key.
+  /// This \ref concepts::ReadMap "readable map" assigns a specified
+  /// value to each key.
   ///
   /// In other aspects it is equivalent to \ref NullMap.
   /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
@@ -189,10 +189,10 @@ namespace lemon {
   }
 
 
-  /// \brief Identity map.
-  ///
-  /// This map gives back the given key as value without any
-  /// modification.
+  /// Identity map.
+
+  /// This \ref concepts::ReadMap "read-only map" gives back the given
+  /// key as value without any modification.
   ///
   /// \sa ConstMap
   template <typename T>
@@ -203,8 +203,8 @@ namespace lemon {
     typedef typename Parent::Value Value;
 
     /// Gives back the given value without any modification.
-    const T& operator[](const T& t) const {
-      return t;
+    Value operator[](const Key &k) const {
+      return k;
     }
   };
 
@@ -464,7 +464,7 @@ namespace lemon {
 
   /// Composition of two maps
 
-  /// This \ref concepts::ReadMap "read only map" returns the
+  /// This \ref concepts::ReadMap "read-only map" returns the
   /// composition of two given maps. That is to say, if \c m1 is of
   /// type \c M1 and \c m2 is of \c M2, then for
   /// \code
@@ -516,7 +516,7 @@ namespace lemon {
 
   /// Combination of two maps using an STL (binary) functor.
 
-  /// This \ref concepts::ReadMap "read only map" takes two maps and a
+  /// This \ref concepts::ReadMap "read-only map" takes two maps and a
   /// binary functor and returns the combination of the two given maps
   /// using the functor.
   /// That is to say, if \c m1 is of type \c M1 and \c m2 is of \c M2
@@ -595,7 +595,7 @@ namespace lemon {
 
   /// Converts an STL style (unary) functor to a map
 
-  /// This \ref concepts::ReadMap "read only map" returns the value
+  /// This \ref concepts::ReadMap "read-only map" returns the value
   /// of a given functor. Actually, it just wraps the functor and
   /// provides the \c Key and \c Value typedefs.
   ///
@@ -775,7 +775,7 @@ namespace lemon {
 
   /// Sum of two maps
 
-  /// This \ref concepts::ReadMap "read only map" returns the sum
+  /// This \ref concepts::ReadMap "read-only map" returns the sum
   /// of the values of the two given maps.
   /// Its \c Key and \c Value types are inherited from \c M1.
   /// The \c Key and \c Value of \c M2 must be convertible to those of
@@ -824,7 +824,7 @@ namespace lemon {
 
   /// Difference of two maps
 
-  /// This \ref concepts::ReadMap "read only map" returns the difference
+  /// This \ref concepts::ReadMap "read-only map" returns the difference
   /// of the values of the two given maps.
   /// Its \c Key and \c Value types are inherited from \c M1.
   /// The \c Key and \c Value of \c M2 must be convertible to those of
@@ -872,7 +872,7 @@ namespace lemon {
 
   /// Product of two maps
 
-  /// This \ref concepts::ReadMap "read only map" returns the product
+  /// This \ref concepts::ReadMap "read-only map" returns the product
   /// of the values of the two given maps.
   /// Its \c Key and \c Value types are inherited from \c M1.
   /// The \c Key and \c Value of \c M2 must be convertible to those of
@@ -921,7 +921,7 @@ namespace lemon {
 
   /// Quotient of two maps
 
-  /// This \ref concepts::ReadMap "read only map" returns the quotient
+  /// This \ref concepts::ReadMap "read-only map" returns the quotient
   /// of the values of the two given maps.
   /// Its \c Key and \c Value types are inherited from \c M1.
   /// The \c Key and \c Value of \c M2 must be convertible to those of
@@ -969,7 +969,7 @@ namespace lemon {
 
   /// Shifts a map with a constant.
 
-  /// This \ref concepts::ReadMap "read only map" returns the sum of
+  /// This \ref concepts::ReadMap "read-only map" returns the sum of
   /// the given map and a constant value (i.e. it shifts the map with
   /// the constant). Its \c Key and \c Value are inherited from \c M.
   ///
@@ -1070,7 +1070,7 @@ namespace lemon {
 
   /// Scales a map with a constant.
 
-  /// This \ref concepts::ReadMap "read only map" returns the value of
+  /// This \ref concepts::ReadMap "read-only map" returns the value of
   /// the given map multiplied from the left side with a constant value.
   /// Its \c Key and \c Value are inherited from \c M.
   ///
@@ -1172,7 +1172,7 @@ namespace lemon {
 
   /// Negative of a map
 
-  /// This \ref concepts::ReadMap "read only map" returns the negative
+  /// This \ref concepts::ReadMap "read-only map" returns the negative
   /// of the values of the given map (using the unary \c - operator).
   /// Its \c Key and \c Value are inherited from \c M.
   ///
@@ -1270,7 +1270,7 @@ namespace lemon {
 
   /// Absolute value of a map
 
-  /// This \ref concepts::ReadMap "read only map" returns the absolute
+  /// This \ref concepts::ReadMap "read-only map" returns the absolute
   /// value of the values of the given map.
   /// Its \c Key and \c Value are inherited from \c M.
   /// \c Value must be comparable to \c 0 and the unary \c -
@@ -1311,10 +1311,190 @@ namespace lemon {
     return AbsMap<M>(m);
   }
 
+  /// @}
+  
+  // Logical maps and map adaptors:
+
+  /// \addtogroup maps
+  /// @{
+
+  /// Constant \c true map.
+
+  /// This \ref concepts::ReadMap "read-only map" assigns \c true to
+  /// each key.
+  ///
+  /// Note that
+  /// \code
+  ///   TrueMap<K> tm;
+  /// \endcode
+  /// is equivalent to
+  /// \code
+  ///   ConstMap<K,bool> tm(true);
+  /// \endcode
+  ///
+  /// \sa FalseMap
+  /// \sa ConstMap
+  template <typename K>
+  class TrueMap : public MapBase<K, bool> {
+  public:
+    typedef MapBase<K, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Gives back \c true.
+    Value operator[](const Key&) const { return true; }
+  };
+
+  /// Returns a \ref TrueMap class
+
+  /// This function just returns a \ref TrueMap class.
+  /// \relates TrueMap
+  template<typename K>
+  inline TrueMap<K> trueMap() {
+    return TrueMap<K>();
+  }
+
+
+  /// Constant \c false map.
+
+  /// This \ref concepts::ReadMap "read-only map" assigns \c false to
+  /// each key.
+  ///
+  /// Note that
+  /// \code
+  ///   FalseMap<K> fm;
+  /// \endcode
+  /// is equivalent to
+  /// \code
+  ///   ConstMap<K,bool> fm(false);
+  /// \endcode
+  ///
+  /// \sa TrueMap
+  /// \sa ConstMap
+  template <typename K>
+  class FalseMap : public MapBase<K, bool> {
+  public:
+    typedef MapBase<K, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Gives back \c false.
+    Value operator[](const Key&) const { return false; }
+  };
+
+  /// Returns a \ref FalseMap class
+
+  /// This function just returns a \ref FalseMap class.
+  /// \relates FalseMap
+  template<typename K>
+  inline FalseMap<K> falseMap() {
+    return FalseMap<K>();
+  }
+
+  /// @}
+
+  /// \addtogroup map_adaptors
+  /// @{
+
+  /// Logical 'and' of two maps
+
+  /// This \ref concepts::ReadMap "read-only map" returns the logical
+  /// 'and' of the values of the two given maps.
+  /// Its \c Key type is inherited from \c M1 and its \c Value type is
+  /// \c bool. \c M2::Key must be convertible to \c M1::Key.
+  ///
+  /// If \c m1 is of type \c M1 and \c m2 is of \c M2, then for
+  /// \code
+  ///   AndMap<M1,M2> am(m1,m2);
+  /// \endcode
+  /// <tt>am[x]</tt> will be equal to <tt>m1[x]&&m2[x]</tt>.
+  ///
+  /// The simplest way of using this map is through the andMap()
+  /// function.
+  ///
+  /// \sa OrMap
+  /// \sa NotMap, NotWriteMap
+  template<typename M1, typename M2>
+  class AndMap : public MapBase<typename M1::Key, bool> {
+    const M1 &_m1;
+    const M2 &_m2;
+  public:
+    typedef MapBase<typename M1::Key, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Constructor
+    AndMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
+    /// \e
+    Value operator[](const Key &k) const { return _m1[k]&&_m2[k]; }
+  };
+
+  /// Returns an \ref AndMap class
+
+  /// This function just returns an \ref AndMap class.
+  ///
+  /// For example, if \c m1 and \c m2 are both maps with \c bool values,
+  /// then <tt>andMap(m1,m2)[x]</tt> will be equal to
+  /// <tt>m1[x]&&m2[x]</tt>.
+  ///
+  /// \relates AndMap
+  template<typename M1, typename M2>
+  inline AndMap<M1, M2> andMap(const M1 &m1, const M2 &m2) {
+    return AndMap<M1, M2>(m1,m2);
+  }
+
+
+  /// Logical 'or' of two maps
+
+  /// This \ref concepts::ReadMap "read-only map" returns the logical
+  /// 'or' of the values of the two given maps.
+  /// Its \c Key type is inherited from \c M1 and its \c Value type is
+  /// \c bool. \c M2::Key must be convertible to \c M1::Key.
+  ///
+  /// If \c m1 is of type \c M1 and \c m2 is of \c M2, then for
+  /// \code
+  ///   OrMap<M1,M2> om(m1,m2);
+  /// \endcode
+  /// <tt>om[x]</tt> will be equal to <tt>m1[x]||m2[x]</tt>.
+  ///
+  /// The simplest way of using this map is through the orMap()
+  /// function.
+  ///
+  /// \sa AndMap
+  /// \sa NotMap, NotWriteMap
+  template<typename M1, typename M2>
+  class OrMap : public MapBase<typename M1::Key, bool> {
+    const M1 &_m1;
+    const M2 &_m2;
+  public:
+    typedef MapBase<typename M1::Key, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Constructor
+    OrMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
+    /// \e
+    Value operator[](const Key &k) const { return _m1[k]||_m2[k]; }
+  };
+
+  /// Returns an \ref OrMap class
+
+  /// This function just returns an \ref OrMap class.
+  ///
+  /// For example, if \c m1 and \c m2 are both maps with \c bool values,
+  /// then <tt>orMap(m1,m2)[x]</tt> will be equal to
+  /// <tt>m1[x]||m2[x]</tt>.
+  ///
+  /// \relates OrMap
+  template<typename M1, typename M2>
+  inline OrMap<M1, M2> orMap(const M1 &m1, const M2 &m2) {
+    return OrMap<M1, M2>(m1,m2);
+  }
+
 
   /// Logical 'not' of a map
 
-  /// This \ref concepts::ReadMap "read only map" returns the logical
+  /// This \ref concepts::ReadMap "read-only map" returns the logical
   /// negation of the values of the given map.
   /// Its \c Key is inherited from \c M and its \c Value is \c bool.
   ///
@@ -1389,6 +1569,102 @@ namespace lemon {
   template <typename M>
   inline NotWriteMap<M> notWriteMap(M &m) {
     return NotWriteMap<M>(m);
+  }
+
+
+  /// Combination of two maps using the \c == operator
+
+  /// This \ref concepts::ReadMap "read-only map" assigns \c true to
+  /// the keys for which the corresponding values of the two maps are
+  /// equal.
+  /// Its \c Key type is inherited from \c M1 and its \c Value type is
+  /// \c bool. \c M2::Key must be convertible to \c M1::Key.
+  ///
+  /// If \c m1 is of type \c M1 and \c m2 is of \c M2, then for
+  /// \code
+  ///   EqualMap<M1,M2> em(m1,m2);
+  /// \endcode
+  /// <tt>em[x]</tt> will be equal to <tt>m1[x]==m2[x]</tt>.
+  ///
+  /// The simplest way of using this map is through the equalMap()
+  /// function.
+  ///
+  /// \sa LessMap
+  template<typename M1, typename M2>
+  class EqualMap : public MapBase<typename M1::Key, bool> {
+    const M1 &_m1;
+    const M2 &_m2;
+  public:
+    typedef MapBase<typename M1::Key, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Constructor
+    EqualMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
+    /// \e
+    Value operator[](const Key &k) const { return _m1[k]==_m2[k]; }
+  };
+
+  /// Returns an \ref EqualMap class
+
+  /// This function just returns an \ref EqualMap class.
+  ///
+  /// For example, if \c m1 and \c m2 are maps with keys and values of
+  /// the same type, then <tt>equalMap(m1,m2)[x]</tt> will be equal to
+  /// <tt>m1[x]==m2[x]</tt>.
+  ///
+  /// \relates EqualMap
+  template<typename M1, typename M2>
+  inline EqualMap<M1, M2> equalMap(const M1 &m1, const M2 &m2) {
+    return EqualMap<M1, M2>(m1,m2);
+  }
+
+
+  /// Combination of two maps using the \c < operator
+
+  /// This \ref concepts::ReadMap "read-only map" assigns \c true to
+  /// the keys for which the corresponding value of the first map is
+  /// less then the value of the second map.
+  /// Its \c Key type is inherited from \c M1 and its \c Value type is
+  /// \c bool. \c M2::Key must be convertible to \c M1::Key.
+  ///
+  /// If \c m1 is of type \c M1 and \c m2 is of \c M2, then for
+  /// \code
+  ///   LessMap<M1,M2> lm(m1,m2);
+  /// \endcode
+  /// <tt>lm[x]</tt> will be equal to <tt>m1[x]<m2[x]</tt>.
+  ///
+  /// The simplest way of using this map is through the lessMap()
+  /// function.
+  ///
+  /// \sa EqualMap
+  template<typename M1, typename M2>
+  class LessMap : public MapBase<typename M1::Key, bool> {
+    const M1 &_m1;
+    const M2 &_m2;
+  public:
+    typedef MapBase<typename M1::Key, bool> Parent;
+    typedef typename Parent::Key Key;
+    typedef typename Parent::Value Value;
+
+    /// Constructor
+    LessMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
+    /// \e
+    Value operator[](const Key &k) const { return _m1[k]<_m2[k]; }
+  };
+
+  /// Returns an \ref LessMap class
+
+  /// This function just returns an \ref LessMap class.
+  ///
+  /// For example, if \c m1 and \c m2 are maps with keys and values of
+  /// the same type, then <tt>lessMap(m1,m2)[x]</tt> will be equal to
+  /// <tt>m1[x]<m2[x]</tt>.
+  ///
+  /// \relates LessMap
+  template<typename M1, typename M2>
+  inline LessMap<M1, M2> lessMap(const M1 &m1, const M2 &m2) {
+    return LessMap<M1, M2>(m1,m2);
   }
 
   /// @}

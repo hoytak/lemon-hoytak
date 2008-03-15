@@ -78,7 +78,7 @@ int main()
     ConstMap<A,B> map3 = map1;
     map1 = constMap<A>(B());
     map1.setAll(B());
-    
+
     checkConcept<ReadWriteMap<A,int>, ConstMap<A,int> >();
     check(constMap<A>(10)[A()] == 10, "Something is wrong with ConstMap");
 
@@ -95,7 +95,7 @@ int main()
     IdentityMap<A> map1;
     IdentityMap<A> map2 = map1;
     map1 = identityMap<A>();
-    
+
     checkConcept<ReadMap<double,double>, IdentityMap<double> >();
     check(identityMap<double>()[1.0] == 1.0 && identityMap<double>()[3.14] == 3.14,
           "Something is wrong with IdentityMap");
@@ -151,7 +151,7 @@ int main()
     checkConcept<ReadMap<B,double>, CompMap>();
     CompMap map1(DoubleMap(),ReadMap<B,A>());
     CompMap map2 = composeMap(DoubleMap(), ReadMap<B,A>());
-    
+
     SparseMap<double, bool> m1(false); m1[3.14] = true;
     RangeMap<double> m2(2); m2[0] = 3.0; m2[1] = 3.14;
     check(!composeMap(m1,m2)[0] && composeMap(m1,m2)[1], "Something is wrong with ComposeMap")
@@ -197,7 +197,7 @@ int main()
   // ForkMap
   {
     checkConcept<DoubleWriteMap, ForkMap<DoubleWriteMap, DoubleWriteMap> >();
-    
+
     typedef RangeMap<double> RM;
     typedef SparseMap<int, double> SM;
     RM m1(10, -1);
@@ -210,7 +210,7 @@ int main()
     check(m1[1] == -1 && m1[5] == 10 && m2[1] == -1 && m2[5] == 10 && map2[1] == -1 && map2[5] == 10,
           "Something is wrong with ForkMap");
   }
-  
+
   // Arithmetic maps:
   // - AddMap, SubMap, MulMap, DivMap
   // - ShiftMap, ShiftWriteMap, ScaleMap, ScaleWriteMap
@@ -220,7 +220,7 @@ int main()
     checkConcept<DoubleMap, SubMap<DoubleMap,DoubleMap> >();
     checkConcept<DoubleMap, MulMap<DoubleMap,DoubleMap> >();
     checkConcept<DoubleMap, DivMap<DoubleMap,DoubleMap> >();
-    
+
     ConstMap<int, double> c1(1.0), c2(3.14);
     IdentityMap<int> im;
     ConvertMap<IdentityMap<int>, double> id(im);
@@ -228,7 +228,7 @@ int main()
     check(subMap(id,c1)[0] == -1.0 && subMap(id,c1)[10] == 9.0,  "Something is wrong with SubMap");
     check(mulMap(id,c2)[0] == 0    && mulMap(id,c2)[2]  == 6.28, "Something is wrong with MulMap");
     check(divMap(c2,id)[1] == 3.14 && divMap(c2,id)[2]  == 1.57, "Something is wrong with DivMap");
-    
+
     checkConcept<DoubleMap, ShiftMap<DoubleMap> >();
     checkConcept<DoubleWriteMap, ShiftWriteMap<DoubleWriteMap> >();
     checkConcept<DoubleMap, ScaleMap<DoubleMap> >();
@@ -252,16 +252,40 @@ int main()
     check(absMap(id)[1] == 1.0 && absMap(id)[-10] == 10.0,
           "Something is wrong with AbsMap");
   }
-  
-  // Logical maps
+
+  // Logical maps:
+  // - TrueMap, FalseMap
+  // - AndMap, OrMap
+  // - NotMap, NotWriteMap
+  // - EqualMap, LessMap
   {
+    checkConcept<BoolMap, TrueMap<A> >();
+    checkConcept<BoolMap, FalseMap<A> >();
+    checkConcept<BoolMap, AndMap<BoolMap,BoolMap> >();
+    checkConcept<BoolMap, OrMap<BoolMap,BoolMap> >();
     checkConcept<BoolMap, NotMap<BoolMap> >();
     checkConcept<BoolWriteMap, NotWriteMap<BoolWriteMap> >();
-    
+    checkConcept<BoolMap, EqualMap<DoubleMap,DoubleMap> >();
+    checkConcept<BoolMap, LessMap<DoubleMap,DoubleMap> >();
+
+    TrueMap<int> tm;
+    FalseMap<int> fm;
     RangeMap<bool> rm(2);
     rm[0] = true; rm[1] = false;
-    check(!(notMap(rm)[0]) && notMap(rm)[1], "Something is wrong with NotMap");
-    check(!(notWriteMap(rm)[0]) && notWriteMap(rm)[1], "Something is wrong with NotWriteMap");
+    check(andMap(tm,rm)[0] && !andMap(tm,rm)[1] && !andMap(fm,rm)[0] && !andMap(fm,rm)[1],
+          "Something is wrong with AndMap");
+    check(orMap(tm,rm)[0] && orMap(tm,rm)[1] && orMap(fm,rm)[0] && !orMap(fm,rm)[1],
+          "Something is wrong with OrMap");
+    check(!notMap(rm)[0] && notMap(rm)[1], "Something is wrong with NotMap");
+    check(!notWriteMap(rm)[0] && notWriteMap(rm)[1], "Something is wrong with NotWriteMap");
+
+    ConstMap<int, double> cm(2.0);
+    IdentityMap<int> im;
+    ConvertMap<IdentityMap<int>, double> id(im);
+    check(lessMap(id,cm)[1] && !lessMap(id,cm)[2] && !lessMap(id,cm)[3],
+          "Something is wrong with LessMap");
+    check(!equalMap(id,cm)[1] && equalMap(id,cm)[2] && !equalMap(id,cm)[3],
+          "Something is wrong with EqualMap");
   }
 
   return 0;
