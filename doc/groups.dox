@@ -38,13 +38,13 @@ limitations or in the set of operations through which the graph can be
 accessed.  LEMON provides several physical graph structures to meet
 the diverging requirements of the possible users.  In order to save on
 running time or on memory usage, some structures may fail to provide
-some graph features like edge or node deletion.
+some graph features like arc/edge or node deletion.
 
 Alteration of standard containers need a very limited number of 
 operations, these together satisfy the everyday requirements. 
 In the case of graph structures, different operations are needed which do 
 not alter the physical graph, but gives another view. If some nodes or 
-edges have to be hidden or the reverse oriented graph have to be used, then 
+arcs have to be hidden or the reverse oriented graph have to be used, then
 this is the case. It also may happen that in a flow implementation 
 the residual graph can be accessed by another algorithm, or a node-set 
 is to be shrunk for another algorithm. 
@@ -81,10 +81,10 @@ new maps from existing ones.
 /**
 @defgroup graph_maps Graph Maps 
 @ingroup maps
-\brief Special Graph-Related Maps.
+\brief Special graph-related maps.
 
 This group describes maps that are specifically designed to assign
-values to the nodes and edges of graphs.
+values to the nodes and arcs of graphs.
 */
 
 
@@ -96,15 +96,15 @@ values to the nodes and edges of graphs.
 This group describes map adaptors that are used to create "implicit"
 maps from other maps.
 
-Most of them are \ref lemon::concepts::ReadMap "ReadMap"s. They can
-make arithmetic operations between one or two maps (negation, scaling,
-addition, multiplication etc.) or e.g. convert a map to another one
-of different Value type.
+Most of them are \ref lemon::concepts::ReadMap "read-only maps".
+They can make arithmetic and logical operations between one or two maps
+(negation, shifting, addition, multiplication, logical 'and', 'or',
+'not' etc.) or e.g. convert a map to another one of different Value type.
 
 The typical usage of this classes is passing implicit maps to
 algorithms.  If a function type algorithm is called then the function
 type map adaptors can be used comfortable. For example let's see the
-usage of map adaptors with the \c graphToEps() function:
+usage of map adaptors with the \c digraphToEps() function.
 \code
   Color nodeColor(int deg) {
     if (deg >= 2) {
@@ -116,39 +116,37 @@ usage of map adaptors with the \c graphToEps() function:
     }
   }
   
-  Graph::NodeMap<int> degree_map(graph);
+  Digraph::NodeMap<int> degree_map(graph);
   
-  graphToEps(graph, "graph.eps")
+  digraphToEps(graph, "graph.eps")
     .coords(coords).scaleToA4().undirected()
-    .nodeColors(composeMap(functorMap(nodeColor), degree_map)) 
+    .nodeColors(composeMap(functorToMap(nodeColor), degree_map))
     .run();
 \endcode 
-The \c functorMap() function makes an \c int to \c Color map from the
+The \c functorToMap() function makes an \c int to \c Color map from the
 \e nodeColor() function. The \c composeMap() compose the \e degree_map
-and the previous created map. The composed map is proper function to
-get color of each node.
+and the previously created map. The composed map is a proper function to
+get the color of each node.
 
 The usage with class type algorithms is little bit harder. In this
 case the function type map adaptors can not be used, because the
 function map adaptors give back temporary objects.
 \code
-  Graph graph;
-  
-  typedef Graph::EdgeMap<double> DoubleEdgeMap;
-  DoubleEdgeMap length(graph);
-  DoubleEdgeMap speed(graph);
-  
-  typedef DivMap<DoubleEdgeMap, DoubleEdgeMap> TimeMap;
-  
+  Digraph graph;
+
+  typedef Digraph::ArcMap<double> DoubleArcMap;
+  DoubleArcMap length(graph);
+  DoubleArcMap speed(graph);
+
+  typedef DivMap<DoubleArcMap, DoubleArcMap> TimeMap;
   TimeMap time(length, speed);
   
-  Dijkstra<Graph, TimeMap> dijkstra(graph, time);
+  Dijkstra<Digraph, TimeMap> dijkstra(graph, time);
   dijkstra.run(source, target);
 \endcode
-
-We have a length map and a maximum speed map on a graph. The minimum
-time to pass the edge can be calculated as the division of the two
-maps which can be done implicitly with the \c DivMap template
+We have a length map and a maximum speed map on the arcs of a digraph.
+The minimum time to pass the arc can be calculated as the division of
+the two maps which can be done implicitly with the \c DivMap template
 class. We use the implicit minimum time map as the length map of the
 \c Dijkstra algorithm.
 */
@@ -315,7 +313,7 @@ This group describes the algorithms for planarity checking, embedding and drawin
 
 This group contains algorithm objects and functions to calculate
 matchings in graphs and bipartite graphs. The general matching problem is
-finding a subset of the edges which does not shares common endpoints.
+finding a subset of the arcs which does not shares common endpoints.
  
 There are several different algorithms for calculate matchings in
 graphs.  The matching problems in bipartite graphs are generally

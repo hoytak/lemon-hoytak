@@ -37,72 +37,256 @@ public:
   typedef A argument_type;
   typedef B result_type;
 
-  B operator()(const A &) const {return B();}
+  B operator()(const A&) const { return B(); }
+private:
+  F& operator=(const F&);
 };
 
-int func(A) {return 3;}
+int func(A) { return 3; }
 
-int binc(int, B) {return 4;}
+int binc(int a, B) { return a+1; }
 
-typedef ReadMap<A,double> DoubleMap;
-typedef ReadWriteMap<A, double> WriteDoubleMap;
+typedef ReadMap<A, double> DoubleMap;
+typedef ReadWriteMap<A, double> DoubleWriteMap;
+typedef ReferenceMap<A, double, double&, const double&> DoubleRefMap;
 
-typedef ReadMap<A,bool> BoolMap;
+typedef ReadMap<A, bool> BoolMap;
 typedef ReadWriteMap<A, bool> BoolWriteMap;
+typedef ReferenceMap<A, bool, bool&, const bool&> BoolRefMap;
 
 int main()
-{ // checking graph components
-  
+{
+  // Map concepts
   checkConcept<ReadMap<A,B>, ReadMap<A,B> >();
   checkConcept<WriteMap<A,B>, WriteMap<A,B> >();
   checkConcept<ReadWriteMap<A,B>, ReadWriteMap<A,B> >();
   checkConcept<ReferenceMap<A,B,B&,const B&>, ReferenceMap<A,B,B&,const B&> >();
 
-  checkConcept<ReadMap<A,double>, AddMap<DoubleMap,DoubleMap> >();
-  checkConcept<ReadMap<A,double>, SubMap<DoubleMap,DoubleMap> >();
-  checkConcept<ReadMap<A,double>, MulMap<DoubleMap,DoubleMap> >();
-  checkConcept<ReadMap<A,double>, DivMap<DoubleMap,DoubleMap> >();
-  checkConcept<ReadMap<A,double>, NegMap<DoubleMap> >();
-  checkConcept<ReadWriteMap<A,double>, NegWriteMap<WriteDoubleMap> >();
-  checkConcept<ReadMap<A,double>, AbsMap<DoubleMap> >();
-  checkConcept<ReadMap<A,double>, ShiftMap<DoubleMap> >();
-  checkConcept<ReadWriteMap<A,double>, ShiftWriteMap<WriteDoubleMap> >();
-  checkConcept<ReadMap<A,double>, ScaleMap<DoubleMap> >();
-  checkConcept<ReadWriteMap<A,double>, ScaleWriteMap<WriteDoubleMap> >();
-  checkConcept<ReadMap<A,double>, ForkMap<DoubleMap, DoubleMap> >();
-  checkConcept<ReadWriteMap<A,double>, 
-    ForkWriteMap<WriteDoubleMap, WriteDoubleMap> >();
-  
-  checkConcept<ReadMap<B,double>, ComposeMap<DoubleMap,ReadMap<B,A> > >();
+  // NullMap
+  {
+    checkConcept<ReadWriteMap<A,B>, NullMap<A,B> >();
+    NullMap<A,B> map1;
+    NullMap<A,B> map2 = map1;
+    map1 = nullMap<A,B>();
+  }
 
-  checkConcept<ReadMap<A,B>, FunctorMap<F, A, B> >();
+  // ConstMap
+  {
+    checkConcept<ReadWriteMap<A,B>, ConstMap<A,B> >();
+    ConstMap<A,B> map1;
+    ConstMap<A,B> map2(B());
+    ConstMap<A,B> map3 = map1;
+    map1 = constMap<A>(B());
+    map1.setAll(B());
 
-  checkConcept<ReadMap<A, bool>, NotMap<BoolMap> >();
-  checkConcept<ReadWriteMap<A, bool>, NotWriteMap<BoolWriteMap> >();
+    checkConcept<ReadWriteMap<A,int>, ConstMap<A,int> >();
+    check(constMap<A>(10)[A()] == 10, "Something is wrong with ConstMap");
 
-  checkConcept<WriteMap<A, bool>, StoreBoolMap<A*> >();
-  checkConcept<WriteMap<A, bool>, BackInserterBoolMap<std::deque<A> > >();
-  checkConcept<WriteMap<A, bool>, FrontInserterBoolMap<std::deque<A> > >();
-  checkConcept<WriteMap<A, bool>, InserterBoolMap<std::set<A> > >();
-  checkConcept<WriteMap<A, bool>, FillBoolMap<WriteMap<A, B> > >();
-  checkConcept<WriteMap<A, bool>, SettingOrderBoolMap<WriteMap<A, int> > >();
+    checkConcept<ReadWriteMap<A,int>, ConstMap<A,Const<int,10> > >();
+    ConstMap<A,Const<int,10> > map4;
+    ConstMap<A,Const<int,10> > map5 = map4;
+    map4 = map5;
+    check(map4[A()] == 10 && map5[A()] == 10, "Something is wrong with ConstMap");
+  }
 
-  int a;
-  
-  a=mapFunctor(constMap<A,int>(2))(A());
-  check(a==2,"Something is wrong with mapFunctor");
+  // IdentityMap
+  {
+    checkConcept<ReadMap<A,A>, IdentityMap<A> >();
+    IdentityMap<A> map1;
+    IdentityMap<A> map2 = map1;
+    map1 = identityMap<A>();
 
-  B b;
-  b=functorMap(F())[A()];
+    checkConcept<ReadMap<double,double>, IdentityMap<double> >();
+    check(identityMap<double>()[1.0] == 1.0 && identityMap<double>()[3.14] == 3.14,
+          "Something is wrong with IdentityMap");
+  }
 
-  a=functorMap(&func)[A()];
-  check(a==3,"Something is wrong with functorMap");
+  // RangeMap
+  {
+    checkConcept<ReferenceMap<int,B,B&,const B&>, RangeMap<B> >();
+    RangeMap<B> map1;
+    RangeMap<B> map2(10);
+    RangeMap<B> map3(10,B());
+    RangeMap<B> map4 = map1;
+    RangeMap<B> map5 = rangeMap<B>();
+    RangeMap<B> map6 = rangeMap<B>(10);
+    RangeMap<B> map7 = rangeMap(10,B());
 
-  a=combineMap(constMap<B, int, 1>(), identityMap<B>(), &binc)[B()];
-  check(a==4,"Something is wrong with combineMap");
-  
+    checkConcept< ReferenceMap<int, double, double&, const double&>,
+                  RangeMap<double> >();
+    std::vector<double> v(10, 0);
+    v[5] = 100;
+    RangeMap<double> map8(v);
+    RangeMap<double> map9 = rangeMap(v);
+    check(map9.size() == 10 && map9[2] == 0 && map9[5] == 100,
+          "Something is wrong with RangeMap");
+  }
 
-  std::cout << __FILE__ ": All tests passed.\n";
-  
+  // SparseMap
+  {
+    checkConcept<ReferenceMap<A,B,B&,const B&>, SparseMap<A,B> >();
+    SparseMap<A,B> map1;
+    SparseMap<A,B> map2(B());
+    SparseMap<A,B> map3 = sparseMap<A,B>();
+    SparseMap<A,B> map4 = sparseMap<A>(B());
+
+    checkConcept< ReferenceMap<double, int, int&, const int&>,
+                  SparseMap<double, int> >();
+    std::map<double, int> m;
+    SparseMap<double, int> map5(m);
+    SparseMap<double, int> map6(m,10);
+    SparseMap<double, int> map7 = sparseMap(m);
+    SparseMap<double, int> map8 = sparseMap(m,10);
+
+    check(map5[1.0] == 0 && map5[3.14] == 0 && map6[1.0] == 10 && map6[3.14] == 10,
+          "Something is wrong with SparseMap");
+    map5[1.0] = map6[3.14] = 100;
+    check(map5[1.0] == 100 && map5[3.14] == 0 && map6[1.0] == 10 && map6[3.14] == 100,
+          "Something is wrong with SparseMap");
+  }
+
+  // ComposeMap
+  {
+    typedef ComposeMap<DoubleMap, ReadMap<B,A> > CompMap;
+    checkConcept<ReadMap<B,double>, CompMap>();
+    CompMap map1(DoubleMap(),ReadMap<B,A>());
+    CompMap map2 = composeMap(DoubleMap(), ReadMap<B,A>());
+
+    SparseMap<double, bool> m1(false); m1[3.14] = true;
+    RangeMap<double> m2(2); m2[0] = 3.0; m2[1] = 3.14;
+    check(!composeMap(m1,m2)[0] && composeMap(m1,m2)[1], "Something is wrong with ComposeMap")
+  }
+
+  // CombineMap
+  {
+    typedef CombineMap<DoubleMap, DoubleMap, std::plus<double> > CombMap;
+    checkConcept<ReadMap<A,double>, CombMap>();
+    CombMap map1(DoubleMap(), DoubleMap());
+    CombMap map2 = combineMap(DoubleMap(), DoubleMap(), std::plus<double>());
+
+    check(combineMap(constMap<B,int,2>(), identityMap<B>(), &binc)[B()] == 3,
+          "Something is wrong with CombineMap");
+  }
+
+  // FunctorToMap, MapToFunctor
+  {
+    checkConcept<ReadMap<A,B>, FunctorToMap<F,A,B> >();
+    checkConcept<ReadMap<A,B>, FunctorToMap<F> >();
+    FunctorToMap<F> map1;
+    FunctorToMap<F> map2(F());
+    B b = functorToMap(F())[A()];
+
+    checkConcept<ReadMap<A,B>, MapToFunctor<ReadMap<A,B> > >();
+    MapToFunctor<ReadMap<A,B> > map(ReadMap<A,B>());
+
+    check(functorToMap(&func)[A()] == 3, "Something is wrong with FunctorToMap");
+    check(mapToFunctor(constMap<A,int>(2))(A()) == 2, "Something is wrong with MapToFunctor");
+    check(mapToFunctor(functorToMap(&func))(A()) == 3 && mapToFunctor(functorToMap(&func))[A()] == 3,
+          "Something is wrong with FunctorToMap or MapToFunctor");
+    check(functorToMap(mapToFunctor(constMap<A,int>(2)))[A()] == 2,
+          "Something is wrong with FunctorToMap or MapToFunctor");
+  }
+
+  // ConvertMap
+  {
+    checkConcept<ReadMap<double,double>, ConvertMap<ReadMap<double, int>, double> >();
+    ConvertMap<RangeMap<bool>, int> map1(rangeMap(1, true));
+    ConvertMap<RangeMap<bool>, int> map2 = convertMap<int>(rangeMap(2, false));
+  }
+
+  // ForkMap
+  {
+    checkConcept<DoubleWriteMap, ForkMap<DoubleWriteMap, DoubleWriteMap> >();
+
+    typedef RangeMap<double> RM;
+    typedef SparseMap<int, double> SM;
+    RM m1(10, -1);
+    SM m2(-1);
+    checkConcept<ReadWriteMap<int, double>, ForkMap<RM, SM> >();
+    checkConcept<ReadWriteMap<int, double>, ForkMap<SM, RM> >();
+    ForkMap<RM, SM> map1(m1,m2);
+    ForkMap<SM, RM> map2 = forkMap(m2,m1);
+    map2.set(5, 10);
+    check(m1[1] == -1 && m1[5] == 10 && m2[1] == -1 && m2[5] == 10 && map2[1] == -1 && map2[5] == 10,
+          "Something is wrong with ForkMap");
+  }
+
+  // Arithmetic maps:
+  // - AddMap, SubMap, MulMap, DivMap
+  // - ShiftMap, ShiftWriteMap, ScaleMap, ScaleWriteMap
+  // - NegMap, NegWriteMap, AbsMap
+  {
+    checkConcept<DoubleMap, AddMap<DoubleMap,DoubleMap> >();
+    checkConcept<DoubleMap, SubMap<DoubleMap,DoubleMap> >();
+    checkConcept<DoubleMap, MulMap<DoubleMap,DoubleMap> >();
+    checkConcept<DoubleMap, DivMap<DoubleMap,DoubleMap> >();
+
+    ConstMap<int, double> c1(1.0), c2(3.14);
+    IdentityMap<int> im;
+    ConvertMap<IdentityMap<int>, double> id(im);
+    check(addMap(c1,id)[0] == 1.0  && addMap(c1,id)[10] == 11.0, "Something is wrong with AddMap");
+    check(subMap(id,c1)[0] == -1.0 && subMap(id,c1)[10] == 9.0,  "Something is wrong with SubMap");
+    check(mulMap(id,c2)[0] == 0    && mulMap(id,c2)[2]  == 6.28, "Something is wrong with MulMap");
+    check(divMap(c2,id)[1] == 3.14 && divMap(c2,id)[2]  == 1.57, "Something is wrong with DivMap");
+
+    checkConcept<DoubleMap, ShiftMap<DoubleMap> >();
+    checkConcept<DoubleWriteMap, ShiftWriteMap<DoubleWriteMap> >();
+    checkConcept<DoubleMap, ScaleMap<DoubleMap> >();
+    checkConcept<DoubleWriteMap, ScaleWriteMap<DoubleWriteMap> >();
+    checkConcept<DoubleMap, NegMap<DoubleMap> >();
+    checkConcept<DoubleWriteMap, NegWriteMap<DoubleWriteMap> >();
+    checkConcept<DoubleMap, AbsMap<DoubleMap> >();
+
+    check(shiftMap(id, 2.0)[1] == 3.0 && shiftMap(id, 2.0)[10] == 12.0,
+          "Something is wrong with ShiftMap");
+    check(shiftWriteMap(id, 2.0)[1] == 3.0 && shiftWriteMap(id, 2.0)[10] == 12.0,
+          "Something is wrong with ShiftWriteMap");
+    check(scaleMap(id, 2.0)[1] == 2.0 && scaleMap(id, 2.0)[10] == 20.0,
+          "Something is wrong with ScaleMap");
+    check(scaleWriteMap(id, 2.0)[1] == 2.0 && scaleWriteMap(id, 2.0)[10] == 20.0,
+          "Something is wrong with ScaleWriteMap");
+    check(negMap(id)[1] == -1.0 && negMap(id)[-10] == 10.0,
+          "Something is wrong with NegMap");
+    check(negWriteMap(id)[1] == -1.0 && negWriteMap(id)[-10] == 10.0,
+          "Something is wrong with NegWriteMap");
+    check(absMap(id)[1] == 1.0 && absMap(id)[-10] == 10.0,
+          "Something is wrong with AbsMap");
+  }
+
+  // Logical maps:
+  // - TrueMap, FalseMap
+  // - AndMap, OrMap
+  // - NotMap, NotWriteMap
+  // - EqualMap, LessMap
+  {
+    checkConcept<BoolMap, TrueMap<A> >();
+    checkConcept<BoolMap, FalseMap<A> >();
+    checkConcept<BoolMap, AndMap<BoolMap,BoolMap> >();
+    checkConcept<BoolMap, OrMap<BoolMap,BoolMap> >();
+    checkConcept<BoolMap, NotMap<BoolMap> >();
+    checkConcept<BoolWriteMap, NotWriteMap<BoolWriteMap> >();
+    checkConcept<BoolMap, EqualMap<DoubleMap,DoubleMap> >();
+    checkConcept<BoolMap, LessMap<DoubleMap,DoubleMap> >();
+
+    TrueMap<int> tm;
+    FalseMap<int> fm;
+    RangeMap<bool> rm(2);
+    rm[0] = true; rm[1] = false;
+    check(andMap(tm,rm)[0] && !andMap(tm,rm)[1] && !andMap(fm,rm)[0] && !andMap(fm,rm)[1],
+          "Something is wrong with AndMap");
+    check(orMap(tm,rm)[0] && orMap(tm,rm)[1] && orMap(fm,rm)[0] && !orMap(fm,rm)[1],
+          "Something is wrong with OrMap");
+    check(!notMap(rm)[0] && notMap(rm)[1], "Something is wrong with NotMap");
+    check(!notWriteMap(rm)[0] && notWriteMap(rm)[1], "Something is wrong with NotWriteMap");
+
+    ConstMap<int, double> cm(2.0);
+    IdentityMap<int> im;
+    ConvertMap<IdentityMap<int>, double> id(im);
+    check(lessMap(id,cm)[1] && !lessMap(id,cm)[2] && !lessMap(id,cm)[3],
+          "Something is wrong with LessMap");
+    check(!equalMap(id,cm)[1] && equalMap(id,cm)[2] && !equalMap(id,cm)[3],
+          "Something is wrong with EqualMap");
+  }
+
   return 0;
 }
