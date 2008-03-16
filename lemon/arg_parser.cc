@@ -69,7 +69,6 @@ namespace lemon {
     p.help=help;
     p.type=INTEGER;
     p.mandatory=obl;
-    p.self_delete=true;
     _opts[name]=p;
     return *this;
   }
@@ -99,9 +98,6 @@ namespace lemon {
     p.type=BOOL;
     p.mandatory=obl;
     _opts[name]=p;
-
-    value = false;
-
     return *this;
   }
 

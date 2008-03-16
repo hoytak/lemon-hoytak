@@ -30,17 +30,16 @@
 
 ///\ingroup misc
 ///\file
-///\brief A tools to parse command line arguments.
-///
-///\author Alpar Juttner
+///\brief A tool to parse command line arguments.
 
 namespace lemon {
 
   ///Command line arguments parser
 
   ///\ingroup misc
-  ///Command line arguments parser
+  ///Command line arguments parser.
   ///
+  ///For a complete example see the \ref arg_parser_demo.cc demo file.
   class ArgParser {
     
     static void _showHelp(void *p);
@@ -165,7 +164,7 @@ namespace lemon {
 		      const std::string &help,
 		      std::string value="", bool obl=false);
 
-    ///\name Options with an external strorage.
+    ///\name Options with external storage
     ///Using this functions, the value of the option will be directly written
     ///into a variable once the option appears in the command line.
 
@@ -222,9 +221,9 @@ namespace lemon {
     ///Boundle some options into a group
 
     /// You can group some option by calling this function repeatedly for each
-    /// option to be grupped with the same groupname.
-    ///\param group The group name
-    ///\param opt The option name
+    /// option to be grouped with the same groupname.
+    ///\param group The group name.
+    ///\param opt The option name.
     ArgParser &optionGroup(const std::string &group,
 			   const std::string &opt);
 
@@ -242,7 +241,7 @@ namespace lemon {
     
     ///Create synonym to an option
 
-    ///With this function you can create a sysnonym called \c sys of the
+    ///With this function you can create a synonym \c syn of the
     ///option \c opt.
     ArgParser &synonym(const std::string &syn,
 			   const std::string &opt);
@@ -252,14 +251,14 @@ namespace lemon {
     ///Give help string for non-parsed arguments.
 
     ///With this function you can give help string for non-parsed arguments.
-    ///the parameter \c name will be printed in the short usage line, while
+    ///The parameter \c name will be printed in the short usage line, while
     ///\c help gives a more detailed description.
     ArgParser &other(const std::string &name,
 		     const std::string &help="");
     
-    ///Non option type arguments.
+    ///Give back the non-option type arguments.
 
-    ///Gives back a reference to a vector consisting of the program arguments
+    ///Give back a reference to a vector consisting of the program arguments
     ///not starting with a '-' character.
     std::vector<std::string> &files() { return _file_args; }
 
@@ -298,9 +297,9 @@ namespace lemon {
     ///Magic type for operator[]
     
     ///This is the type of the return value of ArgParser::operator[]().
-    ///It automatically converts to int, double, bool or std::string if
-    ///the type of the option matches, otherwise it throws an exception.
-    ///(i.e. it performs runtime type checking).
+    ///It automatically converts to \c int, \c double, \c bool or
+    ///\c std::string if the type of the option matches, otherwise it
+    ///throws an exception (i.e. it performs runtime type checking).
     class RefType 
     {
       ArgParser &_parser;
@@ -355,7 +354,7 @@ namespace lemon {
 
     ///Give back the value of an option
     
-    ///Give back the value of an option
+    ///Give back the value of an option.
     ///\sa RefType
     RefType operator[](const std::string &n)
     {

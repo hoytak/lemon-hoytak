@@ -20,9 +20,9 @@
 ///\file
 ///\brief Argument parser demo
 ///
-/// This example shows how can the argument parser used.
+/// This example shows how the argument parser can be used.
 ///
-/// \include arg_parser.cc
+/// \include arg_parser_demo.cc
 
 #include <lemon/arg_parser.h>
 
@@ -35,21 +35,21 @@ int main(int argc, const char **argv)
   double d;
   bool b,sil;
   bool g1,g2,g3;
-  ap.refOption("n", "an integer input", i, true)
-    .refOption("val", "a double input", d)
+  ap.refOption("n", "An integer input.", i, true)
+    .refOption("val", "A double input.", d)
     .synonym("vals","val")
-    .refOption("name", "a string input", s)
-    .refOption("f", "a switch", b)
+    .refOption("name", "A string input.", s)
+    .refOption("f", "A switch.", b)
     .refOption("nohelp", "", sil)
-    .refOption("gra","Choise A",g1)
-    .refOption("grb","Choise B",g2)
-    .refOption("grc","Choise C",g3)
+    .refOption("gra","Choice A",g1)
+    .refOption("grb","Choice B",g2)
+    .refOption("grc","Choice C",g3)
     .optionGroup("gr","gra")
     .optionGroup("gr","grb")
     .optionGroup("gr","grc")
     .mandatoryGroup("gr")
     .onlyOneGroup("gr")
-    .other("infile","The input file")
+    .other("infile","The input file.")
     .other("...");
   
   ap.parse();
@@ -61,7 +61,10 @@ int main(int argc, const char **argv)
   if(ap.given("name")) std::cout << "  Value of -name: " << s << std::endl;
   if(ap.given("f")) std::cout << "  -f is given\n";
   if(ap.given("nohelp")) std::cout << "  Value of -nohelp: " << sil << std::endl;
-
+  if(ap.given("gra")) std::cout << "  -gra is given\n";
+  if(ap.given("grb")) std::cout << "  -grb is given\n";
+  if(ap.given("grc")) std::cout << "  -grc is given\n";
+                                     
   switch(ap.files().size()) {
   case 0:
     std::cout << "  No file argument was given.\n";
