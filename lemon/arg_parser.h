@@ -127,7 +127,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval value The value of the argument will be written to this variable.
+    ///\param value A default value for the option
     ///\param obl Indicate if the option is mandatory.
     ArgParser &intOption(const std::string &name,
 		    const std::string &help,
@@ -137,7 +137,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval value The value of the argument will be written to this variable.
+    ///\param value A default value for the option
     ///\param obl Indicate if the option is mandatory.
     ArgParser &doubleOption(const std::string &name,
 		      const std::string &help,
@@ -147,7 +147,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval value The value of the argument will be written to this variable.
+    ///\param value A default value for the option
     ///\param obl Indicate if the option is mandatory.
     ////\note A mandatory bool obtion is of very little use.)
     ArgParser &boolOption(const std::string &name,
@@ -158,7 +158,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval value The value of the argument will be written to this variable.
+    ///\param value A default value for the option
     ///\param obl Indicate if the option is mandatory.
     ArgParser &stringOption(const std::string &name,
 		      const std::string &help,
@@ -174,8 +174,8 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval ref The value of the argument will be written to this variable.
     ///\param obl Indicate if the option is mandatory.
+    ///\retval ref The value of the argument will be written to this variable.
     ArgParser &refOption(const std::string &name,
 		    const std::string &help,
 		    int &ref, bool obl=false);
@@ -184,8 +184,8 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval ref The value of the argument will be written to this variable.
     ///\param obl Indicate if the option is mandatory.
+    ///\retval ref The value of the argument will be written to this variable.
     ArgParser &refOption(const std::string &name,
 		      const std::string &help,
 		      double &ref, bool obl=false);
@@ -194,8 +194,8 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval ref The value of the argument will be written to this variable.
     ///\param obl Indicate if the option is mandatory.
+    ///\retval ref The value of the argument will be written to this variable.
     ////\note A mandatory bool obtion is of very little use.)
     ArgParser &refOption(const std::string &name,
 		      const std::string &help,
