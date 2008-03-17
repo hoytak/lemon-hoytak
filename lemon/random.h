@@ -803,6 +803,29 @@ namespace lemon {
       return exponential(gamma(k,1.0/x_min));
     }  
       
+    /// Poisson distribution
+
+    /// This function generates a Poisson distribution random number with
+    /// parameter \c lambda.
+    /// 
+    /// The probability mass function of this distribusion is
+    /// \f[ \frac{e^{-\lambda}\lambda^k}{k!} \f]
+    /// \note The algorithm is taken from the book of Donald E. Knuth titled
+    /// ''Seminumerical Algorithms'' (1969). Its running time is linear in the
+    /// return value.
+    
+    int poisson(double lambda)
+    {
+      const double l = std::exp(-lambda);
+      int k=0;
+      double p = 1.0;
+      do {
+	k++;
+	p*=real<double>();
+      } while (p>=l);
+      return k-1;
+    }  
+      
     ///@}
     
     ///\name Two dimensional distributions
