@@ -47,10 +47,9 @@ namespace lemon {
       typedef T Value;
 
       /// Returns the value associated with the given key.
-
-      /// Returns the value associated with the given key.
-      /// \bug Value shouldn't need to be default constructible. 
-      Value operator[](const Key &) const { return Value(); }
+      Value operator[](const Key &) const { 
+        return *static_cast<Value *>(0);
+      }
 
       template<typename _ReadMap>
       struct Constraints {
@@ -126,7 +125,9 @@ namespace lemon {
       typedef T Value;
 
       /// Returns the value associated with the given key.
-      Value operator[](const Key &) const { return Value(); }
+      Value operator[](const Key &) const { 
+        return *static_cast<Value *>(0);
+      }
 
       /// Sets the value associated with the given key.
       void set(const Key &, const Value &) {}
@@ -160,15 +161,17 @@ namespace lemon {
       /// The const reference type of the map.
       typedef CR ConstReference;
 
-    protected:
-      Value tmp;
     public:
 
       /// Returns a reference to the value associated with the given key.
-      Reference operator[](const Key &) { return tmp; }
+      Reference operator[](const Key &) { 
+        return *static_cast<Value *>(0);
+      }
 
       /// Returns a const reference to the value associated with the given key.
-      ConstReference operator[](const Key &) const { return tmp; }
+      ConstReference operator[](const Key &) const {
+        return *static_cast<Value *>(0);
+      }
 
       /// Sets the value associated with the given key.
       void set(const Key &k,const Value &t) { operator[](k)=t; }

@@ -32,6 +32,12 @@ struct A {};
 inline bool operator<(A, A) { return true; }
 struct B {};
 
+class C {
+  int x;
+public:
+  C(int _x) : x(_x) {}
+};
+
 class F {
 public:
   typedef A argument_type;
@@ -58,9 +64,13 @@ int main()
 {
   // Map concepts
   checkConcept<ReadMap<A,B>, ReadMap<A,B> >();
+  checkConcept<ReadMap<A,C>, ReadMap<A,C> >();
   checkConcept<WriteMap<A,B>, WriteMap<A,B> >();
+  checkConcept<WriteMap<A,C>, WriteMap<A,C> >();
   checkConcept<ReadWriteMap<A,B>, ReadWriteMap<A,B> >();
+  checkConcept<ReadWriteMap<A,C>, ReadWriteMap<A,C> >();
   checkConcept<ReferenceMap<A,B,B&,const B&>, ReferenceMap<A,B,B&,const B&> >();
+  checkConcept<ReferenceMap<A,C,C&,const C&>, ReferenceMap<A,C,C&,const C&> >();
 
   // NullMap
   {
