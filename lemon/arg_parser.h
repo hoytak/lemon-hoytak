@@ -127,7 +127,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\param value A default value for the option
+    ///\param value A default value for the option.
     ///\param obl Indicate if the option is mandatory.
     ArgParser &intOption(const std::string &name,
 		    const std::string &help,
@@ -137,7 +137,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\param value A default value for the option
+    ///\param value A default value for the option.
     ///\param obl Indicate if the option is mandatory.
     ArgParser &doubleOption(const std::string &name,
 		      const std::string &help,
@@ -147,9 +147,9 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\param value A default value for the option
+    ///\param value A default value for the option.
     ///\param obl Indicate if the option is mandatory.
-    ////\note A mandatory bool obtion is of very little use.)
+    ///\note A mandatory bool obtion is of very little use.
     ArgParser &boolOption(const std::string &name,
 		      const std::string &help,
 		      bool value=false, bool obl=false);
@@ -158,7 +158,7 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\param value A default value for the option
+    ///\param value A default value for the option.
     ///\param obl Indicate if the option is mandatory.
     ArgParser &stringOption(const std::string &name,
 		      const std::string &help,
@@ -196,7 +196,7 @@ namespace lemon {
     ///\param help A help string.
     ///\param obl Indicate if the option is mandatory.
     ///\retval ref The value of the argument will be written to this variable.
-    ////\note A mandatory bool obtion is of very little use.)
+    ///\note A mandatory bool obtion is of very little use.
     ArgParser &refOption(const std::string &name,
 		      const std::string &help,
 		      bool &ref, bool obl=false);
@@ -205,8 +205,8 @@ namespace lemon {
 
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
-    ///\retval ref The value of the argument will be written to this variable.
     ///\param obl Indicate if the option is mandatory.
+    ///\retval ref The value of the argument will be written to this variable.
     ArgParser &refOption(const std::string &name,
 		      const std::string &help,
 		      std::string &ref, bool obl=false);
@@ -311,9 +311,9 @@ namespace lemon {
       operator bool() 
       {
 	Opts::iterator i = _parser._opts.find(_name);
-	LEMON_ASSERT(i==_parser._opts.end(),
+	LEMON_ASSERT(i!=_parser._opts.end(),
 		     std::string()+"Unkown option: '"+_name+"'");
-	LEMON_ASSERT(i->second.type!=ArgParser::BOOL,
+	LEMON_ASSERT(i->second.type==ArgParser::BOOL,
 		     std::string()+"'"+_name+"' is a bool option");
 	return *(i->second.bool_p);
       }
@@ -321,9 +321,9 @@ namespace lemon {
       operator std::string()
       {
 	Opts::iterator i = _parser._opts.find(_name);
-	LEMON_ASSERT(i==_parser._opts.end(),
+	LEMON_ASSERT(i!=_parser._opts.end(),
 		     std::string()+"Unkown option: '"+_name+"'");
-	LEMON_ASSERT(i->second.type!=ArgParser::STRING,
+	LEMON_ASSERT(i->second.type==ArgParser::STRING,
 		     std::string()+"'"+_name+"' is a string option");
 	return *(i->second.string_p);
       }
@@ -331,10 +331,10 @@ namespace lemon {
       operator double() 
       {
 	Opts::iterator i = _parser._opts.find(_name);
-	LEMON_ASSERT(i==_parser._opts.end(),
+	LEMON_ASSERT(i!=_parser._opts.end(),
 		     std::string()+"Unkown option: '"+_name+"'");
-	LEMON_ASSERT(i->second.type!=ArgParser::DOUBLE &&
-		     i->second.type!=ArgParser::INTEGER,
+	LEMON_ASSERT(i->second.type==ArgParser::DOUBLE ||
+		     i->second.type==ArgParser::INTEGER,
 		     std::string()+"'"+_name+"' is a floating point option");
 	return i->second.type==ArgParser::DOUBLE ?
 	  *(i->second.double_p) : *(i->second.int_p);
@@ -343,9 +343,9 @@ namespace lemon {
       operator int() 
       {
 	Opts::iterator i = _parser._opts.find(_name);
-	LEMON_ASSERT(i==_parser._opts.end(),
+	LEMON_ASSERT(i!=_parser._opts.end(),
 		     std::string()+"Unkown option: '"+_name+"'");
-	LEMON_ASSERT(i->second.type!=ArgParser::INTEGER,
+	LEMON_ASSERT(i->second.type==ArgParser::INTEGER,
 		     std::string()+"'"+_name+"' is an integer option");
 	return *(i->second.int_p);
       }
