@@ -23,13 +23,15 @@ lemon_HEADERS += \
         lemon/dijkstra.h \
         lemon/dim2.h \
 	lemon/error.h \
-        lemon/graph_utils.h \
+	lemon/graph_utils.h \
+	lemon/kruskal.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
 	lemon/path.h \
         lemon/random.h \
-        lemon/tolerance.h
+        lemon/tolerance.h \
+	lemon/unionfind.h
 
 bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \
