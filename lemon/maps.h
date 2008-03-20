@@ -1667,6 +1667,80 @@ namespace lemon {
     return LessMap<M1, M2>(m1,m2);
   }
 
+  namespace _maps_bits {
+
+    template <typename Value>
+    struct Identity {
+      typedef Value argument_type;
+      typedef Value result_type;
+      Value operator()(const Value& val) const {
+	return val;
+      }
+    };
+
+    template <typename _Iterator, typename Enable = void>
+    struct IteratorTraits {
+      typedef typename std::iterator_traits<_Iterator>::value_type Value;
+    };
+
+    template <typename _Iterator>
+    struct IteratorTraits<_Iterator,
+      typename exists<typename _Iterator::container_type>::type>
+    {
+      typedef typename _Iterator::container_type::value_type Value;
+    };
+
+  }
+
+  /// \brief Writable bool map for logging each \c true assigned element
+  ///
+  /// A \ref concepts::ReadWriteMap "read-write" bool map for logging
+  /// each \c true assigned element, i.e it copies subsequently each
+  /// keys set to \c true to the given iterator.
+  ///
+  /// \tparam It the type of the Iterator.
+  /// \tparam Ke the type of the map's Key. The default value should
+  /// work in most cases.
+  ///
+  /// \note The container of the iterator must contain enough space
+  /// for the elements. (Or it should be an inserter iterator).
+  ///
+  /// \todo Revise the name of this class and give an example code.
+  template <typename It,
+	    typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
+  class StoreBoolMap {
+  public:
+    typedef It Iterator;
+
+    typedef Ke Key;
+    typedef bool Value;
+
+    /// Constructor
+    StoreBoolMap(Iterator it)
+      : _begin(it), _end(it) {}
+
+    /// Gives back the given iterator set for the first key
+    Iterator begin() const {
+      return _begin;
+    }
+
+    /// Gives back the the 'after the last' iterator
+    Iterator end() const {
+      return _end;
+    }
+
+    /// The set function of the map
+    void set(const Key& key, Value value) const {
+      if (value) {
+	*_end++ = key;
+      }
+    }
+
+  private:
+    Iterator _begin;
+    mutable Iterator _end;
+  };
+
   /// @}
 }
 
