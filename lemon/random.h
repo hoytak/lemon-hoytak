@@ -575,6 +575,26 @@ namespace lemon {
       return *this;
     }
 
+    /// \brief Seeding random sequence
+    ///
+    /// Seeding the random sequence. The current number type will be
+    /// converted to the architecture word type.
+    template <typename Number>
+    void seed(Number seed) { 
+      _random_bits::Initializer<Number, Word>::init(core, seed);
+    }
+
+    /// \brief Seeding random sequence
+    ///
+    /// Seeding the random sequence. The given range should contain
+    /// any number type and the numbers will be converted to the
+    /// architecture word type.
+    template <typename Iterator>
+    void seed(Iterator begin, Iterator end) { 
+      typedef typename std::iterator_traits<Iterator>::value_type Number;
+      _random_bits::Initializer<Number, Word>::init(core, begin, end);
+    }
+
     /// \brief Returns a random real number from the range [0, 1)
     ///
     /// It returns a random real number from the range [0, 1). The

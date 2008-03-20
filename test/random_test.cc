@@ -24,6 +24,8 @@
 ///\todo To be extended
 ///
 
+int seed_array[] = {1, 2};
+
 int main()
 {
   double a=lemon::rnd();
@@ -34,4 +36,10 @@ int main()
   //Does gamma work with integer k?
   a=lemon::rnd.gamma(4.0,0);
   a=lemon::rnd.poisson(.5);
+
+  lemon::rnd.seed(100);
+  lemon::rnd.seed(seed_array, seed_array + 
+		  (sizeof(seed_array) / sizeof(seed_array[0])));
+
+  return 0;
 }
