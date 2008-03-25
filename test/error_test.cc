@@ -22,47 +22,242 @@
 #include "test_tools.h"
 
 using namespace lemon;
-using std::cout;
-using std::endl;
 
-void faulty_fn() {
-  fault("This is a fault message");
+#ifdef LEMON_ENABLE_ASSERTS
+#undef LEMON_ENABLE_ASSERTS
+#endif
+
+#ifdef LEMON_DISABLE_ASSERTS
+#undef LEMON_DISABLE_ASSERTS
+#endif
+
+//checking disabled asserts
+#define LEMON_DISABLE_ASSERTS
+#include <lemon/assert.h>
+
+void no_assertion_text_disable() {
+  LEMON_ASSERT(true, "This is a fault message");
 }
 
-void exception_fn() {
-  throw Exception("This is a function throwing exception with some args: ")
-    << 5 << ", " << 18;
+void no_assertion_exception_disable() {
+  LEMON_ASSERT(true, Exception());
 }
 
-void unfinished_fn() {
-  LEMON_FIXME("unfinished_fn() is unfinished!");
+void assertion_text_disable() {
+  LEMON_ASSERT(false, "This is a fault message");
 }
+
+void assertion_exception_disable() {
+  LEMON_ASSERT(false, Exception());
+}
+
+void fixme_disable() {
+  LEMON_FIXME("fixme_disable() is fixme!");
+}
+
+void check_assertion_disable() {
+  no_assertion_text_disable();
+  no_assertion_exception_disable();
+  assertion_exception_disable();
+  assertion_text_disable();
+  fixme_disable();
+}
+#undef LEMON_DISABLE_ASSERTS
+
+
+#define LEMON_ASSERT_ERROR
+#include <lemon/assert.h>
+
+void no_assertion_text_error() {
+  LEMON_ASSERT(true, "This is a fault message");
+}
+
+void no_assertion_exception_error() {
+  LEMON_ASSERT(true, Exception());
+}
+
+void assertion_text_error() {
+  LEMON_ASSERT(false, "This is a fault message");
+}
+
+void assertion_exception_error() {
+  LEMON_ASSERT(false, Exception());
+}
+
+void fixme_error() {
+  LEMON_FIXME("fixme_error() is fixme!");
+}
+
+void check_assertion_error() {
+  no_assertion_text_error();
+  no_assertion_exception_error();
+  try {
+    assertion_exception_error();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+
+  try {
+    assertion_text_error();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+
+  try {
+    fixme_error();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+}
+#undef LEMON_ASSERT_ERROR
+
+#define LEMON_ASSERT_EXCEPTION
+#include <lemon/assert.h>
+
+void no_assertion_text_exception() {
+  LEMON_ASSERT(true, "This is a fault message");
+}
+
+void no_assertion_exception_exception() {
+  LEMON_ASSERT(true, Exception());
+}
+
+void assertion_text_exception() {
+  LEMON_ASSERT(false, "This is a fault message");
+}
+
+void assertion_exception_exception() {
+  LEMON_ASSERT(false, Exception());
+}
+
+void fixme_exception() {
+  LEMON_FIXME("fixme_exception() is fixme!");
+}
+
+void check_assertion_exception() {
+  no_assertion_text_exception();
+  no_assertion_exception_exception();
+  try {
+    assertion_exception_exception();
+    check(false, "Assertion error");
+  } catch (const Exception& e) {
+  }
+
+  try {
+    assertion_text_exception();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+
+  try {
+    assertion_text_exception();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+
+  try {
+    fixme_exception();
+    check(false, "Assertion error");
+  } catch (const AssertionFailedError& e) {
+  }
+}
+#undef LEMON_ASSERT_EXCEPTION
+
+#define LEMON_ASSERT_LOG
+
+#include <lemon/assert.h>
+
+void no_assertion_text_log() {
+  LEMON_ASSERT(true, "This is a fault message");
+}
+
+void no_assertion_exception_log() {
+  LEMON_ASSERT(true, Exception());
+}
+
+void assertion_text_log() {
+  LEMON_ASSERT(false, "This is a fault message");
+}
+
+void assertion_exception_log() {
+  LEMON_ASSERT(false, Exception());
+}
+
+void fixme_log() {
+  LEMON_FIXME("fixme_log() is fixme!");
+}
+
+void check_assertion_log() {
+  no_assertion_text_log();
+  no_assertion_exception_log();
+  std::cerr << "The next 3 failure messages are expected: " << std::endl;
+  assertion_exception_log();
+  assertion_text_log();
+  fixme_log();
+  std::cerr << "End of expected error messages" << std::endl;
+}
+#undef LEMON_ASSERT_LOG
+
+#define LEMON_ASSERT_CUSTOM
+
+static int cnt = 0;
+void my_assert_handler(const char*, int, const char*, 
+		       const char*, const char*) {
+  ++cnt;
+}
+
+void my_assert_handler(const char*, int, const char*, 
+		       const std::exception&, const char*) {
+  ++cnt;
+}
+
+void my_assert_handler(const char*, int, const char*, 
+		       const std::string&, const char*) {
+  ++cnt;
+}
+
+
+#define LEMON_CUSTOM_ASSERT_HANDLER my_assert_handler
+#include <lemon/assert.h>
+
+void no_assertion_text_custom() {
+  LEMON_ASSERT(true, "This is a fault message");
+}
+
+void no_assertion_exception_custom() {
+  LEMON_ASSERT(true, Exception());
+}
+
+void assertion_text_custom() {
+  LEMON_ASSERT(false, "This is a fault message");
+}
+
+void assertion_exception_custom() {
+  LEMON_ASSERT(false, Exception());
+}
+
+void fixme_custom() {
+  LEMON_FIXME("fixme_custom() is fixme!");
+}
+
+void check_assertion_custom() {
+  no_assertion_text_custom();
+  no_assertion_exception_custom();
+  assertion_exception_custom();
+  assertion_text_custom();
+  fixme_custom();
+  check(cnt == 3, "The custom assert handler does not work");
+}
+
+#undef LEMON_ASSERT_CUSTOM
 
 
 int main() {
-  try {
-    faulty_fn();
-    check(false, "A faulty function did not fail.");
-  }
-  catch(const Exception &e) {
-    cout << "Exeption = \"" << e.what() << "\" (Right behaviour)" << endl;
-  }
-
-  try {
-    exception_fn();
-    check(false, "The function did not throw Exception.");
-  }
-  catch(const Exception &e) {
-    cout << "Exeption = \"" << e.what() << "\" (Right behaviour)" << endl;
-  }
-
-  try {
-    unfinished_fn();
-    check(false, "FIXME macro does not work.");
-  }
-  catch(const Exception &e) {
-    cout << "Exeption = \"" << e.what() << "\" (Right behaviour)" << endl;
-  }
+  check_assertion_disable();
+  check_assertion_error();
+  check_assertion_exception();
+  check_assertion_log();
+  check_assertion_custom();
 
   return 0;
 }
