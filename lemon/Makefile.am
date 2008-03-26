@@ -31,6 +31,7 @@ lemon_HEADERS += \
 	lemon/math.h \
 	lemon/path.h \
         lemon/random.h \
+	lemon/smart_graph.h \
         lemon/tolerance.h \
 	lemon/unionfind.h
 

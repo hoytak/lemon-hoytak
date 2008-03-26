@@ -18,7 +18,7 @@
 
 #include <lemon/concepts/graph.h>
 #include <lemon/list_graph.h>
-// #include <lemon/smart_graph.h>
+#include <lemon/smart_graph.h>
 // #include <lemon/full_graph.h>
 // #include <lemon/grid_graph.h>
 
@@ -47,7 +47,7 @@ void check_concepts() {
   }
   {
     checkConcept<Graph, ListGraph>();    
-//     checkConcept<Graph, SmartGraph>();    
+    checkConcept<Graph, SmartGraph>();    
 //     checkConcept<Graph, FullGraph>();    
 //     checkConcept<Graph, Graph>();    
 //     checkConcept<Graph, GridGraph>();
@@ -188,7 +188,7 @@ int main() {
   check_concepts();
 
   check_graph<ListGraph>();
-//  check_graph<SmartGraph>();
+  check_graph<SmartGraph>();
 
 //   {
 //     FullGraph g(5);
