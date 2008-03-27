@@ -65,8 +65,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
-
-#include <ctime>
+#include <limits>
 
 #include <lemon/math.h>
 #include <lemon/dim2.h>
