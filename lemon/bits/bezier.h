@@ -32,7 +32,7 @@ namespace lemon {
 
 class BezierBase {
 public:
-  typedef Point<double> Point;
+  typedef lemon::dim2::Point<double> Point;
 protected:
   static Point conv(Point x,Point y,double t) {return (1-t)*x+t*y;}
 };

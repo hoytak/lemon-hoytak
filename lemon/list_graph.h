@@ -115,7 +115,7 @@ namespace lemon {
       int n;
       for(n = first_node; 
 	  n!=-1 && nodes[n].first_in == -1; 
-	  n = nodes[n].next);
+	  n = nodes[n].next) {}
       arc.id = (n == -1) ? -1 : nodes[n].first_in;
     }
 
@@ -125,8 +125,8 @@ namespace lemon {
       } else {
 	int n;
 	for(n = nodes[arcs[arc.id].target].next;
-	  n!=-1 && nodes[n].first_in == -1; 
-	  n = nodes[n].next);
+	    n!=-1 && nodes[n].first_in == -1; 
+	    n = nodes[n].next) {}
 	arc.id = (n == -1) ? -1 : nodes[n].first_in;
       }      
     }

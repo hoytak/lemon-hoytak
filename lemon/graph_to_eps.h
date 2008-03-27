@@ -1015,7 +1015,7 @@ public:
       }
       else for(ArcIt e(g);e!=INVALID;++e)
 	if((!_undirected||g.source(e)<g.target(e))&&_arcWidths[e]>0
-	   &&g.source(e)!=g.target(e))
+	   &&g.source(e)!=g.target(e)) {
 	  if(_drawArrows) {
 	    dim2::Point<double> d(mycoords[g.target(e)]-mycoords[g.source(e)]);
 	    double rn=_nodeSizes[g.target(e)]*_nodeScale;
@@ -1035,7 +1035,7 @@ public:
 	       << _arcColors[e].red() << ' '
 	       << _arcColors[e].green() << ' '
 	       << _arcColors[e].blue() << " arr\n";
-	  }
+	  } 
 	  else os << mycoords[g.source(e)].x << ' '
 		  << mycoords[g.source(e)].y << ' '
 		  << mycoords[g.target(e)].x << ' '
@@ -1044,6 +1044,7 @@ public:
 		  << _arcColors[e].green() << ' '
 		  << _arcColors[e].blue() << ' '
 		  << _arcWidths[e]*_arcWidthScale << " l\n";
+	}
       os << "grestore\n";
     }
     if(_showNodes) {

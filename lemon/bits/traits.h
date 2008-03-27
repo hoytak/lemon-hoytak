@@ -150,8 +150,8 @@ namespace lemon {
     typedef typename Map::Key Key;
     typedef typename Map::Value Value;
 
-    typedef const Value ConstReturnValue;
-    typedef const Value ReturnValue;
+    typedef Value ConstReturnValue;
+    typedef Value ReturnValue;
   };
 
   template <typename Map>
@@ -178,8 +178,8 @@ namespace lemon {
     typedef typename MatrixMap::SecondKey SecondKey;
     typedef typename MatrixMap::Value Value;
 
-    typedef const Value ConstReturnValue;
-    typedef const Value ReturnValue;
+    typedef Value ConstReturnValue;
+    typedef Value ReturnValue;
   };
 
   template <typename MatrixMap>

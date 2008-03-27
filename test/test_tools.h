@@ -24,6 +24,7 @@
 ///\brief Some utilities to write test programs.
 
 #include <iostream>
+#include <stdlib.h>
 
 ///If \c rc is fail, writes an error message and exits.
 
@@ -36,8 +37,6 @@
 ///\code check(0==1,"This is obviously false.");\endcode will
 ///print something like this (and then exits).
 ///\verbatim file_name.cc:123: error: This is obviously false. \endverbatim
-///
-///\todo It should be in \c assert.h
 #define check(rc, msg) \
   if(!(rc)) { \
     std::cerr << __FILE__ ":" << __LINE__ << ": error: " << msg << std::endl; \

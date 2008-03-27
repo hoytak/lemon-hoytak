@@ -23,6 +23,7 @@
 ///\file
 ///\brief Dijkstra algorithm.
 
+#include <limits>
 #include <lemon/list_graph.h>
 #include <lemon/bin_heap.h>
 #include <lemon/bits/path_dump.h>
