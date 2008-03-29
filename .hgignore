@@ -4,7 +4,6 @@ syntax: glob
 *.rej
 *~
 *.o
-.#.*
 *.log
 *.lo
 *.tar.*
@@ -27,6 +26,7 @@ doc/Doxyfile
 .deps/*
 
 syntax: regexp
+(.*/)?\#[^/]*\#$
 ^doc/html/.*
 ^autom4te.cache/.*
 ^build-aux/.*
