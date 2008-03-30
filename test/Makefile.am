@@ -9,6 +9,7 @@ noinst_HEADERS += \
 
 check_PROGRAMS += \
 	test/bfs_test \
+        test/counter_test \
 	test/dfs_test \
 	test/digraph_test \
         test/dim_test \
@@ -20,12 +21,14 @@ check_PROGRAMS += \
         test/path_test \
         test/test_tools_fail \
         test/test_tools_pass \
+        test/time_measure_test \
 	test/unionfind_test
 
 TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
 test_bfs_test_SOURCES = test/bfs_test.cc
+test_counter_test_SOURCES = test/counter_test.cc
 test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
@@ -38,4 +41,5 @@ test_path_test_SOURCES = test/path_test.cc
 test_random_test_SOURCES = test/random_test.cc
 test_test_tools_fail_SOURCES = test/test_tools_fail.cc
 test_test_tools_pass_SOURCES = test/test_tools_pass.cc
+test_time_measure_test_SOURCES = test/time_measure_test.cc
 test_unionfind_test_SOURCES = test/unionfind_test.cc
