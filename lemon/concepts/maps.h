@@ -24,7 +24,7 @@
 
 ///\ingroup concept
 ///\file
-///\brief Map concepts checking classes for testing and documenting.
+///\brief The concept of maps.
 
 namespace lemon {
 
@@ -105,7 +105,7 @@ namespace lemon {
 	const Key& key;
 	const Value& val;
 	const typename _WriteMap::Key& own_key;
-	const typename _WriteMap::Value own_val;
+	const typename _WriteMap::Value& own_val;
 	_WriteMap& m;
       };
     };
