@@ -343,7 +343,7 @@ namespace lemon {
 
     ///Halt (i.e stop immediately) the time counters
 
-    ///This function stops immediately the time counters, i.e. <tt>t.stop()</tt>
+    ///This function stops immediately the time counters, i.e. <tt>t.halt()</tt>
     ///is a faster
     ///equivalent of the following.
     ///\code
