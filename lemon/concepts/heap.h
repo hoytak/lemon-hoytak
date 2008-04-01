@@ -18,8 +18,7 @@
 
 ///\ingroup concept
 ///\file
-///\brief Classes for representing heaps.
-///
+///\brief The concept of heaps.
 
 #ifndef LEMON_CONCEPT_HEAP_H
 #define LEMON_CONCEPT_HEAP_H
@@ -27,31 +26,34 @@
 #include <lemon/bits/invalid.h>
 
 namespace lemon {
+
   namespace concepts {
+
     /// \addtogroup concept
     /// @{
 
-
-    /// \brief A concept structure describes the main interface of heaps.
+    /// \brief The heap concept.
     ///
-    /// A concept structure describes the main interface of heaps.
-    ///
-    template <typename Prio, typename ItemIntMap>
+    /// Concept class describing the main interface of heaps.
+    template <typename Priority, typename ItemIntMap>
     class Heap {
     public:
 
-      ///\brief Type of the items stored in the heap.
-      typedef typename ItemIntMap::Key  Item;
-  
+      /// Type of the items stored in the heap.
+      typedef typename ItemIntMap::Key Item;
 
-      /// \brief Type to represent the items states.
+      /// Type of the priorities.
+      typedef Priority Prio;
+
+      /// \brief Type to represent the states of the items.
       ///
-      /// Each Item element have a state associated to it. It may be "in heap",
-      /// "pre heap" or "post heap". The later two are indifferent from the
-      /// heap's point of view, but may be useful to the user.
+      /// Each item has a state associated to it. It can be "in heap",
+      /// "pre heap" or "post heap". The later two are indifferent
+      /// from the point of view of the heap, but may be useful for
+      /// the user.
       ///
-      /// The ItemIntMap _should_ be initialized in such way, that it maps
-      /// PRE_HEAP (-1) to any element to be put in the heap...
+      /// The \c ItemIntMap must be initialized in such a way, that it 
+      /// assigns \c PRE_HEAP (<tt>-1</tt>) to every item.
       enum State {
 	IN_HEAP = 0,
 	PRE_HEAP = -1,
@@ -61,162 +63,185 @@ namespace lemon {
       /// \brief The constructor.
       ///
       /// The constructor.
-      /// \param _iim should be given to the constructor, since it is used
-      /// internally to handle the cross references. The value of the map
-      /// should be PRE_HEAP (-1) for each element.
-      explicit Heap(ItemIntMap &_iim) {}
+      /// \param map A map that assigns \c int values to keys of type
+      /// \c Item. It is used internally by the heap implementations to
+      /// handle the cross references. The assigned value must be
+      /// \c PRE_HEAP (<tt>-1</tt>) for every item.
+      explicit Heap(ItemIntMap &map) {}
 
       /// \brief The number of items stored in the heap.
       ///
       /// Returns the number of items stored in the heap.
       int size() const { return 0; }
 
-      /// \brief Checks if the heap stores no items.
+      /// \brief Checks if the heap is empty.
       ///
-      /// Returns \c true if and only if the heap stores no items.
+      /// Returns \c true if the heap is empty.
       bool empty() const { return false; }
 
-      /// \brief Makes empty this heap.
+      /// \brief Makes the heap empty.
       ///
-      /// Makes this heap empty.
+      /// Makes the heap empty.
       void clear();
 
-      /// \brief Insert an item into the heap with the given heap.
+      /// \brief Inserts an item into the heap with the given priority.
       ///    
-      /// Adds \c i to the heap with priority \c p. 
+      /// Inserts the given item into the heap with the given priority. 
       /// \param i The item to insert.
       /// \param p The priority of the item.
       void push(const Item &i, const Prio &p) {}
 
-      /// \brief Returns the item with minimum priority.
+      /// \brief Returns the item having minimum priority.
       ///
-      /// This method returns the item with minimum priority.  
-      /// \pre The heap must be nonempty.  
+      /// Returns the item having minimum priority.
+      /// \pre The heap must be non-empty.
       Item top() const {}
 
-      /// \brief Returns the minimum priority.
+      /// \brief The minimum priority.
       ///
-      /// It returns the minimum priority.
-      /// \pre The heap must be nonempty.
+      /// Returns the minimum priority.
+      /// \pre The heap must be non-empty.
       Prio prio() const {}
 
-      /// \brief Deletes the item with minimum priority.
+      /// \brief Removes the item having minimum priority.
       ///
-      /// This method deletes the item with minimum priority.
-      /// \pre The heap must be non-empty.  
+      /// Removes the item having minimum priority.
+      /// \pre The heap must be non-empty.
       void pop() {}
 
-      /// \brief Deletes \c i from the heap.
+      /// \brief Removes an item from the heap.
       ///
-      /// This method deletes item \c i from the heap, if \c i was
-      /// already stored in the heap.
-      /// \param i The item to erase. 
+      /// Removes the given item from the heap if it is already stored.
+      /// \param i The item to delete. 
       void erase(const Item &i) {}
 
-      /// \brief Returns the priority of \c i.
+      /// \brief The priority of an item.
       ///
-      /// This function returns the priority of item \c i.  
+      /// Returns the priority of the given item.  
       /// \pre \c i must be in the heap.
       /// \param i The item.
       Prio operator[](const Item &i) const {}
 
-      /// \brief \c i gets to the heap with priority \c p independently 
-      /// if \c i was already there.
+      /// \brief Sets the priority of an item or inserts it, if it is
+      /// not stored in the heap.
       ///
-      /// This method calls \ref push(\c i, \c p) if \c i is not stored
-      /// in the heap and sets the priority of \c i to \c p otherwise.
-      /// It may throw an \e UnderFlowPriorityException. 
+      /// This method sets the priority of the given item if it is
+      /// already stored in the heap.
+      /// Otherwise it inserts the given item with the given priority.
+      ///
+      /// It may throw an \ref UnderflowPriorityException.
       /// \param i The item.
       /// \param p The priority.
       void set(const Item &i, const Prio &p) {}
       
-      /// \brief Decreases the priority of \c i to \c p.
+      /// \brief Decreases the priority of an item to the given value.
       ///
-      /// This method decreases the priority of item \c i to \c p.
+      /// Decreases the priority of an item to the given value.
       /// \pre \c i must be stored in the heap with priority at least \c p.
       /// \param i The item.
       /// \param p The priority.
       void decrease(const Item &i, const Prio &p) {}
 
-      /// \brief Increases the priority of \c i to \c p.
+      /// \brief Increases the priority of an item to the given value.
       ///
-      /// This method sets the priority of item \c i to \c p. 
-      /// \pre \c i must be stored in the heap with priority at most \c
-      /// p relative to \c Compare.
+      /// Increases the priority of an item to the given value.
+      /// \pre \c i must be stored in the heap with priority at most \c p.
       /// \param i The item.
       /// \param p The priority.
       void increase(const Item &i, const Prio &p) {}
 
-      /// \brief Returns if \c item is in, has already been in, or has 
+      /// \brief Returns if an item is in, has already been in, or has
       /// never been in the heap.
       ///
-      /// This method returns PRE_HEAP if \c item has never been in the
-      /// heap, IN_HEAP if it is in the heap at the moment, and POST_HEAP
-      /// otherwise. In the latter case it is possible that \c item will
-      /// get back to the heap again.
+      /// This method returns \c PRE_HEAP if the given item has never
+      /// been in the heap, \c IN_HEAP if it is in the heap at the moment,
+      /// and \c POST_HEAP otherwise.
+      /// In the latter case it is possible that the item will get back
+      /// to the heap again.
       /// \param i The item.
       State state(const Item &i) const {}
 
-      /// \brief Sets the state of the \c item in the heap.
+      /// \brief Sets the state of an item in the heap.
       ///
-      /// Sets the state of the \c item in the heap. It can be used to
-      /// manually clear the heap when it is important to achive the
+      /// Sets the state of the given item in the heap. It can be used
+      /// to manually clear the heap when it is important to achive the
       /// better time complexity.
       /// \param i The item.
-      /// \param st The state. It should not be \c IN_HEAP. 
+      /// \param st The state. It should not be \c IN_HEAP.
       void state(const Item& i, State st) {}
 
 
       template <typename _Heap>
       struct Constraints {
       public:
-    
 	void constraints() {
+	  typedef typename _Heap::Item OwnItem;
+	  typedef typename _Heap::Prio OwnPrio;
+	  typedef typename _Heap::State OwnState;
+
 	  Item item;
 	  Prio prio;
-
+	  State state;
 	  item=Item();
 	  prio=Prio();
-
 	  ignore_unused_variable_warning(item);
 	  ignore_unused_variable_warning(prio);
-
-	  typedef typename _Heap::State State;
-	  State state;
-
 	  ignore_unused_variable_warning(state);
-      
-	  _Heap heap1 = _Heap(map);
 
+	  OwnItem own_item;
+	  OwnPrio own_prio;
+	  OwnState own_state;
+	  own_item=Item();
+	  own_prio=Prio();
+	  ignore_unused_variable_warning(own_item);
+	  ignore_unused_variable_warning(own_prio);
+	  ignore_unused_variable_warning(own_state);
+
+	  _Heap heap1(map);
+	  _Heap heap2 = heap1;
 	  ignore_unused_variable_warning(heap1);
-      
-	  heap.push(item, prio);
+	  ignore_unused_variable_warning(heap2);
+	  
+	  int s = heap.size();
+	  bool e = heap.empty();
 
 	  prio = heap.prio();
 	  item = heap.top();
+	  prio = heap[item];
+	  own_prio = heap.prio();
+	  own_item = heap.top();
+	  own_prio = heap[own_item];
 
+	  heap.push(item, prio);
+	  heap.push(own_item, own_prio);
 	  heap.pop();
 
 	  heap.set(item, prio);
 	  heap.decrease(item, prio);
 	  heap.increase(item, prio);
-	  prio = heap[item];
+	  heap.set(own_item, own_prio);
+	  heap.decrease(own_item, own_prio);
+	  heap.increase(own_item, own_prio);
 
 	  heap.erase(item);
+	  heap.erase(own_item);
+	  heap.clear();
 
 	  state = heap.state(item);
+	  heap.state(item, state);
+	  state = heap.state(own_item);
+	  heap.state(own_item, own_state);
 
 	  state = _Heap::PRE_HEAP;
 	  state = _Heap::IN_HEAP;
 	  state = _Heap::POST_HEAP;
-
-	  heap.clear();
+	  own_state = _Heap::PRE_HEAP;
+	  own_state = _Heap::IN_HEAP;
+	  own_state = _Heap::POST_HEAP;
 	}
-    
+
 	_Heap& heap;
 	ItemIntMap& map;
-
-	Constraints() : heap(0), map(0) {}
       };
     };
 

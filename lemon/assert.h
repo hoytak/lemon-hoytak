@@ -115,13 +115,7 @@ namespace lemon {
 				const std::exception& exception,
 				const char *assertion)
   {
-    std::cerr << file << ":" << line << ": ";
-    if (function)
-      std::cerr << function << ": ";
-    std::cerr << exception.what();
-    if (assertion)
-      std::cerr << " (assertion '" << assertion << "' failed)";
-    std::cerr << std::endl;
+    assert_fail_log(file, line, function, exception, assertion);
     std::abort();
   }
 
@@ -129,13 +123,7 @@ namespace lemon {
 				const char *function, const char* message,
 				const char *assertion)
   {
-    std::cerr << file << ":" << line << ": ";
-    if (function)
-      std::cerr << function << ": ";
-    std::cerr << message;
-    if (assertion)
-      std::cerr << " (assertion '" << assertion << "' failed)";
-    std::cerr << std::endl;
+    assert_fail_log(file, line, function, message, assertion);
     std::abort();
   }
 
@@ -144,7 +132,8 @@ namespace lemon {
 				const std::string& message,
 				const char *assertion)
   {
-    assert_fail_abort(file, line, function, message.c_str(), assertion);
+    assert_fail_log(file, line, function, message.c_str(), assertion);
+    std::abort();
   }
 
   inline void assert_fail_error(const char *file, int line, 
@@ -168,7 +157,7 @@ namespace lemon {
 				  const std::string& message,
 				  const char *assertion)
   {
-    assert_fail_error(file, line, function, message.c_str(), assertion);
+    throw AssertionFailedError(file, line, function, message.c_str(), assertion);
   }
 
   template <typename Exception>
@@ -192,7 +181,7 @@ namespace lemon {
 				    const std::string& message,
 				    const char *assertion)
   {
-    assert_fail_exception(file, line, function, message.c_str(), assertion);
+    throw AssertionFailedError(file, line, function, message.c_str(), assertion);
   }
 
 /// @}
@@ -208,7 +197,7 @@ namespace lemon {
   (defined(LEMON_ASSERT_ERROR) ? 1 : 0) +		\
   (defined(LEMON_ASSERT_EXCEPTION) ? 1 : 0) +		\
   (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) > 1
-#error "Lemon assertion system is not set properly"
+#error "LEMON assertion system is not set properly"
 #endif
 
 #if ((defined(LEMON_ASSERT_LOG) ? 1 : 0) +		\
@@ -216,9 +205,9 @@ namespace lemon {
      (defined(LEMON_ASSERT_ERROR) ? 1 : 0) +		\
      (defined(LEMON_ASSERT_EXCEPTION) ? 1 : 0) +	\
      (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) == 1 ||	\
-     defined(LEMON_ENABLE_ASSERT)) &&			\
+     defined(LEMON_ENABLE_ASSERTS)) &&			\
   defined(LEMON_DISABLE_ASSERTS)
-#error "Lemon assertion system is not set properly"
+#error "LEMON assertion system is not set properly"
 #endif
 
 
@@ -256,18 +245,18 @@ namespace lemon {
 
 /// \ingroup exceptions
 ///
-/// \brief Macro for assertions with customizable message
+/// \brief Macro for assertion with customizable message
 ///
-/// Macro for assertions with customizable message.  
-/// \param exp An expression convertible to bool. If the expression is
-/// false, then an assertion is raised. The concrete behaviour depends
-/// on the settings of the assertion system.
-/// \param msg A \e const \e char*, a \e const std::string& or a \e
-/// const \e std::exception& parameter. The variable can be used to
-/// provide information about the circumstances of failed assertion.
+/// Macro for assertion with customizable message.  
+/// \param exp An expression that must be convertible to \c bool.
+/// If it is \c false, then an assertion is raised. The concrete
+/// behaviour depends on the settings of the assertion system.
+/// \param msg A <tt>const char*</tt>, a <tt>const std::string&</tt> or
+/// a <tt>const std::exception&</tt> parameter, which can be used to
+/// provide information about the circumstances of the failed assertion.
 ///
-/// The assertions are disabled in the default behaviour. You can
-/// enable the assertions with the following code:
+/// The assertions are disabled in the default behaviour.
+/// You can enable them with the following code:
 /// \code
 /// #define LEMON_ENABLE_ASSERTS
 /// \endcode
@@ -277,39 +266,38 @@ namespace lemon {
 /// make CXXFLAGS='-DLEMON_ENABLE_ASSERTS'
 /// \endcode
 /// 
-/// The %lemon assertion system has a wide range of customization
-/// properties. As default behaviour the failed assertion prints a
-/// short log message to the standard ouput and aborts the execution.
+/// The LEMON assertion system has a wide range of customization
+/// properties. As a default behaviour the failed assertion prints a
+/// short log message to the standard error and aborts the execution.
 ///
 /// The following modes can be used in the assertion system: 
 ///
-/// - \e LEMON_ASSERT_LOG The failed assert print a short convenient
-///   error message to the standard error and continues the
-///   execution.
-/// - \e LEMON_ASSERT_ABORT This mode is similar to the \e
-///   LEMON_ASSERT_LOG, but it aborts the program. It is the default
-///   operation mode when the asserts are enabled with \e
-///   LEMON_ENABLE_ASSERTS.
-/// - \e LEMON_ASSERT_ERROR The assert throws an \ref
-///   lemon::AssertionFailedError "AssertionFailedError". If the \c
-///   msg parameter is an exception, then the result of the \ref
-///   lemon::Exception::what() "what()" member function is passed as
-///   error message.
-/// - \e LEMON_ASSERT_EXCEPTION If the specified \c msg is an
-///   exception then it raised directly (solving that the exception
+/// - \c LEMON_ASSERT_LOG The failed assertion prints a short log
+///   message to the standard error and continues the execution.
+/// - \c LEMON_ASSERT_ABORT This mode is similar to the
+///   \c LEMON_ASSERT_LOG, but it aborts the program. It is the default
+///   behaviour mode when the assertions are enabled with
+///   \c LEMON_ENABLE_ASSERTS.
+/// - \c LEMON_ASSERT_ERROR The assertion throws an
+///   \ref lemon::AssertionFailedError "AssertionFailedError".
+///   If the \c msg parameter is an exception, then the result of the
+///   \ref lemon::Exception::what() "what()" member function is passed
+///   as error message.
+/// - \c LEMON_ASSERT_EXCEPTION If the specified \c msg is an
+///   exception, then it raised directly (solving that the exception
 ///   can not be thrown polymorphically), otherwise an \ref
 ///   lemon::AssertionFailedError "AssertionFailedError" is thrown with
-///   the given parameter.
-/// - \e LEMON_ASSERT_CUSTOM The user can define an own assertion
-///   handler functions. Three overloaded functions should be defined
-///   with the following parameter lists:
+///   the given parameters.
+/// - \c LEMON_ASSERT_CUSTOM The user can define own assertion handler
+///   functions. Three overloaded functions should be defined with the
+///   following parameter lists:
 ///   \code
-///     void custom_assert_handler(const char* file, int line, 
-///                                const char* function, const char* message, const char* expression);
-///     void custom_assert_handler(const char* file, int line, 
-///                                const char* function, const std::string& message, const char* expression);
-///     void custom_assert_handler(const char* file, int line, 
-///                                const char* function, const std::exception& message, const char* expression);
+///     void custom_assert_handler(const char* file, int line, const char* function,
+///                                const char* message, const char* assertion);
+///     void custom_assert_handler(const char* file, int line, const char* function,
+///                                const std::string& message, const char* assertion);
+///     void custom_assert_handler(const char* file, int line, const char* function,
+///                                const std::exception& message, const char* assertion);
 ///   \endcode
 ///   The name of the functions should be defined as the \c
 ///   LEMON_CUSTOM_ASSERT_HANDLER macro name. 
@@ -317,12 +305,12 @@ namespace lemon {
 ///     #define LEMON_CUSTOM_ASSERT_HANDLER custom_assert_handler
 ///   \endcode
 ///   Whenever an assertion is occured, one of the custom assertion
-///   handler is called with appropiate parameters.
+///   handlers is called with appropiate parameters.
 ///
-/// The assertion mode can be changed within one compilation unit, if
-/// the macros are redefined with other settings and the
-/// lemon/assert.h file is reincluded then the behaviour is changed
-/// appropiately to the new settings.
+/// The assertion mode can also be changed within one compilation unit.
+/// If the macros are redefined with other settings and the
+/// \ref lemon/assert.h "assert.h" file is reincluded, then the
+/// behaviour is changed appropiately to the new settings.
 #  define LEMON_ASSERT(exp, msg)					\
   (static_cast<void> (!!(exp) ? 0 : (					\
     LEMON_ASSERT_HANDLER(__FILE__, __LINE__,				\
@@ -346,7 +334,7 @@ namespace lemon {
 #else
 
 #  ifndef LEMON_ASSERT_HANDLER
-#    define LEMON_ASSERT(exp, msg)  (static_cast<void> (0))
+#    define LEMON_ASSERT(exp, msg)  (static_cast<void>(0))
 #    define LEMON_FIXME(msg) (static_cast<void>(0))
 #  else
 #    define LEMON_ASSERT(exp, msg)                 \
