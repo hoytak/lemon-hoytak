@@ -119,7 +119,7 @@ namespace lemon {
     ///\param have_white indicates whether white is amongst the
     ///provided color (\c true) or not (\c false). If it is true,
     ///white will be assigned to \c 0.
-    Palette(int num=-1,bool have_white=false)
+    Palette(bool have_white=false,int num=-1)
     {
       if (num==0) return;
       do {

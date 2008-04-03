@@ -42,7 +42,7 @@ using namespace lemon;
 int main()
 {
   Palette palette;
-  Palette paletteW(-1,true);
+  Palette paletteW(true);
 
   ListDigraph g;
   typedef ListDigraph::Node Node;
