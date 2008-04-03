@@ -795,7 +795,7 @@ namespace lemon {
 	    nu=V0*std::exp(-xi);
 	  }
       } while(nu>std::pow(xi,delta-1.0)*std::exp(-xi));
-      return theta*(xi-gamma(int(std::floor(k))));
+      return theta*(xi+gamma(int(std::floor(k))));
     }
     
     /// Weibull distribution
@@ -819,7 +819,7 @@ namespace lemon {
     ///
     double pareto(double k,double x_min)
     {
-      return exponential(gamma(k,1.0/x_min));
+      return exponential(gamma(k,1.0/x_min))+x_min;
     }  
       
     /// Poisson distribution
