@@ -194,6 +194,7 @@ namespace lemon {
   {
     Opts::iterator i = _opts.find(opt);
     LEMON_ASSERT(i!=_opts.end(), "Unknown option: '"+opt+"'");
+    if(i==_opts.end()) std::cout << "JAJJJJJJJJ\n";
     LEMON_ASSERT(!(i->second.ingroup), 
                  "Option already in option group: '"+opt+"'");
     GroupData &g=_groups[group];
