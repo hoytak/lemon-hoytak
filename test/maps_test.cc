@@ -83,20 +83,27 @@ int main()
   // ConstMap
   {
     checkConcept<ReadWriteMap<A,B>, ConstMap<A,B> >();
+    checkConcept<ReadWriteMap<A,C>, ConstMap<A,C> >();
     ConstMap<A,B> map1;
     ConstMap<A,B> map2(B());
     ConstMap<A,B> map3 = map1;
     map1 = constMap<A>(B());
+    map1 = constMap<A,B>();
     map1.setAll(B());
+    ConstMap<A,C> map4(C(1));
+    ConstMap<A,C> map5 = map4;
+    map4 = constMap<A>(C(2));
+    map4.setAll(C(3));
 
     checkConcept<ReadWriteMap<A,int>, ConstMap<A,int> >();
     check(constMap<A>(10)[A()] == 10, "Something is wrong with ConstMap");
 
     checkConcept<ReadWriteMap<A,int>, ConstMap<A,Const<int,10> > >();
-    ConstMap<A,Const<int,10> > map4;
-    ConstMap<A,Const<int,10> > map5 = map4;
-    map4 = map5;
-    check(map4[A()] == 10 && map5[A()] == 10, "Something is wrong with ConstMap");
+    ConstMap<A,Const<int,10> > map6;
+    ConstMap<A,Const<int,10> > map7 = map6;
+    map6 = constMap<A,int,10>();
+    map7 = constMap<A,Const<int,10> >();
+    check(map6[A()] == 10 && map7[A()] == 10, "Something is wrong with ConstMap");
   }
 
   // IdentityMap

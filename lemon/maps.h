@@ -116,7 +116,7 @@ namespace lemon {
     /// Constructor with specified initial value
 
     /// Constructor with specified initial value.
-    /// \param v is the initial value of the map.
+    /// \param v The initial value of the map.
     ConstMap(const Value &v) : _value(v) {}
 
     /// Gives back the specified value.
@@ -141,6 +141,11 @@ namespace lemon {
   template<typename K, typename V>
   inline ConstMap<K, V> constMap(const V &v) {
     return ConstMap<K, V>(v);
+  }
+
+  template<typename K, typename V>
+  inline ConstMap<K, V> constMap() {
+    return ConstMap<K, V>();
   }
 
 
@@ -613,7 +618,7 @@ namespace lemon {
 	   typename K = typename F::argument_type,
 	   typename V = typename F::result_type>
   class FunctorToMap : public MapBase<K, V> {
-    const F &_f;
+    F _f;
   public:
     typedef MapBase<K, V> Parent;
     typedef typename Parent::Key Key;
