@@ -29,7 +29,7 @@
 namespace lemon 
 {
 
-  template<class P> class _SubNoCounter;
+  template<class P> class _NoSubCounter;
 
   template<class P>
   class _SubCounter 
@@ -41,7 +41,7 @@ namespace lemon
   public:
 
     typedef _SubCounter<_SubCounter<P> > SubCounter;
-    typedef _SubNoCounter<_SubCounter<P> > SubNoCounter;
+    typedef _NoSubCounter<_SubCounter<P> > NoSubCounter;
 
     _SubCounter(P &parent)
       : _parent(parent), _title(), _os(std::cerr), count(0) {}
@@ -64,29 +64,29 @@ namespace lemon
   };
 
   template<class P>
-  class _SubNoCounter 
+  class _NoSubCounter 
   {
     P &_parent;
   public:
-    typedef _SubNoCounter<_SubNoCounter<P> > SubCounter;
-    typedef _SubNoCounter<_SubNoCounter<P> > SubNoCounter;
+    typedef _NoSubCounter<_NoSubCounter<P> > SubCounter;
+    typedef _NoSubCounter<_NoSubCounter<P> > NoSubCounter;
   
-    _SubNoCounter(P &parent) :_parent(parent) {}
-    _SubNoCounter(P &parent,std::string,std::ostream &) 
+    _NoSubCounter(P &parent) :_parent(parent) {}
+    _NoSubCounter(P &parent,std::string,std::ostream &) 
       :_parent(parent) {}
-    _SubNoCounter(P &parent,std::string) 
+    _NoSubCounter(P &parent,std::string) 
       :_parent(parent) {}
-    _SubNoCounter(P &parent,const char *,std::ostream &)
+    _NoSubCounter(P &parent,const char *,std::ostream &)
       :_parent(parent) {}
-    _SubNoCounter(P &parent,const char *)
+    _NoSubCounter(P &parent,const char *)
       :_parent(parent) {}
-    ~_SubNoCounter() {}
-    _SubNoCounter &operator++() { ++_parent; return *this;}
+    ~_NoSubCounter() {}
+    _NoSubCounter &operator++() { ++_parent; return *this;}
     int operator++(int) { _parent++; return 0;}
-    _SubNoCounter &operator--() { --_parent; return *this;}
+    _NoSubCounter &operator--() { --_parent; return *this;}
     int operator--(int) { _parent--; return 0;}
-    _SubNoCounter &operator+=(int c) { _parent+=c; return *this;}
-    _SubNoCounter &operator-=(int c) { _parent-=c; return *this;}
+    _NoSubCounter &operator+=(int c) { _parent+=c; return *this;}
+    _NoSubCounter &operator-=(int c) { _parent-=c; return *this;}
     void reset(int) {}
     void reset() {}
     operator int() {return 0;}
@@ -117,7 +117,7 @@ namespace lemon
 
     ///\todo document please.
     ///
-    typedef _SubNoCounter<Counter> SubNoCounter;
+    typedef _NoSubCounter<Counter> NoSubCounter;
 
     ///\e
     Counter() : _title(), _os(std::cerr), count(0) {}
@@ -156,8 +156,8 @@ namespace lemon
   class NoCounter
   {
   public:
-    typedef _SubNoCounter<NoCounter> SubCounter;
-    typedef _SubNoCounter<NoCounter> SubNoCounter;
+    typedef _NoSubCounter<NoCounter> SubCounter;
+    typedef _NoSubCounter<NoCounter> NoSubCounter;
 
     NoCounter() {}
     NoCounter(std::string,std::ostream &) {}
