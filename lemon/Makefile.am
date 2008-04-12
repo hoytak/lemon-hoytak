@@ -20,6 +20,7 @@ lemon_HEADERS += \
 	lemon/assert.h \
         lemon/bfs.h \
         lemon/bin_heap.h \
+        lemon/counter.h \
         lemon/dfs.h \
         lemon/dijkstra.h \
         lemon/dim2.h \
@@ -32,6 +33,7 @@ lemon_HEADERS += \
 	lemon/path.h \
         lemon/random.h \
 	lemon/smart_graph.h \
+        lemon/time_measure.h \
         lemon/tolerance.h \
 	lemon/unionfind.h
 
