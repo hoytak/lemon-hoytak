@@ -1091,7 +1091,69 @@ public:
 
     //CleanUp:
     if(_pleaseRemoveOsStream) {delete &os;}
-  } 
+  }
+
+  ///\name Aliases
+  ///These are just some aliases to other parameter setting functions.
+
+  ///@{
+
+  ///An alias for arcWidths()
+
+  ///An alias for arcWidths()
+  ///
+  template<class X> GraphToEps<ArcWidthsTraits<X> > edgeWidths(const X &x)
+  {
+    return arcWidths(x);
+  }
+
+  ///An alias for arcColors()
+
+  ///An alias for arcColors()
+  ///
+  template<class X> GraphToEps<ArcColorsTraits<X> >
+  edgeColors(const X &x)
+  {
+    return arcColors(x);
+  }
+
+  ///An alias for arcWidthScale()
+
+  ///An alias for arcWidthScale()
+  ///
+  GraphToEps<T> &edgeWidthScale(double d) {return arcWidthScale(d);}
+
+  ///An alias for autoArcWidthScale()
+
+  ///An alias for autoArcWidthScale()
+  ///
+  GraphToEps<T> &autoEdgeWidthScale(bool b=true)
+  {
+    return autoArcWidthScale(b);
+  }
+  
+  ///An alias for absoluteArcWidths()
+
+  ///An alias for absoluteArcWidths()
+  ///
+  GraphToEps<T> &absoluteEdgeWidths(bool b=true)
+  {
+    return absoluteArcWidths(b);
+  }
+  
+  ///An alias for parArcDist()
+
+  ///An alias for parArcDist()
+  ///
+  GraphToEps<T> &parEdgeDist(double d) {return parArcDist(d);}
+  
+  ///An alias for hideArcs()
+  
+  ///An alias for hideArcs()
+  ///
+  GraphToEps<T> &hideEdges(bool b=true) {return hideArcs(b);}
+
+  ///@}
 };
 
 template<class T>
