@@ -43,9 +43,7 @@
 
 ///\ingroup eps_io
 ///\file
-///\brief Simple graph drawer
-///
-///\author Alpar Juttner
+///\brief A well configurable tool for visualizing graphs
 
 namespace lemon {
 
@@ -172,16 +170,9 @@ struct DefaultGraphToEpsTraits
   {}
 };
 
-///Helper class to implement the named parameters of \ref graphToEps()
+///Auxiliary class to implement the named parameters of \ref graphToEps()
 
-///Helper class to implement the named parameters of \ref graphToEps()
-///\todo Is 'helper class' a good name for this?
-///
-///\todo Follow PostScript's DSC.
-/// Use own dictionary.
-///\todo Useful new features.
-/// - Linestyles: dotted, dashed etc.
-/// - A second color and percent value for the lines.
+///Auxiliary class to implement the named parameters of \ref graphToEps()
 template<class T> class GraphToEps : public T 
 {
   // Can't believe it is required by the C++ standard
@@ -369,7 +360,7 @@ public:
   ///Sets the map of the node shapes
 
   ///Sets the map of the node shapes.
-  ///The availabe shape values
+  ///The available shape values
   ///can be found in \ref NodeShapes "enum NodeShapes".
   ///\param x must be a node map with \c int (or convertible) values. 
   ///\sa NodeShapes
@@ -411,8 +402,6 @@ public:
   ///ostream.
   ///
   ///\sa nodePsTextsPreamble()
-  ///\todo Offer the choise not to move to the centre but pass the coordinates
-  ///to the Postscript block inserted.
   template<class X> GraphToEps<NodePsTextsTraits<X> > nodePsTexts(const X &x)
   {
     dontPrint=true;
@@ -521,13 +510,11 @@ public:
 
   ///Negates the Y coordinates.
   ///
-  ///\todo More docs.
-  ///
   GraphToEps<T> &negateY(bool b=true) {
     _negY=b;return *this;
   }
 
-  ///Turn on/off prescaling
+  ///Turn on/off pre-scaling
 
   ///By default graphToEps() rescales the whole image in order to avoid
   ///very big or very small bounding boxes.
@@ -578,7 +565,7 @@ public:
 
   ///Sets the width of the border around the picture
   ///
-  GraphToEps<T> &border(double b) {_xBorder=_yBorder=b;return *this;}
+  GraphToEps<T> &border(double b=10) {_xBorder=_yBorder=b;return *this;}
   ///Sets the width of the border around the picture
 
   ///Sets the width of the border around the picture
@@ -595,12 +582,12 @@ public:
 
   ///Sets the length of the arrowheads
   ///
-  GraphToEps<T> &arrowLength(double d) {_arrowLength*=d;return *this;}
+  GraphToEps<T> &arrowLength(double d=1.0) {_arrowLength*=d;return *this;}
   ///Sets the width of the arrowheads
 
   ///Sets the width of the arrowheads
   ///
-  GraphToEps<T> &arrowWidth(double d) {_arrowWidth*=d;return *this;}
+  GraphToEps<T> &arrowWidth(double d=.3) {_arrowWidth*=d;return *this;}
   
   ///Scales the drawing to fit to A4 page
 
@@ -662,16 +649,23 @@ public:
   }
   ///Sets whether the the graph is undirected
 
-  ///Sets whether the the graph is undirected
+  ///Sets whether the the graph is undirected.
   ///
-  GraphToEps<T> &undirected(bool b=true) {_undirected=b;return *this;}
+  ///This setting is the default for undirected graphs.
+  ///
+  ///\sa directed()
+   GraphToEps<T> &undirected(bool b=true) {_undirected=b;return *this;}
 
   ///Sets whether the the graph is directed
 
   ///Sets whether the the graph is directed.
   ///Use it to show the edges as a pair of directed ones.
+  ///
+  ///This setting is the default for digraphs.
+  ///
+  ///\sa undirected()
   GraphToEps<T> &directed(bool b=true) {_undirected=!b;return *this;}
-
+  
   ///Sets the title.
 
   ///Sets the title of the generated image,
@@ -683,7 +677,6 @@ public:
   ///Sets the copyright statement of the generated image,
   ///namely it inserts a <tt>%%Copyright:</tt> DSC field to the header of
   ///the EPS file.
-  ///\todo Multiline copyright notice could be supported.
   GraphToEps<T> &copyright(const std::string &t) {_copyright=t;return *this;}
 
 protected:
@@ -709,10 +702,10 @@ public:
 
   ///Like other functions using
   ///\ref named-templ-func-param "named template parameters",
-  ///this function calles the algorithm itself, i.e. in this case
+  ///this function calls the algorithm itself, i.e. in this case
   ///it draws the graph.
   void run() {
-    ///\todo better 'epsilon' would be nice here.
+    //\todo better 'epsilon' would be nice here.
     const double EPSILON=1e-9;
     if(dontPrint) return;
     
@@ -930,7 +923,7 @@ public:
 	  dim2::Point<double>
 	    dvec(mycoords[g.target(*i)]-mycoords[g.source(*i)]);
 	  double l=std::sqrt(dvec.normSquare()); 
-	  ///\todo better 'epsilon' would be nice here.
+	  //\todo better 'epsilon' would be nice here.
 	  dim2::Point<double> d(dvec/std::max(l,EPSILON));
  	  dim2::Point<double> m;
 // 	  m=dim2::Point<double>(mycoords[g.target(*i)]+mycoords[g.source(*i)])/2.0;

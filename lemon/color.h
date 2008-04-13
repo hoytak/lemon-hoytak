@@ -111,14 +111,14 @@ namespace lemon {
     ///Constructor
 
     ///Constructor 
+    ///\param have_white indicates whether white is amongst the
+    ///provided initial colors (\c true) or not (\c false). If it is true,
+    ///white will be assigned to \c 0.
     ///\param num the number of the allocated colors. If it is \c -1,
-    ///the default color configuration is set up (26 color plus the
+    ///the default color configuration is set up (26 color plus optionaly the
     ///white).  If \c num is less then 26/27 then the default color
     ///list is cut. Otherwise the color list is filled repeatedly with
     ///the default color list.  (The colors can be changed later on.)
-    ///\param have_white indicates whether white is amongst the
-    ///provided color (\c true) or not (\c false). If it is true,
-    ///white will be assigned to \c 0.
     Palette(bool have_white=false,int num=-1)
     {
       if (num==0) return;
@@ -173,7 +173,7 @@ namespace lemon {
     {
       colors[i%colors.size()]=c;
     }
-    ///\e
+    ///Add a new color to the end of the color list.
     void add(const Color &c) 
     {
       colors.push_back(c);
@@ -185,7 +185,7 @@ namespace lemon {
     int size() const { return int(colors.size());}
   };
 
-  ///Returns a visible distinct \ref Color
+  ///Returns a visibly distinct \ref Color
 
   ///Returns a \ref Color which is as different from the given parameter
   ///as it is possible.
