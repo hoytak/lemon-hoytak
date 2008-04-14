@@ -470,8 +470,8 @@ namespace lemon {
     Node source(Arc e) const { return Node(arcs[e._id ^ 1].target); }
     Node target(Arc e) const { return Node(arcs[e._id].target); }
 
-    Node source(Edge e) const { return Node(arcs[2 * e._id].target); }
-    Node target(Edge e) const { return Node(arcs[2 * e._id + 1].target); }
+    Node u(Edge e) const { return Node(arcs[2 * e._id].target); }
+    Node v(Edge e) const { return Node(arcs[2 * e._id + 1].target); }
 
     static bool direction(Arc e) {
       return (e._id & 1) == 1;

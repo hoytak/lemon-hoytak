@@ -467,12 +467,12 @@ namespace lemon {
         }
       };
 
-      template <typename RDigraph>
+      template <typename _Digraph>
       struct Constraints {
         void constraints() {
-          checkConcept<IterableDigraphComponent<>, Digraph>();
-	  checkConcept<IDableDigraphComponent<>, Digraph>();
-          checkConcept<MappableDigraphComponent<>, Digraph>();
+          checkConcept<IterableDigraphComponent<>, _Digraph>();
+	  checkConcept<IDableDigraphComponent<>, _Digraph>();
+          checkConcept<MappableDigraphComponent<>, _Digraph>();
         }
       };
 

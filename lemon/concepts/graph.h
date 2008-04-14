@@ -731,12 +731,12 @@ namespace lemon {
 	return INVALID;
       }
 
-      template <typename Graph>
+      template <typename _Graph>
       struct Constraints {
 	void constraints() {
-	  checkConcept<IterableGraphComponent<>, Graph>();
-	  checkConcept<IDableGraphComponent<>, Graph>();
-	  checkConcept<MappableGraphComponent<>, Graph>();
+	  checkConcept<IterableGraphComponent<>, _Graph>();
+	  checkConcept<IDableGraphComponent<>, _Graph>();
+	  checkConcept<MappableGraphComponent<>, _Graph>();
 	}
       };
 

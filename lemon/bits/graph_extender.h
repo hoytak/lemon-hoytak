@@ -367,10 +367,10 @@ namespace lemon {
     }
 
     Node oppositeNode(const Node &n, const Edge &e) const {
-      if( n == Parent::source(e))
-	return Parent::target(e);
-      else if( n == Parent::target(e))
-	return Parent::source(e);
+      if( n == Parent::u(e))
+	return Parent::v(e);
+      else if( n == Parent::v(e))
+	return Parent::u(e);
       else
 	return INVALID;
     }
@@ -381,7 +381,7 @@ namespace lemon {
 
     using Parent::direct;
     Arc direct(const Edge &edge, const Node &node) const {
-      return Parent::direct(edge, Parent::source(edge) == node);
+      return Parent::direct(edge, Parent::u(edge) == node);
     }
 
     // Alterable extension
@@ -586,13 +586,13 @@ namespace lemon {
     ///
     /// Returns the base node of the iterator
     Node baseNode(const IncEdgeIt &edge) const {
-      return edge._direction ? source(edge) : target(edge);
+      return edge._direction ? u(edge) : v(edge);
     }
     /// Running node of the iterator
     ///
     /// Returns the running node of the iterator
     Node runningNode(const IncEdgeIt &edge) const {
-      return edge._direction ? target(edge) : source(edge);
+      return edge._direction ? v(edge) : u(edge);
     }
 
     // Mappable extension
