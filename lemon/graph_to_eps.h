@@ -150,10 +150,10 @@ struct DefaultGraphToEpsTraits
   DefaultGraphToEpsTraits(const G &_g,std::ostream& _os=std::cout,
 			  bool _pros=false) :
     g(_g), os(_os),
-    _coords(dim2::Point<double>(1,1)), _nodeSizes(.01), _nodeShapes(0),
+    _coords(dim2::Point<double>(1,1)), _nodeSizes(1), _nodeShapes(0),
     _nodeColors(WHITE), _arcColors(BLACK),
     _arcWidths(1.0), _arcWidthScale(0.003),
-    _nodeScale(1.0), _xBorder(10), _yBorder(10), _scale(1.0),
+    _nodeScale(.01), _xBorder(10), _yBorder(10), _scale(1.0),
     _nodeBorderQuotient(.1),
     _drawArrows(false), _arrowLength(1), _arrowWidth(0.3),
     _showNodes(true), _showArcs(true),
@@ -496,7 +496,7 @@ public:
   /// equal to \c d.
   /// \sa nodeSizes()
   /// \sa autoNodeScale()
-  GraphToEps<T> &nodeScale(double d) {_nodeScale=d;return *this;}
+  GraphToEps<T> &nodeScale(double d=.01) {_nodeScale=d;return *this;}
   ///Turns on/off the automatic node width scaling.
 
   ///Turns on/off the automatic node width scaling.
@@ -549,7 +549,7 @@ public:
   /// If both arcWidths() and autoArcWidthScale() are used, then the
   /// arc withs will be scaled in such a way that the greatest width will be
   /// equal to \c d.
-  GraphToEps<T> &arcWidthScale(double d) {_arcWidthScale=d;return *this;}
+  GraphToEps<T> &arcWidthScale(double d=.003) {_arcWidthScale=d;return *this;}
   ///Turns on/off the automatic arc width scaling.
 
   ///Turns on/off the automatic arc width scaling.

@@ -199,7 +199,7 @@ int main()
     copyright("(C) 2003-2007 LEMON Project").
     coords(hcoords).
     absoluteNodeSizes().absoluteArcWidths().
-    nodeScale(45).
+    nodeScale(.45).
     distantColorNodeTexts().
     //    distantBWNodeTexts().
     nodeTexts(hcolors).nodeTextSize(.6).
