@@ -19,19 +19,18 @@
 #ifndef LEMON_GRAPH_TO_EPS_H
 #define LEMON_GRAPH_TO_EPS_H
 
-#include <sys/time.h>
-
-#ifdef WIN32
-#include <lemon/bits/mingw32_time.h>
-#endif
-
 #include<iostream>
 #include<fstream>
 #include<sstream>
 #include<algorithm>
 #include<vector>
 
+#ifndef WIN32
+#include<sys/time.h>
 #include<ctime>
+#else
+#include<windows.h>
+#endif
 
 #include<lemon/math.h>
 #include<lemon/bits/invalid.h>
@@ -717,13 +716,30 @@ public:
      if(_copyright.size()>0) os << "%%Copyright: " << _copyright << '\n';
 //        << "%%Copyright: XXXX\n"
     os << "%%Creator: LEMON, graphToEps()\n";
-    
-    {
-      char cbuf[50];
+
+    {    
+#ifndef WIN32 
       timeval tv;
       gettimeofday(&tv, 0);
+
+      char cbuf[26];
       ctime_r(&tv.tv_sec,cbuf);
       os << "%%CreationDate: " << cbuf;
+#else
+      SYSTEMTIME time;
+      char buf1[11], buf2[9], buf3[5];
+      
+      GetSystemTime(&time);
+      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time, 
+			"ddd MMM dd", buf1, 11) &&
+	  GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time, 
+			"HH':'mm':'ss", buf2, 9) &&
+	  GetDateFormat(LOCALE_USER_DEFAULT, 0, &time, 
+				"yyyy", buf3, 5)) {
+	os << "%%CreationDate: " << buf1 << ' ' 
+	   << buf2 << ' ' << buf3 << std::endl;
+      }	  
+#endif
     }
 
     if (_autoArcWidthScale) {
