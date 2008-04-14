@@ -23,12 +23,16 @@
 ///\file
 ///\brief Tools for measuring cpu usage
 
+#ifdef WIN32
+#include <windows.h>
+#include <cmath>
+#else
 #include <sys/times.h>
-
 #include <sys/time.h>
+#endif
+
 #include <fstream>
 #include <iostream>
-#include <unistd.h>
 
 namespace lemon {
 
@@ -54,25 +58,14 @@ namespace lemon {
 
   class TimeStamp
   {
-    struct rtms 
-    {
-      double tms_utime;
-      double tms_stime;
-      double tms_cutime;
-      double tms_cstime;
-      rtms() {}
-      rtms(tms ts) : tms_utime(ts.tms_utime), tms_stime(ts.tms_stime),
-		     tms_cutime(ts.tms_cutime), tms_cstime(ts.tms_cstime) {}
-    };
-    rtms ts;
-    double real_time;
+    double utime;
+    double stime;
+    double cutime;
+    double cstime;
+    double rtime;
   
-    rtms &getTms() {return ts;}
-    const rtms &getTms() const {return ts;}
-
     void _reset() { 
-      ts.tms_utime = ts.tms_stime = ts.tms_cutime = ts.tms_cstime = 0; 
-      real_time = 0;
+      utime = stime = cutime = cstime = rtime = 0;
     }
 
   public:
@@ -80,11 +73,40 @@ namespace lemon {
     ///Read the current time values of the process
     void stamp()
     {
+#ifndef WIN32
       timeval tv;
-      tms _ts;
-      times(&_ts);
-      gettimeofday(&tv, 0);real_time=tv.tv_sec+double(tv.tv_usec)/1e6;
-      ts=_ts;
+      gettimeofday(&tv, 0);
+      rtime=tv.tv_sec+double(tv.tv_usec)/1e6;
+
+      tms ts;
+      double tck=sysconf(_SC_CLK_TCK);
+      times(&ts);
+      utime=ts.tms_utime/tck;
+      stime=ts.tms_stime/tck;
+      cutime=ts.tms_cutime/tck;
+      cstime=ts.tms_cstime/tck;
+#else
+      static const double ch = 4294967296.0e-7;
+      static const double cl = 1.0e-7;
+
+      FILETIME system;
+      GetSystemTimeAsFileTime(&system);
+      rtime = ch * system.dwHighDateTime + cl * system.dwLowDateTime;
+
+      FILETIME create, exit, kernel, user;
+      if (GetProcessTimes(GetCurrentProcess(),&create, &exit, &kernel, &user)) {
+	utime = ch * user.dwHighDateTime + cl * user.dwLowDateTime;
+	stime = ch * kernel.dwHighDateTime + cl * kernel.dwLowDateTime;
+	cutime = 0;
+	cstime = 0;
+      } else {
+	rtime = 0;
+	utime = 0;
+	stime = 0;
+	cutime = 0;
+	cstime = 0;
+      }
+#endif      
     }
   
     /// Constructor initializing with zero
@@ -99,11 +121,11 @@ namespace lemon {
     ///\e
     TimeStamp &operator+=(const TimeStamp &b)
     {
-      ts.tms_utime+=b.ts.tms_utime;
-      ts.tms_stime+=b.ts.tms_stime;
-      ts.tms_cutime+=b.ts.tms_cutime;
-      ts.tms_cstime+=b.ts.tms_cstime;
-      real_time+=b.real_time;
+      utime+=b.utime;
+      stime+=b.stime;
+      cutime+=b.cutime;
+      cstime+=b.cstime;
+      rtime+=b.rtime;
       return *this;
     }
     ///\e
@@ -115,11 +137,11 @@ namespace lemon {
     ///\e
     TimeStamp &operator-=(const TimeStamp &b)
     {
-      ts.tms_utime-=b.ts.tms_utime;
-      ts.tms_stime-=b.ts.tms_stime;
-      ts.tms_cutime-=b.ts.tms_cutime;
-      ts.tms_cstime-=b.ts.tms_cstime;
-      real_time-=b.real_time;
+      utime-=b.utime;
+      stime-=b.stime;
+      cutime-=b.cutime;
+      cstime-=b.cstime;
+      rtime-=b.rtime;
       return *this;
     }
     ///\e
@@ -131,11 +153,11 @@ namespace lemon {
     ///\e
     TimeStamp &operator*=(double b)
     {
-      ts.tms_utime*=b;
-      ts.tms_stime*=b;
-      ts.tms_cutime*=b;
-      ts.tms_cstime*=b;
-      real_time*=b;
+      utime*=b;
+      stime*=b;
+      cutime*=b;
+      cstime*=b;
+      rtime*=b;
       return *this;
     }
     ///\e
@@ -148,11 +170,11 @@ namespace lemon {
     ///\e
     TimeStamp &operator/=(double b)
     {
-      ts.tms_utime/=b;
-      ts.tms_stime/=b;
-      ts.tms_cutime/=b;
-      ts.tms_cstime/=b;
-      real_time/=b;
+      utime/=b;
+      stime/=b;
+      cutime/=b;
+      cstime/=b;
+      rtime/=b;
       return *this;
     }
     ///\e
@@ -173,25 +195,31 @@ namespace lemon {
     ///Gives back the user time of the process
     double userTime() const
     {
-      return double(ts.tms_utime)/sysconf(_SC_CLK_TCK);
+      return utime;
     }
     ///Gives back the system time of the process
     double systemTime() const
     {
-      return double(ts.tms_stime)/sysconf(_SC_CLK_TCK);
+      return stime;
     }
     ///Gives back the user time of the process' children
+
+    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///
     double cUserTime() const
     {
-      return double(ts.tms_cutime)/sysconf(_SC_CLK_TCK);
+      return cutime;
     }
     ///Gives back the user time of the process' children
+
+    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///
     double cSystemTime() const
     {
-      return double(ts.tms_cstime)/sysconf(_SC_CLK_TCK);
+      return cstime;
     }
     ///Gives back the real time
-    double realTime() const {return real_time;}
+    double realTime() const {return rtime;}
   };
 
   TimeStamp operator*(double b,const TimeStamp &t) 
@@ -212,13 +240,14 @@ namespace lemon {
   /// \li \c cs: system cpu time of children,
   /// \li \c real: real time.
   /// \relates TimeStamp
+  /// \note On <tt>WIN32</tt> platform the cummulative values are not
+  /// calculated.
   inline std::ostream& operator<<(std::ostream& os,const TimeStamp &t)
   {
-    long cls = sysconf(_SC_CLK_TCK);
-    os << "u: " << double(t.getTms().tms_utime)/cls <<
-      "s, s: " << double(t.getTms().tms_stime)/cls <<
-      "s, cu: " << double(t.getTms().tms_cutime)/cls <<
-      "s, cs: " << double(t.getTms().tms_cstime)/cls <<
+    os << "u: " << t.userTime() <<
+      "s, s: " << t.systemTime() <<
+      "s, cu: " << t.cUserTime() <<
+      "s, cs: " << t.cSystemTime() <<
       "s, real: " << t.realTime() << "s";
     return os;
   }
@@ -404,11 +433,17 @@ namespace lemon {
       return operator TimeStamp().systemTime();
     }
     ///Gives back the ellapsed user time of the process' children
+
+    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///
     double cUserTime() const
     {
       return operator TimeStamp().cUserTime();
     }
     ///Gives back the ellapsed user time of the process' children
+
+    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///
     double cSystemTime() const
     {
       return operator TimeStamp().cSystemTime();
