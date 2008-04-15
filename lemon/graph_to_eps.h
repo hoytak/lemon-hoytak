@@ -49,17 +49,19 @@
 
 namespace lemon {
 
-template<class MT>
-class _NegY {
-public:
-  typedef typename MT::Key Key;
-  typedef typename MT::Value Value;
-  const MT &map;
-  int yscale;
-  _NegY(const MT &m,bool b) : map(m), yscale(1-b*2) {}
-  Value operator[](Key n) { return Value(map[n].x,map[n].y*yscale);}
-};
-
+  namespace _graph_to_eps_bits {
+    template<class MT>
+    class _NegY {
+    public:
+      typedef typename MT::Key Key;
+      typedef typename MT::Value Value;
+      const MT &map;
+      int yscale;
+      _NegY(const MT &m,bool b) : map(m), yscale(1-b*2) {}
+      Value operator[](Key n) { return Value(map[n].x,map[n].y*yscale);}
+    };
+  }
+  
 ///Default traits class of \ref GraphToEps
 
 ///Default traits class of \ref GraphToEps
@@ -158,7 +160,7 @@ struct DefaultGraphToEpsTraits
     _enableParallel(false), _parArcDist(1),
     _showNodeText(false), _nodeTexts(false), _nodeTextSize(1),
     _showNodePsText(false), _nodePsTexts(false), _nodePsTextsPreamble(0),
-    _undirected(false),
+    _undirected(lemon::UndirectedTagIndicator<G>::value),
     _pleaseRemoveOsStream(_pros), _scaleToA4(false),
     _nodeTextColorType(SAME_COL), _nodeTextColors(BLACK),
     _autoNodeScale(false),
@@ -668,7 +670,7 @@ public:
 
   ///Sets whether the the graph is directed.
   ///Use it to show the edges as a pair of directed ones.
-  GraphToEps<T> &bidir(bool b=true) {_undirected=!b;return *this;}
+  GraphToEps<T> &directed(bool b=true) {_undirected=!b;return *this;}
 
   ///Sets the title.
 
@@ -714,7 +716,8 @@ public:
     const double EPSILON=1e-9;
     if(dontPrint) return;
     
-    _NegY<typename T::CoordsMapType> mycoords(_coords,_negY);
+    _graph_to_eps_bits::_NegY<typename T::CoordsMapType>
+      mycoords(_coords,_negY);
 
     os << "%!PS-Adobe-2.0 EPSF-2.0\n";
     if(_title.size()>0) os << "%%Title: " << _title << '\n';
