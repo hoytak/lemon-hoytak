@@ -540,6 +540,10 @@ namespace lemon {
     ///
     /// @{
 
+    ///\name Initialization
+    ///
+    /// @{
+
     /// \brief Default constructor
     ///
     /// Constructor with constant seeding.
@@ -611,7 +615,7 @@ namespace lemon {
     /// \brief Seeding from file or from process id and time
     ///
     /// By default, this function calls the \c seedFromFile() member
-    /// function with the <tt>/dev/urandom</tt> file. If it is not success,
+    /// function with the <tt>/dev/urandom</tt> file. If it does not success,
     /// it uses the \c seedFromTime().
     /// \return Currently always true.
     bool seed() {
@@ -634,7 +638,7 @@ namespace lemon {
     /// entropy).
     /// \param file The source file
     /// \param offset The offset, from the file read.
-    /// \return True when the seeding is success.
+    /// \return True when the seeding successes.
 #ifndef WIN32
     bool seedFromFile(const std::string& file = "/dev/urandom", int offset = 0) 
 #else
@@ -704,6 +708,12 @@ namespace lemon {
       return real<Number>() * (b - a) + a; 
     }
 
+    /// @}
+
+    ///\name Uniform distributions
+    ///
+    /// @{
+
     /// \brief Returns a random real number from the range [0, 1)
     ///
     /// It returns a random double from the range [0, 1).
@@ -760,6 +770,8 @@ namespace lemon {
     Number uinteger() {
       return _random_bits::IntConversion<Number, Word>::convert(core);
     }
+
+    /// @}
 
     unsigned int uinteger() {
       return uinteger<unsigned int>();
