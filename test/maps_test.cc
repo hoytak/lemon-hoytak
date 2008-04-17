@@ -85,7 +85,7 @@ int main()
     checkConcept<ReadWriteMap<A,B>, ConstMap<A,B> >();
     checkConcept<ReadWriteMap<A,C>, ConstMap<A,C> >();
     ConstMap<A,B> map1;
-    ConstMap<A,B> map2(B());
+    ConstMap<A,B> map2 = B();
     ConstMap<A,B> map3 = map1;
     map1 = constMap<A>(B());
     map1 = constMap<A,B>();
@@ -143,7 +143,7 @@ int main()
   {
     checkConcept<ReferenceMap<A,B,B&,const B&>, SparseMap<A,B> >();
     SparseMap<A,B> map1;
-    SparseMap<A,B> map2(B());
+    SparseMap<A,B> map2 = B();
     SparseMap<A,B> map3 = sparseMap<A,B>();
     SparseMap<A,B> map4 = sparseMap<A>(B());
 
