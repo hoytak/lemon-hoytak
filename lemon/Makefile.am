@@ -9,6 +9,7 @@ lib_LTLIBRARIES += lemon/libemon.la
 lemon_libemon_la_SOURCES = \
         lemon/arg_parser.cc \
         lemon/base.cc \
+        lemon/color.cc \
         lemon/random.cc
 
 
@@ -20,11 +21,13 @@ lemon_HEADERS += \
 	lemon/assert.h \
         lemon/bfs.h \
         lemon/bin_heap.h \
+        lemon/color.h \
         lemon/counter.h \
         lemon/dfs.h \
         lemon/dijkstra.h \
         lemon/dim2.h \
 	lemon/error.h \
+        lemon/graph_to_eps.h \
 	lemon/graph_utils.h \
 	lemon/kruskal.h \
 	lemon/lgf_reader.h \
@@ -42,6 +45,7 @@ bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \
 	lemon/bits/array_map.h \
 	lemon/bits/base_extender.h \
+        lemon/bits/bezier.h \
 	lemon/bits/default_map.h \
 	lemon/bits/graph_extender.h \
         lemon/bits/invalid.h \

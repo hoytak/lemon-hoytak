@@ -24,6 +24,7 @@ doc/Doxyfile
 .dirstamp
 .libs/*
 .deps/*
+demo/*.eps
 
 syntax: regexp
 (.*/)?\#[^/]*\#$
