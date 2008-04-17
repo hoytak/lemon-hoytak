@@ -27,6 +27,7 @@ lemon_HEADERS += \
 	lemon/error.h \
 	lemon/graph_utils.h \
 	lemon/kruskal.h \
+	lemon/lgf_reader.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
