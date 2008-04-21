@@ -558,7 +558,7 @@ namespace lemon {
       return Node(n);
     }
     
-    Edge addArc(Node u, Node v) {
+    Edge addEdge(Node u, Node v) {
       int n = arcs.size();
       arcs.push_back(ArcT());
       arcs.push_back(ArcT());
@@ -639,7 +639,7 @@ namespace lemon {
     ///and \c t.
     ///\return the new edge.
     Edge addEdge(const Node& s, const Node& t) { 
-      return Parent::addArc(s, t); 
+      return Parent::addEdge(s, t); 
     }
 
     ///Clear the graph.
