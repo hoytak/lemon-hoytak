@@ -37,7 +37,7 @@ using namespace lemon;
 
 int main(int argc, const char *argv[]) {
   const int n = argc > 1 ? std::atoi(argv[1]) : 20;
-  const int e = argc > 2 ? std::atoi(argv[2]) : static_cast<int>(n * log(n));
+  const int e = argc > 2 ? std::atoi(argv[2]) : static_cast<int>(n * std::log(double(n)));
   const int m = argc > 3 ? std::atoi(argv[3]) : 100;
 
   SmartDigraph digraph;
