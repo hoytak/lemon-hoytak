@@ -9,10 +9,38 @@ EXTRA_DIST += \
 	doc/namespaces.dox \
 	doc/html
 
+DOC_EPS_IMAGES18 = \
+	nodeshape_0.eps \
+	nodeshape_1.eps \
+	nodeshape_2.eps \
+	nodeshape_3.eps \
+	nodeshape_4.eps
+
+DOC_EPS_IMAGES = \
+	$(DOC_EPS_IMAGES18)
+
+DOC_PNG_IMAGES = \
+	$(DOC_EPS_IMAGES:%.eps=doc/gen-images/%.png)
+
+EXTRA_DIST += $(DOC_EPS_IMAGES:%=doc/images/%)
+
 doc/html:
 	$(MAKE) $(AM_MAKEFLAGS) html
 
-html-local:
+GS_COMMAND=gs -dNOPAUSE -dBATCH -q -dEPSCrop -dTextAlphaBits=4 -dGraphicsAlphaBits=4
+
+$(DOC_EPS_IMAGES18:%.eps=doc/gen-images/%.png): doc/gen-images/%.png: doc/images/%.eps
+	-mkdir doc/gen-images
+	if test ${gs_found} = yes; then \
+	  $(GS_COMMAND) -sDEVICE=pngalpha -r18 -sOutputFile=$@ $<; \
+	else \
+	  echo; \
+	  echo "Ghostscript not found."; \
+	  echo; \
+	  exit 1; \
+	fi
+
+html-local: $(DOC_PNG_IMAGES)
 	if test ${doxygen_found} = yes; then \
 	  cd doc; \
 	  doxygen Doxyfile; \
@@ -27,6 +55,8 @@ html-local:
 clean-local:
 	-rm -rf doc/html
 	-rm -f doc/doxygen.log
+	-rm -f $(DOC_PNG_IMAGES)
+	-rm -rf doc/gen-images
 
 update-external-tags:
 	wget -O doc/libstdc++.tag.tmp http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/libstdc++.tag && \

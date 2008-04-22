@@ -7,6 +7,7 @@ syntax: glob
 *.log
 *.lo
 *.tar.*
+*.bak
 Makefile.in
 aclocal.m4
 config.h.in
@@ -25,6 +26,7 @@ doc/Doxyfile
 .libs/*
 .deps/*
 demo/*.eps
+doc/images/*.png
 
 syntax: regexp
 (.*/)?\#[^/]*\#$

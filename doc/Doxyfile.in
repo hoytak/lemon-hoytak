@@ -101,7 +101,8 @@ EXAMPLE_PATH           = @abs_top_srcdir@/demo \
                          @abs_top_srcdir@/doc
 EXAMPLE_PATTERNS       = 
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = @abs_top_srcdir@/doc/images
+IMAGE_PATH             = @abs_top_srcdir@/doc/images \
+		       	 @abs_top_builddir@/doc/gen-images
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO

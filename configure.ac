@@ -27,6 +27,7 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
 AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
+AC_CHECK_PROG([gs_found],[gs],[yes],[no])
 
 if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes; then
   CXXFLAGS="$CXXFLAGS -Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
