@@ -302,7 +302,7 @@ namespace lemon {
   public:
 
     typedef _Digraph Digraph;
-    GRAPH_TYPEDEFS(typename Digraph);
+    DIGRAPH_TYPEDEFS(typename Digraph);
     
   private:
 

@@ -216,27 +216,27 @@ namespace lemon {
   };
 
   template <typename Graph, typename Enable = void>
-  struct ArcNumTagIndicator {
+  struct EdgeNumTagIndicator {
     static const bool value = false;
   };
 
   template <typename Graph>
-  struct ArcNumTagIndicator<
+  struct EdgeNumTagIndicator<
     Graph, 
-    typename enable_if<typename Graph::ArcNumTag, void>::type
+    typename enable_if<typename Graph::EdgeNumTag, void>::type
   > {
     static const bool value = true;
   };
 
   template <typename Graph, typename Enable = void>
-  struct FindArcTagIndicator {
+  struct FindEdgeTagIndicator {
     static const bool value = false;
   };
 
   template <typename Graph>
-  struct FindArcTagIndicator<
+  struct FindEdgeTagIndicator<
     Graph, 
-    typename enable_if<typename Graph::FindArcTag, void>::type
+    typename enable_if<typename Graph::FindEdgeTag, void>::type
   > {
     static const bool value = true;
   };

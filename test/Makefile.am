@@ -3,6 +3,7 @@ EXTRA_DIST += \
 
 noinst_HEADERS += \
 	test/digraph_test.h \
+	test/graph_utils_test.h \
 	test/heap_test.h \
 	test/map_test.h \
         test/test_tools.h
@@ -15,6 +16,7 @@ check_PROGRAMS += \
         test/dim_test \
 	test/error_test \
 	test/graph_test \
+	test/graph_utils_test \
 	test/kruskal_test \
         test/maps_test \
         test/random_test \
@@ -34,6 +36,7 @@ test_digraph_test_SOURCES = test/digraph_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
 test_error_test_SOURCES = test/error_test.cc
 test_graph_test_SOURCES = test/graph_test.cc
+test_graph_utils_test_SOURCES = test/graph_utils_test.cc
 # test_heap_test_SOURCES = test/heap_test.cc
 test_kruskal_test_SOURCES = test/kruskal_test.cc
 test_maps_test_SOURCES = test/maps_test.cc

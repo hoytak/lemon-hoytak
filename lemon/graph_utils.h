@@ -35,7 +35,7 @@
 
 ///\ingroup gutils
 ///\file
-///\brief Digraph utilities.
+///\brief Graph utilities.
 
 namespace lemon {
 
@@ -46,71 +46,36 @@ namespace lemon {
 
   ///This \c \#define creates convenience typedefs for the following types
   ///of \c Digraph: \c Node,  \c NodeIt, \c Arc, \c ArcIt, \c InArcIt,
-  ///\c OutArcIt
-  ///\note If \c G it a template parameter, it should be used in this way.
-  ///\code
-  ///  GRAPH_TYPEDEFS(typename G);
-  ///\endcode
-  ///
-  ///\warning There are no typedefs for the digraph maps because of the lack of
-  ///template typedefs in C++.
-#define GRAPH_TYPEDEFS(Digraph)				\
-  typedef Digraph::     Node      Node;			\
-    typedef Digraph::   NodeIt    NodeIt;			\
-    typedef Digraph::   Arc      Arc;			\
-    typedef Digraph::   ArcIt    ArcIt;			\
-    typedef Digraph:: InArcIt  InArcIt;			\
-    typedef Digraph::OutArcIt OutArcIt
+  ///\c OutArcIt, \c BoolNodeMap, \c IntNodeMap, \c DoubleNodeMap, 
+  ///\c BoolArcMap, \c IntArcMap, \c DoubleArcMap. 
+#define DIGRAPH_TYPEDEFS(Digraph)					\
+  typedef Digraph::Node Node;						\
+  typedef Digraph::NodeIt NodeIt;					\
+  typedef Digraph::Arc Arc;						\
+  typedef Digraph::ArcIt ArcIt;						\
+  typedef Digraph::InArcIt InArcIt;					\
+  typedef Digraph::OutArcIt OutArcIt
 
   ///Creates convenience typedefs for the graph types and iterators
 
-  ///This \c \#define creates the same convenience typedefs as defined by
-  ///\ref GRAPH_TYPEDEFS(Digraph) and three more, namely it creates
-  ///\c Edge, \c EdgeIt, \c IncArcIt,
-  ///
-  ///\note If \c G it a template parameter, it should be used in this way.
-  ///\code
-  ///  UGRAPH_TYPEDEFS(typename G);
-  ///\endcode
-  ///
-  ///\warning There are no typedefs for the digraph maps because of the lack of
-  ///template typedefs in C++.
-#define UGRAPH_TYPEDEFS(Digraph)				\
-  GRAPH_TYPEDEFS(Digraph);				\
-    typedef Digraph:: Edge   Edge;			\
-    typedef Digraph:: EdgeIt EdgeIt;			\
-    typedef Digraph:: IncArcIt   IncArcIt
+  ///This \c \#define creates the same convenience typedefs as defined
+  ///by \ref DIGRAPH_TYPEDEFS(Graph) and six more, namely it creates
+  ///\c Edge, \c EdgeIt, \c IncEdgeIt, \c BoolEdgeMap, \c IntEdgeMap,
+  ///\c DoubleEdgeMap.
+#define GRAPH_TYPEDEFS(Graph)						\
+  DIGRAPH_TYPEDEFS(Graph);						\
+  typedef Graph::Edge Edge;						\
+  typedef Graph::EdgeIt EdgeIt;						\
+  typedef Graph::IncEdgeIt IncEdgeIt
 
-  ///\brief Creates convenience typedefs for the bipartite digraph 
-  ///types and iterators
-
-  ///This \c \#define creates the same convenience typedefs as defined by
-  ///\ref UGRAPH_TYPEDEFS(Digraph) and two more, namely it creates
-  ///\c RedIt, \c BlueIt, 
+  /// \brief Function to count the items in the graph.
   ///
-  ///\note If \c G it a template parameter, it should be used in this way.
-  ///\code
-  ///  BPUGRAPH_TYPEDEFS(typename G);
-  ///\endcode
-  ///
-  ///\warning There are no typedefs for the digraph maps because of the lack of
-  ///template typedefs in C++.
-#define BPUGRAPH_TYPEDEFS(Digraph)            \
-  UGRAPH_TYPEDEFS(Digraph);		    \
-    typedef Digraph::Red Red;             \
-    typedef Digraph::Blue Blue;             \
-    typedef Digraph::RedIt RedIt;	    \
-    typedef Digraph::BlueIt BlueIt
-
-  /// \brief Function to count the items in the digraph.
-  ///
-  /// This function counts the items (nodes, arcs etc) in the digraph.
+  /// This function counts the items (nodes, arcs etc) in the graph.
   /// The complexity of the function is O(n) because
   /// it iterates on all of the items.
-
-  template <typename Digraph, typename Item>
-  inline int countItems(const Digraph& g) {
-    typedef typename ItemSetTraits<Digraph, Item>::ItemIt ItemIt;
+  template <typename Graph, typename Item>
+  inline int countItems(const Graph& g) {
+    typedef typename ItemSetTraits<Graph, Item>::ItemIt ItemIt;
     int num = 0;
     for (ItemIt it(g); it != INVALID; ++it) {
       ++num;
@@ -120,184 +85,115 @@ namespace lemon {
 
   // Node counting:
 
-  namespace _digraph_utils_bits {
+  namespace _graph_utils_bits {
     
-    template <typename Digraph, typename Enable = void>
+    template <typename Graph, typename Enable = void>
     struct CountNodesSelector {
-      static int count(const Digraph &g) {
-        return countItems<Digraph, typename Digraph::Node>(g);
+      static int count(const Graph &g) {
+        return countItems<Graph, typename Graph::Node>(g);
       }
     };
 
-    template <typename Digraph>
+    template <typename Graph>
     struct CountNodesSelector<
-      Digraph, typename 
-      enable_if<typename Digraph::NodeNumTag, void>::type> 
+      Graph, typename 
+      enable_if<typename Graph::NodeNumTag, void>::type> 
     {
-      static int count(const Digraph &g) {
+      static int count(const Graph &g) {
         return g.nodeNum();
       }
     };    
   }
 
-  /// \brief Function to count the nodes in the digraph.
+  /// \brief Function to count the nodes in the graph.
   ///
-  /// This function counts the nodes in the digraph.
+  /// This function counts the nodes in the graph.
   /// The complexity of the function is O(n) but for some
-  /// digraph structures it is specialized to run in O(1).
+  /// graph structures it is specialized to run in O(1).
   ///
-  /// If the digraph contains a \e nodeNum() member function and a 
+  /// If the graph contains a \e nodeNum() member function and a 
   /// \e NodeNumTag tag then this function calls directly the member
   /// function to query the cardinality of the node set.
-  template <typename Digraph>
-  inline int countNodes(const Digraph& g) {
-    return _digraph_utils_bits::CountNodesSelector<Digraph>::count(g);
+  template <typename Graph>
+  inline int countNodes(const Graph& g) {
+    return _graph_utils_bits::CountNodesSelector<Graph>::count(g);
   }
-
-  namespace _digraph_utils_bits {
-    
-    template <typename Digraph, typename Enable = void>
-    struct CountRedsSelector {
-      static int count(const Digraph &g) {
-        return countItems<Digraph, typename Digraph::Red>(g);
-      }
-    };
-
-    template <typename Digraph>
-    struct CountRedsSelector<
-      Digraph, typename 
-      enable_if<typename Digraph::NodeNumTag, void>::type> 
-    {
-      static int count(const Digraph &g) {
-        return g.redNum();
-      }
-    };    
-  }
-
-  /// \brief Function to count the reds in the digraph.
-  ///
-  /// This function counts the reds in the digraph.
-  /// The complexity of the function is O(an) but for some
-  /// digraph structures it is specialized to run in O(1).
-  ///
-  /// If the digraph contains an \e redNum() member function and a 
-  /// \e NodeNumTag tag then this function calls directly the member
-  /// function to query the cardinality of the A-node set.
-  template <typename Digraph>
-  inline int countReds(const Digraph& g) {
-    return _digraph_utils_bits::CountRedsSelector<Digraph>::count(g);
-  }
-
-  namespace _digraph_utils_bits {
-    
-    template <typename Digraph, typename Enable = void>
-    struct CountBluesSelector {
-      static int count(const Digraph &g) {
-        return countItems<Digraph, typename Digraph::Blue>(g);
-      }
-    };
-
-    template <typename Digraph>
-    struct CountBluesSelector<
-      Digraph, typename 
-      enable_if<typename Digraph::NodeNumTag, void>::type> 
-    {
-      static int count(const Digraph &g) {
-        return g.blueNum();
-      }
-    };    
-  }
-
-  /// \brief Function to count the blues in the digraph.
-  ///
-  /// This function counts the blues in the digraph.
-  /// The complexity of the function is O(bn) but for some
-  /// digraph structures it is specialized to run in O(1).
-  ///
-  /// If the digraph contains a \e blueNum() member function and a 
-  /// \e NodeNumTag tag then this function calls directly the member
-  /// function to query the cardinality of the B-node set.
-  template <typename Digraph>
-  inline int countBlues(const Digraph& g) {
-    return _digraph_utils_bits::CountBluesSelector<Digraph>::count(g);
-  }
-
 
   // Arc counting:
 
-  namespace _digraph_utils_bits {
+  namespace _graph_utils_bits {
     
-    template <typename Digraph, typename Enable = void>
+    template <typename Graph, typename Enable = void>
     struct CountArcsSelector {
-      static int count(const Digraph &g) {
-        return countItems<Digraph, typename Digraph::Arc>(g);
+      static int count(const Graph &g) {
+        return countItems<Graph, typename Graph::Arc>(g);
       }
     };
 
-    template <typename Digraph>
+    template <typename Graph>
     struct CountArcsSelector<
-      Digraph, 
-      typename enable_if<typename Digraph::ArcNumTag, void>::type> 
+      Graph, 
+      typename enable_if<typename Graph::ArcNumTag, void>::type> 
     {
-      static int count(const Digraph &g) {
+      static int count(const Graph &g) {
         return g.arcNum();
       }
     };    
   }
 
-  /// \brief Function to count the arcs in the digraph.
+  /// \brief Function to count the arcs in the graph.
   ///
-  /// This function counts the arcs in the digraph.
+  /// This function counts the arcs in the graph.
   /// The complexity of the function is O(e) but for some
-  /// digraph structures it is specialized to run in O(1).
+  /// graph structures it is specialized to run in O(1).
   ///
-  /// If the digraph contains a \e arcNum() member function and a 
-  /// \e ArcNumTag tag then this function calls directly the member
+  /// If the graph contains a \e arcNum() member function and a 
+  /// \e EdgeNumTag tag then this function calls directly the member
   /// function to query the cardinality of the arc set.
-  template <typename Digraph>
-  inline int countArcs(const Digraph& g) {
-    return _digraph_utils_bits::CountArcsSelector<Digraph>::count(g);
+  template <typename Graph>
+  inline int countArcs(const Graph& g) {
+    return _graph_utils_bits::CountArcsSelector<Graph>::count(g);
   }
 
-  // Undirected arc counting:
-  namespace _digraph_utils_bits {
+  // Edge counting:
+  namespace _graph_utils_bits {
     
-    template <typename Digraph, typename Enable = void>
+    template <typename Graph, typename Enable = void>
     struct CountEdgesSelector {
-      static int count(const Digraph &g) {
-        return countItems<Digraph, typename Digraph::Edge>(g);
+      static int count(const Graph &g) {
+        return countItems<Graph, typename Graph::Edge>(g);
       }
     };
 
-    template <typename Digraph>
+    template <typename Graph>
     struct CountEdgesSelector<
-      Digraph, 
-      typename enable_if<typename Digraph::ArcNumTag, void>::type> 
+      Graph, 
+      typename enable_if<typename Graph::EdgeNumTag, void>::type> 
     {
-      static int count(const Digraph &g) {
+      static int count(const Graph &g) {
         return g.edgeNum();
       }
     };    
   }
 
-  /// \brief Function to count the edges in the digraph.
+  /// \brief Function to count the edges in the graph.
   ///
-  /// This function counts the edges in the digraph.
-  /// The complexity of the function is O(e) but for some
-  /// digraph structures it is specialized to run in O(1).
+  /// This function counts the edges in the graph.
+  /// The complexity of the function is O(m) but for some
+  /// graph structures it is specialized to run in O(1).
   ///
-  /// If the digraph contains a \e edgeNum() member function and a 
-  /// \e ArcNumTag tag then this function calls directly the member
+  /// If the graph contains a \e edgeNum() member function and a 
+  /// \e EdgeNumTag tag then this function calls directly the member
   /// function to query the cardinality of the edge set.
-  template <typename Digraph>
-  inline int countEdges(const Digraph& g) {
-    return _digraph_utils_bits::CountEdgesSelector<Digraph>::count(g);
+  template <typename Graph>
+  inline int countEdges(const Graph& g) {
+    return _graph_utils_bits::CountEdgesSelector<Graph>::count(g);
 
   }
 
 
-  template <typename Digraph, typename DegIt>
-  inline int countNodeDegree(const Digraph& _g, const typename Digraph::Node& _n) {
+  template <typename Graph, typename DegIt>
+  inline int countNodeDegree(const Graph& _g, const typename Graph::Node& _n) {
     int num = 0;
     for (DegIt it(_g, _n); it != INVALID; ++it) {
       ++num;
@@ -308,37 +204,37 @@ namespace lemon {
   /// \brief Function to count the number of the out-arcs from node \c n.
   ///
   /// This function counts the number of the out-arcs from node \c n
-  /// in the digraph.  
-  template <typename Digraph>
-  inline int countOutArcs(const Digraph& _g,  const typename Digraph::Node& _n) {
-    return countNodeDegree<Digraph, typename Digraph::OutArcIt>(_g, _n);
+  /// in the graph.  
+  template <typename Graph>
+  inline int countOutArcs(const Graph& _g,  const typename Graph::Node& _n) {
+    return countNodeDegree<Graph, typename Graph::OutArcIt>(_g, _n);
   }
 
   /// \brief Function to count the number of the in-arcs to node \c n.
   ///
   /// This function counts the number of the in-arcs to node \c n
-  /// in the digraph.  
-  template <typename Digraph>
-  inline int countInArcs(const Digraph& _g,  const typename Digraph::Node& _n) {
-    return countNodeDegree<Digraph, typename Digraph::InArcIt>(_g, _n);
+  /// in the graph.  
+  template <typename Graph>
+  inline int countInArcs(const Graph& _g,  const typename Graph::Node& _n) {
+    return countNodeDegree<Graph, typename Graph::InArcIt>(_g, _n);
   }
 
-  /// \brief Function to count the number of the inc-arcs to node \c n.
+  /// \brief Function to count the number of the inc-edges to node \c n.
   ///
-  /// This function counts the number of the inc-arcs to node \c n
-  /// in the digraph.  
-  template <typename Digraph>
-  inline int countIncArcs(const Digraph& _g,  const typename Digraph::Node& _n) {
-    return countNodeDegree<Digraph, typename Digraph::IncArcIt>(_g, _n);
+  /// This function counts the number of the inc-edges to node \c n
+  /// in the graph.  
+  template <typename Graph>
+  inline int countIncEdges(const Graph& _g,  const typename Graph::Node& _n) {
+    return countNodeDegree<Graph, typename Graph::IncEdgeIt>(_g, _n);
   }
 
-  namespace _digraph_utils_bits {
+  namespace _graph_utils_bits {
     
-    template <typename Digraph, typename Enable = void>
+    template <typename Graph, typename Enable = void>
     struct FindArcSelector {
-      typedef typename Digraph::Node Node;
-      typedef typename Digraph::Arc Arc;
-      static Arc find(const Digraph &g, Node u, Node v, Arc e) {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Arc Arc;
+      static Arc find(const Graph &g, Node u, Node v, Arc e) {
         if (e == INVALID) {
           g.firstOut(e, u);
         } else {
@@ -351,22 +247,22 @@ namespace lemon {
       }
     };
 
-    template <typename Digraph>
+    template <typename Graph>
     struct FindArcSelector<
-      Digraph, 
-      typename enable_if<typename Digraph::FindArcTag, void>::type> 
+      Graph, 
+      typename enable_if<typename Graph::FindEdgeTag, void>::type> 
     {
-      typedef typename Digraph::Node Node;
-      typedef typename Digraph::Arc Arc;
-      static Arc find(const Digraph &g, Node u, Node v, Arc prev) {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Arc Arc;
+      static Arc find(const Graph &g, Node u, Node v, Arc prev) {
         return g.findArc(u, v, prev);
       }
     };    
   }
 
-  /// \brief Finds an arc between two nodes of a digraph.
+  /// \brief Finds an arc between two nodes of a graph.
   ///
-  /// Finds an arc from node \c u to node \c v in digraph \c g.
+  /// Finds an arc from node \c u to node \c v in graph \c g.
   ///
   /// If \c prev is \ref INVALID (this is the default value), then
   /// it finds the first arc from \c u to \c v. Otherwise it looks for
@@ -384,11 +280,11 @@ namespace lemon {
   ///\sa AllArcLookUp
   ///\sa DynArcLookUp
   ///\sa ConArcIt
-  template <typename Digraph>
-  inline typename Digraph::Arc 
-  findArc(const Digraph &g, typename Digraph::Node u, typename Digraph::Node v,
-           typename Digraph::Arc prev = INVALID) {
-    return _digraph_utils_bits::FindArcSelector<Digraph>::find(g, u, v, prev);
+  template <typename Graph>
+  inline typename Graph::Arc 
+  findArc(const Graph &g, typename Graph::Node u, typename Graph::Node v,
+           typename Graph::Arc prev = INVALID) {
+    return _graph_utils_bits::FindArcSelector<Graph>::find(g, u, v, prev);
   }
 
   /// \brief Iterator for iterating on arcs connected the same nodes.
@@ -397,7 +293,7 @@ namespace lemon {
   /// higher level interface for the findArc() function. You can
   /// use it the following way:
   ///\code
-  /// for (ConArcIt<Digraph> it(g, src, trg); it != INVALID; ++it) {
+  /// for (ConArcIt<Graph> it(g, src, trg); it != INVALID; ++it) {
   ///   ...
   /// }
   ///\endcode
@@ -408,49 +304,49 @@ namespace lemon {
   ///\sa DynArcLookUp
   ///
   /// \author Balazs Dezso 
-  template <typename _Digraph>
-  class ConArcIt : public _Digraph::Arc {
+  template <typename _Graph>
+  class ConArcIt : public _Graph::Arc {
   public:
 
-    typedef _Digraph Digraph;
-    typedef typename Digraph::Arc Parent;
+    typedef _Graph Graph;
+    typedef typename Graph::Arc Parent;
 
-    typedef typename Digraph::Arc Arc;
-    typedef typename Digraph::Node Node;
+    typedef typename Graph::Arc Arc;
+    typedef typename Graph::Node Node;
 
     /// \brief Constructor.
     ///
     /// Construct a new ConArcIt iterating on the arcs which
     /// connects the \c u and \c v node.
-    ConArcIt(const Digraph& g, Node u, Node v) : digraph(g) {
-      Parent::operator=(findArc(digraph, u, v));
+    ConArcIt(const Graph& g, Node u, Node v) : _graph(g) {
+      Parent::operator=(findArc(_graph, u, v));
     }
 
     /// \brief Constructor.
     ///
     /// Construct a new ConArcIt which continues the iterating from 
     /// the \c e arc.
-    ConArcIt(const Digraph& g, Arc e) : Parent(e), digraph(g) {}
+    ConArcIt(const Graph& g, Arc a) : Parent(a), _graph(g) {}
     
     /// \brief Increment operator.
     ///
     /// It increments the iterator and gives back the next arc.
     ConArcIt& operator++() {
-      Parent::operator=(findArc(digraph, digraph.source(*this), 
-				 digraph.target(*this), *this));
+      Parent::operator=(findArc(_graph, _graph.source(*this), 
+				_graph.target(*this), *this));
       return *this;
     }
   private:
-    const Digraph& digraph;
+    const Graph& _graph;
   };
 
-  namespace _digraph_utils_bits {
+  namespace _graph_utils_bits {
     
-    template <typename Digraph, typename Enable = void>
+    template <typename Graph, typename Enable = void>
     struct FindEdgeSelector {
-      typedef typename Digraph::Node Node;
-      typedef typename Digraph::Edge Edge;
-      static Edge find(const Digraph &g, Node u, Node v, Edge e) {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Edge Edge;
+      static Edge find(const Graph &g, Node u, Node v, Edge e) {
         bool b;
         if (u != v) {
           if (e == INVALID) {
@@ -477,24 +373,24 @@ namespace lemon {
       }
     };
 
-    template <typename Digraph>
+    template <typename Graph>
     struct FindEdgeSelector<
-      Digraph, 
-      typename enable_if<typename Digraph::FindArcTag, void>::type> 
+      Graph, 
+      typename enable_if<typename Graph::FindEdgeTag, void>::type> 
     {
-      typedef typename Digraph::Node Node;
-      typedef typename Digraph::Edge Edge;
-      static Edge find(const Digraph &g, Node u, Node v, Edge prev) {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Edge Edge;
+      static Edge find(const Graph &g, Node u, Node v, Edge prev) {
         return g.findEdge(u, v, prev);
       }
     };    
   }
 
-  /// \brief Finds an edge between two nodes of a digraph.
+  /// \brief Finds an edge between two nodes of a graph.
   ///
-  /// Finds an edge from node \c u to node \c v in digraph \c g.
-  /// If the node \c u and node \c v is equal then each loop arc
-  /// will be enumerated.
+  /// Finds an edge from node \c u to node \c v in graph \c g.
+  /// If the node \c u and node \c v is equal then each loop edge
+  /// will be enumerated once.
   ///
   /// If \c prev is \ref INVALID (this is the default value), then
   /// it finds the first arc from \c u to \c v. Otherwise it looks for
@@ -511,11 +407,11 @@ namespace lemon {
   ///
   ///\sa ConArcIt
 
-  template <typename Digraph>
-  inline typename Digraph::Edge 
-  findEdge(const Digraph &g, typename Digraph::Node u, typename Digraph::Node v,
-            typename Digraph::Edge p = INVALID) {
-    return _digraph_utils_bits::FindEdgeSelector<Digraph>::find(g, u, v, p);
+  template <typename Graph>
+  inline typename Graph::Edge 
+  findEdge(const Graph &g, typename Graph::Node u, typename Graph::Node v,
+            typename Graph::Edge p = INVALID) {
+    return _graph_utils_bits::FindEdgeSelector<Graph>::find(g, u, v, p);
   }
 
   /// \brief Iterator for iterating on edges connected the same nodes.
@@ -524,7 +420,7 @@ namespace lemon {
   /// higher level interface for the findEdge() function. You can
   /// use it the following way:
   ///\code
-  /// for (ConEdgeIt<Digraph> it(g, src, trg); it != INVALID; ++it) {
+  /// for (ConEdgeIt<Graph> it(g, src, trg); it != INVALID; ++it) {
   ///   ...
   /// }
   ///\endcode
@@ -532,68 +428,43 @@ namespace lemon {
   ///\sa findEdge()
   ///
   /// \author Balazs Dezso 
-  template <typename _Digraph>
-  class ConEdgeIt : public _Digraph::Edge {
+  template <typename _Graph>
+  class ConEdgeIt : public _Graph::Edge {
   public:
 
-    typedef _Digraph Digraph;
-    typedef typename Digraph::Edge Parent;
+    typedef _Graph Graph;
+    typedef typename Graph::Edge Parent;
 
-    typedef typename Digraph::Edge Edge;
-    typedef typename Digraph::Node Node;
+    typedef typename Graph::Edge Edge;
+    typedef typename Graph::Node Node;
 
     /// \brief Constructor.
     ///
-    /// Construct a new ConEdgeIt iterating on the arcs which
+    /// Construct a new ConEdgeIt iterating on the edges which
     /// connects the \c u and \c v node.
-    ConEdgeIt(const Digraph& g, Node u, Node v) : digraph(g) {
-      Parent::operator=(findEdge(digraph, u, v));
+    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g) {
+      Parent::operator=(findEdge(_graph, u, v));
     }
 
     /// \brief Constructor.
     ///
     /// Construct a new ConEdgeIt which continues the iterating from 
-    /// the \c e arc.
-    ConEdgeIt(const Digraph& g, Edge e) : Parent(e), digraph(g) {}
+    /// the \c e edge.
+    ConEdgeIt(const Graph& g, Edge e) : Parent(e), _graph(g) {}
     
     /// \brief Increment operator.
     ///
-    /// It increments the iterator and gives back the next arc.
+    /// It increments the iterator and gives back the next edge.
     ConEdgeIt& operator++() {
-      Parent::operator=(findEdge(digraph, digraph.source(*this), 
-				      digraph.target(*this), *this));
+      Parent::operator=(findEdge(_graph, _graph.source(*this), 
+				 _graph.target(*this), *this));
       return *this;
     }
   private:
-    const Digraph& digraph;
+    const Graph& _graph;
   };
 
-  /// \brief Copy a map.
-  ///
-  /// This function copies the \c from map to the \c to map. It uses the
-  /// given iterator to iterate on the data structure and it uses the \c ref
-  /// mapping to convert the from's keys to the to's keys.
-  template <typename To, typename From, 
-	    typename ItemIt, typename Ref>	    
-  void copyMap(To& to, const From& from, 
-	       ItemIt it, const Ref& ref) {
-    for (; it != INVALID; ++it) {
-      to[ref[it]] = from[it];
-    }
-  }
-
-  /// \brief Copy the from map to the to map.
-  ///
-  /// Copy the \c from map to the \c to map. It uses the given iterator
-  /// to iterate on the data structure.
-  template <typename To, typename From, typename ItemIt>	    
-  void copyMap(To& to, const From& from, ItemIt it) {
-    for (; it != INVALID; ++it) {
-      to[it] = from[it];
-    }
-  }
-
-  namespace _digraph_utils_bits {
+  namespace _graph_utils_bits {
 
     template <typename Digraph, typename Item, typename RefMap>
     class MapCopyBase {
@@ -727,47 +598,43 @@ namespace lemon {
       }
     };
 
-    template <typename BpGraph, typename Enable = void>
-    struct BpGraphCopySelector {
-      template <typename From, typename RedRefMap, 
-                typename BlueRefMap, typename EdgeRefMap>
-      static void copy(BpGraph &to, const From& from,
-                       RedRefMap& redRefMap, BlueRefMap& blueRefMap,
-                       EdgeRefMap& edgeRefMap) {
-        for (typename From::RedIt it(from); it != INVALID; ++it) {
-          redRefMap[it] = to.addRed();
-        }
-        for (typename From::BlueIt it(from); it != INVALID; ++it) {
-          blueRefMap[it] = to.addBlue();
-        }
-        for (typename From::EdgeIt it(from); it != INVALID; ++it) {
-          edgeRefMap[it] = to.addArc(redRefMap[from.red(it)], 
-                                           blueRefMap[from.blue(it)]);
-        }
-      }
-    };
-
-    template <typename BpGraph>
-    struct BpGraphCopySelector<
-      BpGraph, 
-      typename enable_if<typename BpGraph::BuildTag, void>::type> 
-    {
-      template <typename From, typename RedRefMap, 
-                typename BlueRefMap, typename EdgeRefMap>
-      static void copy(BpGraph &to, const From& from,
-                       RedRefMap& redRefMap, BlueRefMap& blueRefMap,
-                       EdgeRefMap& edgeRefMap) {
-        to.build(from, redRefMap, blueRefMap, edgeRefMap);
-      }
-    };
-    
-
   }
 
   /// \brief Class to copy a digraph.
   ///
   /// Class to copy a digraph to another digraph (duplicate a digraph). The
   /// simplest way of using it is through the \c copyDigraph() function.
+  ///
+  /// This class not just make a copy of a graph, but it can create
+  /// references and cross references between the nodes and arcs of
+  /// the two graphs, it can copy maps for use with the newly created
+  /// graph and copy nodes and arcs.
+  ///
+  /// To make a copy from a graph, first an instance of DigraphCopy
+  /// should be created, then the data belongs to the graph should
+  /// assigned to copy. In the end, the \c run() member should be
+  /// called.
+  ///
+  /// The next code copies a graph with several data:
+  ///\code
+  ///  DigraphCopy<NewGraph, OrigGraph> dc(new_graph, orig_graph);
+  ///  // create a reference for the nodes
+  ///  OrigGraph::NodeMap<NewGraph::Node> nr(orig_graph);
+  ///  dc.nodeRef(nr);
+  ///  // create a cross reference (inverse) for the arcs
+  ///  NewGraph::ArcMap<OrigGraph::Arc> acr(new_graph);
+  ///  dc.arcCrossRef(acr);
+  ///  // copy an arc map
+  ///  OrigGraph::ArcMap<double> oamap(orig_graph);
+  ///  NewGraph::ArcMap<double> namap(new_graph);
+  ///  dc.arcMap(namap, oamap);
+  ///  // copy a node
+  ///  OrigGraph::Node on;
+  ///  NewGraph::Node nn;
+  ///  dc.node(nn, on);
+  ///  // Executions of copy
+  ///  dc.run();
+  ///\endcode
   template <typename To, typename From>
   class DigraphCopy {
   private:
@@ -791,53 +658,57 @@ namespace lemon {
     ///
     /// It copies the content of the \c _from digraph into the
     /// \c _to digraph.
-    DigraphCopy(To& _to, const From& _from) 
-      : from(_from), to(_to) {}
+    DigraphCopy(To& to, const From& from) 
+      : _from(from), _to(to) {}
 
     /// \brief Destructor of the DigraphCopy
     ///
     /// Destructor of the DigraphCopy
     ~DigraphCopy() {
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        delete nodeMapCopies[i];
+      for (int i = 0; i < int(_node_maps.size()); ++i) {
+        delete _node_maps[i];
       }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        delete arcMapCopies[i];
+      for (int i = 0; i < int(_arc_maps.size()); ++i) {
+        delete _arc_maps[i];
       }
 
     }
 
     /// \brief Copies the node references into the given map.
     ///
-    /// Copies the node references into the given map.
+    /// Copies the node references into the given map. The parameter
+    /// should be a map, which key type is the Node type of the source
+    /// graph, while the value type is the Node type of the
+    /// destination graph.
     template <typename NodeRef>
     DigraphCopy& nodeRef(NodeRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Node, 
-                              NodeRefMap, NodeRef>(map));
+      _node_maps.push_back(new _graph_utils_bits::RefCopy<From, Node, 
+			   NodeRefMap, NodeRef>(map));
       return *this;
     }
 
     /// \brief Copies the node cross references into the given map.
     ///
     ///  Copies the node cross references (reverse references) into
-    ///  the given map.
+    ///  the given map. The parameter should be a map, which key type
+    ///  is the Node type of the destination graph, while the value type is
+    ///  the Node type of the source graph.
     template <typename NodeCrossRef>
     DigraphCopy& nodeCrossRef(NodeCrossRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Node,
-                              NodeRefMap, NodeCrossRef>(map));
+      _node_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Node,
+			   NodeRefMap, NodeCrossRef>(map));
       return *this;
     }
 
     /// \brief Make copy of the given map.
     ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's node type,
-    /// and the copied map's key type is the from digraph's node
-    /// type.  
+    /// Makes copy of the given map for the newly created digraph.
+    /// The new map's key type is the destination graph's node type,
+    /// and the copied map's key type is the source graph's node type.
     template <typename ToMap, typename FromMap>
     DigraphCopy& nodeMap(ToMap& tmap, const FromMap& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Node, 
-                              NodeRefMap, ToMap, FromMap>(tmap, map));
+      _node_maps.push_back(new _graph_utils_bits::MapCopy<From, Node, 
+			   NodeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
 
@@ -845,8 +716,8 @@ namespace lemon {
     ///
     /// Make a copy of the given node.
     DigraphCopy& node(TNode& tnode, const Node& snode) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Node, 
-                              NodeRefMap, TNode>(tnode, snode));
+      _node_maps.push_back(new _graph_utils_bits::ItemCopy<From, Node, 
+			   NodeRefMap, TNode>(tnode, snode));
       return *this;
     }
 
@@ -855,8 +726,8 @@ namespace lemon {
     /// Copies the arc references into the given map.
     template <typename ArcRef>
     DigraphCopy& arcRef(ArcRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Arc, 
-                              ArcRefMap, ArcRef>(map));
+      _arc_maps.push_back(new _graph_utils_bits::RefCopy<From, Arc, 
+			  ArcRefMap, ArcRef>(map));
       return *this;
     }
 
@@ -866,8 +737,8 @@ namespace lemon {
     ///  the given map.
     template <typename ArcCrossRef>
     DigraphCopy& arcCrossRef(ArcCrossRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Arc,
-                              ArcRefMap, ArcCrossRef>(map));
+      _arc_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Arc,
+			  ArcRefMap, ArcCrossRef>(map));
       return *this;
     }
 
@@ -879,8 +750,8 @@ namespace lemon {
     /// type.  
     template <typename ToMap, typename FromMap>
     DigraphCopy& arcMap(ToMap& tmap, const FromMap& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Arc, 
-                              ArcRefMap, ToMap, FromMap>(tmap, map));
+      _arc_maps.push_back(new _graph_utils_bits::MapCopy<From, Arc, 
+			  ArcRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
 
@@ -888,8 +759,8 @@ namespace lemon {
     ///
     /// Make a copy of the given arc.
     DigraphCopy& arc(TArc& tarc, const Arc& sarc) {
-      arcMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Arc, 
-                              ArcRefMap, TArc>(tarc, sarc));
+      _arc_maps.push_back(new _graph_utils_bits::ItemCopy<From, Arc, 
+			  ArcRefMap, TArc>(tarc, sarc));
       return *this;
     }
 
@@ -897,37 +768,37 @@ namespace lemon {
     ///
     /// Executes the copies.
     void run() {
-      NodeRefMap nodeRefMap(from);
-      ArcRefMap arcRefMap(from);
-      _digraph_utils_bits::DigraphCopySelector<To>::
-        copy(to, from, nodeRefMap, arcRefMap);
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        nodeMapCopies[i]->copy(from, nodeRefMap);
+      NodeRefMap nodeRefMap(_from);
+      ArcRefMap arcRefMap(_from);
+      _graph_utils_bits::DigraphCopySelector<To>::
+        copy(_to, _from, nodeRefMap, arcRefMap);
+      for (int i = 0; i < int(_node_maps.size()); ++i) {
+        _node_maps[i]->copy(_from, nodeRefMap);
       }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        arcMapCopies[i]->copy(from, arcRefMap);
+      for (int i = 0; i < int(_arc_maps.size()); ++i) {
+        _arc_maps[i]->copy(_from, arcRefMap);
       }      
     }
 
   protected:
 
 
-    const From& from;
-    To& to;
+    const From& _from;
+    To& _to;
 
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* > 
-    nodeMapCopies;
+    std::vector<_graph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* > 
+    _node_maps;
 
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* > 
-    arcMapCopies;
+    std::vector<_graph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* > 
+    _arc_maps;
 
   };
 
   /// \brief Copy a digraph to another digraph.
   ///
-  /// Copy a digraph to another digraph.
-  /// The usage of the function:
-  /// 
+  /// Copy a digraph to another digraph. The complete usage of the
+  /// function is detailed in the DigraphCopy class, but a short
+  /// example shows a basic work:
   ///\code
   /// copyDigraph(trg, src).nodeRef(nr).arcCrossRef(ecr).run();
   ///\endcode
@@ -943,10 +814,41 @@ namespace lemon {
     return DigraphCopy<To, From>(to, from);
   }
 
-  /// \brief Class to copy an graph.
+  /// \brief Class to copy a graph.
   ///
-  /// Class to copy an graph to another digraph (duplicate a digraph).
-  /// The simplest way of using it is through the \c copyGraph() function.
+  /// Class to copy a graph to another graph (duplicate a graph). The
+  /// simplest way of using it is through the \c copyGraph() function.
+  ///
+  /// This class not just make a copy of a graph, but it can create
+  /// references and cross references between the nodes, edges and arcs of
+  /// the two graphs, it can copy maps for use with the newly created
+  /// graph and copy nodes, edges and arcs.
+  ///
+  /// To make a copy from a graph, first an instance of GraphCopy
+  /// should be created, then the data belongs to the graph should
+  /// assigned to copy. In the end, the \c run() member should be
+  /// called.
+  ///
+  /// The next code copies a graph with several data:
+  ///\code
+  ///  GraphCopy<NewGraph, OrigGraph> dc(new_graph, orig_graph);
+  ///  // create a reference for the nodes
+  ///  OrigGraph::NodeMap<NewGraph::Node> nr(orig_graph);
+  ///  dc.nodeRef(nr);
+  ///  // create a cross reference (inverse) for the edges
+  ///  NewGraph::EdgeMap<OrigGraph::Arc> ecr(new_graph);
+  ///  dc.edgeCrossRef(ecr);
+  ///  // copy an arc map
+  ///  OrigGraph::ArcMap<double> oamap(orig_graph);
+  ///  NewGraph::ArcMap<double> namap(new_graph);
+  ///  dc.arcMap(namap, oamap);
+  ///  // copy a node
+  ///  OrigGraph::Node on;
+  ///  NewGraph::Node nn;
+  ///  dc.node(nn, on);
+  ///  // Executions of copy
+  ///  dc.run();
+  ///\endcode
   template <typename To, typename From>
   class GraphCopy {
   private:
@@ -966,51 +868,50 @@ namespace lemon {
     typedef typename From::template EdgeMap<TEdge> EdgeRefMap;
 
     struct ArcRefMap {
-      ArcRefMap(const To& _to, const From& _from,
-                 const EdgeRefMap& _edge_ref, const NodeRefMap& _node_ref) 
-        : to(_to), from(_from), 
-          edge_ref(_edge_ref), node_ref(_node_ref) {}
+      ArcRefMap(const To& to, const From& from,
+		const EdgeRefMap& edge_ref, const NodeRefMap& node_ref) 
+        : _to(to), _from(from), 
+          _edge_ref(edge_ref), _node_ref(node_ref) {}
 
       typedef typename From::Arc Key;
       typedef typename To::Arc Value;
 
       Value operator[](const Key& key) const {
         bool forward = 
-          (from.direction(key) == 
-           (node_ref[from.source(static_cast<const Edge&>(key))] == 
-            to.source(edge_ref[static_cast<const Edge&>(key)])));
-	return to.direct(edge_ref[key], forward); 
+          (_from.direction(key) == 
+	   (_node_ref[_from.source(key)] == _to.source(_edge_ref[key])));
+	return _to.direct(_edge_ref[key], forward); 
       }
       
-      const To& to;
-      const From& from;
-      const EdgeRefMap& edge_ref;
-      const NodeRefMap& node_ref;
+      const To& _to;
+      const From& _from;
+      const EdgeRefMap& _edge_ref;
+      const NodeRefMap& _node_ref;
     };
 
     
   public: 
 
 
-    /// \brief Constructor for the DigraphCopy.
+    /// \brief Constructor for the GraphCopy.
     ///
-    /// It copies the content of the \c _from digraph into the
-    /// \c _to digraph.
-    GraphCopy(To& _to, const From& _from) 
-      : from(_from), to(_to) {}
+    /// It copies the content of the \c _from graph into the
+    /// \c _to graph.
+    GraphCopy(To& to, const From& from) 
+      : _from(from), _to(to) {}
 
-    /// \brief Destructor of the DigraphCopy
+    /// \brief Destructor of the GraphCopy
     ///
-    /// Destructor of the DigraphCopy
+    /// Destructor of the GraphCopy
     ~GraphCopy() {
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        delete nodeMapCopies[i];
+      for (int i = 0; i < int(_node_maps.size()); ++i) {
+        delete _node_maps[i];
       }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        delete arcMapCopies[i];
+      for (int i = 0; i < int(_arc_maps.size()); ++i) {
+        delete _arc_maps[i];
       }
-      for (int i = 0; i < int(edgeMapCopies.size()); ++i) {
-        delete edgeMapCopies[i];
+      for (int i = 0; i < int(_edge_maps.size()); ++i) {
+        delete _edge_maps[i];
       }
 
     }
@@ -1020,8 +921,8 @@ namespace lemon {
     /// Copies the node references into the given map.
     template <typename NodeRef>
     GraphCopy& nodeRef(NodeRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Node, 
-                              NodeRefMap, NodeRef>(map));
+      _node_maps.push_back(new _graph_utils_bits::RefCopy<From, Node, 
+			   NodeRefMap, NodeRef>(map));
       return *this;
     }
 
@@ -1031,21 +932,21 @@ namespace lemon {
     ///  the given map.
     template <typename NodeCrossRef>
     GraphCopy& nodeCrossRef(NodeCrossRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Node,
-                              NodeRefMap, NodeCrossRef>(map));
+      _node_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Node,
+			   NodeRefMap, NodeCrossRef>(map));
       return *this;
     }
 
     /// \brief Make copy of the given map.
     ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's node type,
-    /// and the copied map's key type is the from digraph's node
+    /// Makes copy of the given map for the newly created graph. 
+    /// The new map's key type is the to graph's node type,
+    /// and the copied map's key type is the from graph's node
     /// type.  
     template <typename ToMap, typename FromMap>
     GraphCopy& nodeMap(ToMap& tmap, const FromMap& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Node, 
-                              NodeRefMap, ToMap, FromMap>(tmap, map));
+      _node_maps.push_back(new _graph_utils_bits::MapCopy<From, Node, 
+			   NodeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
 
@@ -1053,8 +954,8 @@ namespace lemon {
     ///
     /// Make a copy of the given node.
     GraphCopy& node(TNode& tnode, const Node& snode) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Node, 
-                              NodeRefMap, TNode>(tnode, snode));
+      _node_maps.push_back(new _graph_utils_bits::ItemCopy<From, Node, 
+			   NodeRefMap, TNode>(tnode, snode));
       return *this;
     }
 
@@ -1063,8 +964,8 @@ namespace lemon {
     /// Copies the arc references into the given map.
     template <typename ArcRef>
     GraphCopy& arcRef(ArcRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Arc, 
-                              ArcRefMap, ArcRef>(map));
+      _arc_maps.push_back(new _graph_utils_bits::RefCopy<From, Arc, 
+			  ArcRefMap, ArcRef>(map));
       return *this;
     }
 
@@ -1074,21 +975,21 @@ namespace lemon {
     ///  the given map.
     template <typename ArcCrossRef>
     GraphCopy& arcCrossRef(ArcCrossRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Arc,
-                              ArcRefMap, ArcCrossRef>(map));
+      _arc_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Arc,
+			  ArcRefMap, ArcCrossRef>(map));
       return *this;
     }
 
     /// \brief Make copy of the given map.
     ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's arc type,
-    /// and the copied map's key type is the from digraph's arc
+    /// Makes copy of the given map for the newly created graph. 
+    /// The new map's key type is the to graph's arc type,
+    /// and the copied map's key type is the from graph's arc
     /// type.  
     template <typename ToMap, typename FromMap>
     GraphCopy& arcMap(ToMap& tmap, const FromMap& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Arc, 
-                              ArcRefMap, ToMap, FromMap>(tmap, map));
+      _arc_maps.push_back(new _graph_utils_bits::MapCopy<From, Arc, 
+			  ArcRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
 
@@ -1096,8 +997,8 @@ namespace lemon {
     ///
     /// Make a copy of the given arc.
     GraphCopy& arc(TArc& tarc, const Arc& sarc) {
-      arcMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Arc, 
-                              ArcRefMap, TArc>(tarc, sarc));
+      _arc_maps.push_back(new _graph_utils_bits::ItemCopy<From, Arc, 
+			  ArcRefMap, TArc>(tarc, sarc));
       return *this;
     }
 
@@ -1106,8 +1007,8 @@ namespace lemon {
     /// Copies the edge references into the given map.
     template <typename EdgeRef>
     GraphCopy& edgeRef(EdgeRef& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Edge, 
-                               EdgeRefMap, EdgeRef>(map));
+      _edge_maps.push_back(new _graph_utils_bits::RefCopy<From, Edge, 
+			   EdgeRefMap, EdgeRef>(map));
       return *this;
     }
 
@@ -1117,21 +1018,21 @@ namespace lemon {
     /// references) into the given map.
     template <typename EdgeCrossRef>
     GraphCopy& edgeCrossRef(EdgeCrossRef& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, 
-                               Edge, EdgeRefMap, EdgeCrossRef>(map));
+      _edge_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, 
+			   Edge, EdgeRefMap, EdgeCrossRef>(map));
       return *this;
     }
 
     /// \brief Make copy of the given map.
     ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's edge type,
-    /// and the copied map's key type is the from digraph's edge
+    /// Makes copy of the given map for the newly created graph. 
+    /// The new map's key type is the to graph's edge type,
+    /// and the copied map's key type is the from graph's edge
     /// type.  
     template <typename ToMap, typename FromMap>
     GraphCopy& edgeMap(ToMap& tmap, const FromMap& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Edge, 
-                               EdgeRefMap, ToMap, FromMap>(tmap, map));
+      _edge_maps.push_back(new _graph_utils_bits::MapCopy<From, Edge, 
+			   EdgeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
 
@@ -1139,8 +1040,8 @@ namespace lemon {
     ///
     /// Make a copy of the given edge.
     GraphCopy& edge(TEdge& tedge, const Edge& sedge) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Edge, 
-                               EdgeRefMap, TEdge>(tedge, sedge));
+      _edge_maps.push_back(new _graph_utils_bits::ItemCopy<From, Edge, 
+			   EdgeRefMap, TEdge>(tedge, sedge));
       return *this;
     }
 
@@ -1148,51 +1049,51 @@ namespace lemon {
     ///
     /// Executes the copies.
     void run() {
-      NodeRefMap nodeRefMap(from);
-      EdgeRefMap edgeRefMap(from);
-      ArcRefMap arcRefMap(to, from, edgeRefMap, nodeRefMap);
-      _digraph_utils_bits::GraphCopySelector<To>::
-        copy(to, from, nodeRefMap, edgeRefMap);
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        nodeMapCopies[i]->copy(from, nodeRefMap);
+      NodeRefMap nodeRefMap(_from);
+      EdgeRefMap edgeRefMap(_from);
+      ArcRefMap arcRefMap(_to, _from, edgeRefMap, nodeRefMap);
+      _graph_utils_bits::GraphCopySelector<To>::
+        copy(_to, _from, nodeRefMap, edgeRefMap);
+      for (int i = 0; i < int(_node_maps.size()); ++i) {
+        _node_maps[i]->copy(_from, nodeRefMap);
       }
-      for (int i = 0; i < int(edgeMapCopies.size()); ++i) {
-        edgeMapCopies[i]->copy(from, edgeRefMap);
+      for (int i = 0; i < int(_edge_maps.size()); ++i) {
+        _edge_maps[i]->copy(_from, edgeRefMap);
       }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        arcMapCopies[i]->copy(from, arcRefMap);
+      for (int i = 0; i < int(_arc_maps.size()); ++i) {
+        _arc_maps[i]->copy(_from, arcRefMap);
       }
     }
 
   private:
     
-    const From& from;
-    To& to;
+    const From& _from;
+    To& _to;
 
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* > 
-    nodeMapCopies;
+    std::vector<_graph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* > 
+    _node_maps;
 
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* > 
-    arcMapCopies;
+    std::vector<_graph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* > 
+    _arc_maps;
 
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Edge, EdgeRefMap>* > 
-    edgeMapCopies;
+    std::vector<_graph_utils_bits::MapCopyBase<From, Edge, EdgeRefMap>* > 
+    _edge_maps;
 
   };
 
-  /// \brief Copy an graph to another digraph.
+  /// \brief Copy a graph to another graph.
   ///
-  /// Copy an graph to another digraph.
-  /// The usage of the function:
-  /// 
+  /// Copy a graph to another graph. The complete usage of the
+  /// function is detailed in the GraphCopy class, but a short
+  /// example shows a basic work:
   ///\code
   /// copyGraph(trg, src).nodeRef(nr).arcCrossRef(ecr).run();
   ///\endcode
   /// 
   /// After the copy the \c nr map will contain the mapping from the
-  /// nodes of the \c from digraph to the nodes of the \c to digraph and
-  /// \c ecr will contain the mapping from the arcs of the \c to digraph
-  /// to the arcs of the \c from digraph.
+  /// nodes of the \c from graph to the nodes of the \c to graph and
+  /// \c ecr will contain the mapping from the arcs of the \c to graph
+  /// to the arcs of the \c from graph.
   ///
   /// \see GraphCopy 
   template <typename To, typename From>
@@ -1201,391 +1102,25 @@ namespace lemon {
     return GraphCopy<To, From>(to, from);
   }
 
-  /// \brief Class to copy a bipartite digraph.
-  ///
-  /// Class to copy a bipartite digraph to another digraph
-  /// (duplicate a digraph).  The simplest way of using it is through
-  /// the \c copyBpGraph() function.
-  template <typename To, typename From>
-  class BpGraphCopy {
-  private:
-
-    typedef typename From::Node Node;
-    typedef typename From::Red Red;
-    typedef typename From::Blue Blue;
-    typedef typename From::NodeIt NodeIt;
-    typedef typename From::Arc Arc;
-    typedef typename From::ArcIt ArcIt;
-    typedef typename From::Edge Edge;
-    typedef typename From::EdgeIt EdgeIt;
-
-    typedef typename To::Node TNode;
-    typedef typename To::Arc TArc;
-    typedef typename To::Edge TEdge;
-
-    typedef typename From::template RedMap<TNode> RedRefMap;
-    typedef typename From::template BlueMap<TNode> BlueRefMap;
-    typedef typename From::template EdgeMap<TEdge> EdgeRefMap;
-
-    struct NodeRefMap {
-      NodeRefMap(const From& _from, const RedRefMap& _red_ref,
-                 const BlueRefMap& _blue_ref)
-        : from(_from), red_ref(_red_ref), blue_ref(_blue_ref) {}
-
-      typedef typename From::Node Key;
-      typedef typename To::Node Value;
-
-      Value operator[](const Key& key) const {
-	return from.red(key) ? red_ref[key] : blue_ref[key]; 
-      }
-      
-      const From& from;
-      const RedRefMap& red_ref;
-      const BlueRefMap& blue_ref;
-    };
-
-    struct ArcRefMap {
-      ArcRefMap(const To& _to, const From& _from,
-                 const EdgeRefMap& _edge_ref, const NodeRefMap& _node_ref) 
-        : to(_to), from(_from), 
-          edge_ref(_edge_ref), node_ref(_node_ref) {}
-
-      typedef typename From::Arc Key;
-      typedef typename To::Arc Value;
-
-      Value operator[](const Key& key) const {
-        bool forward = 
-          (from.direction(key) == 
-           (node_ref[from.source(static_cast<const Edge&>(key))] == 
-            to.source(edge_ref[static_cast<const Edge&>(key)])));
-	return to.direct(edge_ref[key], forward); 
-      }
-      
-      const To& to;
-      const From& from;
-      const EdgeRefMap& edge_ref;
-      const NodeRefMap& node_ref;
-    };
-    
-  public: 
-
-
-    /// \brief Constructor for the DigraphCopy.
-    ///
-    /// It copies the content of the \c _from digraph into the
-    /// \c _to digraph.
-    BpGraphCopy(To& _to, const From& _from) 
-      : from(_from), to(_to) {}
-
-    /// \brief Destructor of the DigraphCopy
-    ///
-    /// Destructor of the DigraphCopy
-    ~BpGraphCopy() {
-      for (int i = 0; i < int(redMapCopies.size()); ++i) {
-        delete redMapCopies[i];
-      }
-      for (int i = 0; i < int(blueMapCopies.size()); ++i) {
-        delete blueMapCopies[i];
-      }
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        delete nodeMapCopies[i];
-      }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        delete arcMapCopies[i];
-      }
-      for (int i = 0; i < int(edgeMapCopies.size()); ++i) {
-        delete edgeMapCopies[i];
-      }
-
-    }
-
-    /// \brief Copies the A-node references into the given map.
-    ///
-    /// Copies the A-node references into the given map.
-    template <typename RedRef>
-    BpGraphCopy& redRef(RedRef& map) {
-      redMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Red, 
-                               RedRefMap, RedRef>(map));
-      return *this;
-    }
-
-    /// \brief Copies the A-node cross references into the given map.
-    ///
-    /// Copies the A-node cross references (reverse references) into
-    /// the given map.
-    template <typename RedCrossRef>
-    BpGraphCopy& redCrossRef(RedCrossRef& map) {
-      redMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, 
-                               Red, RedRefMap, RedCrossRef>(map));
-      return *this;
-    }
-
-    /// \brief Make copy of the given A-node map.
-    ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's node type,
-    /// and the copied map's key type is the from digraph's node
-    /// type.  
-    template <typename ToMap, typename FromMap>
-    BpGraphCopy& redMap(ToMap& tmap, const FromMap& map) {
-      redMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Red, 
-                               RedRefMap, ToMap, FromMap>(tmap, map));
-      return *this;
-    }
-
-    /// \brief Copies the B-node references into the given map.
-    ///
-    /// Copies the B-node references into the given map.
-    template <typename BlueRef>
-    BpGraphCopy& blueRef(BlueRef& map) {
-      blueMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Blue, 
-                               BlueRefMap, BlueRef>(map));
-      return *this;
-    }
-
-    /// \brief Copies the B-node cross references into the given map.
-    ///
-    ///  Copies the B-node cross references (reverse references) into
-    ///  the given map.
-    template <typename BlueCrossRef>
-    BpGraphCopy& blueCrossRef(BlueCrossRef& map) {
-      blueMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, 
-                              Blue, BlueRefMap, BlueCrossRef>(map));
-      return *this;
-    }
-
-    /// \brief Make copy of the given B-node map.
-    ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's node type,
-    /// and the copied map's key type is the from digraph's node
-    /// type.  
-    template <typename ToMap, typename FromMap>
-    BpGraphCopy& blueMap(ToMap& tmap, const FromMap& map) {
-      blueMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Blue, 
-                               BlueRefMap, ToMap, FromMap>(tmap, map));
-      return *this;
-    }
-    /// \brief Copies the node references into the given map.
-    ///
-    /// Copies the node references into the given map.
-    template <typename NodeRef>
-    BpGraphCopy& nodeRef(NodeRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Node, 
-                              NodeRefMap, NodeRef>(map));
-      return *this;
-    }
-
-    /// \brief Copies the node cross references into the given map.
-    ///
-    ///  Copies the node cross references (reverse references) into
-    ///  the given map.
-    template <typename NodeCrossRef>
-    BpGraphCopy& nodeCrossRef(NodeCrossRef& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Node,
-                              NodeRefMap, NodeCrossRef>(map));
-      return *this;
-    }
-
-    /// \brief Make copy of the given map.
-    ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's node type,
-    /// and the copied map's key type is the from digraph's node
-    /// type.  
-    template <typename ToMap, typename FromMap>
-    BpGraphCopy& nodeMap(ToMap& tmap, const FromMap& map) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Node, 
-                              NodeRefMap, ToMap, FromMap>(tmap, map));
-      return *this;
-    }
-
-    /// \brief Make a copy of the given node.
-    ///
-    /// Make a copy of the given node.
-    BpGraphCopy& node(TNode& tnode, const Node& snode) {
-      nodeMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Node, 
-                              NodeRefMap, TNode>(tnode, snode));
-      return *this;
-    }
-
-    /// \brief Copies the arc references into the given map.
-    ///
-    /// Copies the arc references into the given map.
-    template <typename ArcRef>
-    BpGraphCopy& arcRef(ArcRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Arc, 
-                              ArcRefMap, ArcRef>(map));
-      return *this;
-    }
-
-    /// \brief Copies the arc cross references into the given map.
-    ///
-    ///  Copies the arc cross references (reverse references) into
-    ///  the given map.
-    template <typename ArcCrossRef>
-    BpGraphCopy& arcCrossRef(ArcCrossRef& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, Arc,
-                              ArcRefMap, ArcCrossRef>(map));
-      return *this;
-    }
-
-    /// \brief Make copy of the given map.
-    ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's arc type,
-    /// and the copied map's key type is the from digraph's arc
-    /// type.  
-    template <typename ToMap, typename FromMap>
-    BpGraphCopy& arcMap(ToMap& tmap, const FromMap& map) {
-      arcMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Arc, 
-                              ArcRefMap, ToMap, FromMap>(tmap, map));
-      return *this;
-    }
-
-    /// \brief Make a copy of the given arc.
-    ///
-    /// Make a copy of the given arc.
-    BpGraphCopy& arc(TArc& tarc, const Arc& sarc) {
-      arcMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Arc, 
-                              ArcRefMap, TArc>(tarc, sarc));
-      return *this;
-    }
-
-    /// \brief Copies the edge references into the given map.
-    ///
-    /// Copies the edge references into the given map.
-    template <typename EdgeRef>
-    BpGraphCopy& edgeRef(EdgeRef& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::RefCopy<From, Edge, 
-                               EdgeRefMap, EdgeRef>(map));
-      return *this;
-    }
-
-    /// \brief Copies the edge cross references into the given map.
-    ///
-    /// Copies the edge cross references (reverse
-    /// references) into the given map.
-    template <typename EdgeCrossRef>
-    BpGraphCopy& edgeCrossRef(EdgeCrossRef& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::CrossRefCopy<From, 
-                               Edge, EdgeRefMap, EdgeCrossRef>(map));
-      return *this;
-    }
-
-    /// \brief Make copy of the given map.
-    ///
-    /// Makes copy of the given map for the newly created digraph. 
-    /// The new map's key type is the to digraph's edge type,
-    /// and the copied map's key type is the from digraph's edge
-    /// type.  
-    template <typename ToMap, typename FromMap>
-    BpGraphCopy& edgeMap(ToMap& tmap, const FromMap& map) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::MapCopy<From, Edge, 
-                               EdgeRefMap, ToMap, FromMap>(tmap, map));
-      return *this;
-    }
-
-    /// \brief Make a copy of the given edge.
-    ///
-    /// Make a copy of the given edge.
-    BpGraphCopy& edge(TEdge& tedge, const Edge& sedge) {
-      edgeMapCopies.push_back(new _digraph_utils_bits::ItemCopy<From, Edge, 
-                               EdgeRefMap, TEdge>(tedge, sedge));
-      return *this;
-    }
-
-    /// \brief Executes the copies.
-    ///
-    /// Executes the copies.
-    void run() {
-      RedRefMap redRefMap(from);
-      BlueRefMap blueRefMap(from);
-      NodeRefMap nodeRefMap(from, redRefMap, blueRefMap);
-      EdgeRefMap edgeRefMap(from);
-      ArcRefMap arcRefMap(to, from, edgeRefMap, nodeRefMap);
-      _digraph_utils_bits::BpGraphCopySelector<To>::
-        copy(to, from, redRefMap, blueRefMap, edgeRefMap);
-      for (int i = 0; i < int(redMapCopies.size()); ++i) {
-        redMapCopies[i]->copy(from, redRefMap);
-      }
-      for (int i = 0; i < int(blueMapCopies.size()); ++i) {
-        blueMapCopies[i]->copy(from, blueRefMap);
-      }
-      for (int i = 0; i < int(nodeMapCopies.size()); ++i) {
-        nodeMapCopies[i]->copy(from, nodeRefMap);
-      }
-      for (int i = 0; i < int(edgeMapCopies.size()); ++i) {
-        edgeMapCopies[i]->copy(from, edgeRefMap);
-      }
-      for (int i = 0; i < int(arcMapCopies.size()); ++i) {
-        arcMapCopies[i]->copy(from, arcRefMap);
-      }
-    }
-
-  private:
-    
-    const From& from;
-    To& to;
-
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Red, RedRefMap>* > 
-    redMapCopies;
-
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Blue, BlueRefMap>* > 
-    blueMapCopies;
-
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* > 
-    nodeMapCopies;
-
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* > 
-    arcMapCopies;
-
-    std::vector<_digraph_utils_bits::MapCopyBase<From, Edge, EdgeRefMap>* > 
-    edgeMapCopies;
-
-  };
-
-  /// \brief Copy a bipartite digraph to another digraph.
-  ///
-  /// Copy a bipartite digraph to another digraph.
-  /// The usage of the function:
-  /// 
-  ///\code
-  /// copyBpGraph(trg, src).redRef(anr).arcCrossRef(ecr).run();
-  ///\endcode
-  /// 
-  /// After the copy the \c nr map will contain the mapping from the
-  /// nodes of the \c from digraph to the nodes of the \c to digraph and
-  /// \c ecr will contain the mapping from the arcs of the \c to digraph
-  /// to the arcs of the \c from digraph.
-  ///
-  /// \see BpGraphCopy
-  template <typename To, typename From>
-  BpGraphCopy<To, From> 
-  copyBpGraph(To& to, const From& from) {
-    return BpGraphCopy<To, From>(to, from);
-  }
-
-
   /// @}
 
-  /// \addtogroup digraph_maps
+  /// \addtogroup graph_maps
   /// @{
 
-  /// Provides an immutable and unique id for each item in the digraph.
+  /// Provides an immutable and unique id for each item in the graph.
 
   /// The IdMap class provides a unique and immutable id for each item of the
-  /// same type (e.g. node) in the digraph. This id is <ul><li>\b unique:
+  /// same type (e.g. node) in the graph. This id is <ul><li>\b unique:
   /// different items (nodes) get different ids <li>\b immutable: the id of an
   /// item (node) does not change (even if you delete other nodes).  </ul>
   /// Through this map you get access (i.e. can read) the inner id values of
-  /// the items stored in the digraph. This map can be inverted with its member
-  /// class \c InverseMap.
+  /// the items stored in the graph. This map can be inverted with its member
+  /// class \c InverseMap or with the \c operator() member.
   ///
-  template <typename _Digraph, typename _Item>
+  template <typename _Graph, typename _Item>
   class IdMap {
   public:
-    typedef _Digraph Digraph;
+    typedef _Graph Graph;
     typedef int Value;
     typedef _Item Item;
     typedef _Item Key;
@@ -1593,20 +1128,20 @@ namespace lemon {
     /// \brief Constructor.
     ///
     /// Constructor of the map.
-    explicit IdMap(const Digraph& _digraph) : digraph(&_digraph) {}
+    explicit IdMap(const Graph& graph) : _graph(&graph) {}
 
     /// \brief Gives back the \e id of the item.
     ///
     /// Gives back the immutable and unique \e id of the item.
-    int operator[](const Item& item) const { return digraph->id(item);}
+    int operator[](const Item& item) const { return _graph->id(item);}
 
     /// \brief Gives back the item by its id.
     ///
     /// Gives back the item by its id.
-    Item operator()(int id) { return digraph->fromId(id, Item()); }
+    Item operator()(int id) { return _graph->fromId(id, Item()); }
 
   private:
-    const Digraph* digraph;
+    const Graph* _graph;
 
   public:
 
@@ -1620,34 +1155,34 @@ namespace lemon {
       /// \brief Constructor.
       ///
       /// Constructor for creating an id-to-item map.
-      explicit InverseMap(const Digraph& _digraph) : digraph(&_digraph) {}
+      explicit InverseMap(const Graph& graph) : _graph(&graph) {}
 
       /// \brief Constructor.
       ///
       /// Constructor for creating an id-to-item map.
-      explicit InverseMap(const IdMap& idMap) : digraph(idMap.digraph) {}
+      explicit InverseMap(const IdMap& map) : _graph(map._graph) {}
 
       /// \brief Gives back the given item from its id.
       ///
       /// Gives back the given item from its id.
       /// 
-      Item operator[](int id) const { return digraph->fromId(id, Item());}
+      Item operator[](int id) const { return _graph->fromId(id, Item());}
 
     private:
-      const Digraph* digraph;
+      const Graph* _graph;
     };
 
     /// \brief Gives back the inverse of the map.
     ///
     /// Gives back the inverse of the IdMap.
-    InverseMap inverse() const { return InverseMap(*digraph);} 
+    InverseMap inverse() const { return InverseMap(*_graph);} 
 
   };
 
   
-  /// \brief General invertable digraph-map type.
+  /// \brief General invertable graph-map type.
 
-  /// This type provides simple invertable digraph-maps. 
+  /// This type provides simple invertable graph-maps. 
   /// The InvertableMap wraps an arbitrary ReadWriteMap 
   /// and if a key is set to a new value then store it
   /// in the inverse map.
@@ -1655,20 +1190,20 @@ namespace lemon {
   /// The values of the map can be accessed
   /// with stl compatible forward iterator.
   ///
-  /// \param _Digraph The digraph type.
-  /// \param _Item The item type of the digraph.
+  /// \param _Graph The graph type.
+  /// \param _Item The item type of the graph.
   /// \param _Value The value type of the map.
   ///
   /// \see IterableValueMap
-  template <typename _Digraph, typename _Item, typename _Value>
-  class InvertableMap : protected DefaultMap<_Digraph, _Item, _Value> {
+  template <typename _Graph, typename _Item, typename _Value>
+  class InvertableMap : protected DefaultMap<_Graph, _Item, _Value> {
   private:
     
-    typedef DefaultMap<_Digraph, _Item, _Value> Map;
-    typedef _Digraph Digraph;
+    typedef DefaultMap<_Graph, _Item, _Value> Map;
+    typedef _Graph Graph;
 
     typedef std::map<_Value, _Item> Container;
-    Container invMap;    
+    Container _inv_map;    
 
   public:
  
@@ -1681,9 +1216,9 @@ namespace lemon {
 
     /// \brief Constructor.
     ///
-    /// Construct a new InvertableMap for the digraph.
+    /// Construct a new InvertableMap for the graph.
     ///
-    explicit InvertableMap(const Digraph& digraph) : Map(digraph) {} 
+    explicit InvertableMap(const Graph& graph) : Map(graph) {} 
 
     /// \brief Forward iterator for values.
     ///
@@ -1725,7 +1260,7 @@ namespace lemon {
     /// map can be accessed in the [beginValue, endValue)
     /// range.
     ValueIterator beginValue() const {
-      return ValueIterator(invMap.begin());
+      return ValueIterator(_inv_map.begin());
     }
 
     /// \brief Returns an iterator after the last value.
@@ -1735,7 +1270,7 @@ namespace lemon {
     /// map can be accessed in the [beginValue, endValue)
     /// range.
     ValueIterator endValue() const {
-      return ValueIterator(invMap.end());
+      return ValueIterator(_inv_map.end());
     }
     
     /// \brief The setter function of the map.
@@ -1743,11 +1278,11 @@ namespace lemon {
     /// Sets the mapped value.
     void set(const Key& key, const Value& val) {
       Value oldval = Map::operator[](key);
-      typename Container::iterator it = invMap.find(oldval);
-      if (it != invMap.end() && it->second == key) {
-	invMap.erase(it);
+      typename Container::iterator it = _inv_map.find(oldval);
+      if (it != _inv_map.end() && it->second == key) {
+	_inv_map.erase(it);
       }      
-      invMap.insert(make_pair(val, key));
+      _inv_map.insert(make_pair(val, key));
       Map::set(key, val);
     }
 
@@ -1763,8 +1298,8 @@ namespace lemon {
     ///
     /// Gives back the item by its value.
     Key operator()(const Value& key) const {
-      typename Container::const_iterator it = invMap.find(key);
-      return it != invMap.end() ? it->second : INVALID;
+      typename Container::const_iterator it = _inv_map.find(key);
+      return it != _inv_map.end() ? it->second : INVALID;
     }
 
   protected:
@@ -1775,9 +1310,9 @@ namespace lemon {
     /// \c AlterationNotifier.
     virtual void erase(const Key& key) {
       Value val = Map::operator[](key);
-      typename Container::iterator it = invMap.find(val);
-      if (it != invMap.end() && it->second == key) {
-	invMap.erase(it);
+      typename Container::iterator it = _inv_map.find(val);
+      if (it != _inv_map.end() && it->second == key) {
+	_inv_map.erase(it);
       }
       Map::erase(key);
     }
@@ -1789,9 +1324,9 @@ namespace lemon {
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
 	Value val = Map::operator[](keys[i]);
-	typename Container::iterator it = invMap.find(val);
-	if (it != invMap.end() && it->second == keys[i]) {
-	  invMap.erase(it);
+	typename Container::iterator it = _inv_map.find(val);
+	if (it != _inv_map.end() && it->second == keys[i]) {
+	  _inv_map.erase(it);
 	}
       }
       Map::erase(keys);
@@ -1802,7 +1337,7 @@ namespace lemon {
     /// Clear the keys from the map and inverse map. It is called by the
     /// \c AlterationNotifier.
     virtual void clear() {
-      invMap.clear();
+      _inv_map.clear();
       Map::clear();
     }
 
@@ -1817,8 +1352,8 @@ namespace lemon {
       /// \brief Constructor of the InverseMap.
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const InvertableMap& _inverted) 
-        : inverted(_inverted) {}
+      explicit InverseMap(const InvertableMap& inverted) 
+        : _inverted(inverted) {}
 
       /// The value type of the InverseMap.
       typedef typename InvertableMap::Key Value;
@@ -1830,11 +1365,11 @@ namespace lemon {
       /// Subscript operator. It gives back always the item 
       /// what was last assigned to the value.
       Value operator[](const Key& key) const {
-	return inverted(key);
+	return _inverted(key);
       }
       
     private:
-      const InvertableMap& inverted;
+      const InvertableMap& _inverted;
     };
 
     /// \brief It gives back the just readable inverse map.
@@ -1849,29 +1384,29 @@ namespace lemon {
   };
 
   /// \brief Provides a mutable, continuous and unique descriptor for each 
-  /// item in the digraph.
+  /// item in the graph.
   ///
   /// The DescriptorMap class provides a unique and continuous (but mutable)
   /// descriptor (id) for each item of the same type (e.g. node) in the
-  /// digraph. This id is <ul><li>\b unique: different items (nodes) get
+  /// graph. This id is <ul><li>\b unique: different items (nodes) get
   /// different ids <li>\b continuous: the range of the ids is the set of
   /// integers between 0 and \c n-1, where \c n is the number of the items of
   /// this type (e.g. nodes) (so the id of a node can change if you delete an
   /// other node, i.e. this id is mutable).  </ul> This map can be inverted
-  /// with its member class \c InverseMap.
+  /// with its member class \c InverseMap, or with the \c operator() member.
   ///
-  /// \param _Digraph The digraph class the \c DescriptorMap belongs to.
+  /// \param _Graph The graph class the \c DescriptorMap belongs to.
   /// \param _Item The Item is the Key of the Map. It may be Node, Arc or 
   /// Edge.
-  template <typename _Digraph, typename _Item>
-  class DescriptorMap : protected DefaultMap<_Digraph, _Item, int> {
+  template <typename _Graph, typename _Item>
+  class DescriptorMap : protected DefaultMap<_Graph, _Item, int> {
 
     typedef _Item Item;
-    typedef DefaultMap<_Digraph, _Item, int> Map;
+    typedef DefaultMap<_Graph, _Item, int> Map;
 
   public:
-    /// The digraph class of DescriptorMap.
-    typedef _Digraph Digraph;
+    /// The graph class of DescriptorMap.
+    typedef _Graph Graph;
 
     /// The key type of DescriptorMap (Node, Arc, Edge).
     typedef typename Map::Key Key;
@@ -1881,12 +1416,12 @@ namespace lemon {
     /// \brief Constructor.
     ///
     /// Constructor for descriptor map.
-    explicit DescriptorMap(const Digraph& _digraph) : Map(_digraph) {
+    explicit DescriptorMap(const Graph& _graph) : Map(_graph) {
       Item it;
       const typename Map::Notifier* nf = Map::notifier(); 
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	Map::set(it, invMap.size());
-	invMap.push_back(it);	
+	Map::set(it, _inv_map.size());
+	_inv_map.push_back(it);	
       }      
     }
 
@@ -1898,8 +1433,8 @@ namespace lemon {
     /// \c AlterationNotifier.
     virtual void add(const Item& item) {
       Map::add(item);
-      Map::set(item, invMap.size());
-      invMap.push_back(item);
+      Map::set(item, _inv_map.size());
+      _inv_map.push_back(item);
     }
 
     /// \brief Add more new keys to the map.
@@ -1909,8 +1444,8 @@ namespace lemon {
     virtual void add(const std::vector<Item>& items) {
       Map::add(items);
       for (int i = 0; i < int(items.size()); ++i) {
-	Map::set(items[i], invMap.size());
-	invMap.push_back(items[i]);
+	Map::set(items[i], _inv_map.size());
+	_inv_map.push_back(items[i]);
       }
     }
 
@@ -1919,9 +1454,9 @@ namespace lemon {
     /// Erase the key from the map. It is called by the
     /// \c AlterationNotifier.
     virtual void erase(const Item& item) {
-      Map::set(invMap.back(), Map::operator[](item));
-      invMap[Map::operator[](item)] = invMap.back();
-      invMap.pop_back();
+      Map::set(_inv_map.back(), Map::operator[](item));
+      _inv_map[Map::operator[](item)] = _inv_map.back();
+      _inv_map.pop_back();
       Map::erase(item);
     }
 
@@ -1931,9 +1466,9 @@ namespace lemon {
     /// \c AlterationNotifier.
     virtual void erase(const std::vector<Item>& items) {
       for (int i = 0; i < int(items.size()); ++i) {
-	Map::set(invMap.back(), Map::operator[](items[i]));
-	invMap[Map::operator[](items[i])] = invMap.back();
-	invMap.pop_back();
+	Map::set(_inv_map.back(), Map::operator[](items[i]));
+	_inv_map[Map::operator[](items[i])] = _inv_map.back();
+	_inv_map.pop_back();
       }
       Map::erase(items);
     }
@@ -1947,8 +1482,8 @@ namespace lemon {
       Item it;
       const typename Map::Notifier* nf = Map::notifier(); 
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	Map::set(it, invMap.size());
-	invMap.push_back(it);	
+	Map::set(it, _inv_map.size());
+	_inv_map.push_back(it);	
       }      
     }
     
@@ -1957,7 +1492,7 @@ namespace lemon {
     /// Clear the keys from the map. It is called by the
     /// \c AlterationNotifier.
     virtual void clear() {
-      invMap.clear();
+      _inv_map.clear();
       Map::clear();
     }
 
@@ -1967,7 +1502,7 @@ namespace lemon {
     ///
     /// Returns the maximal value plus one in the map.
     unsigned int size() const {
-      return invMap.size();
+      return _inv_map.size();
     }
 
     /// \brief Swaps the position of the two items in the map.
@@ -1977,9 +1512,9 @@ namespace lemon {
       int pi = Map::operator[](p);
       int qi = Map::operator[](q);
       Map::set(p, qi);
-      invMap[qi] = p;
+      _inv_map[qi] = p;
       Map::set(q, pi);
-      invMap[pi] = q;
+      _inv_map[pi] = q;
     }
 
     /// \brief Gives back the \e descriptor of the item.
@@ -1993,13 +1528,13 @@ namespace lemon {
     ///
     /// Gives back th item by its descriptor.
     Item operator()(int id) const {
-      return invMap[id];
+      return _inv_map[id];
     }
     
   private:
 
     typedef std::vector<Item> Container;
-    Container invMap;
+    Container _inv_map;
 
   public:
     /// \brief The inverse map type of DescriptorMap.
@@ -2010,8 +1545,8 @@ namespace lemon {
       /// \brief Constructor of the InverseMap.
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const DescriptorMap& _inverted) 
-	: inverted(_inverted) {}
+      explicit InverseMap(const DescriptorMap& inverted) 
+	: _inverted(inverted) {}
 
 
       /// The value type of the InverseMap.
@@ -2024,18 +1559,18 @@ namespace lemon {
       /// Subscript operator. It gives back the item 
       /// that the descriptor belongs to currently.
       Value operator[](const Key& key) const {
-	return inverted(key);
+	return _inverted(key);
       }
 
       /// \brief Size of the map.
       ///
       /// Returns the size of the map.
       unsigned int size() const {
-	return inverted.size();
+	return _inverted.size();
       }
       
     private:
-      const DescriptorMap& inverted;
+      const DescriptorMap& _inverted;
     };
 
     /// \brief Gives back the inverse of the map.
@@ -2062,7 +1597,7 @@ namespace lemon {
     ///
     /// Constructor
     /// \param _digraph The digraph that the map belongs to.
-    explicit SourceMap(const Digraph& _digraph) : digraph(_digraph) {}
+    explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
     ///
@@ -2070,11 +1605,11 @@ namespace lemon {
     /// \param arc The arc 
     /// \return The source of the arc 
     Value operator[](const Key& arc) const {
-      return digraph.source(arc);
+      return _digraph.source(arc);
     }
 
   private:
-    const Digraph& digraph;
+    const Digraph& _digraph;
   };
 
   /// \brief Returns a \ref SourceMap class.
@@ -2102,7 +1637,7 @@ namespace lemon {
     ///
     /// Constructor
     /// \param _digraph The digraph that the map belongs to.
-    explicit TargetMap(const Digraph& _digraph) : digraph(_digraph) {}
+    explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
     ///
@@ -2110,11 +1645,11 @@ namespace lemon {
     /// \param e The arc 
     /// \return The target of the arc 
     Value operator[](const Key& e) const {
-      return digraph.target(e);
+      return _digraph.target(e);
     }
 
   private:
-    const Digraph& digraph;
+    const Digraph& _digraph;
   };
 
   /// \brief Returns a \ref TargetMap class.
@@ -2131,18 +1666,18 @@ namespace lemon {
   /// Returns the "forward" directed arc view of an edge.
   /// \see BackwardMap
   /// \author Balazs Dezso
-  template <typename Digraph>
+  template <typename Graph>
   class ForwardMap {
   public:
 
-    typedef typename Digraph::Arc Value;
-    typedef typename Digraph::Edge Key;
+    typedef typename Graph::Arc Value;
+    typedef typename Graph::Edge Key;
 
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
-    explicit ForwardMap(const Digraph& _digraph) : digraph(_digraph) {}
+    /// \param _graph The graph that the map belongs to.
+    explicit ForwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.
     ///
@@ -2150,20 +1685,20 @@ namespace lemon {
     /// \param key An edge 
     /// \return The "forward" directed arc view of edge 
     Value operator[](const Key& key) const {
-      return digraph.direct(key, true);
+      return _graph.direct(key, true);
     }
 
   private:
-    const Digraph& digraph;
+    const Graph& _graph;
   };
 
   /// \brief Returns a \ref ForwardMap class.
   ///
   /// This function just returns an \ref ForwardMap class.
   /// \relates ForwardMap
-  template <typename Digraph>
-  inline ForwardMap<Digraph> forwardMap(const Digraph& digraph) {
-    return ForwardMap<Digraph>(digraph);
+  template <typename Graph>
+  inline ForwardMap<Graph> forwardMap(const Graph& graph) {
+    return ForwardMap<Graph>(graph);
   }
 
   /// \brief Returns the "backward" directed arc view of an edge.
@@ -2171,18 +1706,18 @@ namespace lemon {
   /// Returns the "backward" directed arc view of an edge.
   /// \see ForwardMap
   /// \author Balazs Dezso
-  template <typename Digraph>
+  template <typename Graph>
   class BackwardMap {
   public:
 
-    typedef typename Digraph::Arc Value;
-    typedef typename Digraph::Edge Key;
+    typedef typename Graph::Arc Value;
+    typedef typename Graph::Edge Key;
 
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
-    explicit BackwardMap(const Digraph& _digraph) : digraph(_digraph) {}
+    /// \param _graph The graph that the map belongs to.
+    explicit BackwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.
     ///
@@ -2190,20 +1725,20 @@ namespace lemon {
     /// \param key An edge 
     /// \return The "backward" directed arc view of edge 
     Value operator[](const Key& key) const {
-      return digraph.direct(key, false);
+      return _graph.direct(key, false);
     }
 
   private:
-    const Digraph& digraph;
+    const Graph& _graph;
   };
 
   /// \brief Returns a \ref BackwardMap class
 
   /// This function just returns a \ref BackwardMap class.
   /// \relates BackwardMap
-  template <typename Digraph>
-  inline BackwardMap<Digraph> backwardMap(const Digraph& digraph) {
-    return BackwardMap<Digraph>(digraph);
+  template <typename Graph>
+  inline BackwardMap<Graph> backwardMap(const Graph& graph) {
+    return BackwardMap<Graph>(graph);
   }
 
   /// \brief Potential difference map
@@ -2220,20 +1755,21 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Contructor of the map
-    explicit PotentialDifferenceMap(const Digraph& _digraph, 
-                                    const NodeMap& _potential) 
-      : digraph(_digraph), potential(_potential) {}
+    explicit PotentialDifferenceMap(const Digraph& digraph, 
+                                    const NodeMap& potential) 
+      : _digraph(digraph), _potential(potential) {}
 
     /// \brief Const subscription operator
     ///
     /// Const subscription operator
     Value operator[](const Key& arc) const {
-      return potential[digraph.target(arc)] - potential[digraph.source(arc)];
+      return _potential[_digraph.target(arc)] - 
+	_potential[_digraph.source(arc)];
     }
 
   private:
-    const Digraph& digraph;
-    const NodeMap& potential;
+    const Digraph& _digraph;
+    const NodeMap& _potential;
   };
 
   /// \brief Returns a PotentialDifferenceMap.
@@ -2274,16 +1810,15 @@ namespace lemon {
     typedef int Value;
     typedef typename Digraph::Node Key;
 
-    typedef typename ItemSetTraits<_Digraph, typename _Digraph::Arc>
+    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
   private:
 
-    class AutoNodeMap : public DefaultMap<_Digraph, Key, int> {
+    class AutoNodeMap : public DefaultMap<Digraph, Key, int> {
     public:
 
-      typedef DefaultMap<_Digraph, Key, int> Parent;
-      typedef typename Parent::Digraph Digraph;
+      typedef DefaultMap<Digraph, Key, int> Parent;
 
       AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
       
@@ -2314,17 +1849,18 @@ namespace lemon {
     /// \brief Constructor.
     ///
     /// Constructor for creating in-degree map.
-    explicit InDegMap(const Digraph& _digraph) : digraph(_digraph), deg(_digraph) {
-      Parent::attach(digraph.notifier(typename _Digraph::Arc()));
+    explicit InDegMap(const Digraph& digraph) 
+      : _digraph(digraph), _deg(digraph) {
+      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
       
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = countInArcs(digraph, it);
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = countInArcs(_digraph, it);
       }
     }
     
     /// Gives back the in-degree of a Node.
     int operator[](const Key& key) const {
-      return deg[key];
+      return _deg[key];
     }
 
   protected:
@@ -2332,40 +1868,40 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
 
     virtual void add(const Arc& arc) {
-      ++deg[digraph.target(arc)];
+      ++_deg[_digraph.target(arc)];
     }
 
     virtual void add(const std::vector<Arc>& arcs) {
       for (int i = 0; i < int(arcs.size()); ++i) {
-        ++deg[digraph.target(arcs[i])];
+        ++_deg[_digraph.target(arcs[i])];
       }
     }
 
     virtual void erase(const Arc& arc) {
-      --deg[digraph.target(arc)];
+      --_deg[_digraph.target(arc)];
     }
 
     virtual void erase(const std::vector<Arc>& arcs) {
       for (int i = 0; i < int(arcs.size()); ++i) {
-        --deg[digraph.target(arcs[i])];
+        --_deg[_digraph.target(arcs[i])];
       }
     }
 
     virtual void build() {
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = countInArcs(digraph, it);
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = countInArcs(_digraph, it);
       }      
     }
 
     virtual void clear() {
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = 0;
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = 0;
       }
     }
   private:
     
-    const _Digraph& digraph;
-    AutoNodeMap deg;
+    const Digraph& _digraph;
+    AutoNodeMap _deg;
   };
 
   /// \brief Map of the node out-degrees.
@@ -2391,21 +1927,20 @@ namespace lemon {
       ::ItemNotifier::ObserverBase {
 
   public:
-
-    typedef typename ItemSetTraits<_Digraph, typename _Digraph::Arc>
-    ::ItemNotifier::ObserverBase Parent;
     
     typedef _Digraph Digraph;
     typedef int Value;
     typedef typename Digraph::Node Key;
 
+    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
+    ::ItemNotifier::ObserverBase Parent;
+
   private:
 
-    class AutoNodeMap : public DefaultMap<_Digraph, Key, int> {
+    class AutoNodeMap : public DefaultMap<Digraph, Key, int> {
     public:
 
-      typedef DefaultMap<_Digraph, Key, int> Parent;
-      typedef typename Parent::Digraph Digraph;
+      typedef DefaultMap<Digraph, Key, int> Parent;
 
       AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
       
@@ -2434,17 +1969,18 @@ namespace lemon {
     /// \brief Constructor.
     ///
     /// Constructor for creating out-degree map.
-    explicit OutDegMap(const Digraph& _digraph) : digraph(_digraph), deg(_digraph) {
-      Parent::attach(digraph.notifier(typename _Digraph::Arc()));
+    explicit OutDegMap(const Digraph& digraph) 
+      : _digraph(digraph), _deg(digraph) {
+      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
       
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = countOutArcs(digraph, it);
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = countOutArcs(_digraph, it);
       }
     }
 
     /// Gives back the out-degree of a Node.
     int operator[](const Key& key) const {
-      return deg[key];
+      return _deg[key];
     }
 
   protected:
@@ -2452,40 +1988,40 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
 
     virtual void add(const Arc& arc) {
-      ++deg[digraph.source(arc)];
+      ++_deg[_digraph.source(arc)];
     }
 
     virtual void add(const std::vector<Arc>& arcs) {
       for (int i = 0; i < int(arcs.size()); ++i) {
-        ++deg[digraph.source(arcs[i])];
+        ++_deg[_digraph.source(arcs[i])];
       }
     }
 
     virtual void erase(const Arc& arc) {
-      --deg[digraph.source(arc)];
+      --_deg[_digraph.source(arc)];
     }
 
     virtual void erase(const std::vector<Arc>& arcs) {
       for (int i = 0; i < int(arcs.size()); ++i) {
-        --deg[digraph.source(arcs[i])];
+        --_deg[_digraph.source(arcs[i])];
       }
     }
 
     virtual void build() {
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = countOutArcs(digraph, it);
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = countOutArcs(_digraph, it);
       }      
     }
 
     virtual void clear() {
-      for(typename _Digraph::NodeIt it(digraph); it != INVALID; ++it) {
-	deg[it] = 0;
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+	_deg[it] = 0;
       }
     }
   private:
     
-    const _Digraph& digraph;
-    AutoNodeMap deg;
+    const Digraph& _digraph;
+    AutoNodeMap _deg;
   };
 
 
@@ -2500,7 +2036,7 @@ namespace lemon {
   ///the \c findFirst() and \c findNext() members.
   ///
   ///See the \ref ArcLookUp and \ref AllArcLookUp classes if your
-  ///digraph do not changed so frequently.
+  ///digraph is not changed so frequently.
   ///
   ///This class uses a self-adjusting binary search tree, Sleator's
   ///and Tarjan's Splay tree for guarantee the logarithmic amortized
@@ -2520,7 +2056,7 @@ namespace lemon {
     typedef typename ItemSetTraits<G, typename G::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
-    GRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(typename G);
     typedef G Digraph;
 
   protected:
@@ -2835,24 +2371,24 @@ namespace lemon {
     ///\ref INVALID otherwise.
     Arc operator()(Node s, Node t) const
     {
-      Arc e = _head[s];
+      Arc a = _head[s];
       while (true) {
-	if (_g.target(e) == t) {
-	  const_cast<DynArcLookUp&>(*this).splay(e);
-	  return e;
-	} else if (t < _g.target(e)) {
-	  if (_left[e] == INVALID) {
-	    const_cast<DynArcLookUp&>(*this).splay(e);
+	if (_g.target(a) == t) {
+	  const_cast<DynArcLookUp&>(*this).splay(a);
+	  return a;
+	} else if (t < _g.target(a)) {
+	  if (_left[a] == INVALID) {
+	    const_cast<DynArcLookUp&>(*this).splay(a);
 	    return INVALID;
 	  } else {
-	    e = _left[e];
+	    a = _left[a];
 	  }
 	} else  {
-	  if (_right[e] == INVALID) {
-	    const_cast<DynArcLookUp&>(*this).splay(e);
+	  if (_right[a] == INVALID) {
+	    const_cast<DynArcLookUp&>(*this).splay(a);
 	    return INVALID;
 	  } else {
-	    e = _right[e];
+	    a = _right[a];
 	  }
 	}
       }
@@ -2869,25 +2405,25 @@ namespace lemon {
     /// otherwise.
     Arc findFirst(Node s, Node t) const
     {
-      Arc e = _head[s];
+      Arc a = _head[s];
       Arc r = INVALID;
       while (true) {
-	if (_g.target(e) < t) {
-	  if (_right[e] == INVALID) {
-	    const_cast<DynArcLookUp&>(*this).splay(e);
+	if (_g.target(a) < t) {
+	  if (_right[a] == INVALID) {
+	    const_cast<DynArcLookUp&>(*this).splay(a);
 	    return r;
 	  } else {
-	    e = _right[e];
+	    a = _right[a];
 	  }
 	} else {
-	  if (_g.target(e) == t) {
-	    r = e;
+	  if (_g.target(a) == t) {
+	    r = a;
 	  }
-	  if (_left[e] == INVALID) {
-	    const_cast<DynArcLookUp&>(*this).splay(e);
+	  if (_left[a] == INVALID) {
+	    const_cast<DynArcLookUp&>(*this).splay(a);
 	    return r;
 	  } else {
-	    e = _left[e];
+	    a = _left[a];
 	  }
 	}
       }
@@ -2906,29 +2442,29 @@ namespace lemon {
     ///\note If \c e is not the result of the previous \c findFirst()
     ///operation then the amorized time bound can not be guaranteed.
 #ifdef DOXYGEN
-    Arc findNext(Node s, Node t, Arc e) const
+    Arc findNext(Node s, Node t, Arc a) const
 #else
-    Arc findNext(Node, Node t, Arc e) const
+    Arc findNext(Node, Node t, Arc a) const
 #endif
     {
-      if (_right[e] != INVALID) {
-	e = _right[e];
-	while (_left[e] != INVALID) {
-	  e = _left[e];
+      if (_right[a] != INVALID) {
+	a = _right[a];
+	while (_left[a] != INVALID) {
+	  a = _left[a];
 	}
-	const_cast<DynArcLookUp&>(*this).splay(e);
+	const_cast<DynArcLookUp&>(*this).splay(a);
       } else {
-	while (_parent[e] != INVALID && _right[_parent[e]] ==  e) {
-	  e = _parent[e];
+	while (_parent[a] != INVALID && _right[_parent[a]] ==  a) {
+	  a = _parent[a];
 	}
-	if (_parent[e] == INVALID) {
+	if (_parent[a] == INVALID) {
 	  return INVALID;
 	} else {
-	  e = _parent[e];
-	  const_cast<DynArcLookUp&>(*this).splay(e);
+	  a = _parent[a];
+	  const_cast<DynArcLookUp&>(*this).splay(a);
 	}
       }
-      if (_g.target(e) == t) return e;
+      if (_g.target(a) == t) return a;
       else return INVALID;    
     }
 
@@ -2957,7 +2493,7 @@ namespace lemon {
   class ArcLookUp 
   {
   public:
-    GRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(typename G);
     typedef G Digraph;
 
   protected:
@@ -3074,7 +2610,7 @@ namespace lemon {
     using ArcLookUp<G>::_left;
     using ArcLookUp<G>::_head;
 
-    GRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(typename G);
     typedef G Digraph;
     
     typename Digraph::template ArcMap<Arc> _next;
