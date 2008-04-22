@@ -1,5 +1,4 @@
 EXTRA_DIST += \
-	doc/Makefile \
 	doc/Doxyfile.in \
 	doc/coding_style.dox \
 	doc/dirs.dox \

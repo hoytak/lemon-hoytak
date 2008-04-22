@@ -7,7 +7,8 @@ EXTRA_DIST = \
 	LICENSE \
 	m4/lx_check_cplex.m4 \
 	m4/lx_check_glpk.m4 \
-	m4/lx_check_soplex.m4
+	m4/lx_check_soplex.m4 \
+	CMakeLists.txt
 
 pkgconfigdir = $(libdir)/pkgconfig
 lemondir = $(pkgincludedir)
@@ -44,13 +45,7 @@ MRPROPERFILES = \
 	build-aux/install-sh \
 	build-aux/ltmain.sh \
 	build-aux/missing \
-	doc/Makefile.in \
-	doc/doxygen.log \
-	Makefile.in \
-	lemon/Makefile.in \
-	test/Makefile.in \
-	benchmark/Makefile.in \
-	demo/Makefile.in
+	doc/doxygen.log
 
 mrproper:
 	$(MAKE) $(AM_MAKEFLAGS) maintainer-clean

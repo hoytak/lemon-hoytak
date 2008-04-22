@@ -1,6 +1,6 @@
 EXTRA_DIST += \
-	lemon/Makefile \
-	lemon/lemon.pc.in
+	lemon/lemon.pc.in \
+	lemon/CMakeLists.txt
 
 pkgconfig_DATA += lemon/lemon.pc
 

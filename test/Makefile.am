@@ -1,5 +1,5 @@
 EXTRA_DIST += \
-	test/Makefile
+	test/CMakeLists.txt
 
 noinst_HEADERS += \
 	test/digraph_test.h \
