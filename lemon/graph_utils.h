@@ -42,6 +42,82 @@ namespace lemon {
   /// \addtogroup gutils
   /// @{
 
+  namespace _graph_utils_bits {
+    template <typename Graph>
+    struct Node { typedef typename Graph::Node type; };
+
+    template <typename Graph>
+    struct NodeIt { typedef typename Graph::NodeIt type; };
+
+    template <typename Graph>
+    struct Arc { typedef typename Graph::Arc type; };
+
+    template <typename Graph>
+    struct ArcIt { typedef typename Graph::ArcIt type; };
+
+    template <typename Graph>
+    struct Edge { typedef typename Graph::Edge type; };
+
+    template <typename Graph>
+    struct EdgeIt { typedef typename Graph::EdgeIt type; };
+
+    template <typename Graph>
+    struct OutArcIt { typedef typename Graph::OutArcIt type; };
+
+    template <typename Graph>
+    struct InArcIt { typedef typename Graph::InArcIt type; };
+
+    template <typename Graph>
+    struct IncEdgeIt { typedef typename Graph::IncEdgeIt type; };
+
+    template <typename Graph>
+    struct BoolNodeMap { 
+      typedef typename Graph::template NodeMap<bool> type; 
+    };
+
+    template <typename Graph>
+    struct IntNodeMap { 
+      typedef typename Graph::template NodeMap<int> type; 
+    };
+
+    template <typename Graph>
+    struct DoubleNodeMap { 
+      typedef typename Graph::template NodeMap<double> type; 
+    };
+
+    template <typename Graph>
+    struct BoolArcMap { 
+      typedef typename Graph::template ArcMap<bool> type; 
+    };
+
+    template <typename Graph>
+    struct IntArcMap { 
+      typedef typename Graph::template ArcMap<int> type; 
+    };
+
+    template <typename Graph>
+    struct DoubleArcMap { 
+      typedef typename Graph::template ArcMap<double> type; 
+    };
+
+    template <typename Graph>
+    struct BoolEdgeMap { 
+      typedef typename Graph::template EdgeMap<bool> type; 
+    };
+
+    template <typename Graph>
+    struct IntEdgeMap { 
+      typedef typename Graph::template EdgeMap<int> type; 
+    };
+
+    template <typename Graph>
+    struct DoubleEdgeMap { 
+      typedef typename Graph::template EdgeMap<double> type; 
+    };
+
+    
+  }
+
   ///Creates convenience typedefs for the digraph types and iterators
 
   ///This \c \#define creates convenience typedefs for the following types
@@ -49,12 +125,31 @@ namespace lemon {
   ///\c OutArcIt, \c BoolNodeMap, \c IntNodeMap, \c DoubleNodeMap, 
   ///\c BoolArcMap, \c IntArcMap, \c DoubleArcMap. 
 #define DIGRAPH_TYPEDEFS(Digraph)					\
-  typedef Digraph::Node Node;						\
-  typedef Digraph::NodeIt NodeIt;					\
-  typedef Digraph::Arc Arc;						\
-  typedef Digraph::ArcIt ArcIt;						\
-  typedef Digraph::InArcIt InArcIt;					\
-  typedef Digraph::OutArcIt OutArcIt
+  typedef typename ::lemon::_graph_utils_bits::				\
+  Node<Digraph>::type Node;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  NodeIt<Digraph>::type	NodeIt;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  Arc<Digraph>::type Arc;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  ArcIt<Digraph>::type ArcIt;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  OutArcIt<Digraph>::type OutArcIt;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  InArcIt<Digraph>::type InArcIt;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  BoolNodeMap<Digraph>::type BoolNodeMap;				\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  IntNodeMap<Digraph>::type IntNodeMap;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  DoubleNodeMap<Digraph>::type DoubleNodeMap;				\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  BoolArcMap<Digraph>::type BoolArcMap;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  IntArcMap<Digraph>::type IntArcMap;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  DoubleArcMap<Digraph>::type DoubleArcMap
+
 
   ///Creates convenience typedefs for the graph types and iterators
 
@@ -64,9 +159,19 @@ namespace lemon {
   ///\c DoubleEdgeMap.
 #define GRAPH_TYPEDEFS(Graph)						\
   DIGRAPH_TYPEDEFS(Graph);						\
-  typedef Graph::Edge Edge;						\
-  typedef Graph::EdgeIt EdgeIt;						\
-  typedef Graph::IncEdgeIt IncEdgeIt
+  typedef typename ::lemon::_graph_utils_bits::				\
+  Edge<Graph>::type Edge;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  EdgeIt<Graph>::type EdgeIt;						\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  IncEdgeIt<Graph>::type IncEdgeIt					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  BoolEdgeMap<Graph>::type BoolEdgeMap;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  IntEdgeMap<Graph>::type IntEdgeMap;					\
+  typedef typename ::lemon::_graph_utils_bits::				\
+  DoubleEdgeMap<Graph>::type DoubleEdgeMap
+
 
   /// \brief Function to count the items in the graph.
   ///
@@ -2056,7 +2161,7 @@ namespace lemon {
     typedef typename ItemSetTraits<G, typename G::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
-    DIGRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
 
   protected:
@@ -2493,7 +2598,7 @@ namespace lemon {
   class ArcLookUp 
   {
   public:
-    DIGRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
 
   protected:
@@ -2610,7 +2715,7 @@ namespace lemon {
     using ArcLookUp<G>::_left;
     using ArcLookUp<G>::_head;
 
-    DIGRAPH_TYPEDEFS(typename G);
+    DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
     
     typename Digraph::template ArcMap<Arc> _next;
