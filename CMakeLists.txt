@@ -1,0 +1,5 @@
+project (LEMON)
+enable_testing ()
+add_subdirectory (lemon)
+add_subdirectory (demo)
+add_subdirectory (test)

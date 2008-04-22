@@ -103,7 +103,13 @@ namespace lemon {
 #endif
 
 #ifndef LEMON_FUNCTION_NAME
-#  define LEMON_FUNCTION_NAME (__PRETTY_FUNCTION__)
+#  if defined __GNUC__
+#    define LEMON_FUNCTION_NAME (__PRETTY_FUNCTION__)
+#  elif defined _MSC_VER
+#    define LEMON_FUNCTION_NAME (__FUNCSIG__)
+#  else
+#    define LEMON_FUNCTION_NAME (__func__)
+#  endif
 #endif
 
 #ifdef DOXYGEN

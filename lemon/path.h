@@ -903,20 +903,34 @@ namespace lemon {
   namespace _path_bits {
 
     template <typename Path, typename Enable = void>
-    struct RevTagIndicator {
+    struct RevPathTagIndicator {
       static const bool value = false;
     };
 
-    template <typename Digraph>
-    struct RevTagIndicator<
-      Digraph, 
-      typename enable_if<typename Digraph::RevTag, void>::type
+    template <typename Path>
+    struct RevPathTagIndicator<
+      Path, 
+      typename enable_if<typename Path::RevPathTag, void>::type
+      > {
+      static const bool value = true;
+    };
+
+    template <typename Path, typename Enable = void>
+    struct BuildTagIndicator {
+      static const bool value = false;
+    };
+
+    template <typename Path>
+    struct BuildTagIndicator<
+      Path, 
+      typename enable_if<typename Path::BuildTag, void>::type
     > {
       static const bool value = true;
     };
 
     template <typename Target, typename Source,
-              typename BuildEnable = void, typename RevEnable = void>
+	      bool buildEnable = BuildTagIndicator<Target>::value, 
+	      bool revEnable = RevPathTagIndicator<Source>::value>
     struct PathCopySelector {
       static void copy(Target& target, const Source& source) {
         target.clear();
@@ -926,10 +940,8 @@ namespace lemon {
       }
     };
 
-    template <typename Target, typename Source, typename BuildEnable>
-    struct PathCopySelector<
-      Target, Source, BuildEnable, 
-      typename enable_if<typename Source::RevPathTag, void>::type> {
+    template <typename Target, typename Source>
+    struct PathCopySelector<Target, Source, false, true> {
       static void copy(Target& target, const Source& source) {
         target.clear();
         for (typename Source::RevArcIt it(source); it != INVALID; ++it) {
@@ -938,10 +950,8 @@ namespace lemon {
       }
     };
 
-    template <typename Target, typename Source, typename RevEnable>
-    struct PathCopySelector<
-      Target, Source, 
-      typename enable_if<typename Target::BuildTag, void>::type, RevEnable> {
+    template <typename Target, typename Source>
+    struct PathCopySelector<Target, Source, true, false> {
       static void copy(Target& target, const Source& source) {
         target.clear();
         target.build(source);
@@ -949,10 +959,7 @@ namespace lemon {
     };
 
     template <typename Target, typename Source>
-    struct PathCopySelector<
-      Target, Source, 
-      typename enable_if<typename Target::BuildTag, void>::type,
-      typename enable_if<typename Source::RevPathTag, void>::type> {
+    struct PathCopySelector<Target, Source, true, true> {
       static void copy(Target& target, const Source& source) {
         target.clear();
         target.buildRev(source);

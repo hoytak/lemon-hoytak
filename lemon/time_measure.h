@@ -24,6 +24,8 @@
 ///\brief Tools for measuring cpu usage
 
 #ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include <cmath>
 #else
@@ -31,6 +33,7 @@
 #include <sys/time.h>
 #endif
 
+#include <string>
 #include <fstream>
 #include <iostream>
 
