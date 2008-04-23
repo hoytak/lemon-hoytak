@@ -164,7 +164,7 @@ namespace lemon {
   typedef typename ::lemon::_graph_utils_bits::				\
   EdgeIt<Graph>::type EdgeIt;						\
   typedef typename ::lemon::_graph_utils_bits::				\
-  IncEdgeIt<Graph>::type IncEdgeIt					\
+  IncEdgeIt<Graph>::type IncEdgeIt;					\
   typedef typename ::lemon::_graph_utils_bits::				\
   BoolEdgeMap<Graph>::type BoolEdgeMap;					\
   typedef typename ::lemon::_graph_utils_bits::				\
