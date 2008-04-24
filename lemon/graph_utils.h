@@ -42,136 +42,83 @@ namespace lemon {
   /// \addtogroup gutils
   /// @{
 
-  namespace _graph_utils_bits {
-    template <typename Graph>
-    struct Node { typedef typename Graph::Node type; };
-
-    template <typename Graph>
-    struct NodeIt { typedef typename Graph::NodeIt type; };
-
-    template <typename Graph>
-    struct Arc { typedef typename Graph::Arc type; };
-
-    template <typename Graph>
-    struct ArcIt { typedef typename Graph::ArcIt type; };
-
-    template <typename Graph>
-    struct Edge { typedef typename Graph::Edge type; };
-
-    template <typename Graph>
-    struct EdgeIt { typedef typename Graph::EdgeIt type; };
-
-    template <typename Graph>
-    struct OutArcIt { typedef typename Graph::OutArcIt type; };
-
-    template <typename Graph>
-    struct InArcIt { typedef typename Graph::InArcIt type; };
-
-    template <typename Graph>
-    struct IncEdgeIt { typedef typename Graph::IncEdgeIt type; };
-
-    template <typename Graph>
-    struct BoolNodeMap { 
-      typedef typename Graph::template NodeMap<bool> type; 
-    };
-
-    template <typename Graph>
-    struct IntNodeMap { 
-      typedef typename Graph::template NodeMap<int> type; 
-    };
-
-    template <typename Graph>
-    struct DoubleNodeMap { 
-      typedef typename Graph::template NodeMap<double> type; 
-    };
-
-    template <typename Graph>
-    struct BoolArcMap { 
-      typedef typename Graph::template ArcMap<bool> type; 
-    };
-
-    template <typename Graph>
-    struct IntArcMap { 
-      typedef typename Graph::template ArcMap<int> type; 
-    };
-
-    template <typename Graph>
-    struct DoubleArcMap { 
-      typedef typename Graph::template ArcMap<double> type; 
-    };
-
-    template <typename Graph>
-    struct BoolEdgeMap { 
-      typedef typename Graph::template EdgeMap<bool> type; 
-    };
-
-    template <typename Graph>
-    struct IntEdgeMap { 
-      typedef typename Graph::template EdgeMap<int> type; 
-    };
-
-    template <typename Graph>
-    struct DoubleEdgeMap { 
-      typedef typename Graph::template EdgeMap<double> type; 
-    };
-
-    
-  }
-
   ///Creates convenience typedefs for the digraph types and iterators
 
   ///This \c \#define creates convenience typedefs for the following types
   ///of \c Digraph: \c Node,  \c NodeIt, \c Arc, \c ArcIt, \c InArcIt,
   ///\c OutArcIt, \c BoolNodeMap, \c IntNodeMap, \c DoubleNodeMap, 
-  ///\c BoolArcMap, \c IntArcMap, \c DoubleArcMap. 
+  ///\c BoolArcMap, \c IntArcMap, \c DoubleArcMap.
+  ///
+  ///\note If the graph type is a dependent type, ie. the graph type depend
+  ///on a template parameter, then use \c TEMPLATE_DIGRAPH_TYPEDEFS()
+  ///macro.
 #define DIGRAPH_TYPEDEFS(Digraph)					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  Node<Digraph>::type Node;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  NodeIt<Digraph>::type	NodeIt;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  Arc<Digraph>::type Arc;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  ArcIt<Digraph>::type ArcIt;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  OutArcIt<Digraph>::type OutArcIt;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  InArcIt<Digraph>::type InArcIt;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  BoolNodeMap<Digraph>::type BoolNodeMap;				\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  IntNodeMap<Digraph>::type IntNodeMap;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  DoubleNodeMap<Digraph>::type DoubleNodeMap;				\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  BoolArcMap<Digraph>::type BoolArcMap;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  IntArcMap<Digraph>::type IntArcMap;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  DoubleArcMap<Digraph>::type DoubleArcMap
+  typedef Digraph::Node Node;						\
+  typedef Digraph::NodeIt NodeIt;					\
+  typedef Digraph::Arc Arc;						\
+  typedef Digraph::ArcIt ArcIt;						\
+  typedef Digraph::InArcIt InArcIt;					\
+  typedef Digraph::OutArcIt OutArcIt;					\
+  typedef Digraph::NodeMap<bool> BoolNodeMap;				\
+  typedef Digraph::NodeMap<int> IntNodeMap;				\
+  typedef Digraph::NodeMap<double> DoubleNodeMap;			\
+  typedef Digraph::ArcMap<bool> BoolArcMap;				\
+  typedef Digraph::ArcMap<int> IntArcMap;				\
+  typedef Digraph::ArcMap<double> DoubleArcMap
 
+  ///Creates convenience typedefs for the digraph types and iterators
 
+  ///\see DIGRAPH_TYPEDEFS
+  ///
+  ///\note Use this macro, if the graph type is a dependent type,
+  ///ie. the graph type depend on a template parameter.
+#define TEMPLATE_DIGRAPH_TYPEDEFS(Digraph)				\
+  typedef typename Digraph::Node Node;					\
+  typedef typename Digraph::NodeIt NodeIt;				\
+  typedef typename Digraph::Arc Arc;					\
+  typedef typename Digraph::ArcIt ArcIt;				\
+  typedef typename Digraph::InArcIt InArcIt;				\
+  typedef typename Digraph::OutArcIt OutArcIt;				\
+  typedef typename Digraph::template NodeMap<bool> BoolNodeMap;		\
+  typedef typename Digraph::template NodeMap<int> IntNodeMap;		\
+  typedef typename Digraph::template NodeMap<double> DoubleNodeMap;	\
+  typedef typename Digraph::template ArcMap<bool> BoolArcMap;		\
+  typedef typename Digraph::template ArcMap<int> IntArcMap;		\
+  typedef typename Digraph::template ArcMap<double> DoubleArcMap
+  
   ///Creates convenience typedefs for the graph types and iterators
 
   ///This \c \#define creates the same convenience typedefs as defined
   ///by \ref DIGRAPH_TYPEDEFS(Graph) and six more, namely it creates
   ///\c Edge, \c EdgeIt, \c IncEdgeIt, \c BoolEdgeMap, \c IntEdgeMap,
   ///\c DoubleEdgeMap.
+  ///
+  ///\note If the graph type is a dependent type, ie. the graph type depend
+  ///on a template parameter, then use \c TEMPLATE_DIGRAPH_TYPEDEFS()
+  ///macro.
 #define GRAPH_TYPEDEFS(Graph)						\
   DIGRAPH_TYPEDEFS(Graph);						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  Edge<Graph>::type Edge;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  EdgeIt<Graph>::type EdgeIt;						\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  IncEdgeIt<Graph>::type IncEdgeIt;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  BoolEdgeMap<Graph>::type BoolEdgeMap;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  IntEdgeMap<Graph>::type IntEdgeMap;					\
-  typedef typename ::lemon::_graph_utils_bits::				\
-  DoubleEdgeMap<Graph>::type DoubleEdgeMap
+  typedef Graph::Edge Edge;						\
+  typedef Graph::EdgeIt EdgeIt;						\
+  typedef Graph::IncEdgeIt IncEdgeIt;					\
+  typedef Graph::EdgeMap<bool> BoolEdgeMap;				\
+  typedef Graph::EdgeMap<int> IntEdgeMap;				\
+  typedef Graph::EdgeMap<double> DoubleEdgeMap
 
+  ///Creates convenience typedefs for the graph types and iterators
+
+  ///\see GRAPH_TYPEDEFS
+  ///
+  ///\note Use this macro, if the graph type is a dependent type,
+  ///ie. the graph type depend on a template parameter.
+#define TEMPLATE_GRAPH_TYPEDEFS(Graph)					\
+  TEMPLATE_DIGRAPH_TYPEDEFS(Graph);					\
+  typedef typename Graph::Edge Edge;					\
+  typedef typename Graph::EdgeIt EdgeIt;				\
+  typedef typename Graph::IncEdgeIt IncEdgeIt;				\
+  typedef typename Graph::template EdgeMap<bool> BoolEdgeMap;		\
+  typedef typename Graph::template EdgeMap<int> IntEdgeMap;		\
+  typedef typename Graph::template EdgeMap<double> DoubleEdgeMap
 
   /// \brief Function to count the items in the graph.
   ///
@@ -2161,7 +2108,7 @@ namespace lemon {
     typedef typename ItemSetTraits<G, typename G::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
-    DIGRAPH_TYPEDEFS(G);
+    TEMPLATE_DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
 
   protected:
@@ -2598,7 +2545,7 @@ namespace lemon {
   class ArcLookUp 
   {
   public:
-    DIGRAPH_TYPEDEFS(G);
+    TEMPLATE_DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
 
   protected:
@@ -2715,7 +2662,7 @@ namespace lemon {
     using ArcLookUp<G>::_left;
     using ArcLookUp<G>::_head;
 
-    DIGRAPH_TYPEDEFS(G);
+    TEMPLATE_DIGRAPH_TYPEDEFS(G);
     typedef G Digraph;
     
     typename Digraph::template ArcMap<Arc> _next;
