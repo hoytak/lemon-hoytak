@@ -22,7 +22,7 @@
 // #include <lemon/full_graph.h>
 // #include <lemon/grid_graph.h>
 
-//#include <lemon/graph_utils.h>
+#include <lemon/graph_utils.h>
 
 #include "test_tools.h"
 
@@ -82,46 +82,9 @@ void check_item_counts(Graph &g, int n, int e) {
 }
 
 template <typename Graph>
-void print_items(Graph &g) {
+void check_graph_counts() {
 
-  typedef typename Graph::NodeIt NodeIt;
-  typedef typename Graph::EdgeIt EdgeIt;
-  typedef typename Graph::ArcIt ArcIt;
-
-  std::cout << "Nodes" << std::endl;
-  int i=0;
-  for(NodeIt it(g); it!=INVALID; ++it, ++i) {
-    std::cout << "  " << i << ": " << g.id(it) << std::endl;
-  }
-
-  std::cout << "Edge" << std::endl;
-  i=0;
-  for(EdgeIt it(g); it!=INVALID; ++it, ++i) {
-    std::cout << "  " << i << ": " << g.id(it) 
-	 << " (" << g.id(g.source(it)) << ", " << g.id(g.target(it)) 
-	 << ")" << std::endl;
-  }
-
-  std::cout << "Arc" << std::endl;
-  i=0;
-  for(ArcIt it(g); it!=INVALID; ++it, ++i) {
-    std::cout << "  " << i << ": " << g.id(it)
-	 << " (" << g.id(g.source(it)) << ", " << g.id(g.target(it)) 
-	 << ")" << std::endl;
-  }
-
-}
-
-template <typename Graph>
-void check_graph() {
-
-  typedef typename Graph::Node Node;
-  typedef typename Graph::Edge Edge;
-  typedef typename Graph::Arc Arc;
-  typedef typename Graph::NodeIt NodeIt;
-  typedef typename Graph::EdgeIt EdgeIt;
-  typedef typename Graph::ArcIt ArcIt;
-
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
   Graph g;
 
   check_item_counts(g,0,0);
@@ -135,10 +98,72 @@ void check_graph() {
     e1 = g.addEdge(n1, n2),
     e2 = g.addEdge(n2, n3);
 
-  // print_items(g);
-
   check_item_counts(g,3,2);
 }
+
+template <typename Graph>
+void check_graph_validity() {
+
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+  Graph g;
+
+  check_item_counts(g,0,0);
+
+  Node
+    n1 = g.addNode(),
+    n2 = g.addNode(),
+    n3 = g.addNode();
+
+  Edge
+    e1 = g.addEdge(n1, n2),
+    e2 = g.addEdge(n2, n3);
+
+  check(g.valid(n1), "Validity check");
+  check(g.valid(e1), "Validity check");
+  check(g.valid(g.direct(e1, true)), "Validity check");
+
+  check(!g.valid(g.nodeFromId(-1)), "Validity check");
+  check(!g.valid(g.edgeFromId(-1)), "Validity check");
+  check(!g.valid(g.arcFromId(-1)), "Validity check");
+    
+}
+
+template <typename Graph>
+void check_graph_validity_erase() {
+
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+  Graph g;
+
+  check_item_counts(g,0,0);
+
+  Node
+    n1 = g.addNode(),
+    n2 = g.addNode(),
+    n3 = g.addNode();
+
+  Edge
+    e1 = g.addEdge(n1, n2),
+    e2 = g.addEdge(n2, n3);
+
+  check(g.valid(n1), "Validity check");
+  check(g.valid(e1), "Validity check");
+  check(g.valid(g.direct(e1, true)), "Validity check");
+
+  g.erase(n1);
+
+  check(!g.valid(n1), "Validity check");
+  check(g.valid(n2), "Validity check");
+  check(g.valid(n3), "Validity check");
+  check(!g.valid(e1), "Validity check");
+  check(g.valid(e2), "Validity check");
+
+  check(!g.valid(g.nodeFromId(-1)), "Validity check");
+  check(!g.valid(g.edgeFromId(-1)), "Validity check");
+  check(!g.valid(g.arcFromId(-1)), "Validity check");
+    
+}
+
+
 
 // void checkGridGraph(const GridGraph& g, int w, int h) {
 //   check(g.width() == w, "Wrong width");
@@ -187,8 +212,11 @@ void check_graph() {
 int main() {
   check_concepts();
 
-  check_graph<ListGraph>();
-  check_graph<SmartGraph>();
+  check_graph_counts<ListGraph>();
+  check_graph_counts<SmartGraph>();
+
+  check_graph_validity_erase<ListGraph>();
+  check_graph_validity<SmartGraph>();
 
 //   {
 //     FullGraph g(5);

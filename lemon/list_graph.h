@@ -152,6 +152,16 @@ namespace lemon {
     static Node nodeFromId(int id) { return Node(id);}
     static Arc arcFromId(int id) { return Arc(id);}
 
+    bool valid(Node n) const { 
+      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) && 
+	nodes[n.id].prev != -2;
+    }
+
+    bool valid(Arc a) const { 
+      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) && 
+	arcs[a.id].prev_in != -2;
+    }
+
     Node addNode() {     
       int n;
       
@@ -219,6 +229,7 @@ namespace lemon {
       
       nodes[n].next = first_free_node;
       first_free_node = n;
+      nodes[n].prev = -2;
 
     }
     
@@ -247,8 +258,8 @@ namespace lemon {
       }
       
       arcs[n].next_in = first_free_arc;
-      first_free_arc = n;      
-
+      first_free_arc = n;
+      arcs[n].prev_in = -2;
     }
 
     void clear() {
@@ -349,6 +360,26 @@ namespace lemon {
     Arc addArc(const Node& s, const Node& t) { 
       return Parent::addArc(s, t); 
     }
+
+    /// Node validity check
+
+    /// This function gives back true if the given node is valid,
+    /// ie. it is a real node of the graph.  
+    ///
+    /// \warning A Node pointing to a removed item
+    /// could become valid again later if new nodes are
+    /// added to the graph.
+    bool valid(Node n) const { return Parent::valid(n); }
+
+    /// Arc validity check
+
+    /// This function gives back true if the given arc is valid,
+    /// ie. it is a real arc of the graph.  
+    ///
+    /// \warning An Arc pointing to a removed item
+    /// could become valid again later if new nodes are
+    /// added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
 
     /// Change the target of \c e to \c n
 
@@ -945,6 +976,21 @@ namespace lemon {
     static Arc arcFromId(int id) { return Arc(id);}
     static Edge edgeFromId(int id) { return Edge(id);}
 
+    bool valid(Node n) const { 
+      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) && 
+	nodes[n.id].prev != -2;
+    }
+
+    bool valid(Arc a) const { 
+      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) && 
+	arcs[a.id].prev_out != -2;
+    }
+
+    bool valid(Edge e) const { 
+      return e.id >= 0 && 2 * e.id < static_cast<int>(arcs.size()) && 
+	arcs[2 * e.id].prev_out != -2;
+    }
+
     Node addNode() {     
       int n;
       
@@ -1013,7 +1059,7 @@ namespace lemon {
       
       nodes[n].next = first_free_node;
       first_free_node = n;
-
+      nodes[n].prev = -2;
     }
     
     void erase(const Edge& edge) {
@@ -1041,6 +1087,8 @@ namespace lemon {
       
       arcs[n].next_out = first_free_arc;
       first_free_arc = n;      
+      arcs[n].prev_out = -2;
+      arcs[n | 1].prev_out = -2;
 
     }
 
@@ -1157,6 +1205,33 @@ namespace lemon {
     Edge addEdge(const Node& s, const Node& t) { 
       return Parent::addEdge(s, t); 
     }
+    /// Node validity check
+
+    /// This function gives back true if the given node is valid,
+    /// ie. it is a real node of the graph.  
+    ///
+    /// \warning A Node pointing to a removed item
+    /// could become valid again later if new nodes are
+    /// added to the graph.
+    bool valid(Node n) const { return Parent::valid(n); }
+    /// Arc validity check
+
+    /// This function gives back true if the given arc is valid,
+    /// ie. it is a real arc of the graph.  
+    ///
+    /// \warning An Arc pointing to a removed item
+    /// could become valid again later if new edges are
+    /// added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
+    /// Edge validity check
+
+    /// This function gives back true if the given edge is valid,
+    /// ie. it is a real arc of the graph.  
+    ///
+    /// \warning A Edge pointing to a removed item
+    /// could become valid again later if new edges are
+    /// added to the graph.
+    bool valid(Edge e) const { return Parent::valid(e); }
     /// \brief Change the source of \c e to \c n
     ///
     /// This function changes the source of \c e to \c n.

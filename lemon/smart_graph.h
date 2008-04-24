@@ -115,6 +115,13 @@ namespace lemon {
     static Node nodeFromId(int id) { return Node(id);}
     static Arc arcFromId(int id) { return Arc(id);}
 
+    bool valid(Node n) const { 
+      return n._id >= 0 && n._id < static_cast<int>(nodes.size()); 
+    }
+    bool valid(Arc a) const { 
+      return a._id >= 0 && a._id < static_cast<int>(arcs.size()); 
+    }
+
     class Node {
       friend class SmartDigraphBase;
       friend class SmartDigraph;
@@ -260,6 +267,24 @@ namespace lemon {
     /// to build the digraph.
     /// \sa reserveNode
     void reserveArc(int m) { arcs.reserve(m); };
+
+    /// \brief Node validity check
+    ///
+    /// This function gives back true if the given node is valid,
+    /// ie. it is a real node of the graph.  
+    ///
+    /// \warning A removed node (using Snapshot) could become valid again
+    /// when new nodes are added to the graph.
+    bool valid(Node n) const { return Parent::valid(n); }
+
+    /// \brief Arc validity check
+    ///
+    /// This function gives back true if the given arc is valid,
+    /// ie. it is a real arc of the graph.  
+    ///
+    /// \warning A removed arc (using Snapshot) could become valid again
+    /// when new arcs are added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
 
     ///Clear the digraph.
     
@@ -550,6 +575,16 @@ namespace lemon {
     static Arc arcFromId(int id) { return Arc(id);}
     static Edge edgeFromId(int id) { return Edge(id);}
 
+    bool valid(Node n) const { 
+      return n._id >= 0 && n._id < static_cast<int>(nodes.size()); 
+    }
+    bool valid(Arc a) const { 
+      return a._id >= 0 && a._id < static_cast<int>(arcs.size());
+    }
+    bool valid(Edge e) const { 
+      return e._id >= 0 && 2 * e._id < static_cast<int>(arcs.size()); 
+    }
+
     Node addNode() {     
       int n = nodes.size();
       nodes.push_back(NodeT());
@@ -641,6 +676,33 @@ namespace lemon {
     Edge addEdge(const Node& s, const Node& t) { 
       return Parent::addEdge(s, t); 
     }
+
+    /// \brief Node validity check
+    ///
+    /// This function gives back true if the given node is valid,
+    /// ie. it is a real node of the graph.  
+    ///
+    /// \warning A removed node (using Snapshot) could become valid again
+    /// when new nodes are added to the graph.
+    bool valid(Node n) const { return Parent::valid(n); }
+
+    /// \brief Arc validity check
+    ///
+    /// This function gives back true if the given arc is valid,
+    /// ie. it is a real arc of the graph.  
+    ///
+    /// \warning A removed arc (using Snapshot) could become valid again
+    /// when new edges are added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
+
+    /// \brief Edge validity check
+    ///
+    /// This function gives back true if the given edge is valid,
+    /// ie. it is a real edge of the graph.  
+    ///
+    /// \warning A removed edge (using Snapshot) could become valid again
+    /// when new edges are added to the graph.
+    bool valid(Edge e) const { return Parent::valid(e); }
 
     ///Clear the graph.
     
