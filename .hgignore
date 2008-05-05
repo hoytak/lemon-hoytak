@@ -26,7 +26,6 @@ doc/Doxyfile
 .libs/*
 .deps/*
 demo/*.eps
-doc/images/*.png
 
 syntax: regexp
 (.*/)?\#[^/]*\#$
@@ -37,6 +36,7 @@ syntax: regexp
 ^test/[a-z_]*$
 ^demo/.*_demo$
 ^build/.*
+^doc/gen-images/.*
 CMakeFiles
 DartTestfile.txt
 cmake_install.cmake
