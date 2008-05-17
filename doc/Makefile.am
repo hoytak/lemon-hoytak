@@ -3,6 +3,7 @@ EXTRA_DIST += \
 	doc/coding_style.dox \
 	doc/dirs.dox \
 	doc/groups.dox \
+	doc/lgf.dox \
 	doc/license.dox \
 	doc/mainpage.dox \
 	doc/namespaces.dox \

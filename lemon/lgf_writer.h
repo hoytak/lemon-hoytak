@@ -204,6 +204,7 @@ namespace lemon {
     }
 
     bool requireEscape(const std::string& str) {
+      if (str.empty() || str[0] == '@') return true;
       std::istringstream is(str);
       char c;
       while (is.get(c)) {
@@ -231,7 +232,50 @@ namespace lemon {
 
   }
   
-  /// \e
+  /// \ingroup lemon_io
+  ///  
+  /// \brief LGF writer for directed graphs
+  ///
+  /// This utility writes an \ref lgf-format "LGF" file.
+  ///
+  /// The writing method does a batch processing. The user creates a
+  /// writer object, then various writing rules can be added to the
+  /// writer, and eventually the writing is executed with the \c run()
+  /// member function. A map writing rule can be added to the writer
+  /// with the \c nodeMap() or \c arcMap() members. An optional
+  /// converter parameter can also be added as a standard functor converting from
+  /// the value type of the map to std::string. If it is set, it will
+  /// determine how the map's value type is written to the output
+  /// stream. If the functor is not set, then a default conversion
+  /// will be used. The \c attribute(), \c node() and \c arc() functions
+  /// are used to add attribute writing rules.
+  ///
+  ///\code
+  ///     DigraphWriter<Digraph>(std::cout, digraph).
+  ///       nodeMap("coordinates", coord_map).
+  ///       nodeMap("size", size).
+  ///       nodeMap("title", title).
+  ///       arcMap("capacity", cap_map).
+  ///       node("source", src).
+  ///       node("target", trg).
+  ///       attribute("caption", caption).
+  ///       run();
+  ///\endcode
+  ///
+  ///
+  /// By default, the writer does not write additional captions to the
+  /// sections, but they can be give as an optional parameter of
+  /// the \c nodes(), \c arcs() or \c
+  /// attributes() functions.
+  ///
+  /// The \c skipNodes() and \c skipArcs() functions forbid the
+  /// writing of the sections. If two arc sections should be written to the
+  /// output, it can be done in two passes, the first pass writes the
+  /// node section and the first arc section, then the second pass
+  /// skips the node section and writes just the arc section to the
+  /// stream. The output stream can be retrieved with the \c ostream()
+  /// function, hence the second pass can append its output to the output of the
+  /// first pass.
   template <typename _Digraph>
   class DigraphWriter {
   public:
@@ -273,21 +317,34 @@ namespace lemon {
 
   public:
 
-    /// \e
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph writer, which writes to the given
+    /// output stream.
     DigraphWriter(std::ostream& is, Digraph& digraph) 
       : _os(&is), local_os(false), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
 
-    /// \e
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph writer, which writes to the given
+    /// output file.
     DigraphWriter(const std::string& fn, Digraph& digraph) 
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
 
-    /// \e
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph writer, which writes to the given
+    /// output file.
     DigraphWriter(const char* fn, Digraph& digraph) 
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
 
+    /// \brief Copy constructor
+    ///
+    /// The copy constructor transfers all data from the other writer,
+    /// therefore the copied writer will not be usable more. 
     DigraphWriter(DigraphWriter& other) 
       : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
 	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
@@ -307,7 +364,7 @@ namespace lemon {
       _attributes_caption = other._attributes_caption;
     }
 
-    /// \e
+    /// \brief Destructor
     ~DigraphWriter() {
       for (typename NodeMaps::iterator it = _node_maps.begin(); 
 	   it != _node_maps.end(); ++it) {
@@ -335,7 +392,12 @@ namespace lemon {
 
   public:
 
-    /// \e
+    /// \name Writing rules
+    /// @{
+    
+    /// \brief Node map reading rule
+    ///
+    /// Add a node map reading rule to the writer.
     template <typename Map>
     DigraphWriter& nodeMap(const std::string& caption, const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
@@ -345,7 +407,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Node map writing rule
+    ///
+    /// Add a node map writing rule with specialized converter to the
+    /// writer.
     template <typename Map, typename Converter>
     DigraphWriter& nodeMap(const std::string& caption, const Map& map, 
 			   const Converter& converter = Converter()) {
@@ -356,7 +421,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc map writing rule
+    ///
+    /// Add an arc map writing rule to the writer.
     template <typename Map>
     DigraphWriter& arcMap(const std::string& caption, const Map& map) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
@@ -366,7 +433,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc map writing rule
+    ///
+    /// Add an arc map writing rule with specialized converter to the
+    /// writer.
     template <typename Map, typename Converter>
     DigraphWriter& arcMap(const std::string& caption, const Map& map, 
 			  const Converter& converter = Converter()) {
@@ -377,7 +447,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Attribute writing rule
+    ///
+    /// Add an attribute writing rule to the writer.
     template <typename Value>
     DigraphWriter& attribute(const std::string& caption, const Value& value) {
       _writer_bits::ValueStorageBase* storage = 
@@ -386,7 +458,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Attribute writing rule
+    ///
+    /// Add an attribute writing rule with specialized converter to the
+    /// writer.
     template <typename Value, typename Converter>
     DigraphWriter& attribute(const std::string& caption, const Value& value, 
 			     const Converter& converter = Converter()) {
@@ -396,7 +471,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Node writing rule
+    ///
+    /// Add a node writing rule to the writer.
     DigraphWriter& node(const std::string& caption, const Node& node) {
       typedef _writer_bits::MapLookUpConverter<Node> Converter;
       Converter converter(_node_index);
@@ -406,7 +483,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc writing rule
+    ///
+    /// Add an arc writing rule to writer.
     DigraphWriter& arc(const std::string& caption, const Arc& arc) {
       typedef _writer_bits::MapLookUpConverter<Arc> Converter;
       Converter converter(_arc_index);
@@ -416,33 +495,53 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \name Select section by name
+    /// @{
+
+    /// \brief Set \c \@nodes section to be read
+    ///
+    /// Set \c \@nodes section to be read
     DigraphWriter& nodes(const std::string& caption) {
       _nodes_caption = caption;
       return *this;
     }
 
-    /// \e
+    /// \brief Set \c \@arcs section to be read
+    ///
+    /// Set \c \@arcs section to be read
     DigraphWriter& arcs(const std::string& caption) {
       _arcs_caption = caption;
       return *this;
     }
 
-    /// \e
+    /// \brief Set \c \@attributes section to be read
+    ///
+    /// Set \c \@attributes section to be read
     DigraphWriter& attributes(const std::string& caption) {
       _attributes_caption = caption;
       return *this;
     }
 
+    /// \name Skipping section
+    /// @{
+
+    /// \brief Skip writing the node set
+    ///
+    /// The \c \@nodes section will be not written to the stream.
     DigraphWriter& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Multiple usage of skipNodes() member");
       return *this;
     }
 
+    /// \brief Skip writing arc set
+    ///
+    /// The \c \@arcs section will be not written to the stream.
     DigraphWriter& skipArcs() {
       LEMON_ASSERT(!_skip_arcs, "Multiple usage of skipArcs() member");
       return *this;
     }
+
+    /// @}
 
   private:
 
@@ -458,7 +557,7 @@ namespace lemon {
 
       *_os << "@nodes";
       if (!_nodes_caption.empty()) {
-	*_os << ' ' << _nodes_caption;
+	_writer_bits::writeToken(*_os << ' ', _nodes_caption);
       }
       *_os << std::endl;
 
@@ -467,7 +566,7 @@ namespace lemon {
       }
       for (typename NodeMaps::iterator it = _node_maps.begin();
 	   it != _node_maps.end(); ++it) {
-	*_os << it->first << '\t';
+	_writer_bits::writeToken(*_os, it->first) << '\t';
       }
       *_os << std::endl;
 
@@ -518,7 +617,7 @@ namespace lemon {
 
       *_os << "@arcs";
       if (!_arcs_caption.empty()) {
-	*_os << ' ' << _arcs_caption;
+	_writer_bits::writeToken(*_os << ' ', _arcs_caption);
       }
       *_os << std::endl;
 
@@ -528,7 +627,7 @@ namespace lemon {
       }
       for (typename ArcMaps::iterator it = _arc_maps.begin();
 	   it != _arc_maps.end(); ++it) {
-	*_os << it->first << '\t';
+	_writer_bits::writeToken(*_os, it->first) << '\t';
       }
       *_os << std::endl;
 
@@ -577,12 +676,12 @@ namespace lemon {
       if (_attributes.empty()) return;
       *_os << "@attributes";
       if (!_attributes_caption.empty()) {
-	*_os << ' ' << _attributes_caption;
+	_writer_bits::writeToken(*_os << ' ', _attributes_caption);
       }
       *_os << std::endl;
       for (typename Attributes::iterator it = _attributes.begin();
 	   it != _attributes.end(); ++it) {
-	*_os << it->first << ' ';
+	_writer_bits::writeToken(*_os, it->first) << ' ';
 	_writer_bits::writeToken(*_os, it->second->get());
 	*_os << std::endl;
       }
@@ -590,7 +689,12 @@ namespace lemon {
     
   public:
     
-    /// \e
+    /// \name Execution of the writer    
+    /// @{
+
+    /// \brief Start the batch processing
+    ///
+    /// This function starts the batch processing
     void run() {
       if (!_skip_nodes) {
 	writeNodes();
@@ -601,23 +705,30 @@ namespace lemon {
       writeAttributes();
     }
 
-    /// \e
-    std::ostream& stream() {
+    /// \brief Gives back the stream of the writer
+    ///
+    /// Gives back the stream of the writer
+    std::ostream& ostream() {
       return *_os;
     }
+
+    /// @}
   };
 
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(std::istream& is, Digraph& digraph) {
     return DigraphWriter<Digraph>(is, digraph);
   }
 
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const std::string& fn, 
 				       Digraph& digraph) {
     return DigraphWriter<Digraph>(fn, digraph);
   }
 
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const char* fn, Digraph& digraph) {
     return DigraphWriter<Digraph>(fn, digraph);

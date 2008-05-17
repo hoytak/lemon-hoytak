@@ -483,25 +483,6 @@ tutorial pages.
 */
 
 /**
-@defgroup section_io Section readers and writers
-@ingroup lemon_io
-\brief Section readers and writers for LEMON Input-Output.
-
-This group describes section reader and writer classes that can be 
-attached to \ref LemonReader and \ref LemonWriter.
-*/
-
-/**
-@defgroup item_io Item readers and writers
-@ingroup lemon_io
-\brief Item readers and writers for LEMON Input-Output.
-
-This group describes reader and writer classes for various data types
-(e.g. map or attribute values). These classes can be attached to
-\ref LemonReader and \ref LemonWriter.
-*/
-
-/**
 @defgroup eps_io Postscript exporting
 @ingroup io_group
 \brief General \c EPS drawer and graph exporter

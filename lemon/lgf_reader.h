@@ -268,35 +268,58 @@ namespace lemon {
       str = os.str();
       return is;
     }
-
-    std::istream& readIdentifier(std::istream& is, std::string& str) {
-      std::ostringstream os;
-
-      char c;
-      is >> std::ws;
-      
-      if (!is.get(c))
-	return is;
-
-      if (!isIdentifierFirstChar(c))
-	throw DataFormatError("Wrong char in identifier");
-      
-      os << c;
-      
-      while (is.get(c) && !isWhiteSpace(c)) {
-	if (!isIdentifierChar(c)) 
-	  throw DataFormatError("Wrong char in identifier");	  
-	os << c;
-      }
-      if (!is) is.clear();
-     
-      str = os.str();
-      return is;
-    }
     
   }
-  
-  /// \e
+
+  /// \ingroup lemon_io
+  ///  
+  /// \brief LGF reader for directed graphs
+  ///
+  /// This utility reads an \ref lgf-format "LGF" file.
+  ///
+  /// The reading method does a batch processing. The user creates a
+  /// reader object, then various reading rules can be added to the
+  /// reader, and eventually the reading is executed with the \c run()
+  /// member function. A map reading rule can be added to the reader
+  /// with the \c nodeMap() or \c arcMap() members. An optional
+  /// converter parameter can also be added as a standard functor converting from
+  /// std::string to the value type of the map. If it is set, it will
+  /// determine how the tokens in the file should be is converted to the map's
+  /// value type. If the functor is not set, then a default conversion
+  /// will be used. One map can be read into multiple map objects at the
+  /// same time. The \c attribute(), \c node() and \c arc() functions
+  /// are used to add attribute reading rules.
+  ///
+  ///\code
+  ///     DigraphReader<Digraph>(std::cin, digraph).
+  ///       nodeMap("coordinates", coord_map).
+  ///       arcMap("capacity", cap_map).
+  ///       node("source", src).
+  ///       node("target", trg).
+  ///       attribute("caption", caption).
+  ///       run();
+  ///\endcode
+  ///
+  /// By default the reader uses the first section in the file of the
+  /// proper type. If a section has an optional name, then it can be
+  /// selected for reading by giving an optional name parameter to
+  /// the \c nodes(), \c arcs() or \c attributes()
+  /// functions.
+  ///
+  /// The \c useNodes() and \c useArcs() functions are used to tell the reader
+  /// that the nodes or arcs should not be constructed (added to the
+  /// graph) during the reading, but instead the label map of the items
+  /// are given as a parameter of these functions. An
+  /// application of these function is multipass reading, which is
+  /// important if two \e \@arcs sections must be read from the
+  /// file. In this example the first phase would read the node set and one
+  /// of the arc sets, while the second phase would read the second arc
+  /// set into an \e ArcSet class (\c SmartArcSet or \c ListArcSet).
+  /// The previously read label node map should be passed to the \c
+  /// useNodes() functions. Another application of multipass reading when
+  /// paths are given as a node map or an arc map. It is impossible read this in
+  /// a single pass, because the arcs are not constructed when the node
+  /// maps are read.
   template <typename _Digraph>
   class DigraphReader {
   public:
@@ -341,23 +364,34 @@ namespace lemon {
 
   public:
 
-    /// \e
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph reader, which reads from the given
+    /// input stream.
     DigraphReader(std::istream& is, Digraph& digraph) 
       : _is(&is), local_is(false), _digraph(digraph),
 	_use_nodes(false), _use_arcs(false) {}
 
-    /// \e
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph reader, which reads from the given
+    /// file.
     DigraphReader(const std::string& fn, Digraph& digraph) 
       : _is(new std::ifstream(fn.c_str())), local_is(true), _digraph(digraph),
     	_use_nodes(false), _use_arcs(false) {}
-
-
-    /// \e
+    
+    /// \brief Constructor
+    ///
+    /// Construct a directed graph reader, which reads from the given
+    /// file.
     DigraphReader(const char* fn, Digraph& digraph) 
       : _is(new std::ifstream(fn)), local_is(true), _digraph(digraph),
     	_use_nodes(false), _use_arcs(false) {}
 
-    /// \e
+    /// \brief Copy constructor
+    ///
+    /// The copy constructor transfers all data from the other reader,
+    /// therefore the copied reader will not be usable more. 
     DigraphReader(DigraphReader& other) 
       : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
 	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs) {
@@ -377,7 +411,7 @@ namespace lemon {
       _attributes_caption = other._attributes_caption;
     }
 
-    /// \e
+    /// \brief Destructor
     ~DigraphReader() {
       for (typename NodeMaps::iterator it = _node_maps.begin(); 
 	   it != _node_maps.end(); ++it) {
@@ -406,7 +440,12 @@ namespace lemon {
 
   public:
 
-    /// \e
+    /// \name Reading rules
+    /// @{
+    
+    /// \brief Node map reading rule
+    ///
+    /// Add a node map reading rule to the reader.
     template <typename Map>
     DigraphReader& nodeMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
@@ -416,7 +455,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Node map reading rule
+    ///
+    /// Add a node map reading rule with specialized converter to the
+    /// reader.
     template <typename Map, typename Converter>
     DigraphReader& nodeMap(const std::string& caption, Map& map, 
 			   const Converter& converter = Converter()) {
@@ -427,7 +469,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc map reading rule
+    ///
+    /// Add an arc map reading rule to the reader.
     template <typename Map>
     DigraphReader& arcMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
@@ -437,7 +481,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc map reading rule
+    ///
+    /// Add an arc map reading rule with specialized converter to the
+    /// reader.
     template <typename Map, typename Converter>
     DigraphReader& arcMap(const std::string& caption, Map& map, 
 			  const Converter& converter = Converter()) {
@@ -448,7 +495,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Attribute reading rule
+    ///
+    /// Add an attribute reading rule to the reader.
     template <typename Value>
     DigraphReader& attribute(const std::string& caption, Value& value) {
       _reader_bits::ValueStorageBase* storage = 
@@ -457,7 +506,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Attribute reading rule
+    ///
+    /// Add an attribute reading rule with specialized converter to the
+    /// reader.
     template <typename Value, typename Converter>
     DigraphReader& attribute(const std::string& caption, Value& value, 
 			     const Converter& converter = Converter()) {
@@ -467,7 +519,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Node reading rule
+    ///
+    /// Add a node reading rule to reader.
     DigraphReader& node(const std::string& caption, Node& node) {
       typedef _reader_bits::MapLookUpConverter<Node> Converter;
       Converter converter(_node_index);
@@ -477,7 +531,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Arc reading rule
+    ///
+    /// Add an arc reading rule to reader.
     DigraphReader& arc(const std::string& caption, Arc& arc) {
       typedef _reader_bits::MapLookUpConverter<Arc> Converter;
       Converter converter(_arc_index);
@@ -487,25 +543,44 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// @}
+
+    /// \name Select section by name
+    /// @{
+
+    /// \brief Set \c \@nodes section to be read
+    ///
+    /// Set \c \@nodes section to be read
     DigraphReader& nodes(const std::string& caption) {
       _nodes_caption = caption;
       return *this;
     }
 
-    /// \e
+    /// \brief Set \c \@arcs section to be read
+    ///
+    /// Set \c \@arcs section to be read
     DigraphReader& arcs(const std::string& caption) {
       _arcs_caption = caption;
       return *this;
     }
 
-    /// \e
+    /// \brief Set \c \@attributes section to be read
+    ///
+    /// Set \c \@attributes section to be read
     DigraphReader& attributes(const std::string& caption) {
       _attributes_caption = caption;
       return *this;
     }
 
-    /// \e
+    /// @}
+
+    /// \name Using previously constructed node or arc set
+    /// @{
+
+    /// \brief Use previously constructed node set
+    ///
+    /// Use previously constructed node set, and specify the node
+    /// label map.
     template <typename Map>
     DigraphReader& useNodes(const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
@@ -518,7 +593,11 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Use previously constructed node set
+    ///
+    /// Use previously constructed node set, and specify the node
+    /// label map and a functor which converts the label map values to
+    /// std::string.
     template <typename Map, typename Converter>
     DigraphReader& useNodes(const Map& map, 
 			    const Converter& converter = Converter()) {
@@ -531,7 +610,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Use previously constructed arc set
+    ///
+    /// Use previously constructed arc set, and specify the arc
+    /// label map.
     template <typename Map>
     DigraphReader& useArcs(const Map& map) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
@@ -544,7 +626,11 @@ namespace lemon {
       return *this;
     }
 
-    /// \e
+    /// \brief Use previously constructed arc set
+    ///
+    /// Use previously constructed arc set, and specify the arc
+    /// label map and a functor which converts the label map values to
+    /// std::string.
     template <typename Map, typename Converter>
     DigraphReader& useArcs(const Map& map, 
 			    const Converter& converter = Converter()) {
@@ -556,6 +642,8 @@ namespace lemon {
       }
       return *this;
     }
+
+    /// @}
 
   private:
 
@@ -597,7 +685,7 @@ namespace lemon {
 	
 	std::string map;
 	int index = 0;
-	while (_reader_bits::readIdentifier(line, map)) {
+	while (_reader_bits::readToken(line, map)) {
 	  if (maps.find(map) != maps.end()) {
 	    std::ostringstream msg;
 	    msg << "Multiple occurence of node map: " << map;
@@ -680,7 +768,7 @@ namespace lemon {
 	
 	std::string map;
 	int index = 0;
-	while (_reader_bits::readIdentifier(line, map)) {
+	while (_reader_bits::readToken(line, map)) {
 	  if (maps.find(map) != maps.end()) {
 	    std::ostringstream msg;
 	    msg << "Multiple occurence of arc map: " << map;
@@ -787,7 +875,7 @@ namespace lemon {
 	line.putback(c);
 	
 	std::string attr, token;
-	if (!_reader_bits::readIdentifier(line, attr))
+	if (!_reader_bits::readToken(line, attr))
 	  throw DataFormatError("Attribute name not found");
 	if (!_reader_bits::readToken(line, token))
 	  throw DataFormatError("Attribute value not found");
@@ -827,8 +915,13 @@ namespace lemon {
     }
 
   public:
-    
-    /// \e
+
+    /// \name Execution of the reader    
+    /// @{
+
+    /// \brief Start the batch processing
+    ///
+    /// This function starts the batch processing
     void run() {
       
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
@@ -846,8 +939,8 @@ namespace lemon {
 	  char c;
 	  std::string section, caption;
 	  line >> c;
-	  _reader_bits::readIdentifier(line, section);
-	  _reader_bits::readIdentifier(line, caption);
+	  _reader_bits::readToken(line, section);
+	  _reader_bits::readToken(line, caption);
 
 	  if (line >> c) 
 	    throw DataFormatError("Extra character on the end of line");
@@ -891,20 +984,25 @@ namespace lemon {
       }
 
     }
+
+    /// @}
     
   };
 
+  /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(std::istream& is, Digraph& digraph) {
     return DigraphReader<Digraph>(is, digraph);
   }
 
+  /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const std::string& fn, 
 				       Digraph& digraph) {
     return DigraphReader<Digraph>(fn, digraph);
   }
 
+  /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const char* fn, Digraph& digraph) {
     return DigraphReader<Digraph>(fn, digraph);
