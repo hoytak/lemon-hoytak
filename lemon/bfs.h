@@ -37,7 +37,7 @@ namespace lemon {
   ///Default traits class of Bfs class.
 
   ///Default traits class of Bfs class.
-  ///\param GR Digraph type.
+  ///\tparam GR Digraph type.
   template<class GR>
   struct BfsDefaultTraits
   {
@@ -115,16 +115,14 @@ namespace lemon {
   ///\ingroup search
   ///This class provides an efficient implementation of the %BFS algorithm.
   ///
-  ///\param GR The digraph type the algorithm runs on. The default value is
+  ///\tparam GR The digraph type the algorithm runs on. The default value is
   ///\ref ListDigraph. The value of GR is not used directly by Bfs, it
   ///is only passed to \ref BfsDefaultTraits.
-  ///\param TR Traits class to set various data types used by the algorithm.
+  ///\tparam TR Traits class to set various data types used by the algorithm.
   ///The default traits class is
   ///\ref BfsDefaultTraits "BfsDefaultTraits<GR>".
   ///See \ref BfsDefaultTraits for the documentation of
   ///a Bfs traits class.
-  ///
-  ///\author Alpar Juttner
 
 #ifdef DOXYGEN
   template <typename GR,
@@ -756,7 +754,7 @@ namespace lemon {
   ///Default traits class of Bfs function.
 
   ///Default traits class of Bfs function.
-  ///\param GR Digraph type.
+  ///\tparam GR Digraph type.
   template<class GR>
   struct BfsWizardDefaultTraits
   {
@@ -1165,7 +1163,7 @@ namespace lemon {
   /// \brief Default traits class of BfsVisit class.
   ///
   /// Default traits class of BfsVisit class.
-  /// \param _Digraph Digraph type.
+  /// \tparam _Digraph Digraph type.
   template<class _Digraph>
   struct BfsVisitDefaultTraits {
 
@@ -1201,20 +1199,18 @@ namespace lemon {
   /// class. It works with callback mechanism, the BfsVisit object calls
   /// on every bfs event the \c Visitor class member functions. 
   ///
-  /// \param _Digraph The digraph type the algorithm runs on. The default value is
+  /// \tparam _Digraph The digraph type the algorithm runs on. The default value is
   /// \ref ListDigraph. The value of _Digraph is not used directly by Bfs, it
   /// is only passed to \ref BfsDefaultTraits.
-  /// \param _Visitor The Visitor object for the algorithm. The 
+  /// \tparam _Visitor The Visitor object for the algorithm. The 
   /// \ref BfsVisitor "BfsVisitor<_Digraph>" is an empty Visitor which
   /// does not observe the Bfs events. If you want to observe the bfs
   /// events you should implement your own Visitor class.
-  /// \param _Traits Traits class to set various data types used by the 
+  /// \tparam _Traits Traits class to set various data types used by the 
   /// algorithm. The default traits class is
   /// \ref BfsVisitDefaultTraits "BfsVisitDefaultTraits<_Digraph>".
   /// See \ref BfsVisitDefaultTraits for the documentation of
   /// a Bfs visit traits class.
-  ///
-  /// \author Jacint Szabo, Alpar Juttner and Balazs Dezso
 #ifdef DOXYGEN
   template <typename _Digraph, typename _Visitor, typename _Traits>
 #else

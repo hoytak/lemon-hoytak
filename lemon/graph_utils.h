@@ -354,8 +354,6 @@ namespace lemon {
   ///\sa ArcLookUp
   ///\sa AllArcLookUp
   ///\sa DynArcLookUp
-  ///
-  /// \author Balazs Dezso 
   template <typename _Graph>
   class ConArcIt : public _Graph::Arc {
   public:
@@ -478,8 +476,6 @@ namespace lemon {
   ///\endcode
   ///
   ///\sa findEdge()
-  ///
-  /// \author Balazs Dezso 
   template <typename _Graph>
   class ConEdgeIt : public _Graph::Edge {
   public:
@@ -1242,9 +1238,9 @@ namespace lemon {
   /// The values of the map can be accessed
   /// with stl compatible forward iterator.
   ///
-  /// \param _Graph The graph type.
-  /// \param _Item The item type of the graph.
-  /// \param _Value The value type of the map.
+  /// \tparam _Graph The graph type.
+  /// \tparam _Item The item type of the graph.
+  /// \tparam _Value The value type of the map.
   ///
   /// \see IterableValueMap
   template <typename _Graph, typename _Item, typename _Value>
@@ -1447,8 +1443,8 @@ namespace lemon {
   /// other node, i.e. this id is mutable).  </ul> This map can be inverted
   /// with its member class \c InverseMap, or with the \c operator() member.
   ///
-  /// \param _Graph The graph class the \c DescriptorMap belongs to.
-  /// \param _Item The Item is the Key of the Map. It may be Node, Arc or 
+  /// \tparam _Graph The graph class the \c DescriptorMap belongs to.
+  /// \tparam _Item The Item is the Key of the Map. It may be Node, Arc or 
   /// Edge.
   template <typename _Graph, typename _Item>
   class DescriptorMap : protected DefaultMap<_Graph, _Item, int> {
@@ -1637,7 +1633,6 @@ namespace lemon {
   ///
   /// The SourceMap gives back the source Node of the given arc. 
   /// \see TargetMap
-  /// \author Balazs Dezso
   template <typename Digraph>
   class SourceMap {
   public:
@@ -1677,7 +1672,6 @@ namespace lemon {
   ///
   /// The TargetMap gives back the target Node of the given arc. 
   /// \see SourceMap
-  /// \author Balazs Dezso
   template <typename Digraph>
   class TargetMap {
   public:
@@ -1717,7 +1711,6 @@ namespace lemon {
   ///
   /// Returns the "forward" directed arc view of an edge.
   /// \see BackwardMap
-  /// \author Balazs Dezso
   template <typename Graph>
   class ForwardMap {
   public:
@@ -1757,7 +1750,6 @@ namespace lemon {
   ///
   /// Returns the "backward" directed arc view of an edge.
   /// \see ForwardMap
-  /// \author Balazs Dezso
   template <typename Graph>
   class BackwardMap {
   public:
@@ -2096,7 +2088,7 @@ namespace lemon {
   ///optimal time bound in a constant factor for any distribution of
   ///queries.
   ///
-  ///\param G The type of the underlying digraph.  
+  ///\tparam G The type of the underlying digraph.  
   ///
   ///\sa ArcLookUp  
   ///\sa AllArcLookUp  
@@ -2537,7 +2529,7 @@ namespace lemon {
   ///whenever the digraph changes. This is a time consuming (superlinearly
   ///proportional (<em>O(m</em>log<em>m)</em>) to the number of arcs).
   ///
-  ///\param G The type of the underlying digraph.
+  ///\tparam G The type of the underlying digraph.
   ///
   ///\sa DynArcLookUp
   ///\sa AllArcLookUp  
@@ -2650,7 +2642,7 @@ namespace lemon {
   ///whenever the digraph changes. This is a time consuming (superlinearly
   ///proportional (<em>O(m</em>log<em>m)</em>) to the number of arcs).
   ///
-  ///\param G The type of the underlying digraph.
+  ///\tparam G The type of the underlying digraph.
   ///
   ///\sa DynArcLookUp
   ///\sa ArcLookUp  

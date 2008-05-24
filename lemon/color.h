@@ -27,8 +27,6 @@
 ///\ingroup misc
 ///\file
 ///\brief Tools to manage RGB colors.
-///
-///\author Alpar Juttner
 
 namespace lemon {
 

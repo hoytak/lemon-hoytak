@@ -202,8 +202,6 @@ namespace lemon {
   ///concepts::ReferenceMap "reference map"s.
   ///
   ///\sa concepts::Digraph.
-  ///
-  ///\author Alpar Juttner
   class SmartDigraph : public ExtendedSmartDigraphBase {
   public:
 

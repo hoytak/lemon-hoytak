@@ -94,8 +94,6 @@ namespace lemon {
   ///
   /// \param _Container The container which is observed.
   /// \param _Item The item type which is obserbved.
-  ///
-  /// \author Balazs Dezso
 
   template <typename _Container, typename _Item>
   class AlterationNotifier {
@@ -130,8 +128,6 @@ namespace lemon {
     /// The build() and clear() members are to notify the observer
     /// about the container is built from an empty container or
     /// is cleared to an empty container. 
-    /// 
-    /// \author Balazs Dezso
 
     class ObserverBase {
     protected:

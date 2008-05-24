@@ -39,10 +39,10 @@ namespace lemon {
   ///efficient. \c Compare specifies the ordering of the priorities. In a heap
   ///one can change the priority of an item, add or erase an item, etc.
   ///
-  ///\param _Prio Type of the priority of the items.
-  ///\param _ItemIntMap A read and writable Item int map, used internally
+  ///\tparam _Prio Type of the priority of the items.
+  ///\tparam _ItemIntMap A read and writable Item int map, used internally
   ///to handle the cross references.
-  ///\param _Compare A class for the ordering of the priorities. The
+  ///\tparam _Compare A class for the ordering of the priorities. The
   ///default is \c std::less<_Prio>.
   ///
   ///\sa FibHeap

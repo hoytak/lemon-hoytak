@@ -38,7 +38,7 @@ namespace lemon {
   ///Default traits class of Dfs class.
 
   ///Default traits class of Dfs class.
-  ///\param GR Digraph type.
+  ///\tparam GR Digraph type.
   template<class GR>
   struct DfsDefaultTraits
   {
@@ -117,16 +117,14 @@ namespace lemon {
   ///\ingroup search
   ///This class provides an efficient implementation of the %DFS algorithm.
   ///
-  ///\param GR The digraph type the algorithm runs on. The default value is
+  ///\tparam GR The digraph type the algorithm runs on. The default value is
   ///\ref ListDigraph. The value of GR is not used directly by Dfs, it
   ///is only passed to \ref DfsDefaultTraits.
-  ///\param TR Traits class to set various data types used by the algorithm.
+  ///\tparam TR Traits class to set various data types used by the algorithm.
   ///The default traits class is
   ///\ref DfsDefaultTraits "DfsDefaultTraits<GR>".
   ///See \ref DfsDefaultTraits for the documentation of
   ///a Dfs traits class.
-  ///
-  ///\author Jacint Szabo and Alpar Juttner
 #ifdef DOXYGEN
   template <typename GR,
 	    typename TR>
@@ -739,7 +737,7 @@ namespace lemon {
   ///Default traits class of Dfs function.
 
   ///Default traits class of Dfs function.
-  ///\param GR Digraph type.
+  ///\tparam GR Digraph type.
   template<class GR>
   struct DfsWizardDefaultTraits
   {
@@ -1160,7 +1158,7 @@ namespace lemon {
   /// \brief Default traits class of DfsVisit class.
   ///
   /// Default traits class of DfsVisit class.
-  /// \param _Digraph Digraph type.
+  /// \tparam _Digraph Digraph type.
   template<class _Digraph>
   struct DfsVisitDefaultTraits {
 
@@ -1195,14 +1193,14 @@ namespace lemon {
   /// class. It works with callback mechanism, the DfsVisit object calls
   /// on every dfs event the \c Visitor class member functions. 
   ///
-  /// \param _Digraph The digraph type the algorithm runs on. The default value is
+  /// \tparam _Digraph The digraph type the algorithm runs on. The default value is
   /// \ref ListDigraph. The value of _Digraph is not used directly by Dfs, it
   /// is only passed to \ref DfsDefaultTraits.
-  /// \param _Visitor The Visitor object for the algorithm. The 
+  /// \tparam _Visitor The Visitor object for the algorithm. The 
   /// \ref DfsVisitor "DfsVisitor<_Digraph>" is an empty Visitor which
   /// does not observe the Dfs events. If you want to observe the dfs
   /// events you should implement your own Visitor class.
-  /// \param _Traits Traits class to set various data types used by the 
+  /// \tparam _Traits Traits class to set various data types used by the 
   /// algorithm. The default traits class is
   /// \ref DfsVisitDefaultTraits "DfsVisitDefaultTraits<_Digraph>".
   /// See \ref DfsVisitDefaultTraits for the documentation of

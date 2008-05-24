@@ -24,8 +24,6 @@
 ///\brief Classes to compute with Bezier curves.
 ///
 ///Up to now this file is used internally by \ref graph_to_eps.h
-///
-///\author Alpar Juttner
 
 #include<lemon/dim2.h>
 

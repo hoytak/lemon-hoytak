@@ -56,8 +56,6 @@ namespace lemon {
   ///
   /// In most cases, perhaps the \ref Timer or the \ref TimeReport
   /// class is what you want to use instead.
-  ///
-  ///\author Alpar Juttner
 
   class TimeStamp
   {
@@ -296,8 +294,6 @@ namespace lemon {
   ///
   ///\todo This shouldn't be Unix (Linux) specific.
   ///\sa TimeReport
-  ///
-  ///\author Alpar Juttner
   class Timer
   {
     int _running; //Timer is running iff _running>0; (_running>=0 always holds)

@@ -40,7 +40,7 @@ namespace lemon {
     ///
     /// A skeleton structure for representing directed paths in a
     /// digraph.  
-    /// \param _Digraph The digraph type in which the path is.
+    /// \tparam _Digraph The digraph type in which the path is.
     ///
     /// In a sense, the path can be treated as a list of arcs. The
     /// lemon path type stores just this list. As a consequence it
@@ -205,7 +205,7 @@ namespace lemon {
     /// assigned to a real path and the dumpers can be implemented as
     /// an adaptor class to the predecessor map.
 
-    /// \param _Digraph  The digraph type in which the path is.
+    /// \tparam _Digraph  The digraph type in which the path is.
     ///
     /// The paths can be constructed from any path type by a
     /// template constructor or a template assignment operator.

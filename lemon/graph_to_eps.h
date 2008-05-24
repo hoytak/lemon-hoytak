@@ -416,7 +416,7 @@ public:
   ///Sets the map of the arc widths
 
   ///Sets the map of the arc widths
-  ///\param x must be a arc map with \c double (or convertible) values. 
+  ///\param x must be an arc map with \c double (or convertible) values. 
   template<class X> GraphToEps<ArcWidthsTraits<X> > arcWidths(const X &x)
   {
     dontPrint=true;
@@ -464,7 +464,7 @@ public:
   ///Sets the map of the arc colors
 
   ///Sets the map of the arc colors
-  ///\param x must be a arc map with \ref Color values. 
+  ///\param x must be an arc map with \ref Color values. 
   ///
   ///\sa Palette
   template<class X> GraphToEps<ArcColorsTraits<X> >

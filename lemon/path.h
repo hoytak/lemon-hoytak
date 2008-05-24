@@ -40,7 +40,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \param Digraph The digraph type in which the path is.
+  /// \tparam _Digraph The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence, it
@@ -228,7 +228,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \param Digraph The digraph type in which the path is.
+  /// \tparam _Digraph The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
@@ -392,7 +392,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \param Digraph The digraph type in which the path is.
+  /// \tparam _Digraph The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
@@ -732,7 +732,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \param Digraph The digraph type in which the path is.
+  /// \tparam _Digraph The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it

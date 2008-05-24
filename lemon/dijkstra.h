@@ -77,8 +77,8 @@ namespace lemon {
   ///Default traits class of Dijkstra class.
 
   ///Default traits class of Dijkstra class.
-  ///\param GR Digraph type.
-  ///\param LM Type of length map.
+  ///\tparam GR Digraph type.
+  ///\tparam LM Type of length map.
   template<class GR, class LM>
   struct DijkstraDefaultTraits
   {
@@ -194,23 +194,22 @@ namespace lemon {
   ///
   ///It is also possible to change the underlying priority heap.
   ///
-  ///\param GR The digraph type the algorithm runs on. The default value
+  ///\tparam GR The digraph type the algorithm runs on. The default value
   ///is \ref ListDigraph. The value of GR is not used directly by
   ///Dijkstra, it is only passed to \ref DijkstraDefaultTraits.
-  ///\param LM This read-only ArcMap determines the lengths of the
+  ///\tparam LM This read-only ArcMap determines the lengths of the
   ///arcs. It is read once for each arc, so the map may involve in
   ///relatively time consuming process to compute the arc length if
   ///it is necessary. The default map type is \ref
   ///concepts::Digraph::ArcMap "Digraph::ArcMap<int>".  The value
   ///of LM is not used directly by Dijkstra, it is only passed to \ref
-  ///DijkstraDefaultTraits.  \param TR Traits class to set
+  ///DijkstraDefaultTraits.  
+  ///\tparam TR Traits class to set
   ///various data types used by the algorithm.  The default traits
   ///class is \ref DijkstraDefaultTraits
   ///"DijkstraDefaultTraits<GR,LM>".  See \ref
   ///DijkstraDefaultTraits for the documentation of a Dijkstra traits
   ///class.
-  ///
-  ///\author Jacint Szabo and Alpar Juttner
 
 #ifdef DOXYGEN
   template <typename GR, typename LM, typename TR>
@@ -875,8 +874,8 @@ namespace lemon {
   ///Default traits class of Dijkstra function.
 
   ///Default traits class of Dijkstra function.
-  ///\param GR Digraph type.
-  ///\param LM Type of length map.
+  ///\tparam GR Digraph type.
+  ///\tparam LM Type of length map.
   template<class GR, class LM>
   struct DijkstraWizardDefaultTraits
   {
