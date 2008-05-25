@@ -1674,15 +1674,6 @@ namespace lemon {
 
   namespace _maps_bits {
 
-    template <typename Value>
-    struct Identity {
-      typedef Value argument_type;
-      typedef Value result_type;
-      Value operator()(const Value& val) const {
-	return val;
-      }
-    };
-
     template <typename _Iterator, typename Enable = void>
     struct IteratorTraits {
       typedef typename std::iterator_traits<_Iterator>::value_type Value;
@@ -1699,20 +1690,33 @@ namespace lemon {
 
   /// \brief Writable bool map for logging each \c true assigned element
   ///
-  /// A \ref concepts::ReadWriteMap "read-write" bool map for logging
+  /// A \ref concepts::WriteMap "writable" bool map for logging
   /// each \c true assigned element, i.e it copies subsequently each
   /// keys set to \c true to the given iterator.
+  /// The most important usage of it is storing certain nodes or arcs
+  /// that were marked \c true by an algorithm.
   ///
-  /// \tparam It the type of the Iterator.
-  /// \tparam Ke the type of the map's Key. The default value should
-  /// work in most cases.
+  /// There are several algorithms that provide solutions through bool
+  /// maps and most of them assign \c true at most once for each key.
+  /// In these cases it is a natural request to store each \c true
+  /// assigned elements (in order of the assignment), which can be
+  /// easily done with StoreBoolMap.
+  ///
+  /// The simplest way of using this map is through the storeBoolMap()
+  /// function.
+  ///
+  /// \tparam It The type of the iterator.
+  /// \tparam Ke The key type of the map. The default value set
+  /// according to the iterator type should work in most cases.
   ///
   /// \note The container of the iterator must contain enough space
-  /// for the elements. (Or it should be an inserter iterator).
-  ///
-  /// \todo Revise the name of this class and give an example code.
+  /// for the elements or the iterator should be an inserter iterator.
+#ifdef DOXYGEN
+  template <typename It, typename Ke>
+#else
   template <typename It,
 	    typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
+#endif
   class StoreBoolMap {
   public:
     typedef It Iterator;
@@ -1735,7 +1739,7 @@ namespace lemon {
     }
 
     /// The set function of the map
-    void set(const Key& key, Value value) const {
+    void set(const Key& key, Value value) {
       if (value) {
 	*_end++ = key;
       }
@@ -1743,8 +1747,38 @@ namespace lemon {
 
   private:
     Iterator _begin;
-    mutable Iterator _end;
+    Iterator _end;
   };
+  
+  /// Returns a \ref StoreBoolMap class
+
+  /// This function just returns a \ref StoreBoolMap class.
+  ///
+  /// The most important usage of it is storing certain nodes or arcs
+  /// that were marked \c true by an algorithm.
+  /// For example it makes easier to store the nodes in the processing
+  /// order of Dfs algorithm, as the following examples show.
+  /// \code
+  ///   std::vector<Node> v;
+  ///   dfs(g,s).processedMap(storeBoolMap(std::back_inserter(v))).run();
+  /// \endcode
+  /// \code
+  ///   std::vector<Node> v(countNodes(g));
+  ///   dfs(g,s).processedMap(storeBoolMap(v.begin())).run();
+  /// \endcode
+  ///
+  /// \note The container of the iterator must contain enough space
+  /// for the elements or the iterator should be an inserter iterator.
+  ///
+  /// \note StoreBoolMap is just \ref concepts::WriteMap "writable", so
+  /// it cannot be used when a readable map is needed, for example as
+  /// \c ReachedMap for Bfs, Dfs and Dijkstra algorithms.
+  ///
+  /// \relates StoreBoolMap
+  template<typename Iterator>
+  inline StoreBoolMap<Iterator> storeBoolMap(Iterator it) {
+    return StoreBoolMap<Iterator>(it);
+  }
 
   /// @}
 }
