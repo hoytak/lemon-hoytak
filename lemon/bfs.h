@@ -1016,7 +1016,7 @@ namespace lemon {
     template<class T>
     BfsWizard<DefReachedMapBase<T> > reachedMap(const T &t) 
     {
-      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
+      Base::_reached=reinterpret_cast<void*>(const_cast<T*>(&t));
       return BfsWizard<DefReachedMapBase<T> >(*this);
     }
     
@@ -1037,7 +1037,7 @@ namespace lemon {
     template<class T>
     BfsWizard<DefProcessedMapBase<T> > processedMap(const T &t) 
     {
-      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
+      Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
       return BfsWizard<DefProcessedMapBase<T> >(*this);
     }
     

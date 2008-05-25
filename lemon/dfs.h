@@ -999,7 +999,7 @@ namespace lemon {
     template<class T>
     DfsWizard<DefReachedMapBase<T> > reachedMap(const T &t) 
     {
-      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
+      Base::_reached=reinterpret_cast<void*>(const_cast<T*>(&t));
       return DfsWizard<DefReachedMapBase<T> >(*this);
     }
     
@@ -1020,7 +1020,7 @@ namespace lemon {
     template<class T>
     DfsWizard<DefProcessedMapBase<T> > processedMap(const T &t) 
     {
-      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
+      Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
       return DfsWizard<DefProcessedMapBase<T> >(*this);
     }
     
