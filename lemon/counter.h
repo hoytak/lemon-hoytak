@@ -96,38 +96,97 @@ namespace lemon
   /// \addtogroup timecount
   /// @{
 
-  ///A counter class
+  /// A counter class
 
-  ///This class makes it easier to count certain events. You can increment
-  ///or decrement the counter using operator++ and operator--.
-  ///A report is automatically printed on destruction.
-  ///\todo More doc
+  /// This class makes it easier to count certain events (e.g. for debug
+  /// reasons).
+  /// You can increment or decrement the counter using \c operator++,
+  /// \c operator--, \c operator+= and \c operator-=. You can also
+  /// define subcounters for the different phases of the algorithm or
+  /// for different types of operations.
+  /// A report containing the given title and the value of the counter
+  /// is automatically printed on destruction. 
+  ///
+  /// The following example shows the usage of counters and subcounters.
+  /// \code
+  /// // Bubble sort
+  /// std::vector<T> v;
+  /// ...
+  /// Counter op("Operations: ");
+  /// Counter::SubCounter as(op, "Assignments: ");
+  /// Counter::SubCounter co(op, "Comparisons: ");
+  /// for (int i = v.size()-1; i > 0; --i) {
+  ///   for (int j = 0; j < i; ++j) {
+  ///     if (v[j] > v[j+1]) {
+  ///       T tmp = v[j];
+  ///       v[j] = v[j+1];
+  ///       v[j+1] = tmp;
+  ///       as += 3;          // three assignments
+  ///     }
+  ///     ++co;               // one comparison
+  ///   }
+  /// }
+  /// \endcode
+  ///
+  /// This code prints out something like that:
+  /// \code
+  /// Comparisons: 45
+  /// Assignments: 57
+  /// Operations: 102
+  /// \endcode
+  ///
+  /// \sa NoCounter
   class Counter 
   {
     std::string _title;
     std::ostream &_os;
     int count;
   public:
-    ///\e
 
-    ///\todo document please.
+    /// SubCounter class
+    
+    /// This class can be used to setup subcounters for a \ref Counter
+    /// to have finer reports. A subcounter provides exactly the same
+    /// operations as the main \ref Counter, but it also increments and
+    /// decrements the value of its parent.
+    /// Subcounters can also have subcounters.
+    /// 
+    /// The parent counter must be given as the first parameter of the
+    /// constructor. Apart from that a title and an \c ostream object
+    /// can also be given just like for the main \ref Counter.
     ///
+    /// A report containing the given title and the value of the
+    /// subcounter is automatically printed on destruction. If you
+    /// would like to turn off this report, use \ref NoSubCounter
+    /// instead.
+    /// 
+    /// \sa NoSubCounter
     typedef _SubCounter<Counter> SubCounter;
-    ///\e
 
-    ///\todo document please.
+    /// SubCounter class without printing report on destruction 
+    
+    /// This class can be used to setup subcounters for a \ref Counter.
+    /// It is the same as \ref SubCounter but it does not print report
+    /// on destruction. (It modifies the value of its parent, so 'No'
+    /// only means 'do not print'.)
     ///
+    /// Replacing \ref SubCounter "SubCounter"s with \ref NoSubCounter
+    /// "NoSubCounter"s makes it possible to turn off reporting 
+    /// subcounter values without actually removing the definitions
+    /// and the increment or decrement operators.
+    ///
+    /// \sa SubCounter
     typedef _NoSubCounter<Counter> NoSubCounter;
 
-    ///\e
+    /// Constructor.
     Counter() : _title(), _os(std::cerr), count(0) {}
-    ///\e
+    /// Constructor.
     Counter(std::string title,std::ostream &os=std::cerr) 
       : _title(title), _os(os), count(0) {}
-    ///\e
+    /// Constructor.
     Counter(const char *title,std::ostream &os=std::cerr)
       : _title(title), _os(os), count(0) {}
-    ///Destructor. Prints the given title and the value of the counter.
+    /// Destructor. Prints the given title and the value of the counter.
     ~Counter() {
       _os << _title << count <<std::endl;
     }
@@ -143,16 +202,23 @@ namespace lemon
     Counter &operator+=(int c) { count+=c; return *this;}
     ///\e
     Counter &operator-=(int c) { count-=c; return *this;}
-    ///\e
+    /// Resets the counter to the given value.
     void reset(int c=0) {count=c;}
-    ///\e
+    /// Returns the value of the counter.
     operator int() {return count;}
   };
 
-  ///'Do nothing' version of \ref Counter
+  /// 'Do nothing' version of Counter.
 
-  ///'Do nothing' version of \ref Counter.
-  ///\sa Counter
+  /// This class can be used in the same way as \ref Counter however it
+  /// does not count at all and does not print report on destruction.
+  ///
+  /// Replacing a \ref Counter with a \ref NoCounter makes it possible
+  /// to turn off all counting and reporting (SubCounters should also
+  /// be replaced with NoSubCounters), so it does not affect the
+  /// efficiency of the program at all.
+  ///
+  /// \sa Counter
   class NoCounter
   {
   public:
