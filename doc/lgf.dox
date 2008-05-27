@@ -90,6 +90,9 @@ consists of two tokens, an attribute name, and then an attribute value.
  caption "LEMON test digraph"
 \endcode
 
+The \e LGF can contain extra sections, but there is no restriction on
+the format of such sections.
+
 */
 }
 

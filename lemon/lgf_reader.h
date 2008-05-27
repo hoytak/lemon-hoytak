@@ -268,6 +268,72 @@ namespace lemon {
       str = os.str();
       return is;
     }
+
+    class Section {
+    public:
+      virtual ~Section() {}
+      virtual void process(std::istream& is, int& line_num) = 0;
+    };
+
+    template <typename Functor>
+    class LineSection : public Section {
+    private:
+
+      Functor _functor;
+
+    public:
+      
+      LineSection(const Functor& functor) : _functor(functor) {}
+      virtual ~LineSection() {}
+
+      virtual void process(std::istream& is, int& line_num) {
+	char c;
+	std::string line;
+	while (is.get(c) && c != '@') {
+	  if (c == '\n') {
+	    ++line_num;
+	  } else if (c == '#') {
+	    getline(is, line);
+	    ++line_num;
+	  } else if (!isWhiteSpace(c)) {
+	    is.putback(c);
+	    getline(is, line);
+	    _functor(line);
+	    ++line_num;
+	  }
+	}
+	if (is) is.putback(c);
+	else if (is.eof()) is.clear();
+      }
+    };
+
+    template <typename Functor>
+    class StreamSection : public Section {
+    private:
+
+      Functor _functor;
+
+    public:
+      
+      StreamSection(const Functor& functor) : _functor(functor) {}
+      virtual ~StreamSection() {} 
+
+      virtual void process(std::istream& is, int& line_num) {
+	_functor(is, line_num);
+	char c;
+	std::string line;
+	while (is.get(c) && c != '@') {
+	  if (c == '\n') {
+	    ++line_num;
+	  } else if (!isWhiteSpace(c)) {
+	    getline(is, line);
+	    ++line_num;
+	  }
+	}
+	if (is) is.putback(c);
+	else if (is.eof()) is.clear();	
+      }
+    };
     
   }
 
@@ -282,13 +348,14 @@ namespace lemon {
   /// reader, and eventually the reading is executed with the \c run()
   /// member function. A map reading rule can be added to the reader
   /// with the \c nodeMap() or \c arcMap() members. An optional
-  /// converter parameter can also be added as a standard functor converting from
-  /// std::string to the value type of the map. If it is set, it will
-  /// determine how the tokens in the file should be is converted to the map's
-  /// value type. If the functor is not set, then a default conversion
-  /// will be used. One map can be read into multiple map objects at the
-  /// same time. The \c attribute(), \c node() and \c arc() functions
-  /// are used to add attribute reading rules.
+  /// converter parameter can also be added as a standard functor
+  /// converting from std::string to the value type of the map. If it
+  /// is set, it will determine how the tokens in the file should be
+  /// is converted to the map's value type. If the functor is not set,
+  /// then a default conversion will be used. One map can be read into
+  /// multiple map objects at the same time. The \c attribute(), \c
+  /// node() and \c arc() functions are used to add attribute reading
+  /// rules.
   ///
   ///\code
   ///     DigraphReader<Digraph>(std::cin, digraph).
@@ -302,9 +369,10 @@ namespace lemon {
   ///
   /// By default the reader uses the first section in the file of the
   /// proper type. If a section has an optional name, then it can be
-  /// selected for reading by giving an optional name parameter to
-  /// the \c nodes(), \c arcs() or \c attributes()
-  /// functions.
+  /// selected for reading by giving an optional name parameter to the
+  /// \c nodes(), \c arcs() or \c attributes() functions. The readers
+  /// also can load extra sections with the \c sectionLines() and
+  /// sectionStream() functions.
   ///
   /// The \c useNodes() and \c useArcs() functions are used to tell the reader
   /// that the nodes or arcs should not be constructed (added to the
@@ -355,6 +423,9 @@ namespace lemon {
     typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
       Attributes;
     Attributes _attributes;
+
+    typedef std::map<std::string, _reader_bits::Section*> Sections;
+    Sections _sections;
 
     bool _use_nodes;
     bool _use_arcs;
@@ -409,6 +480,8 @@ namespace lemon {
       _nodes_caption = other._nodes_caption;
       _arcs_caption = other._arcs_caption;
       _attributes_caption = other._attributes_caption;
+
+      _sections.swap(other._sections);
     }
 
     /// \brief Destructor
@@ -425,6 +498,11 @@ namespace lemon {
 
       for (typename Attributes::iterator it = _attributes.begin(); 
 	   it != _attributes.end(); ++it) {
+	delete it->second;
+      }
+
+      for (typename Sections::iterator it = _sections.begin(); 
+	   it != _sections.end(); ++it) {
 	delete it->second;
       }
 
@@ -572,6 +650,83 @@ namespace lemon {
       return *this;
     }
 
+    /// @}
+
+    /// \name Section readers
+    /// @{
+
+    /// \brief Add a section processor with line oriented reading
+    ///
+    /// In the \e LGF file extra sections can be placed, which contain
+    /// any data in arbitrary format. These sections can be read with
+    /// this function line by line. The first parameter is the type
+    /// descriptor of the section, the second is a functor, which
+    /// takes just one \c std::string parameter. At the reading
+    /// process, each line of the section will be given to the functor
+    /// object. However, the empty lines and the comment lines are
+    /// filtered out, and the leading whitespaces are stipped from
+    /// each processed string.
+    ///
+    /// For example let's see a section, which contain several
+    /// integers, which should be inserted into a vector.
+    ///\code
+    ///  @numbers
+    ///  12 45 23
+    ///  4
+    ///  23 6
+    ///\endcode
+    ///
+    /// The functor is implemented as an struct:
+    ///\code
+    ///  struct NumberSection {
+    ///    std::vector<int>& _data;
+    ///    NumberSection(std::vector<int>& data) : _data(data) {}
+    ///    void operator()(const std::string& line) {
+    ///      std::istringstream ls(line);
+    ///      int value;
+    ///      while (ls >> value) _data.push_back(value);
+    ///    }
+    ///  };
+    ///
+    ///  // ...
+    ///
+    ///  reader.sectionLines("numbers", NumberSection(vec));  
+    ///\endcode
+    template <typename Functor>
+    DigraphReader& sectionLines(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
+		   type != "attributes", "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+        new _reader_bits::LineSection<Functor>(functor)));
+      return *this;
+    }
+
+
+    /// \brief Add a section processor with stream oriented reading
+    ///
+    /// In the \e LGF file extra sections can be placed, which contain
+    /// any data in arbitrary format. These sections can be read
+    /// directly with this function. The first parameter is the type
+    /// of the section, the second is a functor, which takes an \c
+    /// std::istream& and an int& parameter, the latter regard to the
+    /// line number of stream. The functor can read the input while
+    /// the section go on, and the line number should be modified
+    /// accordingly.
+    template <typename Functor>
+    DigraphReader& sectionStream(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
+		   type != "attributes", "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+	 new _reader_bits::StreamSection<Functor>(functor)));
+      return *this;
+    }    
+    
     /// @}
 
     /// \name Using previously constructed node or arc set
@@ -929,6 +1084,7 @@ namespace lemon {
       bool nodes_done = false;
       bool arcs_done = false;
       bool attributes_done = false;
+      std::set<std::string> extra_sections;
 
       line_num = 0;      
       readLine();
@@ -962,8 +1118,20 @@ namespace lemon {
 	      attributes_done = true;
 	    }
 	  } else {
-	    readLine();
-	    skipSection();
+	    if (extra_sections.find(section) != extra_sections.end()) {
+	      std::ostringstream msg;
+	      msg << "Multiple occurence of section " << section;
+	      throw DataFormatError(msg.str().c_str());
+	    }
+	    Sections::iterator it = _sections.find(section);
+	    if (it != _sections.end()) {
+	      extra_sections.insert(section);
+	      it->second->process(*_is, line_num);
+	      readLine();
+	    } else {
+	      readLine();
+	      skipSection();
+	    }
 	  }
 	} catch (DataFormatError& error) {
 	  error.line(line_num);
