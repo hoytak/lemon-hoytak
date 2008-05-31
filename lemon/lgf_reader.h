@@ -100,6 +100,32 @@ namespace lemon {
       }
     };
 
+    template <typename _Graph, bool _dir, typename _Map, 
+	      typename _Converter = DefaultConverter<typename _Map::Value> >
+    class GraphArcMapStorage : public MapStorageBase<typename _Graph::Edge> {
+    public:
+      typedef _Map Map;
+      typedef _Converter Converter;
+      typedef _Graph Graph;
+      typedef typename Graph::Edge Item;
+      static const bool dir = _dir;
+      
+    private:
+      const Graph& _graph;
+      Map& _map;
+      Converter _converter;
+
+    public:
+      GraphArcMapStorage(const Graph& graph, Map& map, 
+			 const Converter& converter = Converter()) 
+	: _graph(graph), _map(map), _converter(converter) {}
+      virtual ~GraphArcMapStorage() {}
+
+      virtual void set(const Item& item ,const std::string& value) {
+	_map.set(_graph.direct(item, dir), _converter(value));
+      }
+    };
+
     class ValueStorageBase {
     public:
       ValueStorageBase() {}
@@ -143,6 +169,29 @@ namespace lemon {
           throw DataFormatError(msg.str().c_str());
         }
         return it->second;
+      }
+    };
+
+    template <typename Graph>
+    struct GraphArcLookUpConverter {
+      const Graph& _graph;
+      const std::map<std::string, typename Graph::Edge>& _map;
+      
+      GraphArcLookUpConverter(const Graph& graph, 
+			      const std::map<std::string,
+			                     typename Graph::Edge>& map) 
+	: _graph(graph), _map(map) {}
+      
+      typename Graph::Arc operator()(const std::string& str) {
+	if (str.empty() || (str[0] != '+' && str[0] != '-')) {
+	  throw DataFormatError("Item must start with '+' or '-'");
+	}
+	typename std::map<std::string, typename Graph::Edge>
+	  ::const_iterator it = _map.find(str.substr(1));
+	if (it == _map.end()) {
+	  throw DataFormatError("Item not found");
+	}
+	return _graph.direct(it->second, str[0] == '+');
       }
     };
 
@@ -1178,6 +1227,848 @@ namespace lemon {
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const char* fn, Digraph& digraph) {
     DigraphReader<Digraph> tmp(fn, digraph);
+    return tmp;
+  }
+
+  /// \ingroup lemon_io
+  ///  
+  /// \brief LGF reader for undirected graphs
+  ///
+  /// This utility reads an \ref lgf-format "LGF" file.
+  template <typename _Graph>
+  class GraphReader {
+  public:
+
+    typedef _Graph Graph;
+    TEMPLATE_GRAPH_TYPEDEFS(Graph);
+    
+  private:
+
+
+    std::istream* _is;
+    bool local_is;
+
+    Graph& _graph;
+
+    std::string _nodes_caption;
+    std::string _edges_caption;
+    std::string _attributes_caption;
+
+    typedef std::map<std::string, Node> NodeIndex;
+    NodeIndex _node_index;
+    typedef std::map<std::string, Edge> EdgeIndex;
+    EdgeIndex _edge_index;
+    
+    typedef std::vector<std::pair<std::string, 
+      _reader_bits::MapStorageBase<Node>*> > NodeMaps;    
+    NodeMaps _node_maps; 
+
+    typedef std::vector<std::pair<std::string,
+      _reader_bits::MapStorageBase<Edge>*> > EdgeMaps;
+    EdgeMaps _edge_maps;
+
+    typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
+      Attributes;
+    Attributes _attributes;
+
+    typedef std::map<std::string, _reader_bits::Section*> Sections;
+    Sections _sections;
+
+    bool _use_nodes;
+    bool _use_edges;
+
+    int line_num;
+    std::istringstream line;
+
+  public:
+
+    /// \brief Constructor
+    ///
+    /// Construct a undirected graph reader, which reads from the given
+    /// input stream.
+    GraphReader(std::istream& is, Graph& graph) 
+      : _is(&is), local_is(false), _graph(graph),
+	_use_nodes(false), _use_edges(false) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct a undirected graph reader, which reads from the given
+    /// file.
+    GraphReader(const std::string& fn, Graph& graph) 
+      : _is(new std::ifstream(fn.c_str())), local_is(true), _graph(graph),
+    	_use_nodes(false), _use_edges(false) {}
+    
+    /// \brief Constructor
+    ///
+    /// Construct a undirected graph reader, which reads from the given
+    /// file.
+    GraphReader(const char* fn, Graph& graph) 
+      : _is(new std::ifstream(fn)), local_is(true), _graph(graph),
+    	_use_nodes(false), _use_edges(false) {}
+
+    /// \brief Copy constructor
+    ///
+    /// The copy constructor transfers all data from the other reader,
+    /// therefore the copied reader will not be usable more. 
+    GraphReader(GraphReader& other) 
+      : _is(other._is), local_is(other.local_is), _graph(other._graph),
+	_use_nodes(other._use_nodes), _use_edges(other._use_edges) {
+
+      other._is = 0;
+      other.local_is = false;
+      
+      _node_index.swap(other._node_index);
+      _edge_index.swap(other._edge_index);
+
+      _node_maps.swap(other._node_maps);
+      _edge_maps.swap(other._edge_maps);
+      _attributes.swap(other._attributes);
+
+      _nodes_caption = other._nodes_caption;
+      _edges_caption = other._edges_caption;
+      _attributes_caption = other._attributes_caption;
+
+      _sections.swap(other._sections);
+    }
+
+    /// \brief Destructor
+    ~GraphReader() {
+      for (typename NodeMaps::iterator it = _node_maps.begin(); 
+	   it != _node_maps.end(); ++it) {
+	delete it->second;
+      }
+
+      for (typename EdgeMaps::iterator it = _edge_maps.begin(); 
+	   it != _edge_maps.end(); ++it) {
+	delete it->second;
+      }
+
+      for (typename Attributes::iterator it = _attributes.begin(); 
+	   it != _attributes.end(); ++it) {
+	delete it->second;
+      }
+
+      for (typename Sections::iterator it = _sections.begin(); 
+	   it != _sections.end(); ++it) {
+	delete it->second;
+      }
+
+      if (local_is) {
+	delete _is;
+      }
+
+    }
+
+  private:
+    
+    GraphReader& operator=(const GraphReader&);
+
+  public:
+
+    /// \name Reading rules
+    /// @{
+    
+    /// \brief Node map reading rule
+    ///
+    /// Add a node map reading rule to the reader.
+    template <typename Map>
+    GraphReader& nodeMap(const std::string& caption, Map& map) {
+      checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Node>* storage = 
+	new _reader_bits::MapStorage<Node, Map>(map);
+      _node_maps.push_back(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Node map reading rule
+    ///
+    /// Add a node map reading rule with specialized converter to the
+    /// reader.
+    template <typename Map, typename Converter>
+    GraphReader& nodeMap(const std::string& caption, Map& map, 
+			   const Converter& converter = Converter()) {
+      checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Node>* storage = 
+	new _reader_bits::MapStorage<Node, Map, Converter>(map, converter);
+      _node_maps.push_back(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Edge map reading rule
+    ///
+    /// Add an edge map reading rule to the reader.
+    template <typename Map>
+    GraphReader& edgeMap(const std::string& caption, Map& map) {
+      checkConcept<concepts::WriteMap<Edge, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Edge>* storage = 
+	new _reader_bits::MapStorage<Edge, Map>(map);
+      _edge_maps.push_back(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Edge map reading rule
+    ///
+    /// Add an edge map reading rule with specialized converter to the
+    /// reader.
+    template <typename Map, typename Converter>
+    GraphReader& edgeMap(const std::string& caption, Map& map, 
+			  const Converter& converter = Converter()) {
+      checkConcept<concepts::WriteMap<Edge, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Edge>* storage = 
+	new _reader_bits::MapStorage<Edge, Map, Converter>(map, converter);
+      _edge_maps.push_back(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Arc map reading rule
+    ///
+    /// Add an arc map reading rule to the reader.
+    template <typename Map>
+    GraphReader& arcMap(const std::string& caption, Map& map) {
+      checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Edge>* forward_storage = 
+	new _reader_bits::GraphArcMapStorage<Graph, true, Map>(_graph, map);
+      _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
+      _reader_bits::MapStorageBase<Edge>* backward_storage = 
+	new _reader_bits::GraphArcMapStorage<Graph, false, Map>(_graph, map);
+      _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
+      return *this;
+    }
+
+    /// \brief Arc map reading rule
+    ///
+    /// Add an arc map reading rule with specialized converter to the
+    /// reader.
+    template <typename Map, typename Converter>
+    GraphReader& arcMap(const std::string& caption, Map& map, 
+			  const Converter& converter = Converter()) {
+      checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
+      _reader_bits::MapStorageBase<Edge>* forward_storage = 
+	new _reader_bits::GraphArcMapStorage<Graph, true, Map, Converter>
+	(_graph, map, converter);
+      _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
+      _reader_bits::MapStorageBase<Edge>* backward_storage = 
+	new _reader_bits::GraphArcMapStorage<Graph, false, Map, Converter>
+	(_graph, map, converter);
+      _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
+      return *this;
+    }
+
+    /// \brief Attribute reading rule
+    ///
+    /// Add an attribute reading rule to the reader.
+    template <typename Value>
+    GraphReader& attribute(const std::string& caption, Value& value) {
+      _reader_bits::ValueStorageBase* storage = 
+	new _reader_bits::ValueStorage<Value>(value);
+      _attributes.insert(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Attribute reading rule
+    ///
+    /// Add an attribute reading rule with specialized converter to the
+    /// reader.
+    template <typename Value, typename Converter>
+    GraphReader& attribute(const std::string& caption, Value& value, 
+			     const Converter& converter = Converter()) {
+      _reader_bits::ValueStorageBase* storage = 
+	new _reader_bits::ValueStorage<Value, Converter>(value, converter);
+      _attributes.insert(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Node reading rule
+    ///
+    /// Add a node reading rule to reader.
+    GraphReader& node(const std::string& caption, Node& node) {
+      typedef _reader_bits::MapLookUpConverter<Node> Converter;
+      Converter converter(_node_index);
+      _reader_bits::ValueStorageBase* storage = 
+	new _reader_bits::ValueStorage<Node, Converter>(node, converter);
+      _attributes.insert(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Edge reading rule
+    ///
+    /// Add an edge reading rule to reader.
+    GraphReader& edge(const std::string& caption, Edge& edge) {
+      typedef _reader_bits::MapLookUpConverter<Edge> Converter;
+      Converter converter(_edge_index);
+      _reader_bits::ValueStorageBase* storage = 
+	new _reader_bits::ValueStorage<Edge, Converter>(edge, converter);
+      _attributes.insert(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// \brief Arc reading rule
+    ///
+    /// Add an arc reading rule to reader.
+    GraphReader& arc(const std::string& caption, Arc& arc) {
+      typedef _reader_bits::GraphArcLookUpConverter<Graph> Converter;
+      Converter converter(_graph, _edge_index);
+      _reader_bits::ValueStorageBase* storage = 
+	new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
+      _attributes.insert(std::make_pair(caption, storage));
+      return *this;
+    }
+
+    /// @}
+
+    /// \name Select section by name
+    /// @{
+
+    /// \brief Set \c \@nodes section to be read
+    ///
+    /// Set \c \@nodes section to be read
+    GraphReader& nodes(const std::string& caption) {
+      _nodes_caption = caption;
+      return *this;
+    }
+
+    /// \brief Set \c \@edges section to be read
+    ///
+    /// Set \c \@edges section to be read
+    GraphReader& edges(const std::string& caption) {
+      _edges_caption = caption;
+      return *this;
+    }
+
+    /// \brief Set \c \@attributes section to be read
+    ///
+    /// Set \c \@attributes section to be read
+    GraphReader& attributes(const std::string& caption) {
+      _attributes_caption = caption;
+      return *this;
+    }
+
+    /// @}
+
+    /// \name Section readers
+    /// @{
+
+    /// \brief Add a section processor with line oriented reading
+    ///
+    /// In the \e LGF file extra sections can be placed, which contain
+    /// any data in arbitrary format. These sections can be read with
+    /// this function line by line. The first parameter is the type
+    /// descriptor of the section, the second is a functor, which
+    /// takes just one \c std::string parameter. At the reading
+    /// process, each line of the section will be given to the functor
+    /// object. However, the empty lines and the comment lines are
+    /// filtered out, and the leading whitespaces are stipped from
+    /// each processed string.
+    ///
+    /// For example let's see a section, which contain several
+    /// integers, which should be inserted into a vector.
+    ///\code
+    ///  @numbers
+    ///  12 45 23
+    ///  4
+    ///  23 6
+    ///\endcode
+    ///
+    /// The functor is implemented as an struct:
+    ///\code
+    ///  struct NumberSection {
+    ///    std::vector<int>& _data;
+    ///    NumberSection(std::vector<int>& data) : _data(data) {}
+    ///    void operator()(const std::string& line) {
+    ///      std::istringstream ls(line);
+    ///      int value;
+    ///      while (ls >> value) _data.push_back(value);
+    ///    }
+    ///  };
+    ///
+    ///  // ...
+    ///
+    ///  reader.sectionLines("numbers", NumberSection(vec));  
+    ///\endcode
+    template <typename Functor>
+    GraphReader& sectionLines(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
+		   type != "attributes", "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+        new _reader_bits::LineSection<Functor>(functor)));
+      return *this;
+    }
+
+
+    /// \brief Add a section processor with stream oriented reading
+    ///
+    /// In the \e LGF file extra sections can be placed, which contain
+    /// any data in arbitrary format. These sections can be read
+    /// directly with this function. The first parameter is the type
+    /// of the section, the second is a functor, which takes an \c
+    /// std::istream& and an int& parameter, the latter regard to the
+    /// line number of stream. The functor can read the input while
+    /// the section go on, and the line number should be modified
+    /// accordingly.
+    template <typename Functor>
+    GraphReader& sectionStream(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
+		   type != "attributes", "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+	 new _reader_bits::StreamSection<Functor>(functor)));
+      return *this;
+    }    
+    
+    /// @}
+
+    /// \name Using previously constructed node or edge set
+    /// @{
+
+    /// \brief Use previously constructed node set
+    ///
+    /// Use previously constructed node set, and specify the node
+    /// label map.
+    template <typename Map>
+    GraphReader& useNodes(const Map& map) {
+      checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      _use_nodes = true;
+      _writer_bits::DefaultConverter<typename Map::Value> converter;
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+	_node_index.insert(std::make_pair(converter(map[n]), n));
+      }
+      return *this;
+    }
+
+    /// \brief Use previously constructed node set
+    ///
+    /// Use previously constructed node set, and specify the node
+    /// label map and a functor which converts the label map values to
+    /// std::string.
+    template <typename Map, typename Converter>
+    GraphReader& useNodes(const Map& map, 
+			    const Converter& converter = Converter()) {
+      checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      _use_nodes = true;
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+	_node_index.insert(std::make_pair(converter(map[n]), n));
+      }
+      return *this;
+    }
+
+    /// \brief Use previously constructed edge set
+    ///
+    /// Use previously constructed edge set, and specify the edge
+    /// label map.
+    template <typename Map>
+    GraphReader& useEdges(const Map& map) {
+      checkConcept<concepts::ReadMap<Edge, typename Map::Value>, Map>();
+      LEMON_ASSERT(!_use_edges, "Multiple usage of useEdges() member");
+      _use_edges = true;
+      _writer_bits::DefaultConverter<typename Map::Value> converter;
+      for (EdgeIt a(_graph); a != INVALID; ++a) {
+	_edge_index.insert(std::make_pair(converter(map[a]), a));
+      }
+      return *this;
+    }
+
+    /// \brief Use previously constructed edge set
+    ///
+    /// Use previously constructed edge set, and specify the edge
+    /// label map and a functor which converts the label map values to
+    /// std::string.
+    template <typename Map, typename Converter>
+    GraphReader& useEdges(const Map& map, 
+			    const Converter& converter = Converter()) {
+      checkConcept<concepts::ReadMap<Edge, typename Map::Value>, Map>();
+      LEMON_ASSERT(!_use_edges, "Multiple usage of useEdges() member"); 
+      _use_edges = true;
+      for (EdgeIt a(_graph); a != INVALID; ++a) {
+	_edge_index.insert(std::make_pair(converter(map[a]), a));
+      }
+      return *this;
+    }
+
+    /// @}
+
+  private:
+
+    bool readLine() {
+      std::string str;
+      while(++line_num, std::getline(*_is, str)) {
+	line.clear(); line.str(str);
+	char c;
+	if (line >> std::ws >> c && c != '#') {
+	  line.putback(c);
+	  return true;
+	}
+      }
+      return false;
+    }
+
+    bool readSuccess() {
+      return static_cast<bool>(*_is);
+    }
+    
+    void skipSection() {
+      char c;
+      while (readSuccess() && line >> c && c != '@') {
+	readLine();
+      }
+      line.putback(c);
+    }
+
+    void readNodes() {
+
+      std::vector<int> map_index(_node_maps.size());
+      int map_num, label_index;
+
+      if (!readLine()) 
+	throw DataFormatError("Cannot find map captions");
+      
+      {
+	std::map<std::string, int> maps;
+	
+	std::string map;
+	int index = 0;
+	while (_reader_bits::readToken(line, map)) {
+	  if (maps.find(map) != maps.end()) {
+	    std::ostringstream msg;
+	    msg << "Multiple occurence of node map: " << map;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  maps.insert(std::make_pair(map, index));
+	  ++index;
+	}
+	
+	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+	  std::map<std::string, int>::iterator jt = 
+	    maps.find(_node_maps[i].first);
+	  if (jt == maps.end()) {
+	    std::ostringstream msg;
+	    msg << "Map not found in file: " << _node_maps[i].first;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  map_index[i] = jt->second;
+	}
+
+	{
+	  std::map<std::string, int>::iterator jt = maps.find("label");
+	  if (jt == maps.end())
+	    throw DataFormatError("Label map not found in file");
+	  label_index = jt->second;
+	}
+	map_num = maps.size();
+      }
+
+      char c;
+      while (readLine() && line >> c && c != '@') {
+	line.putback(c);
+
+	std::vector<std::string> tokens(map_num);
+	for (int i = 0; i < map_num; ++i) {
+	  if (!_reader_bits::readToken(line, tokens[i])) {
+	    std::ostringstream msg;
+	    msg << "Column not found (" << i + 1 << ")";
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	}
+	if (line >> std::ws >> c)
+	  throw DataFormatError("Extra character on the end of line");
+	
+	Node n;
+	if (!_use_nodes) {
+	  n = _graph.addNode();
+	  _node_index.insert(std::make_pair(tokens[label_index], n));
+	} else {
+	  typename std::map<std::string, Node>::iterator it =
+	    _node_index.find(tokens[label_index]);
+	  if (it == _node_index.end()) {
+	    std::ostringstream msg;
+	    msg << "Node with label not found: " << tokens[label_index];
+	    throw DataFormatError(msg.str().c_str());	    
+	  }
+	  n = it->second;
+	}
+
+	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+	  _node_maps[i].second->set(n, tokens[map_index[i]]);
+	}
+
+      }
+      if (readSuccess()) {
+	line.putback(c);
+      }
+    }
+
+    void readEdges() {
+
+      std::vector<int> map_index(_edge_maps.size());
+      int map_num, label_index;
+
+      if (!readLine()) 
+	throw DataFormatError("Cannot find map captions");
+      
+      {
+	std::map<std::string, int> maps;
+	
+	std::string map;
+	int index = 0;
+	while (_reader_bits::readToken(line, map)) {
+	  if (maps.find(map) != maps.end()) {
+	    std::ostringstream msg;
+	    msg << "Multiple occurence of edge map: " << map;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  maps.insert(std::make_pair(map, index));
+	  ++index;
+	}
+	
+	for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
+	  std::map<std::string, int>::iterator jt = 
+	    maps.find(_edge_maps[i].first);
+	  if (jt == maps.end()) {
+	    std::ostringstream msg;
+	    msg << "Map not found in file: " << _edge_maps[i].first;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  map_index[i] = jt->second;
+	}
+
+	{
+	  std::map<std::string, int>::iterator jt = maps.find("label");
+	  if (jt == maps.end())
+	    throw DataFormatError("Label map not found in file");
+	  label_index = jt->second;
+	}
+	map_num = maps.size();
+      }
+
+      char c;
+      while (readLine() && line >> c && c != '@') {
+	line.putback(c);
+
+	std::string source_token;
+	std::string target_token;
+
+	if (!_reader_bits::readToken(line, source_token))
+	  throw DataFormatError("Source not found");
+
+	if (!_reader_bits::readToken(line, target_token))
+	  throw DataFormatError("Source not found");
+	
+	std::vector<std::string> tokens(map_num);
+	for (int i = 0; i < map_num; ++i) {
+	  if (!_reader_bits::readToken(line, tokens[i])) {
+	    std::ostringstream msg;
+	    msg << "Column not found (" << i + 1 << ")";
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	}
+	if (line >> std::ws >> c)
+	  throw DataFormatError("Extra character on the end of line");
+	
+	Edge e;
+	if (!_use_edges) {
+
+          typename NodeIndex::iterator it;
+ 
+          it = _node_index.find(source_token);
+          if (it == _node_index.end()) {
+            std::ostringstream msg;
+            msg << "Item not found: " << source_token;
+            throw DataFormatError(msg.str().c_str());
+          }
+          Node source = it->second;
+
+          it = _node_index.find(target_token);
+          if (it == _node_index.end()) {       
+            std::ostringstream msg;            
+            msg << "Item not found: " << target_token;
+            throw DataFormatError(msg.str().c_str());
+          }                                          
+          Node target = it->second;                            
+
+	  e = _graph.addEdge(source, target);
+	  _edge_index.insert(std::make_pair(tokens[label_index], e));
+	} else {
+	  typename std::map<std::string, Edge>::iterator it =
+	    _edge_index.find(tokens[label_index]);
+	  if (it == _edge_index.end()) {
+	    std::ostringstream msg;
+	    msg << "Edge with label not found: " << tokens[label_index];
+	    throw DataFormatError(msg.str().c_str());	    
+	  }
+	  e = it->second;
+	}
+
+	for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
+	  _edge_maps[i].second->set(e, tokens[map_index[i]]);
+	}
+
+      }
+      if (readSuccess()) {
+	line.putback(c);
+      }
+    }
+
+    void readAttributes() {
+
+      std::set<std::string> read_attr;
+
+      char c;
+      while (readLine() && line >> c && c != '@') {
+	line.putback(c);
+	
+	std::string attr, token;
+	if (!_reader_bits::readToken(line, attr))
+	  throw DataFormatError("Attribute name not found");
+	if (!_reader_bits::readToken(line, token))
+	  throw DataFormatError("Attribute value not found");
+	if (line >> c)
+	  throw DataFormatError("Extra character on the end of line");	  
+
+	{
+	  std::set<std::string>::iterator it = read_attr.find(attr);
+	  if (it != read_attr.end()) {
+	    std::ostringstream msg;
+	    msg << "Multiple occurence of attribute " << attr;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  read_attr.insert(attr);
+	}
+	
+	{
+	  typename Attributes::iterator it = _attributes.lower_bound(attr);
+	  while (it != _attributes.end() && it->first == attr) {
+	    it->second->set(token);
+	    ++it;
+	  }
+	}
+
+      }
+      if (readSuccess()) {
+	line.putback(c);
+      }
+      for (typename Attributes::iterator it = _attributes.begin();
+	   it != _attributes.end(); ++it) {
+	if (read_attr.find(it->first) == read_attr.end()) {
+	  std::ostringstream msg;
+	  msg << "Attribute not found in file: " << it->first;
+	  throw DataFormatError(msg.str().c_str());
+	}	
+      }
+    }
+
+  public:
+
+    /// \name Execution of the reader    
+    /// @{
+
+    /// \brief Start the batch processing
+    ///
+    /// This function starts the batch processing
+    void run() {
+      
+      LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
+      
+      bool nodes_done = false;
+      bool edges_done = false;
+      bool attributes_done = false;
+      std::set<std::string> extra_sections;
+
+      line_num = 0;      
+      readLine();
+
+      while (readSuccess()) {
+	skipSection();
+	try {
+	  char c;
+	  std::string section, caption;
+	  line >> c;
+	  _reader_bits::readToken(line, section);
+	  _reader_bits::readToken(line, caption);
+
+	  if (line >> c) 
+	    throw DataFormatError("Extra character on the end of line");
+
+	  if (section == "nodes" && !nodes_done) {
+	    if (_nodes_caption.empty() || _nodes_caption == caption) {
+	      readNodes();
+	      nodes_done = true;
+	    }
+	  } else if ((section == "edges" || section == "arcs") && 
+		     !edges_done) {
+	    if (_edges_caption.empty() || _edges_caption == caption) {
+	      readEdges();
+	      edges_done = true;
+	    }
+	  } else if (section == "attributes" && !attributes_done) {
+	    if (_attributes_caption.empty() || _attributes_caption == caption) {
+	      readAttributes();
+	      attributes_done = true;
+	    }
+	  } else {
+	    if (extra_sections.find(section) != extra_sections.end()) {
+	      std::ostringstream msg;
+	      msg << "Multiple occurence of section " << section;
+	      throw DataFormatError(msg.str().c_str());
+	    }
+	    Sections::iterator it = _sections.find(section);
+	    if (it != _sections.end()) {
+	      extra_sections.insert(section);
+	      it->second->process(*_is, line_num);
+	      readLine();
+	    } else {
+	      readLine();
+	      skipSection();
+	    }
+	  }
+	} catch (DataFormatError& error) {
+	  error.line(line_num);
+	  throw;
+	}	
+      }
+
+      if (!nodes_done) {
+	throw DataFormatError("Section @nodes not found");
+      }
+
+      if (!edges_done) {
+	throw DataFormatError("Section @edges not found");
+      }
+
+      if (!attributes_done && !_attributes.empty()) {
+	throw DataFormatError("Section @attributes not found");
+      }
+
+    }
+
+    /// @}
+    
+  };
+
+  /// \relates GraphReader
+  template <typename Graph>
+  GraphReader<Graph> graphReader(std::istream& is, Graph& graph) {
+    GraphReader<Graph> tmp(is, graph);
+    return tmp;
+  }
+
+  /// \relates GraphReader
+  template <typename Graph>
+  GraphReader<Graph> graphReader(const std::string& fn, 
+				       Graph& graph) {
+    GraphReader<Graph> tmp(fn, graph);
+    return tmp;
+  }
+
+  /// \relates GraphReader
+  template <typename Graph>
+  GraphReader<Graph> graphReader(const char* fn, Graph& graph) {
+    GraphReader<Graph> tmp(fn, graph);
     return tmp;
   }
 }
