@@ -195,7 +195,9 @@ namespace lemon {
 	return;
       default:
 	if (c < 0x20) {
+	  std::ios::fmtflags flags = os.flags();
 	  os << '\\' << std::oct << static_cast<int>(c);
+	  os.flags(flags);
 	} else {
 	  os << c;
 	}
@@ -243,12 +245,12 @@ namespace lemon {
   /// writer, and eventually the writing is executed with the \c run()
   /// member function. A map writing rule can be added to the writer
   /// with the \c nodeMap() or \c arcMap() members. An optional
-  /// converter parameter can also be added as a standard functor converting from
-  /// the value type of the map to std::string. If it is set, it will
-  /// determine how the map's value type is written to the output
-  /// stream. If the functor is not set, then a default conversion
-  /// will be used. The \c attribute(), \c node() and \c arc() functions
-  /// are used to add attribute writing rules.
+  /// converter parameter can also be added as a standard functor
+  /// converting from the value type of the map to std::string. If it
+  /// is set, it will determine how the map's value type is written to
+  /// the output stream. If the functor is not set, then a default
+  /// conversion will be used. The \c attribute(), \c node() and \c
+  /// arc() functions are used to add attribute writing rules.
   ///
   ///\code
   ///     DigraphWriter<Digraph>(std::cout, digraph).
@@ -269,13 +271,13 @@ namespace lemon {
   /// attributes() functions.
   ///
   /// The \c skipNodes() and \c skipArcs() functions forbid the
-  /// writing of the sections. If two arc sections should be written to the
-  /// output, it can be done in two passes, the first pass writes the
-  /// node section and the first arc section, then the second pass
-  /// skips the node section and writes just the arc section to the
-  /// stream. The output stream can be retrieved with the \c ostream()
-  /// function, hence the second pass can append its output to the output of the
-  /// first pass.
+  /// writing of the sections. If two arc sections should be written
+  /// to the output, it can be done in two passes, the first pass
+  /// writes the node section and the first arc section, then the
+  /// second pass skips the node section and writes just the arc
+  /// section to the stream. The output stream can be retrieved with
+  /// the \c ostream() function, hence the second pass can append its
+  /// output to the output of the first pass.
   template <typename _Digraph>
   class DigraphWriter {
   public:
@@ -349,7 +351,7 @@ namespace lemon {
       : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
 	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
 
-      other.is = 0;
+      other._os = 0;
       other.local_os = false;
 
       _node_index.swap(other._node_index);
@@ -717,21 +719,24 @@ namespace lemon {
 
   /// \relates DigraphWriter
   template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(std::istream& is, Digraph& digraph) {
-    return DigraphWriter<Digraph>(is, digraph);
+  DigraphWriter<Digraph> digraphWriter(std::ostream& os, Digraph& digraph) {
+    DigraphWriter<Digraph> tmp(os, digraph);
+    return tmp;
   }
 
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const std::string& fn, 
 				       Digraph& digraph) {
-    return DigraphWriter<Digraph>(fn, digraph);
+    DigraphWriter<Digraph> tmp(fn, digraph);
+    return tmp;
   }
 
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const char* fn, Digraph& digraph) {
-    return DigraphWriter<Digraph>(fn, digraph);
+    DigraphWriter<Digraph> tmp(fn, digraph);
+    return tmp;
   }
 }
 

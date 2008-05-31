@@ -467,7 +467,7 @@ namespace lemon {
       : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
 	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs) {
 
-      other.is = 0;
+      other._is = 0;
       other.local_is = false;
       
       _node_index.swap(other._node_index);
@@ -1078,8 +1078,10 @@ namespace lemon {
     ///
     /// This function starts the batch processing
     void run() {
-      
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
+      if (!*_is) {
+	throw DataFormatError("Cannot find file");
+      }
       
       bool nodes_done = false;
       bool arcs_done = false;
@@ -1160,20 +1162,23 @@ namespace lemon {
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(std::istream& is, Digraph& digraph) {
-    return DigraphReader<Digraph>(is, digraph);
+    DigraphReader<Digraph> tmp(is, digraph);
+    return tmp;
   }
 
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const std::string& fn, 
 				       Digraph& digraph) {
-    return DigraphReader<Digraph>(fn, digraph);
+    DigraphReader<Digraph> tmp(fn, digraph);
+    return tmp;
   }
 
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const char* fn, Digraph& digraph) {
-    return DigraphReader<Digraph>(fn, digraph);
+    DigraphReader<Digraph> tmp(fn, digraph);
+    return tmp;
   }
 }
 
