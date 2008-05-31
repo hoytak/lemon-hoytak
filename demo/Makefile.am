@@ -1,5 +1,6 @@
 EXTRA_DIST += \
-	demo/CMakeLists.txt
+	demo/CMakeLists.txt \
+	demo/digraph.lgf
 
 if WANT_DEMO
 

@@ -20,11 +20,15 @@
 ///\file
 ///\brief Demonstrating graph input and output
 ///
-/// This simple demo program gives an example of how to read and write
-/// a graph and additional maps (on the nodes or the edges) from/to a
-/// stream. 
+/// This program gives an example of how to load a directed graph from
+/// an \ref lgf-format "LGF" file with the \ref lemon::DigraphReader
+/// "DigraphReader" class.
 ///
-/// \include reader_writer_demo.cc
+/// The \c "digraph.lgf" file:
+/// \include digraph.lgf
+///
+/// And the program which reads it:
+/// \include lgf_demo.cc
 
 #include <iostream>
 #include <lemon/smart_graph.h>
@@ -35,119 +39,28 @@
 
 using namespace lemon;
 
-int main(int argc, const char *argv[]) {
-  const int n = argc > 1 ? std::atoi(argv[1]) : 20;
-  const int e = argc > 2 ? std::atoi(argv[2]) : static_cast<int>(n * std::log(double(n)));
-  const int m = argc > 3 ? std::atoi(argv[3]) : 100;
+int main() {
+  SmartDigraph g;
+  SmartDigraph::ArcMap<int> cap(g);
+  SmartDigraph::Node s, t;
 
-  SmartDigraph digraph;
+  digraphReader("digraph.lgf", g). // read the directeg graph into g
+    arcMap("capacity", cap).       // read the 'capacity' arc map into cap
+    node("source", s).             // read 'source' node to s
+    node("target", t).             // read 'target' node to t
+    run();
 
-  std::stringstream ss;
+  std::cout << "Digraph read from 'digraph.lgf'" << std::endl;
+  std::cout << "Number of nodes: " << countNodes(g) << std::endl;
+  std::cout << "Number of arcs: " << countArcs(g) << std::endl;
 
-  try {
+  std::cout << "We can write it to the standard output:" << std::endl;
 
-    typedef SmartDigraph Digraph;
-    typedef Digraph::Node Node;
-    typedef Digraph::Arc Arc;
-    typedef Digraph::ArcIt ArcIt;
-
-    typedef Digraph::NodeMap<int> PotentialMap;
-    typedef Digraph::ArcMap<int> CapacityMap;
-    typedef Digraph::ArcMap<std::string> NameMap;
-
-    Digraph digraph;
-    PotentialMap potential(digraph);
-    CapacityMap capacity(digraph);
-    NameMap name(digraph);
-
-    std::vector<Node> nodes;
-    for (int i = 0; i < n; ++i) {
-      Node node = digraph.addNode();
-      potential[node] = rnd[m];
-      nodes.push_back(node);
-    }
-
-    std::vector<Arc> arcs;
-    for (int i = 0; i < e; ++i) {
-      int s = rnd[n];
-      int t = rnd[n];
-      int c = rnd[m];
-      Arc arc = digraph.addArc(nodes[s], nodes[t]);
-      capacity[arc] = c;
-      std::ostringstream os;
-      os << "arc \t" << i << std::endl;
-      name[arc] = os.str();
-      arcs.push_back(arc);
-    }
-
-
-    DigraphWriter<Digraph>(ss, digraph).
-      nodeMap("potential", potential).
-      arcMap("capacity", capacity).
-      arcMap("name", name).
-      node("source", nodes[0]).
-      node("target", nodes[1]).
-      arc("bottleneck", arcs[e / 2]).
-      attribute("creator", "lemon library").
-      run();
-
-  } catch (DataFormatError& error) {
-    std::cerr << error.what() << std::endl;
-  }
-
-  try {
-
-    typedef SmartDigraph Digraph;
-    typedef Digraph::Node Node;
-    typedef Digraph::Arc Arc;
-    typedef Digraph::ArcIt ArcIt;
-
-    typedef Digraph::NodeMap<int> LabelMap;
-    typedef Digraph::NodeMap<int> PotentialMap;
-    typedef Digraph::ArcMap<int> CapacityMap;
-    typedef Digraph::ArcMap<std::string> NameMap;
-
-    Digraph digraph;
-    LabelMap label(digraph);
-    PotentialMap potential(digraph);
-    CapacityMap capacity(digraph);
-    NameMap name(digraph);
-
-    Node s, t;
-    Arc a;
-    
-    std::string creator;
-
-    for (int i = 0; i < n; ++i) {
-      Node node = digraph.addNode();
-      label[node] = i;
-    }
-    
-    DigraphReader<Digraph>(ss, digraph).
-      useNodes(label).
-      nodeMap("potential", potential).
-      arcMap("capacity", capacity).
-      arcMap("name", name).
-      node("source", s).
-      node("target", t).
-      arc("bottleneck", a).
-      attribute("creator", creator).
-      run();
-
-    DigraphWriter<Digraph>(std::cout, digraph).
-      nodeMap("potential", potential).
-      arcMap("capacity", capacity).
-      arcMap("name", name).
-      node("source", s).
-      node("target", t).
-      arc("bottleneck", a).
-      attribute("creator", creator).
-      run();
-
-  } catch (DataFormatError& error) {
-    std::cerr << error.what() << std::endl;
-  }
-
+  digraphWriter(std::cout, g).     // write g to the standard output
+    arcMap("capacity", cap).       // write cap into 'capacity'
+    node("source", s).             // write s to 'source'
+    node("target", t).             // write t to 'target'
+    run();
 
   return 0;
 }
