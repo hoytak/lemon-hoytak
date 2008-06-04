@@ -22,6 +22,7 @@ lemon_HEADERS += \
         lemon/bfs.h \
         lemon/bin_heap.h \
         lemon/color.h \
+	lemon/concept_check.h \
         lemon/counter.h \
         lemon/dfs.h \
         lemon/dijkstra.h \
@@ -56,7 +57,6 @@ bits_HEADERS += \
 	lemon/bits/vector_map.h
 
 concept_HEADERS += \
-	lemon/concept_check.h \
 	lemon/concepts/digraph.h \
 	lemon/concepts/graph.h \
 	lemon/concepts/heap.h \
