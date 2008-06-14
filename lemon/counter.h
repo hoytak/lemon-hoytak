@@ -59,7 +59,6 @@ namespace lemon
     int operator--(int) { return count--; }
     _SubCounter &operator+=(int c) { count+=c; return *this;}
     _SubCounter &operator-=(int c) { count-=c; return *this;}
-    void reset(int c=0) {count=c;}
     operator int() {return count;}
   };
 
@@ -87,8 +86,6 @@ namespace lemon
     int operator--(int) { _parent--; return 0;}
     _NoSubCounter &operator+=(int c) { _parent+=c; return *this;}
     _NoSubCounter &operator-=(int c) { _parent-=c; return *this;}
-    void reset(int) {}
-    void reset() {}
     operator int() {return 0;}
   };
 
@@ -203,6 +200,11 @@ namespace lemon
     ///\e
     Counter &operator-=(int c) { count-=c; return *this;}
     /// Resets the counter to the given value.
+
+    /// Resets the counter to the given value.
+    /// \note This function does not reset the values of
+    /// \ref SubCounter "SubCounter"s but it resets \ref NoSubCounter
+    /// "NoSubCounter"s along with the main counter. 
     void reset(int c=0) {count=c;}
     /// Returns the value of the counter.
     operator int() {return count;}
