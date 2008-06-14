@@ -1700,9 +1700,9 @@ namespace lemon {
   /// maps and most of them assign \c true at most once for each key.
   /// In these cases it is a natural request to store each \c true
   /// assigned elements (in order of the assignment), which can be
-  /// easily done with StoreBoolMap.
+  /// easily done with LoggerBoolMap.
   ///
-  /// The simplest way of using this map is through the storeBoolMap()
+  /// The simplest way of using this map is through the loggerBoolMap()
   /// function.
   ///
   /// \tparam It The type of the iterator.
@@ -1717,7 +1717,7 @@ namespace lemon {
   template <typename It,
 	    typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
 #endif
-  class StoreBoolMap {
+  class LoggerBoolMap {
   public:
     typedef It Iterator;
 
@@ -1725,7 +1725,7 @@ namespace lemon {
     typedef bool Value;
 
     /// Constructor
-    StoreBoolMap(Iterator it)
+    LoggerBoolMap(Iterator it)
       : _begin(it), _end(it) {}
 
     /// Gives back the given iterator set for the first key
@@ -1750,9 +1750,9 @@ namespace lemon {
     Iterator _end;
   };
   
-  /// Returns a \ref StoreBoolMap class
+  /// Returns a \ref LoggerBoolMap class
 
-  /// This function just returns a \ref StoreBoolMap class.
+  /// This function just returns a \ref LoggerBoolMap class.
   ///
   /// The most important usage of it is storing certain nodes or arcs
   /// that were marked \c true by an algorithm.
@@ -1760,24 +1760,24 @@ namespace lemon {
   /// order of Dfs algorithm, as the following examples show.
   /// \code
   ///   std::vector<Node> v;
-  ///   dfs(g,s).processedMap(storeBoolMap(std::back_inserter(v))).run();
+  ///   dfs(g,s).processedMap(loggerBoolMap(std::back_inserter(v))).run();
   /// \endcode
   /// \code
   ///   std::vector<Node> v(countNodes(g));
-  ///   dfs(g,s).processedMap(storeBoolMap(v.begin())).run();
+  ///   dfs(g,s).processedMap(loggerBoolMap(v.begin())).run();
   /// \endcode
   ///
   /// \note The container of the iterator must contain enough space
   /// for the elements or the iterator should be an inserter iterator.
   ///
-  /// \note StoreBoolMap is just \ref concepts::WriteMap "writable", so
+  /// \note LoggerBoolMap is just \ref concepts::WriteMap "writable", so
   /// it cannot be used when a readable map is needed, for example as
-  /// \c ReachedMap for Bfs, Dfs and Dijkstra algorithms.
+  /// \c ReachedMap for \ref Bfs, \ref Dfs and \ref Dijkstra algorithms.
   ///
-  /// \relates StoreBoolMap
+  /// \relates LoggerBoolMap
   template<typename Iterator>
-  inline StoreBoolMap<Iterator> storeBoolMap(Iterator it) {
-    return StoreBoolMap<Iterator>(it);
+  inline LoggerBoolMap<Iterator> loggerBoolMap(Iterator it) {
+    return LoggerBoolMap<Iterator>(it);
   }
 
   /// @}

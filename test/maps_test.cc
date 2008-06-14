@@ -305,13 +305,13 @@ int main()
           "Something is wrong with EqualMap");
   }
   
-  // StoreBoolMap
+  // LoggerBoolMap
   {
     typedef std::vector<int> vec;
     vec v1;
     vec v2(10);
-    StoreBoolMap<std::back_insert_iterator<vec> > map1(std::back_inserter(v1));
-    StoreBoolMap<vec::iterator> map2(v2.begin());
+    LoggerBoolMap<std::back_insert_iterator<vec> > map1(std::back_inserter(v1));
+    LoggerBoolMap<vec::iterator> map2(v2.begin());
     map1.set(10, false);
     map1.set(20, true);   map2.set(20, true);
     map1.set(30, false);  map2.set(40, false);
@@ -319,12 +319,12 @@ int main()
     map1.set(60, true);   map2.set(60, true);
     check(v1.size() == 3 && v2.size() == 10 &&
           v1[0]==20 && v1[1]==50 && v1[2]==60 && v2[0]==20 && v2[1]==50 && v2[2]==60,
-          "Something is wrong with StoreBoolMap");
+          "Something is wrong with LoggerBoolMap");
           
     int i = 0;
-    for ( StoreBoolMap<vec::iterator>::Iterator it = map2.begin();
+    for ( LoggerBoolMap<vec::iterator>::Iterator it = map2.begin();
           it != map2.end(); ++it )
-      check(v1[i++] == *it, "Something is wrong with StoreBoolMap");
+      check(v1[i++] == *it, "Something is wrong with LoggerBoolMap");
   }
 
   return 0;

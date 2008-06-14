@@ -229,7 +229,7 @@ namespace lemon {
       typedef typename In::value_type::second_type Value;
 
       static Value kruskal(const Graph& graph, const In& in, Out& out) {
-        typedef StoreBoolMap<typename RemoveConst<Out>::type> Map;
+        typedef LoggerBoolMap<typename RemoveConst<Out>::type> Map;
         Map map(out);
         return _kruskal_bits::kruskal(graph, in, map);
       }
