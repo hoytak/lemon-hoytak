@@ -13,6 +13,7 @@ check_PROGRAMS += \
         test/counter_test \
 	test/dfs_test \
 	test/digraph_test \
+	test/dijkstra_test \
         test/dim_test \
 	test/error_test \
 	test/graph_test \
@@ -33,6 +34,7 @@ test_bfs_test_SOURCES = test/bfs_test.cc
 test_counter_test_SOURCES = test/counter_test.cc
 test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc
+test_dijkstra_test_SOURCES = test/dijkstra_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
 test_error_test_SOURCES = test/error_test.cc
 test_graph_test_SOURCES = test/graph_test.cc

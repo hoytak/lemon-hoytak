@@ -7,6 +7,7 @@ set (TESTS
   counter_test
   dfs_test
   digraph_test
+  dijkstra_test
   dim_test
   error_test
   graph_test
