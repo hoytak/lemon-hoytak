@@ -16,32 +16,25 @@
  *
  */
 
-#include "test_tools.h"
-//#include <lemon/smart_graph.h>
+#include <lemon/concepts/digraph.h>
+#include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
 #include <lemon/bfs.h>
 #include <lemon/path.h>
-#include<lemon/concepts/digraph.h>
+
+#include "graph_test.h"
+#include "test_tools.h"
 
 using namespace lemon;
 
-const int PET_SIZE =5;
-
-
-void check_Bfs_Compile() 
+void checkBfsCompile() 
 {
   typedef concepts::Digraph Digraph;
-
-  typedef Digraph::Arc Arc;
-  typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
- 
   typedef Bfs<Digraph> BType;
   
   Digraph G;
-  Node n;
-  Arc e;
+  Digraph::Node n;
+  Digraph::Arc e;
   int l;
   bool b;
   BType::DistMap d(G);
@@ -63,16 +56,12 @@ void check_Bfs_Compile()
   Path<Digraph> pp = bfs_test.path(n);
 }
 
-void check_Bfs_Function_Compile() 
+void checkBfsFunctionCompile() 
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
-
   typedef Digraph::Arc Arc;
   typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
-  typedef concepts::ReadMap<Arc,VType> LengthMap;
    
   Digraph g;
   bfs(g,Node()).run();
@@ -83,24 +72,15 @@ void check_Bfs_Function_Compile()
     .reachedMap(concepts::ReadWriteMap<Node,bool>())
     .processedMap(concepts::WriteMap<Node,bool>())
     .run(Node());
-  
 }
 
-int main()
-{
-    
-  // typedef SmartDigraph Digraph;
-  typedef ListDigraph Digraph;
-
-  typedef Digraph::Arc Arc;
-  typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
-  typedef Digraph::ArcMap<int> LengthMap;
+template <class Digraph>
+void checkBfs() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
   Digraph G;
   Node s, t;
-  PetStruct<Digraph> ps = addPetersen(G,PET_SIZE);
+  PetStruct<Digraph> ps = addPetersen(G, 5);
    
   s=ps.outer[2];
   t=ps.inner[0];
@@ -108,10 +88,10 @@ int main()
   Bfs<Digraph> bfs_test(G);
   bfs_test.run(s);
   
-  check(bfs_test.dist(t)==3,"Bfs found a wrong path. " << bfs_test.dist(t));
+  check(bfs_test.dist(t)==3,"Bfs found a wrong path." << bfs_test.dist(t));
 
   Path<Digraph> p = bfs_test.path(t);
-  check(p.length()==3,"getPath() found a wrong path.");
+  check(p.length()==3,"path() found a wrong path.");
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
@@ -139,3 +119,9 @@ int main()
   }
 }
 
+int main()
+{
+  checkBfs<ListDigraph>();
+  checkBfs<SmartDigraph>();
+  return 0;
+}

@@ -22,17 +22,15 @@
 // #include <lemon/full_graph.h>
 // #include <lemon/grid_graph.h>
 
-#include <lemon/graph_utils.h>
-
 #include "test_tools.h"
-
+#include "graph_test.h"
+#include "graph_maps_test.h"
 
 using namespace lemon;
 using namespace lemon::concepts;
 
 void check_concepts() {
-
-  { // checking digraph components
+  { // Checking graph components
     checkConcept<BaseGraphComponent, BaseGraphComponent >();
 
     checkConcept<IDableGraphComponent<>, 
@@ -43,71 +41,39 @@ void check_concepts() {
 
     checkConcept<MappableGraphComponent<>, 
       MappableGraphComponent<> >();
-
   }
-  {
-    checkConcept<Graph, ListGraph>();    
-    checkConcept<Graph, SmartGraph>();    
-//     checkConcept<Graph, FullGraph>();    
-//     checkConcept<Graph, Graph>();    
-//     checkConcept<Graph, GridGraph>();
+  { // Checking skeleton graph
+    checkConcept<Graph, Graph>();
   }
-}
-
-template <typename Graph>
-void check_item_counts(Graph &g, int n, int e) {
-  int nn = 0;
-  for (typename Graph::NodeIt it(g); it != INVALID; ++it) {
-    ++nn;
+  { // Checking ListGraph
+    checkConcept<Graph, ListGraph>();
+    checkConcept<AlterableGraphComponent<>, ListGraph>();
+    checkConcept<ExtendableGraphComponent<>, ListGraph>();
+    checkConcept<ClearableGraphComponent<>, ListGraph>();
+    checkConcept<ErasableGraphComponent<>, ListGraph>();
+    checkGraphIterators<ListGraph>();
   }
-
-  check(nn == n, "Wrong node number.");
-  //  check(countNodes(g) == n, "Wrong node number.");
-
-  int ee = 0;
-  for (typename Graph::ArcIt it(g); it != INVALID; ++it) {
-    ++ee;
+  { // Checking SmartGraph
+    checkConcept<Graph, SmartGraph>();
+    checkConcept<AlterableGraphComponent<>, SmartGraph>();
+    checkConcept<ExtendableGraphComponent<>, SmartGraph>();
+    checkConcept<ClearableGraphComponent<>, SmartGraph>();
+    checkGraphIterators<SmartGraph>();
   }
-
-  check(ee == 2*e, "Wrong arc number.");
-  //  check(countArcs(g) == 2*e, "Wrong arc number.");
-
-  int uee = 0;
-  for (typename Graph::EdgeIt it(g); it != INVALID; ++it) {
-    ++uee;
-  }
-
-  check(uee == e, "Wrong edge number.");
-  //  check(countEdges(g) == e, "Wrong edge number.");
-}
-
-template <typename Graph>
-void check_graph_counts() {
-
-  TEMPLATE_GRAPH_TYPEDEFS(Graph);
-  Graph g;
-
-  check_item_counts(g,0,0);
-
-  Node
-    n1 = g.addNode(),
-    n2 = g.addNode(),
-    n3 = g.addNode();
-
-  Edge
-    e1 = g.addEdge(n1, n2),
-    e2 = g.addEdge(n2, n3);
-
-  check_item_counts(g,3,2);
+//  { // Checking FullGraph
+//    checkConcept<Graph, FullGraph>();
+//    checkGraphIterators<FullGraph>();
+//  }
+//  { // Checking GridGraph
+//    checkConcept<Graph, GridGraph>();
+//    checkGraphIterators<GridGraph>();
+//  }
 }
 
 template <typename Graph>
 void check_graph_validity() {
-
   TEMPLATE_GRAPH_TYPEDEFS(Graph);
   Graph g;
-
-  check_item_counts(g,0,0);
 
   Node
     n1 = g.addNode(),
@@ -118,23 +84,19 @@ void check_graph_validity() {
     e1 = g.addEdge(n1, n2),
     e2 = g.addEdge(n2, n3);
 
-  check(g.valid(n1), "Validity check");
-  check(g.valid(e1), "Validity check");
-  check(g.valid(g.direct(e1, true)), "Validity check");
+  check(g.valid(n1), "Wrong validity check");
+  check(g.valid(e1), "Wrong validity check");
+  check(g.valid(g.direct(e1, true)), "Wrong validity check");
 
-  check(!g.valid(g.nodeFromId(-1)), "Validity check");
-  check(!g.valid(g.edgeFromId(-1)), "Validity check");
-  check(!g.valid(g.arcFromId(-1)), "Validity check");
-    
+  check(!g.valid(g.nodeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.edgeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
 }
 
 template <typename Graph>
 void check_graph_validity_erase() {
-
   TEMPLATE_GRAPH_TYPEDEFS(Graph);
   Graph g;
-
-  check_item_counts(g,0,0);
 
   Node
     n1 = g.addNode(),
@@ -145,25 +107,22 @@ void check_graph_validity_erase() {
     e1 = g.addEdge(n1, n2),
     e2 = g.addEdge(n2, n3);
 
-  check(g.valid(n1), "Validity check");
-  check(g.valid(e1), "Validity check");
-  check(g.valid(g.direct(e1, true)), "Validity check");
+  check(g.valid(n1), "Wrong validity check");
+  check(g.valid(e1), "Wrong validity check");
+  check(g.valid(g.direct(e1, true)), "Wrong validity check");
 
   g.erase(n1);
 
-  check(!g.valid(n1), "Validity check");
-  check(g.valid(n2), "Validity check");
-  check(g.valid(n3), "Validity check");
-  check(!g.valid(e1), "Validity check");
-  check(g.valid(e2), "Validity check");
+  check(!g.valid(n1), "Wrong validity check");
+  check(g.valid(n2), "Wrong validity check");
+  check(g.valid(n3), "Wrong validity check");
+  check(!g.valid(e1), "Wrong validity check");
+  check(g.valid(e2), "Wrong validity check");
 
-  check(!g.valid(g.nodeFromId(-1)), "Validity check");
-  check(!g.valid(g.edgeFromId(-1)), "Validity check");
-  check(!g.valid(g.arcFromId(-1)), "Validity check");
-    
+  check(!g.valid(g.nodeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.edgeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
 }
-
-
 
 // void checkGridGraph(const GridGraph& g, int w, int h) {
 //   check(g.width() == w, "Wrong width");
@@ -209,27 +168,36 @@ void check_graph_validity_erase() {
 //   }
 // }
 
-int main() {
-  check_concepts();
+void check_graphs() {
+  { // Checking ListGraph
+    checkGraph<ListGraph>();
+    checkGraphNodeMap<ListGraph>();
+    checkGraphEdgeMap<ListGraph>();
 
-  check_graph_counts<ListGraph>();
-  check_graph_counts<SmartGraph>();
+    check_graph_validity_erase<ListGraph>();
+  }
+  { // Checking SmartGraph
+    checkGraph<SmartGraph>();
+    checkGraphNodeMap<SmartGraph>();
+    checkGraphEdgeMap<SmartGraph>();
 
-  check_graph_validity_erase<ListGraph>();
-  check_graph_validity<SmartGraph>();
-
-//   {
+    check_graph_validity<SmartGraph>();
+  }
+//   { // Checking FullGraph
 //     FullGraph g(5);
-//     check_item_counts(g, 5, 10);
+//     checkGraphNodeList(g, 5);
+//     checkGraphEdgeList(g, 10);
 //   }
-
-//   {
+//   { // Checking GridGraph
 //     GridGraph g(5, 6);
-//     check_item_counts(g, 30, 49);
+//     checkGraphNodeList(g, 30);
+//     checkGraphEdgeList(g, 49);
 //     checkGridGraph(g, 5, 6);
 //   }
+}
 
-  std::cout << __FILE__ ": All tests passed.\n";
-
+int main() {
+  check_concepts();
+  check_graphs();
   return 0;
 }

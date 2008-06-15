@@ -25,63 +25,59 @@ using namespace lemon;
 
 int main()
 {
-  cout << "Testing classes 'dim2::Point' and 'dim2::BoundingBox'." << endl;
-
   typedef dim2::Point<int> Point;
 
   Point p;
-  check(p.size()==2, "Wrong vector initialization.");
+  check(p.size()==2, "Wrong dim2::Point initialization.");
 
   Point a(1,2);
   Point b(3,4);
-  check(a[0]==1 && a[1]==2, "Wrong vector initialization.");
+  check(a[0]==1 && a[1]==2, "Wrong dim2::Point initialization.");
 
   p = a+b;
-  check(p.x==4 && p.y==6, "Wrong vector addition.");
+  check(p.x==4 && p.y==6, "Wrong dim2::Point addition.");
 
   p = a-b;
-  check(p.x==-2 && p.y==-2, "Wrong vector subtraction.");
+  check(p.x==-2 && p.y==-2, "Wrong dim2::Point subtraction.");
 
-  check(a.normSquare()==5,"Wrong vector norm calculation.");
-  check(a*b==11, "Wrong vector scalar product.");
+  check(a.normSquare()==5,"Wrong dim2::Point norm calculation.");
+  check(a*b==11, "Wrong dim2::Point scalar product.");
 
   int l=2;
   p = a*l;
-  check(p.x==2 && p.y==4, "Wrong vector multiplication by a scalar.");
+  check(p.x==2 && p.y==4, "Wrong dim2::Point multiplication by a scalar.");
 
   p = b/l;
-  check(p.x==1 && p.y==2, "Wrong vector division by a scalar.");
+  check(p.x==1 && p.y==2, "Wrong dim2::Point division by a scalar.");
 
   typedef dim2::BoundingBox<int> BB;
   BB box1;
-  check(box1.empty(), "It should be empty.");
+  check(box1.empty(), "Wrong empty() in dim2::BoundingBox.");
 
   box1.add(a);
-  check(!box1.empty(), "It should not be empty.");
+  check(!box1.empty(), "Wrong empty() in dim2::BoundingBox.");
   box1.add(b);
 
   check(box1.bottomLeft().x==1 &&
         box1.bottomLeft().y==2 &&
         box1.topRight().x==3 &&
         box1.topRight().y==4,
-        "Wrong addition of points to box.");
+        "Wrong addition of points to dim2::BoundingBox.");
 
   p.x=2; p.y=3;
-  check(box1.inside(p), "It should be inside.");
+  check(box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
 
   p.x=1; p.y=3;
-  check(box1.inside(p), "It should be inside.");
+  check(box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
 
   p.x=0; p.y=3;
-  check(!box1.inside(p), "It should not be inside.");
+  check(!box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
 
   BB box2(p);
-  check(!box2.empty(),
-        "It should not be empty. Constructed from 1 point.");
+  check(!box2.empty(), "Wrong empty() in dim2::BoundingBox.");
 
   box2.add(box1);
-  check(box2.inside(p),
-        "It should be inside. Incremented a box with another one.");
+  check(box2.inside(p), "Wrong inside() in dim2::BoundingBox.");
 
   return 0;
 }

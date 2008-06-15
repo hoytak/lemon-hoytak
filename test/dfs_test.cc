@@ -16,32 +16,25 @@
  *
  */
 
-#include "test_tools.h"
-// #include <lemon/smart_graph.h>
+#include <lemon/concepts/digraph.h>
+#include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
 #include <lemon/dfs.h>
 #include <lemon/path.h>
-#include <lemon/concepts/digraph.h>
+
+#include "graph_test.h"
+#include "test_tools.h"
 
 using namespace lemon;
 
-const int PET_SIZE =5;
-
-
-void check_Dfs_SmartDigraph_Compile() 
+void checkDfsCompile() 
 {
   typedef concepts::Digraph Digraph;
-
-  typedef Digraph::Arc Arc;
-  typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
- 
   typedef Dfs<Digraph> DType;
   
   Digraph G;
-  Node n;
-  Arc e;
+  Digraph::Node n;
+  Digraph::Arc e;
   int l;
   bool b;
   DType::DistMap d(G);
@@ -63,17 +56,12 @@ void check_Dfs_SmartDigraph_Compile()
   Path<Digraph> pp = dfs_test.path(n);
 }
 
-
-void check_Dfs_Function_Compile() 
+void checkDfsFunctionCompile() 
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
-
   typedef Digraph::Arc Arc;
   typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
-  typedef concepts::ReadMap<Arc,VType> LengthMap;
    
   Digraph g;
   dfs(g,Node()).run();
@@ -83,25 +71,16 @@ void check_Dfs_Function_Compile()
     .distMap(concepts::WriteMap<Node,VType>())
     .reachedMap(concepts::ReadWriteMap<Node,bool>())
     .processedMap(concepts::WriteMap<Node,bool>())
-    .run(Node());
-  
+    .run(Node()); 
 }
 
-int main()
-{
-    
-  // typedef SmartDigraph Digraph;
-  typedef ListDigraph Digraph;
-
-  typedef Digraph::Arc Arc;
-  typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
-  typedef Digraph::ArcMap<int> LengthMap;
+template <class Digraph>
+void checkDfs() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
   Digraph G;
   Node s, t;
-  PetStruct<Digraph> ps = addPetersen(G,PET_SIZE);
+  PetStruct<Digraph> ps = addPetersen(G, 5);
    
   s=ps.outer[2];
   t=ps.inner[0];
@@ -110,7 +89,7 @@ int main()
   dfs_test.run(s);  
   
   Path<Digraph> p = dfs_test.path(t);
-  check(p.length()==dfs_test.dist(t),"path() found a wrong path.");
+  check(p.length() == dfs_test.dist(t),"path() found a wrong path.");
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
@@ -128,3 +107,9 @@ int main()
   }
 }
 
+int main()
+{
+  checkDfs<ListDigraph>();
+  checkDfs<SmartDigraph>();
+  return 0;
+}

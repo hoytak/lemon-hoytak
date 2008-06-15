@@ -19,11 +19,6 @@
 #include <lemon/random.h>
 #include "test_tools.h"
 
-///\file \brief Test cases for random.h
-///
-///\todo To be extended
-///
-
 int seed_array[] = {1, 2};
 
 int main()

@@ -11,10 +11,11 @@ set (TESTS
   dim_test
   error_test
   graph_test
+  graph_utils_test
   kruskal_test
   maps_test
-  random_test
   path_test
+  random_test
   time_measure_test
   unionfind_test)
 

@@ -16,26 +16,21 @@
  *
  */
 
-#include <iostream>
-#include <vector>
-
 #include <lemon/concepts/digraph.h>
 #include <lemon/list_graph.h>
-//#include <lemon/smart_graph.h>
+#include <lemon/smart_graph.h>
 //#include <lemon/full_graph.h>
 //#include <lemon/hypercube_graph.h>
 
 #include "test_tools.h"
-#include "digraph_test.h"
-#include "map_test.h"
-
+#include "graph_test.h"
+#include "graph_maps_test.h"
 
 using namespace lemon;
 using namespace lemon::concepts;
 
-
-int main() {
-  { // checking digraph components
+void check_concepts() {
+  { // Checking digraph components
     checkConcept<BaseDigraphComponent, BaseDigraphComponent >();
 
     checkConcept<IDableDigraphComponent<>, 
@@ -46,37 +41,104 @@ int main() {
 
     checkConcept<MappableDigraphComponent<>, 
       MappableDigraphComponent<> >();
-
   }
-  { // checking skeleton digraphs
+  { // Checking skeleton digraph
     checkConcept<Digraph, Digraph>();
   }
-  { // checking list digraph
-    checkConcept<Digraph, ListDigraph >();
+  { // Checking ListDigraph
+    checkConcept<Digraph, ListDigraph>();
     checkConcept<AlterableDigraphComponent<>, ListDigraph>();
     checkConcept<ExtendableDigraphComponent<>, ListDigraph>();
     checkConcept<ClearableDigraphComponent<>, ListDigraph>();
     checkConcept<ErasableDigraphComponent<>, ListDigraph>();
+    checkDigraphIterators<ListDigraph>();
+  }
+  { // Checking SmartDigraph
+    checkConcept<Digraph, SmartDigraph>();
+    checkConcept<AlterableDigraphComponent<>, SmartDigraph>();
+    checkConcept<ExtendableDigraphComponent<>, SmartDigraph>();
+    checkConcept<ClearableDigraphComponent<>, SmartDigraph>();
+    checkDigraphIterators<SmartDigraph>();
+  }
+//  { // Checking FullDigraph
+//    checkConcept<Digraph, FullDigraph>();
+//    checkDigraphIterators<FullDigraph>();
+//  }
+//  { // Checking HyperCubeDigraph
+//    checkConcept<Digraph, HyperCubeDigraph>();
+//    checkDigraphIterators<HyperCubeDigraph>();
+//  }
+}
 
+template <typename Digraph>
+void check_graph_validity() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+  Digraph g;
+
+  Node
+    n1 = g.addNode(),
+    n2 = g.addNode(),
+    n3 = g.addNode();
+
+  Arc
+    e1 = g.addArc(n1, n2),
+    e2 = g.addArc(n2, n3);
+
+  check(g.valid(n1), "Wrong validity check");
+  check(g.valid(e1), "Wrong validity check");
+
+  check(!g.valid(g.nodeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
+}
+
+template <typename Digraph>
+void check_graph_validity_erase() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+  Digraph g;
+
+  Node
+    n1 = g.addNode(),
+    n2 = g.addNode(),
+    n3 = g.addNode();
+
+  Arc
+    e1 = g.addArc(n1, n2),
+    e2 = g.addArc(n2, n3);
+
+  check(g.valid(n1), "Wrong validity check");
+  check(g.valid(e1), "Wrong validity check");
+
+  g.erase(n1);
+
+  check(!g.valid(n1), "Wrong validity check");
+  check(g.valid(n2), "Wrong validity check");
+  check(g.valid(n3), "Wrong validity check");
+  check(!g.valid(e1), "Wrong validity check");
+  check(g.valid(e2), "Wrong validity check");
+
+  check(!g.valid(g.nodeFromId(-1)), "Wrong validity check");
+  check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
+}
+
+void check_digraphs() {
+  { // Checking ListDigraph
     checkDigraph<ListDigraph>();
     checkGraphNodeMap<ListDigraph>();
     checkGraphArcMap<ListDigraph>();
+
+    check_graph_validity_erase<ListDigraph>();
   }
-//   { // checking smart digraph
-//     checkConcept<Digraph, SmartDigraph >();
+  { // Checking SmartDigraph
+    checkDigraph<SmartDigraph>();
+    checkGraphNodeMap<SmartDigraph>();
+    checkGraphArcMap<SmartDigraph>();
 
-//     checkDigraph<SmartDigraph>();
-//     checkDigraphNodeMap<SmartDigraph>();
-//     checkDigraphArcMap<SmartDigraph>();
-//   }
-//   { // checking full digraph
-//     checkConcept<Digraph, FullDigraph >();
-//   }
-//   { // checking full digraph
-//     checkConcept<Digraph, HyperCubeDigraph >();
-//   }
+    check_graph_validity<SmartDigraph>();
+  }
+}
 
-  std::cout << __FILE__ ": All tests passed.\n";
-
+int main() {
+  check_concepts();
+  check_digraphs();
   return 0;
 }

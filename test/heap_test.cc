@@ -42,7 +42,6 @@
 using namespace lemon;
 using namespace lemon::concepts;
 
-
 int main() {
 
   typedef int Item;
@@ -77,7 +76,7 @@ int main() {
     run();  
  
   {
-    std::cerr << "Checking Bin Heap" << std::endl;
+    std::cout << "Checking Bin Heap" << std::endl;
 
     typedef BinHeap<Prio, ItemIntMap> IntHeap;
     checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
@@ -91,7 +90,7 @@ int main() {
     std::cout << timer << std::endl;
   }
   {
-    std::cerr << "Checking Fib Heap" << std::endl;
+    std::cout << "Checking Fib Heap" << std::endl;
 
     typedef FibHeap<Prio, ItemIntMap> IntHeap;
     checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
@@ -105,7 +104,7 @@ int main() {
     std::cout << timer << std::endl;
   }
   {
-    std::cerr << "Checking Radix Heap" << std::endl;
+    std::cout << "Checking Radix Heap" << std::endl;
 
     typedef RadixHeap<ItemIntMap> IntHeap;
     checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
@@ -120,7 +119,7 @@ int main() {
   }
 
   {
-    std::cerr << "Checking Bucket Heap" << std::endl;
+    std::cout << "Checking Bucket Heap" << std::endl;
 
     typedef BucketHeap<ItemIntMap> IntHeap;
     checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
@@ -133,8 +132,6 @@ int main() {
     dijkstraHeapTest<Digraph, LengthMap, NodeHeap>(digraph, length, start);
     std::cout << timer << std::endl;
   }
-
-  std::cout << __FILE__ ": All tests passed.\n";
 
   return 0;
 }

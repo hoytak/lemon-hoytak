@@ -54,6 +54,7 @@ void check_assertion_disable() {
 }
 #undef LEMON_DISABLE_ASSERTS
 
+//checking custom assert handler
 #define LEMON_ASSERT_CUSTOM
 
 static int cnt = 0;

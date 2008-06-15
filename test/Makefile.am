@@ -2,10 +2,9 @@ EXTRA_DIST += \
 	test/CMakeLists.txt
 
 noinst_HEADERS += \
-	test/digraph_test.h \
-	test/graph_utils_test.h \
+	test/graph_test.h \
 	test/heap_test.h \
-	test/map_test.h \
+	test/graph_maps_test.h \
         test/test_tools.h
 
 check_PROGRAMS += \

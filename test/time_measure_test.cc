@@ -18,11 +18,6 @@
 
 #include <lemon/time_measure.h>
 
-///\file \brief Test cases for time_measure.h
-///
-///\todo To be extended
-
-
 using namespace lemon;
 
 void f() 

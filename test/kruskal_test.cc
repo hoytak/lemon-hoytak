@@ -28,7 +28,6 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/concepts/graph.h>
 
-
 using namespace std;
 using namespace lemon;
 
@@ -57,7 +56,6 @@ void checkCompileKruskal()
 
   kruskal(g, r, ws.begin());
   kruskal(ug, ur, uws.begin());
-
 }
 
 int main() {
@@ -97,7 +95,7 @@ int main() {
   //Test with const map.
   check(kruskal(G, ConstMap<ListGraph::Edge,int>(2), tree_map)==10,
 	"Total cost should be 10");
-  //Test with a edge map (filled with uniform costs).
+  //Test with an edge map (filled with uniform costs).
   check(kruskal(G, edge_cost_map, tree_map)==10,
 	"Total cost should be 10");
 
