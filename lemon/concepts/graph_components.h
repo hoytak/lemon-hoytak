@@ -1424,8 +1424,8 @@ namespace lemon {
           checkConcept<Base, _Graph>();
 	  typename _Graph::Node node;
 	  graph.erase(node);
-	  typename _Graph::Arc arc;
-	  graph.erase(arc);
+	  typename _Graph::Edge edge;
+	  graph.erase(edge);
 	}
 
 	_Graph& graph;

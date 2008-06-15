@@ -22,15 +22,13 @@
 ///\ingroup shortest_path
 ///\file
 ///\brief Dijkstra algorithm.
-///
 
-#include <lemon/list_digraph.h>
+#include <lemon/list_graph.h>
 #include <lemon/bin_heap.h>
 #include <lemon/bits/path_dump.h>
 #include <lemon/bits/invalid.h>
 #include <lemon/error.h>
 #include <lemon/maps.h>
-
 
 namespace lemon {
 

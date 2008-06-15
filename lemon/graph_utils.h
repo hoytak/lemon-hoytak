@@ -402,10 +402,10 @@ namespace lemon {
           if (e == INVALID) {
             g.firstInc(e, b, u);
           } else {
-            b = g.source(e) == u;
+            b = g.u(e) == u;
             g.nextInc(e, b);
           }
-          while (e != INVALID && (b ? g.target(e) : g.source(e)) != v) {
+          while (e != INVALID && (b ? g.v(e) : g.u(e)) != v) {
             g.nextInc(e, b);
           }
         } else {
@@ -415,7 +415,7 @@ namespace lemon {
             b = true;
             g.nextInc(e, b);
           }
-          while (e != INVALID && (!b || g.target(e) != v)) {
+          while (e != INVALID && (!b || g.v(e) != v)) {
             g.nextInc(e, b);
           }
         }
@@ -455,7 +455,7 @@ namespace lemon {
   /// }
   ///\endcode
   ///
-  ///\sa ConArcIt
+  ///\sa ConEdgeIt
 
   template <typename Graph>
   inline typename Graph::Edge 
@@ -504,8 +504,8 @@ namespace lemon {
     ///
     /// It increments the iterator and gives back the next edge.
     ConEdgeIt& operator++() {
-      Parent::operator=(findEdge(_graph, _graph.source(*this), 
-				 _graph.target(*this), *this));
+      Parent::operator=(findEdge(_graph, _graph.u(*this), 
+				 _graph.v(*this), *this));
       return *this;
     }
   private:
