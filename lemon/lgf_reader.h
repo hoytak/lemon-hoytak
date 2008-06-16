@@ -2071,6 +2071,343 @@ namespace lemon {
     GraphReader<Graph> tmp(fn, graph);
     return tmp;
   }
+
+  /// \ingroup lemon_io
+  ///
+  /// \brief Reader for the content of the \ref lgf-format "LGF" file 
+  ///
+  /// This class can be used to read the sections, the map names and
+  /// the attributes from a file. Usually, the Lemon programs know
+  /// that, which type of graph, which maps and which attributes
+  /// should be read from a file, but in general tools (like glemon)
+  /// the content of an LGF file should be guessed somehow. This class
+  /// reads the graph and stores the appropriate information for
+  /// reading the graph.
+  ///
+  ///\code LgfContent content("graph.lgf"); 
+  /// content.run();
+  ///
+  /// // does it contain any node section and arc section
+  /// if (content.nodeSectionNum() == 0 || content.arcSectionNum()) {
+  ///   std::cerr << "Failure, cannot find graph" << std::endl;
+  ///   return -1;
+  /// }
+  /// std::cout << "The name of the default node section : " 
+  ///           << content.nodeSection(0) << std::endl;
+  /// std::cout << "The number of the arc maps : " 
+  ///           << content.arcMaps(0).size() << std::endl;
+  /// std::cout << "The name of second arc map : " 
+  ///           << content.arcMaps(0)[1] << std::endl;
+  ///\endcode
+  class LgfContent {    
+  private:
+
+    std::istream* _is;
+    bool local_is;
+
+    std::vector<std::string> _node_sections;
+    std::vector<std::string> _edge_sections;
+    std::vector<std::string> _attribute_sections;
+    std::vector<std::string> _extra_sections;
+
+    std::vector<bool> _arc_sections;
+
+    std::vector<std::vector<std::string> > _node_maps;
+    std::vector<std::vector<std::string> > _edge_maps;
+
+    std::vector<std::vector<std::string> > _attributes;
+
+
+    int line_num;
+    std::istringstream line;
+    
+  public:
+
+    /// \brief Constructor
+    ///
+    /// Construct an \e LGF content reader, which reads from the given
+    /// input stream.
+    LgfContent(std::istream& is) 
+      : _is(&is), local_is(false) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct an \e LGF content reader, which reads from the given
+    /// file.
+    LgfContent(const std::string& fn) 
+      : _is(new std::ifstream(fn.c_str())), local_is(true) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct an \e LGF content reader, which reads from the given
+    /// file.
+    LgfContent(const char* fn)
+      : _is(new std::ifstream(fn)), local_is(true) {}
+
+    /// \brief Copy constructor
+    ///
+    /// The copy constructor transfers all data from the other reader,
+    /// therefore the copied reader will not be usable more. 
+    LgfContent(LgfContent& other)
+      : _is(other._is), local_is(other.local_is) {
+      
+      other._is = 0;
+      other.local_is = false;
+      
+      _node_sections.swap(other._node_sections);
+      _edge_sections.swap(other._edge_sections);
+      _attribute_sections.swap(other._attribute_sections);
+      _extra_sections.swap(other._extra_sections);
+
+      _arc_sections.swap(other._arc_sections);
+
+      _node_maps.swap(other._node_maps);
+      _edge_maps.swap(other._edge_maps);
+      _attributes.swap(other._attributes);
+    }
+    
+    /// \brief Destructor
+    ~LgfContent() {
+      if (local_is) delete _is;
+    }
+
+
+    /// \name Node sections
+    /// @{
+
+    /// \brief Gives back the number of node sections in the file.
+    ///
+    /// Gives back the number of node sections in the file.
+    int nodeSectionNum() const {
+      return _node_sections.size();
+    }
+
+    /// \brief Returns the section name at the given position. 
+    ///
+    /// Returns the section name at the given position. 
+    const std::string& nodeSection(int i) const {
+      return _node_sections[i];
+    }
+
+    /// \brief Gives back the node maps for the given section.
+    ///
+    /// Gives back the node maps for the given section.
+    const std::vector<std::string>& nodeMaps(int i) const {
+      return _node_maps[i];
+    }
+
+    /// @}
+
+    /// \name Arc sections 
+    /// @{
+
+    /// \brief Gives back the number of arc sections in the file.
+    ///
+    /// Gives back the number of arc sections in the file.
+    /// \note It is synonim of \c edgeSectionNum().
+    int arcSectionNum() const {
+      return _edge_sections.size();
+    }
+
+    /// \brief Returns the section name at the given position. 
+    ///
+    /// Returns the section name at the given position. 
+    /// \note It is synonim of \c edgeSection().
+    const std::string& arcSection(int i) const {
+      return _edge_sections[i];
+    }
+
+    /// \brief Gives back the arc maps for the given section.
+    ///
+    /// Gives back the arc maps for the given section.
+    /// \note It is synonim of \c edgeMaps().
+    const std::vector<std::string>& arcMaps(int i) const {
+      return _edge_maps[i];
+    }
+
+    /// \brief Returns true when the section type is \c "@arcs".
+    ///
+    /// Returns true when the section type is \c "@arcs", and not "@edges".
+    bool isArcSection(int i) const {
+      return _arc_sections[i];
+    }
+
+    /// @}
+
+    /// \name Edge sections   
+    /// @{
+
+    /// \brief Gives back the number of edge sections in the file.
+    ///
+    /// Gives back the number of edge sections in the file.
+    int edgeSectionNum() const {
+      return _edge_sections.size();
+    }
+
+    /// \brief Returns the section name at the given position. 
+    ///
+    /// Returns the section name at the given position. 
+    const std::string& edgeSection(int i) const {
+      return _edge_sections[i];
+    }
+
+    /// \brief Gives back the edge maps for the given section.
+    ///
+    /// Gives back the edge maps for the given section.
+    const std::vector<std::string>& edgeMaps(int i) const {
+      return _edge_maps[i];
+    }
+
+    /// \brief Returns true when the section type is \c "@edges".
+    ///
+    /// Returns true when the section type is \c "@edges", and not "@arcs".
+    bool isEdgeSection(int i) const {
+      return !_arc_sections[i];
+    }
+
+    /// @}
+
+    /// \name Attribute sections   
+    /// @{
+
+    /// \brief Gives back the number of attribute sections in the file.
+    ///
+    /// Gives back the number of attribute sections in the file.
+    int attributeSectionNum() const {
+      return _attribute_sections.size();
+    }
+
+    /// \brief Returns the section name at the given position. 
+    ///
+    /// Returns the section name at the given position. 
+    const std::string& attributeSection(int i) const {
+      return _attribute_sections[i];
+    }
+
+    /// \brief Gives back the attributes for the given section.
+    ///
+    /// Gives back the attributes for the given section.
+    const std::vector<std::string>& attributes(int i) const {
+      return _attributes[i];
+    }
+
+    /// @}
+
+    /// \name Extra sections   
+    /// @{
+
+    /// \brief Gives back the number of extra sections in the file.
+    ///
+    /// Gives back the number of extra sections in the file.
+    int extraSectionNum() const {
+      return _extra_sections.size();
+    }
+
+    /// \brief Returns the extra section type at the given position. 
+    ///
+    /// Returns the section type at the given position. 
+    const std::string& extraSection(int i) const {
+      return _extra_sections[i];
+    }
+
+    /// @}
+
+  private:
+
+    bool readLine() {
+      std::string str;
+      while(++line_num, std::getline(*_is, str)) {
+	line.clear(); line.str(str);
+	char c;
+	if (line >> std::ws >> c && c != '#') {
+	  line.putback(c);
+	  return true;
+	}
+      }
+      return false;
+    }
+
+    bool readSuccess() {
+      return static_cast<bool>(*_is);
+    }
+
+    void skipSection() {
+      char c;
+      while (readSuccess() && line >> c && c != '@') {
+	readLine();
+      }
+      line.putback(c);
+    }
+
+    void readMaps(std::vector<std::string>& maps) {
+      if (!readLine()) 
+	throw DataFormatError("Cannot find map captions");
+      std::string map;
+      while (_reader_bits::readToken(line, map)) {
+	maps.push_back(map);
+      }
+    }
+
+    void readAttributes(std::vector<std::string>& attrs) {
+      readLine();
+      char c;
+      while (readSuccess() && line >> c && c != '@') {
+	line.putback(c);
+	std::string attr;
+	_reader_bits::readToken(line, attr);
+	attrs.push_back(attr);
+	readLine();
+      }
+      line.putback(c);
+    }
+
+  public:
+
+    /// \name Execution of the content reader    
+    /// @{
+
+    /// \brief Start the reading
+    ///
+    /// This function starts the reading
+    void run() {
+
+      readLine();
+      skipSection();
+
+      while (readSuccess()) {
+
+	char c;
+	line >> c;
+
+	std::string section, caption;
+	_reader_bits::readToken(line, section);
+	_reader_bits::readToken(line, caption);
+
+	if (section == "nodes") {
+	  _node_sections.push_back(caption);
+	  _node_maps.push_back(std::vector<std::string>());
+	  readMaps(_node_maps.back());
+	  readLine(); skipSection();
+	} else if (section == "arcs" || section == "edges") {
+	  _edge_sections.push_back(caption);
+	  _arc_sections.push_back(section == "arcs");
+	  _edge_maps.push_back(std::vector<std::string>());
+	  readMaps(_edge_maps.back());
+	  readLine(); skipSection();
+	} else if (section == "attributes") {
+	  _attribute_sections.push_back(caption);
+	  _attributes.push_back(std::vector<std::string>());
+	  readAttributes(_attributes.back());
+	} else {
+	  _extra_sections.push_back(section);
+	  readLine(); skipSection();
+	}
+      }
+    }
+
+    /// @}
+    
+  };
 }
 
 #endif
