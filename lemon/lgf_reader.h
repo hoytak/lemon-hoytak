@@ -1139,9 +1139,9 @@ namespace lemon {
 
       line_num = 0;      
       readLine();
+      skipSection();
 
       while (readSuccess()) {
-	skipSection();
 	try {
 	  char c;
 	  std::string section, caption;
@@ -1178,11 +1178,9 @@ namespace lemon {
 	    if (it != _sections.end()) {
 	      extra_sections.insert(section);
 	      it->second->process(*_is, line_num);
-	      readLine();
-	    } else {
-	      readLine();
-	      skipSection();
 	    }
+	    readLine();
+	    skipSection();
 	  }
 	} catch (DataFormatError& error) {
 	  error.line(line_num);
@@ -1981,9 +1979,9 @@ namespace lemon {
 
       line_num = 0;      
       readLine();
+      skipSection();
 
       while (readSuccess()) {
-	skipSection();
 	try {
 	  char c;
 	  std::string section, caption;
@@ -2020,11 +2018,9 @@ namespace lemon {
 	    if (it != _sections.end()) {
 	      extra_sections.insert(section);
 	      it->second->process(*_is, line_num);
-	      readLine();
-	    } else {
-	      readLine();
-	      skipSection();
 	    }
+	    readLine();
+	    skipSection();
 	  }
 	} catch (DataFormatError& error) {
 	  error.line(line_num);
