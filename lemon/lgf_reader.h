@@ -2221,13 +2221,6 @@ namespace lemon {
       return _edge_maps[i];
     }
 
-    /// \brief Returns true when the section type is \c "@arcs".
-    ///
-    /// Returns true when the section type is \c "@arcs", and not "@edges".
-    bool isArcSection(int i) const {
-      return _arc_sections[i];
-    }
-
     /// @}
 
     /// \name Edge sections   
@@ -2252,13 +2245,6 @@ namespace lemon {
     /// Gives back the edge maps for the given section.
     const std::vector<std::string>& edgeMaps(int i) const {
       return _edge_maps[i];
-    }
-
-    /// \brief Returns true when the section type is \c "@edges".
-    ///
-    /// Returns true when the section type is \c "@edges", and not "@arcs".
-    bool isEdgeSection(int i) const {
-      return !_arc_sections[i];
     }
 
     /// @}
