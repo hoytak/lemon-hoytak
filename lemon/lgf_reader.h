@@ -2070,32 +2070,32 @@ namespace lemon {
 
   /// \ingroup lemon_io
   ///
-  /// \brief Reader for the content of the \ref lgf-format "LGF" file 
+  /// \brief Reader for the contents of the \ref lgf-format "LGF" file 
   ///
   /// This class can be used to read the sections, the map names and
   /// the attributes from a file. Usually, the Lemon programs know
   /// that, which type of graph, which maps and which attributes
   /// should be read from a file, but in general tools (like glemon)
-  /// the content of an LGF file should be guessed somehow. This class
+  /// the contents of an LGF file should be guessed somehow. This class
   /// reads the graph and stores the appropriate information for
   /// reading the graph.
   ///
-  ///\code LgfContent content("graph.lgf"); 
-  /// content.run();
+  ///\code LgfContents contents("graph.lgf"); 
+  /// contents.run();
   ///
   /// // does it contain any node section and arc section
-  /// if (content.nodeSectionNum() == 0 || content.arcSectionNum()) {
+  /// if (contents.nodeSectionNum() == 0 || contents.arcSectionNum()) {
   ///   std::cerr << "Failure, cannot find graph" << std::endl;
   ///   return -1;
   /// }
   /// std::cout << "The name of the default node section : " 
-  ///           << content.nodeSection(0) << std::endl;
+  ///           << contents.nodeSection(0) << std::endl;
   /// std::cout << "The number of the arc maps : " 
-  ///           << content.arcMaps(0).size() << std::endl;
+  ///           << contents.arcMaps(0).size() << std::endl;
   /// std::cout << "The name of second arc map : " 
-  ///           << content.arcMaps(0)[1] << std::endl;
+  ///           << contents.arcMaps(0)[1] << std::endl;
   ///\endcode
-  class LgfContent {    
+  class LgfContents {    
   private:
 
     std::istream* _is;
@@ -2121,30 +2121,30 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Construct an \e LGF content reader, which reads from the given
+    /// Construct an \e LGF contents reader, which reads from the given
     /// input stream.
-    LgfContent(std::istream& is) 
+    LgfContents(std::istream& is) 
       : _is(&is), local_is(false) {}
 
     /// \brief Constructor
     ///
-    /// Construct an \e LGF content reader, which reads from the given
+    /// Construct an \e LGF contents reader, which reads from the given
     /// file.
-    LgfContent(const std::string& fn) 
+    LgfContents(const std::string& fn) 
       : _is(new std::ifstream(fn.c_str())), local_is(true) {}
 
     /// \brief Constructor
     ///
-    /// Construct an \e LGF content reader, which reads from the given
+    /// Construct an \e LGF contents reader, which reads from the given
     /// file.
-    LgfContent(const char* fn)
+    LgfContents(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {}
 
     /// \brief Copy constructor
     ///
     /// The copy constructor transfers all data from the other reader,
     /// therefore the copied reader will not be usable more. 
-    LgfContent(LgfContent& other)
+    LgfContents(LgfContents& other)
       : _is(other._is), local_is(other.local_is) {
       
       other._is = 0;
@@ -2163,7 +2163,7 @@ namespace lemon {
     }
     
     /// \brief Destructor
-    ~LgfContent() {
+    ~LgfContents() {
       if (local_is) delete _is;
     }
 
@@ -2359,7 +2359,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the content reader    
+    /// \name Execution of the contents reader    
     /// @{
 
     /// \brief Start the reading
