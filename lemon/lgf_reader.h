@@ -2194,13 +2194,13 @@ namespace lemon {
 
     /// @}
 
-    /// \name Arc sections 
+    /// \name Arc/Edge sections 
     /// @{
 
-    /// \brief Gives back the number of arc sections in the file.
+    /// \brief Gives back the number of arc/edge sections in the file.
     ///
-    /// Gives back the number of arc sections in the file.
-    /// \note It is synonim of \c edgeSectionNum().
+    /// Gives back the number of arc/edge sections in the file.
+    /// \note It is synonym of \c edgeSectionNum().
     int arcSectionNum() const {
       return _edge_sections.size();
     }
@@ -2208,27 +2208,28 @@ namespace lemon {
     /// \brief Returns the section name at the given position. 
     ///
     /// Returns the section name at the given position. 
-    /// \note It is synonim of \c edgeSection().
+    /// \note It is synonym of \c edgeSection().
     const std::string& arcSection(int i) const {
       return _edge_sections[i];
     }
 
-    /// \brief Gives back the arc maps for the given section.
+    /// \brief Gives back the arc/edge maps for the given section.
     ///
-    /// Gives back the arc maps for the given section.
-    /// \note It is synonim of \c edgeMaps().
+    /// Gives back the arc/edge maps for the given section.
+    /// \note It is synonym of \c edgeMaps().
     const std::vector<std::string>& arcMaps(int i) const {
       return _edge_maps[i];
     }
 
     /// @}
 
-    /// \name Edge sections   
+    /// \name Synonyms
     /// @{
 
-    /// \brief Gives back the number of edge sections in the file.
+    /// \brief Gives back the number of arc/edge sections in the file.
     ///
-    /// Gives back the number of edge sections in the file.
+    /// Gives back the number of arc/edge sections in the file.
+    /// \note It is synonym of \c arcSectionNum().
     int edgeSectionNum() const {
       return _edge_sections.size();
     }
@@ -2236,6 +2237,7 @@ namespace lemon {
     /// \brief Returns the section name at the given position. 
     ///
     /// Returns the section name at the given position. 
+    /// \note It is synonym of \c arcSection().
     const std::string& edgeSection(int i) const {
       return _edge_sections[i];
     }
@@ -2243,6 +2245,7 @@ namespace lemon {
     /// \brief Gives back the edge maps for the given section.
     ///
     /// Gives back the edge maps for the given section.
+    /// \note It is synonym of \c arcMaps().
     const std::vector<std::string>& edgeMaps(int i) const {
       return _edge_maps[i];
     }
