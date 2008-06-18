@@ -2188,7 +2188,7 @@ namespace lemon {
     /// \brief Gives back the node maps for the given section.
     ///
     /// Gives back the node maps for the given section.
-    const std::vector<std::string>& nodeMaps(int i) const {
+    const std::vector<std::string>& nodeMapNames(int i) const {
       return _node_maps[i];
     }
 
@@ -2216,8 +2216,8 @@ namespace lemon {
     /// \brief Gives back the arc/edge maps for the given section.
     ///
     /// Gives back the arc/edge maps for the given section.
-    /// \note It is synonym of \c edgeMaps().
-    const std::vector<std::string>& arcMaps(int i) const {
+    /// \note It is synonym of \c edgeMapNames().
+    const std::vector<std::string>& arcMapNames(int i) const {
       return _edge_maps[i];
     }
 
@@ -2245,8 +2245,8 @@ namespace lemon {
     /// \brief Gives back the edge maps for the given section.
     ///
     /// Gives back the edge maps for the given section.
-    /// \note It is synonym of \c arcMaps().
-    const std::vector<std::string>& edgeMaps(int i) const {
+    /// \note It is synonym of \c arcMapNames().
+    const std::vector<std::string>& edgeMapNames(int i) const {
       return _edge_maps[i];
     }
 
@@ -2265,7 +2265,7 @@ namespace lemon {
     /// \brief Returns the section name at the given position. 
     ///
     /// Returns the section name at the given position. 
-    const std::string& attributeSection(int i) const {
+    const std::string& attributeSectionNames(int i) const {
       return _attribute_sections[i];
     }
 
