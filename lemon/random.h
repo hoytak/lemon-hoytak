@@ -840,6 +840,46 @@ namespace lemon {
       return gauss()*std_dev+mean;
     }
 
+    /// Lognormal distribution
+
+    /// Lognormal distribution. The parameters are the mean and the standard
+    /// deviation of <tt>exp(X)</tt>.
+    ///
+    double lognormal(double n_mean,double n_std_dev)
+    {
+      return std::exp(gauss(n_mean,n_std_dev));
+    }
+    /// Lognormal distribution
+
+    /// Lognormal distribution. The parameter is an <tt>std::pair</tt> of
+    /// the mean and the standard deviation of <tt>exp(X)</tt>.
+    ///
+    double lognormal(const std::pair<double,double> &params)
+    {
+      return std::exp(gauss(params.first,params.second));
+    }
+    /// Compute the lognormal parameters from mean and standard deviation
+
+    /// This function computes the lognormal parameters from mean and
+    /// standard deviation. The return value can direcly be passed to
+    /// lognormal().
+    std::pair<double,double> lognormalParamsFromMD(double mean,
+						   double std_dev)
+    {
+      double fr=std_dev/mean;
+      fr*=fr;
+      double lg=std::log(1+fr);
+      return std::pair<double,double>(std::log(mean)-lg/2.0,std::sqrt(lg));
+    }
+    /// Lognormal distribution with given mean and standard deviation
+    
+    /// Lognormal distribution with given mean and standard deviation.
+    ///
+    double lognormalMD(double mean,double std_dev)
+    {
+      return lognormal(lognormalParamsFromMD(mean,std_dev));
+    }
+    
     /// Exponential distribution with given mean
 
     /// This function generates an exponential distribution random number
