@@ -66,9 +66,19 @@
 #include <iterator>
 #include <vector>
 #include <limits>
+#include <fstream>
 
 #include <lemon/math.h>
 #include <lemon/dim2.h>
+
+#ifndef WIN32
+#include <sys/time.h>
+#include <ctime>
+#include <sys/types.h>
+#include <unistd.h>
+#else
+#include <windows.h>
+#endif
 
 ///\ingroup misc
 ///\file
@@ -526,6 +536,10 @@ namespace lemon {
 
   public:
 
+    ///\name Initialization
+    ///
+    /// @{
+
     /// \brief Default constructor
     ///
     /// Constructor with constant seeding.
@@ -593,6 +607,73 @@ namespace lemon {
       typedef typename std::iterator_traits<Iterator>::value_type Number;
       _random_bits::Initializer<Number, Word>::init(core, begin, end);
     }
+
+    /// \brief Seeding from file or from process id and time
+    ///
+    /// By default, this function calls the \c seedFromFile() member
+    /// function with the <tt>/dev/urandom</tt> file. If it is not success,
+    /// it uses the \c seedFromTime().
+    /// \return Currently always true.
+    bool seed() {
+#ifndef WIN32
+      if (seedFromFile("/dev/urandom", 0)) return true;
+#endif
+      if (seedFromTime()) return true;
+      return false;
+    }
+    
+    /// \brief Seeding from file
+    ///
+    /// Seeding the random sequence from file. The linux kernel has two
+    /// devices, <tt>/dev/random</tt> and <tt>/dev/urandom</tt> which
+    /// could give good seed values for pseudo random generators (The
+    /// difference between two devices is that the <tt>random</tt> may
+    /// block the reading operation while the kernel can give good
+    /// source of randomness, while the <tt>urandom</tt> does not
+    /// block the input, but it could give back bytes with worse
+    /// entropy).
+    /// \param file The source file
+    /// \param offset The offset, from the file read.
+    /// \return True when the seeding is success.
+#ifndef WIN32
+    bool seedFromFile(const std::string& file = "/dev/urandom", int offset = 0) 
+#else
+    bool seedFromFile(const std::string& file = "", int offset = 0) 
+#endif
+    {
+      std::ifstream rs(file.c_str());
+      const int size = 4;
+      Word buf[size];
+      if (offset != 0 && !rs.seekg(offset)) return false;
+      if (!rs.read(reinterpret_cast<char*>(buf), sizeof(buf))) return false;
+      seed(buf, buf + size);
+      return true;
+    }
+
+    /// \brief Seding from process id and time
+    ///
+    /// Seding from process id and time. This function uses the
+    /// current process id and the current time for initialize the
+    /// random sequence.
+    /// \return Currently always true.
+    bool seedFromTime() { 	
+#ifndef WIN32
+      timeval tv;
+      gettimeofday(&tv, 0);
+      seed(getpid() + tv.tv_sec + tv.tv_usec);
+#else
+      FILETIME time;
+      GetSystemTimeAsFileTime(&time);
+      seed(GetCurrentProcessId() + time.dwHighDateTime + time.dwLowDateTime);
+#endif
+      return true;
+    }
+
+    /// @}
+
+    ///\name Uniform distributions
+    ///
+    /// @{
 
     /// \brief Returns a random real number from the range [0, 1)
     ///
@@ -708,6 +789,8 @@ namespace lemon {
     bool boolean() {
       return bool_producer.convert(core);
     }
+
+    /// @}
 
     ///\name Non-uniform distributions
     ///
