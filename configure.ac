@@ -1,13 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Version information.
-m4_define([lemon_version_major], [0])
-m4_define([lemon_version_minor], [99])
-m4_define([lemon_version_micro], [])
-m4_define([lemon_version_nano], [])
-m4_define([lemon_version_tag], [hg])
+m4_define([lemon_version_number], [])
 m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg id -i]))])
-m4_define([lemon_version], [lemon_version_major().lemon_version_minor()ifelse(lemon_version_micro(), [], [], [.lemon_version_micro()])ifelse(lemon_version_nano(), [], [], [.lemon_version_nano()])ifelse(lemon_version_tag(), [], [], lemon_version_tag(), [hg], [[_]lemon_version_tag()[_]lemon_hg_revision()], [[_]lemon_version_tag()])])
+m4_define([lemon_version], [ifelse(lemon_version_number(), [], [lemon_hg_revision()], [lemon_version_number()])])
 
 AC_PREREQ([2.59])
 AC_INIT([LEMON], [lemon_version()], [lemon-devel@lemon.cs.elte.hu], [lemon])
