@@ -603,6 +603,7 @@ namespace lemon {
     /// The \c \@nodes section will be not written to the stream.
     DigraphWriter& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Multiple usage of skipNodes() member");
+      _skip_nodes = true;
       return *this;
     }
 
@@ -611,6 +612,7 @@ namespace lemon {
     /// The \c \@arcs section will be not written to the stream.
     DigraphWriter& skipArcs() {
       LEMON_ASSERT(!_skip_arcs, "Multiple usage of skipArcs() member");
+      _skip_arcs = true;
       return *this;
     }
 
@@ -675,6 +677,30 @@ namespace lemon {
 	  *_os << '\t';
 	}
 	*_os << std::endl;
+      }
+    }
+
+    void createNodeIndex() {
+      _writer_bits::MapStorageBase<Node>* label = 0;
+      for (typename NodeMaps::iterator it = _node_maps.begin();
+	   it != _node_maps.end(); ++it) {
+        if (it->first == "label") {
+	  label = it->second;
+	  break;
+	}
+      }
+
+      if (label == 0) {
+	for (NodeIt n(_digraph); n != INVALID; ++n) {
+	  std::ostringstream os;
+	  os << _digraph.id(n);
+	  _node_index.insert(std::make_pair(n, os.str()));	  
+	}	
+      } else {
+	for (NodeIt n(_digraph); n != INVALID; ++n) {
+	  std::string value = label->get(n);	  
+	  _node_index.insert(std::make_pair(n, value));
+	}
       }
     }
 
@@ -745,6 +771,30 @@ namespace lemon {
       }
     }
 
+    void createArcIndex() {
+      _writer_bits::MapStorageBase<Arc>* label = 0;
+      for (typename ArcMaps::iterator it = _arc_maps.begin();
+	   it != _arc_maps.end(); ++it) {
+        if (it->first == "label") {
+	  label = it->second;
+	  break;
+	}
+      }
+
+      if (label == 0) {
+	for (ArcIt a(_digraph); a != INVALID; ++a) {
+	  std::ostringstream os;
+	  os << _digraph.id(a);
+	  _arc_index.insert(std::make_pair(a, os.str()));	  
+	}	
+      } else {
+	for (ArcIt a(_digraph); a != INVALID; ++a) {
+	  std::string value = label->get(a);	  
+	  _arc_index.insert(std::make_pair(a, value));
+	}
+      }
+    }
+
     void writeAttributes() {
       if (_attributes.empty()) return;
       *_os << "@attributes";
@@ -771,9 +821,13 @@ namespace lemon {
     void run() {
       if (!_skip_nodes) {
 	writeNodes();
+      } else {
+	createNodeIndex();
       }
       if (!_skip_arcs) {      
 	writeArcs();
+      } else {
+	createArcIndex();
       }
       writeAttributes();
     }
@@ -1115,6 +1169,7 @@ namespace lemon {
     /// The \c \@nodes section will be not written to the stream.
     GraphWriter& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Multiple usage of skipNodes() member");
+      _skip_nodes = true;
       return *this;
     }
 
@@ -1123,6 +1178,7 @@ namespace lemon {
     /// The \c \@edges section will be not written to the stream.
     GraphWriter& skipEdges() {
       LEMON_ASSERT(!_skip_edges, "Multiple usage of skipEdges() member");
+      _skip_edges = true;
       return *this;
     }
 
@@ -1187,6 +1243,30 @@ namespace lemon {
 	  *_os << '\t';
 	}
 	*_os << std::endl;
+      }
+    }
+
+    void createNodeIndex() {
+      _writer_bits::MapStorageBase<Node>* label = 0;
+      for (typename NodeMaps::iterator it = _node_maps.begin();
+	   it != _node_maps.end(); ++it) {
+        if (it->first == "label") {
+	  label = it->second;
+	  break;
+	}
+      }
+
+      if (label == 0) {
+	for (NodeIt n(_graph); n != INVALID; ++n) {
+	  std::ostringstream os;
+	  os << _graph.id(n);
+	  _node_index.insert(std::make_pair(n, os.str()));	  
+	}	
+      } else {
+	for (NodeIt n(_graph); n != INVALID; ++n) {
+	  std::string value = label->get(n);	  
+	  _node_index.insert(std::make_pair(n, value));
+	}
       }
     }
 
@@ -1257,6 +1337,30 @@ namespace lemon {
       }
     }
 
+    void createEdgeIndex() {
+      _writer_bits::MapStorageBase<Edge>* label = 0;
+      for (typename EdgeMaps::iterator it = _edge_maps.begin();
+	   it != _edge_maps.end(); ++it) {
+        if (it->first == "label") {
+	  label = it->second;
+	  break;
+	}
+      }
+
+      if (label == 0) {
+	for (EdgeIt e(_graph); e != INVALID; ++e) {
+	  std::ostringstream os;
+	  os << _graph.id(e);
+	  _edge_index.insert(std::make_pair(e, os.str()));	  
+	}	
+      } else {
+	for (EdgeIt e(_graph); e != INVALID; ++e) {
+	  std::string value = label->get(e);	  
+	  _edge_index.insert(std::make_pair(e, value));
+	}
+      }
+    }
+
     void writeAttributes() {
       if (_attributes.empty()) return;
       *_os << "@attributes";
@@ -1283,9 +1387,13 @@ namespace lemon {
     void run() {
       if (!_skip_nodes) {
 	writeNodes();
+      } else {
+	createNodeIndex();
       }
       if (!_skip_edges) {      
 	writeEdges();
+      } else {
+	createEdgeIndex();
       }
       writeAttributes();
     }
