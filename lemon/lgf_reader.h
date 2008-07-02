@@ -881,9 +881,15 @@ namespace lemon {
       std::vector<int> map_index(_node_maps.size());
       int map_num, label_index;
 
-      if (!readLine()) 
-	throw DataFormatError("Cannot find map captions");
-      
+      char c;
+      if (!readLine() || !(line >> c) || c == '@') {
+	if (readSuccess() && line) line.putback(c);
+	if (!_node_maps.empty()) 
+	  throw DataFormatError("Cannot find map names");
+	return;
+      }
+      line.putback(c);
+
       {
 	std::map<std::string, int> maps;
 	
@@ -912,14 +918,15 @@ namespace lemon {
 
 	{
 	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt == maps.end())
-	    throw DataFormatError("Label map not found in file");
-	  label_index = jt->second;
+	  if (jt != maps.end()) {
+	    label_index = jt->second;
+	  } else {
+	    label_index = -1;
+	  }
 	}
 	map_num = maps.size();
       }
 
-      char c;
       while (readLine() && line >> c && c != '@') {
 	line.putback(c);
 
@@ -937,8 +944,11 @@ namespace lemon {
 	Node n;
 	if (!_use_nodes) {
 	  n = _digraph.addNode();
-	  _node_index.insert(std::make_pair(tokens[label_index], n));
+	  if (label_index != -1)
+	    _node_index.insert(std::make_pair(tokens[label_index], n));
 	} else {
+	  if (label_index == -1) 
+	    throw DataFormatError("Label map not found in file");
 	  typename std::map<std::string, Node>::iterator it =
 	    _node_index.find(tokens[label_index]);
 	  if (it == _node_index.end()) {
@@ -964,8 +974,14 @@ namespace lemon {
       std::vector<int> map_index(_arc_maps.size());
       int map_num, label_index;
 
-      if (!readLine()) 
-	throw DataFormatError("Cannot find map captions");
+      char c;
+      if (!readLine() || !(line >> c) || c == '@') {
+	if (readSuccess() && line) line.putback(c);
+	if (!_arc_maps.empty()) 
+	  throw DataFormatError("Cannot find map names");
+	return;
+      }
+      line.putback(c);
       
       {
 	std::map<std::string, int> maps;
@@ -995,14 +1011,15 @@ namespace lemon {
 
 	{
 	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt == maps.end())
-	    throw DataFormatError("Label map not found in file");
-	  label_index = jt->second;
+	  if (jt != maps.end()) {
+	    label_index = jt->second;
+	  } else {
+	    label_index = -1;
+	  }
 	}
 	map_num = maps.size();
       }
 
-      char c;
       while (readLine() && line >> c && c != '@') {
 	line.putback(c);
 
@@ -1013,7 +1030,7 @@ namespace lemon {
 	  throw DataFormatError("Source not found");
 
 	if (!_reader_bits::readToken(line, target_token))
-	  throw DataFormatError("Source not found");
+	  throw DataFormatError("Target not found");
 	
 	std::vector<std::string> tokens(map_num);
 	for (int i = 0; i < map_num; ++i) {
@@ -1048,8 +1065,11 @@ namespace lemon {
           Node target = it->second;                            
 
 	  a = _digraph.addArc(source, target);
-	  _arc_index.insert(std::make_pair(tokens[label_index], a));
+	  if (label_index != -1) 
+	    _arc_index.insert(std::make_pair(tokens[label_index], a));
 	} else {
+	  if (label_index == -1) 
+	    throw DataFormatError("Label map not found in file");
 	  typename std::map<std::string, Arc>::iterator it =
 	    _arc_index.find(tokens[label_index]);
 	  if (it == _arc_index.end()) {
@@ -1723,8 +1743,14 @@ namespace lemon {
       std::vector<int> map_index(_node_maps.size());
       int map_num, label_index;
 
-      if (!readLine()) 
-	throw DataFormatError("Cannot find map captions");
+      char c;
+      if (!readLine() || !(line >> c) || c == '@') {
+	if (readSuccess() && line) line.putback(c);
+	if (!_node_maps.empty()) 
+	  throw DataFormatError("Cannot find map names");
+	return;
+      }
+      line.putback(c);
       
       {
 	std::map<std::string, int> maps;
@@ -1754,14 +1780,15 @@ namespace lemon {
 
 	{
 	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt == maps.end())
-	    throw DataFormatError("Label map not found in file");
-	  label_index = jt->second;
+	  if (jt != maps.end()) {
+	    label_index = jt->second;
+	  } else {
+	    label_index = -1;
+	  }
 	}
 	map_num = maps.size();
       }
 
-      char c;
       while (readLine() && line >> c && c != '@') {
 	line.putback(c);
 
@@ -1779,8 +1806,11 @@ namespace lemon {
 	Node n;
 	if (!_use_nodes) {
 	  n = _graph.addNode();
-	  _node_index.insert(std::make_pair(tokens[label_index], n));
+	  if (label_index != -1) 
+	    _node_index.insert(std::make_pair(tokens[label_index], n));
 	} else {
+	  if (label_index == -1) 
+	    throw DataFormatError("Label map not found in file");
 	  typename std::map<std::string, Node>::iterator it =
 	    _node_index.find(tokens[label_index]);
 	  if (it == _node_index.end()) {
@@ -1806,8 +1836,14 @@ namespace lemon {
       std::vector<int> map_index(_edge_maps.size());
       int map_num, label_index;
 
-      if (!readLine()) 
-	throw DataFormatError("Cannot find map captions");
+      char c;
+      if (!readLine() || !(line >> c) || c == '@') {
+	if (readSuccess() && line) line.putback(c);
+	if (!_edge_maps.empty()) 
+	  throw DataFormatError("Cannot find map names");
+	return;
+      }
+      line.putback(c);
       
       {
 	std::map<std::string, int> maps;
@@ -1837,14 +1873,15 @@ namespace lemon {
 
 	{
 	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt == maps.end())
-	    throw DataFormatError("Label map not found in file");
-	  label_index = jt->second;
+	  if (jt != maps.end()) {
+	    label_index = jt->second;
+	  } else {
+	    label_index = -1;
+	  }
 	}
 	map_num = maps.size();
       }
 
-      char c;
       while (readLine() && line >> c && c != '@') {
 	line.putback(c);
 
@@ -1852,10 +1889,10 @@ namespace lemon {
 	std::string target_token;
 
 	if (!_reader_bits::readToken(line, source_token))
-	  throw DataFormatError("Source not found");
+	  throw DataFormatError("Node u not found");
 
 	if (!_reader_bits::readToken(line, target_token))
-	  throw DataFormatError("Source not found");
+	  throw DataFormatError("Node v not found");
 	
 	std::vector<std::string> tokens(map_num);
 	for (int i = 0; i < map_num; ++i) {
@@ -1890,8 +1927,11 @@ namespace lemon {
           Node target = it->second;                            
 
 	  e = _graph.addEdge(source, target);
-	  _edge_index.insert(std::make_pair(tokens[label_index], e));
+	  if (label_index != -1) 
+	    _edge_index.insert(std::make_pair(tokens[label_index], e));
 	} else {
+	  if (label_index == -1) 
+	    throw DataFormatError("Label map not found in file");
 	  typename std::map<std::string, Edge>::iterator it =
 	    _edge_index.find(tokens[label_index]);
 	  if (it == _edge_index.end()) {
@@ -2325,8 +2365,12 @@ namespace lemon {
     }
 
     void readMaps(std::vector<std::string>& maps) {
-      if (!readLine()) 
-	throw DataFormatError("Cannot find map captions");
+      char c;
+      if (!readLine() || !(line >> c) || c == '@') {
+	if (readSuccess() && line) line.putback(c);
+	return;
+      }
+      line.putback(c);
       std::string map;
       while (_reader_bits::readToken(line, map)) {
 	maps.push_back(map);
