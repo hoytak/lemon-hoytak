@@ -40,7 +40,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     lx_soplex_test_prog='
       #include <soplex/soplex.h>
 
-      int main(int argc, char* argv[])
+      int main(int argc, char** argv)
       {
         soplex::SoPlex soplex;
         return 0;

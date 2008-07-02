@@ -42,7 +42,7 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
       #include <glpk.h>
       }
 
-      int main(int argc, char* argv[])
+      int main(int argc, char** argv)
       {
         LPX *lp;
         lp = lpx_create_prob();

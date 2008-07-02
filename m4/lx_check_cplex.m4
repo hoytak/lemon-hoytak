@@ -46,7 +46,7 @@ AS_HELP_STRING([--with-cplex-libdir=DIR], [search for CPLEX libraries in DIR]),
       #include <ilcplex/cplex.h>
       }
 
-      int main(int argc, char* argv[])
+      int main(int argc, char** argv)
       {
         CPXENVptr env = NULL;
         return 0;
