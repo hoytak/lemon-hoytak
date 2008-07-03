@@ -479,6 +479,9 @@ namespace lemon {
     bool _use_nodes;
     bool _use_arcs;
 
+    bool _skip_nodes;
+    bool _skip_arcs;
+
     int line_num;
     std::istringstream line;
 
@@ -490,7 +493,8 @@ namespace lemon {
     /// input stream.
     DigraphReader(std::istream& is, Digraph& digraph) 
       : _is(&is), local_is(false), _digraph(digraph),
-	_use_nodes(false), _use_arcs(false) {}
+	_use_nodes(false), _use_arcs(false),
+	_skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Constructor
     ///
@@ -498,7 +502,8 @@ namespace lemon {
     /// file.
     DigraphReader(const std::string& fn, Digraph& digraph) 
       : _is(new std::ifstream(fn.c_str())), local_is(true), _digraph(digraph),
-    	_use_nodes(false), _use_arcs(false) {}
+    	_use_nodes(false), _use_arcs(false),
+	_skip_nodes(false), _skip_arcs(false) {}
     
     /// \brief Constructor
     ///
@@ -506,7 +511,8 @@ namespace lemon {
     /// file.
     DigraphReader(const char* fn, Digraph& digraph) 
       : _is(new std::ifstream(fn)), local_is(true), _digraph(digraph),
-    	_use_nodes(false), _use_arcs(false) {}
+    	_use_nodes(false), _use_arcs(false),
+	_skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Copy constructor
     ///
@@ -514,7 +520,8 @@ namespace lemon {
     /// therefore the copied reader will not be usable more. 
     DigraphReader(DigraphReader& other) 
       : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
-	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs) {
+	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs),
+	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
 
       other._is = 0;
       other.local_is = false;
@@ -837,13 +844,39 @@ namespace lemon {
     /// std::string.
     template <typename Map, typename Converter>
     DigraphReader& useArcs(const Map& map, 
-			    const Converter& converter = Converter()) {
+			   const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
       LEMON_ASSERT(!_use_arcs, "Multiple usage of useArcs() member"); 
       _use_arcs = true;
       for (ArcIt a(_digraph); a != INVALID; ++a) {
 	_arc_index.insert(std::make_pair(converter(map[a]), a));
       }
+      return *this;
+    }
+
+    /// \brief Skips the reading of node section
+    ///
+    /// Omit the reading of the node section. This implies that each node
+    /// map reading rule will be abanoned, and the nodes of the graph
+    /// will not be constructed, which usually cause that the arc set
+    /// could not be read due to lack of node name
+    /// resolving. Therefore, the \c skipArcs() should be used too, or
+    /// the useNodes() member function should be used to specify the
+    /// label of the nodes.
+    DigraphReader& skipNodes() {
+      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
+      _skip_nodes = true;
+      return *this;
+    }
+
+    /// \brief Skips the reading of arc section
+    ///
+    /// Omit the reading of the arc section. This implies that each arc
+    /// map reading rule will be abanoned, and the arcs of the graph
+    /// will not be constructed.
+    DigraphReader& skipArcs() {
+      LEMON_ASSERT(!_skip_arcs, "Skip arcs already set"); 
+      _skip_arcs = true;
       return *this;
     }
 
@@ -1152,8 +1185,8 @@ namespace lemon {
 	throw DataFormatError("Cannot find file");
       }
       
-      bool nodes_done = false;
-      bool arcs_done = false;
+      bool nodes_done = _skip_nodes;
+      bool arcs_done = _skip_arcs;
       bool attributes_done = false;
       std::set<std::string> extra_sections;
 
@@ -1295,6 +1328,9 @@ namespace lemon {
     bool _use_nodes;
     bool _use_edges;
 
+    bool _skip_nodes;
+    bool _skip_edges;
+
     int line_num;
     std::istringstream line;
 
@@ -1306,7 +1342,8 @@ namespace lemon {
     /// input stream.
     GraphReader(std::istream& is, Graph& graph) 
       : _is(&is), local_is(false), _graph(graph),
-	_use_nodes(false), _use_edges(false) {}
+	_use_nodes(false), _use_edges(false),
+	_skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Constructor
     ///
@@ -1314,7 +1351,8 @@ namespace lemon {
     /// file.
     GraphReader(const std::string& fn, Graph& graph) 
       : _is(new std::ifstream(fn.c_str())), local_is(true), _graph(graph),
-    	_use_nodes(false), _use_edges(false) {}
+    	_use_nodes(false), _use_edges(false),
+	_skip_nodes(false), _skip_edges(false) {}
     
     /// \brief Constructor
     ///
@@ -1322,7 +1360,8 @@ namespace lemon {
     /// file.
     GraphReader(const char* fn, Graph& graph) 
       : _is(new std::ifstream(fn)), local_is(true), _graph(graph),
-    	_use_nodes(false), _use_edges(false) {}
+    	_use_nodes(false), _use_edges(false),
+	_skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Copy constructor
     ///
@@ -1330,7 +1369,8 @@ namespace lemon {
     /// therefore the copied reader will not be usable more. 
     GraphReader(GraphReader& other) 
       : _is(other._is), local_is(other.local_is), _graph(other._graph),
-	_use_nodes(other._use_nodes), _use_edges(other._use_edges) {
+	_use_nodes(other._use_nodes), _use_edges(other._use_edges),
+	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
 
       other._is = 0;
       other.local_is = false;
@@ -1709,6 +1749,32 @@ namespace lemon {
       return *this;
     }
 
+    /// \brief Skips the reading of node section
+    ///
+    /// Omit the reading of the node section. This implies that each node
+    /// map reading rule will be abanoned, and the nodes of the graph
+    /// will not be constructed, which usually cause that the edge set
+    /// could not be read due to lack of node name
+    /// resolving. Therefore, the \c skipEdges() should be used too, or
+    /// the useNodes() member function should be used to specify the
+    /// label of the nodes.
+    GraphReader& skipNodes() {
+      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
+      _skip_nodes = true;
+      return *this;
+    }
+
+    /// \brief Skips the reading of edge section
+    ///
+    /// Omit the reading of the edge section. This implies that each edge
+    /// map reading rule will be abanoned, and the edges of the graph
+    /// will not be constructed.
+    GraphReader& skipEdges() {
+      LEMON_ASSERT(!_skip_edges, "Skip edges already set"); 
+      _skip_edges = true;
+      return *this;
+    }
+
     /// @}
 
   private:
@@ -2012,8 +2078,8 @@ namespace lemon {
       
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
       
-      bool nodes_done = false;
-      bool edges_done = false;
+      bool nodes_done = _skip_nodes;
+      bool edges_done = _skip_edges;
       bool attributes_done = false;
       std::set<std::string> extra_sections;
 
