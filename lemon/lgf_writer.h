@@ -304,6 +304,21 @@ namespace lemon {
     }
 
   }
+
+  template <typename Digraph>
+  class DigraphWriter;
+
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(std::ostream& os, 
+				       const Digraph& digraph);
+
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const std::string& fn, 
+				       const Digraph& digraph);
+
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const char *fn, 
+				       const Digraph& digraph);
   
   /// \ingroup lemon_io
   ///  
@@ -362,7 +377,7 @@ namespace lemon {
     std::ostream* _os;
     bool local_os;
 
-    Digraph& _digraph;
+    const Digraph& _digraph;
 
     std::string _nodes_caption;
     std::string _arcs_caption;
@@ -394,7 +409,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output stream.
-    DigraphWriter(std::ostream& is, Digraph& digraph) 
+    DigraphWriter(std::ostream& is, const Digraph& digraph) 
       : _os(&is), local_os(false), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
 
@@ -402,7 +417,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    DigraphWriter(const std::string& fn, Digraph& digraph) 
+    DigraphWriter(const std::string& fn, const Digraph& digraph) 
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
 
@@ -410,32 +425,9 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    DigraphWriter(const char* fn, Digraph& digraph) 
+    DigraphWriter(const char* fn, const Digraph& digraph) 
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
 	_skip_nodes(false), _skip_arcs(false) {}
-
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other writer,
-    /// therefore the copied writer will not be usable more. 
-    DigraphWriter(DigraphWriter& other) 
-      : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
-	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
-
-      other._os = 0;
-      other.local_os = false;
-
-      _node_index.swap(other._node_index);
-      _arc_index.swap(other._arc_index);
-
-      _node_maps.swap(other._node_maps);
-      _arc_maps.swap(other._arc_maps);
-      _attributes.swap(other._attributes);
-
-      _nodes_caption = other._nodes_caption;
-      _arcs_caption = other._arcs_caption;
-      _attributes_caption = other._attributes_caption;
-    }
 
     /// \brief Destructor
     ~DigraphWriter() {
@@ -460,6 +452,32 @@ namespace lemon {
     }
 
   private:
+
+    friend DigraphWriter<Digraph> digraphWriter<>(std::ostream& os, 
+						  const Digraph& digraph);
+    friend DigraphWriter<Digraph> digraphWriter<>(const std::string& fn, 
+						  const Digraph& digraph);   
+    friend DigraphWriter<Digraph> digraphWriter<>(const char *fn, 
+						  const Digraph& digraph);
+
+    DigraphWriter(DigraphWriter& other) 
+      : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
+	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
+
+      other._os = 0;
+      other.local_os = false;
+
+      _node_index.swap(other._node_index);
+      _arc_index.swap(other._arc_index);
+
+      _node_maps.swap(other._node_maps);
+      _arc_maps.swap(other._arc_maps);
+      _attributes.swap(other._attributes);
+
+      _nodes_caption = other._nodes_caption;
+      _arcs_caption = other._arcs_caption;
+      _attributes_caption = other._attributes_caption;
+    }
     
     DigraphWriter& operator=(const DigraphWriter&);
 
@@ -844,7 +862,8 @@ namespace lemon {
 
   /// \relates DigraphWriter
   template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(std::ostream& os, Digraph& digraph) {
+  DigraphWriter<Digraph> digraphWriter(std::ostream& os, 
+				       const Digraph& digraph) {
     DigraphWriter<Digraph> tmp(os, digraph);
     return tmp;
   }
@@ -852,17 +871,30 @@ namespace lemon {
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const std::string& fn, 
-				       Digraph& digraph) {
+				       const Digraph& digraph) {
     DigraphWriter<Digraph> tmp(fn, digraph);
     return tmp;
   }
 
   /// \relates DigraphWriter
   template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const char* fn, Digraph& digraph) {
+  DigraphWriter<Digraph> digraphWriter(const char* fn, 
+				       const Digraph& digraph) {
     DigraphWriter<Digraph> tmp(fn, digraph);
     return tmp;
   }
+
+  template <typename Graph>
+  class GraphWriter;
+
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(std::ostream& os, const Graph& graph);    
+
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(const std::string& fn, const Graph& graph);   
+
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(const char *fn, const Graph& graph);    
 
   /// \ingroup lemon_io
   ///  
@@ -914,7 +946,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output stream.
-    GraphWriter(std::ostream& is, Graph& graph) 
+    GraphWriter(std::ostream& is, const Graph& graph) 
       : _os(&is), local_os(false), _graph(graph),
 	_skip_nodes(false), _skip_edges(false) {}
 
@@ -922,7 +954,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    GraphWriter(const std::string& fn, Graph& graph) 
+    GraphWriter(const std::string& fn, const Graph& graph) 
       : _os(new std::ofstream(fn.c_str())), local_os(true), _graph(graph),
 	_skip_nodes(false), _skip_edges(false) {}
 
@@ -930,32 +962,9 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    GraphWriter(const char* fn, Graph& graph) 
+    GraphWriter(const char* fn, const Graph& graph) 
       : _os(new std::ofstream(fn)), local_os(true), _graph(graph),
 	_skip_nodes(false), _skip_edges(false) {}
-
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other writer,
-    /// therefore the copied writer will not be usable more. 
-    GraphWriter(GraphWriter& other) 
-      : _os(other._os), local_os(other.local_os), _graph(other._graph),
-	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
-
-      other._os = 0;
-      other.local_os = false;
-
-      _node_index.swap(other._node_index);
-      _edge_index.swap(other._edge_index);
-
-      _node_maps.swap(other._node_maps);
-      _edge_maps.swap(other._edge_maps);
-      _attributes.swap(other._attributes);
-
-      _nodes_caption = other._nodes_caption;
-      _edges_caption = other._edges_caption;
-      _attributes_caption = other._attributes_caption;
-    }
 
     /// \brief Destructor
     ~GraphWriter() {
@@ -978,9 +987,35 @@ namespace lemon {
 	delete _os;
       }
     }
-
-  private:
     
+  private:
+
+    friend GraphWriter<Graph> graphWriter<>(std::ostream& os, 
+					    const Graph& graph);    
+    friend GraphWriter<Graph> graphWriter<>(const std::string& fn, 
+					    const Graph& graph);   
+    friend GraphWriter<Graph> graphWriter<>(const char *fn, 
+					    const Graph& graph);    
+
+    GraphWriter(GraphWriter& other) 
+      : _os(other._os), local_os(other.local_os), _graph(other._graph),
+	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
+
+      other._os = 0;
+      other.local_os = false;
+
+      _node_index.swap(other._node_index);
+      _edge_index.swap(other._edge_index);
+
+      _node_maps.swap(other._node_maps);
+      _edge_maps.swap(other._edge_maps);
+      _attributes.swap(other._attributes);
+
+      _nodes_caption = other._nodes_caption;
+      _edges_caption = other._edges_caption;
+      _attributes_caption = other._attributes_caption;
+    }
+
     GraphWriter& operator=(const GraphWriter&);
 
   public:
@@ -1410,21 +1445,21 @@ namespace lemon {
 
   /// \relates GraphWriter
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(std::ostream& os, Graph& graph) {
+  GraphWriter<Graph> graphWriter(std::ostream& os, const Graph& graph) {
     GraphWriter<Graph> tmp(os, graph);
     return tmp;
   }
 
   /// \relates GraphWriter
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const std::string& fn, Graph& graph) {
+  GraphWriter<Graph> graphWriter(const std::string& fn, const Graph& graph) {
     GraphWriter<Graph> tmp(fn, graph);
     return tmp;
   }
 
   /// \relates GraphWriter
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const char* fn, Graph& graph) {
+  GraphWriter<Graph> graphWriter(const char* fn, const Graph& graph) {
     GraphWriter<Graph> tmp(fn, graph);
     return tmp;
   }

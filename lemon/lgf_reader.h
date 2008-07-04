@@ -386,6 +386,18 @@ namespace lemon {
     
   }
 
+  template <typename Digraph>
+  class DigraphReader;
+
+  template <typename Digraph>
+  DigraphReader<Digraph> digraphReader(std::istream& is, Digraph& digraph);
+
+  template <typename Digraph>
+  DigraphReader<Digraph> digraphReader(const std::string& fn, Digraph& digraph);
+
+  template <typename Digraph>
+  DigraphReader<Digraph> digraphReader(const char *fn, Digraph& digraph);
+
   /// \ingroup lemon_io
   ///  
   /// \brief LGF reader for directed graphs
@@ -509,31 +521,6 @@ namespace lemon {
     	_use_nodes(false), _use_arcs(false),
 	_skip_nodes(false), _skip_arcs(false) {}
 
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other reader,
-    /// therefore the copied reader will not be usable more. 
-    DigraphReader(DigraphReader& other) 
-      : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
-	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs),
-	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
-
-      other._is = 0;
-      other.local_is = false;
-      
-      _node_index.swap(other._node_index);
-      _arc_index.swap(other._arc_index);
-
-      _node_maps.swap(other._node_maps);
-      _arc_maps.swap(other._arc_maps);
-      _attributes.swap(other._attributes);
-
-      _nodes_caption = other._nodes_caption;
-      _arcs_caption = other._arcs_caption;
-      _attributes_caption = other._attributes_caption;
-
-    }
-
     /// \brief Destructor
     ~DigraphReader() {
       for (typename NodeMaps::iterator it = _node_maps.begin(); 
@@ -558,7 +545,35 @@ namespace lemon {
     }
 
   private:
-    
+
+    friend DigraphReader<Digraph> digraphReader<>(std::istream& is, 
+						  Digraph& digraph);    
+    friend DigraphReader<Digraph> digraphReader<>(const std::string& fn, 
+						  Digraph& digraph);   
+    friend DigraphReader<Digraph> digraphReader<>(const char *fn, 
+						  Digraph& digraph);    
+
+    DigraphReader(DigraphReader& other) 
+      : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
+	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs),
+	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
+
+      other._is = 0;
+      other.local_is = false;
+      
+      _node_index.swap(other._node_index);
+      _arc_index.swap(other._arc_index);
+
+      _node_maps.swap(other._node_maps);
+      _arc_maps.swap(other._arc_maps);
+      _attributes.swap(other._attributes);
+
+      _nodes_caption = other._nodes_caption;
+      _arcs_caption = other._arcs_caption;
+      _attributes_caption = other._attributes_caption;
+
+    }
+
     DigraphReader& operator=(const DigraphReader&);
 
   public:
@@ -1182,6 +1197,18 @@ namespace lemon {
     return tmp;
   }
 
+  template <typename Graph>
+  class GraphReader;
+
+  template <typename Graph>
+  GraphReader<Graph> graphReader(std::istream& is, Graph& graph);    
+
+  template <typename Graph>
+  GraphReader<Graph> graphReader(const std::string& fn, Graph& graph);   
+
+  template <typename Graph>
+  GraphReader<Graph> graphReader(const char *fn, Graph& graph);    
+
   /// \ingroup lemon_io
   ///  
   /// \brief LGF reader for undirected graphs
@@ -1260,31 +1287,6 @@ namespace lemon {
     	_use_nodes(false), _use_edges(false),
 	_skip_nodes(false), _skip_edges(false) {}
 
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other reader,
-    /// therefore the copied reader will not be usable more. 
-    GraphReader(GraphReader& other) 
-      : _is(other._is), local_is(other.local_is), _graph(other._graph),
-	_use_nodes(other._use_nodes), _use_edges(other._use_edges),
-	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
-
-      other._is = 0;
-      other.local_is = false;
-      
-      _node_index.swap(other._node_index);
-      _edge_index.swap(other._edge_index);
-
-      _node_maps.swap(other._node_maps);
-      _edge_maps.swap(other._edge_maps);
-      _attributes.swap(other._attributes);
-
-      _nodes_caption = other._nodes_caption;
-      _edges_caption = other._edges_caption;
-      _attributes_caption = other._attributes_caption;
-
-    }
-
     /// \brief Destructor
     ~GraphReader() {
       for (typename NodeMaps::iterator it = _node_maps.begin(); 
@@ -1309,7 +1311,32 @@ namespace lemon {
     }
 
   private:
-    
+    friend GraphReader<Graph> graphReader<>(std::istream& is, Graph& graph);    
+    friend GraphReader<Graph> graphReader<>(const std::string& fn, 
+					    Graph& graph);   
+    friend GraphReader<Graph> graphReader<>(const char *fn, Graph& graph);    
+
+    GraphReader(GraphReader& other) 
+      : _is(other._is), local_is(other.local_is), _graph(other._graph),
+	_use_nodes(other._use_nodes), _use_edges(other._use_edges),
+	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
+
+      other._is = 0;
+      other.local_is = false;
+      
+      _node_index.swap(other._node_index);
+      _edge_index.swap(other._edge_index);
+
+      _node_maps.swap(other._node_maps);
+      _edge_maps.swap(other._edge_maps);
+      _attributes.swap(other._attributes);
+
+      _nodes_caption = other._nodes_caption;
+      _edges_caption = other._edges_caption;
+      _attributes_caption = other._attributes_caption;
+
+    }
+
     GraphReader& operator=(const GraphReader&);
 
   public:
@@ -1977,6 +2004,12 @@ namespace lemon {
     return tmp;
   }
 
+  class SectionReader;
+
+  SectionReader sectionReader(std::istream& is);
+  SectionReader sectionReader(const std::string& fn);
+  SectionReader sectionReader(const char* fn);
+  
   /// \brief Section reader class
   ///
   /// In the \e LGF file extra sections can be placed, which contain
@@ -2019,19 +2052,6 @@ namespace lemon {
     SectionReader(const char* fn) 
       : _is(new std::ifstream(fn)), local_is(true) {}
 
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other reader,
-    /// therefore the copied reader will not be usable more. 
-    SectionReader(SectionReader& other) 
-      : _is(other._is), local_is(other.local_is) {
-
-      other._is = 0;
-      other.local_is = false;
-      
-      _sections.swap(other._sections);
-    }
-
     /// \brief Destructor
     ~SectionReader() {
       for (Sections::iterator it = _sections.begin(); 
@@ -2046,6 +2066,19 @@ namespace lemon {
     }
 
   private:
+
+    friend SectionReader sectionReader(std::istream& is);
+    friend SectionReader sectionReader(const std::string& fn);
+    friend SectionReader sectionReader(const char* fn);
+
+    SectionReader(SectionReader& other) 
+      : _is(other._is), local_is(other.local_is) {
+
+      other._is = 0;
+      other.local_is = false;
+      
+      _sections.swap(other._sections);
+    }
     
     SectionReader& operator=(const SectionReader&);
 
@@ -2295,33 +2328,18 @@ namespace lemon {
     /// file.
     LgfContents(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {}
-
-    /// \brief Copy constructor
-    ///
-    /// The copy constructor transfers all data from the other reader,
-    /// therefore the copied reader will not be usable more. 
-    LgfContents(LgfContents& other)
-      : _is(other._is), local_is(other.local_is) {
-      
-      other._is = 0;
-      other.local_is = false;
-      
-      _node_sections.swap(other._node_sections);
-      _edge_sections.swap(other._edge_sections);
-      _attribute_sections.swap(other._attribute_sections);
-      _extra_sections.swap(other._extra_sections);
-
-      _arc_sections.swap(other._arc_sections);
-
-      _node_maps.swap(other._node_maps);
-      _edge_maps.swap(other._edge_maps);
-      _attributes.swap(other._attributes);
-    }
     
     /// \brief Destructor
     ~LgfContents() {
       if (local_is) delete _is;
     }
+
+  private:
+    
+    LgfContents(const LgfContents&);
+    LgfContents& operator=(const LgfContents&);
+
+  public:
 
 
     /// \name Node sections
