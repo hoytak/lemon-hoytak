@@ -18,7 +18,7 @@
 
 ///\ingroup lemon_io
 ///\file
-///\brief Lemon Graph Format writer.
+///\brief \ref lgf-format "Lemon Graph Format" writer.
 
 
 #ifndef LEMON_LGF_WRITER_H
@@ -322,7 +322,7 @@ namespace lemon {
   
   /// \ingroup lemon_io
   ///  
-  /// \brief LGF writer for directed graphs
+  /// \brief \ref lgf-format "LGF" writer for directed graphs
   ///
   /// This utility writes an \ref lgf-format "LGF" file.
   ///
@@ -332,22 +332,22 @@ namespace lemon {
   /// member function. A map writing rule can be added to the writer
   /// with the \c nodeMap() or \c arcMap() members. An optional
   /// converter parameter can also be added as a standard functor
-  /// converting from the value type of the map to std::string. If it
-  /// is set, it will determine how the map's value type is written to
+  /// converting from the value type of the map to \c std::string. If it
+  /// is set, it will determine how the value type of the map is written to
   /// the output stream. If the functor is not set, then a default
   /// conversion will be used. The \c attribute(), \c node() and \c
   /// arc() functions are used to add attribute writing rules.
   ///
   ///\code
-  ///     DigraphWriter<Digraph>(std::cout, digraph).
-  ///       nodeMap("coordinates", coord_map).
-  ///       nodeMap("size", size).
-  ///       nodeMap("title", title).
-  ///       arcMap("capacity", cap_map).
-  ///       node("source", src).
-  ///       node("target", trg).
-  ///       attribute("caption", caption).
-  ///       run();
+  /// DigraphWriter<Digraph>(std::cout, digraph).
+  ///   nodeMap("coordinates", coord_map).
+  ///   nodeMap("size", size).
+  ///   nodeMap("title", title).
+  ///   arcMap("capacity", cap_map).
+  ///   node("source", src).
+  ///   node("target", trg).
+  ///   attribute("caption", caption).
+  ///   run();
   ///\endcode
   ///
   ///
@@ -486,9 +486,9 @@ namespace lemon {
     /// \name Writing rules
     /// @{
     
-    /// \brief Node map reading rule
+    /// \brief Node map writing rule
     ///
-    /// Add a node map reading rule to the writer.
+    /// Add a node map writing rule to the writer.
     template <typename Map>
     DigraphWriter& nodeMap(const std::string& caption, const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
@@ -586,28 +586,28 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Select section by name
+    /// \name Section captions
     /// @{
 
-    /// \brief Set \c \@nodes section to be read
+    /// \brief Add an additional caption to the \c \@nodes section
     ///
-    /// Set \c \@nodes section to be read
+    /// Add an additional caption to the \c \@nodes section.
     DigraphWriter& nodes(const std::string& caption) {
       _nodes_caption = caption;
       return *this;
     }
 
-    /// \brief Set \c \@arcs section to be read
+    /// \brief Add an additional caption to the \c \@arcs section
     ///
-    /// Set \c \@arcs section to be read
+    /// Add an additional caption to the \c \@arcs section.
     DigraphWriter& arcs(const std::string& caption) {
       _arcs_caption = caption;
       return *this;
     }
 
-    /// \brief Set \c \@attributes section to be read
+    /// \brief Add an additional caption to the \c \@attributes section
     ///
-    /// Set \c \@attributes section to be read
+    /// Add an additional caption to the \c \@attributes section.
     DigraphWriter& attributes(const std::string& caption) {
       _attributes_caption = caption;
       return *this;
@@ -618,7 +618,7 @@ namespace lemon {
 
     /// \brief Skip writing the node set
     ///
-    /// The \c \@nodes section will be not written to the stream.
+    /// The \c \@nodes section will not be written to the stream.
     DigraphWriter& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Multiple usage of skipNodes() member");
       _skip_nodes = true;
@@ -627,7 +627,7 @@ namespace lemon {
 
     /// \brief Skip writing arc set
     ///
-    /// The \c \@arcs section will be not written to the stream.
+    /// The \c \@arcs section will not be written to the stream.
     DigraphWriter& skipArcs() {
       LEMON_ASSERT(!_skip_arcs, "Multiple usage of skipArcs() member");
       _skip_arcs = true;
@@ -835,7 +835,7 @@ namespace lemon {
 
     /// \brief Start the batch processing
     ///
-    /// This function starts the batch processing
+    /// This function starts the batch processing.
     void run() {
       if (!_skip_nodes) {
 	writeNodes();
@@ -850,9 +850,9 @@ namespace lemon {
       writeAttributes();
     }
 
-    /// \brief Gives back the stream of the writer
+    /// \brief Give back the stream of the writer
     ///
-    /// Gives back the stream of the writer
+    /// Give back the stream of the writer.
     std::ostream& ostream() {
       return *_os;
     }
@@ -860,6 +860,9 @@ namespace lemon {
     /// @}
   };
 
+  /// \brief Return a \ref DigraphWriter class
+  /// 
+  /// This function just returns a \ref DigraphWriter class.
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(std::ostream& os, 
@@ -868,6 +871,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref DigraphWriter class
+  /// 
+  /// This function just returns a \ref DigraphWriter class.
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const std::string& fn, 
@@ -876,6 +882,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref DigraphWriter class
+  /// 
+  /// This function just returns a \ref DigraphWriter class.
   /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const char* fn, 
@@ -898,9 +907,13 @@ namespace lemon {
 
   /// \ingroup lemon_io
   ///  
-  /// \brief LGF writer for directed graphs
+  /// \brief \ref lgf-format "LGF" writer for directed graphs
   ///
   /// This utility writes an \ref lgf-format "LGF" file.
+  ///
+  /// It can be used almost the same way as \c DigraphWriter.
+  /// The only difference is that this class can handle edges and
+  /// edge maps as well as arcs and arc maps.
   template <typename _Graph>
   class GraphWriter {
   public:
@@ -1023,9 +1036,9 @@ namespace lemon {
     /// \name Writing rules
     /// @{
     
-    /// \brief Node map reading rule
+    /// \brief Node map writing rule
     ///
-    /// Add a node map reading rule to the writer.
+    /// Add a node map writing rule to the writer.
     template <typename Map>
     GraphWriter& nodeMap(const std::string& caption, const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
@@ -1169,28 +1182,28 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Select section by name
+    /// \name Section captions
     /// @{
 
-    /// \brief Set \c \@nodes section to be read
+    /// \brief Add an additional caption to the \c \@nodes section
     ///
-    /// Set \c \@nodes section to be read
+    /// Add an additional caption to the \c \@nodes section.
     GraphWriter& nodes(const std::string& caption) {
       _nodes_caption = caption;
       return *this;
     }
 
-    /// \brief Set \c \@edges section to be read
+    /// \brief Add an additional caption to the \c \@arcs section
     ///
-    /// Set \c \@edges section to be read
+    /// Add an additional caption to the \c \@arcs section.
     GraphWriter& edges(const std::string& caption) {
       _edges_caption = caption;
       return *this;
     }
 
-    /// \brief Set \c \@attributes section to be read
+    /// \brief Add an additional caption to the \c \@attributes section
     ///
-    /// Set \c \@attributes section to be read
+    /// Add an additional caption to the \c \@attributes section.
     GraphWriter& attributes(const std::string& caption) {
       _attributes_caption = caption;
       return *this;
@@ -1201,7 +1214,7 @@ namespace lemon {
 
     /// \brief Skip writing the node set
     ///
-    /// The \c \@nodes section will be not written to the stream.
+    /// The \c \@nodes section will not be written to the stream.
     GraphWriter& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Multiple usage of skipNodes() member");
       _skip_nodes = true;
@@ -1210,7 +1223,7 @@ namespace lemon {
 
     /// \brief Skip writing edge set
     ///
-    /// The \c \@edges section will be not written to the stream.
+    /// The \c \@edges section will not be written to the stream.
     GraphWriter& skipEdges() {
       LEMON_ASSERT(!_skip_edges, "Multiple usage of skipEdges() member");
       _skip_edges = true;
@@ -1418,7 +1431,7 @@ namespace lemon {
 
     /// \brief Start the batch processing
     ///
-    /// This function starts the batch processing
+    /// This function starts the batch processing.
     void run() {
       if (!_skip_nodes) {
 	writeNodes();
@@ -1433,9 +1446,9 @@ namespace lemon {
       writeAttributes();
     }
 
-    /// \brief Gives back the stream of the writer
+    /// \brief Give back the stream of the writer
     ///
-    /// Gives back the stream of the writer
+    /// Give back the stream of the writer
     std::ostream& ostream() {
       return *_os;
     }
@@ -1443,6 +1456,9 @@ namespace lemon {
     /// @}
   };
 
+  /// \brief Return a \ref GraphWriter class
+  /// 
+  /// This function just returns a \ref GraphWriter class.
   /// \relates GraphWriter
   template <typename Graph>
   GraphWriter<Graph> graphWriter(std::ostream& os, const Graph& graph) {
@@ -1450,6 +1466,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref GraphWriter class
+  /// 
+  /// This function just returns a \ref GraphWriter class.
   /// \relates GraphWriter
   template <typename Graph>
   GraphWriter<Graph> graphWriter(const std::string& fn, const Graph& graph) {
@@ -1457,6 +1476,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref GraphWriter class
+  /// 
+  /// This function just returns a \ref GraphWriter class.
   /// \relates GraphWriter
   template <typename Graph>
   GraphWriter<Graph> graphWriter(const char* fn, const Graph& graph) {

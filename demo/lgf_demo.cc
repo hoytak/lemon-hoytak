@@ -34,8 +34,6 @@
 #include <lemon/smart_graph.h>
 #include <lemon/lgf_reader.h>
 #include <lemon/lgf_writer.h>
-#include <lemon/random.h>
-
 
 using namespace lemon;
 
@@ -44,13 +42,13 @@ int main() {
   SmartDigraph::ArcMap<int> cap(g);
   SmartDigraph::Node s, t;
 
-  digraphReader("digraph.lgf", g). // read the directeg graph into g
+  digraphReader("digraph.lgf", g). // read the directed graph into g
     arcMap("capacity", cap).       // read the 'capacity' arc map into cap
     node("source", s).             // read 'source' node to s
     node("target", t).             // read 'target' node to t
     run();
 
-  std::cout << "Digraph read from 'digraph.lgf'" << std::endl;
+  std::cout << "A digraph is read from 'digraph.lgf'." << std::endl;
   std::cout << "Number of nodes: " << countNodes(g) << std::endl;
   std::cout << "Number of arcs: " << countArcs(g) << std::endl;
 

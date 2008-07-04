@@ -475,11 +475,9 @@ and graph related data. Now it supports the LEMON format, the
 /**
 @defgroup lemon_io Lemon Input-Output
 @ingroup io_group
-\brief Reading and writing LEMON format
+\brief Reading and writing \ref lgf-format "Lemon Graph Format".
 
-This group describes methods for reading and writing LEMON format. 
-You can find more about this format on the \ref graph-io-page "Graph Input-Output"
-tutorial pages.
+This group describes methods for reading and writing \ref lgf-format "Lemon Graph Format".
 */
 
 /**

@@ -46,7 +46,7 @@ character sequence surrounded by double quotes, and it can also
 contain whitespaces and escape sequences. 
 
 The \c \@nodes section describes a set of nodes and associated
-maps. The first is a header line, it columns are the names of the
+maps. The first is a header line, its columns are the names of the
 maps appearing in the following lines.
 One of the maps must be called \c
 "label", which plays special role in the file.
@@ -64,7 +64,7 @@ associated to the current node.
 \endcode
 
 The \c \@arcs section is very similar to the \c \@nodes section,
-it again starts with a header line describing the names of the arc,
+it again starts with a header line describing the names of the maps,
 but the \c "label" map is not obligatory here. The following lines
 describe the arcs. The first two tokens of each line are
 the source and the target node of the arc, respectively, then come the map

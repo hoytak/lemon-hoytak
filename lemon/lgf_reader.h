@@ -18,7 +18,7 @@
 
 ///\ingroup lemon_io
 ///\file
-///\brief Lemon Graph Format reader.
+///\brief \ref lgf-format "Lemon Graph Format" reader.
 
 
 #ifndef LEMON_LGF_READER_H
@@ -400,7 +400,7 @@ namespace lemon {
 
   /// \ingroup lemon_io
   ///  
-  /// \brief LGF reader for directed graphs
+  /// \brief \ref lgf-format "LGF" reader for directed graphs
   ///
   /// This utility reads an \ref lgf-format "LGF" file.
   ///
@@ -410,22 +410,22 @@ namespace lemon {
   /// member function. A map reading rule can be added to the reader
   /// with the \c nodeMap() or \c arcMap() members. An optional
   /// converter parameter can also be added as a standard functor
-  /// converting from std::string to the value type of the map. If it
+  /// converting from \c std::string to the value type of the map. If it
   /// is set, it will determine how the tokens in the file should be
-  /// is converted to the map's value type. If the functor is not set,
+  /// converted to the value type of the map. If the functor is not set,
   /// then a default conversion will be used. One map can be read into
   /// multiple map objects at the same time. The \c attribute(), \c
   /// node() and \c arc() functions are used to add attribute reading
   /// rules.
   ///
   ///\code
-  ///     DigraphReader<Digraph>(std::cin, digraph).
-  ///       nodeMap("coordinates", coord_map).
-  ///       arcMap("capacity", cap_map).
-  ///       node("source", src).
-  ///       node("target", trg).
-  ///       attribute("caption", caption).
-  ///       run();
+  /// DigraphReader<Digraph>(std::cin, digraph).
+  ///   nodeMap("coordinates", coord_map).
+  ///   arcMap("capacity", cap_map).
+  ///   node("source", src).
+  ///   node("target", trg).
+  ///   attribute("caption", caption).
+  ///   run();
   ///\endcode
   ///
   /// By default the reader uses the first section in the file of the
@@ -437,14 +437,14 @@ namespace lemon {
   /// that the nodes or arcs should not be constructed (added to the
   /// graph) during the reading, but instead the label map of the items
   /// are given as a parameter of these functions. An
-  /// application of these function is multipass reading, which is
-  /// important if two \e \@arcs sections must be read from the
-  /// file. In this example the first phase would read the node set and one
+  /// application of these functions is multipass reading, which is
+  /// important if two \c \@arcs sections must be read from the
+  /// file. In this case the first phase would read the node set and one
   /// of the arc sets, while the second phase would read the second arc
   /// set into an \e ArcSet class (\c SmartArcSet or \c ListArcSet).
   /// The previously read label node map should be passed to the \c
   /// useNodes() functions. Another application of multipass reading when
-  /// paths are given as a node map or an arc map. It is impossible read this in
+  /// paths are given as a node map or an arc map. It is impossible to read this in
   /// a single pass, because the arcs are not constructed when the node
   /// maps are read.
   template <typename _Digraph>
@@ -735,7 +735,7 @@ namespace lemon {
     ///
     /// Use previously constructed node set, and specify the node
     /// label map and a functor which converts the label map values to
-    /// std::string.
+    /// \c std::string.
     template <typename Map, typename Converter>
     DigraphReader& useNodes(const Map& map, 
 			    const Converter& converter = Converter()) {
@@ -768,7 +768,7 @@ namespace lemon {
     ///
     /// Use previously constructed arc set, and specify the arc
     /// label map and a functor which converts the label map values to
-    /// std::string.
+    /// \c std::string.
     template <typename Map, typename Converter>
     DigraphReader& useArcs(const Map& map, 
 			   const Converter& converter = Converter()) {
@@ -784,12 +784,11 @@ namespace lemon {
     /// \brief Skips the reading of node section
     ///
     /// Omit the reading of the node section. This implies that each node
-    /// map reading rule will be abanoned, and the nodes of the graph
+    /// map reading rule will be abandoned, and the nodes of the graph
     /// will not be constructed, which usually cause that the arc set
-    /// could not be read due to lack of node name
-    /// resolving. Therefore, the \c skipArcs() should be used too, or
-    /// the useNodes() member function should be used to specify the
-    /// label of the nodes.
+    /// could not be read due to lack of node name resolving.
+    /// Therefore \c skipArcs() function should also be used, or
+    /// \c useNodes() should be used to specify the label of the nodes.
     DigraphReader& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
       _skip_nodes = true;
@@ -799,7 +798,7 @@ namespace lemon {
     /// \brief Skips the reading of arc section
     ///
     /// Omit the reading of the arc section. This implies that each arc
-    /// map reading rule will be abanoned, and the arcs of the graph
+    /// map reading rule will be abandoned, and the arcs of the graph
     /// will not be constructed.
     DigraphReader& skipArcs() {
       LEMON_ASSERT(!_skip_arcs, "Skip arcs already set"); 
@@ -1175,6 +1174,9 @@ namespace lemon {
     
   };
 
+  /// \brief Return a \ref DigraphReader class
+  /// 
+  /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(std::istream& is, Digraph& digraph) {
@@ -1182,6 +1184,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref DigraphReader class
+  /// 
+  /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const std::string& fn, 
@@ -1190,6 +1195,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref DigraphReader class
+  /// 
+  /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(const char* fn, Digraph& digraph) {
@@ -1211,9 +1219,13 @@ namespace lemon {
 
   /// \ingroup lemon_io
   ///  
-  /// \brief LGF reader for undirected graphs
+  /// \brief \ref lgf-format "LGF" reader for undirected graphs
   ///
   /// This utility reads an \ref lgf-format "LGF" file.
+  ///
+  /// It can be used almost the same way as \c DigraphReader.
+  /// The only difference is that this class can handle edges and
+  /// edge maps as well as arcs and arc maps.
   template <typename _Graph>
   class GraphReader {
   public:
@@ -1262,7 +1274,7 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Construct a undirected graph reader, which reads from the given
+    /// Construct an undirected graph reader, which reads from the given
     /// input stream.
     GraphReader(std::istream& is, Graph& graph) 
       : _is(&is), local_is(false), _graph(graph),
@@ -1271,7 +1283,7 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Construct a undirected graph reader, which reads from the given
+    /// Construct an undirected graph reader, which reads from the given
     /// file.
     GraphReader(const std::string& fn, Graph& graph) 
       : _is(new std::ifstream(fn.c_str())), local_is(true), _graph(graph),
@@ -1280,7 +1292,7 @@ namespace lemon {
     
     /// \brief Constructor
     ///
-    /// Construct a undirected graph reader, which reads from the given
+    /// Construct an undirected graph reader, which reads from the given
     /// file.
     GraphReader(const char* fn, Graph& graph) 
       : _is(new std::ifstream(fn)), local_is(true), _graph(graph),
@@ -1497,7 +1509,7 @@ namespace lemon {
 
     /// \brief Set \c \@nodes section to be read
     ///
-    /// Set \c \@nodes section to be read
+    /// Set \c \@nodes section to be read.
     GraphReader& nodes(const std::string& caption) {
       _nodes_caption = caption;
       return *this;
@@ -1505,7 +1517,7 @@ namespace lemon {
 
     /// \brief Set \c \@edges section to be read
     ///
-    /// Set \c \@edges section to be read
+    /// Set \c \@edges section to be read.
     GraphReader& edges(const std::string& caption) {
       _edges_caption = caption;
       return *this;
@@ -1513,7 +1525,7 @@ namespace lemon {
 
     /// \brief Set \c \@attributes section to be read
     ///
-    /// Set \c \@attributes section to be read
+    /// Set \c \@attributes section to be read.
     GraphReader& attributes(const std::string& caption) {
       _attributes_caption = caption;
       return *this;
@@ -1544,7 +1556,7 @@ namespace lemon {
     ///
     /// Use previously constructed node set, and specify the node
     /// label map and a functor which converts the label map values to
-    /// std::string.
+    /// \c std::string.
     template <typename Map, typename Converter>
     GraphReader& useNodes(const Map& map, 
 			    const Converter& converter = Converter()) {
@@ -1577,7 +1589,7 @@ namespace lemon {
     ///
     /// Use previously constructed edge set, and specify the edge
     /// label map and a functor which converts the label map values to
-    /// std::string.
+    /// \c std::string.
     template <typename Map, typename Converter>
     GraphReader& useEdges(const Map& map, 
 			    const Converter& converter = Converter()) {
@@ -1590,25 +1602,25 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Skips the reading of node section
+    /// \brief Skip the reading of node section
     ///
     /// Omit the reading of the node section. This implies that each node
-    /// map reading rule will be abanoned, and the nodes of the graph
+    /// map reading rule will be abandoned, and the nodes of the graph
     /// will not be constructed, which usually cause that the edge set
     /// could not be read due to lack of node name
-    /// resolving. Therefore, the \c skipEdges() should be used too, or
-    /// the useNodes() member function should be used to specify the
-    /// label of the nodes.
+    /// could not be read due to lack of node name resolving.
+    /// Therefore \c skipEdges() function should also be used, or
+    /// \c useNodes() should be used to specify the label of the nodes.
     GraphReader& skipNodes() {
       LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
       _skip_nodes = true;
       return *this;
     }
 
-    /// \brief Skips the reading of edge section
+    /// \brief Skip the reading of edge section
     ///
     /// Omit the reading of the edge section. This implies that each edge
-    /// map reading rule will be abanoned, and the edges of the graph
+    /// map reading rule will be abandoned, and the edges of the graph
     /// will not be constructed.
     GraphReader& skipEdges() {
       LEMON_ASSERT(!_skip_edges, "Skip edges already set"); 
@@ -1982,6 +1994,9 @@ namespace lemon {
     
   };
 
+  /// \brief Return a \ref GraphReader class
+  /// 
+  /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
   GraphReader<Graph> graphReader(std::istream& is, Graph& graph) {
@@ -1989,6 +2004,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref GraphReader class
+  /// 
+  /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
   GraphReader<Graph> graphReader(const std::string& fn, 
@@ -1997,6 +2015,9 @@ namespace lemon {
     return tmp;
   }
 
+  /// \brief Return a \ref GraphReader class
+  /// 
+  /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
   GraphReader<Graph> graphReader(const char* fn, Graph& graph) {
@@ -2010,13 +2031,15 @@ namespace lemon {
   SectionReader sectionReader(const std::string& fn);
   SectionReader sectionReader(const char* fn);
   
+  /// \ingroup lemon_io
+  ///
   /// \brief Section reader class
   ///
-  /// In the \e LGF file extra sections can be placed, which contain
-  /// any data in arbitrary format. Such sections can be read with
-  /// this class. A reading rule can be added with two different
-  /// functions, with the \c sectionLines() function a functor can
-  /// process the section line-by-line. While with the \c
+  /// In the \ref lgf-format "LGF" file extra sections can be placed, 
+  /// which contain any data in arbitrary format. Such sections can be
+  /// read with this class. A reading rule can be added to the class 
+  /// with two different functions. With the \c sectionLines() function a
+  /// functor can process the section line-by-line, while with the \c
   /// sectionStream() member the section can be read from an input
   /// stream.
   class SectionReader {
@@ -2105,7 +2128,7 @@ namespace lemon {
     ///  23 6
     ///\endcode
     ///
-    /// The functor is implemented as an struct:
+    /// The functor is implemented as a struct:
     ///\code
     ///  struct NumberSection {
     ///    std::vector<int>& _data;
@@ -2123,7 +2146,7 @@ namespace lemon {
     ///\endcode
     template <typename Functor>
     SectionReader& sectionLines(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(!type.empty(), "Type is empty.");
       LEMON_ASSERT(_sections.find(type) == _sections.end(), 
 		   "Multiple reading of section.");
       _sections.insert(std::make_pair(type, 
@@ -2135,13 +2158,13 @@ namespace lemon {
     /// \brief Add a section processor with stream oriented reading
     ///
     /// The first parameter is the type of the section, the second is
-    /// a functor, which takes an \c std::istream& and an int&
+    /// a functor, which takes an \c std::istream& and an \c int&
     /// parameter, the latter regard to the line number of stream. The
     /// functor can read the input while the section go on, and the
     /// line number should be modified accordingly.
     template <typename Functor>
     SectionReader& sectionStream(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(!type.empty(), "Type is empty.");
       LEMON_ASSERT(_sections.find(type) == _sections.end(), 
 		   "Multiple reading of section.");
       _sections.insert(std::make_pair(type, 
@@ -2186,7 +2209,7 @@ namespace lemon {
 
     /// \brief Start the batch processing
     ///
-    /// This function starts the batch processing
+    /// This function starts the batch processing.
     void run() {
       
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
@@ -2239,18 +2262,27 @@ namespace lemon {
         
   };
 
+  /// \brief Return a \ref SectionReader class
+  /// 
+  /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(std::istream& is) {
     SectionReader tmp(is);
     return tmp;
   }
 
+  /// \brief Return a \ref SectionReader class
+  /// 
+  /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(const std::string& fn) {
     SectionReader tmp(fn);
     return tmp;
   }
 
+  /// \brief Return a \ref SectionReader class
+  /// 
+  /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(const char* fn) {
     SectionReader tmp(fn);
@@ -2269,19 +2301,20 @@ namespace lemon {
   /// reads the graph and stores the appropriate information for
   /// reading the graph.
   ///
-  ///\code LgfContents contents("graph.lgf"); 
+  ///\code 
+  /// LgfContents contents("graph.lgf"); 
   /// contents.run();
   ///
-  /// // does it contain any node section and arc section
+  /// // Does it contain any node section and arc section?
   /// if (contents.nodeSectionNum() == 0 || contents.arcSectionNum()) {
-  ///   std::cerr << "Failure, cannot find graph" << std::endl;
+  ///   std::cerr << "Failure, cannot find graph." << std::endl;
   ///   return -1;
   /// }
-  /// std::cout << "The name of the default node section : " 
+  /// std::cout << "The name of the default node section: " 
   ///           << contents.nodeSection(0) << std::endl;
-  /// std::cout << "The number of the arc maps : " 
+  /// std::cout << "The number of the arc maps: " 
   ///           << contents.arcMaps(0).size() << std::endl;
-  /// std::cout << "The name of second arc map : " 
+  /// std::cout << "The name of second arc map: " 
   ///           << contents.arcMaps(0)[1] << std::endl;
   ///\endcode
   class LgfContents {    
@@ -2352,9 +2385,9 @@ namespace lemon {
       return _node_sections.size();
     }
 
-    /// \brief Returns the section name at the given position. 
+    /// \brief Returns the node section name at the given position. 
     ///
-    /// Returns the section name at the given position. 
+    /// Returns the node section name at the given position. 
     const std::string& nodeSection(int i) const {
       return _node_sections[i];
     }
@@ -2379,9 +2412,9 @@ namespace lemon {
       return _edge_sections.size();
     }
 
-    /// \brief Returns the section name at the given position. 
+    /// \brief Returns the arc/edge section name at the given position. 
     ///
-    /// Returns the section name at the given position. 
+    /// Returns the arc/edge section name at the given position. 
     /// \note It is synonym of \c edgeSection().
     const std::string& arcSection(int i) const {
       return _edge_sections[i];
@@ -2436,9 +2469,9 @@ namespace lemon {
       return _attribute_sections.size();
     }
 
-    /// \brief Returns the section name at the given position. 
+    /// \brief Returns the attribute section name at the given position. 
     ///
-    /// Returns the section name at the given position. 
+    /// Returns the attribute section name at the given position. 
     const std::string& attributeSectionNames(int i) const {
       return _attribute_sections[i];
     }
@@ -2529,9 +2562,9 @@ namespace lemon {
     /// \name Execution of the contents reader    
     /// @{
 
-    /// \brief Start the reading
+    /// \brief Starts the reading
     ///
-    /// This function starts the reading
+    /// This function starts the reading.
     void run() {
 
       readLine();
