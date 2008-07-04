@@ -419,9 +419,7 @@ namespace lemon {
   /// By default the reader uses the first section in the file of the
   /// proper type. If a section has an optional name, then it can be
   /// selected for reading by giving an optional name parameter to the
-  /// \c nodes(), \c arcs() or \c attributes() functions. The readers
-  /// also can load extra sections with the \c sectionLines() and
-  /// sectionStream() functions.
+  /// \c nodes(), \c arcs() or \c attributes() functions.
   ///
   /// The \c useNodes() and \c useArcs() functions are used to tell the reader
   /// that the nodes or arcs should not be constructed (added to the
@@ -472,9 +470,6 @@ namespace lemon {
     typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
       Attributes;
     Attributes _attributes;
-
-    typedef std::map<std::string, _reader_bits::Section*> Sections;
-    Sections _sections;
 
     bool _use_nodes;
     bool _use_arcs;
@@ -537,7 +532,6 @@ namespace lemon {
       _arcs_caption = other._arcs_caption;
       _attributes_caption = other._attributes_caption;
 
-      _sections.swap(other._sections);
     }
 
     /// \brief Destructor
@@ -554,11 +548,6 @@ namespace lemon {
 
       for (typename Attributes::iterator it = _attributes.begin(); 
 	   it != _attributes.end(); ++it) {
-	delete it->second;
-      }
-
-      for (typename Sections::iterator it = _sections.begin(); 
-	   it != _sections.end(); ++it) {
 	delete it->second;
       }
 
@@ -706,83 +695,6 @@ namespace lemon {
       return *this;
     }
 
-    /// @}
-
-    /// \name Section readers
-    /// @{
-
-    /// \brief Add a section processor with line oriented reading
-    ///
-    /// In the \e LGF file extra sections can be placed, which contain
-    /// any data in arbitrary format. These sections can be read with
-    /// this function line by line. The first parameter is the type
-    /// descriptor of the section, the second is a functor, which
-    /// takes just one \c std::string parameter. At the reading
-    /// process, each line of the section will be given to the functor
-    /// object. However, the empty lines and the comment lines are
-    /// filtered out, and the leading whitespaces are stipped from
-    /// each processed string.
-    ///
-    /// For example let's see a section, which contain several
-    /// integers, which should be inserted into a vector.
-    ///\code
-    ///  @numbers
-    ///  12 45 23
-    ///  4
-    ///  23 6
-    ///\endcode
-    ///
-    /// The functor is implemented as an struct:
-    ///\code
-    ///  struct NumberSection {
-    ///    std::vector<int>& _data;
-    ///    NumberSection(std::vector<int>& data) : _data(data) {}
-    ///    void operator()(const std::string& line) {
-    ///      std::istringstream ls(line);
-    ///      int value;
-    ///      while (ls >> value) _data.push_back(value);
-    ///    }
-    ///  };
-    ///
-    ///  // ...
-    ///
-    ///  reader.sectionLines("numbers", NumberSection(vec));  
-    ///\endcode
-    template <typename Functor>
-    DigraphReader& sectionLines(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
-		   type != "attributes", "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
-        new _reader_bits::LineSection<Functor>(functor)));
-      return *this;
-    }
-
-
-    /// \brief Add a section processor with stream oriented reading
-    ///
-    /// In the \e LGF file extra sections can be placed, which contain
-    /// any data in arbitrary format. These sections can be read
-    /// directly with this function. The first parameter is the type
-    /// of the section, the second is a functor, which takes an \c
-    /// std::istream& and an int& parameter, the latter regard to the
-    /// line number of stream. The functor can read the input while
-    /// the section go on, and the line number should be modified
-    /// accordingly.
-    template <typename Functor>
-    DigraphReader& sectionStream(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
-		   type != "attributes", "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
-	 new _reader_bits::StreamSection<Functor>(functor)));
-      return *this;
-    }    
-    
     /// @}
 
     /// \name Using previously constructed node or arc set
@@ -1188,7 +1100,6 @@ namespace lemon {
       bool nodes_done = _skip_nodes;
       bool arcs_done = _skip_arcs;
       bool attributes_done = false;
-      std::set<std::string> extra_sections;
 
       line_num = 0;      
       readLine();
@@ -1222,16 +1133,6 @@ namespace lemon {
 	      attributes_done = true;
 	    }
 	  } else {
-	    if (extra_sections.find(section) != extra_sections.end()) {
-	      std::ostringstream msg;
-	      msg << "Multiple occurence of section " << section;
-	      throw DataFormatError(msg.str().c_str());
-	    }
-	    Sections::iterator it = _sections.find(section);
-	    if (it != _sections.end()) {
-	      extra_sections.insert(section);
-	      it->second->process(*_is, line_num);
-	    }
 	    readLine();
 	    skipSection();
 	  }
@@ -1295,7 +1196,6 @@ namespace lemon {
     
   private:
 
-
     std::istream* _is;
     bool local_is;
 
@@ -1321,9 +1221,6 @@ namespace lemon {
     typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
       Attributes;
     Attributes _attributes;
-
-    typedef std::map<std::string, _reader_bits::Section*> Sections;
-    Sections _sections;
 
     bool _use_nodes;
     bool _use_edges;
@@ -1386,7 +1283,6 @@ namespace lemon {
       _edges_caption = other._edges_caption;
       _attributes_caption = other._attributes_caption;
 
-      _sections.swap(other._sections);
     }
 
     /// \brief Destructor
@@ -1403,11 +1299,6 @@ namespace lemon {
 
       for (typename Attributes::iterator it = _attributes.begin(); 
 	   it != _attributes.end(); ++it) {
-	delete it->second;
-      }
-
-      for (typename Sections::iterator it = _sections.begin(); 
-	   it != _sections.end(); ++it) {
 	delete it->second;
       }
 
@@ -1601,83 +1492,6 @@ namespace lemon {
       return *this;
     }
 
-    /// @}
-
-    /// \name Section readers
-    /// @{
-
-    /// \brief Add a section processor with line oriented reading
-    ///
-    /// In the \e LGF file extra sections can be placed, which contain
-    /// any data in arbitrary format. These sections can be read with
-    /// this function line by line. The first parameter is the type
-    /// descriptor of the section, the second is a functor, which
-    /// takes just one \c std::string parameter. At the reading
-    /// process, each line of the section will be given to the functor
-    /// object. However, the empty lines and the comment lines are
-    /// filtered out, and the leading whitespaces are stipped from
-    /// each processed string.
-    ///
-    /// For example let's see a section, which contain several
-    /// integers, which should be inserted into a vector.
-    ///\code
-    ///  @numbers
-    ///  12 45 23
-    ///  4
-    ///  23 6
-    ///\endcode
-    ///
-    /// The functor is implemented as an struct:
-    ///\code
-    ///  struct NumberSection {
-    ///    std::vector<int>& _data;
-    ///    NumberSection(std::vector<int>& data) : _data(data) {}
-    ///    void operator()(const std::string& line) {
-    ///      std::istringstream ls(line);
-    ///      int value;
-    ///      while (ls >> value) _data.push_back(value);
-    ///    }
-    ///  };
-    ///
-    ///  // ...
-    ///
-    ///  reader.sectionLines("numbers", NumberSection(vec));  
-    ///\endcode
-    template <typename Functor>
-    GraphReader& sectionLines(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
-		   type != "attributes", "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
-        new _reader_bits::LineSection<Functor>(functor)));
-      return *this;
-    }
-
-
-    /// \brief Add a section processor with stream oriented reading
-    ///
-    /// In the \e LGF file extra sections can be placed, which contain
-    /// any data in arbitrary format. These sections can be read
-    /// directly with this function. The first parameter is the type
-    /// of the section, the second is a functor, which takes an \c
-    /// std::istream& and an int& parameter, the latter regard to the
-    /// line number of stream. The functor can read the input while
-    /// the section go on, and the line number should be modified
-    /// accordingly.
-    template <typename Functor>
-    GraphReader& sectionStream(const std::string& type, Functor functor) {
-      LEMON_ASSERT(!type.empty(), "Type is not empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      LEMON_ASSERT(type != "nodes" && type != "arcs" && type != "edges" &&
-		   type != "attributes", "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
-	 new _reader_bits::StreamSection<Functor>(functor)));
-      return *this;
-    }    
-    
     /// @}
 
     /// \name Using previously constructed node or edge set
@@ -2081,7 +1895,6 @@ namespace lemon {
       bool nodes_done = _skip_nodes;
       bool edges_done = _skip_edges;
       bool attributes_done = false;
-      std::set<std::string> extra_sections;
 
       line_num = 0;      
       readLine();
@@ -2115,16 +1928,6 @@ namespace lemon {
 	      attributes_done = true;
 	    }
 	  } else {
-	    if (extra_sections.find(section) != extra_sections.end()) {
-	      std::ostringstream msg;
-	      msg << "Multiple occurence of section " << section;
-	      throw DataFormatError(msg.str().c_str());
-	    }
-	    Sections::iterator it = _sections.find(section);
-	    if (it != _sections.end()) {
-	      extra_sections.insert(section);
-	      it->second->process(*_is, line_num);
-	    }
 	    readLine();
 	    skipSection();
 	  }
@@ -2171,6 +1974,253 @@ namespace lemon {
   template <typename Graph>
   GraphReader<Graph> graphReader(const char* fn, Graph& graph) {
     GraphReader<Graph> tmp(fn, graph);
+    return tmp;
+  }
+
+  /// \brief Section reader class
+  ///
+  /// In the \e LGF file extra sections can be placed, which contain
+  /// any data in arbitrary format. Such sections can be read with
+  /// this class. A reading rule can be added with two different
+  /// functions, with the \c sectionLines() function a functor can
+  /// process the section line-by-line. While with the \c
+  /// sectionStream() member the section can be read from an input
+  /// stream.
+  class SectionReader {
+  private:
+    
+    std::istream* _is;
+    bool local_is;
+
+    typedef std::map<std::string, _reader_bits::Section*> Sections;
+    Sections _sections;
+
+    int line_num;
+    std::istringstream line;
+
+  public:
+
+    /// \brief Constructor
+    ///
+    /// Construct a section reader, which reads from the given input
+    /// stream.
+    SectionReader(std::istream& is) 
+      : _is(&is), local_is(false) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct a section reader, which reads from the given file.
+    SectionReader(const std::string& fn) 
+      : _is(new std::ifstream(fn.c_str())), local_is(true) {}
+    
+    /// \brief Constructor
+    ///
+    /// Construct a section reader, which reads from the given file.
+    SectionReader(const char* fn) 
+      : _is(new std::ifstream(fn)), local_is(true) {}
+
+    /// \brief Copy constructor
+    ///
+    /// The copy constructor transfers all data from the other reader,
+    /// therefore the copied reader will not be usable more. 
+    SectionReader(SectionReader& other) 
+      : _is(other._is), local_is(other.local_is) {
+
+      other._is = 0;
+      other.local_is = false;
+      
+      _sections.swap(other._sections);
+    }
+
+    /// \brief Destructor
+    ~SectionReader() {
+      for (Sections::iterator it = _sections.begin(); 
+	   it != _sections.end(); ++it) {
+	delete it->second;
+      }
+
+      if (local_is) {
+	delete _is;
+      }
+
+    }
+
+  private:
+    
+    SectionReader& operator=(const SectionReader&);
+
+  public:
+
+    /// \name Section readers
+    /// @{
+
+    /// \brief Add a section processor with line oriented reading
+    ///
+    /// The first parameter is the type descriptor of the section, the
+    /// second is a functor, which takes just one \c std::string
+    /// parameter. At the reading process, each line of the section
+    /// will be given to the functor object. However, the empty lines
+    /// and the comment lines are filtered out, and the leading
+    /// whitespaces are trimmed from each processed string.
+    ///
+    /// For example let's see a section, which contain several
+    /// integers, which should be inserted into a vector.
+    ///\code
+    ///  @numbers
+    ///  12 45 23
+    ///  4
+    ///  23 6
+    ///\endcode
+    ///
+    /// The functor is implemented as an struct:
+    ///\code
+    ///  struct NumberSection {
+    ///    std::vector<int>& _data;
+    ///    NumberSection(std::vector<int>& data) : _data(data) {}
+    ///    void operator()(const std::string& line) {
+    ///      std::istringstream ls(line);
+    ///      int value;
+    ///      while (ls >> value) _data.push_back(value);
+    ///    }
+    ///  };
+    ///
+    ///  // ...
+    ///
+    ///  reader.sectionLines("numbers", NumberSection(vec));  
+    ///\endcode
+    template <typename Functor>
+    SectionReader& sectionLines(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+        new _reader_bits::LineSection<Functor>(functor)));
+      return *this;
+    }
+
+
+    /// \brief Add a section processor with stream oriented reading
+    ///
+    /// The first parameter is the type of the section, the second is
+    /// a functor, which takes an \c std::istream& and an int&
+    /// parameter, the latter regard to the line number of stream. The
+    /// functor can read the input while the section go on, and the
+    /// line number should be modified accordingly.
+    template <typename Functor>
+    SectionReader& sectionStream(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is not empty.");
+      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
+		   "Multiple reading of section.");
+      _sections.insert(std::make_pair(type, 
+	 new _reader_bits::StreamSection<Functor>(functor)));
+      return *this;
+    }    
+    
+    /// @}
+
+  private:
+
+    bool readLine() {
+      std::string str;
+      while(++line_num, std::getline(*_is, str)) {
+	line.clear(); line.str(str);
+	char c;
+	if (line >> std::ws >> c && c != '#') {
+	  line.putback(c);
+	  return true;
+	}
+      }
+      return false;
+    }
+
+    bool readSuccess() {
+      return static_cast<bool>(*_is);
+    }
+    
+    void skipSection() {
+      char c;
+      while (readSuccess() && line >> c && c != '@') {
+	readLine();
+      }
+      line.putback(c);
+    }
+
+  public:
+
+
+    /// \name Execution of the reader    
+    /// @{
+
+    /// \brief Start the batch processing
+    ///
+    /// This function starts the batch processing
+    void run() {
+      
+      LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
+      
+      std::set<std::string> extra_sections;
+
+      line_num = 0;      
+      readLine();
+      skipSection();
+
+      while (readSuccess()) {
+	try {
+	  char c;
+	  std::string section, caption;
+	  line >> c;
+	  _reader_bits::readToken(line, section);
+	  _reader_bits::readToken(line, caption);
+
+	  if (line >> c) 
+	    throw DataFormatError("Extra character on the end of line");
+
+	  if (extra_sections.find(section) != extra_sections.end()) {
+	    std::ostringstream msg;
+	    msg << "Multiple occurence of section " << section;
+	    throw DataFormatError(msg.str().c_str());
+	  }
+	  Sections::iterator it = _sections.find(section);
+	  if (it != _sections.end()) {
+	    extra_sections.insert(section);
+	    it->second->process(*_is, line_num);
+	  }
+	  readLine();
+	  skipSection();
+	} catch (DataFormatError& error) {
+	  error.line(line_num);
+	  throw;
+	}	
+      }
+      for (Sections::iterator it = _sections.begin();
+	   it != _sections.end(); ++it) {
+	if (extra_sections.find(it->first) == extra_sections.end()) {
+	  std::ostringstream os;
+	  os << "Cannot find section: " << it->first;
+	  throw DataFormatError(os.str().c_str());
+	}
+      }
+    }
+
+    /// @}
+        
+  };
+
+  /// \relates SectionReader
+  inline SectionReader sectionReader(std::istream& is) {
+    SectionReader tmp(is);
+    return tmp;
+  }
+
+  /// \relates SectionReader
+  inline SectionReader sectionReader(const std::string& fn) {
+    SectionReader tmp(fn);
+    return tmp;
+  }
+
+  /// \relates SectionReader
+  inline SectionReader sectionReader(const char* fn) {
+    SectionReader tmp(fn);
     return tmp;
   }
 
