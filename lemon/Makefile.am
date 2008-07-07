@@ -32,6 +32,7 @@ lemon_HEADERS += \
 	lemon/graph_utils.h \
 	lemon/kruskal.h \
 	lemon/lgf_reader.h \
+	lemon/lgf_writer.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
@@ -59,7 +60,7 @@ bits_HEADERS += \
 concept_HEADERS += \
 	lemon/concepts/digraph.h \
 	lemon/concepts/graph.h \
+	lemon/concepts/graph_components.h \
 	lemon/concepts/heap.h \
 	lemon/concepts/maps.h \
-	lemon/concepts/path.h \
-	lemon/concepts/graph_components.h
+	lemon/concepts/path.h
