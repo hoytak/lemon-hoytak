@@ -32,9 +32,9 @@
 
 ///\ingroup spantree
 ///\file
-///\brief Kruskal's algorithm to compute a minimum cost tree
+///\brief Kruskal's algorithm to compute a minimum cost spanning tree
 ///
-///Kruskal's algorithm to compute a minimum cost tree.
+///Kruskal's algorithm to compute a minimum cost spanning tree.
 ///
 
 namespace lemon {
@@ -251,9 +251,11 @@ namespace lemon {
 
   /// \ingroup spantree
   ///
-  /// \brief Kruskal's algorithm to find a minimum cost tree of a graph.
+  /// \brief Kruskal algorithm to find a minimum cost spanning tree of
+  /// a graph.
   ///
-  /// This function runs Kruskal's algorithm to find a minimum cost tree.
+  /// This function runs Kruskal's algorithm to find a minimum cost 
+  /// spanning tree.
   /// Due to some C++ hacking, it accepts various input and output types.
   ///
   /// \param g The graph the algorithm runs on.
@@ -262,24 +264,25 @@ namespace lemon {
   /// If the graph is directed, the algorithm consider it to be 
   /// undirected by disregarding the direction of the arcs.
   ///
-  /// \param in This object is used to describe the arc costs. It can be one
-  /// of the following choices.
+  /// \param in This object is used to describe the arc/edge costs. 
+  /// It can be one of the following choices.
   /// - An STL compatible 'Forward Container' with
-  /// <tt>std::pair<GR::Edge,X></tt> or
-  /// <tt>std::pair<GR::Arc,X></tt> as its <tt>value_type</tt>, where
-  /// \c X is the type of the costs. The pairs indicates the arcs
+  /// <tt>std::pair<GR::Arc,X></tt> or
+  /// <tt>std::pair<GR::Edge,X></tt> as its <tt>value_type</tt>, where
+  /// \c X is the type of the costs. The pairs indicates the arcs/edges
   /// along with the assigned cost. <em>They must be in a
   /// cost-ascending order.</em>
-  /// - Any readable Arc map. The values of the map indicate the arc costs.
+  /// - Any readable arc/edge map. The values of the map indicate the 
+  /// arc/edge costs.
   ///
-  /// \retval out Here we also have a choise.
-  /// - It can be a writable \c bool arc map.  After running the
-  /// algorithm this will contain the found minimum cost spanning
-  /// tree: the value of an arc will be set to \c true if it belongs
+  /// \retval out Here we also have a choice.
+  /// - It can be a writable \c bool arc/edge map. After running the
+  /// algorithm it will contain the found minimum cost spanning
+  /// tree: the value of an arc/edge will be set to \c true if it belongs
   /// to the tree, otherwise it will be set to \c false. The value of
-  /// each arc will be set exactly once.
+  /// each arc/edge will be set exactly once.
   /// - It can also be an iteraror of an STL Container with
-  /// <tt>GR::Edge</tt> or <tt>GR::Arc</tt> as its
+  /// <tt>GR::Arc</tt> or <tt>GR::Edge</tt> as its
   /// <tt>value_type</tt>.  The algorithm copies the elements of the
   /// found tree into this sequence.  For example, if we know that the
   /// spanning tree of the graph \c g has say 53 arcs, then we can
@@ -290,13 +293,14 @@ namespace lemon {
   ///\endcode
   /// Or if we don't know in advance the size of the tree, we can
   /// write this.  
-  ///\code std::vector<Arc> tree;
+  ///\code
+  /// std::vector<Arc> tree;
   /// kruskal(g,cost,std::back_inserter(tree)); 
   ///\endcode
   ///
-  /// \return The total cost of the found tree.
+  /// \return The total cost of the found spanning tree.
   ///
-  /// \warning If kruskal runs on an be consistent of using the same
+  /// \warning If Kruskal runs on an be consistent of using the same
   /// Arc type for input and output.
   ///
 
