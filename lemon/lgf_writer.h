@@ -225,17 +225,17 @@ namespace lemon {
       }
     };
 
-    bool isWhiteSpace(char c) {
+    inline bool isWhiteSpace(char c) {
       return c == ' ' || c == '\t' || c == '\v' || 
         c == '\n' || c == '\r' || c == '\f'; 
     }
 
-    bool isEscaped(char c) {
+    inline bool isEscaped(char c) {
       return c == '\\' || c == '\"' || c == '\'' || 
 	c == '\a' || c == '\b';
     }
 
-    static void writeEscape(std::ostream& os, char c) {
+    inline static void writeEscape(std::ostream& os, char c) {
       switch (c) {
       case '\\':
 	os << "\\\\";
@@ -276,7 +276,7 @@ namespace lemon {
       }     
     }
 
-    bool requireEscape(const std::string& str) {
+    inline bool requireEscape(const std::string& str) {
       if (str.empty() || str[0] == '@') return true;
       std::istringstream is(str);
       char c;
@@ -288,7 +288,7 @@ namespace lemon {
       return false;
     }
     
-    std::ostream& writeToken(std::ostream& os, const std::string& str) {
+    inline std::ostream& writeToken(std::ostream& os, const std::string& str) {
 
       if (requireEscape(str)) {
 	os << '\"';
