@@ -914,6 +914,12 @@ namespace lemon {
   /// It can be used almost the same way as \c DigraphWriter.
   /// The only difference is that this class can handle edges and
   /// edge maps as well as arcs and arc maps.
+  ///
+  /// The arc maps are written into the file as two columns, the
+  /// caption of the columns are the name of the map prefixed with \c
+  /// '+' and \c '-'. The arcs are written into the \c \@attributes
+  /// section as a \c '+' or a \c '-' prefix (depends on the direction
+  /// of the arc) and the label of corresponding edge.
   template <typename _Graph>
   class GraphWriter {
   public:

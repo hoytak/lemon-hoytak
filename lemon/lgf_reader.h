@@ -1226,6 +1226,12 @@ namespace lemon {
   /// It can be used almost the same way as \c DigraphReader.
   /// The only difference is that this class can handle edges and
   /// edge maps as well as arcs and arc maps.
+  ///
+  /// The columns in the \c \@edges (or \c \@arcs) section are the
+  /// edge maps. However, if there are two maps with the same name
+  /// prefixed with \c '+' and \c '-', then these can be read into an
+  /// arc map.  Similarly, an attribute can be read into an arc, if
+  /// it's value is an edge label prefixed with \c '+' or \c '-'.
   template <typename _Graph>
   class GraphReader {
   public:

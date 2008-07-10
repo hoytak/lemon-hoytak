@@ -78,10 +78,18 @@ values. The source and target tokens must be node labels.
  2   3   18
 \endcode
 
-The \c \@edges is just a synonym of \c \@arcs.
+The \c \@edges is just a synonym of \c \@arcs. The @arcs section can
+also store the edge set of an undirected graph. In such case there is
+a conventional method for store arc maps in the file, if two columns
+has the same caption with \c '+' and \c '-' prefix, then these columns
+can be regarded as the values of an arc map.
 
 The \c \@attributes section contains key-value pairs, each line
-consists of two tokens, an attribute name, and then an attribute value.
+consists of two tokens, an attribute name, and then an attribute
+value. The value of the attribute could be also a label value of a
+node or an edge, or even an edge label prefixed with \c '+' or \c '-',
+which regards to the forward or backward directed arc of the
+corresponding edge.
 
 \code
  @attributes
