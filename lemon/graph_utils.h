@@ -602,7 +602,7 @@ namespace lemon {
         }
         for (typename From::ArcIt it(from); it != INVALID; ++it) {
           arcRefMap[it] = to.addArc(nodeRefMap[from.source(it)], 
-                                          nodeRefMap[from.target(it)]);
+				    nodeRefMap[from.target(it)]);
         }
       }
     };
@@ -628,8 +628,8 @@ namespace lemon {
           nodeRefMap[it] = to.addNode();
         }
         for (typename From::EdgeIt it(from); it != INVALID; ++it) {
-          edgeRefMap[it] = to.addArc(nodeRefMap[from.source(it)], 
-				       nodeRefMap[from.target(it)]);
+          edgeRefMap[it] = to.addEdge(nodeRefMap[from.u(it)], 
+				      nodeRefMap[from.v(it)]);
         }
       }
     };
@@ -925,9 +925,10 @@ namespace lemon {
       typedef typename To::Arc Value;
 
       Value operator[](const Key& key) const {
-        bool forward = 
-          (_from.direction(key) == 
-	   (_node_ref[_from.source(key)] == _to.source(_edge_ref[key])));
+        bool forward = _from.u(key) != _from.v(key) ?
+	  _node_ref[_from.source(key)] == 
+	  _to.source(_to.direct(_edge_ref[key], true)) :
+	  _from.direction(key);
 	return _to.direct(_edge_ref[key], forward); 
       }
       
