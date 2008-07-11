@@ -181,12 +181,10 @@ namespace lemon {
 
 	  Item item;
 	  Prio prio;
-	  State state;
 	  item=Item();
 	  prio=Prio();
 	  ignore_unused_variable_warning(item);
 	  ignore_unused_variable_warning(prio);
-	  ignore_unused_variable_warning(state);
 
 	  OwnItem own_item;
 	  OwnPrio own_prio;
@@ -203,7 +201,9 @@ namespace lemon {
 	  ignore_unused_variable_warning(heap2);
 	  
 	  int s = heap.size();
+	  ignore_unused_variable_warning(s);
 	  bool e = heap.empty();
+	  ignore_unused_variable_warning(e);
 
 	  prio = heap.prio();
 	  item = heap.top();
@@ -227,14 +227,9 @@ namespace lemon {
 	  heap.erase(own_item);
 	  heap.clear();
 
-	  state = heap.state(item);
-	  heap.state(item, state);
-	  state = heap.state(own_item);
+	  own_state = heap.state(own_item);
 	  heap.state(own_item, own_state);
 
-	  state = _Heap::PRE_HEAP;
-	  state = _Heap::IN_HEAP;
-	  state = _Heap::POST_HEAP;
 	  own_state = _Heap::PRE_HEAP;
 	  own_state = _Heap::IN_HEAP;
 	  own_state = _Heap::POST_HEAP;
