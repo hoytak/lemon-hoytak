@@ -118,13 +118,19 @@ namespace lemon {
     
   public:
 
-    ///\e
+    ///Constructor
     ArgParser(int argc, const char **argv);
 
     ~ArgParser();
 
+    ///\name Options
+    ///
+
+    ///@{
+
     ///Add a new integer type option
 
+    ///Add a new integer type option.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param value A default value for the option.
@@ -135,6 +141,7 @@ namespace lemon {
 
     ///Add a new floating point type option
 
+    ///Add a new floating point type option.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param value A default value for the option.
@@ -145,6 +152,7 @@ namespace lemon {
 
     ///Add a new bool type option
 
+    ///Add a new bool type option.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param value A default value for the option.
@@ -156,6 +164,7 @@ namespace lemon {
 
     ///Add a new string type option
 
+    ///Add a new string type option.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param value A default value for the option.
@@ -164,7 +173,17 @@ namespace lemon {
 		      const std::string &help,
 		      std::string value="", bool obl=false);
 
-    ///\name Options with external storage
+    ///Give help string for non-parsed arguments.
+
+    ///With this function you can give help string for non-parsed arguments.
+    ///The parameter \c name will be printed in the short usage line, while
+    ///\c help gives a more detailed description.
+    ArgParser &other(const std::string &name,
+		     const std::string &help="");
+    
+    ///@}
+
+    ///\name Options with External Storage
     ///Using this functions, the value of the option will be directly written
     ///into a variable once the option appears in the command line.
 
@@ -172,6 +191,7 @@ namespace lemon {
 
     ///Add a new integer type option with a storage reference
 
+    ///Add a new integer type option with a storage reference.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param obl Indicate if the option is mandatory.
@@ -182,6 +202,7 @@ namespace lemon {
 
     ///Add a new floating type option with a storage reference
 
+    ///Add a new floating type option with a storage reference.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param obl Indicate if the option is mandatory.
@@ -192,6 +213,7 @@ namespace lemon {
 
     ///Add a new bool type option with a storage reference
 
+    ///Add a new bool type option with a storage reference.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param obl Indicate if the option is mandatory.
@@ -203,6 +225,7 @@ namespace lemon {
 
     ///Add a new string type option with a storage reference
 
+    ///Add a new string type option with a storage reference.
     ///\param name The name of the option. The leading '-' must be omitted.
     ///\param help A help string.
     ///\param obl Indicate if the option is mandatory.
@@ -218,7 +241,7 @@ namespace lemon {
     
     ///@{
 
-    ///Boundle some options into a group
+    ///Bundle some options into a group
 
     /// You can group some option by calling this function repeatedly for each
     /// option to be grouped with the same groupname.
@@ -230,7 +253,7 @@ namespace lemon {
     ///Make the members of a group exclusive
 
     ///If you call this function for a group, than at most one of them can be
-    ///given at the same time
+    ///given at the same time.
     ArgParser &onlyOneGroup(const std::string &group);
   
     ///Make a group mandatory
@@ -247,23 +270,6 @@ namespace lemon {
 			   const std::string &opt);
     
     ///@}
-
-    ///Give help string for non-parsed arguments.
-
-    ///With this function you can give help string for non-parsed arguments.
-    ///The parameter \c name will be printed in the short usage line, while
-    ///\c help gives a more detailed description.
-    ArgParser &other(const std::string &name,
-		     const std::string &help="");
-    
-    ///Give back the non-option type arguments.
-
-    ///Give back a reference to a vector consisting of the program arguments
-    ///not starting with a '-' character.
-    std::vector<std::string> &files() { return _file_args; }
-
-    ///Give back the command name (the 0th argument)
-    const std::string &commandName() { return _command_name; }
 
     void show(std::ostream &os,Opts::iterator i);
     void show(std::ostream &os,Groups::iterator i);
@@ -286,6 +292,9 @@ namespace lemon {
       return parse();
     }
     
+    ///Give back the command name (the 0th argument)
+    const std::string &commandName() { return _command_name; }
+
     ///Check if an opion has been given to the command.
     bool given(std::string op) 
     {
@@ -360,10 +369,14 @@ namespace lemon {
     {
       return RefType(*this, n);
     }    
+
+    ///Give back the non-option type arguments.
+
+    ///Give back a reference to a vector consisting of the program arguments
+    ///not starting with a '-' character.
+    std::vector<std::string> &files() { return _file_args; }
  
   };
 }
 
-    
-
-#endif // LEMON_MAIN_PARAMS
+#endif // LEMON_ARG_PARSER
