@@ -108,11 +108,11 @@ namespace lemon {
   public:
     ///Constructor
 
-    ///Constructor 
-    ///\param have_white indicates whether white is amongst the
+    ///Constructor.
+    ///\param have_white Indicates whether white is among the
     ///provided initial colors (\c true) or not (\c false). If it is true,
     ///white will be assigned to \c 0.
-    ///\param num the number of the allocated colors. If it is \c -1,
+    ///\param num The number of the allocated colors. If it is \c -1,
     ///the default color configuration is set up (26 color plus optionaly the
     ///white).  If \c num is less then 26/27 then the default color
     ///list is cut. Otherwise the color list is filled repeatedly with
@@ -153,7 +153,6 @@ namespace lemon {
         colors.push_back(Color(0,.5,1));
         colors.push_back(Color(.5,0,1));
       } while(int(colors.size())<num);
-      //    colors.push_back(Color(1,1,1));
       if(num>=0) colors.resize(num);
     }
     ///\e
@@ -171,13 +170,13 @@ namespace lemon {
     {
       colors[i%colors.size()]=c;
     }
-    ///Add a new color to the end of the color list.
+    ///Adds a new color to the end of the color list.
     void add(const Color &c) 
     {
       colors.push_back(c);
     }
 
-    ///Sets the number of the exiting colors.
+    ///Sets the number of the existing colors.
     void resize(int s) { colors.resize(s);}
     ///Returns the number of the existing colors.
     int size() const { return int(colors.size());}

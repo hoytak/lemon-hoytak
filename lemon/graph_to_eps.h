@@ -63,7 +63,7 @@ namespace lemon {
   
 ///Default traits class of \ref GraphToEps
 
-///Default traits class of \ref GraphToEps
+///Default traits class of \ref GraphToEps.
 ///
 ///\c G is the type of the underlying graph.
 template<class G>
@@ -140,12 +140,11 @@ struct DefaultGraphToEpsTraits
   ///Constructor
 
   ///Constructor
-  ///\param _g is a reference to the graph to be printed
-  ///\param _os is a reference to the output stream.
-  ///\param _os is a reference to the output stream.
+  ///\param _g  Reference to the graph to be printed.
+  ///\param _os Reference to the output stream.
+  ///\param _os Reference to the output stream. By default it is <tt>std::cout</tt>.
   ///\param _pros If it is \c true, then the \c ostream referenced by \c _os
   ///will be explicitly deallocated by the destructor.
-  ///By default it is <tt>std::cout</tt>
   DefaultGraphToEpsTraits(const G &_g,std::ostream& _os=std::cout,
 			  bool _pros=false) :
     g(_g), os(_os),
@@ -173,7 +172,9 @@ struct DefaultGraphToEpsTraits
 
 ///Auxiliary class to implement the named parameters of \ref graphToEps()
 
-///Auxiliary class to implement the named parameters of \ref graphToEps()
+///Auxiliary class to implement the named parameters of \ref graphToEps().
+///
+///For detailed examples see the \ref graph_to_eps_demo.cc demo file.
 template<class T> class GraphToEps : public T 
 {
   // Can't believe it is required by the C++ standard
@@ -258,7 +259,7 @@ template<class T> class GraphToEps : public T
 public:
   ///Node shapes
 
-  ///Node shapes
+  ///Node shapes.
   ///
   enum NodeShapes { 
     /// = 0
@@ -335,7 +336,7 @@ public:
   ///Sets the map of the node coordinates
 
   ///Sets the map of the node coordinates.
-  ///\param x must be a node map with dim2::Point<double> or
+  ///\param x must be a node map with \ref dim2::Point "dim2::Point<double>" or
   ///\ref dim2::Point "dim2::Point<int>" values. 
   template<class X> GraphToEps<CoordsTraits<X> > coords(const X &x) {
     dontPrint=true;
@@ -347,7 +348,7 @@ public:
   };
   ///Sets the map of the node sizes
 
-  ///Sets the map of the node sizes
+  ///Sets the map of the node sizes.
   ///\param x must be a node map with \c double (or convertible) values. 
   template<class X> GraphToEps<NodeSizesTraits<X> > nodeSizes(const X &x)
   {
@@ -376,9 +377,9 @@ public:
   };
   ///Sets the text printed on the nodes
 
-  ///Sets the text printed on the nodes
+  ///Sets the text printed on the nodes.
   ///\param x must be a node map with type that can be pushed to a standard
-  ///ostream. 
+  ///\c ostream. 
   template<class X> GraphToEps<NodeTextsTraits<X> > nodeTexts(const X &x)
   {
     dontPrint=true;
@@ -393,14 +394,14 @@ public:
 
   ///With this command it is possible to insert a verbatim PostScript
   ///block to the nodes.
-  ///The PS current point will be moved to the centre of the node before
+  ///The PS current point will be moved to the center of the node before
   ///the PostScript block inserted.
   ///
   ///Before and after the block a newline character is inserted so you
   ///don't have to bother with the separators.
   ///
   ///\param x must be a node map with type that can be pushed to a standard
-  ///ostream.
+  ///\c ostream.
   ///
   ///\sa nodePsTextsPreamble()
   template<class X> GraphToEps<NodePsTextsTraits<X> > nodePsTexts(const X &x)
@@ -415,7 +416,7 @@ public:
   };
   ///Sets the map of the arc widths
 
-  ///Sets the map of the arc widths
+  ///Sets the map of the arc widths.
   ///\param x must be an arc map with \c double (or convertible) values. 
   template<class X> GraphToEps<ArcWidthsTraits<X> > arcWidths(const X &x)
   {
@@ -429,7 +430,7 @@ public:
   };
   ///Sets the map of the node colors
 
-  ///Sets the map of the node colors
+  ///Sets the map of the node colors.
   ///\param x must be a node map with \ref Color values.
   ///
   ///\sa Palette
@@ -445,7 +446,7 @@ public:
   };
   ///Sets the map of the node text colors
 
-  ///Sets the map of the node text colors
+  ///Sets the map of the node text colors.
   ///\param x must be a node map with \ref Color values. 
   ///
   ///\sa Palette
@@ -463,7 +464,7 @@ public:
   };
   ///Sets the map of the arc colors
 
-  ///Sets the map of the arc colors
+  ///Sets the map of the arc colors.
   ///\param x must be an arc map with \ref Color values. 
   ///
   ///\sa Palette
@@ -487,9 +488,9 @@ public:
   /// \sa nodeSizes()
   /// \sa autoNodeScale()
   GraphToEps<T> &nodeScale(double d=.01) {_nodeScale=d;return *this;}
-  ///Turns on/off the automatic node width scaling.
+  ///Turns on/off the automatic node size scaling.
 
-  ///Turns on/off the automatic node width scaling.
+  ///Turns on/off the automatic node size scaling.
   ///
   ///\sa nodeScale()
   ///
@@ -497,9 +498,9 @@ public:
     _autoNodeScale=b;return *this;
   }
 
-  ///Turns on/off the absolutematic node width scaling.
+  ///Turns on/off the absolutematic node size scaling.
 
-  ///Turns on/off the absolutematic node width scaling.
+  ///Turns on/off the absolutematic node size scaling.
   ///
   ///\sa nodeScale()
   ///
@@ -508,9 +509,6 @@ public:
   }
 
   ///Negates the Y coordinates.
-
-  ///Negates the Y coordinates.
-  ///
   GraphToEps<T> &negateY(bool b=true) {
     _negY=b;return *this;
   }
@@ -557,86 +555,47 @@ public:
     _absoluteArcWidths=b;return *this;
   }
   ///Sets a global scale factor for the whole picture
-
-  ///Sets a global scale factor for the whole picture
-  ///
-
   GraphToEps<T> &scale(double d) {_scale=d;return *this;}
   ///Sets the width of the border around the picture
-
-  ///Sets the width of the border around the picture
-  ///
   GraphToEps<T> &border(double b=10) {_xBorder=_yBorder=b;return *this;}
   ///Sets the width of the border around the picture
-
-  ///Sets the width of the border around the picture
-  ///
   GraphToEps<T> &border(double x, double y) {
     _xBorder=x;_yBorder=y;return *this;
   }
   ///Sets whether to draw arrows
-
-  ///Sets whether to draw arrows
-  ///
   GraphToEps<T> &drawArrows(bool b=true) {_drawArrows=b;return *this;}
   ///Sets the length of the arrowheads
-
-  ///Sets the length of the arrowheads
-  ///
   GraphToEps<T> &arrowLength(double d=1.0) {_arrowLength*=d;return *this;}
   ///Sets the width of the arrowheads
-
-  ///Sets the width of the arrowheads
-  ///
   GraphToEps<T> &arrowWidth(double d=.3) {_arrowWidth*=d;return *this;}
   
   ///Scales the drawing to fit to A4 page
-
-  ///Scales the drawing to fit to A4 page
-  ///
   GraphToEps<T> &scaleToA4() {_scaleToA4=true;return *this;}
   
   ///Enables parallel arcs
-
-  ///Enables parallel arcs
   GraphToEps<T> &enableParallel(bool b=true) {_enableParallel=b;return *this;}
   
-  ///Sets the distance 
-  
-  ///Sets the distance 
-  ///
+  ///Sets the distance between parallel arcs
   GraphToEps<T> &parArcDist(double d) {_parArcDist*=d;return *this;}
   
   ///Hides the arcs
-  
-  ///Hides the arcs
-  ///
   GraphToEps<T> &hideArcs(bool b=true) {_showArcs=!b;return *this;}
   ///Hides the nodes
-  
-  ///Hides the nodes
-  ///
   GraphToEps<T> &hideNodes(bool b=true) {_showNodes=!b;return *this;}
   
   ///Sets the size of the node texts
-  
-  ///Sets the size of the node texts
-  ///
   GraphToEps<T> &nodeTextSize(double d) {_nodeTextSize=d;return *this;}
 
   ///Sets the color of the node texts to be different from the node color
 
   ///Sets the color of the node texts to be as different from the node color
-  ///as it is possible
-  ///
+  ///as it is possible.
   GraphToEps<T> &distantColorNodeTexts()
   {_nodeTextColorType=DIST_COL;return *this;}
   ///Sets the color of the node texts to be black or white and always visible.
 
   ///Sets the color of the node texts to be black or white according to
-  ///which is more 
-  ///different from the node color
-  ///
+  ///which is more different from the node color.
   GraphToEps<T> &distantBWNodeTexts()
   {_nodeTextColorType=DIST_BW;return *this;}
 
@@ -648,18 +607,18 @@ public:
   GraphToEps<T> & nodePsTextsPreamble(const char *str) {
     _nodePsTextsPreamble=str ;return *this;
   }
-  ///Sets whether the the graph is undirected
+  ///Sets whether the graph is undirected
 
-  ///Sets whether the the graph is undirected.
+  ///Sets whether the graph is undirected.
   ///
   ///This setting is the default for undirected graphs.
   ///
   ///\sa directed()
    GraphToEps<T> &undirected(bool b=true) {_undirected=b;return *this;}
 
-  ///Sets whether the the graph is directed
+  ///Sets whether the graph is directed
 
-  ///Sets whether the the graph is directed.
+  ///Sets whether the graph is directed.
   ///Use it to show the edges as a pair of directed ones.
   ///
   ///This setting is the default for digraphs.
@@ -716,7 +675,6 @@ public:
     os << "%!PS-Adobe-2.0 EPSF-2.0\n";
     if(_title.size()>0) os << "%%Title: " << _title << '\n';
      if(_copyright.size()>0) os << "%%Copyright: " << _copyright << '\n';
-//        << "%%Copyright: XXXX\n"
     os << "%%Creator: LEMON, graphToEps()\n";
 
     {    
@@ -748,7 +706,7 @@ public:
       double max_w=0;
       for(ArcIt e(g);e!=INVALID;++e)
 	max_w=std::max(double(_arcWidths[e]),max_w);
-      ///\todo better 'epsilon' would be nice here.
+      //\todo better 'epsilon' would be nice here.
       if(max_w>EPSILON) {
 	_arcWidthScale/=max_w;
       }
@@ -758,7 +716,7 @@ public:
       double max_s=0;
       for(NodeIt n(g);n!=INVALID;++n)
 	max_s=std::max(double(_nodeSizes[n]),max_s);
-      ///\todo better 'epsilon' would be nice here.
+      //\todo better 'epsilon' would be nice here.
       if(max_s>EPSILON) {
 	_nodeScale/=max_s;
       }
@@ -1114,18 +1072,12 @@ public:
   ///@{
 
   ///An alias for arcWidths()
-
-  ///An alias for arcWidths()
-  ///
   template<class X> GraphToEps<ArcWidthsTraits<X> > edgeWidths(const X &x)
   {
     return arcWidths(x);
   }
 
   ///An alias for arcColors()
-
-  ///An alias for arcColors()
-  ///
   template<class X> GraphToEps<ArcColorsTraits<X> >
   edgeColors(const X &x)
   {
@@ -1133,39 +1085,24 @@ public:
   }
 
   ///An alias for arcWidthScale()
-
-  ///An alias for arcWidthScale()
-  ///
   GraphToEps<T> &edgeWidthScale(double d) {return arcWidthScale(d);}
 
   ///An alias for autoArcWidthScale()
-
-  ///An alias for autoArcWidthScale()
-  ///
   GraphToEps<T> &autoEdgeWidthScale(bool b=true)
   {
     return autoArcWidthScale(b);
   }
   
   ///An alias for absoluteArcWidths()
-
-  ///An alias for absoluteArcWidths()
-  ///
   GraphToEps<T> &absoluteEdgeWidths(bool b=true)
   {
     return absoluteArcWidths(b);
   }
   
   ///An alias for parArcDist()
-
-  ///An alias for parArcDist()
-  ///
   GraphToEps<T> &parEdgeDist(double d) {return parArcDist(d);}
   
   ///An alias for hideArcs()
-  
-  ///An alias for hideArcs()
-  ///
   GraphToEps<T> &hideEdges(bool b=true) {return hideArcs(b);}
 
   ///@}
@@ -1185,9 +1122,9 @@ const double GraphToEps<T>::A4BORDER = 15;
 
 ///\ingroup eps_io
 ///Generates an EPS file from a graph.
-///\param g is a reference to the graph to be printed
-///\param os is a reference to the output stream.
-///By default it is <tt>std::cout</tt>
+///\param g Reference to the graph to be printed.
+///\param os Reference to the output stream.
+///By default it is <tt>std::cout</tt>.
 ///
 ///This function also has a lot of
 ///\ref named-templ-func-param "named parameters",
@@ -1198,6 +1135,9 @@ const double GraphToEps<T>::A4BORDER = 15;
 ///              .nodeScale(2).nodeSizes(sizes)
 ///              .arcWidthScale(.4).run();
 ///\endcode
+///
+///For more detailed examples see the \ref graph_to_eps_demo.cc demo file.
+///
 ///\warning Don't forget to put the \ref GraphToEps::run() "run()"
 ///to the end of the parameter list.
 ///\sa GraphToEps
