@@ -43,7 +43,8 @@ namespace lemon {
     public:
       /// The key type of the map.
       typedef K Key;
-      /// The value type of the map. (The type of objects associated with the keys).
+      /// \brief The value type of the map.
+      /// (The type of objects associated with the keys).
       typedef T Value;
 
       /// Returns the value associated with the given key.
@@ -82,7 +83,8 @@ namespace lemon {
     public:
       /// The key type of the map.
       typedef K Key;
-      /// The value type of the map. (The type of objects associated with the keys).
+      /// \brief The value type of the map.
+      /// (The type of objects associated with the keys).
       typedef T Value;
 
       /// Sets the value associated with the given key.
@@ -121,7 +123,8 @@ namespace lemon {
     public:
       /// The key type of the map.
       typedef K Key;
-      /// The value type of the map. (The type of objects associated with the keys).
+      /// \brief The value type of the map.
+      /// (The type of objects associated with the keys).
       typedef T Value;
 
       /// Returns the value associated with the given key.
@@ -154,7 +157,8 @@ namespace lemon {
       typedef True ReferenceMapTag;
       /// The key type of the map.
       typedef K Key;
-      /// The value type of the map. (The type of objects associated with the keys).
+      /// \brief The value type of the map.
+      /// (The type of objects associated with the keys).
       typedef T Value;
       /// The reference type of the map.
       typedef R Reference;

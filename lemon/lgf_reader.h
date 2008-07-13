@@ -444,7 +444,8 @@ namespace lemon {
   /// set into an \e ArcSet class (\c SmartArcSet or \c ListArcSet).
   /// The previously read label node map should be passed to the \c
   /// useNodes() functions. Another application of multipass reading when
-  /// paths are given as a node map or an arc map. It is impossible to read this in
+  /// paths are given as a node map or an arc map.
+  /// It is impossible to read this in
   /// a single pass, because the arcs are not constructed when the node
   /// maps are read.
   template <typename _Digraph>

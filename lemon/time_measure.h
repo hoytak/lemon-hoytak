@@ -314,7 +314,8 @@ namespace lemon {
     ///but it provides a bit finer control on the execution.
     ///The \ref Timer also counts the number of \ref start()
     ///executions, and is stops only after the same amount (or more)
-    ///\ref stop() "stop()"s. This can be useful e.g. to compute the running time
+    ///\ref stop() "stop()"s. This can be useful e.g. to compute
+    ///the running time
     ///of recursive functions.
     ///
 

@@ -395,16 +395,16 @@ namespace lemon {
               o!=i->second.opts.end();++o)
             if(_opts.find(*o)->second.set) ++set;
           if(i->second.mandatory&&!set) {
-            std::cerr << _command_name
-                      << ": At least one of the following arguments is mandatory.\n";
+            std::cerr << _command_name <<
+              ": At least one of the following arguments is mandatory.\n";
             ok=false;
             for(GroupData::Opts::iterator o=i->second.opts.begin();
                 o!=i->second.opts.end();++o)
               showHelp(_opts.find(*o));
           }
           if(i->second.only_one&&set>1) {
-            std::cerr << _command_name
-                      << ": At most one of the following arguments can be given.\n";
+            std::cerr << _command_name <<
+              ": At most one of the following arguments can be given.\n";
             ok=false;
             for(GroupData::Opts::iterator o=i->second.opts.begin();
                 o!=i->second.opts.end();++o)

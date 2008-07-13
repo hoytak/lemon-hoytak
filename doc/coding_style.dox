@@ -89,7 +89,8 @@ ALL_UPPER_CASE_WITH_UNDERSCORES
 
 \subsection cs-loc-var Class and instance member variables, auto variables
 
-The names of class and instance member variables and auto variables (=variables used locally in methods) should look like the following.
+The names of class and instance member variables and auto variables
+(=variables used locally in methods) should look like the following.
 
 \code
 all_lower_case_with_underscores

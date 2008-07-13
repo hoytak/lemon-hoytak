@@ -92,12 +92,15 @@ void checkFindArcs() {
         Arc con2 = al2(src, trg);
         Arc con3 = al3(src, trg);
         Arc con4 = findArc(fg, src, trg);
-        check(con1 == con2 && con2 == con3 && con3 == con4, "Different results.")
+        check(con1 == con2 && con2 == con3 && con3 == con4,
+              "Different results.")
         check(con1 != INVALID, "There is no connecting arc.");
         check(fg.source(con1) == src, "Wrong source.");
         check(fg.target(con1) == trg, "Wrong target.");
-        check(al3(src, trg, con3) == INVALID, "There is more connecting arc.");
-        check(findArc(fg, src, trg, con4) == INVALID, "There is more connecting arc.");
+        check(al3(src, trg, con3) == INVALID,
+              "There is more connecting arc.");
+        check(findArc(fg, src, trg, con4) == INVALID,
+              "There is more connecting arc.");
       }
     }
   }
@@ -123,7 +126,8 @@ void checkFindEdges() {
     for (NodeIt trg(graph); trg != INVALID; ++trg) {
       for (ConEdgeIt<Graph> con(graph, src, trg); con != INVALID; ++con) {
         check( (graph.u(con) == src && graph.v(con) == trg) ||
-               (graph.v(con) == src && graph.u(con) == trg), "Wrong end nodes.");
+               (graph.v(con) == src && graph.u(con) == trg),
+               "Wrong end nodes.");
         ++found[con];
         check(found[con] <= 2, "The edge found more than twice.");
       }

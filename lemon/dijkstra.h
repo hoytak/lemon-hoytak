@@ -173,7 +173,8 @@ namespace lemon {
     ///Instantiates a DistMap.
 
     ///This function instantiates a \ref DistMap.
-    ///\param G is the digraph, to which we would like to define the \ref DistMap
+    ///\param G is the digraph, to which we would like to define
+    ///the \ref DistMap
     static DistMap *createDistMap(const GR &G)
     {
       return new DistMap(G);
@@ -336,8 +337,8 @@ namespace lemon {
     ///
     template <class T>
     struct DefPredMap
-      : public Dijkstra< Digraph,        LengthMap, DefPredMapTraits<T> > {
-      typedef Dijkstra< Digraph,        LengthMap, DefPredMapTraits<T> > Create;
+      : public Dijkstra< Digraph, LengthMap, DefPredMapTraits<T> > {
+      typedef Dijkstra< Digraph, LengthMap, DefPredMapTraits<T> > Create;
     };
 
     template <class T>
@@ -372,8 +373,8 @@ namespace lemon {
     ///
     template <class T>
     struct DefProcessedMap
-      : public Dijkstra< Digraph,        LengthMap, DefProcessedMapTraits<T> > {
-      typedef Dijkstra< Digraph,        LengthMap, DefProcessedMapTraits<T> > Create;
+      : public Dijkstra< Digraph, LengthMap, DefProcessedMapTraits<T> > {
+      typedef Dijkstra< Digraph, LengthMap, DefProcessedMapTraits<T> > Create;
     };
 
     struct DefDigraphProcessedMapTraits : public Traits {
@@ -392,7 +393,8 @@ namespace lemon {
     template <class T>
     struct DefProcessedMapToBeDefaultMap
       : public Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits> {
-      typedef Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits> Create;
+      typedef Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits>
+      Create;
     };
 
     template <class H, class CR>
@@ -415,8 +417,8 @@ namespace lemon {
     ///
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct DefHeap
-      : public Dijkstra< Digraph,        LengthMap, DefHeapTraits<H, CR> > {
-      typedef Dijkstra< Digraph,        LengthMap, DefHeapTraits<H, CR> > Create;
+      : public Dijkstra< Digraph, LengthMap, DefHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph, LengthMap, DefHeapTraits<H, CR> > Create;
     };
 
     template <class H, class CR>
@@ -440,8 +442,8 @@ namespace lemon {
     ///parameter and the heap's constructor waits for the cross reference.
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct DefStandardHeap
-      : public Dijkstra< Digraph,        LengthMap, DefStandardHeapTraits<H, CR> > {
-      typedef Dijkstra< Digraph,        LengthMap, DefStandardHeapTraits<H, CR> >
+      : public Dijkstra< Digraph, LengthMap, DefStandardHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph, LengthMap, DefStandardHeapTraits<H, CR> >
       Create;
     };
 
@@ -976,7 +978,8 @@ namespace lemon {
     ///Instantiates a DistMap.
 
     ///This function instantiates a \ref DistMap.
-    ///\param g is the digraph, to which we would like to define the \ref DistMap
+    ///\param g is the digraph, to which we would like to define
+    ///the \ref DistMap
 #ifdef DOXYGEN
     static DistMap *createDistMap(const GR &g)
 #else

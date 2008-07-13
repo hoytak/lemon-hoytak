@@ -103,7 +103,8 @@ int main()
     ConstMap<A,Const<int,10> > map7 = map6;
     map6 = constMap<A,int,10>();
     map7 = constMap<A,Const<int,10> >();
-    check(map6[A()] == 10 && map7[A()] == 10, "Something is wrong with ConstMap");
+    check(map6[A()] == 10 && map7[A()] == 10,
+          "Something is wrong with ConstMap");
   }
 
   // IdentityMap
@@ -114,7 +115,8 @@ int main()
     map1 = identityMap<A>();
 
     checkConcept<ReadMap<double,double>, IdentityMap<double> >();
-    check(identityMap<double>()[1.0] == 1.0 && identityMap<double>()[3.14] == 3.14,
+    check(identityMap<double>()[1.0] == 1.0 &&
+          identityMap<double>()[3.14] == 3.14,
           "Something is wrong with IdentityMap");
   }
 
@@ -155,10 +157,12 @@ int main()
     SparseMap<double, int> map7 = sparseMap(m);
     SparseMap<double, int> map8 = sparseMap(m,10);
 
-    check(map5[1.0] == 0 && map5[3.14] == 0 && map6[1.0] == 10 && map6[3.14] == 10,
+    check(map5[1.0] == 0 && map5[3.14] == 0 &&
+          map6[1.0] == 10 && map6[3.14] == 10,
           "Something is wrong with SparseMap");
     map5[1.0] = map6[3.14] = 100;
-    check(map5[1.0] == 100 && map5[3.14] == 0 && map6[1.0] == 10 && map6[3.14] == 100,
+    check(map5[1.0] == 100 && map5[3.14] == 0 &&
+          map6[1.0] == 10 && map6[3.14] == 100,
           "Something is wrong with SparseMap");
   }
 
@@ -171,7 +175,8 @@ int main()
 
     SparseMap<double, bool> m1(false); m1[3.14] = true;
     RangeMap<double> m2(2); m2[0] = 3.0; m2[1] = 3.14;
-    check(!composeMap(m1,m2)[0] && composeMap(m1,m2)[1], "Something is wrong with ComposeMap")
+    check(!composeMap(m1,m2)[0] && composeMap(m1,m2)[1],
+          "Something is wrong with ComposeMap")
   }
 
   // CombineMap
@@ -196,9 +201,12 @@ int main()
     checkConcept<ReadMap<A,B>, MapToFunctor<ReadMap<A,B> > >();
     MapToFunctor<ReadMap<A,B> > map(ReadMap<A,B>());
 
-    check(functorToMap(&func)[A()] == 3, "Something is wrong with FunctorToMap");
-    check(mapToFunctor(constMap<A,int>(2))(A()) == 2, "Something is wrong with MapToFunctor");
-    check(mapToFunctor(functorToMap(&func))(A()) == 3 && mapToFunctor(functorToMap(&func))[A()] == 3,
+    check(functorToMap(&func)[A()] == 3,
+          "Something is wrong with FunctorToMap");
+    check(mapToFunctor(constMap<A,int>(2))(A()) == 2,
+          "Something is wrong with MapToFunctor");
+    check(mapToFunctor(functorToMap(&func))(A()) == 3 &&
+          mapToFunctor(functorToMap(&func))[A()] == 3,
           "Something is wrong with FunctorToMap or MapToFunctor");
     check(functorToMap(mapToFunctor(constMap<A,int>(2)))[A()] == 2,
           "Something is wrong with FunctorToMap or MapToFunctor");
@@ -206,7 +214,8 @@ int main()
 
   // ConvertMap
   {
-    checkConcept<ReadMap<double,double>, ConvertMap<ReadMap<double, int>, double> >();
+    checkConcept<ReadMap<double,double>,
+      ConvertMap<ReadMap<double, int>, double> >();
     ConvertMap<RangeMap<bool>, int> map1(rangeMap(1, true));
     ConvertMap<RangeMap<bool>, int> map2 = convertMap<int>(rangeMap(2, false));
   }
@@ -224,7 +233,8 @@ int main()
     ForkMap<RM, SM> map1(m1,m2);
     ForkMap<SM, RM> map2 = forkMap(m2,m1);
     map2.set(5, 10);
-    check(m1[1] == -1 && m1[5] == 10 && m2[1] == -1 && m2[5] == 10 && map2[1] == -1 && map2[5] == 10,
+    check(m1[1] == -1 && m1[5] == 10 && m2[1] == -1 &&
+          m2[5] == 10 && map2[1] == -1 && map2[5] == 10,
           "Something is wrong with ForkMap");
   }
 
@@ -241,10 +251,14 @@ int main()
     ConstMap<int, double> c1(1.0), c2(3.14);
     IdentityMap<int> im;
     ConvertMap<IdentityMap<int>, double> id(im);
-    check(addMap(c1,id)[0] == 1.0  && addMap(c1,id)[10] == 11.0, "Something is wrong with AddMap");
-    check(subMap(id,c1)[0] == -1.0 && subMap(id,c1)[10] == 9.0,  "Something is wrong with SubMap");
-    check(mulMap(id,c2)[0] == 0    && mulMap(id,c2)[2]  == 6.28, "Something is wrong with MulMap");
-    check(divMap(c2,id)[1] == 3.14 && divMap(c2,id)[2]  == 1.57, "Something is wrong with DivMap");
+    check(addMap(c1,id)[0] == 1.0  && addMap(c1,id)[10] == 11.0,
+          "Something is wrong with AddMap");
+    check(subMap(id,c1)[0] == -1.0 && subMap(id,c1)[10] == 9.0,
+          "Something is wrong with SubMap");
+    check(mulMap(id,c2)[0] == 0    && mulMap(id,c2)[2]  == 6.28,
+          "Something is wrong with MulMap");
+    check(divMap(c2,id)[1] == 3.14 && divMap(c2,id)[2]  == 1.57,
+          "Something is wrong with DivMap");
 
     checkConcept<DoubleMap, ShiftMap<DoubleMap> >();
     checkConcept<DoubleWriteMap, ShiftWriteMap<DoubleWriteMap> >();
@@ -256,11 +270,13 @@ int main()
 
     check(shiftMap(id, 2.0)[1] == 3.0 && shiftMap(id, 2.0)[10] == 12.0,
           "Something is wrong with ShiftMap");
-    check(shiftWriteMap(id, 2.0)[1] == 3.0 && shiftWriteMap(id, 2.0)[10] == 12.0,
+    check(shiftWriteMap(id, 2.0)[1] == 3.0 &&
+          shiftWriteMap(id, 2.0)[10] == 12.0,
           "Something is wrong with ShiftWriteMap");
     check(scaleMap(id, 2.0)[1] == 2.0 && scaleMap(id, 2.0)[10] == 20.0,
           "Something is wrong with ScaleMap");
-    check(scaleWriteMap(id, 2.0)[1] == 2.0 && scaleWriteMap(id, 2.0)[10] == 20.0,
+    check(scaleWriteMap(id, 2.0)[1] == 2.0 &&
+          scaleWriteMap(id, 2.0)[10] == 20.0,
           "Something is wrong with ScaleWriteMap");
     check(negMap(id)[1] == -1.0 && negMap(id)[-10] == 10.0,
           "Something is wrong with NegMap");
@@ -289,12 +305,16 @@ int main()
     FalseMap<int> fm;
     RangeMap<bool> rm(2);
     rm[0] = true; rm[1] = false;
-    check(andMap(tm,rm)[0] && !andMap(tm,rm)[1] && !andMap(fm,rm)[0] && !andMap(fm,rm)[1],
+    check(andMap(tm,rm)[0] && !andMap(tm,rm)[1] &&
+          !andMap(fm,rm)[0] && !andMap(fm,rm)[1],
           "Something is wrong with AndMap");
-    check(orMap(tm,rm)[0] && orMap(tm,rm)[1] && orMap(fm,rm)[0] && !orMap(fm,rm)[1],
+    check(orMap(tm,rm)[0] && orMap(tm,rm)[1] &&
+          orMap(fm,rm)[0] && !orMap(fm,rm)[1],
           "Something is wrong with OrMap");
-    check(!notMap(rm)[0] && notMap(rm)[1], "Something is wrong with NotMap");
-    check(!notWriteMap(rm)[0] && notWriteMap(rm)[1], "Something is wrong with NotWriteMap");
+    check(!notMap(rm)[0] && notMap(rm)[1],
+          "Something is wrong with NotMap");
+    check(!notWriteMap(rm)[0] && notWriteMap(rm)[1],
+          "Something is wrong with NotWriteMap");
 
     ConstMap<int, double> cm(2.0);
     IdentityMap<int> im;
@@ -310,7 +330,8 @@ int main()
     typedef std::vector<int> vec;
     vec v1;
     vec v2(10);
-    LoggerBoolMap<std::back_insert_iterator<vec> > map1(std::back_inserter(v1));
+    LoggerBoolMap<std::back_insert_iterator<vec> >
+      map1(std::back_inserter(v1));
     LoggerBoolMap<vec::iterator> map2(v2.begin());
     map1.set(10, false);
     map1.set(20, true);   map2.set(20, true);
@@ -318,7 +339,8 @@ int main()
     map1.set(50, true);   map2.set(50, true);
     map1.set(60, true);   map2.set(60, true);
     check(v1.size() == 3 && v2.size() == 10 &&
-          v1[0]==20 && v1[1]==50 && v1[2]==60 && v2[0]==20 && v2[1]==50 && v2[2]==60,
+          v1[0]==20 && v1[1]==50 && v1[2]==60 &&
+          v2[0]==20 && v2[1]==50 && v2[2]==60,
           "Something is wrong with LoggerBoolMap");
 
     int i = 0;

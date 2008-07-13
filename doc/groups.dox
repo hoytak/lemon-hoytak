@@ -227,7 +227,8 @@ function and given \f$s, t \in V\f$ source and target node. The
 maximum flow is the \f$f_a\f$ solution of the next optimization problem:
 
 \f[ 0 \le f_a \le c_a \f]
-\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv} \qquad \forall u \in V \setminus \{s,t\}\f]
+\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv}
+\qquad \forall u \in V \setminus \{s,t\}\f]
 \f[ \max \sum_{v\in\delta^{+}(s)}f_{uv} - \sum_{v\in\delta^{-}(s)}f_{vu}\f]
 
 LEMON contains several algorithms for solving maximum flow problems:
@@ -267,7 +268,8 @@ outgoing arcs. Formally, there is \f$G=(V,A)\f$ directed graph, an
 \f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity function. The minimum
 cut is the \f$X\f$ solution of the next optimization problem:
 
-\f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}\sum_{uv\in A, u\in X, v\not\in X}c_{uv}\f]
+\f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}
+\sum_{uv\in A, u\in X, v\not\in X}c_{uv}\f]
 
 LEMON contains several algorithms related to minimum cut problems:
 
@@ -300,7 +302,8 @@ like connectivity, bipartiteness, euler property, simplicity etc.
 @ingroup algs
 \brief Algorithms for planarity checking, embedding and drawing
 
-This group describes the algorithms for planarity checking, embedding and drawing.
+This group describes the algorithms for planarity checking,
+embedding and drawing.
 
 \image html planar.png
 \image latex planar.eps "Plane graph" width=\textwidth
@@ -477,7 +480,8 @@ and graph related data. Now it supports the LEMON format, the
 @ingroup io_group
 \brief Reading and writing \ref lgf-format "Lemon Graph Format".
 
-This group describes methods for reading and writing \ref lgf-format "Lemon Graph Format".
+This group describes methods for reading and writing
+\ref lgf-format "Lemon Graph Format".
 */
 
 /**

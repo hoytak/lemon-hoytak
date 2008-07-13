@@ -142,7 +142,8 @@ struct DefaultGraphToEpsTraits
   ///Constructor
   ///\param _g  Reference to the graph to be printed.
   ///\param _os Reference to the output stream.
-  ///\param _os Reference to the output stream. By default it is <tt>std::cout</tt>.
+  ///\param _os Reference to the output stream.
+  ///By default it is <tt>std::cout</tt>.
   ///\param _pros If it is \c true, then the \c ostream referenced by \c _os
   ///will be explicitly deallocated by the destructor.
   DefaultGraphToEpsTraits(const G &_g,std::ostream& _os=std::cout,
@@ -781,9 +782,11 @@ public:
     //x1 y1 x2 y2 x3 y3 cr cg cb w
     os << "/lb { setlinewidth setrgbcolor newpath moveto\n"
        << "      4 2 roll 1 index 1 index curveto stroke } bind def\n";
-    os << "/l { setlinewidth setrgbcolor newpath moveto lineto stroke } bind def\n";
+    os << "/l { setlinewidth setrgbcolor newpath moveto lineto stroke }"
+       << " bind def\n";
     //x y r
-    os << "/c { newpath dup 3 index add 2 index moveto 0 360 arc closepath } bind def\n";
+    os << "/c { newpath dup 3 index add 2 index moveto 0 360 arc closepath }"
+       << " bind def\n";
     //x y r
     os << "/sq { newpath 2 index 1 index add 2 index 2 index add moveto\n"
        << "      2 index 1 index sub 2 index 2 index add lineto\n"
@@ -811,8 +814,10 @@ public:
        << " 1.5 mul mul setlinewidth\n"
        << "  newpath 5 index 5 index moveto "
        << "5 index 5 index 5 index 3.01 mul sub\n"
-       << "  lineto 5 index 4 index .7 mul sub 5 index 5 index 2.2 mul sub moveto\n"
-       << "  5 index 4 index .7 mul add 5 index 5 index 2.2 mul sub lineto stroke\n"
+       << "  lineto 5 index 4 index .7 mul sub 5 index 5 index 2.2 mul sub"
+       << " moveto\n"
+       << "  5 index 4 index .7 mul add 5 index 5 index 2.2 mul sub lineto "
+       << "stroke\n"
        << "  5 index 5 index 5 index c fill\n"
        << "  setrgbcolor " << 1+_nodeBorderQuotient << " div c fill\n"
        << "  } bind def\n";
@@ -826,7 +831,8 @@ public:
        << "  1 index 1 index lineto\n"
        << "  1 index 1 index 7 index sub moveto\n"
        << "  1 index 1 index lineto\n"
-       << "  exch 5 index 3 sqrt .5 mul mul sub exch 5 index .5 mul sub lineto\n"
+       << "  exch 5 index 3 sqrt .5 mul mul sub exch 5 index .5 mul sub"
+       << " lineto\n"
        << "  stroke\n"
        << "  5 index 5 index 5 index c fill\n"
        << "  setrgbcolor " << 1+_nodeBorderQuotient << " div c fill\n"
@@ -838,9 +844,10 @@ public:
     // l dx_norm dy_norm
     os << "/lrl { 2 index mul exch 2 index mul exch rlineto pop} bind def\n";
     //len w dx_norm dy_norm x1 y1 cr cg cb
-    os << "/arr { setrgbcolor /y1 exch def /x1 exch def /dy exch def /dx exch def\n"
+    os << "/arr { setrgbcolor /y1 exch def /x1 exch def /dy exch def /dx "
+       << "exch def\n"
        << "       /w exch def /len exch def\n"
-      //         << "       0.1 setlinewidth x1 y1 moveto dx len mul dy len mul rlineto stroke"
+      //<< "0.1 setlinewidth x1 y1 moveto dx len mul dy len mul rlineto stroke"
        << "       newpath x1 dy w 2 div mul add y1 dx w 2 div mul sub moveto\n"
        << "       len w sub arrl sub dx dy lrl\n"
        << "       arrw dy dx neg lrl\n"
@@ -902,7 +909,8 @@ public:
           //\todo better 'epsilon' would be nice here.
           dim2::Point<double> d(dvec/std::max(l,EPSILON));
            dim2::Point<double> m;
-//           m=dim2::Point<double>(mycoords[g.target(*i)]+mycoords[g.source(*i)])/2.0;
+//           m=dim2::Point<double>(mycoords[g.target(*i)]+
+//                                 mycoords[g.source(*i)])/2.0;
 
 //            m=dim2::Point<double>(mycoords[g.source(*i)])+
 //             dvec*(double(_nodeSizes[g.source(*i)])/
@@ -938,7 +946,8 @@ public:
 //               node_shape=_nodeShapes[g.source(*e)];
 //               t1=0;t2=1;
 //               for(int i=0;i<INTERPOL_PREC;++i)
-//                 if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape)) t1=(t1+t2)/2;
+//                 if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape))
+//                   t1=(t1+t2)/2;
 //                 else t2=(t1+t2)/2;
 //               bez=bez.after((t1+t2)/2);
               os << _arcWidths[*e]*_arcWidthScale << " setlinewidth "

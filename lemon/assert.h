@@ -151,8 +151,9 @@ namespace lemon {
 /// - \c LEMON_ASSERT_CUSTOM The user can define own assertion handler
 ///   function.
 ///   \code
-///     void custom_assert_handler(const char* file, int line, const char* function,
-///                                const char* message, const char* assertion);
+///     void custom_assert_handler(const char* file, int line,
+///                                const char* function, const char* message,
+///                                const char* assertion);
 ///   \endcode
 ///   The name of the function should be defined as the \c
 ///   LEMON_CUSTOM_ASSERT_HANDLER macro name.
@@ -185,7 +186,7 @@ namespace lemon {
 /// \see LEMON_ASSERT
 #  define LEMON_FIXME(msg)                                                \
   (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,        \
-                        ::lemon::_assert_bits::cstringify(msg),                \
+                        ::lemon::_assert_bits::cstringify(msg),          \
                         static_cast<const char*>(0)))
 
 /// \ingroup exceptions
@@ -240,7 +241,7 @@ namespace lemon {
          (static_cast<void> (!!(exp) ? 0 : (         \
            LEMON_ASSERT_HANDLER(__FILE__, __LINE__,  \
                                 LEMON_FUNCTION_NAME, \
-                                ::lemon::_assert_bits::cstringify(msg),        \
+                                ::lemon::_assert_bits::cstringify(msg),     \
                                 #exp), 0)))
 #    else
 #      define LEMON_DEBUG(exp, msg) (static_cast<void>(0))

@@ -105,7 +105,8 @@ namespace lemon {
     ///Instantiates a DistMap.
 
     ///This function instantiates a \ref DistMap.
-    ///\param G is the digraph, to which we would like to define the \ref DistMap
+    ///\param G is the digraph, to which we would like to define
+    ///the \ref DistMap
     static DistMap *createDistMap(const GR &G)
     {
       return new DistMap(G);
@@ -808,7 +809,8 @@ namespace lemon {
     ///Instantiates a DistMap.
 
     ///This function instantiates a \ref DistMap.
-    ///\param g is the digraph, to which we would like to define the \ref DistMap
+    ///\param g is the digraph, to which we would like to define
+    ///the \ref DistMap
 #ifdef DOXYGEN
     static DistMap *createDistMap(const GR &g)
 #else
@@ -1193,7 +1195,8 @@ namespace lemon {
   /// class. It works with callback mechanism, the DfsVisit object calls
   /// on every dfs event the \c Visitor class member functions.
   ///
-  /// \tparam _Digraph The digraph type the algorithm runs on. The default value is
+  /// \tparam _Digraph The digraph type the algorithm runs on.
+  /// The default value is
   /// \ref ListDigraph. The value of _Digraph is not used directly by Dfs, it
   /// is only passed to \ref DfsDefaultTraits.
   /// \tparam _Visitor The Visitor object for the algorithm. The

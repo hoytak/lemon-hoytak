@@ -110,8 +110,10 @@ void checkDijkstra() {
   for(ArcIt e(G); e!=INVALID; ++e) {
     Node u=G.source(e);
     Node v=G.target(e);
-    check( !dijkstra_test.reached(u) || (dijkstra_test.dist(v) - dijkstra_test.dist(u) <= length[e]),
-           "dist(target)-dist(source)-arc_length= " << dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]);
+    check( !dijkstra_test.reached(u) ||
+           (dijkstra_test.dist(v) - dijkstra_test.dist(u) <= length[e]),
+           "dist(target)-dist(source)-arc_length= " <<
+           dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]);
   }
 
   for(NodeIt v(G); v!=INVALID; ++v){
@@ -121,7 +123,8 @@ void checkDijkstra() {
       Node u=G.source(e);
       check(u==dijkstra_test.predNode(v),"Wrong tree.");
       check(dijkstra_test.dist(v) - dijkstra_test.dist(u) == length[e],
-            "Wrong distance! Difference: " << std::abs(dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]));
+            "Wrong distance! Difference: " <<
+            std::abs(dijkstra_test.dist(v)-dijkstra_test.dist(u)-length[e]));
     }
   }
 
