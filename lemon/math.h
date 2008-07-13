@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -33,7 +33,7 @@ namespace lemon {
 
   /// \addtogroup misc
   /// @{
-  
+
   /// The Euler constant
   const long double E       = 2.7182818284590452353602874713526625L;
   /// log_2(e)
@@ -54,7 +54,7 @@ namespace lemon {
   const long double SQRT2   = 1.4142135623730950488016887242096981L;
   /// 1/sqrt(2)
   const long double SQRT1_2 = 0.7071067811865475244008443621048490L;
-  
+
 
   /// @}
 

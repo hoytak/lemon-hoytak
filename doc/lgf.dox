@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -43,7 +43,7 @@ The standard sections are column oriented, each line consists of
 \e quoted. A plain token is just a sequence of non-whitespace characters,
 while a quoted token is a
 character sequence surrounded by double quotes, and it can also
-contain whitespaces and escape sequences. 
+contain whitespaces and escape sequences.
 
 The \c \@nodes section describes a set of nodes and associated
 maps. The first is a header line, its columns are the names of the
@@ -72,7 +72,7 @@ values. The source and target tokens must be node labels.
 
 \code
  @arcs
- 	      capacity
+               capacity
  1   2   16
  1   3   12
  2   3   18

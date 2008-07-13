@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -60,7 +60,7 @@ namespace lemon {
       Value operator[](Key n) { return Value(map[n].x,map[n].y*yscale);}
     };
   }
-  
+
 ///Default traits class of \ref GraphToEps
 
 ///Default traits class of \ref GraphToEps.
@@ -76,12 +76,12 @@ struct DefaultGraphToEpsTraits
   typedef typename Graph::ArcIt ArcIt;
   typedef typename Graph::InArcIt InArcIt;
   typedef typename Graph::OutArcIt OutArcIt;
-  
+
 
   const Graph &g;
 
   std::ostream& os;
-  
+
   typedef ConstMap<typename Graph::Node,dim2::Point<double> > CoordsMapType;
   CoordsMapType _coords;
   ConstMap<typename Graph::Node,double > _nodeSizes;
@@ -93,28 +93,28 @@ struct DefaultGraphToEpsTraits
   ConstMap<typename Graph::Arc,double > _arcWidths;
 
   double _arcWidthScale;
-  
+
   double _nodeScale;
   double _xBorder, _yBorder;
   double _scale;
   double _nodeBorderQuotient;
-  
+
   bool _drawArrows;
   double _arrowLength, _arrowWidth;
-  
+
   bool _showNodes, _showArcs;
 
   bool _enableParallel;
   double _parArcDist;
 
   bool _showNodeText;
-  ConstMap<typename Graph::Node,bool > _nodeTexts;  
+  ConstMap<typename Graph::Node,bool > _nodeTexts;
   double _nodeTextSize;
 
   bool _showNodePsText;
-  ConstMap<typename Graph::Node,bool > _nodePsTexts;  
+  ConstMap<typename Graph::Node,bool > _nodePsTexts;
   char *_nodePsTextsPreamble;
-  
+
   bool _undirected;
 
   bool _pleaseRemoveOsStream;
@@ -124,7 +124,7 @@ struct DefaultGraphToEpsTraits
   std::string _title;
   std::string _copyright;
 
-  enum NodeTextColorType 
+  enum NodeTextColorType
     { DIST_COL=0, DIST_BW=1, CUST_COL=2, SAME_COL=3 } _nodeTextColorType;
   ConstMap<typename Graph::Node,Color > _nodeTextColors;
 
@@ -146,7 +146,7 @@ struct DefaultGraphToEpsTraits
   ///\param _pros If it is \c true, then the \c ostream referenced by \c _os
   ///will be explicitly deallocated by the destructor.
   DefaultGraphToEpsTraits(const G &_g,std::ostream& _os=std::cout,
-			  bool _pros=false) :
+                          bool _pros=false) :
     g(_g), os(_os),
     _coords(dim2::Point<double>(1,1)), _nodeSizes(1), _nodeShapes(0),
     _nodeColors(WHITE), _arcColors(BLACK),
@@ -175,7 +175,7 @@ struct DefaultGraphToEpsTraits
 ///Auxiliary class to implement the named parameters of \ref graphToEps().
 ///
 ///For detailed examples see the \ref graph_to_eps_demo.cc demo file.
-template<class T> class GraphToEps : public T 
+template<class T> class GraphToEps : public T
 {
   // Can't believe it is required by the C++ standard
   using T::g;
@@ -194,11 +194,11 @@ template<class T> class GraphToEps : public T
   using T::_yBorder;
   using T::_scale;
   using T::_nodeBorderQuotient;
-  
+
   using T::_drawArrows;
   using T::_arrowLength;
   using T::_arrowWidth;
-  
+
   using T::_showNodes;
   using T::_showArcs;
 
@@ -206,13 +206,13 @@ template<class T> class GraphToEps : public T
   using T::_parArcDist;
 
   using T::_showNodeText;
-  using T::_nodeTexts;  
+  using T::_nodeTexts;
   using T::_nodeTextSize;
 
   using T::_showNodePsText;
-  using T::_nodePsTexts;  
+  using T::_nodePsTexts;
   using T::_nodePsTextsPreamble;
-  
+
   using T::_undirected;
 
   using T::_pleaseRemoveOsStream;
@@ -261,16 +261,16 @@ public:
 
   ///Node shapes.
   ///
-  enum NodeShapes { 
+  enum NodeShapes {
     /// = 0
     ///\image html nodeshape_0.png
     ///\image latex nodeshape_0.eps "CIRCLE shape (0)" width=2cm
-    CIRCLE=0, 
+    CIRCLE=0,
     /// = 1
     ///\image html nodeshape_1.png
     ///\image latex nodeshape_1.eps "SQUARE shape (1)" width=2cm
     ///
-    SQUARE=1, 
+    SQUARE=1,
     /// = 2
     ///\image html nodeshape_2.png
     ///\image latex nodeshape_2.eps "DIAMOND shape (2)" width=2cm
@@ -293,41 +293,41 @@ private:
     const Graph &g;
   public:
     arcLess(const Graph &_g) : g(_g) {}
-    bool operator()(Arc a,Arc b) const 
+    bool operator()(Arc a,Arc b) const
     {
       Node ai=std::min(g.source(a),g.target(a));
       Node aa=std::max(g.source(a),g.target(a));
       Node bi=std::min(g.source(b),g.target(b));
       Node ba=std::max(g.source(b),g.target(b));
       return ai<bi ||
-	(ai==bi && (aa < ba || 
-		    (aa==ba && ai==g.source(a) && bi==g.target(b))));
+        (ai==bi && (aa < ba ||
+                    (aa==ba && ai==g.source(a) && bi==g.target(b))));
     }
   };
   bool isParallel(Arc e,Arc f) const
   {
     return (g.source(e)==g.source(f)&&
-	    g.target(e)==g.target(f)) ||
+            g.target(e)==g.target(f)) ||
       (g.source(e)==g.target(f)&&
        g.target(e)==g.source(f));
   }
   template<class TT>
-  static std::string psOut(const dim2::Point<TT> &p) 
+  static std::string psOut(const dim2::Point<TT> &p)
     {
-      std::ostringstream os;	
+      std::ostringstream os;
       os << p.x << ' ' << p.y;
       return os.str();
     }
-  static std::string psOut(const Color &c) 
+  static std::string psOut(const Color &c)
     {
-      std::ostringstream os;	
+      std::ostringstream os;
       os << c.red() << ' ' << c.green() << ' ' << c.blue();
       return os.str();
     }
-  
+
 public:
   GraphToEps(const T &t) : T(t), dontPrint(false) {};
-  
+
   template<class X> struct CoordsTraits : public T {
   typedef X CoordsMapType;
     const X &_coords;
@@ -337,7 +337,7 @@ public:
 
   ///Sets the map of the node coordinates.
   ///\param x must be a node map with \ref dim2::Point "dim2::Point<double>" or
-  ///\ref dim2::Point "dim2::Point<int>" values. 
+  ///\ref dim2::Point "dim2::Point<int>" values.
   template<class X> GraphToEps<CoordsTraits<X> > coords(const X &x) {
     dontPrint=true;
     return GraphToEps<CoordsTraits<X> >(CoordsTraits<X>(*this,x));
@@ -349,7 +349,7 @@ public:
   ///Sets the map of the node sizes
 
   ///Sets the map of the node sizes.
-  ///\param x must be a node map with \c double (or convertible) values. 
+  ///\param x must be a node map with \c double (or convertible) values.
   template<class X> GraphToEps<NodeSizesTraits<X> > nodeSizes(const X &x)
   {
     dontPrint=true;
@@ -364,7 +364,7 @@ public:
   ///Sets the map of the node shapes.
   ///The available shape values
   ///can be found in \ref NodeShapes "enum NodeShapes".
-  ///\param x must be a node map with \c int (or convertible) values. 
+  ///\param x must be a node map with \c int (or convertible) values.
   ///\sa NodeShapes
   template<class X> GraphToEps<NodeShapesTraits<X> > nodeShapes(const X &x)
   {
@@ -379,7 +379,7 @@ public:
 
   ///Sets the text printed on the nodes.
   ///\param x must be a node map with type that can be pushed to a standard
-  ///\c ostream. 
+  ///\c ostream.
   template<class X> GraphToEps<NodeTextsTraits<X> > nodeTexts(const X &x)
   {
     dontPrint=true;
@@ -417,7 +417,7 @@ public:
   ///Sets the map of the arc widths
 
   ///Sets the map of the arc widths.
-  ///\param x must be an arc map with \c double (or convertible) values. 
+  ///\param x must be an arc map with \c double (or convertible) values.
   template<class X> GraphToEps<ArcWidthsTraits<X> > arcWidths(const X &x)
   {
     dontPrint=true;
@@ -447,7 +447,7 @@ public:
   ///Sets the map of the node text colors
 
   ///Sets the map of the node text colors.
-  ///\param x must be a node map with \ref Color values. 
+  ///\param x must be a node map with \ref Color values.
   ///
   ///\sa Palette
   template<class X> GraphToEps<NodeTextColorsTraits<X> >
@@ -465,7 +465,7 @@ public:
   ///Sets the map of the arc colors
 
   ///Sets the map of the arc colors.
-  ///\param x must be an arc map with \ref Color values. 
+  ///\param x must be an arc map with \ref Color values.
   ///
   ///\sa Palette
   template<class X> GraphToEps<ArcColorsTraits<X> >
@@ -477,7 +477,7 @@ public:
   ///Sets a global scale factor for node sizes
 
   ///Sets a global scale factor for node sizes.
-  /// 
+  ///
   /// If nodeSizes() is not given, this function simply sets the node
   /// sizes to \c d.  If nodeSizes() is given, but
   /// autoNodeScale() is not, then the node size given by
@@ -568,21 +568,21 @@ public:
   GraphToEps<T> &arrowLength(double d=1.0) {_arrowLength*=d;return *this;}
   ///Sets the width of the arrowheads
   GraphToEps<T> &arrowWidth(double d=.3) {_arrowWidth*=d;return *this;}
-  
+
   ///Scales the drawing to fit to A4 page
   GraphToEps<T> &scaleToA4() {_scaleToA4=true;return *this;}
-  
+
   ///Enables parallel arcs
   GraphToEps<T> &enableParallel(bool b=true) {_enableParallel=b;return *this;}
-  
+
   ///Sets the distance between parallel arcs
   GraphToEps<T> &parArcDist(double d) {_parArcDist*=d;return *this;}
-  
+
   ///Hides the arcs
   GraphToEps<T> &hideArcs(bool b=true) {_showArcs=!b;return *this;}
   ///Hides the nodes
   GraphToEps<T> &hideNodes(bool b=true) {_showNodes=!b;return *this;}
-  
+
   ///Sets the size of the node texts
   GraphToEps<T> &nodeTextSize(double d) {_nodeTextSize=d;return *this;}
 
@@ -600,7 +600,7 @@ public:
   {_nodeTextColorType=DIST_BW;return *this;}
 
   ///Gives a preamble block for node Postscript block.
-  
+
   ///Gives a preamble block for node Postscript block.
   ///
   ///\sa nodePsTexts()
@@ -625,7 +625,7 @@ public:
   ///
   ///\sa undirected()
   GraphToEps<T> &directed(bool b=true) {_undirected=!b;return *this;}
-  
+
   ///Sets the title.
 
   ///Sets the title of the generated image,
@@ -640,7 +640,7 @@ public:
   GraphToEps<T> &copyright(const std::string &t) {_copyright=t;return *this;}
 
 protected:
-  bool isInsideNode(dim2::Point<double> p, double r,int t) 
+  bool isInsideNode(dim2::Point<double> p, double r,int t)
   {
     switch(t) {
     case CIRCLE:
@@ -657,7 +657,7 @@ protected:
 
 public:
   ~GraphToEps() { }
-  
+
   ///Draws the graph.
 
   ///Like other functions using
@@ -668,7 +668,7 @@ public:
     //\todo better 'epsilon' would be nice here.
     const double EPSILON=1e-9;
     if(dontPrint) return;
-    
+
     _graph_to_eps_bits::_NegY<typename T::CoordsMapType>
       mycoords(_coords,_negY);
 
@@ -677,8 +677,8 @@ public:
      if(_copyright.size()>0) os << "%%Copyright: " << _copyright << '\n';
     os << "%%Creator: LEMON, graphToEps()\n";
 
-    {    
-#ifndef WIN32 
+    {
+#ifndef WIN32
       timeval tv;
       gettimeofday(&tv, 0);
 
@@ -688,37 +688,37 @@ public:
 #else
       SYSTEMTIME time;
       char buf1[11], buf2[9], buf3[5];
-      
+
       GetSystemTime(&time);
-      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time, 
-			"ddd MMM dd", buf1, 11) &&
-	  GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time, 
-			"HH':'mm':'ss", buf2, 9) &&
-	  GetDateFormat(LOCALE_USER_DEFAULT, 0, &time, 
-				"yyyy", buf3, 5)) {
-	os << "%%CreationDate: " << buf1 << ' ' 
-	   << buf2 << ' ' << buf3 << std::endl;
-      }	  
+      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
+                        "ddd MMM dd", buf1, 11) &&
+          GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
+                        "HH':'mm':'ss", buf2, 9) &&
+          GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
+                                "yyyy", buf3, 5)) {
+        os << "%%CreationDate: " << buf1 << ' '
+           << buf2 << ' ' << buf3 << std::endl;
+      }
 #endif
     }
 
     if (_autoArcWidthScale) {
       double max_w=0;
       for(ArcIt e(g);e!=INVALID;++e)
-	max_w=std::max(double(_arcWidths[e]),max_w);
+        max_w=std::max(double(_arcWidths[e]),max_w);
       //\todo better 'epsilon' would be nice here.
       if(max_w>EPSILON) {
-	_arcWidthScale/=max_w;
+        _arcWidthScale/=max_w;
       }
     }
 
     if (_autoNodeScale) {
       double max_s=0;
       for(NodeIt n(g);n!=INVALID;++n)
-	max_s=std::max(double(_nodeSizes[n]),max_s);
+        max_s=std::max(double(_nodeSizes[n]),max_s);
       //\todo better 'epsilon' would be nice here.
       if(max_s>EPSILON) {
-	_nodeScale/=max_s;
+        _nodeScale/=max_s;
       }
     }
 
@@ -727,14 +727,14 @@ public:
       dim2::BoundingBox<double> bb;
       for(NodeIt n(g);n!=INVALID;++n) bb.add(mycoords[n]);
       if (bb.empty()) {
-	bb = dim2::BoundingBox<double>(dim2::Point<double>(0,0));
+        bb = dim2::BoundingBox<double>(dim2::Point<double>(0,0));
       }
       diag_len = std::sqrt((bb.bottomLeft()-bb.topRight()).normSquare());
       if(diag_len<EPSILON) diag_len = 1;
       if(!_absoluteNodeSizes) _nodeScale*=diag_len;
       if(!_absoluteArcWidths) _arcWidthScale*=diag_len;
     }
-    
+
     dim2::BoundingBox<double> bb;
     for(NodeIt n(g);n!=INVALID;++n) {
       double ns=_nodeSizes[n]*_nodeScale;
@@ -743,41 +743,41 @@ public:
       case CIRCLE:
       case SQUARE:
       case DIAMOND:
-	bb.add(p+mycoords[n]);
-	bb.add(-p+mycoords[n]);
-	break;
+        bb.add(p+mycoords[n]);
+        bb.add(-p+mycoords[n]);
+        break;
       case MALE:
-	bb.add(-p+mycoords[n]);
-	bb.add(dim2::Point<double>(1.5*ns,1.5*std::sqrt(3.0)*ns)+mycoords[n]);
-	break;
+        bb.add(-p+mycoords[n]);
+        bb.add(dim2::Point<double>(1.5*ns,1.5*std::sqrt(3.0)*ns)+mycoords[n]);
+        break;
       case FEMALE:
-	bb.add(p+mycoords[n]);
-	bb.add(dim2::Point<double>(-ns,-3.01*ns)+mycoords[n]);
-	break;
+        bb.add(p+mycoords[n]);
+        bb.add(dim2::Point<double>(-ns,-3.01*ns)+mycoords[n]);
+        break;
       }
     }
     if (bb.empty()) {
       bb = dim2::BoundingBox<double>(dim2::Point<double>(0,0));
     }
-    
+
     if(_scaleToA4)
       os <<"%%BoundingBox: 0 0 596 842\n%%DocumentPaperSizes: a4\n";
     else {
       if(_preScale) {
-	//Rescale so that BoundingBox won't be neither to big nor too small.
-	while(bb.height()*_scale>1000||bb.width()*_scale>1000) _scale/=10;
-	while(bb.height()*_scale<100||bb.width()*_scale<100) _scale*=10;
+        //Rescale so that BoundingBox won't be neither to big nor too small.
+        while(bb.height()*_scale>1000||bb.width()*_scale>1000) _scale/=10;
+        while(bb.height()*_scale<100||bb.width()*_scale<100) _scale*=10;
       }
-      
+
       os << "%%BoundingBox: "
-	 << int(floor(bb.left()   * _scale - _xBorder)) << ' '
-	 << int(floor(bb.bottom() * _scale - _yBorder)) << ' '
-	 << int(ceil(bb.right()  * _scale + _xBorder)) << ' '
-	 << int(ceil(bb.top()    * _scale + _yBorder)) << '\n';
+         << int(floor(bb.left()   * _scale - _xBorder)) << ' '
+         << int(floor(bb.bottom() * _scale - _yBorder)) << ' '
+         << int(ceil(bb.right()  * _scale + _xBorder)) << ' '
+         << int(ceil(bb.top()    * _scale + _yBorder)) << '\n';
     }
-    
+
     os << "%%EndComments\n";
-    
+
     //x1 y1 x2 y2 x3 y3 cr cg cb w
     os << "/lb { setlinewidth setrgbcolor newpath moveto\n"
        << "      4 2 roll 1 index 1 index curveto stroke } bind def\n";
@@ -831,7 +831,7 @@ public:
        << "  5 index 5 index 5 index c fill\n"
        << "  setrgbcolor " << 1+_nodeBorderQuotient << " div c fill\n"
        << "  } bind def\n";
-    
+
 
     os << "/arrl " << _arrowLength << " def\n";
     os << "/arrw " << _arrowWidth << " def\n";
@@ -840,7 +840,7 @@ public:
     //len w dx_norm dy_norm x1 y1 cr cg cb
     os << "/arr { setrgbcolor /y1 exch def /x1 exch def /dy exch def /dx exch def\n"
        << "       /w exch def /len exch def\n"
-      //	 << "       0.1 setlinewidth x1 y1 moveto dx len mul dy len mul rlineto stroke"
+      //         << "       0.1 setlinewidth x1 y1 moveto dx len mul dy len mul rlineto stroke"
        << "       newpath x1 dy w 2 div mul add y1 dx w 2 div mul sub moveto\n"
        << "       len w sub arrl sub dx dy lrl\n"
        << "       arrw dy dx neg lrl\n"
@@ -857,175 +857,175 @@ public:
     os << "\ngsave\n";
     if(_scaleToA4)
       if(bb.height()>bb.width()) {
-	double sc= std::min((A4HEIGHT-2*A4BORDER)/bb.height(),
-		  (A4WIDTH-2*A4BORDER)/bb.width());
-	os << ((A4WIDTH -2*A4BORDER)-sc*bb.width())/2 + A4BORDER << ' '
-	   << ((A4HEIGHT-2*A4BORDER)-sc*bb.height())/2 + A4BORDER
-	   << " translate\n"
-	   << sc << " dup scale\n"
-	   << -bb.left() << ' ' << -bb.bottom() << " translate\n";
+        double sc= std::min((A4HEIGHT-2*A4BORDER)/bb.height(),
+                  (A4WIDTH-2*A4BORDER)/bb.width());
+        os << ((A4WIDTH -2*A4BORDER)-sc*bb.width())/2 + A4BORDER << ' '
+           << ((A4HEIGHT-2*A4BORDER)-sc*bb.height())/2 + A4BORDER
+           << " translate\n"
+           << sc << " dup scale\n"
+           << -bb.left() << ' ' << -bb.bottom() << " translate\n";
       }
       else {
-	//\todo Verify centering
-	double sc= std::min((A4HEIGHT-2*A4BORDER)/bb.width(),
-		  (A4WIDTH-2*A4BORDER)/bb.height());
-	os << ((A4WIDTH -2*A4BORDER)-sc*bb.height())/2 + A4BORDER << ' '
-	   << ((A4HEIGHT-2*A4BORDER)-sc*bb.width())/2 + A4BORDER 
-	   << " translate\n"
-	   << sc << " dup scale\n90 rotate\n"
-	   << -bb.left() << ' ' << -bb.top() << " translate\n";	
-	}
+        //\todo Verify centering
+        double sc= std::min((A4HEIGHT-2*A4BORDER)/bb.width(),
+                  (A4WIDTH-2*A4BORDER)/bb.height());
+        os << ((A4WIDTH -2*A4BORDER)-sc*bb.height())/2 + A4BORDER << ' '
+           << ((A4HEIGHT-2*A4BORDER)-sc*bb.width())/2 + A4BORDER
+           << " translate\n"
+           << sc << " dup scale\n90 rotate\n"
+           << -bb.left() << ' ' << -bb.top() << " translate\n";
+        }
     else if(_scale!=1.0) os << _scale << " dup scale\n";
-    
+
     if(_showArcs) {
-      os << "%Arcs:\ngsave\n";      
+      os << "%Arcs:\ngsave\n";
       if(_enableParallel) {
-	std::vector<Arc> el;
-	for(ArcIt e(g);e!=INVALID;++e)
-	  if((!_undirected||g.source(e)<g.target(e))&&_arcWidths[e]>0
-	     &&g.source(e)!=g.target(e))
-	    el.push_back(e);
-	std::sort(el.begin(),el.end(),arcLess(g));
-	
-	typename std::vector<Arc>::iterator j;
-	for(typename std::vector<Arc>::iterator i=el.begin();i!=el.end();i=j) {
-	  for(j=i+1;j!=el.end()&&isParallel(*i,*j);++j) ;
+        std::vector<Arc> el;
+        for(ArcIt e(g);e!=INVALID;++e)
+          if((!_undirected||g.source(e)<g.target(e))&&_arcWidths[e]>0
+             &&g.source(e)!=g.target(e))
+            el.push_back(e);
+        std::sort(el.begin(),el.end(),arcLess(g));
 
-	  double sw=0;
-	  for(typename std::vector<Arc>::iterator e=i;e!=j;++e)
-	    sw+=_arcWidths[*e]*_arcWidthScale+_parArcDist;
-	  sw-=_parArcDist;
-	  sw/=-2.0;
-	  dim2::Point<double>
-	    dvec(mycoords[g.target(*i)]-mycoords[g.source(*i)]);
-	  double l=std::sqrt(dvec.normSquare()); 
-	  //\todo better 'epsilon' would be nice here.
-	  dim2::Point<double> d(dvec/std::max(l,EPSILON));
- 	  dim2::Point<double> m;
-// 	  m=dim2::Point<double>(mycoords[g.target(*i)]+mycoords[g.source(*i)])/2.0;
+        typename std::vector<Arc>::iterator j;
+        for(typename std::vector<Arc>::iterator i=el.begin();i!=el.end();i=j) {
+          for(j=i+1;j!=el.end()&&isParallel(*i,*j);++j) ;
 
-//  	  m=dim2::Point<double>(mycoords[g.source(*i)])+
-// 	    dvec*(double(_nodeSizes[g.source(*i)])/
-// 	       (_nodeSizes[g.source(*i)]+_nodeSizes[g.target(*i)]));
+          double sw=0;
+          for(typename std::vector<Arc>::iterator e=i;e!=j;++e)
+            sw+=_arcWidths[*e]*_arcWidthScale+_parArcDist;
+          sw-=_parArcDist;
+          sw/=-2.0;
+          dim2::Point<double>
+            dvec(mycoords[g.target(*i)]-mycoords[g.source(*i)]);
+          double l=std::sqrt(dvec.normSquare());
+          //\todo better 'epsilon' would be nice here.
+          dim2::Point<double> d(dvec/std::max(l,EPSILON));
+           dim2::Point<double> m;
+//           m=dim2::Point<double>(mycoords[g.target(*i)]+mycoords[g.source(*i)])/2.0;
 
- 	  m=dim2::Point<double>(mycoords[g.source(*i)])+
-	    d*(l+_nodeSizes[g.source(*i)]-_nodeSizes[g.target(*i)])/2.0;
+//            m=dim2::Point<double>(mycoords[g.source(*i)])+
+//             dvec*(double(_nodeSizes[g.source(*i)])/
+//                (_nodeSizes[g.source(*i)]+_nodeSizes[g.target(*i)]));
 
-	  for(typename std::vector<Arc>::iterator e=i;e!=j;++e) {
-	    sw+=_arcWidths[*e]*_arcWidthScale/2.0;
-	    dim2::Point<double> mm=m+rot90(d)*sw/.75;
-	    if(_drawArrows) {
-	      int node_shape;
-	      dim2::Point<double> s=mycoords[g.source(*e)];
-	      dim2::Point<double> t=mycoords[g.target(*e)];
-	      double rn=_nodeSizes[g.target(*e)]*_nodeScale;
-	      node_shape=_nodeShapes[g.target(*e)];
-	      dim2::Bezier3 bez(s,mm,mm,t);
-	      double t1=0,t2=1;
-	      for(int ii=0;ii<INTERPOL_PREC;++ii)
-		if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape)) t2=(t1+t2)/2;
-		else t1=(t1+t2)/2;
-	      dim2::Point<double> apoint=bez((t1+t2)/2);
-	      rn = _arrowLength+_arcWidths[*e]*_arcWidthScale;
-	      rn*=rn;
-	      t2=(t1+t2)/2;t1=0;
-	      for(int ii=0;ii<INTERPOL_PREC;++ii)
-		if((bez((t1+t2)/2)-apoint).normSquare()>rn) t1=(t1+t2)/2;
-		else t2=(t1+t2)/2;
-	      dim2::Point<double> linend=bez((t1+t2)/2);	      
-	      bez=bez.before((t1+t2)/2);
-// 	      rn=_nodeSizes[g.source(*e)]*_nodeScale;
-// 	      node_shape=_nodeShapes[g.source(*e)];
-// 	      t1=0;t2=1;
-// 	      for(int i=0;i<INTERPOL_PREC;++i)
-// 		if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape)) t1=(t1+t2)/2;
-// 		else t2=(t1+t2)/2;
-// 	      bez=bez.after((t1+t2)/2);
-	      os << _arcWidths[*e]*_arcWidthScale << " setlinewidth "
-		 << _arcColors[*e].red() << ' '
-		 << _arcColors[*e].green() << ' '
-		 << _arcColors[*e].blue() << " setrgbcolor newpath\n"
-		 << bez.p1.x << ' ' <<  bez.p1.y << " moveto\n"
-		 << bez.p2.x << ' ' << bez.p2.y << ' '
-		 << bez.p3.x << ' ' << bez.p3.y << ' '
-		 << bez.p4.x << ' ' << bez.p4.y << " curveto stroke\n";
-	      dim2::Point<double> dd(rot90(linend-apoint));
-	      dd*=(.5*_arcWidths[*e]*_arcWidthScale+_arrowWidth)/
-		std::sqrt(dd.normSquare());
-	      os << "newpath " << psOut(apoint) << " moveto "
-		 << psOut(linend+dd) << " lineto "
-		 << psOut(linend-dd) << " lineto closepath fill\n";
-	    }
-	    else {
-	      os << mycoords[g.source(*e)].x << ' '
-		 << mycoords[g.source(*e)].y << ' '
-		 << mm.x << ' ' << mm.y << ' '
-		 << mycoords[g.target(*e)].x << ' '
-		 << mycoords[g.target(*e)].y << ' '
-		 << _arcColors[*e].red() << ' '
-		 << _arcColors[*e].green() << ' '
-		 << _arcColors[*e].blue() << ' '
-		 << _arcWidths[*e]*_arcWidthScale << " lb\n";
-	    }
-	    sw+=_arcWidths[*e]*_arcWidthScale/2.0+_parArcDist;
-	  }
-	}
+           m=dim2::Point<double>(mycoords[g.source(*i)])+
+            d*(l+_nodeSizes[g.source(*i)]-_nodeSizes[g.target(*i)])/2.0;
+
+          for(typename std::vector<Arc>::iterator e=i;e!=j;++e) {
+            sw+=_arcWidths[*e]*_arcWidthScale/2.0;
+            dim2::Point<double> mm=m+rot90(d)*sw/.75;
+            if(_drawArrows) {
+              int node_shape;
+              dim2::Point<double> s=mycoords[g.source(*e)];
+              dim2::Point<double> t=mycoords[g.target(*e)];
+              double rn=_nodeSizes[g.target(*e)]*_nodeScale;
+              node_shape=_nodeShapes[g.target(*e)];
+              dim2::Bezier3 bez(s,mm,mm,t);
+              double t1=0,t2=1;
+              for(int ii=0;ii<INTERPOL_PREC;++ii)
+                if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape)) t2=(t1+t2)/2;
+                else t1=(t1+t2)/2;
+              dim2::Point<double> apoint=bez((t1+t2)/2);
+              rn = _arrowLength+_arcWidths[*e]*_arcWidthScale;
+              rn*=rn;
+              t2=(t1+t2)/2;t1=0;
+              for(int ii=0;ii<INTERPOL_PREC;++ii)
+                if((bez((t1+t2)/2)-apoint).normSquare()>rn) t1=(t1+t2)/2;
+                else t2=(t1+t2)/2;
+              dim2::Point<double> linend=bez((t1+t2)/2);
+              bez=bez.before((t1+t2)/2);
+//               rn=_nodeSizes[g.source(*e)]*_nodeScale;
+//               node_shape=_nodeShapes[g.source(*e)];
+//               t1=0;t2=1;
+//               for(int i=0;i<INTERPOL_PREC;++i)
+//                 if(isInsideNode(bez((t1+t2)/2)-t,rn,node_shape)) t1=(t1+t2)/2;
+//                 else t2=(t1+t2)/2;
+//               bez=bez.after((t1+t2)/2);
+              os << _arcWidths[*e]*_arcWidthScale << " setlinewidth "
+                 << _arcColors[*e].red() << ' '
+                 << _arcColors[*e].green() << ' '
+                 << _arcColors[*e].blue() << " setrgbcolor newpath\n"
+                 << bez.p1.x << ' ' <<  bez.p1.y << " moveto\n"
+                 << bez.p2.x << ' ' << bez.p2.y << ' '
+                 << bez.p3.x << ' ' << bez.p3.y << ' '
+                 << bez.p4.x << ' ' << bez.p4.y << " curveto stroke\n";
+              dim2::Point<double> dd(rot90(linend-apoint));
+              dd*=(.5*_arcWidths[*e]*_arcWidthScale+_arrowWidth)/
+                std::sqrt(dd.normSquare());
+              os << "newpath " << psOut(apoint) << " moveto "
+                 << psOut(linend+dd) << " lineto "
+                 << psOut(linend-dd) << " lineto closepath fill\n";
+            }
+            else {
+              os << mycoords[g.source(*e)].x << ' '
+                 << mycoords[g.source(*e)].y << ' '
+                 << mm.x << ' ' << mm.y << ' '
+                 << mycoords[g.target(*e)].x << ' '
+                 << mycoords[g.target(*e)].y << ' '
+                 << _arcColors[*e].red() << ' '
+                 << _arcColors[*e].green() << ' '
+                 << _arcColors[*e].blue() << ' '
+                 << _arcWidths[*e]*_arcWidthScale << " lb\n";
+            }
+            sw+=_arcWidths[*e]*_arcWidthScale/2.0+_parArcDist;
+          }
+        }
       }
       else for(ArcIt e(g);e!=INVALID;++e)
-	if((!_undirected||g.source(e)<g.target(e))&&_arcWidths[e]>0
-	   &&g.source(e)!=g.target(e)) {
-	  if(_drawArrows) {
-	    dim2::Point<double> d(mycoords[g.target(e)]-mycoords[g.source(e)]);
-	    double rn=_nodeSizes[g.target(e)]*_nodeScale;
-	    int node_shape=_nodeShapes[g.target(e)];
-	    double t1=0,t2=1;
-	    for(int i=0;i<INTERPOL_PREC;++i)
-	      if(isInsideNode((-(t1+t2)/2)*d,rn,node_shape)) t1=(t1+t2)/2;
-	      else t2=(t1+t2)/2;
-	    double l=std::sqrt(d.normSquare());
-	    d/=l;
-	    
-	    os << l*(1-(t1+t2)/2) << ' '
-	       << _arcWidths[e]*_arcWidthScale << ' '
-	       << d.x << ' ' << d.y << ' '
-	       << mycoords[g.source(e)].x << ' '
-	       << mycoords[g.source(e)].y << ' '
-	       << _arcColors[e].red() << ' '
-	       << _arcColors[e].green() << ' '
-	       << _arcColors[e].blue() << " arr\n";
-	  } 
-	  else os << mycoords[g.source(e)].x << ' '
-		  << mycoords[g.source(e)].y << ' '
-		  << mycoords[g.target(e)].x << ' '
-		  << mycoords[g.target(e)].y << ' '
-		  << _arcColors[e].red() << ' '
-		  << _arcColors[e].green() << ' '
-		  << _arcColors[e].blue() << ' '
-		  << _arcWidths[e]*_arcWidthScale << " l\n";
-	}
+        if((!_undirected||g.source(e)<g.target(e))&&_arcWidths[e]>0
+           &&g.source(e)!=g.target(e)) {
+          if(_drawArrows) {
+            dim2::Point<double> d(mycoords[g.target(e)]-mycoords[g.source(e)]);
+            double rn=_nodeSizes[g.target(e)]*_nodeScale;
+            int node_shape=_nodeShapes[g.target(e)];
+            double t1=0,t2=1;
+            for(int i=0;i<INTERPOL_PREC;++i)
+              if(isInsideNode((-(t1+t2)/2)*d,rn,node_shape)) t1=(t1+t2)/2;
+              else t2=(t1+t2)/2;
+            double l=std::sqrt(d.normSquare());
+            d/=l;
+
+            os << l*(1-(t1+t2)/2) << ' '
+               << _arcWidths[e]*_arcWidthScale << ' '
+               << d.x << ' ' << d.y << ' '
+               << mycoords[g.source(e)].x << ' '
+               << mycoords[g.source(e)].y << ' '
+               << _arcColors[e].red() << ' '
+               << _arcColors[e].green() << ' '
+               << _arcColors[e].blue() << " arr\n";
+          }
+          else os << mycoords[g.source(e)].x << ' '
+                  << mycoords[g.source(e)].y << ' '
+                  << mycoords[g.target(e)].x << ' '
+                  << mycoords[g.target(e)].y << ' '
+                  << _arcColors[e].red() << ' '
+                  << _arcColors[e].green() << ' '
+                  << _arcColors[e].blue() << ' '
+                  << _arcWidths[e]*_arcWidthScale << " l\n";
+        }
       os << "grestore\n";
     }
     if(_showNodes) {
       os << "%Nodes:\ngsave\n";
       for(NodeIt n(g);n!=INVALID;++n) {
-	os << mycoords[n].x << ' ' << mycoords[n].y << ' '
-	   << _nodeSizes[n]*_nodeScale << ' '
-	   << _nodeColors[n].red() << ' '
-	   << _nodeColors[n].green() << ' '
-	   << _nodeColors[n].blue() << ' ';
-	switch(_nodeShapes[n]) {
-	case CIRCLE:
-	  os<< "nc";break;
-	case SQUARE:
-	  os<< "nsq";break;
-	case DIAMOND:
-	  os<< "ndi";break;
-	case MALE:
-	  os<< "nmale";break;
-	case FEMALE:
-	  os<< "nfemale";break;
-	}
-	os<<'\n';
+        os << mycoords[n].x << ' ' << mycoords[n].y << ' '
+           << _nodeSizes[n]*_nodeScale << ' '
+           << _nodeColors[n].red() << ' '
+           << _nodeColors[n].green() << ' '
+           << _nodeColors[n].blue() << ' ';
+        switch(_nodeShapes[n]) {
+        case CIRCLE:
+          os<< "nc";break;
+        case SQUARE:
+          os<< "nsq";break;
+        case DIAMOND:
+          os<< "ndi";break;
+        case MALE:
+          os<< "nmale";break;
+        case FEMALE:
+          os<< "nfemale";break;
+        }
+        os<<'\n';
       }
       os << "grestore\n";
     }
@@ -1034,32 +1034,32 @@ public:
       os << "/fosi " << _nodeTextSize << " def\n";
       os << "(Helvetica) findfont fosi scalefont setfont\n";
       for(NodeIt n(g);n!=INVALID;++n) {
-	switch(_nodeTextColorType) {
-	case DIST_COL:
-	  os << psOut(distantColor(_nodeColors[n])) << " setrgbcolor\n";
-	  break;
-	case DIST_BW:
-	  os << psOut(distantBW(_nodeColors[n])) << " setrgbcolor\n";
-	  break;
-	case CUST_COL:
-	  os << psOut(distantColor(_nodeTextColors[n])) << " setrgbcolor\n";
-	  break;
-	default:
-	  os << "0 0 0 setrgbcolor\n";
-	}
-	os << mycoords[n].x << ' ' << mycoords[n].y
-	   << " (" << _nodeTexts[n] << ") cshow\n";
+        switch(_nodeTextColorType) {
+        case DIST_COL:
+          os << psOut(distantColor(_nodeColors[n])) << " setrgbcolor\n";
+          break;
+        case DIST_BW:
+          os << psOut(distantBW(_nodeColors[n])) << " setrgbcolor\n";
+          break;
+        case CUST_COL:
+          os << psOut(distantColor(_nodeTextColors[n])) << " setrgbcolor\n";
+          break;
+        default:
+          os << "0 0 0 setrgbcolor\n";
+        }
+        os << mycoords[n].x << ' ' << mycoords[n].y
+           << " (" << _nodeTexts[n] << ") cshow\n";
       }
       os << "grestore\n";
     }
     if(_showNodePsText) {
       os << "%Node PS blocks:\ngsave\n";
       for(NodeIt n(g);n!=INVALID;++n)
-	os << mycoords[n].x << ' ' << mycoords[n].y
-	   << " moveto\n" << _nodePsTexts[n] << "\n";
+        os << mycoords[n].x << ' ' << mycoords[n].y
+           << " moveto\n" << _nodePsTexts[n] << "\n";
       os << "grestore\n";
     }
-    
+
     os << "grestore\nshowpage\n";
 
     //CleanUp:
@@ -1092,16 +1092,16 @@ public:
   {
     return autoArcWidthScale(b);
   }
-  
+
   ///An alias for absoluteArcWidths()
   GraphToEps<T> &absoluteEdgeWidths(bool b=true)
   {
     return absoluteArcWidths(b);
   }
-  
+
   ///An alias for parArcDist()
   GraphToEps<T> &parEdgeDist(double d) {return parArcDist(d);}
-  
+
   ///An alias for hideArcs()
   GraphToEps<T> &hideEdges(bool b=true) {return hideArcs(b);}
 
@@ -1143,13 +1143,13 @@ const double GraphToEps<T>::A4BORDER = 15;
 ///\sa GraphToEps
 ///\sa graphToEps(G &g, const char *file_name)
 template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> > 
+GraphToEps<DefaultGraphToEpsTraits<G> >
 graphToEps(G &g, std::ostream& os=std::cout)
 {
-  return 
+  return
     GraphToEps<DefaultGraphToEpsTraits<G> >(DefaultGraphToEpsTraits<G>(g,os));
 }
- 
+
 ///Generates an EPS file from a graph
 
 ///\ingroup eps_io
@@ -1159,7 +1159,7 @@ graphToEps(G &g, std::ostream& os=std::cout)
 ///instead of a stream.
 ///\sa graphToEps(G &g, std::ostream& os)
 template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> > 
+GraphToEps<DefaultGraphToEpsTraits<G> >
 graphToEps(G &g,const char *file_name)
 {
   return GraphToEps<DefaultGraphToEpsTraits<G> >
@@ -1175,7 +1175,7 @@ graphToEps(G &g,const char *file_name)
 ///instead of a stream.
 ///\sa graphToEps(G &g, std::ostream& os)
 template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> > 
+GraphToEps<DefaultGraphToEpsTraits<G> >
 graphToEps(G &g,const std::string& file_name)
 {
   return GraphToEps<DefaultGraphToEpsTraits<G> >

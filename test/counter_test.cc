@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -75,14 +75,14 @@ void counterTest() {
 
 void init(std::vector<int>& v) {
   v[0] = 10; v[1] = 60; v[2] = 20; v[3] = 90; v[4] = 100;
-  v[5] = 80; v[6] = 40; v[7] = 30; v[8] = 50; v[9] = 70; 
+  v[5] = 80; v[6] = 40; v[7] = 30; v[8] = 50; v[9] = 70;
 }
 
 int main()
 {
   counterTest<Counter>();
   counterTest<NoCounter>();
-  
+
   std::vector<int> x(10);
   init(x); bubbleSort(x);
   init(x); insertionSort(x);

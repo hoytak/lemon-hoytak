@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -49,7 +49,7 @@ int main()
   typedef ListDigraph::NodeIt NodeIt;
   typedef ListDigraph::Arc Arc;
   typedef dim2::Point<int> Point;
-  
+
   Node n1=g.addNode();
   Node n2=g.addNode();
   Node n3=g.addNode();
@@ -62,13 +62,13 @@ int main()
   ListDigraph::NodeMap<int> shapes(g);
   ListDigraph::ArcMap<int> acolors(g);
   ListDigraph::ArcMap<int> widths(g);
-  
+
   coords[n1]=Point(50,50);  sizes[n1]=1; colors[n1]=1; shapes[n1]=0;
   coords[n2]=Point(50,70);  sizes[n2]=2; colors[n2]=2; shapes[n2]=2;
   coords[n3]=Point(70,70);  sizes[n3]=1; colors[n3]=3; shapes[n3]=0;
   coords[n4]=Point(70,50);  sizes[n4]=2; colors[n4]=4; shapes[n4]=1;
   coords[n5]=Point(85,60);  sizes[n5]=3; colors[n5]=5; shapes[n5]=2;
-  
+
   Arc a;
 
   a=g.addArc(n1,n2); acolors[a]=0; widths[a]=1;
@@ -78,7 +78,7 @@ int main()
   a=g.addArc(n4,n1); acolors[a]=0; widths[a]=1;
   a=g.addArc(n2,n4); acolors[a]=1; widths[a]=2;
   a=g.addArc(n3,n4); acolors[a]=2; widths[a]=1;
-  
+
   IdMap<ListDigraph,Node> id(g);
 
   // Create five .eps files showing the digraph with different options
@@ -182,14 +182,14 @@ int main()
   ListDigraph h;
   ListDigraph::NodeMap<int> hcolors(h);
   ListDigraph::NodeMap<Point> hcoords(h);
-  
+
   int cols=int(sqrt(double(palette.size())));
   for(int i=0;i<int(paletteW.size());i++) {
     Node n=h.addNode();
     hcoords[n]=Point(1+i%cols,1+i/cols);
     hcolors[n]=i;
   }
-  
+
   cout << "Create 'graph_to_eps_demo_out_6_colors.eps'" << endl;
   graphToEps(h,"graph_to_eps_demo_out_6_colors.eps").
     scale(60).
@@ -202,6 +202,6 @@ int main()
     nodeTexts(hcolors).nodeTextSize(.6).
     nodeColors(composeMap(paletteW,hcolors)).
     run();
-    
+
   return 0;
 }

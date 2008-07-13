@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -34,7 +34,7 @@ namespace lemon {
     bool operator!=(Invalid) { return false; }
     bool operator< (Invalid) { return false; }
   };
-  
+
   /// \brief Invalid iterators.
   ///
   /// \ref Invalid is a global type that converts to each iterator
@@ -52,4 +52,4 @@ namespace lemon {
 } //namespace lemon
 
 #endif
-  
+

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -24,7 +24,7 @@
 namespace lemon {
 
   const Color WHITE(1,1,1);
-  
+
   const Color BLACK(0,0,0);
   const Color RED(1,0,0);
   const Color GREEN(0,1,0);
@@ -40,5 +40,5 @@ namespace lemon {
   const Color DARK_YELLOW(.5,.5,0);
   const Color DARK_MAGENTA(.5,0,.5);
   const Color DARK_CYAN(0,.5,.5);
-    
+
 } //namespace lemon

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -33,13 +33,13 @@ void check_concepts() {
   { // Checking digraph components
     checkConcept<BaseDigraphComponent, BaseDigraphComponent >();
 
-    checkConcept<IDableDigraphComponent<>, 
+    checkConcept<IDableDigraphComponent<>,
       IDableDigraphComponent<> >();
 
-    checkConcept<IterableDigraphComponent<>, 
+    checkConcept<IterableDigraphComponent<>,
       IterableDigraphComponent<> >();
 
-    checkConcept<MappableDigraphComponent<>, 
+    checkConcept<MappableDigraphComponent<>,
       MappableDigraphComponent<> >();
   }
   { // Checking skeleton digraph

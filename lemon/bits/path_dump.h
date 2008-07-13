@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -53,7 +53,7 @@ namespace lemon {
     public:
       RevArcIt() {}
       RevArcIt(Invalid) : path(0), current(INVALID) {}
-      RevArcIt(const PredMapPath& _path) 
+      RevArcIt(const PredMapPath& _path)
         : path(&_path), current(_path.target) {
         if (path->predMap[current] == INVALID) current = INVALID;
       }
@@ -68,18 +68,18 @@ namespace lemon {
         return *this;
       }
 
-      bool operator==(const RevArcIt& e) const { 
-        return current == e.current; 
+      bool operator==(const RevArcIt& e) const {
+        return current == e.current;
       }
 
       bool operator!=(const RevArcIt& e) const {
-        return current != e.current; 
+        return current != e.current;
       }
 
-      bool operator<(const RevArcIt& e) const { 
-        return current < e.current; 
+      bool operator<(const RevArcIt& e) const {
+        return current < e.current;
       }
-      
+
     private:
       const PredMapPath* path;
       typename Digraph::Node current;
@@ -101,11 +101,11 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     typedef _PredMatrixMap PredMatrixMap;
 
-    PredMatrixMapPath(const Digraph& _digraph, 
+    PredMatrixMapPath(const Digraph& _digraph,
                       const PredMatrixMap& _predMatrixMap,
-                      typename Digraph::Node _source, 
+                      typename Digraph::Node _source,
                       typename Digraph::Node _target)
-      : digraph(_digraph), predMatrixMap(_predMatrixMap), 
+      : digraph(_digraph), predMatrixMap(_predMatrixMap),
         source(_source), target(_target) {}
 
     int length() const {
@@ -127,9 +127,9 @@ namespace lemon {
     public:
       RevArcIt() {}
       RevArcIt(Invalid) : path(0), current(INVALID) {}
-      RevArcIt(const PredMatrixMapPath& _path) 
+      RevArcIt(const PredMatrixMapPath& _path)
         : path(&_path), current(_path.target) {
-        if (path->predMatrixMap(path->source, current) == INVALID) 
+        if (path->predMatrixMap(path->source, current) == INVALID)
           current = INVALID;
       }
 
@@ -138,25 +138,25 @@ namespace lemon {
       }
 
       RevArcIt& operator++() {
-        current = 
+        current =
           path->digraph.source(path->predMatrixMap(path->source, current));
-        if (path->predMatrixMap(path->source, current) == INVALID) 
+        if (path->predMatrixMap(path->source, current) == INVALID)
           current = INVALID;
         return *this;
       }
 
-      bool operator==(const RevArcIt& e) const { 
-        return current == e.current; 
+      bool operator==(const RevArcIt& e) const {
+        return current == e.current;
       }
 
       bool operator!=(const RevArcIt& e) const {
-        return current != e.current; 
+        return current != e.current;
       }
 
-      bool operator<(const RevArcIt& e) const { 
-        return current < e.current; 
+      bool operator<(const RevArcIt& e) const {
+        return current < e.current;
       }
-      
+
     private:
       const PredMatrixMapPath* path;
       typename Digraph::Node current;

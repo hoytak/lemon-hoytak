@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -74,6 +74,6 @@ you typically don't have to deal with these files.
 \brief Implementation helper files
 
 This directory contains some helper classes to implement graphs, maps and
-some other classes. As a user you typically don't have to deal with these 
+some other classes. As a user you typically don't have to deal with these
 files.
 */

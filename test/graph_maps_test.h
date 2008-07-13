@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -71,7 +71,7 @@ namespace lemon {
     std::vector<Arc> arcs;
     for (int i = 0; i < num; ++i) {
       for (int j = 0; j < i; ++j) {
-	arcs.push_back(graph.addArc(nodes[i], nodes[j]));
+        arcs.push_back(graph.addArc(nodes[i], nodes[j]));
       }
     }
 
@@ -84,8 +84,8 @@ namespace lemon {
 
     for (int i = 0; i < num; ++i) {
       for (int j = i + 1; j < num; ++j) {
-	arcs.push_back(graph.addArc(nodes[i], nodes[j]));
-	map[arcs.back()] = 23;
+        arcs.push_back(graph.addArc(nodes[i], nodes[j]));
+        map[arcs.back()] = 23;
         check(map[arcs.back()] == 23, "Wrong operator[].");
       }
     }
@@ -113,7 +113,7 @@ namespace lemon {
     std::vector<Edge> edges;
     for (int i = 0; i < num; ++i) {
       for (int j = 0; j < i; ++j) {
-	edges.push_back(graph.addEdge(nodes[i], nodes[j]));
+        edges.push_back(graph.addEdge(nodes[i], nodes[j]));
       }
     }
 
@@ -126,8 +126,8 @@ namespace lemon {
 
     for (int i = 0; i < num; ++i) {
       for (int j = i + 1; j < num; ++j) {
-	edges.push_back(graph.addEdge(nodes[i], nodes[j]));
-	map[edges.back()] = 23;
+        edges.push_back(graph.addEdge(nodes[i], nodes[j]));
+        map[edges.back()] = 23;
         check(map[edges.back()] == 23, "Wrong operator[].");
       }
     }

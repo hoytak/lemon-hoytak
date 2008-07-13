@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -38,16 +38,16 @@ namespace lemon {
   ///
   /// The ArrayMap template class is graph map structure what
   /// automatically updates the map when a key is added to or erased from
-  /// the map. This map uses the allocators to implement 
+  /// the map. This map uses the allocators to implement
   /// the container functionality.
   ///
   /// The template parameters are the Graph the current Item type and
   /// the Value type of the map.
   template <typename _Graph, typename _Item, typename _Value>
-  class ArrayMap 
+  class ArrayMap
     : public ItemSetTraits<_Graph, _Item>::ItemNotifier::ObserverBase {
   public:
-    /// The graph type of the maps. 
+    /// The graph type of the maps.
     typedef _Graph Graph;
     /// The item type of the map.
     typedef _Item Item;
@@ -69,7 +69,7 @@ namespace lemon {
 
     /// The MapBase of the Map which imlements the core regisitry function.
     typedef typename Notifier::ObserverBase Parent;
-		
+
   private:
     typedef std::allocator<Value> Allocator;
 
@@ -84,31 +84,31 @@ namespace lemon {
       Notifier* nf = Parent::notifier();
       Item it;
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	int id = nf->id(it);;
-	allocator.construct(&(values[id]), Value());
-      }								
+        int id = nf->id(it);;
+        allocator.construct(&(values[id]), Value());
+      }
     }
 
-    /// \brief Constructor to use default value to initialize the map. 
+    /// \brief Constructor to use default value to initialize the map.
     ///
-    /// It constructs a map and initialize all of the the map. 
+    /// It constructs a map and initialize all of the the map.
     ArrayMap(const Graph& graph, const Value& value) {
       Parent::attach(graph.notifier(Item()));
       allocate_memory();
       Notifier* nf = Parent::notifier();
       Item it;
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	int id = nf->id(it);;
-	allocator.construct(&(values[id]), value);
-      }								
+        int id = nf->id(it);;
+        allocator.construct(&(values[id]), value);
+      }
     }
 
     /// \brief Constructor to copy a map of the same map type.
     ///
-    /// Constructor to copy a map of the same map type.     
+    /// Constructor to copy a map of the same map type.
     ArrayMap(const ArrayMap& copy) : Parent() {
       if (copy.attached()) {
-	attach(*copy.notifier());
+        attach(*copy.notifier());
       }
       capacity = copy.capacity;
       if (capacity == 0) return;
@@ -116,18 +116,18 @@ namespace lemon {
       Notifier* nf = Parent::notifier();
       Item it;
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	int id = nf->id(it);;
-	allocator.construct(&(values[id]), copy.values[id]);
+        int id = nf->id(it);;
+        allocator.construct(&(values[id]), copy.values[id]);
       }
     }
 
     /// \brief Assign operator.
     ///
     /// This operator assigns for each item in the map the
-    /// value mapped to the same item in the copied map.  
+    /// value mapped to the same item in the copied map.
     /// The parameter map should be indiced with the same
     /// itemset because this assign operator does not change
-    /// the container of the map. 
+    /// the container of the map.
     ArrayMap& operator=(const ArrayMap& cmap) {
       return operator=<ArrayMap>(cmap);
     }
@@ -138,7 +138,7 @@ namespace lemon {
     /// The given parameter should be conform to the ReadMap
     /// concecpt and could be indiced by the current item set of
     /// the NodeMap. In this case the value for each item
-    /// is assigned by the value of the given ReadMap. 
+    /// is assigned by the value of the given ReadMap.
     template <typename CMap>
     ArrayMap& operator=(const CMap& cmap) {
       checkConcept<concepts::ReadMap<Key, _Value>, CMap>();
@@ -151,15 +151,15 @@ namespace lemon {
     }
 
     /// \brief The destructor of the map.
-    ///     
+    ///
     /// The destructor of the map.
-    virtual ~ArrayMap() {      
+    virtual ~ArrayMap() {
       if (attached()) {
-	clear();
-	detach();
+        clear();
+        detach();
       }
     }
-		
+
   protected:
 
     using Parent::attach;
@@ -168,26 +168,26 @@ namespace lemon {
 
   public:
 
-    /// \brief The subscript operator. 
+    /// \brief The subscript operator.
     ///
     /// The subscript operator. The map can be subscripted by the
-    /// actual keys of the graph. 
+    /// actual keys of the graph.
     Value& operator[](const Key& key) {
       int id = Parent::notifier()->id(key);
       return values[id];
-    } 
-		
+    }
+
     /// \brief The const subscript operator.
     ///
     /// The const subscript operator. The map can be subscripted by the
-    /// actual keys of the graph. 
+    /// actual keys of the graph.
     const Value& operator[](const Key& key) const {
       int id = Parent::notifier()->id(key);
       return values[id];
     }
 
     /// \brief Setter function of the map.
-    ///	
+    ///
     /// Setter function of the map. Equivalent with map[key] = val.
     /// This is a compatibility feature with the not dereferable maps.
     void set(const Key& key, const Value& val) {
@@ -197,81 +197,81 @@ namespace lemon {
   protected:
 
     /// \brief Adds a new key to the map.
-    ///		
+    ///
     /// It adds a new key to the map. It called by the observer notifier
-    /// and it overrides the add() member function of the observer base.     
+    /// and it overrides the add() member function of the observer base.
     virtual void add(const Key& key) {
       Notifier* nf = Parent::notifier();
       int id = nf->id(key);
       if (id >= capacity) {
-	int new_capacity = (capacity == 0 ? 1 : capacity);
-	while (new_capacity <= id) {
-	  new_capacity <<= 1;
-	}
-	Value* new_values = allocator.allocate(new_capacity);
-	Item it;
-	for (nf->first(it); it != INVALID; nf->next(it)) {
-	  int jd = nf->id(it);;
-	  if (id != jd) {
-	    allocator.construct(&(new_values[jd]), values[jd]);
-	    allocator.destroy(&(values[jd]));
-	  }
-	}
-	if (capacity != 0) allocator.deallocate(values, capacity);
-	values = new_values;
-	capacity = new_capacity;
+        int new_capacity = (capacity == 0 ? 1 : capacity);
+        while (new_capacity <= id) {
+          new_capacity <<= 1;
+        }
+        Value* new_values = allocator.allocate(new_capacity);
+        Item it;
+        for (nf->first(it); it != INVALID; nf->next(it)) {
+          int jd = nf->id(it);;
+          if (id != jd) {
+            allocator.construct(&(new_values[jd]), values[jd]);
+            allocator.destroy(&(values[jd]));
+          }
+        }
+        if (capacity != 0) allocator.deallocate(values, capacity);
+        values = new_values;
+        capacity = new_capacity;
       }
       allocator.construct(&(values[id]), Value());
     }
 
     /// \brief Adds more new keys to the map.
-    ///		
+    ///
     /// It adds more new keys to the map. It called by the observer notifier
-    /// and it overrides the add() member function of the observer base.     
+    /// and it overrides the add() member function of the observer base.
     virtual void add(const std::vector<Key>& keys) {
       Notifier* nf = Parent::notifier();
       int max_id = -1;
       for (int i = 0; i < int(keys.size()); ++i) {
-	int id = nf->id(keys[i]);
-	if (id > max_id) {
-	  max_id = id;
-	}
+        int id = nf->id(keys[i]);
+        if (id > max_id) {
+          max_id = id;
+        }
       }
       if (max_id >= capacity) {
-	int new_capacity = (capacity == 0 ? 1 : capacity);
-	while (new_capacity <= max_id) {
-	  new_capacity <<= 1;
-	}
-	Value* new_values = allocator.allocate(new_capacity);
-	Item it;
-	for (nf->first(it); it != INVALID; nf->next(it)) {
-	  int id = nf->id(it);
-	  bool found = false;
-	  for (int i = 0; i < int(keys.size()); ++i) {
-	    int jd = nf->id(keys[i]);
-	    if (id == jd) {
-	      found = true;
-	      break;
-	    }
-	  }
-	  if (found) continue;
-	  allocator.construct(&(new_values[id]), values[id]);
-	  allocator.destroy(&(values[id]));
-	}
-	if (capacity != 0) allocator.deallocate(values, capacity);
-	values = new_values;
-	capacity = new_capacity;
+        int new_capacity = (capacity == 0 ? 1 : capacity);
+        while (new_capacity <= max_id) {
+          new_capacity <<= 1;
+        }
+        Value* new_values = allocator.allocate(new_capacity);
+        Item it;
+        for (nf->first(it); it != INVALID; nf->next(it)) {
+          int id = nf->id(it);
+          bool found = false;
+          for (int i = 0; i < int(keys.size()); ++i) {
+            int jd = nf->id(keys[i]);
+            if (id == jd) {
+              found = true;
+              break;
+            }
+          }
+          if (found) continue;
+          allocator.construct(&(new_values[id]), values[id]);
+          allocator.destroy(&(values[id]));
+        }
+        if (capacity != 0) allocator.deallocate(values, capacity);
+        values = new_values;
+        capacity = new_capacity;
       }
       for (int i = 0; i < int(keys.size()); ++i) {
-	int id = nf->id(keys[i]);
-	allocator.construct(&(values[id]), Value());
+        int id = nf->id(keys[i]);
+        allocator.construct(&(values[id]), Value());
       }
     }
-		
+
     /// \brief Erase a key from the map.
     ///
     /// Erase a key from the map. It called by the observer notifier
-    /// and it overrides the erase() member function of the observer base.     
+    /// and it overrides the erase() member function of the observer base.
     virtual void erase(const Key& key) {
       int id = Parent::notifier()->id(key);
       allocator.destroy(&(values[id]));
@@ -280,67 +280,67 @@ namespace lemon {
     /// \brief Erase more keys from the map.
     ///
     /// Erase more keys from the map. It called by the observer notifier
-    /// and it overrides the erase() member function of the observer base.     
+    /// and it overrides the erase() member function of the observer base.
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
-	int id = Parent::notifier()->id(keys[i]);
-	allocator.destroy(&(values[id]));
+        int id = Parent::notifier()->id(keys[i]);
+        allocator.destroy(&(values[id]));
       }
     }
 
     /// \brief Buildes the map.
-    ///	
+    ///
     /// It buildes the map. It called by the observer notifier
-    /// and it overrides the build() member function of the observer base. 
+    /// and it overrides the build() member function of the observer base.
     virtual void build() {
       Notifier* nf = Parent::notifier();
       allocate_memory();
       Item it;
       for (nf->first(it); it != INVALID; nf->next(it)) {
-	int id = nf->id(it);;
-	allocator.construct(&(values[id]), Value());
-      }								
+        int id = nf->id(it);;
+        allocator.construct(&(values[id]), Value());
+      }
     }
 
     /// \brief Clear the map.
     ///
     /// It erase all items from the map. It called by the observer notifier
-    /// and it overrides the clear() member function of the observer base.     
-    virtual void clear() {	
+    /// and it overrides the clear() member function of the observer base.
+    virtual void clear() {
       Notifier* nf = Parent::notifier();
       if (capacity != 0) {
-	Item it;
-	for (nf->first(it); it != INVALID; nf->next(it)) {
-	  int id = nf->id(it);
-	  allocator.destroy(&(values[id]));
-	}								
-	allocator.deallocate(values, capacity);
-	capacity = 0;
+        Item it;
+        for (nf->first(it); it != INVALID; nf->next(it)) {
+          int id = nf->id(it);
+          allocator.destroy(&(values[id]));
+        }
+        allocator.deallocate(values, capacity);
+        capacity = 0;
       }
     }
 
   private:
-      
+
     void allocate_memory() {
       int max_id = Parent::notifier()->maxId();
       if (max_id == -1) {
-	capacity = 0;
-	values = 0;
-	return;
+        capacity = 0;
+        values = 0;
+        return;
       }
       capacity = 1;
       while (capacity <= max_id) {
-	capacity <<= 1;
+        capacity <<= 1;
       }
-      values = allocator.allocate(capacity);	
-    }      
+      values = allocator.allocate(capacity);
+    }
 
     int capacity;
     Value* values;
     Allocator allocator;
 
-  };		
+  };
 
 }
 
-#endif 
+#endif

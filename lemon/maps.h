@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -404,27 +404,27 @@ namespace lemon {
     Reference operator[](const Key &k) {
       typename Map::iterator it = _map.lower_bound(k);
       if (it != _map.end() && !_map.key_comp()(k, it->first))
-	return it->second;
+        return it->second;
       else
-	return _map.insert(it, std::make_pair(k, _value))->second;
+        return _map.insert(it, std::make_pair(k, _value))->second;
     }
 
     ///\e
     ConstReference operator[](const Key &k) const {
       typename Map::const_iterator it = _map.find(k);
       if (it != _map.end())
-	return it->second;
+        return it->second;
       else
-	return _value;
+        return _value;
     }
 
     ///\e
     void set(const Key &k, const Value &v) {
       typename Map::iterator it = _map.lower_bound(k);
       if (it != _map.end() && !_map.key_comp()(k, it->first))
-	it->second = v;
+        it->second = v;
       else
-	_map.insert(it, std::make_pair(k, v));
+        _map.insert(it, std::make_pair(k, v));
     }
 
     ///\e
@@ -544,7 +544,7 @@ namespace lemon {
   ///
   /// \todo Check the requirements.
   template<typename M1, typename M2, typename F,
-	   typename V = typename F::result_type>
+           typename V = typename F::result_type>
   class CombineMap : public MapBase<typename M1::Key, V> {
     const M1 &_m1;
     const M2 &_m2;
@@ -615,8 +615,8 @@ namespace lemon {
   ///
   /// \sa MapToFunctor
   template<typename F,
-	   typename K = typename F::argument_type,
-	   typename V = typename F::result_type>
+           typename K = typename F::argument_type,
+           typename V = typename F::result_type>
   class FunctorToMap : public MapBase<K, V> {
     F _f;
   public:
@@ -1317,7 +1317,7 @@ namespace lemon {
   }
 
   /// @}
-  
+
   // Logical maps and map adaptors:
 
   /// \addtogroup maps
@@ -1715,7 +1715,7 @@ namespace lemon {
   template <typename It, typename Ke>
 #else
   template <typename It,
-	    typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
+            typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
 #endif
   class LoggerBoolMap {
   public:
@@ -1741,7 +1741,7 @@ namespace lemon {
     /// The set function of the map
     void set(const Key& key, Value value) {
       if (value) {
-	*_end++ = key;
+        *_end++ = key;
       }
     }
 
@@ -1749,7 +1749,7 @@ namespace lemon {
     Iterator _begin;
     Iterator _end;
   };
-  
+
   /// Returns a \ref LoggerBoolMap class
 
   /// This function just returns a \ref LoggerBoolMap class.

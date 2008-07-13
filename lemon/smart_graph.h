@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -45,20 +45,20 @@ namespace lemon {
   class SmartDigraphBase {
   protected:
 
-    struct NodeT 
+    struct NodeT
     {
-      int first_in, first_out;      
+      int first_in, first_out;
       NodeT() {}
     };
-    struct ArcT 
+    struct ArcT
     {
-      int target, source, next_in, next_out;      
-      ArcT() {}  
+      int target, source, next_in, next_out;
+      ArcT() {}
     };
 
     std::vector<NodeT> nodes;
     std::vector<ArcT> arcs;
-        
+
   public:
 
     typedef SmartDigraphBase Graph;
@@ -69,9 +69,9 @@ namespace lemon {
   public:
 
     SmartDigraphBase() : nodes(), arcs() { }
-    SmartDigraphBase(const SmartDigraphBase &_g) 
+    SmartDigraphBase(const SmartDigraphBase &_g)
       : nodes(_g.nodes), arcs(_g.arcs) { }
-    
+
     typedef True NodeNumTag;
     typedef True EdgeNumTag;
 
@@ -82,17 +82,17 @@ namespace lemon {
     int maxArcId() const { return arcs.size()-1; }
 
     Node addNode() {
-      int n = nodes.size();     
+      int n = nodes.size();
       nodes.push_back(NodeT());
       nodes[n].first_in = -1;
       nodes[n].first_out = -1;
       return Node(n);
     }
-    
+
     Arc addArc(Node u, Node v) {
-      int n = arcs.size(); 
+      int n = arcs.size();
       arcs.push_back(ArcT());
-      arcs[n].source = u._id; 
+      arcs[n].source = u._id;
       arcs[n].target = v._id;
       arcs[n].next_out = nodes[u._id].first_out;
       arcs[n].next_in = nodes[v._id].first_in;
@@ -115,11 +115,11 @@ namespace lemon {
     static Node nodeFromId(int id) { return Node(id);}
     static Arc arcFromId(int id) { return Arc(id);}
 
-    bool valid(Node n) const { 
-      return n._id >= 0 && n._id < static_cast<int>(nodes.size()); 
+    bool valid(Node n) const {
+      return n._id >= 0 && n._id < static_cast<int>(nodes.size());
     }
-    bool valid(Arc a) const { 
-      return a._id >= 0 && a._id < static_cast<int>(arcs.size()); 
+    bool valid(Arc a) const {
+      return a._id >= 0 && a._id < static_cast<int>(arcs.size());
     }
 
     class Node {
@@ -136,7 +136,7 @@ namespace lemon {
       bool operator!=(const Node i) const {return _id != i._id;}
       bool operator<(const Node i) const {return _id < i._id;}
     };
-    
+
 
     class Arc {
       friend class SmartDigraphBase;
@@ -180,7 +180,7 @@ namespace lemon {
     void firstIn(Arc& arc, const Node& node) const {
       arc._id = nodes[node._id].first_in;
     }
-    
+
     void nextIn(Arc& arc) const {
       arc._id = arcs[arc._id].next_in;
     }
@@ -222,26 +222,26 @@ namespace lemon {
     void operator=(const SmartDigraph &) {}
 
   public:
-    
+
     /// Constructor
-    
+
     /// Constructor.
     ///
     SmartDigraph() {};
-    
+
     ///Add a new node to the digraph.
-    
+
     /// \return the new node.
     ///
     Node addNode() { return Parent::addNode(); }
-    
+
     ///Add a new arc to the digraph.
-    
+
     ///Add a new arc to the digraph with source node \c s
     ///and target node \c t.
     ///\return the new arc.
-    Arc addArc(const Node& s, const Node& t) { 
-      return Parent::addArc(s, t); 
+    Arc addArc(const Node& s, const Node& t) {
+      return Parent::addArc(s, t);
     }
 
     /// \brief Using this it is possible to avoid the superfluous memory
@@ -269,7 +269,7 @@ namespace lemon {
     /// \brief Node validity check
     ///
     /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.  
+    /// ie. it is a real node of the graph.
     ///
     /// \warning A removed node (using Snapshot) could become valid again
     /// when new nodes are added to the graph.
@@ -278,14 +278,14 @@ namespace lemon {
     /// \brief Arc validity check
     ///
     /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.  
+    /// ie. it is a real arc of the graph.
     ///
     /// \warning A removed arc (using Snapshot) could become valid again
     /// when new arcs are added to the graph.
     bool valid(Arc a) const { return Parent::valid(a); }
 
     ///Clear the digraph.
-    
+
     ///Erase all the nodes and arcs from the digraph.
     ///
     void clear() {
@@ -293,7 +293,7 @@ namespace lemon {
     }
 
     ///Split a node.
-    
+
     ///This function splits a node. First a new node is added to the digraph,
     ///then the source of each outgoing arc of \c n is moved to this new node.
     ///If \c connect is \c true (this is the default value), then a new arc
@@ -318,7 +318,7 @@ namespace lemon {
     }
 
   public:
-    
+
     class Snapshot;
 
   protected:
@@ -327,17 +327,17 @@ namespace lemon {
     {
       while(s.arc_num<arcs.size()) {
         Arc arc = arcFromId(arcs.size()-1);
-	Parent::notifier(Arc()).erase(arc);
-	nodes[arcs.back().source].first_out=arcs.back().next_out;
-	nodes[arcs.back().target].first_in=arcs.back().next_in;
-	arcs.pop_back();
+        Parent::notifier(Arc()).erase(arc);
+        nodes[arcs.back().source].first_out=arcs.back().next_out;
+        nodes[arcs.back().target].first_in=arcs.back().next_in;
+        arcs.pop_back();
       }
       while(s.node_num<nodes.size()) {
         Node node = nodeFromId(nodes.size()-1);
-	Parent::notifier(Node()).erase(node);
-	nodes.pop_back();
+        Parent::notifier(Node()).erase(node);
+        nodes.pop_back();
       }
-    }    
+    }
 
   public:
 
@@ -355,7 +355,7 @@ namespace lemon {
     ///either broken program, invalid state of the digraph, valid but
     ///not the restored digraph or no change. Because the runtime performance
     ///the validity of the snapshot is not stored.
-    class Snapshot 
+    class Snapshot
     {
       SmartDigraph *_graph;
     protected:
@@ -364,18 +364,18 @@ namespace lemon {
       unsigned int arc_num;
     public:
       ///Default constructor.
-      
+
       ///Default constructor.
       ///To actually make a snapshot you must call save().
       ///
       Snapshot() : _graph(0) {}
       ///Constructor that immediately makes a snapshot
-      
+
       ///This constructor immediately makes a snapshot of the digraph.
       ///\param _g The digraph we make a snapshot of.
       Snapshot(SmartDigraph &graph) : _graph(&graph) {
-	node_num=_graph->nodes.size();
-	arc_num=_graph->arcs.size();
+        node_num=_graph->nodes.size();
+        arc_num=_graph->arcs.size();
       }
 
       ///Make a snapshot.
@@ -385,15 +385,15 @@ namespace lemon {
       ///This function can be called more than once. In case of a repeated
       ///call, the previous snapshot gets lost.
       ///\param _g The digraph we make the snapshot of.
-      void save(SmartDigraph &graph) 
+      void save(SmartDigraph &graph)
       {
-	_graph=&graph;
-	node_num=_graph->nodes.size();
-	arc_num=_graph->arcs.size();
+        _graph=&graph;
+        node_num=_graph->nodes.size();
+        arc_num=_graph->arcs.size();
       }
 
       ///Undo the changes until a snapshot.
-      
+
       ///Undo the changes until a snapshot created by save().
       ///
       ///\note After you restored a state, you cannot restore
@@ -401,7 +401,7 @@ namespace lemon {
       ///by restore().
       void restore()
       {
-	_graph->restoreSnapshot(*this);
+        _graph->restoreSnapshot(*this);
       }
     };
   };
@@ -414,7 +414,7 @@ namespace lemon {
     struct NodeT {
       int first_out;
     };
- 
+
     struct ArcT {
       int target;
       int next_out;
@@ -424,15 +424,15 @@ namespace lemon {
     std::vector<ArcT> arcs;
 
     int first_free_arc;
-    
+
   public:
-    
+
     typedef SmartGraphBase Digraph;
 
     class Node;
     class Arc;
     class Edge;
-    
+
     class Node {
       friend class SmartGraphBase;
     protected:
@@ -485,8 +485,8 @@ namespace lemon {
     SmartGraphBase()
       : nodes(), arcs() {}
 
-    
-    int maxNodeId() const { return nodes.size()-1; } 
+
+    int maxNodeId() const { return nodes.size()-1; }
     int maxEdgeId() const { return arcs.size() / 2 - 1; }
     int maxArcId() const { return arcs.size()-1; }
 
@@ -504,7 +504,7 @@ namespace lemon {
       return Arc(e._id * 2 + (d ? 1 : 0));
     }
 
-    void first(Node& node) const { 
+    void first(Node& node) const {
       node._id = nodes.size() - 1;
     }
 
@@ -512,7 +512,7 @@ namespace lemon {
       --node._id;
     }
 
-    void first(Arc& arc) const { 
+    void first(Arc& arc) const {
       arc._id = arcs.size() - 1;
     }
 
@@ -520,7 +520,7 @@ namespace lemon {
       --arc._id;
     }
 
-    void first(Edge& arc) const { 
+    void first(Edge& arc) const {
       arc._id = arcs.size() / 2 - 1;
     }
 
@@ -561,10 +561,10 @@ namespace lemon {
         d = ((de & 1) == 1);
       } else {
         arc._id = -1;
-        d = true;      
+        d = true;
       }
     }
-    
+
     static int id(Node v) { return v._id; }
     static int id(Arc e) { return e._id; }
     static int id(Edge e) { return e._id; }
@@ -573,41 +573,41 @@ namespace lemon {
     static Arc arcFromId(int id) { return Arc(id);}
     static Edge edgeFromId(int id) { return Edge(id);}
 
-    bool valid(Node n) const { 
-      return n._id >= 0 && n._id < static_cast<int>(nodes.size()); 
+    bool valid(Node n) const {
+      return n._id >= 0 && n._id < static_cast<int>(nodes.size());
     }
-    bool valid(Arc a) const { 
+    bool valid(Arc a) const {
       return a._id >= 0 && a._id < static_cast<int>(arcs.size());
     }
-    bool valid(Edge e) const { 
-      return e._id >= 0 && 2 * e._id < static_cast<int>(arcs.size()); 
+    bool valid(Edge e) const {
+      return e._id >= 0 && 2 * e._id < static_cast<int>(arcs.size());
     }
 
-    Node addNode() {     
+    Node addNode() {
       int n = nodes.size();
       nodes.push_back(NodeT());
       nodes[n].first_out = -1;
-      
+
       return Node(n);
     }
-    
+
     Edge addEdge(Node u, Node v) {
       int n = arcs.size();
       arcs.push_back(ArcT());
       arcs.push_back(ArcT());
-      
+
       arcs[n].target = u._id;
       arcs[n | 1].target = v._id;
 
       arcs[n].next_out = nodes[v._id].first_out;
       nodes[v._id].first_out = n;
 
-      arcs[n | 1].next_out = nodes[u._id].first_out;	
+      arcs[n | 1].next_out = nodes[u._id].first_out;
       nodes[u._id].first_out = (n | 1);
 
       return Edge(n / 2);
     }
-    
+
     void clear() {
       arcs.clear();
       nodes.clear();
@@ -625,7 +625,7 @@ namespace lemon {
   /// It is also quite memory efficient, but at the price
   /// that <b> it does support only limited (only stack-like)
   /// node and arc deletions</b>.
-  /// Except from this it conforms to 
+  /// Except from this it conforms to
   /// the \ref concepts::Graph "Graph concept".
   ///
   /// It also has an
@@ -655,30 +655,30 @@ namespace lemon {
     typedef ExtendedSmartGraphBase Parent;
 
     /// Constructor
-    
+
     /// Constructor.
     ///
     SmartGraph() {}
 
     ///Add a new node to the graph.
-    
+
     /// \return the new node.
     ///
     Node addNode() { return Parent::addNode(); }
-    
+
     ///Add a new edge to the graph.
-    
+
     ///Add a new edge to the graph with node \c s
     ///and \c t.
     ///\return the new edge.
-    Edge addEdge(const Node& s, const Node& t) { 
-      return Parent::addEdge(s, t); 
+    Edge addEdge(const Node& s, const Node& t) {
+      return Parent::addEdge(s, t);
     }
 
     /// \brief Node validity check
     ///
     /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.  
+    /// ie. it is a real node of the graph.
     ///
     /// \warning A removed node (using Snapshot) could become valid again
     /// when new nodes are added to the graph.
@@ -687,7 +687,7 @@ namespace lemon {
     /// \brief Arc validity check
     ///
     /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.  
+    /// ie. it is a real arc of the graph.
     ///
     /// \warning A removed arc (using Snapshot) could become valid again
     /// when new edges are added to the graph.
@@ -696,14 +696,14 @@ namespace lemon {
     /// \brief Edge validity check
     ///
     /// This function gives back true if the given edge is valid,
-    /// ie. it is a real edge of the graph.  
+    /// ie. it is a real edge of the graph.
     ///
     /// \warning A removed edge (using Snapshot) could become valid again
     /// when new edges are added to the graph.
     bool valid(Edge e) const { return Parent::valid(e); }
 
     ///Clear the graph.
-    
+
     ///Erase all the nodes and edges from the graph.
     ///
     void clear() {
@@ -711,7 +711,7 @@ namespace lemon {
     }
 
   public:
-    
+
     class Snapshot;
 
   protected:
@@ -728,23 +728,23 @@ namespace lemon {
       while(s.arc_num<arcs.size()) {
         int n=arcs.size()-1;
         Edge arc=edgeFromId(n/2);
-	Parent::notifier(Edge()).erase(arc);
+        Parent::notifier(Edge()).erase(arc);
         std::vector<Arc> dir;
         dir.push_back(arcFromId(n));
         dir.push_back(arcFromId(n-1));
-	Parent::notifier(Arc()).erase(dir);
-	nodes[arcs[n].target].first_out=arcs[n].next_out;
-	nodes[arcs[n-1].target].first_out=arcs[n-1].next_out;
-	arcs.pop_back();
-	arcs.pop_back();
+        Parent::notifier(Arc()).erase(dir);
+        nodes[arcs[n].target].first_out=arcs[n].next_out;
+        nodes[arcs[n-1].target].first_out=arcs[n-1].next_out;
+        arcs.pop_back();
+        arcs.pop_back();
       }
       while(s.node_num<nodes.size()) {
         int n=nodes.size()-1;
         Node node = nodeFromId(n);
-	Parent::notifier(Node()).erase(node);
-	nodes.pop_back();
+        Parent::notifier(Node()).erase(node);
+        nodes.pop_back();
       }
-    }    
+    }
 
   public:
 
@@ -763,7 +763,7 @@ namespace lemon {
     ///either broken program, invalid state of the digraph, valid but
     ///not the restored digraph or no change. Because the runtime performance
     ///the validity of the snapshot is not stored.
-    class Snapshot 
+    class Snapshot
     {
       SmartGraph *_graph;
     protected:
@@ -772,13 +772,13 @@ namespace lemon {
       unsigned int arc_num;
     public:
       ///Default constructor.
-      
+
       ///Default constructor.
       ///To actually make a snapshot you must call save().
       ///
       Snapshot() : _graph(0) {}
       ///Constructor that immediately makes a snapshot
-      
+
       ///This constructor immediately makes a snapshot of the digraph.
       ///\param g The digraph we make a snapshot of.
       Snapshot(SmartGraph &graph) {
@@ -792,13 +792,13 @@ namespace lemon {
       ///This function can be called more than once. In case of a repeated
       ///call, the previous snapshot gets lost.
       ///\param g The digraph we make the snapshot of.
-      void save(SmartGraph &graph) 
+      void save(SmartGraph &graph)
       {
         graph.saveSnapshot(*this);
       }
 
       ///Undo the changes until a snapshot.
-      
+
       ///Undo the changes until a snapshot created by save().
       ///
       ///\note After you restored a state, you cannot restore
@@ -810,7 +810,7 @@ namespace lemon {
       }
     };
   };
-  
+
 } //namespace lemon
 
 

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -27,11 +27,11 @@
 
 using namespace lemon;
 
-void checkBfsCompile() 
+void checkBfsCompile()
 {
   typedef concepts::Digraph Digraph;
   typedef Bfs<Digraph> BType;
-  
+
   Digraph G;
   Digraph::Node n;
   Digraph::Arc e;
@@ -40,11 +40,11 @@ void checkBfsCompile()
   BType::DistMap d(G);
   BType::PredMap p(G);
   //  BType::PredNodeMap pn(G);
-  
+
   BType bfs_test(G);
-  
+
   bfs_test.run(n);
-  
+
   l  = bfs_test.dist(n);
   e  = bfs_test.predArc(n);
   n  = bfs_test.predNode(n);
@@ -56,13 +56,13 @@ void checkBfsCompile()
   Path<Digraph> pp = bfs_test.path(n);
 }
 
-void checkBfsFunctionCompile() 
+void checkBfsFunctionCompile()
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
   typedef Digraph::Arc Arc;
   typedef Digraph::Node Node;
-   
+
   Digraph g;
   bfs(g,Node()).run();
   bfs(g).source(Node()).run();
@@ -81,13 +81,13 @@ void checkBfs() {
   Digraph G;
   Node s, t;
   PetStruct<Digraph> ps = addPetersen(G, 5);
-   
+
   s=ps.outer[2];
   t=ps.inner[0];
-  
+
   Bfs<Digraph> bfs_test(G);
   bfs_test.run(s);
-  
+
   check(bfs_test.dist(t)==3,"Bfs found a wrong path." << bfs_test.dist(t));
 
   Path<Digraph> p = bfs_test.path(t);
@@ -95,14 +95,14 @@ void checkBfs() {
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
-  
+
 
   for(ArcIt e(G); e==INVALID; ++e) {
     Node u=G.source(e);
     Node v=G.target(e);
     check( !bfs_test.reached(u) ||
-	   (bfs_test.dist(v) > bfs_test.dist(u)+1),
-	   "Wrong output.");
+           (bfs_test.dist(v) > bfs_test.dist(u)+1),
+           "Wrong output.");
   }
 
   for(NodeIt v(G); v==INVALID; ++v) {
@@ -112,9 +112,9 @@ void checkBfs() {
       Node u=G.source(e);
       check(u==bfs_test.predNode(v),"Wrong tree.");
       check(bfs_test.dist(v) - bfs_test.dist(u) == 1,
-	    "Wrong distance. Difference: " 
-	    << std::abs(bfs_test.dist(v) - bfs_test.dist(u) 
-			- 1));
+            "Wrong distance. Difference: "
+            << std::abs(bfs_test.dist(v) - bfs_test.dist(u)
+                        - 1));
     }
   }
 }

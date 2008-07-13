@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -18,7 +18,7 @@
 
 /*!
 
-\page coding_style LEMON Coding Style 
+\page coding_style LEMON Coding Style
 
 \section naming_conv Naming Conventions
 
@@ -68,7 +68,7 @@ source_code.cc
 The name of a class or any type should look like the following.
 
 \code
-AllWordsCapitalizedWithoutUnderscores 
+AllWordsCapitalizedWithoutUnderscores
 \endcode
 
 \subsection cs-func Methods and other functions
@@ -76,7 +76,7 @@ AllWordsCapitalizedWithoutUnderscores
 The name of a function should look like the following.
 
 \code
-firstWordLowerCaseRestCapitalizedWithoutUnderscores 
+firstWordLowerCaseRestCapitalizedWithoutUnderscores
 \endcode
 
 \subsection cs-funcs Constants, Macros
@@ -84,15 +84,15 @@ firstWordLowerCaseRestCapitalizedWithoutUnderscores
 The names of constants and macros should look like the following.
 
 \code
-ALL_UPPER_CASE_WITH_UNDERSCORES 
+ALL_UPPER_CASE_WITH_UNDERSCORES
 \endcode
 
-\subsection cs-loc-var Class and instance member variables, auto variables 
+\subsection cs-loc-var Class and instance member variables, auto variables
 
 The names of class and instance member variables and auto variables (=variables used locally in methods) should look like the following.
 
 \code
-all_lower_case_with_underscores 
+all_lower_case_with_underscores
 \endcode
 
 \subsection pri-loc-var Private member variables

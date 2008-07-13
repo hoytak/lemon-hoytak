@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -27,11 +27,11 @@
 
 using namespace lemon;
 
-void checkDfsCompile() 
+void checkDfsCompile()
 {
   typedef concepts::Digraph Digraph;
   typedef Dfs<Digraph> DType;
-  
+
   Digraph G;
   Digraph::Node n;
   Digraph::Arc e;
@@ -40,11 +40,11 @@ void checkDfsCompile()
   DType::DistMap d(G);
   DType::PredMap p(G);
   //  DType::PredNodeMap pn(G);
-  
+
   DType dfs_test(G);
-  
+
   dfs_test.run(n);
-  
+
   l  = dfs_test.dist(n);
   e  = dfs_test.predArc(n);
   n  = dfs_test.predNode(n);
@@ -56,13 +56,13 @@ void checkDfsCompile()
   Path<Digraph> pp = dfs_test.path(n);
 }
 
-void checkDfsFunctionCompile() 
+void checkDfsFunctionCompile()
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
   typedef Digraph::Arc Arc;
   typedef Digraph::Node Node;
-   
+
   Digraph g;
   dfs(g,Node()).run();
   dfs(g).source(Node()).run();
@@ -71,7 +71,7 @@ void checkDfsFunctionCompile()
     .distMap(concepts::WriteMap<Node,VType>())
     .reachedMap(concepts::ReadWriteMap<Node,bool>())
     .processedMap(concepts::WriteMap<Node,bool>())
-    .run(Node()); 
+    .run(Node());
 }
 
 template <class Digraph>
@@ -81,19 +81,19 @@ void checkDfs() {
   Digraph G;
   Node s, t;
   PetStruct<Digraph> ps = addPetersen(G, 5);
-   
+
   s=ps.outer[2];
   t=ps.inner[0];
-  
+
   Dfs<Digraph> dfs_test(G);
-  dfs_test.run(s);  
-  
+  dfs_test.run(s);
+
   Path<Digraph> p = dfs_test.path(t);
   check(p.length() == dfs_test.dist(t),"path() found a wrong path.");
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
-  
+
   for(NodeIt v(G); v!=INVALID; ++v) {
     check(dfs_test.reached(v),"Each node should be reached.");
     if ( dfs_test.predArc(v)!=INVALID ) {
@@ -101,8 +101,8 @@ void checkDfs() {
       Node u=G.source(e);
       check(u==dfs_test.predNode(v),"Wrong tree.");
       check(dfs_test.dist(v) - dfs_test.dist(u) == 1,
-	    "Wrong distance. (" << dfs_test.dist(u) << "->" 
-	    <<dfs_test.dist(v) << ')');
+            "Wrong distance. (" << dfs_test.dist(u) << "->"
+            <<dfs_test.dist(v) << ')');
     }
   }
 }

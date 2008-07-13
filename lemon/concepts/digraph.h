@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -46,13 +46,13 @@ namespace lemon {
     class Digraph {
     private:
       ///Digraphs are \e not copy constructible. Use DigraphCopy() instead.
-      
+
       ///Digraphs are \e not copy constructible. Use DigraphCopy() instead.
       ///
       Digraph(const Digraph &) {};
       ///\brief Assignment of \ref Digraph "Digraph"s to another ones are
       ///\e not allowed. Use DigraphCopy() instead.
-      
+
       ///Assignment of \ref Digraph "Digraph"s to another ones are
       ///\e not allowed.  Use DigraphCopy() instead.
 
@@ -95,23 +95,23 @@ namespace lemon {
         bool operator==(Node) const { return true; }
 
         /// Inequality operator
-        
+
         /// \sa operator==(Node n)
         ///
         bool operator!=(Node) const { return true; }
 
-	/// Artificial ordering operator.
-	
-	/// To allow the use of digraph descriptors as key type in std::map or
-	/// similar associative container we require this.
-	///
-	/// \note This operator only have to define some strict ordering of
-	/// the items; this order has nothing to do with the iteration
-	/// ordering of the items.
-	bool operator<(Node) const { return false; }
+        /// Artificial ordering operator.
+
+        /// To allow the use of digraph descriptors as key type in std::map or
+        /// similar associative container we require this.
+        ///
+        /// \note This operator only have to define some strict ordering of
+        /// the items; this order has nothing to do with the iteration
+        /// ordering of the items.
+        bool operator<(Node) const { return false; }
 
       };
-    
+
       /// This iterator goes through each node.
 
       /// This iterator goes through each node.
@@ -129,7 +129,7 @@ namespace lemon {
         /// to an undefined value.
         NodeIt() { }
         /// Copy constructor.
-        
+
         /// Copy constructor.
         ///
         NodeIt(const NodeIt& n) : Node(n) { }
@@ -145,9 +145,9 @@ namespace lemon {
         NodeIt(const Digraph&) { }
         /// Node -> NodeIt conversion.
 
-        /// Sets the iterator to the node of \c the digraph pointed by 
-	/// the trivial iterator.
-        /// This feature necessitates that each time we 
+        /// Sets the iterator to the node of \c the digraph pointed by
+        /// the trivial iterator.
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         NodeIt(const Digraph&, const Node&) { }
         /// Next node.
@@ -156,8 +156,8 @@ namespace lemon {
         ///
         NodeIt& operator++() { return *this; }
       };
-    
-    
+
+
       /// Class for identifying an arc of the digraph
 
       /// This class identifies an arc of the digraph. It also serves
@@ -191,17 +191,17 @@ namespace lemon {
         ///
         bool operator!=(Arc) const { return true; }
 
-	/// Artificial ordering operator.
-	
-	/// To allow the use of digraph descriptors as key type in std::map or
-	/// similar associative container we require this.
-	///
-	/// \note This operator only have to define some strict ordering of
-	/// the items; this order has nothing to do with the iteration
-	/// ordering of the items.
-	bool operator<(Arc) const { return false; }
+        /// Artificial ordering operator.
+
+        /// To allow the use of digraph descriptors as key type in std::map or
+        /// similar associative container we require this.
+        ///
+        /// \note This operator only have to define some strict ordering of
+        /// the items; this order has nothing to do with the iteration
+        /// ordering of the items.
+        bool operator<(Arc) const { return false; }
       };
-    
+
       /// This iterator goes trough the outgoing arcs of a node.
 
       /// This iterator goes trough the \e outgoing arcs of a certain node
@@ -213,7 +213,7 @@ namespace lemon {
       /// int count=0;
       /// for (Digraph::OutArcIt e(g, n); e!=INVALID; ++e) ++count;
       ///\endcode
-    
+
       class OutArcIt : public Arc {
       public:
         /// Default constructor
@@ -232,19 +232,19 @@ namespace lemon {
         ///
         OutArcIt(Invalid) { }
         /// This constructor sets the iterator to the first outgoing arc.
-    
+
         /// This constructor sets the iterator to the first outgoing arc of
         /// the node.
         OutArcIt(const Digraph&, const Node&) { }
         /// Arc -> OutArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator.
-	/// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         OutArcIt(const Digraph&, const Arc&) { }
         ///Next outgoing arc
-        
-        /// Assign the iterator to the next 
+
+        /// Assign the iterator to the next
         /// outgoing arc of the corresponding node.
         OutArcIt& operator++() { return *this; }
       };
@@ -279,14 +279,14 @@ namespace lemon {
         ///
         InArcIt(Invalid) { }
         /// This constructor sets the iterator to first incoming arc.
-    
+
         /// This constructor set the iterator to the first incoming arc of
         /// the node.
         InArcIt(const Digraph&, const Node&) { }
         /// Arc -> InArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         InArcIt(const Digraph&, const Arc&) { }
         /// Next incoming arc
@@ -322,18 +322,18 @@ namespace lemon {
         ///
         ArcIt(Invalid) { }
         /// This constructor sets the iterator to the first arc.
-    
+
         /// This constructor sets the iterator to the first arc of \c g.
         ///@param g the digraph
         ArcIt(const Digraph& g) { ignore_unused_variable_warning(g); }
         /// Arc -> ArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
-        ArcIt(const Digraph&, const Arc&) { } 
+        ArcIt(const Digraph&, const Arc&) { }
         ///Next arc
-        
+
         /// Assign the iterator to the next arc.
         ArcIt& operator++() { return *this; }
       };
@@ -349,26 +349,26 @@ namespace lemon {
       Node source(Arc) const { return INVALID; }
 
       /// \brief Returns the ID of the node.
-      int id(Node) const { return -1; } 
+      int id(Node) const { return -1; }
 
       /// \brief Returns the ID of the arc.
-      int id(Arc) const { return -1; } 
+      int id(Arc) const { return -1; }
 
       /// \brief Returns the node with the given ID.
       ///
       /// \pre The argument should be a valid node ID in the graph.
-      Node nodeFromId(int) const { return INVALID; } 
+      Node nodeFromId(int) const { return INVALID; }
 
       /// \brief Returns the arc with the given ID.
       ///
       /// \pre The argument should be a valid arc ID in the graph.
-      Arc arcFromId(int) const { return INVALID; } 
+      Arc arcFromId(int) const { return INVALID; }
 
       /// \brief Returns an upper bound on the node IDs.
-      int maxNodeId() const { return -1; } 
+      int maxNodeId() const { return -1; }
 
       /// \brief Returns an upper bound on the arc IDs.
-      int maxArcId() const { return -1; } 
+      int maxArcId() const { return -1; }
 
       void first(Node&) const {}
       void next(Node&) const {}
@@ -389,9 +389,9 @@ namespace lemon {
       Arc fromId(int, Arc) const { return INVALID; }
 
       // Dummy parameter.
-      int maxId(Node) const { return -1; } 
+      int maxId(Node) const { return -1; }
       // Dummy parameter.
-      int maxId(Arc) const { return -1; } 
+      int maxId(Arc) const { return -1; }
 
       /// \brief The base node of the iterator.
       ///
@@ -423,10 +423,10 @@ namespace lemon {
       Node oppositeNode(const Node&, const Arc&) const { return INVALID; }
 
       /// \brief Read write map of the nodes to type \c T.
-      /// 
+      ///
       /// ReadWrite map of the nodes to type \c T.
       /// \sa Reference
-      template<class T> 
+      template<class T>
       class NodeMap : public ReadWriteMap< Node, T > {
       public:
 
@@ -439,9 +439,9 @@ namespace lemon {
         NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
         ///Assignment operator
         template <typename CMap>
-        NodeMap& operator=(const CMap&) { 
+        NodeMap& operator=(const CMap&) {
           checkConcept<ReadMap<Node, T>, CMap>();
-          return *this; 
+          return *this;
         }
       };
 
@@ -449,7 +449,7 @@ namespace lemon {
       ///
       /// Reference map of the arcs to type \c T.
       /// \sa Reference
-      template<class T> 
+      template<class T>
       class ArcMap : public ReadWriteMap<Arc,T> {
       public:
 
@@ -461,9 +461,9 @@ namespace lemon {
         ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
         ///Assignment operator
         template <typename CMap>
-        ArcMap& operator=(const CMap&) { 
+        ArcMap& operator=(const CMap&) {
           checkConcept<ReadMap<Arc, T>, CMap>();
-          return *this; 
+          return *this;
         }
       };
 
@@ -471,14 +471,14 @@ namespace lemon {
       struct Constraints {
         void constraints() {
           checkConcept<IterableDigraphComponent<>, _Digraph>();
-	  checkConcept<IDableDigraphComponent<>, _Digraph>();
+          checkConcept<IDableDigraphComponent<>, _Digraph>();
           checkConcept<MappableDigraphComponent<>, _Digraph>();
         }
       };
 
     };
-    
-  } //namespace concepts  
+
+  } //namespace concepts
 } //namespace lemon
 
 

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -31,7 +31,7 @@ namespace lemon {
 
   /// \addtogroup misc
   /// @{
-  
+
   ///\brief A class to provide a basic way to
   ///handle the comparison of numbers that are obtained
   ///as a result of a probably inexact computation.
@@ -40,8 +40,8 @@ namespace lemon {
   ///handle the comparison of numbers that are obtained
   ///as a result of a probably inexact computation.
   ///
-  ///This is an abstract class, it should be specialized for all 
-  ///numerical data types. These specialized classes like 
+  ///This is an abstract class, it should be specialized for all
+  ///numerical data types. These specialized classes like
   ///Tolerance<double> may offer additional tuning parameters.
   ///
   ///\sa Tolerance<float>
@@ -305,7 +305,7 @@ namespace lemon {
     ///Returns zero
     static Value zero() {return 0;}
   };
-  
+
 
   ///Long integer specialization of Tolerance.
 

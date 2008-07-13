@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -32,7 +32,7 @@
 namespace lemon {
 
   /// \ingroup graphbits
-  /// 
+  ///
   /// \brief Extender for maps
   template <typename _Map>
   class MapExtender : public _Map {
@@ -56,10 +56,10 @@ namespace lemon {
 
   public:
 
-    MapExtender(const Graph& graph) 
+    MapExtender(const Graph& graph)
       : Parent(graph) {}
 
-    MapExtender(const Graph& graph, const Value& value) 
+    MapExtender(const Graph& graph, const Value& value)
       : Parent(graph, value) {}
 
     MapExtender& operator=(const MapExtender& cmap) {
@@ -70,14 +70,14 @@ namespace lemon {
     MapExtender& operator=(const CMap& cmap) {
       Parent::operator=(cmap);
       return *this;
-    } 
+    }
 
     class MapIt : public Item {
     public:
-      
+
       typedef Item Parent;
       typedef typename Map::Value Value;
-      
+
       MapIt() {}
 
       MapIt(Invalid i) : Parent(i) { }
@@ -86,29 +86,29 @@ namespace lemon {
         map.notifier()->first(*this);
       }
 
-      MapIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      MapIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      MapIt& operator++() { 
-	map.notifier()->next(*this);
-	return *this; 
+      MapIt& operator++() {
+        map.notifier()->next(*this);
+        return *this;
       }
-      
+
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-	return map[*this];
+        return map[*this];
       }
 
       typename MapTraits<Map>::ReturnValue operator*() {
-	return map[*this];
+        return map[*this];
       }
-      
+
       void set(const Value& value) {
-	map.set(*this, value);
+        map.set(*this, value);
       }
-      
+
     protected:
       Map& map;
-      
+
     };
 
     class ConstMapIt : public Item {
@@ -117,7 +117,7 @@ namespace lemon {
       typedef Item Parent;
 
       typedef typename Map::Value Value;
-      
+
       ConstMapIt() {}
 
       ConstMapIt(Invalid i) : Parent(i) { }
@@ -126,16 +126,16 @@ namespace lemon {
         map.notifier()->first(*this);
       }
 
-      ConstMapIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      ConstMapIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      ConstMapIt& operator++() { 
-	map.notifier()->next(*this);
-	return *this; 
+      ConstMapIt& operator++() {
+        map.notifier()->next(*this);
+        return *this;
       }
 
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-	return map[*this];
+        return map[*this];
       }
 
     protected:
@@ -144,9 +144,9 @@ namespace lemon {
 
     class ItemIt : public Item {
     public:
-      
+
       typedef Item Parent;
-      
+
       ItemIt() {}
 
       ItemIt(Invalid i) : Parent(i) { }
@@ -155,22 +155,22 @@ namespace lemon {
         map.notifier()->first(*this);
       }
 
-      ItemIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      ItemIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      ItemIt& operator++() { 
-	map.notifier()->next(*this);
-	return *this; 
+      ItemIt& operator++() {
+        map.notifier()->next(*this);
+        return *this;
       }
 
     protected:
       const Map& map;
-      
+
     };
   };
 
   /// \ingroup graphbits
-  /// 
+  ///
   /// \brief Extender for maps which use a subset of the items.
   template <typename _Graph, typename _Map>
   class SubMapExtender : public _Map {
@@ -194,10 +194,10 @@ namespace lemon {
 
   public:
 
-    SubMapExtender(const Graph& _graph) 
+    SubMapExtender(const Graph& _graph)
       : Parent(_graph), graph(_graph) {}
 
-    SubMapExtender(const Graph& _graph, const Value& _value) 
+    SubMapExtender(const Graph& _graph, const Value& _value)
       : Parent(_graph, _value), graph(_graph) {}
 
     SubMapExtender& operator=(const SubMapExtender& cmap) {
@@ -212,14 +212,14 @@ namespace lemon {
         Parent::set(it, cmap[it]);
       }
       return *this;
-    } 
+    }
 
     class MapIt : public Item {
     public:
-      
+
       typedef Item Parent;
       typedef typename Map::Value Value;
-      
+
       MapIt() {}
 
       MapIt(Invalid i) : Parent(i) { }
@@ -228,29 +228,29 @@ namespace lemon {
         map.graph.first(*this);
       }
 
-      MapIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      MapIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      MapIt& operator++() { 
-	map.graph.next(*this);
-	return *this; 
+      MapIt& operator++() {
+        map.graph.next(*this);
+        return *this;
       }
-      
+
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-	return map[*this];
+        return map[*this];
       }
 
       typename MapTraits<Map>::ReturnValue operator*() {
-	return map[*this];
+        return map[*this];
       }
-      
+
       void set(const Value& value) {
-	map.set(*this, value);
+        map.set(*this, value);
       }
-      
+
     protected:
       Map& map;
-      
+
     };
 
     class ConstMapIt : public Item {
@@ -259,7 +259,7 @@ namespace lemon {
       typedef Item Parent;
 
       typedef typename Map::Value Value;
-      
+
       ConstMapIt() {}
 
       ConstMapIt(Invalid i) : Parent(i) { }
@@ -268,16 +268,16 @@ namespace lemon {
         map.graph.first(*this);
       }
 
-      ConstMapIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      ConstMapIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      ConstMapIt& operator++() { 
-	map.graph.next(*this);
-	return *this; 
+      ConstMapIt& operator++() {
+        map.graph.next(*this);
+        return *this;
       }
 
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-	return map[*this];
+        return map[*this];
       }
 
     protected:
@@ -286,9 +286,9 @@ namespace lemon {
 
     class ItemIt : public Item {
     public:
-      
+
       typedef Item Parent;
-      
+
       ItemIt() {}
 
       ItemIt(Invalid i) : Parent(i) { }
@@ -297,23 +297,23 @@ namespace lemon {
         map.graph.first(*this);
       }
 
-      ItemIt(const Map& _map, const Item& item) 
-	: Parent(item), map(_map) {}
+      ItemIt(const Map& _map, const Item& item)
+        : Parent(item), map(_map) {}
 
-      ItemIt& operator++() { 
-	map.graph.next(*this);
-	return *this; 
+      ItemIt& operator++() {
+        map.graph.next(*this);
+        return *this;
       }
 
     protected:
       const Map& map;
-      
+
     };
-    
+
   private:
 
     const Graph& graph;
-    
+
   };
 
 }

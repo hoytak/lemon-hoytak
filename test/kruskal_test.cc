@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -73,7 +73,7 @@ int main() {
   Node v3=G.addNode();
   Node v4=G.addNode();
   Node t=G.addNode();
-  
+
   Edge e1 = G.addEdge(s, v1);
   Edge e2 = G.addEdge(s, v2);
   Edge e3 = G.addEdge(v1, v2);
@@ -90,14 +90,14 @@ int main() {
 
   ECostMap edge_cost_map(G, 2);
   EBoolMap tree_map(G);
-  
+
 
   //Test with const map.
   check(kruskal(G, ConstMap<ListGraph::Edge,int>(2), tree_map)==10,
-	"Total cost should be 10");
+        "Total cost should be 10");
   //Test with an edge map (filled with uniform costs).
   check(kruskal(G, edge_cost_map, tree_map)==10,
-	"Total cost should be 10");
+        "Total cost should be 10");
 
   edge_cost_map.set(e1, -10);
   edge_cost_map.set(e2, -9);
@@ -114,34 +114,34 @@ int main() {
 
   //Test with a edge map and inserter.
   check(kruskal(G, edge_cost_map,
-		 tree_edge_vec.begin())
-	==-31,
-	"Total cost should be -31.");
-  
+                 tree_edge_vec.begin())
+        ==-31,
+        "Total cost should be -31.");
+
   tree_edge_vec.clear();
 
   check(kruskal(G, edge_cost_map,
-		back_inserter(tree_edge_vec))
-	==-31,
-	"Total cost should be -31.");
-  
+                back_inserter(tree_edge_vec))
+        ==-31,
+        "Total cost should be -31.");
+
 //   tree_edge_vec.clear();
-  
+
 //   //The above test could also be coded like this:
 //   check(kruskal(G,
-// 		makeKruskalMapInput(G, edge_cost_map),
-// 		makeKruskalSequenceOutput(back_inserter(tree_edge_vec)))
-// 	==-31,
-// 	"Total cost should be -31.");
+//                 makeKruskalMapInput(G, edge_cost_map),
+//                 makeKruskalSequenceOutput(back_inserter(tree_edge_vec)))
+//         ==-31,
+//         "Total cost should be -31.");
 
   check(tree_edge_vec.size()==5,"The tree should have 5 edges.");
 
   check(tree_edge_vec[0]==e1 &&
-	tree_edge_vec[1]==e2 &&
-	tree_edge_vec[2]==e5 &&
-	tree_edge_vec[3]==e7 &&
-	tree_edge_vec[4]==e9,
-	"Wrong tree.");
+        tree_edge_vec[1]==e2 &&
+        tree_edge_vec[2]==e5 &&
+        tree_edge_vec[3]==e7 &&
+        tree_edge_vec[4]==e9,
+        "Wrong tree.");
 
   return 0;
 }

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -26,13 +26,13 @@
 ///\file
 ///\brief Tools for counting steps and events
 
-namespace lemon 
+namespace lemon
 {
 
   template<class P> class _NoSubCounter;
 
   template<class P>
-  class _SubCounter 
+  class _SubCounter
   {
     P &_parent;
     std::string _title;
@@ -49,7 +49,7 @@ namespace lemon
       : _parent(parent), _title(title), _os(os), count(0) {}
     _SubCounter(P &parent,const char *title,std::ostream &os=std::cerr)
       : _parent(parent), _title(title), _os(os), count(0) {}
-    ~_SubCounter() { 
+    ~_SubCounter() {
       _os << _title << count <<std::endl;
       _parent+=count;
     }
@@ -63,17 +63,17 @@ namespace lemon
   };
 
   template<class P>
-  class _NoSubCounter 
+  class _NoSubCounter
   {
     P &_parent;
   public:
     typedef _NoSubCounter<_NoSubCounter<P> > SubCounter;
     typedef _NoSubCounter<_NoSubCounter<P> > NoSubCounter;
-  
+
     _NoSubCounter(P &parent) :_parent(parent) {}
-    _NoSubCounter(P &parent,std::string,std::ostream &) 
+    _NoSubCounter(P &parent,std::string,std::ostream &)
       :_parent(parent) {}
-    _NoSubCounter(P &parent,std::string) 
+    _NoSubCounter(P &parent,std::string)
       :_parent(parent) {}
     _NoSubCounter(P &parent,const char *,std::ostream &)
       :_parent(parent) {}
@@ -102,7 +102,7 @@ namespace lemon
   /// define subcounters for the different phases of the algorithm or
   /// for different types of operations.
   /// A report containing the given title and the value of the counter
-  /// is automatically printed on destruction. 
+  /// is automatically printed on destruction.
   ///
   /// The following example shows the usage of counters and subcounters.
   /// \code
@@ -133,7 +133,7 @@ namespace lemon
   /// \endcode
   ///
   /// \sa NoCounter
-  class Counter 
+  class Counter
   {
     std::string _title;
     std::ostream &_os;
@@ -141,13 +141,13 @@ namespace lemon
   public:
 
     /// SubCounter class
-    
+
     /// This class can be used to setup subcounters for a \ref Counter
     /// to have finer reports. A subcounter provides exactly the same
     /// operations as the main \ref Counter, but it also increments and
     /// decrements the value of its parent.
     /// Subcounters can also have subcounters.
-    /// 
+    ///
     /// The parent counter must be given as the first parameter of the
     /// constructor. Apart from that a title and an \c ostream object
     /// can also be given just like for the main \ref Counter.
@@ -156,19 +156,19 @@ namespace lemon
     /// subcounter is automatically printed on destruction. If you
     /// would like to turn off this report, use \ref NoSubCounter
     /// instead.
-    /// 
+    ///
     /// \sa NoSubCounter
     typedef _SubCounter<Counter> SubCounter;
 
-    /// SubCounter class without printing report on destruction 
-    
+    /// SubCounter class without printing report on destruction
+
     /// This class can be used to setup subcounters for a \ref Counter.
     /// It is the same as \ref SubCounter but it does not print report
     /// on destruction. (It modifies the value of its parent, so 'No'
     /// only means 'do not print'.)
     ///
     /// Replacing \ref SubCounter "SubCounter"s with \ref NoSubCounter
-    /// "NoSubCounter"s makes it possible to turn off reporting 
+    /// "NoSubCounter"s makes it possible to turn off reporting
     /// subcounter values without actually removing the definitions
     /// and the increment or decrement operators.
     ///
@@ -178,7 +178,7 @@ namespace lemon
     /// Constructor.
     Counter() : _title(), _os(std::cerr), count(0) {}
     /// Constructor.
-    Counter(std::string title,std::ostream &os=std::cerr) 
+    Counter(std::string title,std::ostream &os=std::cerr)
       : _title(title), _os(os), count(0) {}
     /// Constructor.
     Counter(const char *title,std::ostream &os=std::cerr)
@@ -204,7 +204,7 @@ namespace lemon
     /// Resets the counter to the given value.
     /// \note This function does not reset the values of
     /// \ref SubCounter "SubCounter"s but it resets \ref NoSubCounter
-    /// "NoSubCounter"s along with the main counter. 
+    /// "NoSubCounter"s along with the main counter.
     void reset(int c=0) {count=c;}
     /// Returns the value of the counter.
     operator int() {return count;}

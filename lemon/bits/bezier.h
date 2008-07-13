@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -44,7 +44,7 @@ public:
 
   Bezier1() {}
   Bezier1(Point _p1, Point _p2) :p1(_p1), p2(_p2) {}
-  
+
   Point operator()(double t) const
   {
     //    return conv(conv(p1,p2,t),conv(p2,p3,t),t);
@@ -54,7 +54,7 @@ public:
   {
     return Bezier1(p1,conv(p1,p2,t));
   }
-  
+
   Bezier1 after(double t) const
   {
     return Bezier1(conv(p1,p2,t),p2);
@@ -87,7 +87,7 @@ public:
     Point r(conv(p2,p3,t));
     return Bezier2(p1,q,conv(q,r,t));
   }
-  
+
   Bezier2 after(double t) const
   {
     Point q(conv(p1,p2,t));
@@ -110,16 +110,16 @@ public:
   Bezier3() {}
   Bezier3(Point _p1, Point _p2, Point _p3, Point _p4)
     : p1(_p1), p2(_p2), p3(_p3), p4(_p4) {}
-  Bezier3(const Bezier1 &b) : p1(b.p1), p2(conv(b.p1,b.p2,1.0/3.0)), 
-			      p3(conv(b.p1,b.p2,2.0/3.0)), p4(b.p2) {}
+  Bezier3(const Bezier1 &b) : p1(b.p1), p2(conv(b.p1,b.p2,1.0/3.0)),
+                              p3(conv(b.p1,b.p2,2.0/3.0)), p4(b.p2) {}
   Bezier3(const Bezier2 &b) : p1(b.p1), p2(conv(b.p1,b.p2,2.0/3.0)),
-			      p3(conv(b.p2,b.p3,1.0/3.0)), p4(b.p3) {}
-  
-  Point operator()(double t) const 
+                              p3(conv(b.p2,b.p3,1.0/3.0)), p4(b.p3) {}
+
+  Point operator()(double t) const
     {
       //    return Bezier2(conv(p1,p2,t),conv(p2,p3,t),conv(p3,p4,t))(t);
       return ((1-t)*(1-t)*(1-t))*p1+(3*t*(1-t)*(1-t))*p2+
-	(3*t*t*(1-t))*p3+(t*t*t)*p4;
+        (3*t*t*(1-t))*p3+(t*t*t)*p4;
     }
   Bezier3 before(double t) const
     {
@@ -131,7 +131,7 @@ public:
       Point c(conv(a,b,t));
       return Bezier3(p1,p,a,c);
     }
-  
+
   Bezier3 after(double t) const
     {
       Point p(conv(p1,p2,t));
@@ -146,13 +146,13 @@ public:
   Bezier3 operator()(double a,double b) const { return before(b).after(a/b); }
   Bezier2 grad() const { return Bezier2(3.0*(p2-p1),3.0*(p3-p2),3.0*(p4-p3)); }
   Bezier2 norm() const { return Bezier2(3.0*rot90(p2-p1),
-				  3.0*rot90(p3-p2),
-				  3.0*rot90(p4-p3)); }
+                                  3.0*rot90(p3-p2),
+                                  3.0*rot90(p4-p3)); }
   Point grad(double t) const { return grad()(t); }
   Point norm(double t) const { return rot90(grad(t)); }
 
   template<class R,class F,class S,class D>
-  R recSplit(F &_f,const S &_s,D _d) const 
+  R recSplit(F &_f,const S &_s,D _d) const
   {
     const Point a=(p1+p2)/2;
     const Point b=(p2+p3)/2;
@@ -164,7 +164,7 @@ public:
     R f2=_f(Bezier3(e,d,c,p4),_d);
     return _s(f1,f2);
   }
-  
+
 };
 
 

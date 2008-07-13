@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -62,7 +62,7 @@ namespace lemon {
   };
 
   /// White color constant
-  extern const Color WHITE;  
+  extern const Color WHITE;
   /// Black color constant
   extern const Color BLACK;
   /// Red color constant
@@ -130,14 +130,14 @@ namespace lemon {
         colors.push_back(Color(1,1,0));
         colors.push_back(Color(1,0,1));
         colors.push_back(Color(0,1,1));
-      
+
         colors.push_back(Color(.5,0,0));
         colors.push_back(Color(0,.5,0));
         colors.push_back(Color(0,0,.5));
         colors.push_back(Color(.5,.5,0));
         colors.push_back(Color(.5,0,.5));
         colors.push_back(Color(0,.5,.5));
-      
+
         colors.push_back(Color(.5,.5,.5));
         colors.push_back(Color(1,.5,.5));
         colors.push_back(Color(.5,1,.5));
@@ -145,7 +145,7 @@ namespace lemon {
         colors.push_back(Color(1,1,.5));
         colors.push_back(Color(1,.5,1));
         colors.push_back(Color(.5,1,1));
-      
+
         colors.push_back(Color(1,.5,0));
         colors.push_back(Color(.5,1,0));
         colors.push_back(Color(1,0,.5));
@@ -171,7 +171,7 @@ namespace lemon {
       colors[i%colors.size()]=c;
     }
     ///Adds a new color to the end of the color list.
-    void add(const Color &c) 
+    void add(const Color &c)
     {
       colors.push_back(c);
     }
@@ -186,7 +186,7 @@ namespace lemon {
 
   ///Returns a \ref Color which is as different from the given parameter
   ///as it is possible.
-  inline Color distantColor(const Color &c) 
+  inline Color distantColor(const Color &c)
   {
     return Color(c.red()<.5?1:0,c.green()<.5?1:0,c.blue()<.5?1:0);
   }

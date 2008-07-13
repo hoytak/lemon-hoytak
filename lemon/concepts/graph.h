@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -65,23 +65,23 @@ namespace lemon {
     /// OutArcIt iterates on the same edges but with opposite
     /// direction. The IncEdgeIt iterates also on the same edges
     /// as the OutArcIt and InArcIt but it is not convertible to Arc just
-    /// to Edge.  
+    /// to Edge.
     class Graph {
     public:
       /// \brief The undirected graph should be tagged by the
       /// UndirectedTag.
       ///
       /// The undirected graph should be tagged by the UndirectedTag. This
-      /// tag helps the enable_if technics to make compile time 
-      /// specializations for undirected graphs.  
+      /// tag helps the enable_if technics to make compile time
+      /// specializations for undirected graphs.
       typedef True UndirectedTag;
 
-      /// \brief The base type of node iterators, 
+      /// \brief The base type of node iterators,
       /// or in other words, the trivial node iterator.
       ///
       /// This is the base type of each node iterator,
       /// thus each kind of node iterator converts to this.
-      /// More precisely each kind of node iterator should be inherited 
+      /// More precisely each kind of node iterator should be inherited
       /// from the trivial node iterator.
       class Node {
       public:
@@ -108,23 +108,23 @@ namespace lemon {
         bool operator==(Node) const { return true; }
 
         /// Inequality operator
-        
+
         /// \sa operator==(Node n)
         ///
         bool operator!=(Node) const { return true; }
 
-	/// Artificial ordering operator.
-	
-	/// To allow the use of graph descriptors as key type in std::map or
-	/// similar associative container we require this.
-	///
-	/// \note This operator only have to define some strict ordering of
-	/// the items; this order has nothing to do with the iteration
-	/// ordering of the items.
-	bool operator<(Node) const { return false; }
+        /// Artificial ordering operator.
+
+        /// To allow the use of graph descriptors as key type in std::map or
+        /// similar associative container we require this.
+        ///
+        /// \note This operator only have to define some strict ordering of
+        /// the items; this order has nothing to do with the iteration
+        /// ordering of the items.
+        bool operator<(Node) const { return false; }
 
       };
-    
+
       /// This iterator goes through each node.
 
       /// This iterator goes through each node.
@@ -142,7 +142,7 @@ namespace lemon {
         /// to an undefined value.
         NodeIt() { }
         /// Copy constructor.
-        
+
         /// Copy constructor.
         ///
         NodeIt(const NodeIt& n) : Node(n) { }
@@ -158,9 +158,9 @@ namespace lemon {
         NodeIt(const Graph&) { }
         /// Node -> NodeIt conversion.
 
-        /// Sets the iterator to the node of \c the graph pointed by 
-	/// the trivial iterator.
-        /// This feature necessitates that each time we 
+        /// Sets the iterator to the node of \c the graph pointed by
+        /// the trivial iterator.
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         NodeIt(const Graph&, const Node&) { }
         /// Next node.
@@ -169,8 +169,8 @@ namespace lemon {
         ///
         NodeIt& operator++() { return *this; }
       };
-    
-    
+
+
       /// The base type of the edge iterators.
 
       /// The base type of the edge iterators.
@@ -203,15 +203,15 @@ namespace lemon {
         ///
         bool operator!=(Edge) const { return true; }
 
-	/// Artificial ordering operator.
-	
-	/// To allow the use of graph descriptors as key type in std::map or
-	/// similar associative container we require this.
-	///
-	/// \note This operator only have to define some strict ordering of
-	/// the items; this order has nothing to do with the iteration
-	/// ordering of the items.
-	bool operator<(Edge) const { return false; }
+        /// Artificial ordering operator.
+
+        /// To allow the use of graph descriptors as key type in std::map or
+        /// similar associative container we require this.
+        ///
+        /// \note This operator only have to define some strict ordering of
+        /// the items; this order has nothing to do with the iteration
+        /// ordering of the items.
+        bool operator<(Edge) const { return false; }
       };
 
       /// This iterator goes through each edge.
@@ -241,32 +241,32 @@ namespace lemon {
         ///
         EdgeIt(Invalid) { }
         /// This constructor sets the iterator to the first edge.
-    
+
         /// This constructor sets the iterator to the first edge.
         EdgeIt(const Graph&) { }
         /// Edge -> EdgeIt conversion
 
         /// Sets the iterator to the value of the trivial iterator.
         /// This feature necessitates that each time we
-        /// iterate the edge-set, the iteration order is the 
-	/// same.
-        EdgeIt(const Graph&, const Edge&) { } 
+        /// iterate the edge-set, the iteration order is the
+        /// same.
+        EdgeIt(const Graph&, const Edge&) { }
         /// Next edge
-        
+
         /// Assign the iterator to the next edge.
         EdgeIt& operator++() { return *this; }
       };
 
-      /// \brief This iterator goes trough the incident undirected 
+      /// \brief This iterator goes trough the incident undirected
       /// arcs of a node.
       ///
       /// This iterator goes trough the incident edges
-      /// of a certain node of a graph. You should assume that the 
+      /// of a certain node of a graph. You should assume that the
       /// loop arcs will be iterated twice.
-      /// 
+      ///
       /// Its usage is quite simple, for example you can compute the
       /// degree (i.e. count the number of incident arcs of a node \c n
-      /// in graph \c g of type \c Graph as follows. 
+      /// in graph \c g of type \c Graph as follows.
       ///
       ///\code
       /// int count=0;
@@ -290,20 +290,20 @@ namespace lemon {
         ///
         IncEdgeIt(Invalid) { }
         /// This constructor sets the iterator to first incident arc.
-    
+
         /// This constructor set the iterator to the first incident arc of
         /// the node.
         IncEdgeIt(const Graph&, const Node&) { }
         /// Edge -> IncEdgeIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         IncEdgeIt(const Graph&, const Edge&) { }
         /// Next incident arc
 
         /// Assign the iterator to the next incident arc
-	/// of the corresponding node.
+        /// of the corresponding node.
         IncEdgeIt& operator++() { return *this; }
       };
 
@@ -340,17 +340,17 @@ namespace lemon {
         ///
         bool operator!=(Arc) const { return true; }
 
-	/// Artificial ordering operator.
-	
-	/// To allow the use of graph descriptors as key type in std::map or
-	/// similar associative container we require this.
-	///
-	/// \note This operator only have to define some strict ordering of
-	/// the items; this order has nothing to do with the iteration
-	/// ordering of the items.
-	bool operator<(Arc) const { return false; }
-	
-      }; 
+        /// Artificial ordering operator.
+
+        /// To allow the use of graph descriptors as key type in std::map or
+        /// similar associative container we require this.
+        ///
+        /// \note This operator only have to define some strict ordering of
+        /// the items; this order has nothing to do with the iteration
+        /// ordering of the items.
+        bool operator<(Arc) const { return false; }
+
+      };
       /// This iterator goes through each directed arc.
 
       /// This iterator goes through each arc of a graph.
@@ -378,22 +378,22 @@ namespace lemon {
         ///
         ArcIt(Invalid) { }
         /// This constructor sets the iterator to the first arc.
-    
+
         /// This constructor sets the iterator to the first arc of \c g.
         ///@param g the graph
         ArcIt(const Graph &g) { ignore_unused_variable_warning(g); }
         /// Arc -> ArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
-        ArcIt(const Graph&, const Arc&) { } 
+        ArcIt(const Graph&, const Arc&) { }
         ///Next arc
-        
+
         /// Assign the iterator to the next arc.
         ArcIt& operator++() { return *this; }
       };
-   
+
       /// This iterator goes trough the outgoing directed arcs of a node.
 
       /// This iterator goes trough the \e outgoing arcs of a certain node
@@ -405,7 +405,7 @@ namespace lemon {
       /// int count=0;
       /// for (Graph::OutArcIt e(g, n); e!=INVALID; ++e) ++count;
       ///\endcode
-    
+
       class OutArcIt : public Arc {
       public:
         /// Default constructor
@@ -424,24 +424,24 @@ namespace lemon {
         ///
         OutArcIt(Invalid) { }
         /// This constructor sets the iterator to the first outgoing arc.
-    
+
         /// This constructor sets the iterator to the first outgoing arc of
         /// the node.
         ///@param n the node
         ///@param g the graph
         OutArcIt(const Graph& n, const Node& g) {
-	  ignore_unused_variable_warning(n);
-	  ignore_unused_variable_warning(g);
-	}
+          ignore_unused_variable_warning(n);
+          ignore_unused_variable_warning(g);
+        }
         /// Arc -> OutArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator.
-	/// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         OutArcIt(const Graph&, const Arc&) { }
         ///Next outgoing arc
-        
-        /// Assign the iterator to the next 
+
+        /// Assign the iterator to the next
         /// outgoing arc of the corresponding node.
         OutArcIt& operator++() { return *this; }
       };
@@ -476,19 +476,19 @@ namespace lemon {
         ///
         InArcIt(Invalid) { }
         /// This constructor sets the iterator to first incoming arc.
-    
+
         /// This constructor set the iterator to the first incoming arc of
         /// the node.
         ///@param n the node
         ///@param g the graph
-        InArcIt(const Graph& g, const Node& n) { 
-	  ignore_unused_variable_warning(n);
-	  ignore_unused_variable_warning(g);
-	}
+        InArcIt(const Graph& g, const Node& n) {
+          ignore_unused_variable_warning(n);
+          ignore_unused_variable_warning(g);
+        }
         /// Arc -> InArcIt conversion
 
         /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we 
+        /// This feature necessitates that each time we
         /// iterate the arc-set, the iteration order is the same.
         InArcIt(const Graph&, const Arc&) { }
         /// Next incoming arc
@@ -499,10 +499,10 @@ namespace lemon {
       };
 
       /// \brief Read write map of the nodes to type \c T.
-      /// 
+      ///
       /// ReadWrite map of the nodes to type \c T.
       /// \sa Reference
-      template<class T> 
+      template<class T>
       class NodeMap : public ReadWriteMap< Node, T >
       {
       public:
@@ -516,9 +516,9 @@ namespace lemon {
         NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
         ///Assignment operator
         template <typename CMap>
-        NodeMap& operator=(const CMap&) { 
+        NodeMap& operator=(const CMap&) {
           checkConcept<ReadMap<Node, T>, CMap>();
-          return *this; 
+          return *this;
         }
       };
 
@@ -526,7 +526,7 @@ namespace lemon {
       ///
       /// Reference map of the directed arcs to type \c T.
       /// \sa Reference
-      template<class T> 
+      template<class T>
       class ArcMap : public ReadWriteMap<Arc,T>
       {
       public:
@@ -539,9 +539,9 @@ namespace lemon {
         ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
         ///Assignment operator
         template <typename CMap>
-        ArcMap& operator=(const CMap&) { 
+        ArcMap& operator=(const CMap&) {
           checkConcept<ReadMap<Arc, T>, CMap>();
-          return *this; 
+          return *this;
         }
       };
 
@@ -549,7 +549,7 @@ namespace lemon {
 
       /// Reference map of the arcs to type \c T.
       /// \sa Reference
-      template<class T> 
+      template<class T>
       class EdgeMap : public ReadWriteMap<Edge,T>
       {
       public:
@@ -562,9 +562,9 @@ namespace lemon {
         EdgeMap(const EdgeMap& em) : ReadWriteMap<Edge,T>(em) {}
         ///Assignment operator
         template <typename CMap>
-        EdgeMap& operator=(const CMap&) { 
+        EdgeMap& operator=(const CMap&) {
           checkConcept<ReadMap<Edge, T>, CMap>();
-          return *this; 
+          return *this;
         }
       };
 
@@ -573,7 +573,7 @@ namespace lemon {
       /// Direct the given edge. The returned arc source
       /// will be the given node.
       Arc direct(const Edge&, const Node&) const {
-	return INVALID;
+        return INVALID;
       }
 
       /// \brief Direct the given edge.
@@ -583,7 +583,7 @@ namespace lemon {
       /// from the bool parameter. The source of the edge and
       /// the directed arc is the same when the given bool is true.
       Arc direct(const Edge&, bool) const {
-	return INVALID;
+        return INVALID;
       }
 
       /// \brief Returns true if the arc has default orientation.
@@ -625,37 +625,37 @@ namespace lemon {
       Node target(Arc) const { return INVALID; }
 
       /// \brief Returns the id of the node.
-      int id(Node) const { return -1; } 
+      int id(Node) const { return -1; }
 
       /// \brief Returns the id of the edge.
-      int id(Edge) const { return -1; } 
+      int id(Edge) const { return -1; }
 
       /// \brief Returns the id of the arc.
-      int id(Arc) const { return -1; } 
+      int id(Arc) const { return -1; }
 
       /// \brief Returns the node with the given id.
       ///
       /// \pre The argument should be a valid node id in the graph.
-      Node nodeFromId(int) const { return INVALID; } 
+      Node nodeFromId(int) const { return INVALID; }
 
       /// \brief Returns the edge with the given id.
       ///
       /// \pre The argument should be a valid edge id in the graph.
-      Edge edgeFromId(int) const { return INVALID; } 
+      Edge edgeFromId(int) const { return INVALID; }
 
       /// \brief Returns the arc with the given id.
       ///
       /// \pre The argument should be a valid arc id in the graph.
-      Arc arcFromId(int) const { return INVALID; } 
+      Arc arcFromId(int) const { return INVALID; }
 
       /// \brief Returns an upper bound on the node IDs.
-      int maxNodeId() const { return -1; } 
+      int maxNodeId() const { return -1; }
 
       /// \brief Returns an upper bound on the edge IDs.
-      int maxEdgeId() const { return -1; } 
+      int maxEdgeId() const { return -1; }
 
       /// \brief Returns an upper bound on the arc IDs.
-      int maxArcId() const { return -1; } 
+      int maxArcId() const { return -1; }
 
       void first(Node&) const {}
       void next(Node&) const {}
@@ -683,61 +683,61 @@ namespace lemon {
       Arc fromId(int, Arc) const { return INVALID; }
 
       // Dummy parameter.
-      int maxId(Node) const { return -1; } 
+      int maxId(Node) const { return -1; }
       // Dummy parameter.
-      int maxId(Edge) const { return -1; } 
+      int maxId(Edge) const { return -1; }
       // Dummy parameter.
-      int maxId(Arc) const { return -1; } 
+      int maxId(Arc) const { return -1; }
 
       /// \brief Base node of the iterator
       ///
       /// Returns the base node (the source in this case) of the iterator
       Node baseNode(OutArcIt e) const {
-	return source(e);
+        return source(e);
       }
       /// \brief Running node of the iterator
       ///
       /// Returns the running node (the target in this case) of the
       /// iterator
       Node runningNode(OutArcIt e) const {
-	return target(e);
+        return target(e);
       }
 
       /// \brief Base node of the iterator
       ///
       /// Returns the base node (the target in this case) of the iterator
       Node baseNode(InArcIt e) const {
-	return target(e);
+        return target(e);
       }
       /// \brief Running node of the iterator
       ///
       /// Returns the running node (the source in this case) of the
       /// iterator
       Node runningNode(InArcIt e) const {
-	return source(e);
+        return source(e);
       }
 
       /// \brief Base node of the iterator
       ///
       /// Returns the base node of the iterator
       Node baseNode(IncEdgeIt) const {
-	return INVALID;
+        return INVALID;
       }
-      
+
       /// \brief Running node of the iterator
       ///
       /// Returns the running node of the iterator
       Node runningNode(IncEdgeIt) const {
-	return INVALID;
+        return INVALID;
       }
 
       template <typename _Graph>
       struct Constraints {
-	void constraints() {
-	  checkConcept<IterableGraphComponent<>, _Graph>();
-	  checkConcept<IDableGraphComponent<>, _Graph>();
-	  checkConcept<MappableGraphComponent<>, _Graph>();
-	}
+        void constraints() {
+          checkConcept<IterableGraphComponent<>, _Graph>();
+          checkConcept<IDableGraphComponent<>, _Graph>();
+          checkConcept<MappableGraphComponent<>, _Graph>();
+        }
       };
 
     };

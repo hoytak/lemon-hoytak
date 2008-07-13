@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -45,39 +45,39 @@ namespace lemon {
 
     ExceptionMember() throw() {
       try {
-	ptr.reset(new Type());
+        ptr.reset(new Type());
       } catch (...) {}
     }
 
     ExceptionMember(const Type& type) throw() {
       try {
-	ptr.reset(new Type());
-	if (ptr.get() == 0) return;
-	*ptr = type;
+        ptr.reset(new Type());
+        if (ptr.get() == 0) return;
+        *ptr = type;
       } catch (...) {}
     }
 
     ExceptionMember(const ExceptionMember& copy) throw() {
       try {
-	if (!copy.valid()) return;
-	ptr.reset(new Type());
-	if (ptr.get() == 0) return;
-	*ptr = copy.get();
+        if (!copy.valid()) return;
+        ptr.reset(new Type());
+        if (ptr.get() == 0) return;
+        *ptr = copy.get();
       } catch (...) {}
     }
 
     ExceptionMember& operator=(const ExceptionMember& copy) throw() {
       if (ptr.get() == 0) return;
       try {
-	if (!copy.valid()) return;
- 	*ptr = copy.get();
+        if (!copy.valid()) return;
+         *ptr = copy.get();
       } catch (...) {}
     }
 
     void set(const Type& type) throw() {
       if (ptr.get() == 0) return;
       try {
-	*ptr = type;
+        *ptr = type;
       } catch (...) {}
     }
 
@@ -109,10 +109,10 @@ namespace lemon {
     ///\e
     bool init() throw() {
       try {
-	buf.reset(new std::ostringstream);
+        buf.reset(new std::ostringstream);
       }
       catch(...) {
-	buf.reset();
+        buf.reset();
       }
       return buf.get();
     }
@@ -142,10 +142,10 @@ namespace lemon {
       if( ! buf.get() ) return *this;
 
       try {
-	*buf << t;
+        *buf << t;
       }
       catch(...) {
-	buf.reset();
+        buf.reset();
       }
       return *this;
     }
@@ -156,7 +156,7 @@ namespace lemon {
 
       const char* mes = 0;
       try {
-	mes = buf->str().c_str();
+        mes = buf->str().c_str();
       }
       catch(...) {}
       return mes;
@@ -254,7 +254,7 @@ namespace lemon {
 
     ///\e
     DataFormatError(const std::string &file_name, int line_num,
-		    const char *the_message)
+                    const char *the_message)
       : _message(the_message), _line(line_num) { file(file_name); }
 
     ///\e
@@ -269,9 +269,9 @@ namespace lemon {
     ///\e
     const char* message() const {
       if (_message.valid() && !_message.get().empty()) {
-	return _message.get().c_str();
+        return _message.get().c_str();
       } else {
-	return 0;
+        return 0;
       }
     }
 
@@ -280,26 +280,26 @@ namespace lemon {
     /// Returns \e null if the filename was not specified.
     const char* file() const {
       if (_file.valid() && !_file.get().empty()) {
-	return _file.get().c_str();
+        return _file.get().c_str();
       } else {
-	return 0;
+        return 0;
       }
     }
 
     ///\e
     virtual const char* what() const throw() {
       try {
-	std::ostringstream ostr;
-	ostr << "lemon:DataFormatError" << ": ";
-	if (message()) ostr << message();
-	if( file() || line() != 0 ) {
-	  ostr << " (";
-	  if( file() ) ostr << "in file '" << file() << "'";
-	  if( file() && line() != 0 ) ostr << " ";
-	  if( line() != 0 ) ostr << "at line " << line();
-	  ostr << ")";
-	}
-	_message_holder.set(ostr.str());
+        std::ostringstream ostr;
+        ostr << "lemon:DataFormatError" << ": ";
+        if (message()) ostr << message();
+        if( file() || line() != 0 ) {
+          ostr << " (";
+          if( file() ) ostr << "in file '" << file() << "'";
+          if( file() && line() != 0 ) ostr << " ";
+          if( line() != 0 ) ostr << "at line " << line();
+          ostr << ")";
+        }
+        _message_holder.set(ostr.str());
       }
       catch (...) {}
       if( _message_holder.valid()) return _message_holder.get().c_str();
@@ -333,19 +333,19 @@ namespace lemon {
     /// Returns \e null if the filename was not specified.
     const char* file() const {
       if (_file.valid() && !_file.get().empty()) {
-	return _file.get().c_str();
+        return _file.get().c_str();
       } else {
-	return 0;
+        return 0;
       }
     }
 
     ///\e
     virtual const char* what() const throw() {
       try {
-	std::ostringstream ostr;
-	ostr << "lemon::FileOpenError" << ": ";
-	ostr << "Cannot open file - " << file();
-	_message_holder.set(ostr.str());
+        std::ostringstream ostr;
+        ostr << "lemon::FileOpenError" << ": ";
+        ostr << "Cannot open file - " << file();
+        _message_holder.set(ostr.str());
       }
       catch (...) {}
       if( _message_holder.valid()) return _message_holder.get().c_str();
@@ -381,9 +381,9 @@ namespace lemon {
      ///\e
     const char* message() const {
       if (_message.valid()) {
-	return _message.get().c_str();
+        return _message.get().c_str();
       } else {
-	return 0;
+        return 0;
       }
     }
 
@@ -392,19 +392,19 @@ namespace lemon {
     /// Returns \c 0 if the filename was not specified.
     const char* file() const {
       if (_file.valid()) {
-	return _file.get().c_str();
+        return _file.get().c_str();
       } else {
-	return 0;
+        return 0;
       }
     }
 
     ///\e
     virtual const char* what() const throw() {
       try {
-	std::ostringstream ostr;
-	if (message()) ostr << message();
-	if (file()) ostr << "(when reading file '" << file() << "')";
-	_message_holder.set(ostr.str());
+        std::ostringstream ostr;
+        if (message()) ostr << message();
+        if (file()) ostr << "(when reading file '" << file() << "')";
+        _message_holder.set(ostr.str());
       }
       catch (...) {}
       if( _message_holder.valid() ) return _message_holder.get().c_str();

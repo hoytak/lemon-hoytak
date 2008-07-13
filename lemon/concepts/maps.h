@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -47,26 +47,26 @@ namespace lemon {
       typedef T Value;
 
       /// Returns the value associated with the given key.
-      Value operator[](const Key &) const { 
+      Value operator[](const Key &) const {
         return *static_cast<Value *>(0);
       }
 
       template<typename _ReadMap>
       struct Constraints {
-	void constraints() {
-	  Value val = m[key];
-	  val = m[key];
-	  typename _ReadMap::Value own_val = m[own_key];
-	  own_val = m[own_key];
+        void constraints() {
+          Value val = m[key];
+          val = m[key];
+          typename _ReadMap::Value own_val = m[own_key];
+          own_val = m[own_key];
 
-	  ignore_unused_variable_warning(key);
-	  ignore_unused_variable_warning(val);
-	  ignore_unused_variable_warning(own_key);
-	  ignore_unused_variable_warning(own_val);
-	}
-	const Key& key;
-	const typename _ReadMap::Key& own_key;
-	const _ReadMap& m;
+          ignore_unused_variable_warning(key);
+          ignore_unused_variable_warning(val);
+          ignore_unused_variable_warning(own_key);
+          ignore_unused_variable_warning(own_val);
+        }
+        const Key& key;
+        const typename _ReadMap::Key& own_key;
+        const _ReadMap& m;
       };
 
     };
@@ -93,20 +93,20 @@ namespace lemon {
 
       template <typename _WriteMap>
       struct Constraints {
-	void constraints() {
-	  m.set(key, val);
-	  m.set(own_key, own_val);
+        void constraints() {
+          m.set(key, val);
+          m.set(own_key, own_val);
 
-	  ignore_unused_variable_warning(key);
-	  ignore_unused_variable_warning(val);
-	  ignore_unused_variable_warning(own_key);
-	  ignore_unused_variable_warning(own_val);
-	}
-	const Key& key;
-	const Value& val;
-	const typename _WriteMap::Key& own_key;
-	const typename _WriteMap::Value& own_val;
-	_WriteMap& m;
+          ignore_unused_variable_warning(key);
+          ignore_unused_variable_warning(val);
+          ignore_unused_variable_warning(own_key);
+          ignore_unused_variable_warning(own_val);
+        }
+        const Key& key;
+        const Value& val;
+        const typename _WriteMap::Key& own_key;
+        const typename _WriteMap::Value& own_val;
+        _WriteMap& m;
       };
     };
 
@@ -116,7 +116,7 @@ namespace lemon {
     ///
     template<typename K, typename T>
     class ReadWriteMap : public ReadMap<K,T>,
-			 public WriteMap<K,T>
+                         public WriteMap<K,T>
     {
     public:
       /// The key type of the map.
@@ -125,7 +125,7 @@ namespace lemon {
       typedef T Value;
 
       /// Returns the value associated with the given key.
-      Value operator[](const Key &) const { 
+      Value operator[](const Key &) const {
         return *static_cast<Value *>(0);
       }
 
@@ -134,10 +134,10 @@ namespace lemon {
 
       template<typename _ReadWriteMap>
       struct Constraints {
-	void constraints() {
-	  checkConcept<ReadMap<K, T>, _ReadWriteMap >();
-	  checkConcept<WriteMap<K, T>, _ReadWriteMap >();
-	}
+        void constraints() {
+          checkConcept<ReadMap<K, T>, _ReadWriteMap >();
+          checkConcept<WriteMap<K, T>, _ReadWriteMap >();
+        }
       };
     };
 
@@ -164,7 +164,7 @@ namespace lemon {
     public:
 
       /// Returns a reference to the value associated with the given key.
-      Reference operator[](const Key &) { 
+      Reference operator[](const Key &) {
         return *static_cast<Value *>(0);
       }
 
@@ -178,28 +178,28 @@ namespace lemon {
 
       template<typename _ReferenceMap>
       struct Constraints {
-	void constraints() {
-	  checkConcept<ReadWriteMap<K, T>, _ReferenceMap >();
-	  ref = m[key];
-	  m[key] = val;
-	  m[key] = ref;
-	  m[key] = cref;
-	  own_ref = m[own_key];
-	  m[own_key] = own_val;
-	  m[own_key] = own_ref;
-	  m[own_key] = own_cref;
-	  m[key] = m[own_key];
-	  m[own_key] = m[key];
-	}
-	const Key& key;
-	Value& val;
-	Reference ref;
-	ConstReference cref;
-	const typename _ReferenceMap::Key& own_key;
-	typename _ReferenceMap::Value& own_val;
-	typename _ReferenceMap::Reference own_ref;
-	typename _ReferenceMap::ConstReference own_cref;
-	_ReferenceMap& m;
+        void constraints() {
+          checkConcept<ReadWriteMap<K, T>, _ReferenceMap >();
+          ref = m[key];
+          m[key] = val;
+          m[key] = ref;
+          m[key] = cref;
+          own_ref = m[own_key];
+          m[own_key] = own_val;
+          m[own_key] = own_ref;
+          m[own_key] = own_cref;
+          m[key] = m[own_key];
+          m[own_key] = m[key];
+        }
+        const Key& key;
+        Value& val;
+        Reference ref;
+        ConstReference cref;
+        const typename _ReferenceMap::Key& own_key;
+        typename _ReferenceMap::Value& own_val;
+        typename _ReferenceMap::Reference own_ref;
+        typename _ReferenceMap::ConstReference own_cref;
+        _ReferenceMap& m;
       };
     };
 

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -64,8 +64,8 @@ namespace lemon {
     double cutime;
     double cstime;
     double rtime;
-  
-    void _reset() { 
+
+    void _reset() {
       utime = stime = cutime = cstime = rtime = 0;
     }
 
@@ -96,26 +96,26 @@ namespace lemon {
 
       FILETIME create, exit, kernel, user;
       if (GetProcessTimes(GetCurrentProcess(),&create, &exit, &kernel, &user)) {
-	utime = ch * user.dwHighDateTime + cl * user.dwLowDateTime;
-	stime = ch * kernel.dwHighDateTime + cl * kernel.dwLowDateTime;
-	cutime = 0;
-	cstime = 0;
+        utime = ch * user.dwHighDateTime + cl * user.dwLowDateTime;
+        stime = ch * kernel.dwHighDateTime + cl * kernel.dwLowDateTime;
+        cutime = 0;
+        cstime = 0;
       } else {
-	rtime = 0;
-	utime = 0;
-	stime = 0;
-	cutime = 0;
-	cstime = 0;
+        rtime = 0;
+        utime = 0;
+        stime = 0;
+        cutime = 0;
+        cstime = 0;
       }
-#endif      
+#endif
     }
-  
+
     /// Constructor initializing with zero
     TimeStamp()
     { _reset(); }
     ///Constructor initializing with the current time values of the process
     TimeStamp(void *) { stamp();}
-  
+
     ///Set every time value to zero
     TimeStamp &reset() {_reset();return *this;}
 
@@ -190,9 +190,9 @@ namespace lemon {
       TimeStamp t(NULL);
       return t-*this;
     }
-  
+
     friend std::ostream& operator<<(std::ostream& os,const TimeStamp &t);
-  
+
     ///Gives back the user time of the process
     double userTime() const
     {
@@ -205,7 +205,7 @@ namespace lemon {
     }
     ///Gives back the user time of the process' children
 
-    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///\note On <tt>WIN32</tt> platform this value is not calculated.
     ///
     double cUserTime() const
     {
@@ -213,7 +213,7 @@ namespace lemon {
     }
     ///Gives back the user time of the process' children
 
-    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///\note On <tt>WIN32</tt> platform this value is not calculated.
     ///
     double cSystemTime() const
     {
@@ -223,11 +223,11 @@ namespace lemon {
     double realTime() const {return rtime;}
   };
 
-  TimeStamp operator*(double b,const TimeStamp &t) 
+  TimeStamp operator*(double b,const TimeStamp &t)
   {
     return t*b;
   }
-  
+
   ///Prints the time counters
 
   ///Prints the time counters in the following form:
@@ -299,10 +299,10 @@ namespace lemon {
     int _running; //Timer is running iff _running>0; (_running>=0 always holds)
     TimeStamp start_time; //This is the relativ start-time if the timer
                           //is _running, the collected _running time otherwise.
-    
+
     void _reset() {if(_running) start_time.stamp(); else start_time.reset();}
-  
-  public: 
+
+  public:
     ///Constructor.
 
     ///\param run indicates whether or not the timer starts immediately.
@@ -331,41 +331,41 @@ namespace lemon {
     }
 
     ///Start the time counters
-    
+
     ///This function starts the time counters.
     ///
     ///If the timer is started more than ones, it will remain running
     ///until the same amount of \ref stop() is called.
     ///\sa stop()
-    void start() 
+    void start()
     {
       if(_running) _running++;
       else {
-	_running=1;
-	TimeStamp t;
-	t.stamp();
-	start_time=t-start_time;
+        _running=1;
+        TimeStamp t;
+        t.stamp();
+        start_time=t-start_time;
       }
     }
 
-    
+
     ///Stop the time counters
 
     ///This function stops the time counters. If start() was executed more than
     ///once, then the same number of stop() execution is necessary the really
     ///stop the timer.
-    /// 
+    ///
     ///\sa halt()
     ///\sa start()
     ///\sa restart()
     ///\sa reset()
 
-    void stop() 
+    void stop()
     {
       if(_running && !--_running) {
-	TimeStamp t;
-	t.stamp();
-	start_time=t-start_time;
+        TimeStamp t;
+        t.stamp();
+        start_time=t-start_time;
       }
     }
 
@@ -383,13 +383,13 @@ namespace lemon {
     ///\sa restart()
     ///\sa reset()
 
-    void halt() 
+    void halt()
     {
       if(_running) {
-	_running=0;
-	TimeStamp t;
-	t.stamp();
-	start_time=t-start_time;
+        _running=0;
+        TimeStamp t;
+        t.stamp();
+        start_time=t-start_time;
       }
     }
 
@@ -402,19 +402,19 @@ namespace lemon {
     ///(i.e. greater than
     ///zero).
     int running()  { return _running; }
-    
-    
+
+
     ///Restart the time counters
 
     ///This function is a shorthand for
     ///a reset() and a start() calls.
     ///
-    void restart() 
+    void restart()
     {
       reset();
       start();
     }
-    
+
     ///@}
 
     ///\name Query Functions for the ellapsed time
@@ -433,7 +433,7 @@ namespace lemon {
     }
     ///Gives back the ellapsed user time of the process' children
 
-    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///\note On <tt>WIN32</tt> platform this value is not calculated.
     ///
     double cUserTime() const
     {
@@ -441,7 +441,7 @@ namespace lemon {
     }
     ///Gives back the ellapsed user time of the process' children
 
-    ///\note On <tt>WIN32</tt> platform this value is not calculated. 
+    ///\note On <tt>WIN32</tt> platform this value is not calculated.
     ///
     double cSystemTime() const
     {
@@ -487,7 +487,7 @@ namespace lemon {
   ///\sa Timer
   ///\sa NoTimeReport
   ///\todo There is no test case for this
-  class TimeReport : public Timer 
+  class TimeReport : public Timer
   {
     std::string _title;
     std::ostream &_os;
@@ -498,15 +498,15 @@ namespace lemon {
     ///\param os The stream to print the report to.
     ///\param run Sets whether the timer should start immediately.
 
-    TimeReport(std::string title,std::ostream &os=std::cerr,bool run=true) 
+    TimeReport(std::string title,std::ostream &os=std::cerr,bool run=true)
       : Timer(run), _title(title), _os(os){}
     ///\e Prints the ellapsed time on destruction.
-    ~TimeReport() 
+    ~TimeReport()
     {
       _os << _title << *this << std::endl;
     }
   };
-      
+
   ///'Do nothing' version of \ref TimeReport
 
   ///\sa TimeReport
@@ -527,7 +527,7 @@ namespace lemon {
     void reset() {}
     void start() {}
     void stop() {}
-    void halt() {} 
+    void halt() {}
     int running() { return 0; }
     void restart() {}
     double userTime() const { return 0; }
@@ -536,9 +536,9 @@ namespace lemon {
     double cSystemTime() const { return 0; }
     double realTime() const { return 0; }
   };
-      
+
   ///Tool to measure the running time more exactly.
-  
+
   ///This function calls \c f several times and returns the average
   ///running time. The number of the executions will be choosen in such a way
   ///that the full real running time will be roughly between \c min_time
@@ -550,7 +550,7 @@ namespace lemon {
   ///\retval full_time if it is not \c NULL, then the actual
   ///        total running time will be written into <tt>*full_time</tt>.
   ///\return The average running time of \c f.
-  
+
   template<class F>
   TimeStamp runningTimeTest(F f,double min_time=10,unsigned int *num = NULL,
                             TimeStamp *full_time=NULL)
@@ -566,8 +566,8 @@ namespace lemon {
     if(full_time) *full_time=full;
     return full/total;
   }
-  
-  /// @}  
+
+  /// @}
 
 
 } //namespace lemon

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -28,13 +28,13 @@
 
 using namespace lemon;
 
-void checkDijkstraCompile() 
+void checkDijkstraCompile()
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
   typedef concepts::ReadMap<Digraph::Arc,VType> LengthMap;
   typedef Dijkstra<Digraph, LengthMap> DType;
-  
+
   Digraph G;
   Digraph::Node n;
   Digraph::Arc e;
@@ -60,14 +60,14 @@ void checkDijkstraCompile()
   Path<Digraph> pp = dijkstra_test.path(n);
 }
 
-void checkDijkstraFunctionCompile() 
+void checkDijkstraFunctionCompile()
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
   typedef Digraph::Arc Arc;
   typedef Digraph::Node Node;
   typedef concepts::ReadMap<Digraph::Arc,VType> LengthMap;
-   
+
   Digraph g;
   dijkstra(g,LengthMap(),Node()).run();
   dijkstra(g,LengthMap()).source(Node()).run();
@@ -78,7 +78,7 @@ void checkDijkstraFunctionCompile()
 }
 
 template <class Digraph>
-void checkDijkstra() {    
+void checkDijkstra() {
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   typedef typename Digraph::template ArcMap<int> LengthMap;
 
@@ -86,7 +86,7 @@ void checkDijkstra() {
   Node s, t;
   LengthMap length(G);
   PetStruct<Digraph> ps = addPetersen(G, 5);
-   
+
   for(int i=0;i<5;i++) {
     length[ps.outcir[i]]=4;
     length[ps.incir[i]]=1;
@@ -94,11 +94,11 @@ void checkDijkstra() {
   }
   s=ps.outer[0];
   t=ps.inner[1];
-  
-  Dijkstra<Digraph, LengthMap> 
-	dijkstra_test(G, length);
+
+  Dijkstra<Digraph, LengthMap>
+        dijkstra_test(G, length);
   dijkstra_test.run(s);
-  
+
   check(dijkstra_test.dist(t)==13,"Dijkstra found a wrong path.");
 
   Path<Digraph> p = dijkstra_test.path(t);
@@ -106,12 +106,12 @@ void checkDijkstra() {
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
-  
+
   for(ArcIt e(G); e!=INVALID; ++e) {
     Node u=G.source(e);
     Node v=G.target(e);
     check( !dijkstra_test.reached(u) || (dijkstra_test.dist(v) - dijkstra_test.dist(u) <= length[e]),
-	   "dist(target)-dist(source)-arc_length= " << dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]);
+           "dist(target)-dist(source)-arc_length= " << dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]);
   }
 
   for(NodeIt v(G); v!=INVALID; ++v){
@@ -121,10 +121,10 @@ void checkDijkstra() {
       Node u=G.source(e);
       check(u==dijkstra_test.predNode(v),"Wrong tree.");
       check(dijkstra_test.dist(v) - dijkstra_test.dist(u) == length[e],
-	    "Wrong distance! Difference: " << std::abs(dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]));
+            "Wrong distance! Difference: " << std::abs(dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]));
     }
   }
-  
+
   {
     NullMap<Node,Arc> myPredMap;
     dijkstra(G,length).predMap(myPredMap).run(s);

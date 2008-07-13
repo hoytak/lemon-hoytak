@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -20,17 +20,17 @@
 
 using namespace lemon;
 
-void f() 
+void f()
 {
   double d=0;
   for(int i=0;i<1000;i++)
     d+=0.1;
 }
 
-void g() 
+void g()
 {
   static Timer T;
-  
+
   for(int i=0;i<1000;i++)
     TimeStamp x(T);
 }
@@ -49,10 +49,10 @@ int main()
   t=runningTimeTest(f,1,&n,&full);
   std::cout << t << " (" << n << " tests)\n";
   std::cout << "Total: " << full << "\n";
-  
+
   t=runningTimeTest(g,1,&n,&full);
   std::cout << t << " (" << n << " tests)\n";
   std::cout << "Total: " << full << "\n";
-  
+
   return 0;
 }

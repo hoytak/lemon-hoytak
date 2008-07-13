@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -38,30 +38,30 @@ namespace lemon {
   {
     for(Opts::iterator i=_opts.begin();i!=_opts.end();++i)
       if(i->second.self_delete)
-	switch(i->second.type) {
-	case BOOL:
-	  delete i->second.bool_p;
-	  break;
-	case STRING:
-	  delete i->second.string_p;
-	  break;
-	case DOUBLE:
-	  delete i->second.double_p;
-	  break;
-	case INTEGER:
-	  delete i->second.int_p;
-	  break;
-	case UNKNOWN:
-	  break;
-	case FUNC:
-	  break;
-	}
+        switch(i->second.type) {
+        case BOOL:
+          delete i->second.bool_p;
+          break;
+        case STRING:
+          delete i->second.string_p;
+          break;
+        case DOUBLE:
+          delete i->second.double_p;
+          break;
+        case INTEGER:
+          delete i->second.int_p;
+          break;
+        case UNKNOWN:
+          break;
+        case FUNC:
+          break;
+        }
   }
-  
+
 
   ArgParser &ArgParser::intOption(const std::string &name,
-			       const std::string &help,
-			       int value, bool obl)
+                               const std::string &help,
+                               int value, bool obl)
   {
     ParData p;
     p.int_p=new int(value);
@@ -74,8 +74,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::doubleOption(const std::string &name,
-			       const std::string &help,
-			       double value, bool obl)
+                               const std::string &help,
+                               double value, bool obl)
   {
     ParData p;
     p.double_p=new double(value);
@@ -88,8 +88,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::boolOption(const std::string &name,
-			       const std::string &help,
-			       bool value, bool obl)
+                               const std::string &help,
+                               bool value, bool obl)
   {
     ParData p;
     p.bool_p=new bool(value);
@@ -102,8 +102,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::stringOption(const std::string &name,
-			       const std::string &help,
-			       std::string value, bool obl)
+                               const std::string &help,
+                               std::string value, bool obl)
   {
     ParData p;
     p.string_p=new std::string(value);
@@ -116,8 +116,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::refOption(const std::string &name,
-			       const std::string &help,
-			       int &ref, bool obl)
+                               const std::string &help,
+                               int &ref, bool obl)
   {
     ParData p;
     p.int_p=&ref;
@@ -161,8 +161,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::refOption(const std::string &name,
-			       const std::string &help,
-			       std::string &ref, bool obl)
+                               const std::string &help,
+                               std::string &ref, bool obl)
   {
     ParData p;
     p.string_p=&ref;
@@ -175,8 +175,8 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::funcOption(const std::string &name,
-			       const std::string &help,
-			       void (*func)(void *),void *data)
+                               const std::string &help,
+                               void (*func)(void *),void *data)
   {
     ParData p;
     p.func_p.p=func;
@@ -190,11 +190,11 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::optionGroup(const std::string &group,
-				    const std::string &opt)
+                                    const std::string &opt)
   {
     Opts::iterator i = _opts.find(opt);
     LEMON_ASSERT(i!=_opts.end(), "Unknown option: '"+opt+"'");
-    LEMON_ASSERT(!(i->second.ingroup), 
+    LEMON_ASSERT(!(i->second.ingroup),
                  "Option already in option group: '"+opt+"'");
     GroupData &g=_groups[group];
     g.opts.push_back(opt);
@@ -210,7 +210,7 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::synonym(const std::string &syn,
-				const std::string &opt)
+                                const std::string &opt)
   {
     Opts::iterator o = _opts.find(opt);
     Opts::iterator s = _opts.find(syn);
@@ -233,7 +233,7 @@ namespace lemon {
   }
 
   ArgParser &ArgParser::other(const std::string &name,
-			      const std::string &help)
+                              const std::string &help)
   {
     _others_help.push_back(OtherArg(name,help));
     return *this;
@@ -244,8 +244,8 @@ namespace lemon {
     os << "-" << i->first;
     if(i->second.has_syn)
       for(Opts::iterator j=_opts.begin();j!=_opts.end();++j)
-	if(j->second.syn&&j->second.help==i->first)
-	  os << "|-" << j->first;
+        if(j->second.syn&&j->second.help==i->first)
+          os << "|-" << j->first;
     switch(i->second.type) {
     case STRING:
       os << " str";
@@ -270,7 +270,7 @@ namespace lemon {
       if(o!=i->second.opts.end()) os<<'|';
     }
   }
-    
+
   void ArgParser::showHelp(Opts::iterator i)
   {
     if(i->second.help.size()==0||i->second.syn) return;
@@ -283,9 +283,9 @@ namespace lemon {
   {
     if(i->help.size()==0) return;
     std::cerr << "  " << i->name << std::endl
-	      << "     " << i->help << std::endl;
+              << "     " << i->help << std::endl;
   }
-    
+
   void ArgParser::shortHelp()
   {
     const unsigned int LINE_LEN=77;
@@ -299,62 +299,62 @@ namespace lemon {
       show(cstr,g);
       if(!g->second.mandatory) cstr << ']';
       if(pos+cstr.str().size()>LINE_LEN) {
-	std::cerr << std::endl << indent;
-	pos=indent.size();
+        std::cerr << std::endl << indent;
+        pos=indent.size();
       }
       std::cerr << cstr.str();
       pos+=cstr.str().size();
     }
     for(Opts::iterator i=_opts.begin();i!=_opts.end();++i)
       if(!i->second.ingroup&&!i->second.syn) {
-	std::ostringstream cstr;
-	cstr << ' ';
-	if(!i->second.mandatory) cstr << '[';
-	show(cstr,i);
-	if(!i->second.mandatory) cstr << ']';
-	if(pos+cstr.str().size()>LINE_LEN) {
-	  std::cerr << std::endl << indent;
-	  pos=indent.size();
-	}
-	std::cerr << cstr.str();
-	pos+=cstr.str().size();
+        std::ostringstream cstr;
+        cstr << ' ';
+        if(!i->second.mandatory) cstr << '[';
+        show(cstr,i);
+        if(!i->second.mandatory) cstr << ']';
+        if(pos+cstr.str().size()>LINE_LEN) {
+          std::cerr << std::endl << indent;
+          pos=indent.size();
+        }
+        std::cerr << cstr.str();
+        pos+=cstr.str().size();
       }
     for(std::vector<OtherArg>::iterator i=_others_help.begin();
-	i!=_others_help.end();++i)
+        i!=_others_help.end();++i)
       {
-	std::ostringstream cstr;
-	cstr << ' ' << i->name;
-      
-	if(pos+cstr.str().size()>LINE_LEN) {
-	  std::cerr << std::endl << indent;
-	  pos=indent.size();
-	}
-	std::cerr << cstr.str();
-	pos+=cstr.str().size();
+        std::ostringstream cstr;
+        cstr << ' ' << i->name;
+
+        if(pos+cstr.str().size()>LINE_LEN) {
+          std::cerr << std::endl << indent;
+          pos=indent.size();
+        }
+        std::cerr << cstr.str();
+        pos+=cstr.str().size();
       }
     std::cerr << std::endl;
   }
-    
+
   void ArgParser::showHelp()
   {
     shortHelp();
     std::cerr << "Where:\n";
     for(std::vector<OtherArg>::iterator i=_others_help.begin();
-	i!=_others_help.end();++i) showHelp(i);
+        i!=_others_help.end();++i) showHelp(i);
     for(Opts::iterator i=_opts.begin();i!=_opts.end();++i) showHelp(i);
     exit(1);
   }
-    
-      
-  void ArgParser::unknownOpt(std::string arg) 
+
+
+  void ArgParser::unknownOpt(std::string arg)
   {
     std::cerr << "\nUnknown option: " << arg << "\n";
     std::cerr << "\nType '" << _command_name <<
       " --help' to obtain a short summary on the usage.\n\n";
     exit(1);
   }
-    
-  void ArgParser::requiresValue(std::string arg, OptType t) 
+
+  void ArgParser::requiresValue(std::string arg, OptType t)
   {
     std::cerr << "Argument '" << arg << "' requires a";
     switch(t) {
@@ -373,47 +373,47 @@ namespace lemon {
     std::cerr << " value\n\n";
     showHelp();
   }
-    
+
 
   void ArgParser::checkMandatories()
   {
     bool ok=true;
     for(Opts::iterator i=_opts.begin();i!=_opts.end();++i)
-      if(i->second.mandatory&&!i->second.set) 
-	{
-	  if(ok)
-	    std::cerr << _command_name 
-		      << ": The following mandatory arguments are missing.\n";
-	  ok=false;
-	  showHelp(i);
-	}
+      if(i->second.mandatory&&!i->second.set)
+        {
+          if(ok)
+            std::cerr << _command_name
+                      << ": The following mandatory arguments are missing.\n";
+          ok=false;
+          showHelp(i);
+        }
     for(Groups::iterator i=_groups.begin();i!=_groups.end();++i)
       if(i->second.mandatory||i->second.only_one)
-	{
-	  int set=0;
-	  for(GroupData::Opts::iterator o=i->second.opts.begin();
-	      o!=i->second.opts.end();++o)
-	    if(_opts.find(*o)->second.set) ++set;
-	  if(i->second.mandatory&&!set) {
-	    std::cerr << _command_name 
-		      << ": At least one of the following arguments is mandatory.\n";
-	    ok=false;
-	    for(GroupData::Opts::iterator o=i->second.opts.begin();
-		o!=i->second.opts.end();++o)
-	      showHelp(_opts.find(*o));
-	  }
-	  if(i->second.only_one&&set>1) {
-	    std::cerr << _command_name 
-		      << ": At most one of the following arguments can be given.\n";
-	    ok=false;
-	    for(GroupData::Opts::iterator o=i->second.opts.begin();
-		o!=i->second.opts.end();++o)
-	      showHelp(_opts.find(*o));
-	  }
-	}
+        {
+          int set=0;
+          for(GroupData::Opts::iterator o=i->second.opts.begin();
+              o!=i->second.opts.end();++o)
+            if(_opts.find(*o)->second.set) ++set;
+          if(i->second.mandatory&&!set) {
+            std::cerr << _command_name
+                      << ": At least one of the following arguments is mandatory.\n";
+            ok=false;
+            for(GroupData::Opts::iterator o=i->second.opts.begin();
+                o!=i->second.opts.end();++o)
+              showHelp(_opts.find(*o));
+          }
+          if(i->second.only_one&&set>1) {
+            std::cerr << _command_name
+                      << ": At most one of the following arguments can be given.\n";
+            ok=false;
+            for(GroupData::Opts::iterator o=i->second.opts.begin();
+                o!=i->second.opts.end();++o)
+              showHelp(_opts.find(*o));
+          }
+        }
     if(!ok) {
       std::cerr << "\nType '" << _command_name <<
-	" --help' to obtain a short summary on the usage.\n\n";
+        " --help' to obtain a short summary on the usage.\n\n";
       exit(1);
     }
   }
@@ -423,43 +423,43 @@ namespace lemon {
     for(int ar=1; ar<_argc; ++ar) {
       std::string arg(_argv[ar]);
       if (arg[0] != '-' || arg.size() == 1) {
-	_file_args.push_back(arg);
+        _file_args.push_back(arg);
       }
       else {
-	Opts::iterator i = _opts.find(arg.substr(1));
-	if(i==_opts.end()) unknownOpt(arg);
-	else {
-	  if(i->second.syn) i=_opts.find(i->second.help);
-	  ParData &p(i->second);
-	  if (p.type==BOOL) *p.bool_p=true;
-	  else if (p.type==FUNC) p.func_p.p(p.func_p.data);
-	  else if(++ar==_argc) requiresValue(arg, p.type);
-	  else {
-	    std::string val(_argv[ar]);
-	    std::istringstream vals(val);
-	    switch(p.type) {
-	    case STRING:
-	      *p.string_p=val;
-	      break;
-	    case INTEGER:
-	      vals >> *p.int_p;
-	      break;
-	    case DOUBLE:
-	      vals >> *p.double_p;
-	      break;
-	    default:
-	      break;
-	    }
-	    if(p.type!=STRING&&(!vals||!vals.eof()))
-	      requiresValue(arg, p.type);
-	  }
-	  p.set = true;
-	}
+        Opts::iterator i = _opts.find(arg.substr(1));
+        if(i==_opts.end()) unknownOpt(arg);
+        else {
+          if(i->second.syn) i=_opts.find(i->second.help);
+          ParData &p(i->second);
+          if (p.type==BOOL) *p.bool_p=true;
+          else if (p.type==FUNC) p.func_p.p(p.func_p.data);
+          else if(++ar==_argc) requiresValue(arg, p.type);
+          else {
+            std::string val(_argv[ar]);
+            std::istringstream vals(val);
+            switch(p.type) {
+            case STRING:
+              *p.string_p=val;
+              break;
+            case INTEGER:
+              vals >> *p.int_p;
+              break;
+            case DOUBLE:
+              vals >> *p.double_p;
+              break;
+            default:
+              break;
+            }
+            if(p.type!=STRING&&(!vals||!vals.eof()))
+              requiresValue(arg, p.type);
+          }
+          p.set = true;
+        }
       }
     }
     checkMandatories();
 
     return *this;
-  }  
+  }
 
 }

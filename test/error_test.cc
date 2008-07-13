@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -58,8 +58,8 @@ void check_assertion_disable() {
 #define LEMON_ASSERT_CUSTOM
 
 static int cnt = 0;
-void my_assert_handler(const char*, int, const char*, 
-		       const char*, const char*) {
+void my_assert_handler(const char*, int, const char*,
+                       const char*, const char*) {
   ++cnt;
 }
 

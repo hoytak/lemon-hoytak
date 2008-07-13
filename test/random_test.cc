@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -33,8 +33,8 @@ int main()
   a=lemon::rnd.poisson(.5);
 
   lemon::rnd.seed(100);
-  lemon::rnd.seed(seed_array, seed_array + 
-		  (sizeof(seed_array) / sizeof(seed_array[0])));
+  lemon::rnd.seed(seed_array, seed_array +
+                  (sizeof(seed_array) / sizeof(seed_array[0])));
 
   return 0;
 }

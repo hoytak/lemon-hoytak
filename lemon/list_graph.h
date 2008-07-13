@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -37,7 +37,7 @@ namespace lemon {
       int first_in, first_out;
       int prev, next;
     };
- 
+
     struct ArcT {
       int target, source;
       int prev_in, prev_out;
@@ -53,11 +53,11 @@ namespace lemon {
     std::vector<ArcT> arcs;
 
     int first_free_arc;
-    
+
   public:
-    
+
     typedef ListDigraphBase Digraph;
-    
+
     class Node {
       friend class ListDigraphBase;
     protected:
@@ -92,17 +92,17 @@ namespace lemon {
 
     ListDigraphBase()
       : nodes(), first_node(-1),
-	first_free_node(-1), arcs(), first_free_arc(-1) {}
+        first_free_node(-1), arcs(), first_free_arc(-1) {}
 
-    
-    int maxNodeId() const { return nodes.size()-1; } 
+
+    int maxNodeId() const { return nodes.size()-1; }
     int maxArcId() const { return arcs.size()-1; }
 
     Node source(Arc e) const { return Node(arcs[e.id].source); }
     Node target(Arc e) const { return Node(arcs[e.id].target); }
 
 
-    void first(Node& node) const { 
+    void first(Node& node) const {
       node.id = first_node;
     }
 
@@ -111,24 +111,24 @@ namespace lemon {
     }
 
 
-    void first(Arc& arc) const { 
+    void first(Arc& arc) const {
       int n;
-      for(n = first_node; 
-	  n!=-1 && nodes[n].first_in == -1; 
-	  n = nodes[n].next) {}
+      for(n = first_node;
+          n!=-1 && nodes[n].first_in == -1;
+          n = nodes[n].next) {}
       arc.id = (n == -1) ? -1 : nodes[n].first_in;
     }
 
     void next(Arc& arc) const {
       if (arcs[arc.id].next_in != -1) {
-	arc.id = arcs[arc.id].next_in;
+        arc.id = arcs[arc.id].next_in;
       } else {
-	int n;
-	for(n = nodes[arcs[arc.id].target].next;
-	    n!=-1 && nodes[n].first_in == -1; 
-	    n = nodes[n].next) {}
-	arc.id = (n == -1) ? -1 : nodes[n].first_in;
-      }      
+        int n;
+        for(n = nodes[arcs[arc.id].target].next;
+            n!=-1 && nodes[n].first_in == -1;
+            n = nodes[n].next) {}
+        arc.id = (n == -1) ? -1 : nodes[n].first_in;
+      }
     }
 
     void firstOut(Arc &e, const Node& v) const {
@@ -145,118 +145,118 @@ namespace lemon {
       e.id=arcs[e.id].next_in;
     }
 
-    
+
     static int id(Node v) { return v.id; }
     static int id(Arc e) { return e.id; }
 
     static Node nodeFromId(int id) { return Node(id);}
     static Arc arcFromId(int id) { return Arc(id);}
 
-    bool valid(Node n) const { 
-      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) && 
-	nodes[n.id].prev != -2;
+    bool valid(Node n) const {
+      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) &&
+        nodes[n.id].prev != -2;
     }
 
-    bool valid(Arc a) const { 
-      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) && 
-	arcs[a.id].prev_in != -2;
+    bool valid(Arc a) const {
+      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) &&
+        arcs[a.id].prev_in != -2;
     }
 
-    Node addNode() {     
+    Node addNode() {
       int n;
-      
+
       if(first_free_node==-1) {
-	n = nodes.size();
-	nodes.push_back(NodeT());
+        n = nodes.size();
+        nodes.push_back(NodeT());
       } else {
-	n = first_free_node;
-	first_free_node = nodes[n].next;
+        n = first_free_node;
+        first_free_node = nodes[n].next;
       }
-      
+
       nodes[n].next = first_node;
       if(first_node != -1) nodes[first_node].prev = n;
       first_node = n;
       nodes[n].prev = -1;
-      
+
       nodes[n].first_in = nodes[n].first_out = -1;
-      
+
       return Node(n);
     }
-    
+
     Arc addArc(Node u, Node v) {
-      int n;      
+      int n;
 
       if (first_free_arc == -1) {
-	n = arcs.size();
-	arcs.push_back(ArcT());
+        n = arcs.size();
+        arcs.push_back(ArcT());
       } else {
-	n = first_free_arc;
-	first_free_arc = arcs[n].next_in;
+        n = first_free_arc;
+        first_free_arc = arcs[n].next_in;
       }
-      
-      arcs[n].source = u.id; 
+
+      arcs[n].source = u.id;
       arcs[n].target = v.id;
 
       arcs[n].next_out = nodes[u.id].first_out;
       if(nodes[u.id].first_out != -1) {
-	arcs[nodes[u.id].first_out].prev_out = n;
+        arcs[nodes[u.id].first_out].prev_out = n;
       }
-      
+
       arcs[n].next_in = nodes[v.id].first_in;
       if(nodes[v.id].first_in != -1) {
-	arcs[nodes[v.id].first_in].prev_in = n;
+        arcs[nodes[v.id].first_in].prev_in = n;
       }
-      
+
       arcs[n].prev_in = arcs[n].prev_out = -1;
-	
+
       nodes[u.id].first_out = nodes[v.id].first_in = n;
 
       return Arc(n);
     }
-    
+
     void erase(const Node& node) {
       int n = node.id;
-      
+
       if(nodes[n].next != -1) {
-	nodes[nodes[n].next].prev = nodes[n].prev;
+        nodes[nodes[n].next].prev = nodes[n].prev;
       }
-      
+
       if(nodes[n].prev != -1) {
-	nodes[nodes[n].prev].next = nodes[n].next;
+        nodes[nodes[n].prev].next = nodes[n].next;
       } else {
-	first_node = nodes[n].next;
+        first_node = nodes[n].next;
       }
-      
+
       nodes[n].next = first_free_node;
       first_free_node = n;
       nodes[n].prev = -2;
 
     }
-    
+
     void erase(const Arc& arc) {
       int n = arc.id;
-      
+
       if(arcs[n].next_in!=-1) {
-	arcs[arcs[n].next_in].prev_in = arcs[n].prev_in;
+        arcs[arcs[n].next_in].prev_in = arcs[n].prev_in;
       }
 
       if(arcs[n].prev_in!=-1) {
-	arcs[arcs[n].prev_in].next_in = arcs[n].next_in;
+        arcs[arcs[n].prev_in].next_in = arcs[n].next_in;
       } else {
-	nodes[arcs[n].target].first_in = arcs[n].next_in;
+        nodes[arcs[n].target].first_in = arcs[n].next_in;
       }
 
-      
+
       if(arcs[n].next_out!=-1) {
-	arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
-      } 
+        arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
+      }
 
       if(arcs[n].prev_out!=-1) {
-	arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
+        arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
       } else {
-	nodes[arcs[n].source].first_out = arcs[n].next_out;
+        nodes[arcs[n].source].first_out = arcs[n].next_out;
       }
-      
+
       arcs[n].next_in = first_free_arc;
       first_free_arc = n;
       arcs[n].prev_in = -2;
@@ -269,30 +269,30 @@ namespace lemon {
     }
 
   protected:
-    void changeTarget(Arc e, Node n) 
+    void changeTarget(Arc e, Node n)
     {
       if(arcs[e.id].next_in != -1)
-	arcs[arcs[e.id].next_in].prev_in = arcs[e.id].prev_in;
+        arcs[arcs[e.id].next_in].prev_in = arcs[e.id].prev_in;
       if(arcs[e.id].prev_in != -1)
-	arcs[arcs[e.id].prev_in].next_in = arcs[e.id].next_in;
+        arcs[arcs[e.id].prev_in].next_in = arcs[e.id].next_in;
       else nodes[arcs[e.id].target].first_in = arcs[e.id].next_in;
       if (nodes[n.id].first_in != -1) {
-	arcs[nodes[n.id].first_in].prev_in = e.id;
+        arcs[nodes[n.id].first_in].prev_in = e.id;
       }
       arcs[e.id].target = n.id;
       arcs[e.id].prev_in = -1;
       arcs[e.id].next_in = nodes[n.id].first_in;
       nodes[n.id].first_in = e.id;
     }
-    void changeSource(Arc e, Node n) 
+    void changeSource(Arc e, Node n)
     {
       if(arcs[e.id].next_out != -1)
-	arcs[arcs[e.id].next_out].prev_out = arcs[e.id].prev_out;
+        arcs[arcs[e.id].next_out].prev_out = arcs[e.id].prev_out;
       if(arcs[e.id].prev_out != -1)
-	arcs[arcs[e.id].prev_out].next_out = arcs[e.id].next_out;
+        arcs[arcs[e.id].prev_out].next_out = arcs[e.id].next_out;
       else nodes[arcs[e.id].source].first_out = arcs[e.id].next_out;
       if (nodes[n.id].first_out != -1) {
-	arcs[nodes[n.id].first_out].prev_out = e.id;
+        arcs[nodes[n.id].first_out].prev_out = e.id;
       }
       arcs[e.id].source = n.id;
       arcs[e.id].prev_out = -1;
@@ -307,11 +307,11 @@ namespace lemon {
   /// \addtogroup graphs
   /// @{
 
-  ///A general directed graph structure. 
+  ///A general directed graph structure.
 
-  ///\ref ListDigraph is a simple and fast <em>directed graph</em> 
-  ///implementation based on static linked lists that are stored in 
-  ///\c std::vector structures.   
+  ///\ref ListDigraph is a simple and fast <em>directed graph</em>
+  ///implementation based on static linked lists that are stored in
+  ///\c std::vector structures.
   ///
   ///It conforms to the \ref concepts::Digraph "Digraph concept" and it
   ///also provides several useful additional functionalities.
@@ -326,7 +326,7 @@ namespace lemon {
   class ListDigraph : public ExtendedListDigraphBase {
   private:
     ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
-    
+
     ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
     ///
     ListDigraph(const ListDigraph &) :ExtendedListDigraphBase() {};
@@ -341,30 +341,30 @@ namespace lemon {
     typedef ExtendedListDigraphBase Parent;
 
     /// Constructor
-    
+
     /// Constructor.
     ///
     ListDigraph() {}
 
     ///Add a new node to the digraph.
-    
+
     ///Add a new node to the digraph.
     ///\return the new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new arc to the digraph.
-    
+
     ///Add a new arc to the digraph with source node \c s
     ///and target node \c t.
     ///\return the new arc.
-    Arc addArc(const Node& s, const Node& t) { 
-      return Parent::addArc(s, t); 
+    Arc addArc(const Node& s, const Node& t) {
+      return Parent::addArc(s, t);
     }
 
     /// Node validity check
 
     /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.  
+    /// ie. it is a real node of the graph.
     ///
     /// \warning A Node pointing to a removed item
     /// could become valid again later if new nodes are
@@ -374,7 +374,7 @@ namespace lemon {
     /// Arc validity check
 
     /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.  
+    /// ie. it is a real arc of the graph.
     ///
     /// \warning An Arc pointing to a removed item
     /// could become valid again later if new nodes are
@@ -391,8 +391,8 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void changeTarget(Arc e, Node n) { 
-      Parent::changeTarget(e,n); 
+    void changeTarget(Arc e, Node n) {
+      Parent::changeTarget(e,n);
     }
     /// Change the source of \c e to \c n
 
@@ -404,7 +404,7 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void changeSource(Arc e, Node n) { 
+    void changeSource(Arc e, Node n) {
       Parent::changeSource(e,n);
     }
 
@@ -456,21 +456,21 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void contract(Node a, Node b, bool r = true) 
+    void contract(Node a, Node b, bool r = true)
     {
       for(OutArcIt e(*this,b);e!=INVALID;) {
-	OutArcIt f=e;
-	++f;
-	if(r && target(e)==a) erase(e);
-	else changeSource(e,a);
-	e=f;
+        OutArcIt f=e;
+        ++f;
+        if(r && target(e)==a) erase(e);
+        else changeSource(e,a);
+        e=f;
       }
       for(InArcIt e(*this,b);e!=INVALID;) {
-	InArcIt f=e;
-	++f;
-	if(r && source(e)==a) erase(e);
-	else changeTarget(e,a);
-	e=f;
+        InArcIt f=e;
+        ++f;
+        if(r && source(e)==a) erase(e);
+        else changeTarget(e,a);
+        e=f;
       }
       erase(b);
     }
@@ -485,7 +485,7 @@ namespace lemon {
     ///
     ///\note The <tt>ArcIt</tt>s referencing a moved arc remain
     ///valid. However <tt>InArcIt</tt>s and <tt>OutArcIt</tt>s may
-    ///be invalidated.  
+    ///be invalidated.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
@@ -494,15 +494,15 @@ namespace lemon {
     Node split(Node n, bool connect = true) {
       Node b = addNode();
       for(OutArcIt e(*this,n);e!=INVALID;) {
- 	OutArcIt f=e;
-	++f;
-	changeSource(e,b);
-	e=f;
+         OutArcIt f=e;
+        ++f;
+        changeSource(e,b);
+        e=f;
       }
       if (connect) addArc(n,b);
       return b;
     }
-      
+
     ///Split an arc.
 
     ///This function splits an arc. First a new node \c b is added to
@@ -519,7 +519,7 @@ namespace lemon {
       changeTarget(e,b);
       return b;
     }
-      
+
     /// \brief Class to make a snapshot of the digraph and restore
     /// it later.
     ///
@@ -529,8 +529,8 @@ namespace lemon {
     /// restore() function.
     ///
     /// \warning Arc and node deletions and other modifications (e.g.
-    /// contracting, splitting, reversing arcs or nodes) cannot be 
-    /// restored. These events invalidate the snapshot. 
+    /// contracting, splitting, reversing arcs or nodes) cannot be
+    /// restored. These events invalidate the snapshot.
     class Snapshot {
     protected:
 
@@ -545,9 +545,9 @@ namespace lemon {
         using NodeNotifier::ObserverBase::attach;
         using NodeNotifier::ObserverBase::detach;
         using NodeNotifier::ObserverBase::attached;
-        
+
       protected:
-        
+
         virtual void add(const Node& node) {
           snapshot.addNode(node);
         }
@@ -567,7 +567,7 @@ namespace lemon {
         virtual void build() {
           Node node;
           std::vector<Node> nodes;
-          for (notifier()->first(node); node != INVALID; 
+          for (notifier()->first(node); node != INVALID;
                notifier()->next(node)) {
             nodes.push_back(node);
           }
@@ -577,7 +577,7 @@ namespace lemon {
         }
         virtual void clear() {
           Node node;
-          for (notifier()->first(node); node != INVALID; 
+          for (notifier()->first(node); node != INVALID;
                notifier()->next(node)) {
             snapshot.eraseNode(node);
           }
@@ -595,7 +595,7 @@ namespace lemon {
         using ArcNotifier::ObserverBase::attach;
         using ArcNotifier::ObserverBase::detach;
         using ArcNotifier::ObserverBase::attached;
-        
+
       protected:
 
         virtual void add(const Arc& arc) {
@@ -617,7 +617,7 @@ namespace lemon {
         virtual void build() {
           Arc arc;
           std::vector<Arc> arcs;
-          for (notifier()->first(arc); arc != INVALID; 
+          for (notifier()->first(arc); arc != INVALID;
                notifier()->next(arc)) {
             arcs.push_back(arc);
           }
@@ -627,7 +627,7 @@ namespace lemon {
         }
         virtual void clear() {
           Arc arc;
-          for (notifier()->first(arc); arc != INVALID; 
+          for (notifier()->first(arc); arc != INVALID;
                notifier()->next(arc)) {
             snapshot.eraseArc(arc);
           }
@@ -635,7 +635,7 @@ namespace lemon {
 
         Snapshot& snapshot;
       };
-      
+
       ListDigraph *digraph;
 
       NodeObserverProxy node_observer_proxy;
@@ -646,10 +646,10 @@ namespace lemon {
 
 
       void addNode(const Node& node) {
-        added_nodes.push_front(node);        
+        added_nodes.push_front(node);
       }
       void eraseNode(const Node& node) {
-        std::list<Node>::iterator it = 
+        std::list<Node>::iterator it =
           std::find(added_nodes.begin(), added_nodes.end(), node);
         if (it == added_nodes.end()) {
           clear();
@@ -661,29 +661,29 @@ namespace lemon {
       }
 
       void addArc(const Arc& arc) {
-        added_arcs.push_front(arc);        
+        added_arcs.push_front(arc);
       }
       void eraseArc(const Arc& arc) {
-        std::list<Arc>::iterator it = 
+        std::list<Arc>::iterator it =
           std::find(added_arcs.begin(), added_arcs.end(), arc);
         if (it == added_arcs.end()) {
           clear();
-          node_observer_proxy.detach(); 
+          node_observer_proxy.detach();
           throw ArcNotifier::ImmediateDetach();
         } else {
           added_arcs.erase(it);
-        }        
+        }
       }
 
       void attach(ListDigraph &_digraph) {
-	digraph = &_digraph;
-	node_observer_proxy.attach(digraph->notifier(Node()));
+        digraph = &_digraph;
+        node_observer_proxy.attach(digraph->notifier(Node()));
         arc_observer_proxy.attach(digraph->notifier(Arc()));
       }
-            
+
       void detach() {
-	node_observer_proxy.detach();
-	arc_observer_proxy.detach();
+        node_observer_proxy.detach();
+        arc_observer_proxy.detach();
       }
 
       bool attached() const {
@@ -692,7 +692,7 @@ namespace lemon {
 
       void clear() {
         added_nodes.clear();
-        added_arcs.clear();        
+        added_arcs.clear();
       }
 
     public:
@@ -701,20 +701,20 @@ namespace lemon {
       ///
       /// Default constructor.
       /// To actually make a snapshot you must call save().
-      Snapshot() 
-        : digraph(0), node_observer_proxy(*this), 
+      Snapshot()
+        : digraph(0), node_observer_proxy(*this),
           arc_observer_proxy(*this) {}
-      
+
       /// \brief Constructor that immediately makes a snapshot.
-      ///      
+      ///
       /// This constructor immediately makes a snapshot of the digraph.
       /// \param _digraph The digraph we make a snapshot of.
-      Snapshot(ListDigraph &_digraph) 
-        : node_observer_proxy(*this), 
+      Snapshot(ListDigraph &_digraph)
+        : node_observer_proxy(*this),
           arc_observer_proxy(*this) {
-	attach(_digraph);
+        attach(_digraph);
       }
-      
+
       /// \brief Make a snapshot.
       ///
       /// Make a snapshot of the digraph.
@@ -729,20 +729,20 @@ namespace lemon {
         }
         attach(_digraph);
       }
-      
+
       /// \brief Undo the changes until the last snapshot.
-      // 
+      //
       /// Undo the changes until the last snapshot created by save().
       void restore() {
-	detach();
-	for(std::list<Arc>::iterator it = added_arcs.begin(); 
+        detach();
+        for(std::list<Arc>::iterator it = added_arcs.begin();
             it != added_arcs.end(); ++it) {
-	  digraph->erase(*it);
-	}
-	for(std::list<Node>::iterator it = added_nodes.begin(); 
+          digraph->erase(*it);
+        }
+        for(std::list<Node>::iterator it = added_nodes.begin();
             it != added_nodes.end(); ++it) {
-	  digraph->erase(*it);
-	}
+          digraph->erase(*it);
+        }
         clear();
       }
 
@@ -753,7 +753,7 @@ namespace lemon {
         return attached();
       }
     };
-    
+
   };
 
   ///@}
@@ -766,7 +766,7 @@ namespace lemon {
       int first_out;
       int prev, next;
     };
- 
+
     struct ArcT {
       int target;
       int prev_out, next_out;
@@ -781,15 +781,15 @@ namespace lemon {
     std::vector<ArcT> arcs;
 
     int first_free_arc;
-    
+
   public:
-    
+
     typedef ListGraphBase Digraph;
 
     class Node;
     class Arc;
     class Edge;
-    
+
     class Node {
       friend class ListGraphBase;
     protected:
@@ -841,10 +841,10 @@ namespace lemon {
 
     ListGraphBase()
       : nodes(), first_node(-1),
-	first_free_node(-1), arcs(), first_free_arc(-1) {}
+        first_free_node(-1), arcs(), first_free_arc(-1) {}
 
-    
-    int maxNodeId() const { return nodes.size()-1; } 
+
+    int maxNodeId() const { return nodes.size()-1; }
     int maxEdgeId() const { return arcs.size() / 2 - 1; }
     int maxArcId() const { return arcs.size()-1; }
 
@@ -862,7 +862,7 @@ namespace lemon {
       return Arc(e.id * 2 + (d ? 1 : 0));
     }
 
-    void first(Node& node) const { 
+    void first(Node& node) const {
       node.id = first_node;
     }
 
@@ -870,7 +870,7 @@ namespace lemon {
       node.id = nodes[node.id].next;
     }
 
-    void first(Arc& e) const { 
+    void first(Arc& e) const {
       int n = first_node;
       while (n != -1 && nodes[n].first_out == -1) {
         n = nodes[n].next;
@@ -880,17 +880,17 @@ namespace lemon {
 
     void next(Arc& e) const {
       if (arcs[e.id].next_out != -1) {
-	e.id = arcs[e.id].next_out;
+        e.id = arcs[e.id].next_out;
       } else {
-	int n = nodes[arcs[e.id ^ 1].target].next;
+        int n = nodes[arcs[e.id ^ 1].target].next;
         while(n != -1 && nodes[n].first_out == -1) {
           n = nodes[n].next;
         }
-	e.id = (n == -1) ? -1 : nodes[n].first_out;
-      }      
+        e.id = (n == -1) ? -1 : nodes[n].first_out;
+      }
     }
 
-    void first(Edge& e) const { 
+    void first(Edge& e) const {
       int n = first_node;
       while (n != -1) {
         e.id = nodes[n].first_out;
@@ -900,7 +900,7 @@ namespace lemon {
         if (e.id != -1) {
           e.id /= 2;
           return;
-        } 
+        }
         n = nodes[n].next;
       }
       e.id = -1;
@@ -915,7 +915,7 @@ namespace lemon {
       if (e.id != -1) {
         e.id /= 2;
         return;
-      } 
+      }
       n = nodes[n].next;
       while (n != -1) {
         e.id = nodes[n].first_out;
@@ -925,7 +925,7 @@ namespace lemon {
         if (e.id != -1) {
           e.id /= 2;
           return;
-        } 
+        }
         n = nodes[n].next;
       }
       e.id = -1;
@@ -967,7 +967,7 @@ namespace lemon {
         d = true;
       }
     }
-    
+
     static int id(Node v) { return v.id; }
     static int id(Arc e) { return e.id; }
     static int id(Edge e) { return e.id; }
@@ -976,117 +976,117 @@ namespace lemon {
     static Arc arcFromId(int id) { return Arc(id);}
     static Edge edgeFromId(int id) { return Edge(id);}
 
-    bool valid(Node n) const { 
-      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) && 
-	nodes[n.id].prev != -2;
+    bool valid(Node n) const {
+      return n.id >= 0 && n.id < static_cast<int>(nodes.size()) &&
+        nodes[n.id].prev != -2;
     }
 
-    bool valid(Arc a) const { 
-      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) && 
-	arcs[a.id].prev_out != -2;
+    bool valid(Arc a) const {
+      return a.id >= 0 && a.id < static_cast<int>(arcs.size()) &&
+        arcs[a.id].prev_out != -2;
     }
 
-    bool valid(Edge e) const { 
-      return e.id >= 0 && 2 * e.id < static_cast<int>(arcs.size()) && 
-	arcs[2 * e.id].prev_out != -2;
+    bool valid(Edge e) const {
+      return e.id >= 0 && 2 * e.id < static_cast<int>(arcs.size()) &&
+        arcs[2 * e.id].prev_out != -2;
     }
 
-    Node addNode() {     
+    Node addNode() {
       int n;
-      
+
       if(first_free_node==-1) {
-	n = nodes.size();
-	nodes.push_back(NodeT());
+        n = nodes.size();
+        nodes.push_back(NodeT());
       } else {
-	n = first_free_node;
-	first_free_node = nodes[n].next;
+        n = first_free_node;
+        first_free_node = nodes[n].next;
       }
-      
+
       nodes[n].next = first_node;
       if (first_node != -1) nodes[first_node].prev = n;
       first_node = n;
       nodes[n].prev = -1;
-      
+
       nodes[n].first_out = -1;
-      
+
       return Node(n);
     }
-    
+
     Edge addEdge(Node u, Node v) {
-      int n;      
+      int n;
 
       if (first_free_arc == -1) {
-	n = arcs.size();
-	arcs.push_back(ArcT());
-	arcs.push_back(ArcT());
+        n = arcs.size();
+        arcs.push_back(ArcT());
+        arcs.push_back(ArcT());
       } else {
-	n = first_free_arc;
-	first_free_arc = arcs[n].next_out;
+        n = first_free_arc;
+        first_free_arc = arcs[n].next_out;
       }
-      
+
       arcs[n].target = u.id;
       arcs[n | 1].target = v.id;
 
       arcs[n].next_out = nodes[v.id].first_out;
       if (nodes[v.id].first_out != -1) {
-	arcs[nodes[v.id].first_out].prev_out = n;
-      }      
+        arcs[nodes[v.id].first_out].prev_out = n;
+      }
       arcs[n].prev_out = -1;
       nodes[v.id].first_out = n;
-      
+
       arcs[n | 1].next_out = nodes[u.id].first_out;
       if (nodes[u.id].first_out != -1) {
-	arcs[nodes[u.id].first_out].prev_out = (n | 1);
+        arcs[nodes[u.id].first_out].prev_out = (n | 1);
       }
-      arcs[n | 1].prev_out = -1;      
+      arcs[n | 1].prev_out = -1;
       nodes[u.id].first_out = (n | 1);
 
       return Edge(n / 2);
     }
-    
+
     void erase(const Node& node) {
       int n = node.id;
-      
+
       if(nodes[n].next != -1) {
-	nodes[nodes[n].next].prev = nodes[n].prev;
+        nodes[nodes[n].next].prev = nodes[n].prev;
       }
-      
+
       if(nodes[n].prev != -1) {
-	nodes[nodes[n].prev].next = nodes[n].next;
+        nodes[nodes[n].prev].next = nodes[n].next;
       } else {
-	first_node = nodes[n].next;
+        first_node = nodes[n].next;
       }
-      
+
       nodes[n].next = first_free_node;
       first_free_node = n;
       nodes[n].prev = -2;
     }
-    
+
     void erase(const Edge& edge) {
       int n = edge.id * 2;
-      
+
       if (arcs[n].next_out != -1) {
-	arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
-      } 
+        arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
+      }
 
       if (arcs[n].prev_out != -1) {
-	arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
+        arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
       } else {
-	nodes[arcs[n | 1].target].first_out = arcs[n].next_out;
+        nodes[arcs[n | 1].target].first_out = arcs[n].next_out;
       }
 
       if (arcs[n | 1].next_out != -1) {
-	arcs[arcs[n | 1].next_out].prev_out = arcs[n | 1].prev_out;
-      } 
+        arcs[arcs[n | 1].next_out].prev_out = arcs[n | 1].prev_out;
+      }
 
       if (arcs[n | 1].prev_out != -1) {
-	arcs[arcs[n | 1].prev_out].next_out = arcs[n | 1].next_out;
+        arcs[arcs[n | 1].prev_out].next_out = arcs[n | 1].next_out;
       } else {
-	nodes[arcs[n].target].first_out = arcs[n | 1].next_out;
+        nodes[arcs[n].target].first_out = arcs[n | 1].next_out;
       }
-      
+
       arcs[n].next_out = first_free_arc;
-      first_free_arc = n;      
+      first_free_arc = n;
       arcs[n].prev_out = -2;
       arcs[n | 1].prev_out = -2;
 
@@ -1102,18 +1102,18 @@ namespace lemon {
 
     void changeTarget(Edge e, Node n) {
       if(arcs[2 * e.id].next_out != -1) {
-	arcs[arcs[2 * e.id].next_out].prev_out = arcs[2 * e.id].prev_out;
+        arcs[arcs[2 * e.id].next_out].prev_out = arcs[2 * e.id].prev_out;
       }
       if(arcs[2 * e.id].prev_out != -1) {
-	arcs[arcs[2 * e.id].prev_out].next_out = 
+        arcs[arcs[2 * e.id].prev_out].next_out =
           arcs[2 * e.id].next_out;
       } else {
-        nodes[arcs[(2 * e.id) | 1].target].first_out = 
+        nodes[arcs[(2 * e.id) | 1].target].first_out =
           arcs[2 * e.id].next_out;
       }
 
       if (nodes[n.id].first_out != -1) {
-	arcs[nodes[n.id].first_out].prev_out = 2 * e.id;
+        arcs[nodes[n.id].first_out].prev_out = 2 * e.id;
       }
       arcs[(2 * e.id) | 1].target = n.id;
       arcs[2 * e.id].prev_out = -1;
@@ -1123,19 +1123,19 @@ namespace lemon {
 
     void changeSource(Edge e, Node n) {
       if(arcs[(2 * e.id) | 1].next_out != -1) {
-	arcs[arcs[(2 * e.id) | 1].next_out].prev_out = 
+        arcs[arcs[(2 * e.id) | 1].next_out].prev_out =
           arcs[(2 * e.id) | 1].prev_out;
       }
       if(arcs[(2 * e.id) | 1].prev_out != -1) {
-	arcs[arcs[(2 * e.id) | 1].prev_out].next_out = 
+        arcs[arcs[(2 * e.id) | 1].prev_out].next_out =
           arcs[(2 * e.id) | 1].next_out;
       } else {
-        nodes[arcs[2 * e.id].target].first_out = 
+        nodes[arcs[2 * e.id].target].first_out =
           arcs[(2 * e.id) | 1].next_out;
       }
 
       if (nodes[n.id].first_out != -1) {
-	arcs[nodes[n.id].first_out].prev_out = ((2 * e.id) | 1);
+        arcs[nodes[n.id].first_out].prev_out = ((2 * e.id) | 1);
       }
       arcs[2 * e.id].target = n.id;
       arcs[(2 * e.id) | 1].prev_out = -1;
@@ -1153,9 +1153,9 @@ namespace lemon {
 
   ///A general undirected graph structure.
 
-  ///\ref ListGraph is a simple and fast <em>undirected graph</em> 
-  ///implementation based on static linked lists that are stored in 
-  ///\c std::vector structures. 
+  ///\ref ListGraph is a simple and fast <em>undirected graph</em>
+  ///implementation based on static linked lists that are stored in
+  ///\c std::vector structures.
   ///
   ///It conforms to the \ref concepts::Graph "Graph concept" and it
   ///also provides several useful additional functionalities.
@@ -1182,7 +1182,7 @@ namespace lemon {
     void operator=(const ListGraph &) {}
   public:
     /// Constructor
-    
+
     /// Constructor.
     ///
     ListGraph() {}
@@ -1202,13 +1202,13 @@ namespace lemon {
     /// Add a new edge to the graph with source node \c s
     /// and target node \c t.
     /// \return the new edge.
-    Edge addEdge(const Node& s, const Node& t) { 
-      return Parent::addEdge(s, t); 
+    Edge addEdge(const Node& s, const Node& t) {
+      return Parent::addEdge(s, t);
     }
     /// Node validity check
 
     /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.  
+    /// ie. it is a real node of the graph.
     ///
     /// \warning A Node pointing to a removed item
     /// could become valid again later if new nodes are
@@ -1217,7 +1217,7 @@ namespace lemon {
     /// Arc validity check
 
     /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.  
+    /// ie. it is a real arc of the graph.
     ///
     /// \warning An Arc pointing to a removed item
     /// could become valid again later if new edges are
@@ -1226,7 +1226,7 @@ namespace lemon {
     /// Edge validity check
 
     /// This function gives back true if the given edge is valid,
-    /// ie. it is a real arc of the graph.  
+    /// ie. it is a real arc of the graph.
     ///
     /// \warning A Edge pointing to a removed item
     /// could become valid again later if new edges are
@@ -1242,9 +1242,9 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeSource(Edge e, Node n) { 
-      Parent::changeSource(e,n); 
-    }    
+    void changeSource(Edge e, Node n) {
+      Parent::changeSource(e,n);
+    }
     /// \brief Change the target of \c e to \c n
     ///
     /// This function changes the target of \c e to \c n.
@@ -1254,12 +1254,12 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeTarget(Edge e, Node n) { 
-      Parent::changeTarget(e,n); 
+    void changeTarget(Edge e, Node n) {
+      Parent::changeTarget(e,n);
     }
     /// \brief Change the source of \c e to \c n
     ///
-    /// This function changes the source of \c e to \c n. 
+    /// This function changes the source of \c e to \c n.
     /// It also changes the proper node of the represented edge.
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s
@@ -1268,16 +1268,16 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeSource(Arc e, Node n) { 
+    void changeSource(Arc e, Node n) {
       if (Parent::direction(e)) {
         Parent::changeSource(e,n);
       } else {
         Parent::changeTarget(e,n);
-      } 
+      }
     }
     /// \brief Change the target of \c e to \c n
     ///
-    /// This function changes the target of \c e to \c n. 
+    /// This function changes the target of \c e to \c n.
     /// It also changes the proper node of the represented edge.
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s
@@ -1286,12 +1286,12 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeTarget(Arc e, Node n) { 
+    void changeTarget(Arc e, Node n) {
       if (Parent::direction(e)) {
         Parent::changeTarget(e,n);
       } else {
         Parent::changeSource(e,n);
-      } 
+      }
     }
     /// \brief Contract two nodes.
     ///
@@ -1308,15 +1308,15 @@ namespace lemon {
     ///Snapshot feature.
     void contract(Node a, Node b, bool r = true) {
       for(IncEdgeIt e(*this, b); e!=INVALID;) {
-	IncEdgeIt f = e; ++f;
-	if (r && runningNode(e) == a) {
-	  erase(e);
-	} else if (source(e) == b) {
-	  changeSource(e, a);
-	} else {
-	  changeTarget(e, a);
-	}
-	e = f;
+        IncEdgeIt f = e; ++f;
+        if (r && runningNode(e) == a) {
+          erase(e);
+        } else if (source(e) == b) {
+          changeSource(e, a);
+        } else {
+          changeTarget(e, a);
+        }
+        e = f;
       }
       erase(b);
     }
@@ -1331,7 +1331,7 @@ namespace lemon {
     /// using the restore() function.
     ///
     /// \warning Edge and node deletions and other modifications
-    /// (e.g. changing nodes of edges, contracting nodes) cannot be 
+    /// (e.g. changing nodes of edges, contracting nodes) cannot be
     /// restored. These events invalidate the snapshot.
     class Snapshot {
     protected:
@@ -1347,9 +1347,9 @@ namespace lemon {
         using NodeNotifier::ObserverBase::attach;
         using NodeNotifier::ObserverBase::detach;
         using NodeNotifier::ObserverBase::attached;
-        
+
       protected:
-        
+
         virtual void add(const Node& node) {
           snapshot.addNode(node);
         }
@@ -1369,7 +1369,7 @@ namespace lemon {
         virtual void build() {
           Node node;
           std::vector<Node> nodes;
-          for (notifier()->first(node); node != INVALID; 
+          for (notifier()->first(node); node != INVALID;
                notifier()->next(node)) {
             nodes.push_back(node);
           }
@@ -1379,7 +1379,7 @@ namespace lemon {
         }
         virtual void clear() {
           Node node;
-          for (notifier()->first(node); node != INVALID; 
+          for (notifier()->first(node); node != INVALID;
                notifier()->next(node)) {
             snapshot.eraseNode(node);
           }
@@ -1397,7 +1397,7 @@ namespace lemon {
         using EdgeNotifier::ObserverBase::attach;
         using EdgeNotifier::ObserverBase::detach;
         using EdgeNotifier::ObserverBase::attached;
-        
+
       protected:
 
         virtual void add(const Edge& edge) {
@@ -1419,7 +1419,7 @@ namespace lemon {
         virtual void build() {
           Edge edge;
           std::vector<Edge> edges;
-          for (notifier()->first(edge); edge != INVALID; 
+          for (notifier()->first(edge); edge != INVALID;
                notifier()->next(edge)) {
             edges.push_back(edge);
           }
@@ -1429,7 +1429,7 @@ namespace lemon {
         }
         virtual void clear() {
           Edge edge;
-          for (notifier()->first(edge); edge != INVALID; 
+          for (notifier()->first(edge); edge != INVALID;
                notifier()->next(edge)) {
             snapshot.eraseEdge(edge);
           }
@@ -1448,10 +1448,10 @@ namespace lemon {
 
 
       void addNode(const Node& node) {
-        added_nodes.push_front(node);        
+        added_nodes.push_front(node);
       }
       void eraseNode(const Node& node) {
-        std::list<Node>::iterator it = 
+        std::list<Node>::iterator it =
           std::find(added_nodes.begin(), added_nodes.end(), node);
         if (it == added_nodes.end()) {
           clear();
@@ -1463,10 +1463,10 @@ namespace lemon {
       }
 
       void addEdge(const Edge& edge) {
-        added_edges.push_front(edge);        
+        added_edges.push_front(edge);
       }
       void eraseEdge(const Edge& edge) {
-        std::list<Edge>::iterator it = 
+        std::list<Edge>::iterator it =
           std::find(added_edges.begin(), added_edges.end(), edge);
         if (it == added_edges.end()) {
           clear();
@@ -1478,14 +1478,14 @@ namespace lemon {
       }
 
       void attach(ListGraph &_graph) {
-	graph = &_graph;
-	node_observer_proxy.attach(graph->notifier(Node()));
+        graph = &_graph;
+        node_observer_proxy.attach(graph->notifier(Node()));
         edge_observer_proxy.attach(graph->notifier(Edge()));
       }
-            
+
       void detach() {
-	node_observer_proxy.detach();
-	edge_observer_proxy.detach();
+        node_observer_proxy.detach();
+        edge_observer_proxy.detach();
       }
 
       bool attached() const {
@@ -1494,7 +1494,7 @@ namespace lemon {
 
       void clear() {
         added_nodes.clear();
-        added_edges.clear();        
+        added_edges.clear();
       }
 
     public:
@@ -1503,20 +1503,20 @@ namespace lemon {
       ///
       /// Default constructor.
       /// To actually make a snapshot you must call save().
-      Snapshot() 
-        : graph(0), node_observer_proxy(*this), 
+      Snapshot()
+        : graph(0), node_observer_proxy(*this),
           edge_observer_proxy(*this) {}
-      
+
       /// \brief Constructor that immediately makes a snapshot.
-      ///      
+      ///
       /// This constructor immediately makes a snapshot of the graph.
       /// \param _graph The graph we make a snapshot of.
-      Snapshot(ListGraph &_graph) 
-        : node_observer_proxy(*this), 
+      Snapshot(ListGraph &_graph)
+        : node_observer_proxy(*this),
           edge_observer_proxy(*this) {
-	attach(_graph);
+        attach(_graph);
       }
-      
+
       /// \brief Make a snapshot.
       ///
       /// Make a snapshot of the graph.
@@ -1531,20 +1531,20 @@ namespace lemon {
         }
         attach(_graph);
       }
-      
+
       /// \brief Undo the changes until the last snapshot.
-      // 
+      //
       /// Undo the changes until the last snapshot created by save().
       void restore() {
-	detach();
-	for(std::list<Edge>::iterator it = added_edges.begin(); 
+        detach();
+        for(std::list<Edge>::iterator it = added_edges.begin();
             it != added_edges.end(); ++it) {
-	  graph->erase(*it);
-	}
-	for(std::list<Node>::iterator it = added_nodes.begin(); 
+          graph->erase(*it);
+        }
+        for(std::list<Node>::iterator it = added_nodes.begin();
             it != added_nodes.end(); ++it) {
-	  graph->erase(*it);
-	}
+          graph->erase(*it);
+        }
         clear();
       }
 
@@ -1556,9 +1556,9 @@ namespace lemon {
       }
     };
   };
-  
-  /// @}  
+
+  /// @}
 } //namespace lemon
-  
+
 
 #endif

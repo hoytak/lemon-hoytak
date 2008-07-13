@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -49,16 +49,16 @@ namespace lemon {
   /// \tparam _Value The value type of the map.
   /// \todo Fix the doc: there is _Graph parameter instead of _Notifier.
   template <typename _Graph, typename _Item, typename _Value>
-  class VectorMap 
+  class VectorMap
     : public ItemSetTraits<_Graph, _Item>::ItemNotifier::ObserverBase {
   private:
-		
+
     /// The container type of the map.
-    typedef std::vector<_Value> Container;	
+    typedef std::vector<_Value> Container;
 
   public:
 
-    /// The graph type of the map. 
+    /// The graph type of the map.
     typedef _Graph Graph;
     /// The item type of the map.
     typedef _Item Item;
@@ -93,9 +93,9 @@ namespace lemon {
       container.resize(Parent::notifier()->maxId() + 1);
     }
 
-    /// \brief Constructor uses given value to initialize the map. 
+    /// \brief Constructor uses given value to initialize the map.
     ///
-    /// It constructs a map uses a given value to initialize the map. 
+    /// It constructs a map uses a given value to initialize the map.
     /// It adds all the items of the graph to the map.
     VectorMap(const Graph& graph, const Value& value) {
       Parent::attach(graph.notifier(Item()));
@@ -107,18 +107,18 @@ namespace lemon {
     /// Copy constructor.
     VectorMap(const VectorMap& _copy) : Parent() {
       if (_copy.attached()) {
-	Parent::attach(*_copy.notifier());
-	container = _copy.container;
+        Parent::attach(*_copy.notifier());
+        container = _copy.container;
       }
     }
 
     /// \brief Assign operator.
     ///
     /// This operator assigns for each item in the map the
-    /// value mapped to the same item in the copied map.  
+    /// value mapped to the same item in the copied map.
     /// The parameter map should be indiced with the same
     /// itemset because this assign operator does not change
-    /// the container of the map. 
+    /// the container of the map.
     VectorMap& operator=(const VectorMap& cmap) {
       return operator=<VectorMap>(cmap);
     }
@@ -129,7 +129,7 @@ namespace lemon {
     /// The given parameter should be conform to the ReadMap
     /// concecpt and could be indiced by the current item set of
     /// the NodeMap. In this case the value for each item
-    /// is assigned by the value of the given ReadMap. 
+    /// is assigned by the value of the given ReadMap.
     template <typename CMap>
     VectorMap& operator=(const CMap& cmap) {
       checkConcept<concepts::ReadMap<Key, _Value>, CMap>();
@@ -140,21 +140,21 @@ namespace lemon {
       }
       return *this;
     }
-    
+
   public:
 
     /// \brief The subcript operator.
     ///
     /// The subscript operator. The map can be subscripted by the
-    /// actual items of the graph.      
+    /// actual items of the graph.
     Reference operator[](const Key& key) {
       return container[Parent::notifier()->id(key)];
-    } 
-		
+    }
+
     /// \brief The const subcript operator.
     ///
     /// The const subscript operator. The map can be subscripted by the
-    /// actual items of the graph. 
+    /// actual items of the graph.
     ConstReference operator[](const Key& key) const {
       return container[Parent::notifier()->id(key)];
     }
@@ -170,20 +170,20 @@ namespace lemon {
   protected:
 
     /// \brief Adds a new key to the map.
-    ///		
+    ///
     /// It adds a new key to the map. It called by the observer notifier
-    /// and it overrides the add() member function of the observer base.     
+    /// and it overrides the add() member function of the observer base.
     virtual void add(const Key& key) {
       int id = Parent::notifier()->id(key);
       if (id >= int(container.size())) {
-	container.resize(id + 1);
+        container.resize(id + 1);
       }
     }
 
     /// \brief Adds more new keys to the map.
-    ///		
+    ///
     /// It adds more new keys to the map. It called by the observer notifier
-    /// and it overrides the add() member function of the observer base.     
+    /// and it overrides the add() member function of the observer base.
     virtual void add(const std::vector<Key>& keys) {
       int max = container.size() - 1;
       for (int i = 0; i < int(keys.size()); ++i) {
@@ -198,7 +198,7 @@ namespace lemon {
     /// \brief Erase a key from the map.
     ///
     /// Erase a key from the map. It called by the observer notifier
-    /// and it overrides the erase() member function of the observer base.     
+    /// and it overrides the erase() member function of the observer base.
     virtual void erase(const Key& key) {
       container[Parent::notifier()->id(key)] = Value();
     }
@@ -206,18 +206,18 @@ namespace lemon {
     /// \brief Erase more keys from the map.
     ///
     /// Erase more keys from the map. It called by the observer notifier
-    /// and it overrides the erase() member function of the observer base.     
+    /// and it overrides the erase() member function of the observer base.
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
-	container[Parent::notifier()->id(keys[i])] = Value();
+        container[Parent::notifier()->id(keys[i])] = Value();
       }
     }
-    
+
     /// \brief Buildes the map.
-    ///	
+    ///
     /// It buildes the map. It called by the observer notifier
     /// and it overrides the build() member function of the observer base.
-    virtual void build() { 
+    virtual void build() {
       int size = Parent::notifier()->maxId() + 1;
       container.reserve(size);
       container.resize(size);
@@ -226,13 +226,13 @@ namespace lemon {
     /// \brief Clear the map.
     ///
     /// It erase all items from the map. It called by the observer notifier
-    /// and it overrides the clear() member function of the observer base.     
-    virtual void clear() { 
+    /// and it overrides the clear() member function of the observer base.
+    virtual void clear() {
       container.clear();
     }
-    
+
   private:
-		
+
     Container container;
 
   };

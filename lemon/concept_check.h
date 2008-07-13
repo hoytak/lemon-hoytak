@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -36,7 +36,7 @@
 ///\file
 ///\brief Basic utilities for concept checking.
 ///
-///\todo Are we still using BOOST concept checking utility? 
+///\todo Are we still using BOOST concept checking utility?
 ///Is the BOOST copyright notice necessary?
 
 #ifndef LEMON_CONCEPT_CHECK_H

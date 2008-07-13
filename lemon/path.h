@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -93,12 +93,12 @@ namespace lemon {
       /// \brief Invalid constructor
       ArcIt(Invalid) : path(0), idx(-1) {}
       /// \brief Initializate the iterator to the first arc of path
-      ArcIt(const Path &_path) 
+      ArcIt(const Path &_path)
         : path(&_path), idx(_path.empty() ? -1 : 0) {}
 
     private:
 
-      ArcIt(const Path &_path, int _idx) 
+      ArcIt(const Path &_path, int _idx)
         : path(&_path), idx(_idx) {}
 
     public:
@@ -109,10 +109,10 @@ namespace lemon {
       }
 
       /// \brief Next arc
-      ArcIt& operator++() { 
+      ArcIt& operator++() {
         ++idx;
-        if (idx >= path->length()) idx = -1; 
-        return *this; 
+        if (idx >= path->length()) idx = -1;
+        return *this;
       }
 
       /// \brief Comparison operator
@@ -284,13 +284,13 @@ namespace lemon {
       /// Invalid constructor
       ArcIt(Invalid) : path(0), idx(-1) {}
       /// \brief Initializate the constructor to the first arc of path
-      ArcIt(const SimplePath &_path) 
+      ArcIt(const SimplePath &_path)
         : path(&_path), idx(_path.empty() ? -1 : 0) {}
 
     private:
 
       /// Constructor with starting point
-      ArcIt(const SimplePath &_path, int _idx) 
+      ArcIt(const SimplePath &_path, int _idx)
         : idx(_idx), path(&_path) {}
 
     public:
@@ -301,10 +301,10 @@ namespace lemon {
       }
 
       /// Next arc
-      ArcIt& operator++() { 
+      ArcIt& operator++() {
         ++idx;
-        if (idx >= path->length()) idx = -1; 
-        return *this; 
+        if (idx >= path->length()) idx = -1;
+        return *this;
       }
 
       /// Comparison operator
@@ -413,7 +413,7 @@ namespace lemon {
 
   protected:
 
-    // the std::list<> is incompatible 
+    // the std::list<> is incompatible
     // hard to create invalid iterator
     struct Node {
       Arc arc;
@@ -425,7 +425,7 @@ namespace lemon {
     std::allocator<Node> alloc;
 
   public:
- 
+
     /// \brief Default constructor
     ///
     /// Default constructor
@@ -470,12 +470,12 @@ namespace lemon {
       /// Invalid constructor
       ArcIt(Invalid) : path(0), node(0) {}
       /// \brief Initializate the constructor to the first arc of path
-      ArcIt(const ListPath &_path) 
+      ArcIt(const ListPath &_path)
         : path(&_path), node(_path.first) {}
 
     protected:
 
-      ArcIt(const ListPath &_path, Node *_node) 
+      ArcIt(const ListPath &_path, Node *_node)
         : path(&_path), node(_node) {}
 
 
@@ -487,9 +487,9 @@ namespace lemon {
       }
 
       /// Next arc
-      ArcIt& operator++() { 
+      ArcIt& operator++() {
         node = node->next;
-        return *this; 
+        return *this;
       }
 
       /// Comparison operator
@@ -757,7 +757,7 @@ namespace lemon {
     ///
     /// Default constructor
     StaticPath() : len(0), arcs(0) {}
-    
+
     /// \brief Template copy constructor
     ///
     /// This path can be initialized from any other path type.
@@ -796,13 +796,13 @@ namespace lemon {
       /// Invalid constructor
       ArcIt(Invalid) : path(0), idx(-1) {}
       /// Initializate the constructor to the first arc of path
-      ArcIt(const StaticPath &_path) 
+      ArcIt(const StaticPath &_path)
         : path(&_path), idx(_path.empty() ? -1 : 0) {}
 
     private:
 
       /// Constructor with starting point
-      ArcIt(const StaticPath &_path, int _idx) 
+      ArcIt(const StaticPath &_path, int _idx)
         : idx(_idx), path(&_path) {}
 
     public:
@@ -813,10 +813,10 @@ namespace lemon {
       }
 
       /// Next arc
-      ArcIt& operator++() { 
+      ArcIt& operator++() {
         ++idx;
-        if (idx >= path->length()) idx = -1; 
-        return *this; 
+        if (idx >= path->length()) idx = -1;
+        return *this;
       }
 
       /// Comparison operator
@@ -909,7 +909,7 @@ namespace lemon {
 
     template <typename Path>
     struct RevPathTagIndicator<
-      Path, 
+      Path,
       typename enable_if<typename Path::RevPathTag, void>::type
       > {
       static const bool value = true;
@@ -922,15 +922,15 @@ namespace lemon {
 
     template <typename Path>
     struct BuildTagIndicator<
-      Path, 
+      Path,
       typename enable_if<typename Path::BuildTag, void>::type
     > {
       static const bool value = true;
     };
 
     template <typename Target, typename Source,
-	      bool buildEnable = BuildTagIndicator<Target>::value, 
-	      bool revEnable = RevPathTagIndicator<Source>::value>
+              bool buildEnable = BuildTagIndicator<Target>::value,
+              bool revEnable = RevPathTagIndicator<Source>::value>
     struct PathCopySelector {
       static void copy(Target& target, const Source& source) {
         target.clear();
@@ -981,8 +981,8 @@ namespace lemon {
   /// \brief Check the consistency of a path.
   ///
   /// This function checks that the target of each arc is the same
-  /// as the source of the next one. 
-  /// 
+  /// as the source of the next one.
+  ///
   template <typename Digraph, typename Path>
   bool checkPath(const Digraph& digraph, const Path& path) {
     typename Path::ArcIt it(path);
@@ -1034,19 +1034,19 @@ namespace lemon {
 
     typedef typename Path::Digraph Digraph;
     typedef typename Digraph::Node Node;
-    
+
     /// Default constructor
     PathNodeIt() {}
     /// Invalid constructor
-    PathNodeIt(Invalid) 
+    PathNodeIt(Invalid)
       : _digraph(0), _it(INVALID), _nd(INVALID) {}
     /// Constructor
-    PathNodeIt(const Digraph& digraph, const Path& path) 
+    PathNodeIt(const Digraph& digraph, const Path& path)
       : _digraph(&digraph), _it(path) {
       _nd = (_it != INVALID ? _digraph->source(_it) : INVALID);
     }
     /// Constructor
-    PathNodeIt(const Digraph& digraph, const Path& path, const Node& src) 
+    PathNodeIt(const Digraph& digraph, const Path& path, const Node& src)
       : _digraph(&digraph), _it(path), _nd(src) {}
 
     ///Conversion to Digraph::Node
@@ -1058,27 +1058,27 @@ namespace lemon {
     PathNodeIt& operator++() {
       if (_it == INVALID) _nd = INVALID;
       else {
-	_nd = _digraph->target(_it);
-	++_it;
+        _nd = _digraph->target(_it);
+        ++_it;
       }
       return *this;
     }
 
     /// Comparison operator
-    bool operator==(const PathNodeIt& n) const { 
-      return _it == n._it && _nd == n._nd; 
+    bool operator==(const PathNodeIt& n) const {
+      return _it == n._it && _nd == n._nd;
     }
     /// Comparison operator
-    bool operator!=(const PathNodeIt& n) const { 
-      return _it != n._it || _nd != n._nd; 
+    bool operator!=(const PathNodeIt& n) const {
+      return _it != n._it || _nd != n._nd;
     }
     /// Comparison operator
-    bool operator<(const PathNodeIt& n) const { 
+    bool operator<(const PathNodeIt& n) const {
       return (_it < n._it && _nd != INVALID);
     }
-    
+
   };
-  
+
   ///@}
 
 } // namespace lemon

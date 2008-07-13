@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -46,26 +46,26 @@ namespace lemon {
     template <typename Value>
     struct DefaultConverter {
       Value operator()(const std::string& str) {
-	std::istringstream is(str);
-	Value value;
-	is >> value;
+        std::istringstream is(str);
+        Value value;
+        is >> value;
 
-	char c;
-	if (is >> std::ws >> c) {
-	  throw DataFormatError("Remaining characters in token");
-	}
-	return value;
+        char c;
+        if (is >> std::ws >> c) {
+          throw DataFormatError("Remaining characters in token");
+        }
+        return value;
       }
     };
 
     template <>
     struct DefaultConverter<std::string> {
       std::string operator()(const std::string& str) {
-	return str;
+        return str;
       }
     };
 
-    template <typename _Item>    
+    template <typename _Item>
     class MapStorageBase {
     public:
       typedef _Item Item;
@@ -78,30 +78,30 @@ namespace lemon {
 
     };
 
-    template <typename _Item, typename _Map, 
-	      typename _Converter = DefaultConverter<typename _Map::Value> >
+    template <typename _Item, typename _Map,
+              typename _Converter = DefaultConverter<typename _Map::Value> >
     class MapStorage : public MapStorageBase<_Item> {
     public:
       typedef _Map Map;
       typedef _Converter Converter;
       typedef _Item Item;
-      
+
     private:
       Map& _map;
       Converter _converter;
 
     public:
-      MapStorage(Map& map, const Converter& converter = Converter()) 
-	: _map(map), _converter(converter) {}
+      MapStorage(Map& map, const Converter& converter = Converter())
+        : _map(map), _converter(converter) {}
       virtual ~MapStorage() {}
 
       virtual void set(const Item& item ,const std::string& value) {
-	_map.set(item, _converter(value));
+        _map.set(item, _converter(value));
       }
     };
 
-    template <typename _Graph, bool _dir, typename _Map, 
-	      typename _Converter = DefaultConverter<typename _Map::Value> >
+    template <typename _Graph, bool _dir, typename _Map,
+              typename _Converter = DefaultConverter<typename _Map::Value> >
     class GraphArcMapStorage : public MapStorageBase<typename _Graph::Edge> {
     public:
       typedef _Map Map;
@@ -109,20 +109,20 @@ namespace lemon {
       typedef _Graph Graph;
       typedef typename Graph::Edge Item;
       static const bool dir = _dir;
-      
+
     private:
       const Graph& _graph;
       Map& _map;
       Converter _converter;
 
     public:
-      GraphArcMapStorage(const Graph& graph, Map& map, 
-			 const Converter& converter = Converter()) 
-	: _graph(graph), _map(map), _converter(converter) {}
+      GraphArcMapStorage(const Graph& graph, Map& map,
+                         const Converter& converter = Converter())
+        : _graph(graph), _map(map), _converter(converter) {}
       virtual ~GraphArcMapStorage() {}
 
       virtual void set(const Item& item ,const std::string& value) {
-	_map.set(_graph.direct(item, dir), _converter(value));
+        _map.set(_graph.direct(item, dir), _converter(value));
       }
     };
 
@@ -146,10 +146,10 @@ namespace lemon {
 
     public:
       ValueStorage(Value& value, const Converter& converter = Converter())
- 	: _value(value), _converter(converter) {}
+         : _value(value), _converter(converter) {}
 
       virtual void set(const std::string& value) {
-	_value = _converter(value);
+        _value = _converter(value);
       }
     };
 
@@ -176,45 +176,45 @@ namespace lemon {
     struct GraphArcLookUpConverter {
       const Graph& _graph;
       const std::map<std::string, typename Graph::Edge>& _map;
-      
-      GraphArcLookUpConverter(const Graph& graph, 
-			      const std::map<std::string,
-			                     typename Graph::Edge>& map) 
-	: _graph(graph), _map(map) {}
-      
+
+      GraphArcLookUpConverter(const Graph& graph,
+                              const std::map<std::string,
+                                             typename Graph::Edge>& map)
+        : _graph(graph), _map(map) {}
+
       typename Graph::Arc operator()(const std::string& str) {
-	if (str.empty() || (str[0] != '+' && str[0] != '-')) {
-	  throw DataFormatError("Item must start with '+' or '-'");
-	}
-	typename std::map<std::string, typename Graph::Edge>
-	  ::const_iterator it = _map.find(str.substr(1));
-	if (it == _map.end()) {
-	  throw DataFormatError("Item not found");
-	}
-	return _graph.direct(it->second, str[0] == '+');
+        if (str.empty() || (str[0] != '+' && str[0] != '-')) {
+          throw DataFormatError("Item must start with '+' or '-'");
+        }
+        typename std::map<std::string, typename Graph::Edge>
+          ::const_iterator it = _map.find(str.substr(1));
+        if (it == _map.end()) {
+          throw DataFormatError("Item not found");
+        }
+        return _graph.direct(it->second, str[0] == '+');
       }
     };
 
     inline bool isWhiteSpace(char c) {
-      return c == ' ' || c == '\t' || c == '\v' || 
-        c == '\n' || c == '\r' || c == '\f'; 
+      return c == ' ' || c == '\t' || c == '\v' ||
+        c == '\n' || c == '\r' || c == '\f';
     }
-    
+
     inline bool isOct(char c) {
-      return '0' <= c && c <='7'; 
+      return '0' <= c && c <='7';
     }
-    
+
     inline int valueOct(char c) {
       LEMON_ASSERT(isOct(c), "The character is not octal.");
       return c - '0';
     }
 
     inline bool isHex(char c) {
-      return ('0' <= c && c <= '9') || 
-	('a' <= c && c <= 'z') || 
-	('A' <= c && c <= 'Z'); 
+      return ('0' <= c && c <= '9') ||
+        ('a' <= c && c <= 'z') ||
+        ('A' <= c && c <= 'Z');
     }
-    
+
     inline int valueHex(char c) {
       LEMON_ASSERT(isHex(c), "The character is not hexadecimal.");
       if ('0' <= c && c <= '9') return c - '0';
@@ -224,95 +224,95 @@ namespace lemon {
 
     inline bool isIdentifierFirstChar(char c) {
       return ('a' <= c && c <= 'z') ||
-	('A' <= c && c <= 'Z') || c == '_';
+        ('A' <= c && c <= 'Z') || c == '_';
     }
 
     inline bool isIdentifierChar(char c) {
       return isIdentifierFirstChar(c) ||
-	('0' <= c && c <= '9');
+        ('0' <= c && c <= '9');
     }
 
     inline char readEscape(std::istream& is) {
       char c;
       if (!is.get(c))
-	throw DataFormatError("Escape format error");
+        throw DataFormatError("Escape format error");
 
       switch (c) {
       case '\\':
-	return '\\';
+        return '\\';
       case '\"':
-	return '\"';
+        return '\"';
       case '\'':
-	return '\'';
+        return '\'';
       case '\?':
-	return '\?';
+        return '\?';
       case 'a':
-	return '\a';
+        return '\a';
       case 'b':
-	return '\b';
+        return '\b';
       case 'f':
-	return '\f';
+        return '\f';
       case 'n':
-	return '\n';
+        return '\n';
       case 'r':
-	return '\r';
+        return '\r';
       case 't':
-	return '\t';
+        return '\t';
       case 'v':
-	return '\v';
+        return '\v';
       case 'x':
-	{
-	  int code;
-	  if (!is.get(c) || !isHex(c)) 
-	    throw DataFormatError("Escape format error");
-	  else if (code = valueHex(c), !is.get(c) || !isHex(c)) is.putback(c);
-	  else code = code * 16 + valueHex(c);
-	  return code;
-	}
+        {
+          int code;
+          if (!is.get(c) || !isHex(c))
+            throw DataFormatError("Escape format error");
+          else if (code = valueHex(c), !is.get(c) || !isHex(c)) is.putback(c);
+          else code = code * 16 + valueHex(c);
+          return code;
+        }
       default:
-	{
-	  int code;
-	  if (!isOct(c)) 
-	    throw DataFormatError("Escape format error");
-	  else if (code = valueOct(c), !is.get(c) || !isOct(c)) 
-	    is.putback(c);
-	  else if (code = code * 8 + valueOct(c), !is.get(c) || !isOct(c)) 
-	    is.putback(c);
-	  else code = code * 8 + valueOct(c);
-	  return code;
-	}	      
-      } 
+        {
+          int code;
+          if (!isOct(c))
+            throw DataFormatError("Escape format error");
+          else if (code = valueOct(c), !is.get(c) || !isOct(c))
+            is.putback(c);
+          else if (code = code * 8 + valueOct(c), !is.get(c) || !isOct(c))
+            is.putback(c);
+          else code = code * 8 + valueOct(c);
+          return code;
+        }
+      }
     }
-    
+
     inline std::istream& readToken(std::istream& is, std::string& str) {
       std::ostringstream os;
 
       char c;
       is >> std::ws;
-      
-      if (!is.get(c)) 
-	return is;
+
+      if (!is.get(c))
+        return is;
 
       if (c == '\"') {
-	while (is.get(c) && c != '\"') {
-	  if (c == '\\') 
-	    c = readEscape(is);
-	  os << c;
-	}
-	if (!is) 
-	  throw DataFormatError("Quoted format error");
+        while (is.get(c) && c != '\"') {
+          if (c == '\\')
+            c = readEscape(is);
+          os << c;
+        }
+        if (!is)
+          throw DataFormatError("Quoted format error");
       } else {
-	is.putback(c);
-	while (is.get(c) && !isWhiteSpace(c)) {
-	  if (c == '\\') 
-	    c = readEscape(is);
-	  os << c;
-	}
-	if (!is) {
-	  is.clear();
-	} else {
-	  is.putback(c);
-	}
+        is.putback(c);
+        while (is.get(c) && !isWhiteSpace(c)) {
+          if (c == '\\')
+            c = readEscape(is);
+          os << c;
+        }
+        if (!is) {
+          is.clear();
+        } else {
+          is.putback(c);
+        }
       }
       str = os.str();
       return is;
@@ -331,28 +331,28 @@ namespace lemon {
       Functor _functor;
 
     public:
-      
+
       LineSection(const Functor& functor) : _functor(functor) {}
       virtual ~LineSection() {}
 
       virtual void process(std::istream& is, int& line_num) {
-	char c;
-	std::string line;
-	while (is.get(c) && c != '@') {
-	  if (c == '\n') {
-	    ++line_num;
-	  } else if (c == '#') {
-	    getline(is, line);
-	    ++line_num;
-	  } else if (!isWhiteSpace(c)) {
-	    is.putback(c);
-	    getline(is, line);
-	    _functor(line);
-	    ++line_num;
-	  }
-	}
-	if (is) is.putback(c);
-	else if (is.eof()) is.clear();
+        char c;
+        std::string line;
+        while (is.get(c) && c != '@') {
+          if (c == '\n') {
+            ++line_num;
+          } else if (c == '#') {
+            getline(is, line);
+            ++line_num;
+          } else if (!isWhiteSpace(c)) {
+            is.putback(c);
+            getline(is, line);
+            _functor(line);
+            ++line_num;
+          }
+        }
+        if (is) is.putback(c);
+        else if (is.eof()) is.clear();
       }
     };
 
@@ -363,27 +363,27 @@ namespace lemon {
       Functor _functor;
 
     public:
-      
+
       StreamSection(const Functor& functor) : _functor(functor) {}
-      virtual ~StreamSection() {} 
+      virtual ~StreamSection() {}
 
       virtual void process(std::istream& is, int& line_num) {
-	_functor(is, line_num);
-	char c;
-	std::string line;
-	while (is.get(c) && c != '@') {
-	  if (c == '\n') {
-	    ++line_num;
-	  } else if (!isWhiteSpace(c)) {
-	    getline(is, line);
-	    ++line_num;
-	  }
-	}
-	if (is) is.putback(c);
-	else if (is.eof()) is.clear();	
+        _functor(is, line_num);
+        char c;
+        std::string line;
+        while (is.get(c) && c != '@') {
+          if (c == '\n') {
+            ++line_num;
+          } else if (!isWhiteSpace(c)) {
+            getline(is, line);
+            ++line_num;
+          }
+        }
+        if (is) is.putback(c);
+        else if (is.eof()) is.clear();
       }
     };
-    
+
   }
 
   template <typename Digraph>
@@ -399,7 +399,7 @@ namespace lemon {
   DigraphReader<Digraph> digraphReader(const char *fn, Digraph& digraph);
 
   /// \ingroup lemon_io
-  ///  
+  ///
   /// \brief \ref lgf-format "LGF" reader for directed graphs
   ///
   /// This utility reads an \ref lgf-format "LGF" file.
@@ -453,7 +453,7 @@ namespace lemon {
 
     typedef _Digraph Digraph;
     TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
-    
+
   private:
 
 
@@ -470,16 +470,16 @@ namespace lemon {
     NodeIndex _node_index;
     typedef std::map<std::string, Arc> ArcIndex;
     ArcIndex _arc_index;
-    
-    typedef std::vector<std::pair<std::string, 
-      _reader_bits::MapStorageBase<Node>*> > NodeMaps;    
-    NodeMaps _node_maps; 
+
+    typedef std::vector<std::pair<std::string,
+      _reader_bits::MapStorageBase<Node>*> > NodeMaps;
+    NodeMaps _node_maps;
 
     typedef std::vector<std::pair<std::string,
       _reader_bits::MapStorageBase<Arc>*> >ArcMaps;
     ArcMaps _arc_maps;
 
-    typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
+    typedef std::multimap<std::string, _reader_bits::ValueStorageBase*>
       Attributes;
     Attributes _attributes;
 
@@ -498,69 +498,69 @@ namespace lemon {
     ///
     /// Construct a directed graph reader, which reads from the given
     /// input stream.
-    DigraphReader(std::istream& is, Digraph& digraph) 
+    DigraphReader(std::istream& is, Digraph& digraph)
       : _is(&is), local_is(false), _digraph(digraph),
-	_use_nodes(false), _use_arcs(false),
-	_skip_nodes(false), _skip_arcs(false) {}
+        _use_nodes(false), _use_arcs(false),
+        _skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Constructor
     ///
     /// Construct a directed graph reader, which reads from the given
     /// file.
-    DigraphReader(const std::string& fn, Digraph& digraph) 
+    DigraphReader(const std::string& fn, Digraph& digraph)
       : _is(new std::ifstream(fn.c_str())), local_is(true), _digraph(digraph),
-    	_use_nodes(false), _use_arcs(false),
-	_skip_nodes(false), _skip_arcs(false) {}
-    
+            _use_nodes(false), _use_arcs(false),
+        _skip_nodes(false), _skip_arcs(false) {}
+
     /// \brief Constructor
     ///
     /// Construct a directed graph reader, which reads from the given
     /// file.
-    DigraphReader(const char* fn, Digraph& digraph) 
+    DigraphReader(const char* fn, Digraph& digraph)
       : _is(new std::ifstream(fn)), local_is(true), _digraph(digraph),
-    	_use_nodes(false), _use_arcs(false),
-	_skip_nodes(false), _skip_arcs(false) {}
+            _use_nodes(false), _use_arcs(false),
+        _skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Destructor
     ~DigraphReader() {
-      for (typename NodeMaps::iterator it = _node_maps.begin(); 
-	   it != _node_maps.end(); ++it) {
-	delete it->second;
+      for (typename NodeMaps::iterator it = _node_maps.begin();
+           it != _node_maps.end(); ++it) {
+        delete it->second;
       }
 
-      for (typename ArcMaps::iterator it = _arc_maps.begin(); 
-	   it != _arc_maps.end(); ++it) {
-	delete it->second;
+      for (typename ArcMaps::iterator it = _arc_maps.begin();
+           it != _arc_maps.end(); ++it) {
+        delete it->second;
       }
 
-      for (typename Attributes::iterator it = _attributes.begin(); 
-	   it != _attributes.end(); ++it) {
-	delete it->second;
+      for (typename Attributes::iterator it = _attributes.begin();
+           it != _attributes.end(); ++it) {
+        delete it->second;
       }
 
       if (local_is) {
-	delete _is;
+        delete _is;
       }
 
     }
 
   private:
 
-    friend DigraphReader<Digraph> digraphReader<>(std::istream& is, 
-						  Digraph& digraph);    
-    friend DigraphReader<Digraph> digraphReader<>(const std::string& fn, 
-						  Digraph& digraph);   
-    friend DigraphReader<Digraph> digraphReader<>(const char *fn, 
-						  Digraph& digraph);    
+    friend DigraphReader<Digraph> digraphReader<>(std::istream& is,
+                                                  Digraph& digraph);
+    friend DigraphReader<Digraph> digraphReader<>(const std::string& fn,
+                                                  Digraph& digraph);
+    friend DigraphReader<Digraph> digraphReader<>(const char *fn,
+                                                  Digraph& digraph);
 
-    DigraphReader(DigraphReader& other) 
+    DigraphReader(DigraphReader& other)
       : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
-	_use_nodes(other._use_nodes), _use_arcs(other._use_arcs),
-	_skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
+        _use_nodes(other._use_nodes), _use_arcs(other._use_arcs),
+        _skip_nodes(other._skip_nodes), _skip_arcs(other._skip_arcs) {
 
       other._is = 0;
       other.local_is = false;
-      
+
       _node_index.swap(other._node_index);
       _arc_index.swap(other._arc_index);
 
@@ -580,15 +580,15 @@ namespace lemon {
 
     /// \name Reading rules
     /// @{
-    
+
     /// \brief Node map reading rule
     ///
     /// Add a node map reading rule to the reader.
     template <typename Map>
     DigraphReader& nodeMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Node>* storage = 
-	new _reader_bits::MapStorage<Node, Map>(map);
+      _reader_bits::MapStorageBase<Node>* storage =
+        new _reader_bits::MapStorage<Node, Map>(map);
       _node_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -598,11 +598,11 @@ namespace lemon {
     /// Add a node map reading rule with specialized converter to the
     /// reader.
     template <typename Map, typename Converter>
-    DigraphReader& nodeMap(const std::string& caption, Map& map, 
-			   const Converter& converter = Converter()) {
+    DigraphReader& nodeMap(const std::string& caption, Map& map,
+                           const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Node>* storage = 
-	new _reader_bits::MapStorage<Node, Map, Converter>(map, converter);
+      _reader_bits::MapStorageBase<Node>* storage =
+        new _reader_bits::MapStorage<Node, Map, Converter>(map, converter);
       _node_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -613,8 +613,8 @@ namespace lemon {
     template <typename Map>
     DigraphReader& arcMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Arc>* storage = 
-	new _reader_bits::MapStorage<Arc, Map>(map);
+      _reader_bits::MapStorageBase<Arc>* storage =
+        new _reader_bits::MapStorage<Arc, Map>(map);
       _arc_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -624,11 +624,11 @@ namespace lemon {
     /// Add an arc map reading rule with specialized converter to the
     /// reader.
     template <typename Map, typename Converter>
-    DigraphReader& arcMap(const std::string& caption, Map& map, 
-			  const Converter& converter = Converter()) {
+    DigraphReader& arcMap(const std::string& caption, Map& map,
+                          const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Arc>* storage = 
-	new _reader_bits::MapStorage<Arc, Map, Converter>(map, converter);
+      _reader_bits::MapStorageBase<Arc>* storage =
+        new _reader_bits::MapStorage<Arc, Map, Converter>(map, converter);
       _arc_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -638,8 +638,8 @@ namespace lemon {
     /// Add an attribute reading rule to the reader.
     template <typename Value>
     DigraphReader& attribute(const std::string& caption, Value& value) {
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Value>(value);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Value>(value);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -649,10 +649,10 @@ namespace lemon {
     /// Add an attribute reading rule with specialized converter to the
     /// reader.
     template <typename Value, typename Converter>
-    DigraphReader& attribute(const std::string& caption, Value& value, 
-			     const Converter& converter = Converter()) {
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Value, Converter>(value, converter);
+    DigraphReader& attribute(const std::string& caption, Value& value,
+                             const Converter& converter = Converter()) {
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Value, Converter>(value, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -663,8 +663,8 @@ namespace lemon {
     DigraphReader& node(const std::string& caption, Node& node) {
       typedef _reader_bits::MapLookUpConverter<Node> Converter;
       Converter converter(_node_index);
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Node, Converter>(node, converter);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Node, Converter>(node, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -675,8 +675,8 @@ namespace lemon {
     DigraphReader& arc(const std::string& caption, Arc& arc) {
       typedef _reader_bits::MapLookUpConverter<Arc> Converter;
       Converter converter(_arc_index);
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -722,11 +722,11 @@ namespace lemon {
     template <typename Map>
     DigraphReader& useNodes(const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member");
       _use_nodes = true;
       _writer_bits::DefaultConverter<typename Map::Value> converter;
       for (NodeIt n(_digraph); n != INVALID; ++n) {
-	_node_index.insert(std::make_pair(converter(map[n]), n));
+        _node_index.insert(std::make_pair(converter(map[n]), n));
       }
       return *this;
     }
@@ -737,13 +737,13 @@ namespace lemon {
     /// label map and a functor which converts the label map values to
     /// \c std::string.
     template <typename Map, typename Converter>
-    DigraphReader& useNodes(const Map& map, 
-			    const Converter& converter = Converter()) {
+    DigraphReader& useNodes(const Map& map,
+                            const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member");
       _use_nodes = true;
       for (NodeIt n(_digraph); n != INVALID; ++n) {
-	_node_index.insert(std::make_pair(converter(map[n]), n));
+        _node_index.insert(std::make_pair(converter(map[n]), n));
       }
       return *this;
     }
@@ -759,7 +759,7 @@ namespace lemon {
       _use_arcs = true;
       _writer_bits::DefaultConverter<typename Map::Value> converter;
       for (ArcIt a(_digraph); a != INVALID; ++a) {
-	_arc_index.insert(std::make_pair(converter(map[a]), a));
+        _arc_index.insert(std::make_pair(converter(map[a]), a));
       }
       return *this;
     }
@@ -770,13 +770,13 @@ namespace lemon {
     /// label map and a functor which converts the label map values to
     /// \c std::string.
     template <typename Map, typename Converter>
-    DigraphReader& useArcs(const Map& map, 
-			   const Converter& converter = Converter()) {
+    DigraphReader& useArcs(const Map& map,
+                           const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_arcs, "Multiple usage of useArcs() member"); 
+      LEMON_ASSERT(!_use_arcs, "Multiple usage of useArcs() member");
       _use_arcs = true;
       for (ArcIt a(_digraph); a != INVALID; ++a) {
-	_arc_index.insert(std::make_pair(converter(map[a]), a));
+        _arc_index.insert(std::make_pair(converter(map[a]), a));
       }
       return *this;
     }
@@ -790,7 +790,7 @@ namespace lemon {
     /// Therefore \c skipArcs() function should also be used, or
     /// \c useNodes() should be used to specify the label of the nodes.
     DigraphReader& skipNodes() {
-      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
+      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set");
       _skip_nodes = true;
       return *this;
     }
@@ -801,7 +801,7 @@ namespace lemon {
     /// map reading rule will be abandoned, and the arcs of the graph
     /// will not be constructed.
     DigraphReader& skipArcs() {
-      LEMON_ASSERT(!_skip_arcs, "Skip arcs already set"); 
+      LEMON_ASSERT(!_skip_arcs, "Skip arcs already set");
       _skip_arcs = true;
       return *this;
     }
@@ -813,12 +813,12 @@ namespace lemon {
     bool readLine() {
       std::string str;
       while(++line_num, std::getline(*_is, str)) {
-	line.clear(); line.str(str);
-	char c;
-	if (line >> std::ws >> c && c != '#') {
-	  line.putback(c);
-	  return true;
-	}
+        line.clear(); line.str(str);
+        char c;
+        if (line >> std::ws >> c && c != '#') {
+          line.putback(c);
+          return true;
+        }
       }
       return false;
     }
@@ -826,11 +826,11 @@ namespace lemon {
     bool readSuccess() {
       return static_cast<bool>(*_is);
     }
-    
+
     void skipSection() {
       char c;
       while (readSuccess() && line >> c && c != '@') {
-	readLine();
+        readLine();
       }
       line.putback(c);
     }
@@ -842,89 +842,89 @@ namespace lemon {
 
       char c;
       if (!readLine() || !(line >> c) || c == '@') {
-	if (readSuccess() && line) line.putback(c);
-	if (!_node_maps.empty()) 
-	  throw DataFormatError("Cannot find map names");
-	return;
+        if (readSuccess() && line) line.putback(c);
+        if (!_node_maps.empty())
+          throw DataFormatError("Cannot find map names");
+        return;
       }
       line.putback(c);
 
       {
-	std::map<std::string, int> maps;
-	
-	std::string map;
-	int index = 0;
-	while (_reader_bits::readToken(line, map)) {
-	  if (maps.find(map) != maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of node map: " << map;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  maps.insert(std::make_pair(map, index));
-	  ++index;
-	}
-	
-	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
-	  std::map<std::string, int>::iterator jt = 
-	    maps.find(_node_maps[i].first);
-	  if (jt == maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Map not found in file: " << _node_maps[i].first;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  map_index[i] = jt->second;
-	}
+        std::map<std::string, int> maps;
 
-	{
-	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt != maps.end()) {
-	    label_index = jt->second;
-	  } else {
-	    label_index = -1;
-	  }
-	}
-	map_num = maps.size();
+        std::string map;
+        int index = 0;
+        while (_reader_bits::readToken(line, map)) {
+          if (maps.find(map) != maps.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of node map: " << map;
+            throw DataFormatError(msg.str().c_str());
+          }
+          maps.insert(std::make_pair(map, index));
+          ++index;
+        }
+
+        for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+          std::map<std::string, int>::iterator jt =
+            maps.find(_node_maps[i].first);
+          if (jt == maps.end()) {
+            std::ostringstream msg;
+            msg << "Map not found in file: " << _node_maps[i].first;
+            throw DataFormatError(msg.str().c_str());
+          }
+          map_index[i] = jt->second;
+        }
+
+        {
+          std::map<std::string, int>::iterator jt = maps.find("label");
+          if (jt != maps.end()) {
+            label_index = jt->second;
+          } else {
+            label_index = -1;
+          }
+        }
+        map_num = maps.size();
       }
 
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
+        line.putback(c);
 
-	std::vector<std::string> tokens(map_num);
-	for (int i = 0; i < map_num; ++i) {
-	  if (!_reader_bits::readToken(line, tokens[i])) {
-	    std::ostringstream msg;
-	    msg << "Column not found (" << i + 1 << ")";
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	}
-	if (line >> std::ws >> c)
-	  throw DataFormatError("Extra character on the end of line");
-	
-	Node n;
-	if (!_use_nodes) {
-	  n = _digraph.addNode();
-	  if (label_index != -1)
-	    _node_index.insert(std::make_pair(tokens[label_index], n));
-	} else {
-	  if (label_index == -1) 
-	    throw DataFormatError("Label map not found in file");
-	  typename std::map<std::string, Node>::iterator it =
-	    _node_index.find(tokens[label_index]);
-	  if (it == _node_index.end()) {
-	    std::ostringstream msg;
-	    msg << "Node with label not found: " << tokens[label_index];
-	    throw DataFormatError(msg.str().c_str());	    
-	  }
-	  n = it->second;
-	}
+        std::vector<std::string> tokens(map_num);
+        for (int i = 0; i < map_num; ++i) {
+          if (!_reader_bits::readToken(line, tokens[i])) {
+            std::ostringstream msg;
+            msg << "Column not found (" << i + 1 << ")";
+            throw DataFormatError(msg.str().c_str());
+          }
+        }
+        if (line >> std::ws >> c)
+          throw DataFormatError("Extra character on the end of line");
 
-	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
-	  _node_maps[i].second->set(n, tokens[map_index[i]]);
-	}
+        Node n;
+        if (!_use_nodes) {
+          n = _digraph.addNode();
+          if (label_index != -1)
+            _node_index.insert(std::make_pair(tokens[label_index], n));
+        } else {
+          if (label_index == -1)
+            throw DataFormatError("Label map not found in file");
+          typename std::map<std::string, Node>::iterator it =
+            _node_index.find(tokens[label_index]);
+          if (it == _node_index.end()) {
+            std::ostringstream msg;
+            msg << "Node with label not found: " << tokens[label_index];
+            throw DataFormatError(msg.str().c_str());
+          }
+          n = it->second;
+        }
+
+        for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+          _node_maps[i].second->set(n, tokens[map_index[i]]);
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
     }
 
@@ -935,78 +935,78 @@ namespace lemon {
 
       char c;
       if (!readLine() || !(line >> c) || c == '@') {
-	if (readSuccess() && line) line.putback(c);
-	if (!_arc_maps.empty()) 
-	  throw DataFormatError("Cannot find map names");
-	return;
+        if (readSuccess() && line) line.putback(c);
+        if (!_arc_maps.empty())
+          throw DataFormatError("Cannot find map names");
+        return;
       }
       line.putback(c);
-      
-      {
-	std::map<std::string, int> maps;
-	
-	std::string map;
-	int index = 0;
-	while (_reader_bits::readToken(line, map)) {
-	  if (maps.find(map) != maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of arc map: " << map;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  maps.insert(std::make_pair(map, index));
-	  ++index;
-	}
-	
-	for (int i = 0; i < static_cast<int>(_arc_maps.size()); ++i) {
-	  std::map<std::string, int>::iterator jt = 
-	    maps.find(_arc_maps[i].first);
-	  if (jt == maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Map not found in file: " << _arc_maps[i].first;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  map_index[i] = jt->second;
-	}
 
-	{
-	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt != maps.end()) {
-	    label_index = jt->second;
-	  } else {
-	    label_index = -1;
-	  }
-	}
-	map_num = maps.size();
+      {
+        std::map<std::string, int> maps;
+
+        std::string map;
+        int index = 0;
+        while (_reader_bits::readToken(line, map)) {
+          if (maps.find(map) != maps.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of arc map: " << map;
+            throw DataFormatError(msg.str().c_str());
+          }
+          maps.insert(std::make_pair(map, index));
+          ++index;
+        }
+
+        for (int i = 0; i < static_cast<int>(_arc_maps.size()); ++i) {
+          std::map<std::string, int>::iterator jt =
+            maps.find(_arc_maps[i].first);
+          if (jt == maps.end()) {
+            std::ostringstream msg;
+            msg << "Map not found in file: " << _arc_maps[i].first;
+            throw DataFormatError(msg.str().c_str());
+          }
+          map_index[i] = jt->second;
+        }
+
+        {
+          std::map<std::string, int>::iterator jt = maps.find("label");
+          if (jt != maps.end()) {
+            label_index = jt->second;
+          } else {
+            label_index = -1;
+          }
+        }
+        map_num = maps.size();
       }
 
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
+        line.putback(c);
 
-	std::string source_token;
-	std::string target_token;
+        std::string source_token;
+        std::string target_token;
 
-	if (!_reader_bits::readToken(line, source_token))
-	  throw DataFormatError("Source not found");
+        if (!_reader_bits::readToken(line, source_token))
+          throw DataFormatError("Source not found");
 
-	if (!_reader_bits::readToken(line, target_token))
-	  throw DataFormatError("Target not found");
-	
-	std::vector<std::string> tokens(map_num);
-	for (int i = 0; i < map_num; ++i) {
-	  if (!_reader_bits::readToken(line, tokens[i])) {
-	    std::ostringstream msg;
-	    msg << "Column not found (" << i + 1 << ")";
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	}
-	if (line >> std::ws >> c)
-	  throw DataFormatError("Extra character on the end of line");
-	
-	Arc a;
-	if (!_use_arcs) {
+        if (!_reader_bits::readToken(line, target_token))
+          throw DataFormatError("Target not found");
+
+        std::vector<std::string> tokens(map_num);
+        for (int i = 0; i < map_num; ++i) {
+          if (!_reader_bits::readToken(line, tokens[i])) {
+            std::ostringstream msg;
+            msg << "Column not found (" << i + 1 << ")";
+            throw DataFormatError(msg.str().c_str());
+          }
+        }
+        if (line >> std::ws >> c)
+          throw DataFormatError("Extra character on the end of line");
+
+        Arc a;
+        if (!_use_arcs) {
 
           typename NodeIndex::iterator it;
- 
+
           it = _node_index.find(source_token);
           if (it == _node_index.end()) {
             std::ostringstream msg;
@@ -1016,36 +1016,36 @@ namespace lemon {
           Node source = it->second;
 
           it = _node_index.find(target_token);
-          if (it == _node_index.end()) {       
-            std::ostringstream msg;            
+          if (it == _node_index.end()) {
+            std::ostringstream msg;
             msg << "Item not found: " << target_token;
             throw DataFormatError(msg.str().c_str());
-          }                                          
-          Node target = it->second;                            
+          }
+          Node target = it->second;
 
-	  a = _digraph.addArc(source, target);
-	  if (label_index != -1) 
-	    _arc_index.insert(std::make_pair(tokens[label_index], a));
-	} else {
-	  if (label_index == -1) 
-	    throw DataFormatError("Label map not found in file");
-	  typename std::map<std::string, Arc>::iterator it =
-	    _arc_index.find(tokens[label_index]);
-	  if (it == _arc_index.end()) {
-	    std::ostringstream msg;
-	    msg << "Arc with label not found: " << tokens[label_index];
-	    throw DataFormatError(msg.str().c_str());	    
-	  }
-	  a = it->second;
-	}
+          a = _digraph.addArc(source, target);
+          if (label_index != -1)
+            _arc_index.insert(std::make_pair(tokens[label_index], a));
+        } else {
+          if (label_index == -1)
+            throw DataFormatError("Label map not found in file");
+          typename std::map<std::string, Arc>::iterator it =
+            _arc_index.find(tokens[label_index]);
+          if (it == _arc_index.end()) {
+            std::ostringstream msg;
+            msg << "Arc with label not found: " << tokens[label_index];
+            throw DataFormatError(msg.str().c_str());
+          }
+          a = it->second;
+        }
 
-	for (int i = 0; i < static_cast<int>(_arc_maps.size()); ++i) {
-	  _arc_maps[i].second->set(a, tokens[map_index[i]]);
-	}
+        for (int i = 0; i < static_cast<int>(_arc_maps.size()); ++i) {
+          _arc_maps[i].second->set(a, tokens[map_index[i]]);
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
     }
 
@@ -1055,51 +1055,51 @@ namespace lemon {
 
       char c;
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
-	
-	std::string attr, token;
-	if (!_reader_bits::readToken(line, attr))
-	  throw DataFormatError("Attribute name not found");
-	if (!_reader_bits::readToken(line, token))
-	  throw DataFormatError("Attribute value not found");
-	if (line >> c)
-	  throw DataFormatError("Extra character on the end of line");	  
+        line.putback(c);
 
-	{
-	  std::set<std::string>::iterator it = read_attr.find(attr);
-	  if (it != read_attr.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of attribute " << attr;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  read_attr.insert(attr);
-	}
-	
-	{
-	  typename Attributes::iterator it = _attributes.lower_bound(attr);
-	  while (it != _attributes.end() && it->first == attr) {
-	    it->second->set(token);
-	    ++it;
-	  }
-	}
+        std::string attr, token;
+        if (!_reader_bits::readToken(line, attr))
+          throw DataFormatError("Attribute name not found");
+        if (!_reader_bits::readToken(line, token))
+          throw DataFormatError("Attribute value not found");
+        if (line >> c)
+          throw DataFormatError("Extra character on the end of line");
+
+        {
+          std::set<std::string>::iterator it = read_attr.find(attr);
+          if (it != read_attr.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of attribute " << attr;
+            throw DataFormatError(msg.str().c_str());
+          }
+          read_attr.insert(attr);
+        }
+
+        {
+          typename Attributes::iterator it = _attributes.lower_bound(attr);
+          while (it != _attributes.end() && it->first == attr) {
+            it->second->set(token);
+            ++it;
+          }
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
       for (typename Attributes::iterator it = _attributes.begin();
-	   it != _attributes.end(); ++it) {
-	if (read_attr.find(it->first) == read_attr.end()) {
-	  std::ostringstream msg;
-	  msg << "Attribute not found in file: " << it->first;
-	  throw DataFormatError(msg.str().c_str());
-	}	
+           it != _attributes.end(); ++it) {
+        if (read_attr.find(it->first) == read_attr.end()) {
+          std::ostringstream msg;
+          msg << "Attribute not found in file: " << it->first;
+          throw DataFormatError(msg.str().c_str());
+        }
       }
     }
 
   public:
 
-    /// \name Execution of the reader    
+    /// \name Execution of the reader
     /// @{
 
     /// \brief Start the batch processing
@@ -1108,74 +1108,74 @@ namespace lemon {
     void run() {
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
       if (!*_is) {
-	throw DataFormatError("Cannot find file");
+        throw DataFormatError("Cannot find file");
       }
-      
+
       bool nodes_done = _skip_nodes;
       bool arcs_done = _skip_arcs;
       bool attributes_done = false;
 
-      line_num = 0;      
+      line_num = 0;
       readLine();
       skipSection();
 
       while (readSuccess()) {
-	try {
-	  char c;
-	  std::string section, caption;
-	  line >> c;
-	  _reader_bits::readToken(line, section);
-	  _reader_bits::readToken(line, caption);
+        try {
+          char c;
+          std::string section, caption;
+          line >> c;
+          _reader_bits::readToken(line, section);
+          _reader_bits::readToken(line, caption);
 
-	  if (line >> c) 
-	    throw DataFormatError("Extra character on the end of line");
+          if (line >> c)
+            throw DataFormatError("Extra character on the end of line");
 
-	  if (section == "nodes" && !nodes_done) {
-	    if (_nodes_caption.empty() || _nodes_caption == caption) {
-	      readNodes();
-	      nodes_done = true;
-	    }
-	  } else if ((section == "arcs" || section == "edges") && 
-		     !arcs_done) {
-	    if (_arcs_caption.empty() || _arcs_caption == caption) {
-	      readArcs();
-	      arcs_done = true;
-	    }
-	  } else if (section == "attributes" && !attributes_done) {
-	    if (_attributes_caption.empty() || _attributes_caption == caption) {
-	      readAttributes();
-	      attributes_done = true;
-	    }
-	  } else {
-	    readLine();
-	    skipSection();
-	  }
-	} catch (DataFormatError& error) {
-	  error.line(line_num);
-	  throw;
-	}	
+          if (section == "nodes" && !nodes_done) {
+            if (_nodes_caption.empty() || _nodes_caption == caption) {
+              readNodes();
+              nodes_done = true;
+            }
+          } else if ((section == "arcs" || section == "edges") &&
+                     !arcs_done) {
+            if (_arcs_caption.empty() || _arcs_caption == caption) {
+              readArcs();
+              arcs_done = true;
+            }
+          } else if (section == "attributes" && !attributes_done) {
+            if (_attributes_caption.empty() || _attributes_caption == caption) {
+              readAttributes();
+              attributes_done = true;
+            }
+          } else {
+            readLine();
+            skipSection();
+          }
+        } catch (DataFormatError& error) {
+          error.line(line_num);
+          throw;
+        }
       }
 
       if (!nodes_done) {
-	throw DataFormatError("Section @nodes not found");
+        throw DataFormatError("Section @nodes not found");
       }
 
       if (!arcs_done) {
-	throw DataFormatError("Section @arcs not found");
+        throw DataFormatError("Section @arcs not found");
       }
 
       if (!attributes_done && !_attributes.empty()) {
-	throw DataFormatError("Section @attributes not found");
+        throw DataFormatError("Section @attributes not found");
       }
 
     }
 
     /// @}
-    
+
   };
 
   /// \brief Return a \ref DigraphReader class
-  /// 
+  ///
   /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
@@ -1185,18 +1185,18 @@ namespace lemon {
   }
 
   /// \brief Return a \ref DigraphReader class
-  /// 
+  ///
   /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(const std::string& fn, 
-				       Digraph& digraph) {
+  DigraphReader<Digraph> digraphReader(const std::string& fn,
+                                       Digraph& digraph) {
     DigraphReader<Digraph> tmp(fn, digraph);
     return tmp;
   }
 
   /// \brief Return a \ref DigraphReader class
-  /// 
+  ///
   /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
   template <typename Digraph>
@@ -1209,16 +1209,16 @@ namespace lemon {
   class GraphReader;
 
   template <typename Graph>
-  GraphReader<Graph> graphReader(std::istream& is, Graph& graph);    
+  GraphReader<Graph> graphReader(std::istream& is, Graph& graph);
 
   template <typename Graph>
-  GraphReader<Graph> graphReader(const std::string& fn, Graph& graph);   
+  GraphReader<Graph> graphReader(const std::string& fn, Graph& graph);
 
   template <typename Graph>
-  GraphReader<Graph> graphReader(const char *fn, Graph& graph);    
+  GraphReader<Graph> graphReader(const char *fn, Graph& graph);
 
   /// \ingroup lemon_io
-  ///  
+  ///
   /// \brief \ref lgf-format "LGF" reader for undirected graphs
   ///
   /// This utility reads an \ref lgf-format "LGF" file.
@@ -1238,7 +1238,7 @@ namespace lemon {
 
     typedef _Graph Graph;
     TEMPLATE_GRAPH_TYPEDEFS(Graph);
-    
+
   private:
 
     std::istream* _is;
@@ -1254,16 +1254,16 @@ namespace lemon {
     NodeIndex _node_index;
     typedef std::map<std::string, Edge> EdgeIndex;
     EdgeIndex _edge_index;
-    
-    typedef std::vector<std::pair<std::string, 
-      _reader_bits::MapStorageBase<Node>*> > NodeMaps;    
-    NodeMaps _node_maps; 
+
+    typedef std::vector<std::pair<std::string,
+      _reader_bits::MapStorageBase<Node>*> > NodeMaps;
+    NodeMaps _node_maps;
 
     typedef std::vector<std::pair<std::string,
       _reader_bits::MapStorageBase<Edge>*> > EdgeMaps;
     EdgeMaps _edge_maps;
 
-    typedef std::multimap<std::string, _reader_bits::ValueStorageBase*> 
+    typedef std::multimap<std::string, _reader_bits::ValueStorageBase*>
       Attributes;
     Attributes _attributes;
 
@@ -1282,66 +1282,66 @@ namespace lemon {
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// input stream.
-    GraphReader(std::istream& is, Graph& graph) 
+    GraphReader(std::istream& is, Graph& graph)
       : _is(&is), local_is(false), _graph(graph),
-	_use_nodes(false), _use_edges(false),
-	_skip_nodes(false), _skip_edges(false) {}
+        _use_nodes(false), _use_edges(false),
+        _skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Constructor
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// file.
-    GraphReader(const std::string& fn, Graph& graph) 
+    GraphReader(const std::string& fn, Graph& graph)
       : _is(new std::ifstream(fn.c_str())), local_is(true), _graph(graph),
-    	_use_nodes(false), _use_edges(false),
-	_skip_nodes(false), _skip_edges(false) {}
-    
+            _use_nodes(false), _use_edges(false),
+        _skip_nodes(false), _skip_edges(false) {}
+
     /// \brief Constructor
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// file.
-    GraphReader(const char* fn, Graph& graph) 
+    GraphReader(const char* fn, Graph& graph)
       : _is(new std::ifstream(fn)), local_is(true), _graph(graph),
-    	_use_nodes(false), _use_edges(false),
-	_skip_nodes(false), _skip_edges(false) {}
+            _use_nodes(false), _use_edges(false),
+        _skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Destructor
     ~GraphReader() {
-      for (typename NodeMaps::iterator it = _node_maps.begin(); 
-	   it != _node_maps.end(); ++it) {
-	delete it->second;
+      for (typename NodeMaps::iterator it = _node_maps.begin();
+           it != _node_maps.end(); ++it) {
+        delete it->second;
       }
 
-      for (typename EdgeMaps::iterator it = _edge_maps.begin(); 
-	   it != _edge_maps.end(); ++it) {
-	delete it->second;
+      for (typename EdgeMaps::iterator it = _edge_maps.begin();
+           it != _edge_maps.end(); ++it) {
+        delete it->second;
       }
 
-      for (typename Attributes::iterator it = _attributes.begin(); 
-	   it != _attributes.end(); ++it) {
-	delete it->second;
+      for (typename Attributes::iterator it = _attributes.begin();
+           it != _attributes.end(); ++it) {
+        delete it->second;
       }
 
       if (local_is) {
-	delete _is;
+        delete _is;
       }
 
     }
 
   private:
-    friend GraphReader<Graph> graphReader<>(std::istream& is, Graph& graph);    
-    friend GraphReader<Graph> graphReader<>(const std::string& fn, 
-					    Graph& graph);   
-    friend GraphReader<Graph> graphReader<>(const char *fn, Graph& graph);    
+    friend GraphReader<Graph> graphReader<>(std::istream& is, Graph& graph);
+    friend GraphReader<Graph> graphReader<>(const std::string& fn,
+                                            Graph& graph);
+    friend GraphReader<Graph> graphReader<>(const char *fn, Graph& graph);
 
-    GraphReader(GraphReader& other) 
+    GraphReader(GraphReader& other)
       : _is(other._is), local_is(other.local_is), _graph(other._graph),
-	_use_nodes(other._use_nodes), _use_edges(other._use_edges),
-	_skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
+        _use_nodes(other._use_nodes), _use_edges(other._use_edges),
+        _skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
 
       other._is = 0;
       other.local_is = false;
-      
+
       _node_index.swap(other._node_index);
       _edge_index.swap(other._edge_index);
 
@@ -1361,15 +1361,15 @@ namespace lemon {
 
     /// \name Reading rules
     /// @{
-    
+
     /// \brief Node map reading rule
     ///
     /// Add a node map reading rule to the reader.
     template <typename Map>
     GraphReader& nodeMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Node>* storage = 
-	new _reader_bits::MapStorage<Node, Map>(map);
+      _reader_bits::MapStorageBase<Node>* storage =
+        new _reader_bits::MapStorage<Node, Map>(map);
       _node_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -1379,11 +1379,11 @@ namespace lemon {
     /// Add a node map reading rule with specialized converter to the
     /// reader.
     template <typename Map, typename Converter>
-    GraphReader& nodeMap(const std::string& caption, Map& map, 
-			   const Converter& converter = Converter()) {
+    GraphReader& nodeMap(const std::string& caption, Map& map,
+                           const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Node, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Node>* storage = 
-	new _reader_bits::MapStorage<Node, Map, Converter>(map, converter);
+      _reader_bits::MapStorageBase<Node>* storage =
+        new _reader_bits::MapStorage<Node, Map, Converter>(map, converter);
       _node_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -1394,8 +1394,8 @@ namespace lemon {
     template <typename Map>
     GraphReader& edgeMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Edge, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Edge>* storage = 
-	new _reader_bits::MapStorage<Edge, Map>(map);
+      _reader_bits::MapStorageBase<Edge>* storage =
+        new _reader_bits::MapStorage<Edge, Map>(map);
       _edge_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -1405,11 +1405,11 @@ namespace lemon {
     /// Add an edge map reading rule with specialized converter to the
     /// reader.
     template <typename Map, typename Converter>
-    GraphReader& edgeMap(const std::string& caption, Map& map, 
-			  const Converter& converter = Converter()) {
+    GraphReader& edgeMap(const std::string& caption, Map& map,
+                          const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Edge, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Edge>* storage = 
-	new _reader_bits::MapStorage<Edge, Map, Converter>(map, converter);
+      _reader_bits::MapStorageBase<Edge>* storage =
+        new _reader_bits::MapStorage<Edge, Map, Converter>(map, converter);
       _edge_maps.push_back(std::make_pair(caption, storage));
       return *this;
     }
@@ -1420,11 +1420,11 @@ namespace lemon {
     template <typename Map>
     GraphReader& arcMap(const std::string& caption, Map& map) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Edge>* forward_storage = 
-	new _reader_bits::GraphArcMapStorage<Graph, true, Map>(_graph, map);
+      _reader_bits::MapStorageBase<Edge>* forward_storage =
+        new _reader_bits::GraphArcMapStorage<Graph, true, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
-      _reader_bits::MapStorageBase<Edge>* backward_storage = 
-	new _reader_bits::GraphArcMapStorage<Graph, false, Map>(_graph, map);
+      _reader_bits::MapStorageBase<Edge>* backward_storage =
+        new _reader_bits::GraphArcMapStorage<Graph, false, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
     }
@@ -1434,16 +1434,16 @@ namespace lemon {
     /// Add an arc map reading rule with specialized converter to the
     /// reader.
     template <typename Map, typename Converter>
-    GraphReader& arcMap(const std::string& caption, Map& map, 
-			  const Converter& converter = Converter()) {
+    GraphReader& arcMap(const std::string& caption, Map& map,
+                          const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
-      _reader_bits::MapStorageBase<Edge>* forward_storage = 
-	new _reader_bits::GraphArcMapStorage<Graph, true, Map, Converter>
-	(_graph, map, converter);
+      _reader_bits::MapStorageBase<Edge>* forward_storage =
+        new _reader_bits::GraphArcMapStorage<Graph, true, Map, Converter>
+        (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
-      _reader_bits::MapStorageBase<Edge>* backward_storage = 
-	new _reader_bits::GraphArcMapStorage<Graph, false, Map, Converter>
-	(_graph, map, converter);
+      _reader_bits::MapStorageBase<Edge>* backward_storage =
+        new _reader_bits::GraphArcMapStorage<Graph, false, Map, Converter>
+        (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
     }
@@ -1453,8 +1453,8 @@ namespace lemon {
     /// Add an attribute reading rule to the reader.
     template <typename Value>
     GraphReader& attribute(const std::string& caption, Value& value) {
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Value>(value);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Value>(value);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -1464,10 +1464,10 @@ namespace lemon {
     /// Add an attribute reading rule with specialized converter to the
     /// reader.
     template <typename Value, typename Converter>
-    GraphReader& attribute(const std::string& caption, Value& value, 
-			     const Converter& converter = Converter()) {
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Value, Converter>(value, converter);
+    GraphReader& attribute(const std::string& caption, Value& value,
+                             const Converter& converter = Converter()) {
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Value, Converter>(value, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -1478,8 +1478,8 @@ namespace lemon {
     GraphReader& node(const std::string& caption, Node& node) {
       typedef _reader_bits::MapLookUpConverter<Node> Converter;
       Converter converter(_node_index);
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Node, Converter>(node, converter);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Node, Converter>(node, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -1490,8 +1490,8 @@ namespace lemon {
     GraphReader& edge(const std::string& caption, Edge& edge) {
       typedef _reader_bits::MapLookUpConverter<Edge> Converter;
       Converter converter(_edge_index);
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Edge, Converter>(edge, converter);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Edge, Converter>(edge, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -1502,8 +1502,8 @@ namespace lemon {
     GraphReader& arc(const std::string& caption, Arc& arc) {
       typedef _reader_bits::GraphArcLookUpConverter<Graph> Converter;
       Converter converter(_graph, _edge_index);
-      _reader_bits::ValueStorageBase* storage = 
-	new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
+      _reader_bits::ValueStorageBase* storage =
+        new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
       _attributes.insert(std::make_pair(caption, storage));
       return *this;
     }
@@ -1549,11 +1549,11 @@ namespace lemon {
     template <typename Map>
     GraphReader& useNodes(const Map& map) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member");
       _use_nodes = true;
       _writer_bits::DefaultConverter<typename Map::Value> converter;
       for (NodeIt n(_graph); n != INVALID; ++n) {
-	_node_index.insert(std::make_pair(converter(map[n]), n));
+        _node_index.insert(std::make_pair(converter(map[n]), n));
       }
       return *this;
     }
@@ -1564,13 +1564,13 @@ namespace lemon {
     /// label map and a functor which converts the label map values to
     /// \c std::string.
     template <typename Map, typename Converter>
-    GraphReader& useNodes(const Map& map, 
-			    const Converter& converter = Converter()) {
+    GraphReader& useNodes(const Map& map,
+                            const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Node, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member"); 
+      LEMON_ASSERT(!_use_nodes, "Multiple usage of useNodes() member");
       _use_nodes = true;
       for (NodeIt n(_graph); n != INVALID; ++n) {
-	_node_index.insert(std::make_pair(converter(map[n]), n));
+        _node_index.insert(std::make_pair(converter(map[n]), n));
       }
       return *this;
     }
@@ -1586,7 +1586,7 @@ namespace lemon {
       _use_edges = true;
       _writer_bits::DefaultConverter<typename Map::Value> converter;
       for (EdgeIt a(_graph); a != INVALID; ++a) {
-	_edge_index.insert(std::make_pair(converter(map[a]), a));
+        _edge_index.insert(std::make_pair(converter(map[a]), a));
       }
       return *this;
     }
@@ -1597,13 +1597,13 @@ namespace lemon {
     /// label map and a functor which converts the label map values to
     /// \c std::string.
     template <typename Map, typename Converter>
-    GraphReader& useEdges(const Map& map, 
-			    const Converter& converter = Converter()) {
+    GraphReader& useEdges(const Map& map,
+                            const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Edge, typename Map::Value>, Map>();
-      LEMON_ASSERT(!_use_edges, "Multiple usage of useEdges() member"); 
+      LEMON_ASSERT(!_use_edges, "Multiple usage of useEdges() member");
       _use_edges = true;
       for (EdgeIt a(_graph); a != INVALID; ++a) {
-	_edge_index.insert(std::make_pair(converter(map[a]), a));
+        _edge_index.insert(std::make_pair(converter(map[a]), a));
       }
       return *this;
     }
@@ -1618,7 +1618,7 @@ namespace lemon {
     /// Therefore \c skipEdges() function should also be used, or
     /// \c useNodes() should be used to specify the label of the nodes.
     GraphReader& skipNodes() {
-      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set"); 
+      LEMON_ASSERT(!_skip_nodes, "Skip nodes already set");
       _skip_nodes = true;
       return *this;
     }
@@ -1629,7 +1629,7 @@ namespace lemon {
     /// map reading rule will be abandoned, and the edges of the graph
     /// will not be constructed.
     GraphReader& skipEdges() {
-      LEMON_ASSERT(!_skip_edges, "Skip edges already set"); 
+      LEMON_ASSERT(!_skip_edges, "Skip edges already set");
       _skip_edges = true;
       return *this;
     }
@@ -1641,12 +1641,12 @@ namespace lemon {
     bool readLine() {
       std::string str;
       while(++line_num, std::getline(*_is, str)) {
-	line.clear(); line.str(str);
-	char c;
-	if (line >> std::ws >> c && c != '#') {
-	  line.putback(c);
-	  return true;
-	}
+        line.clear(); line.str(str);
+        char c;
+        if (line >> std::ws >> c && c != '#') {
+          line.putback(c);
+          return true;
+        }
       }
       return false;
     }
@@ -1654,11 +1654,11 @@ namespace lemon {
     bool readSuccess() {
       return static_cast<bool>(*_is);
     }
-    
+
     void skipSection() {
       char c;
       while (readSuccess() && line >> c && c != '@') {
-	readLine();
+        readLine();
       }
       line.putback(c);
     }
@@ -1670,89 +1670,89 @@ namespace lemon {
 
       char c;
       if (!readLine() || !(line >> c) || c == '@') {
-	if (readSuccess() && line) line.putback(c);
-	if (!_node_maps.empty()) 
-	  throw DataFormatError("Cannot find map names");
-	return;
+        if (readSuccess() && line) line.putback(c);
+        if (!_node_maps.empty())
+          throw DataFormatError("Cannot find map names");
+        return;
       }
       line.putback(c);
-      
-      {
-	std::map<std::string, int> maps;
-	
-	std::string map;
-	int index = 0;
-	while (_reader_bits::readToken(line, map)) {
-	  if (maps.find(map) != maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of node map: " << map;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  maps.insert(std::make_pair(map, index));
-	  ++index;
-	}
-	
-	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
-	  std::map<std::string, int>::iterator jt = 
-	    maps.find(_node_maps[i].first);
-	  if (jt == maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Map not found in file: " << _node_maps[i].first;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  map_index[i] = jt->second;
-	}
 
-	{
-	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt != maps.end()) {
-	    label_index = jt->second;
-	  } else {
-	    label_index = -1;
-	  }
-	}
-	map_num = maps.size();
+      {
+        std::map<std::string, int> maps;
+
+        std::string map;
+        int index = 0;
+        while (_reader_bits::readToken(line, map)) {
+          if (maps.find(map) != maps.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of node map: " << map;
+            throw DataFormatError(msg.str().c_str());
+          }
+          maps.insert(std::make_pair(map, index));
+          ++index;
+        }
+
+        for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+          std::map<std::string, int>::iterator jt =
+            maps.find(_node_maps[i].first);
+          if (jt == maps.end()) {
+            std::ostringstream msg;
+            msg << "Map not found in file: " << _node_maps[i].first;
+            throw DataFormatError(msg.str().c_str());
+          }
+          map_index[i] = jt->second;
+        }
+
+        {
+          std::map<std::string, int>::iterator jt = maps.find("label");
+          if (jt != maps.end()) {
+            label_index = jt->second;
+          } else {
+            label_index = -1;
+          }
+        }
+        map_num = maps.size();
       }
 
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
+        line.putback(c);
 
-	std::vector<std::string> tokens(map_num);
-	for (int i = 0; i < map_num; ++i) {
-	  if (!_reader_bits::readToken(line, tokens[i])) {
-	    std::ostringstream msg;
-	    msg << "Column not found (" << i + 1 << ")";
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	}
-	if (line >> std::ws >> c)
-	  throw DataFormatError("Extra character on the end of line");
-	
-	Node n;
-	if (!_use_nodes) {
-	  n = _graph.addNode();
-	  if (label_index != -1) 
-	    _node_index.insert(std::make_pair(tokens[label_index], n));
-	} else {
-	  if (label_index == -1) 
-	    throw DataFormatError("Label map not found in file");
-	  typename std::map<std::string, Node>::iterator it =
-	    _node_index.find(tokens[label_index]);
-	  if (it == _node_index.end()) {
-	    std::ostringstream msg;
-	    msg << "Node with label not found: " << tokens[label_index];
-	    throw DataFormatError(msg.str().c_str());	    
-	  }
-	  n = it->second;
-	}
+        std::vector<std::string> tokens(map_num);
+        for (int i = 0; i < map_num; ++i) {
+          if (!_reader_bits::readToken(line, tokens[i])) {
+            std::ostringstream msg;
+            msg << "Column not found (" << i + 1 << ")";
+            throw DataFormatError(msg.str().c_str());
+          }
+        }
+        if (line >> std::ws >> c)
+          throw DataFormatError("Extra character on the end of line");
 
-	for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
-	  _node_maps[i].second->set(n, tokens[map_index[i]]);
-	}
+        Node n;
+        if (!_use_nodes) {
+          n = _graph.addNode();
+          if (label_index != -1)
+            _node_index.insert(std::make_pair(tokens[label_index], n));
+        } else {
+          if (label_index == -1)
+            throw DataFormatError("Label map not found in file");
+          typename std::map<std::string, Node>::iterator it =
+            _node_index.find(tokens[label_index]);
+          if (it == _node_index.end()) {
+            std::ostringstream msg;
+            msg << "Node with label not found: " << tokens[label_index];
+            throw DataFormatError(msg.str().c_str());
+          }
+          n = it->second;
+        }
+
+        for (int i = 0; i < static_cast<int>(_node_maps.size()); ++i) {
+          _node_maps[i].second->set(n, tokens[map_index[i]]);
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
     }
 
@@ -1763,78 +1763,78 @@ namespace lemon {
 
       char c;
       if (!readLine() || !(line >> c) || c == '@') {
-	if (readSuccess() && line) line.putback(c);
-	if (!_edge_maps.empty()) 
-	  throw DataFormatError("Cannot find map names");
-	return;
+        if (readSuccess() && line) line.putback(c);
+        if (!_edge_maps.empty())
+          throw DataFormatError("Cannot find map names");
+        return;
       }
       line.putback(c);
-      
-      {
-	std::map<std::string, int> maps;
-	
-	std::string map;
-	int index = 0;
-	while (_reader_bits::readToken(line, map)) {
-	  if (maps.find(map) != maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of edge map: " << map;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  maps.insert(std::make_pair(map, index));
-	  ++index;
-	}
-	
-	for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
-	  std::map<std::string, int>::iterator jt = 
-	    maps.find(_edge_maps[i].first);
-	  if (jt == maps.end()) {
-	    std::ostringstream msg;
-	    msg << "Map not found in file: " << _edge_maps[i].first;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  map_index[i] = jt->second;
-	}
 
-	{
-	  std::map<std::string, int>::iterator jt = maps.find("label");
-	  if (jt != maps.end()) {
-	    label_index = jt->second;
-	  } else {
-	    label_index = -1;
-	  }
-	}
-	map_num = maps.size();
+      {
+        std::map<std::string, int> maps;
+
+        std::string map;
+        int index = 0;
+        while (_reader_bits::readToken(line, map)) {
+          if (maps.find(map) != maps.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of edge map: " << map;
+            throw DataFormatError(msg.str().c_str());
+          }
+          maps.insert(std::make_pair(map, index));
+          ++index;
+        }
+
+        for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
+          std::map<std::string, int>::iterator jt =
+            maps.find(_edge_maps[i].first);
+          if (jt == maps.end()) {
+            std::ostringstream msg;
+            msg << "Map not found in file: " << _edge_maps[i].first;
+            throw DataFormatError(msg.str().c_str());
+          }
+          map_index[i] = jt->second;
+        }
+
+        {
+          std::map<std::string, int>::iterator jt = maps.find("label");
+          if (jt != maps.end()) {
+            label_index = jt->second;
+          } else {
+            label_index = -1;
+          }
+        }
+        map_num = maps.size();
       }
 
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
+        line.putback(c);
 
-	std::string source_token;
-	std::string target_token;
+        std::string source_token;
+        std::string target_token;
 
-	if (!_reader_bits::readToken(line, source_token))
-	  throw DataFormatError("Node u not found");
+        if (!_reader_bits::readToken(line, source_token))
+          throw DataFormatError("Node u not found");
 
-	if (!_reader_bits::readToken(line, target_token))
-	  throw DataFormatError("Node v not found");
-	
-	std::vector<std::string> tokens(map_num);
-	for (int i = 0; i < map_num; ++i) {
-	  if (!_reader_bits::readToken(line, tokens[i])) {
-	    std::ostringstream msg;
-	    msg << "Column not found (" << i + 1 << ")";
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	}
-	if (line >> std::ws >> c)
-	  throw DataFormatError("Extra character on the end of line");
-	
-	Edge e;
-	if (!_use_edges) {
+        if (!_reader_bits::readToken(line, target_token))
+          throw DataFormatError("Node v not found");
+
+        std::vector<std::string> tokens(map_num);
+        for (int i = 0; i < map_num; ++i) {
+          if (!_reader_bits::readToken(line, tokens[i])) {
+            std::ostringstream msg;
+            msg << "Column not found (" << i + 1 << ")";
+            throw DataFormatError(msg.str().c_str());
+          }
+        }
+        if (line >> std::ws >> c)
+          throw DataFormatError("Extra character on the end of line");
+
+        Edge e;
+        if (!_use_edges) {
 
           typename NodeIndex::iterator it;
- 
+
           it = _node_index.find(source_token);
           if (it == _node_index.end()) {
             std::ostringstream msg;
@@ -1844,36 +1844,36 @@ namespace lemon {
           Node source = it->second;
 
           it = _node_index.find(target_token);
-          if (it == _node_index.end()) {       
-            std::ostringstream msg;            
+          if (it == _node_index.end()) {
+            std::ostringstream msg;
             msg << "Item not found: " << target_token;
             throw DataFormatError(msg.str().c_str());
-          }                                          
-          Node target = it->second;                            
+          }
+          Node target = it->second;
 
-	  e = _graph.addEdge(source, target);
-	  if (label_index != -1) 
-	    _edge_index.insert(std::make_pair(tokens[label_index], e));
-	} else {
-	  if (label_index == -1) 
-	    throw DataFormatError("Label map not found in file");
-	  typename std::map<std::string, Edge>::iterator it =
-	    _edge_index.find(tokens[label_index]);
-	  if (it == _edge_index.end()) {
-	    std::ostringstream msg;
-	    msg << "Edge with label not found: " << tokens[label_index];
-	    throw DataFormatError(msg.str().c_str());	    
-	  }
-	  e = it->second;
-	}
+          e = _graph.addEdge(source, target);
+          if (label_index != -1)
+            _edge_index.insert(std::make_pair(tokens[label_index], e));
+        } else {
+          if (label_index == -1)
+            throw DataFormatError("Label map not found in file");
+          typename std::map<std::string, Edge>::iterator it =
+            _edge_index.find(tokens[label_index]);
+          if (it == _edge_index.end()) {
+            std::ostringstream msg;
+            msg << "Edge with label not found: " << tokens[label_index];
+            throw DataFormatError(msg.str().c_str());
+          }
+          e = it->second;
+        }
 
-	for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
-	  _edge_maps[i].second->set(e, tokens[map_index[i]]);
-	}
+        for (int i = 0; i < static_cast<int>(_edge_maps.size()); ++i) {
+          _edge_maps[i].second->set(e, tokens[map_index[i]]);
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
     }
 
@@ -1883,125 +1883,125 @@ namespace lemon {
 
       char c;
       while (readLine() && line >> c && c != '@') {
-	line.putback(c);
-	
-	std::string attr, token;
-	if (!_reader_bits::readToken(line, attr))
-	  throw DataFormatError("Attribute name not found");
-	if (!_reader_bits::readToken(line, token))
-	  throw DataFormatError("Attribute value not found");
-	if (line >> c)
-	  throw DataFormatError("Extra character on the end of line");	  
+        line.putback(c);
 
-	{
-	  std::set<std::string>::iterator it = read_attr.find(attr);
-	  if (it != read_attr.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of attribute " << attr;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  read_attr.insert(attr);
-	}
-	
-	{
-	  typename Attributes::iterator it = _attributes.lower_bound(attr);
-	  while (it != _attributes.end() && it->first == attr) {
-	    it->second->set(token);
-	    ++it;
-	  }
-	}
+        std::string attr, token;
+        if (!_reader_bits::readToken(line, attr))
+          throw DataFormatError("Attribute name not found");
+        if (!_reader_bits::readToken(line, token))
+          throw DataFormatError("Attribute value not found");
+        if (line >> c)
+          throw DataFormatError("Extra character on the end of line");
+
+        {
+          std::set<std::string>::iterator it = read_attr.find(attr);
+          if (it != read_attr.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of attribute " << attr;
+            throw DataFormatError(msg.str().c_str());
+          }
+          read_attr.insert(attr);
+        }
+
+        {
+          typename Attributes::iterator it = _attributes.lower_bound(attr);
+          while (it != _attributes.end() && it->first == attr) {
+            it->second->set(token);
+            ++it;
+          }
+        }
 
       }
       if (readSuccess()) {
-	line.putback(c);
+        line.putback(c);
       }
       for (typename Attributes::iterator it = _attributes.begin();
-	   it != _attributes.end(); ++it) {
-	if (read_attr.find(it->first) == read_attr.end()) {
-	  std::ostringstream msg;
-	  msg << "Attribute not found in file: " << it->first;
-	  throw DataFormatError(msg.str().c_str());
-	}	
+           it != _attributes.end(); ++it) {
+        if (read_attr.find(it->first) == read_attr.end()) {
+          std::ostringstream msg;
+          msg << "Attribute not found in file: " << it->first;
+          throw DataFormatError(msg.str().c_str());
+        }
       }
     }
 
   public:
 
-    /// \name Execution of the reader    
+    /// \name Execution of the reader
     /// @{
 
     /// \brief Start the batch processing
     ///
     /// This function starts the batch processing
     void run() {
-      
+
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
-      
+
       bool nodes_done = _skip_nodes;
       bool edges_done = _skip_edges;
       bool attributes_done = false;
 
-      line_num = 0;      
+      line_num = 0;
       readLine();
       skipSection();
 
       while (readSuccess()) {
-	try {
-	  char c;
-	  std::string section, caption;
-	  line >> c;
-	  _reader_bits::readToken(line, section);
-	  _reader_bits::readToken(line, caption);
+        try {
+          char c;
+          std::string section, caption;
+          line >> c;
+          _reader_bits::readToken(line, section);
+          _reader_bits::readToken(line, caption);
 
-	  if (line >> c) 
-	    throw DataFormatError("Extra character on the end of line");
+          if (line >> c)
+            throw DataFormatError("Extra character on the end of line");
 
-	  if (section == "nodes" && !nodes_done) {
-	    if (_nodes_caption.empty() || _nodes_caption == caption) {
-	      readNodes();
-	      nodes_done = true;
-	    }
-	  } else if ((section == "edges" || section == "arcs") && 
-		     !edges_done) {
-	    if (_edges_caption.empty() || _edges_caption == caption) {
-	      readEdges();
-	      edges_done = true;
-	    }
-	  } else if (section == "attributes" && !attributes_done) {
-	    if (_attributes_caption.empty() || _attributes_caption == caption) {
-	      readAttributes();
-	      attributes_done = true;
-	    }
-	  } else {
-	    readLine();
-	    skipSection();
-	  }
-	} catch (DataFormatError& error) {
-	  error.line(line_num);
-	  throw;
-	}	
+          if (section == "nodes" && !nodes_done) {
+            if (_nodes_caption.empty() || _nodes_caption == caption) {
+              readNodes();
+              nodes_done = true;
+            }
+          } else if ((section == "edges" || section == "arcs") &&
+                     !edges_done) {
+            if (_edges_caption.empty() || _edges_caption == caption) {
+              readEdges();
+              edges_done = true;
+            }
+          } else if (section == "attributes" && !attributes_done) {
+            if (_attributes_caption.empty() || _attributes_caption == caption) {
+              readAttributes();
+              attributes_done = true;
+            }
+          } else {
+            readLine();
+            skipSection();
+          }
+        } catch (DataFormatError& error) {
+          error.line(line_num);
+          throw;
+        }
       }
 
       if (!nodes_done) {
-	throw DataFormatError("Section @nodes not found");
+        throw DataFormatError("Section @nodes not found");
       }
 
       if (!edges_done) {
-	throw DataFormatError("Section @edges not found");
+        throw DataFormatError("Section @edges not found");
       }
 
       if (!attributes_done && !_attributes.empty()) {
-	throw DataFormatError("Section @attributes not found");
+        throw DataFormatError("Section @attributes not found");
       }
 
     }
 
     /// @}
-    
+
   };
 
   /// \brief Return a \ref GraphReader class
-  /// 
+  ///
   /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
@@ -2011,18 +2011,18 @@ namespace lemon {
   }
 
   /// \brief Return a \ref GraphReader class
-  /// 
+  ///
   /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
-  GraphReader<Graph> graphReader(const std::string& fn, 
-				       Graph& graph) {
+  GraphReader<Graph> graphReader(const std::string& fn,
+                                       Graph& graph) {
     GraphReader<Graph> tmp(fn, graph);
     return tmp;
   }
 
   /// \brief Return a \ref GraphReader class
-  /// 
+  ///
   /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
   template <typename Graph>
@@ -2036,21 +2036,21 @@ namespace lemon {
   SectionReader sectionReader(std::istream& is);
   SectionReader sectionReader(const std::string& fn);
   SectionReader sectionReader(const char* fn);
-  
+
   /// \ingroup lemon_io
   ///
   /// \brief Section reader class
   ///
-  /// In the \ref lgf-format "LGF" file extra sections can be placed, 
+  /// In the \ref lgf-format "LGF" file extra sections can be placed,
   /// which contain any data in arbitrary format. Such sections can be
-  /// read with this class. A reading rule can be added to the class 
+  /// read with this class. A reading rule can be added to the class
   /// with two different functions. With the \c sectionLines() function a
   /// functor can process the section line-by-line, while with the \c
   /// sectionStream() member the section can be read from an input
   /// stream.
   class SectionReader {
   private:
-    
+
     std::istream* _is;
     bool local_is;
 
@@ -2066,30 +2066,30 @@ namespace lemon {
     ///
     /// Construct a section reader, which reads from the given input
     /// stream.
-    SectionReader(std::istream& is) 
+    SectionReader(std::istream& is)
       : _is(&is), local_is(false) {}
 
     /// \brief Constructor
     ///
     /// Construct a section reader, which reads from the given file.
-    SectionReader(const std::string& fn) 
+    SectionReader(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true) {}
-    
+
     /// \brief Constructor
     ///
     /// Construct a section reader, which reads from the given file.
-    SectionReader(const char* fn) 
+    SectionReader(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {}
 
     /// \brief Destructor
     ~SectionReader() {
-      for (Sections::iterator it = _sections.begin(); 
-	   it != _sections.end(); ++it) {
-	delete it->second;
+      for (Sections::iterator it = _sections.begin();
+           it != _sections.end(); ++it) {
+        delete it->second;
       }
 
       if (local_is) {
-	delete _is;
+        delete _is;
       }
 
     }
@@ -2100,15 +2100,15 @@ namespace lemon {
     friend SectionReader sectionReader(const std::string& fn);
     friend SectionReader sectionReader(const char* fn);
 
-    SectionReader(SectionReader& other) 
+    SectionReader(SectionReader& other)
       : _is(other._is), local_is(other.local_is) {
 
       other._is = 0;
       other.local_is = false;
-      
+
       _sections.swap(other._sections);
     }
-    
+
     SectionReader& operator=(const SectionReader&);
 
   public:
@@ -2148,14 +2148,14 @@ namespace lemon {
     ///
     ///  // ...
     ///
-    ///  reader.sectionLines("numbers", NumberSection(vec));  
+    ///  reader.sectionLines("numbers", NumberSection(vec));
     ///\endcode
     template <typename Functor>
     SectionReader& sectionLines(const std::string& type, Functor functor) {
       LEMON_ASSERT(!type.empty(), "Type is empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
+      LEMON_ASSERT(_sections.find(type) == _sections.end(),
+                   "Multiple reading of section.");
+      _sections.insert(std::make_pair(type,
         new _reader_bits::LineSection<Functor>(functor)));
       return *this;
     }
@@ -2171,13 +2171,13 @@ namespace lemon {
     template <typename Functor>
     SectionReader& sectionStream(const std::string& type, Functor functor) {
       LEMON_ASSERT(!type.empty(), "Type is empty.");
-      LEMON_ASSERT(_sections.find(type) == _sections.end(), 
-		   "Multiple reading of section.");
-      _sections.insert(std::make_pair(type, 
-	 new _reader_bits::StreamSection<Functor>(functor)));
+      LEMON_ASSERT(_sections.find(type) == _sections.end(),
+                   "Multiple reading of section.");
+      _sections.insert(std::make_pair(type,
+         new _reader_bits::StreamSection<Functor>(functor)));
       return *this;
-    }    
-    
+    }
+
     /// @}
 
   private:
@@ -2185,12 +2185,12 @@ namespace lemon {
     bool readLine() {
       std::string str;
       while(++line_num, std::getline(*_is, str)) {
-	line.clear(); line.str(str);
-	char c;
-	if (line >> std::ws >> c && c != '#') {
-	  line.putback(c);
-	  return true;
-	}
+        line.clear(); line.str(str);
+        char c;
+        if (line >> std::ws >> c && c != '#') {
+          line.putback(c);
+          return true;
+        }
       }
       return false;
     }
@@ -2198,11 +2198,11 @@ namespace lemon {
     bool readSuccess() {
       return static_cast<bool>(*_is);
     }
-    
+
     void skipSection() {
       char c;
       while (readSuccess() && line >> c && c != '@') {
-	readLine();
+        readLine();
       }
       line.putback(c);
     }
@@ -2210,66 +2210,66 @@ namespace lemon {
   public:
 
 
-    /// \name Execution of the reader    
+    /// \name Execution of the reader
     /// @{
 
     /// \brief Start the batch processing
     ///
     /// This function starts the batch processing.
     void run() {
-      
+
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
-      
+
       std::set<std::string> extra_sections;
 
-      line_num = 0;      
+      line_num = 0;
       readLine();
       skipSection();
 
       while (readSuccess()) {
-	try {
-	  char c;
-	  std::string section, caption;
-	  line >> c;
-	  _reader_bits::readToken(line, section);
-	  _reader_bits::readToken(line, caption);
+        try {
+          char c;
+          std::string section, caption;
+          line >> c;
+          _reader_bits::readToken(line, section);
+          _reader_bits::readToken(line, caption);
 
-	  if (line >> c) 
-	    throw DataFormatError("Extra character on the end of line");
+          if (line >> c)
+            throw DataFormatError("Extra character on the end of line");
 
-	  if (extra_sections.find(section) != extra_sections.end()) {
-	    std::ostringstream msg;
-	    msg << "Multiple occurence of section " << section;
-	    throw DataFormatError(msg.str().c_str());
-	  }
-	  Sections::iterator it = _sections.find(section);
-	  if (it != _sections.end()) {
-	    extra_sections.insert(section);
-	    it->second->process(*_is, line_num);
-	  }
-	  readLine();
-	  skipSection();
-	} catch (DataFormatError& error) {
-	  error.line(line_num);
-	  throw;
-	}	
+          if (extra_sections.find(section) != extra_sections.end()) {
+            std::ostringstream msg;
+            msg << "Multiple occurence of section " << section;
+            throw DataFormatError(msg.str().c_str());
+          }
+          Sections::iterator it = _sections.find(section);
+          if (it != _sections.end()) {
+            extra_sections.insert(section);
+            it->second->process(*_is, line_num);
+          }
+          readLine();
+          skipSection();
+        } catch (DataFormatError& error) {
+          error.line(line_num);
+          throw;
+        }
       }
       for (Sections::iterator it = _sections.begin();
-	   it != _sections.end(); ++it) {
-	if (extra_sections.find(it->first) == extra_sections.end()) {
-	  std::ostringstream os;
-	  os << "Cannot find section: " << it->first;
-	  throw DataFormatError(os.str().c_str());
-	}
+           it != _sections.end(); ++it) {
+        if (extra_sections.find(it->first) == extra_sections.end()) {
+          std::ostringstream os;
+          os << "Cannot find section: " << it->first;
+          throw DataFormatError(os.str().c_str());
+        }
       }
     }
 
     /// @}
-        
+
   };
 
   /// \brief Return a \ref SectionReader class
-  /// 
+  ///
   /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(std::istream& is) {
@@ -2278,7 +2278,7 @@ namespace lemon {
   }
 
   /// \brief Return a \ref SectionReader class
-  /// 
+  ///
   /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(const std::string& fn) {
@@ -2287,7 +2287,7 @@ namespace lemon {
   }
 
   /// \brief Return a \ref SectionReader class
-  /// 
+  ///
   /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
   inline SectionReader sectionReader(const char* fn) {
@@ -2297,7 +2297,7 @@ namespace lemon {
 
   /// \ingroup lemon_io
   ///
-  /// \brief Reader for the contents of the \ref lgf-format "LGF" file 
+  /// \brief Reader for the contents of the \ref lgf-format "LGF" file
   ///
   /// This class can be used to read the sections, the map names and
   /// the attributes from a file. Usually, the Lemon programs know
@@ -2307,8 +2307,8 @@ namespace lemon {
   /// reads the graph and stores the appropriate information for
   /// reading the graph.
   ///
-  ///\code 
-  /// LgfContents contents("graph.lgf"); 
+  ///\code
+  /// LgfContents contents("graph.lgf");
   /// contents.run();
   ///
   /// // Does it contain any node section and arc section?
@@ -2316,14 +2316,14 @@ namespace lemon {
   ///   std::cerr << "Failure, cannot find graph." << std::endl;
   ///   return -1;
   /// }
-  /// std::cout << "The name of the default node section: " 
+  /// std::cout << "The name of the default node section: "
   ///           << contents.nodeSection(0) << std::endl;
-  /// std::cout << "The number of the arc maps: " 
+  /// std::cout << "The number of the arc maps: "
   ///           << contents.arcMaps(0).size() << std::endl;
-  /// std::cout << "The name of second arc map: " 
+  /// std::cout << "The name of second arc map: "
   ///           << contents.arcMaps(0)[1] << std::endl;
   ///\endcode
-  class LgfContents {    
+  class LgfContents {
   private:
 
     std::istream* _is;
@@ -2344,21 +2344,21 @@ namespace lemon {
 
     int line_num;
     std::istringstream line;
-    
+
   public:
 
     /// \brief Constructor
     ///
     /// Construct an \e LGF contents reader, which reads from the given
     /// input stream.
-    LgfContents(std::istream& is) 
+    LgfContents(std::istream& is)
       : _is(&is), local_is(false) {}
 
     /// \brief Constructor
     ///
     /// Construct an \e LGF contents reader, which reads from the given
     /// file.
-    LgfContents(const std::string& fn) 
+    LgfContents(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true) {}
 
     /// \brief Constructor
@@ -2367,14 +2367,14 @@ namespace lemon {
     /// file.
     LgfContents(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {}
-    
+
     /// \brief Destructor
     ~LgfContents() {
       if (local_is) delete _is;
     }
 
   private:
-    
+
     LgfContents(const LgfContents&);
     LgfContents& operator=(const LgfContents&);
 
@@ -2391,9 +2391,9 @@ namespace lemon {
       return _node_sections.size();
     }
 
-    /// \brief Returns the node section name at the given position. 
+    /// \brief Returns the node section name at the given position.
     ///
-    /// Returns the node section name at the given position. 
+    /// Returns the node section name at the given position.
     const std::string& nodeSection(int i) const {
       return _node_sections[i];
     }
@@ -2407,7 +2407,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Arc/Edge sections 
+    /// \name Arc/Edge sections
     /// @{
 
     /// \brief Gives back the number of arc/edge sections in the file.
@@ -2418,9 +2418,9 @@ namespace lemon {
       return _edge_sections.size();
     }
 
-    /// \brief Returns the arc/edge section name at the given position. 
+    /// \brief Returns the arc/edge section name at the given position.
     ///
-    /// Returns the arc/edge section name at the given position. 
+    /// Returns the arc/edge section name at the given position.
     /// \note It is synonym of \c edgeSection().
     const std::string& arcSection(int i) const {
       return _edge_sections[i];
@@ -2447,9 +2447,9 @@ namespace lemon {
       return _edge_sections.size();
     }
 
-    /// \brief Returns the section name at the given position. 
+    /// \brief Returns the section name at the given position.
     ///
-    /// Returns the section name at the given position. 
+    /// Returns the section name at the given position.
     /// \note It is synonym of \c arcSection().
     const std::string& edgeSection(int i) const {
       return _edge_sections[i];
@@ -2465,7 +2465,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Attribute sections   
+    /// \name Attribute sections
     /// @{
 
     /// \brief Gives back the number of attribute sections in the file.
@@ -2475,9 +2475,9 @@ namespace lemon {
       return _attribute_sections.size();
     }
 
-    /// \brief Returns the attribute section name at the given position. 
+    /// \brief Returns the attribute section name at the given position.
     ///
-    /// Returns the attribute section name at the given position. 
+    /// Returns the attribute section name at the given position.
     const std::string& attributeSectionNames(int i) const {
       return _attribute_sections[i];
     }
@@ -2491,7 +2491,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Extra sections   
+    /// \name Extra sections
     /// @{
 
     /// \brief Gives back the number of extra sections in the file.
@@ -2501,9 +2501,9 @@ namespace lemon {
       return _extra_sections.size();
     }
 
-    /// \brief Returns the extra section type at the given position. 
+    /// \brief Returns the extra section type at the given position.
     ///
-    /// Returns the section type at the given position. 
+    /// Returns the section type at the given position.
     const std::string& extraSection(int i) const {
       return _extra_sections[i];
     }
@@ -2515,12 +2515,12 @@ namespace lemon {
     bool readLine() {
       std::string str;
       while(++line_num, std::getline(*_is, str)) {
-	line.clear(); line.str(str);
-	char c;
-	if (line >> std::ws >> c && c != '#') {
-	  line.putback(c);
-	  return true;
-	}
+        line.clear(); line.str(str);
+        char c;
+        if (line >> std::ws >> c && c != '#') {
+          line.putback(c);
+          return true;
+        }
       }
       return false;
     }
@@ -2532,7 +2532,7 @@ namespace lemon {
     void skipSection() {
       char c;
       while (readSuccess() && line >> c && c != '@') {
-	readLine();
+        readLine();
       }
       line.putback(c);
     }
@@ -2540,13 +2540,13 @@ namespace lemon {
     void readMaps(std::vector<std::string>& maps) {
       char c;
       if (!readLine() || !(line >> c) || c == '@') {
-	if (readSuccess() && line) line.putback(c);
-	return;
+        if (readSuccess() && line) line.putback(c);
+        return;
       }
       line.putback(c);
       std::string map;
       while (_reader_bits::readToken(line, map)) {
-	maps.push_back(map);
+        maps.push_back(map);
       }
     }
 
@@ -2554,18 +2554,18 @@ namespace lemon {
       readLine();
       char c;
       while (readSuccess() && line >> c && c != '@') {
-	line.putback(c);
-	std::string attr;
-	_reader_bits::readToken(line, attr);
-	attrs.push_back(attr);
-	readLine();
+        line.putback(c);
+        std::string attr;
+        _reader_bits::readToken(line, attr);
+        attrs.push_back(attr);
+        readLine();
       }
       line.putback(c);
     }
 
   public:
 
-    /// \name Execution of the contents reader    
+    /// \name Execution of the contents reader
     /// @{
 
     /// \brief Starts the reading
@@ -2578,37 +2578,37 @@ namespace lemon {
 
       while (readSuccess()) {
 
-	char c;
-	line >> c;
+        char c;
+        line >> c;
 
-	std::string section, caption;
-	_reader_bits::readToken(line, section);
-	_reader_bits::readToken(line, caption);
+        std::string section, caption;
+        _reader_bits::readToken(line, section);
+        _reader_bits::readToken(line, caption);
 
-	if (section == "nodes") {
-	  _node_sections.push_back(caption);
-	  _node_maps.push_back(std::vector<std::string>());
-	  readMaps(_node_maps.back());
-	  readLine(); skipSection();
-	} else if (section == "arcs" || section == "edges") {
-	  _edge_sections.push_back(caption);
-	  _arc_sections.push_back(section == "arcs");
-	  _edge_maps.push_back(std::vector<std::string>());
-	  readMaps(_edge_maps.back());
-	  readLine(); skipSection();
-	} else if (section == "attributes") {
-	  _attribute_sections.push_back(caption);
-	  _attributes.push_back(std::vector<std::string>());
-	  readAttributes(_attributes.back());
-	} else {
-	  _extra_sections.push_back(section);
-	  readLine(); skipSection();
-	}
+        if (section == "nodes") {
+          _node_sections.push_back(caption);
+          _node_maps.push_back(std::vector<std::string>());
+          readMaps(_node_maps.back());
+          readLine(); skipSection();
+        } else if (section == "arcs" || section == "edges") {
+          _edge_sections.push_back(caption);
+          _arc_sections.push_back(section == "arcs");
+          _edge_maps.push_back(std::vector<std::string>());
+          readMaps(_edge_maps.back());
+          readLine(); skipSection();
+        } else if (section == "attributes") {
+          _attribute_sections.push_back(caption);
+          _attributes.push_back(std::vector<std::string>());
+          readAttributes(_attributes.back());
+        } else {
+          _extra_sections.push_back(section);
+          readLine(); skipSection();
+        }
       }
     }
 
     /// @}
-    
+
   };
 }
 

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -304,7 +304,7 @@ int main()
     check(!equalMap(id,cm)[1] && equalMap(id,cm)[2] && !equalMap(id,cm)[3],
           "Something is wrong with EqualMap");
   }
-  
+
   // LoggerBoolMap
   {
     typedef std::vector<int> vec;
@@ -320,7 +320,7 @@ int main()
     check(v1.size() == 3 && v2.size() == 10 &&
           v1[0]==20 && v1[1]==50 && v1[2]==60 && v2[0]==20 && v2[1]==50 && v2[2]==60,
           "Something is wrong with LoggerBoolMap");
-          
+
     int i = 0;
     for ( LoggerBoolMap<vec::iterator>::Iterator it = map2.begin();
           it != map2.end(); ++it )

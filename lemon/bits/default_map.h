@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -29,8 +29,8 @@
 ///\brief Graph maps that construct and destruct their elements dynamically.
 
 namespace lemon {
-  
-  
+
+
   //#ifndef LEMON_USE_DEBUG_MAP
 
   template <typename _Graph, typename _Item, typename _Value>
@@ -140,28 +140,28 @@ namespace lemon {
     typedef VectorMap<_Graph, _Item, _Ptr*> Map;
   };
 
-// #else 
+// #else
 
 //   template <typename _Graph, typename _Item, typename _Value>
 //   struct DefaultMapSelector {
 //     typedef DebugMap<_Graph, _Item, _Value> Map;
 //   };
 
-// #endif  
+// #endif
 
   /// \e
   template <typename _Graph, typename _Item, typename _Value>
-  class DefaultMap 
+  class DefaultMap
     : public DefaultMapSelector<_Graph, _Item, _Value>::Map {
   public:
     typedef typename DefaultMapSelector<_Graph, _Item, _Value>::Map Parent;
     typedef DefaultMap<_Graph, _Item, _Value> Map;
-    
+
     typedef typename Parent::Graph Graph;
     typedef typename Parent::Value Value;
 
     explicit DefaultMap(const Graph& graph) : Parent(graph) {}
-    DefaultMap(const Graph& graph, const Value& value) 
+    DefaultMap(const Graph& graph, const Value& value)
       : Parent(graph, value) {}
 
     DefaultMap& operator=(const DefaultMap& cmap) {

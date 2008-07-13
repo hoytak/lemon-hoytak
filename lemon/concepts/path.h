@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -39,7 +39,7 @@ namespace lemon {
     /// a digraph.
     ///
     /// A skeleton structure for representing directed paths in a
-    /// digraph.  
+    /// digraph.
     /// \tparam _Digraph The digraph type in which the path is.
     ///
     /// In a sense, the path can be treated as a list of arcs. The
@@ -83,25 +83,25 @@ namespace lemon {
       /// This class is used to iterate on the arcs of the paths.
       class ArcIt {
       public:
-	/// Default constructor
-	ArcIt() {}
-	/// Invalid constructor
-	ArcIt(Invalid) {}
-	/// Constructor for first arc
-	ArcIt(const Path &) {}
+        /// Default constructor
+        ArcIt() {}
+        /// Invalid constructor
+        ArcIt(Invalid) {}
+        /// Constructor for first arc
+        ArcIt(const Path &) {}
 
         /// Conversion to Arc
-	operator Arc() const { return INVALID; }
+        operator Arc() const { return INVALID; }
 
-	/// Next arc
-	ArcIt& operator++() {return *this;}
+        /// Next arc
+        ArcIt& operator++() {return *this;}
 
-	/// Comparison operator
-	bool operator==(const ArcIt&) const {return true;}
-	/// Comparison operator
-	bool operator!=(const ArcIt&) const {return true;}
- 	/// Comparison operator
- 	bool operator<(const ArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator==(const ArcIt&) const {return true;}
+        /// Comparison operator
+        bool operator!=(const ArcIt&) const {return true;}
+         /// Comparison operator
+         bool operator<(const ArcIt&) const {return false;}
 
       };
 
@@ -137,7 +137,7 @@ namespace lemon {
     };
 
     namespace _path_bits {
-      
+
       template <typename _Digraph, typename _Path, typename RevPathTag = void>
       struct PathDumperConstraints {
         void constraints() {
@@ -162,7 +162,7 @@ namespace lemon {
 
       template <typename _Digraph, typename _Path>
       struct PathDumperConstraints<
-        _Digraph, _Path, 
+        _Digraph, _Path,
         typename enable_if<typename _Path::RevPathTag, void>::type
       > {
         void constraints() {
@@ -184,7 +184,7 @@ namespace lemon {
         }
         _Path& p;
       };
-    
+
     }
 
 
@@ -209,7 +209,7 @@ namespace lemon {
     ///
     /// The paths can be constructed from any path type by a
     /// template constructor or a template assignment operator.
-    /// 
+    ///
     template <typename _Digraph>
     class PathDumper {
     public:
@@ -238,25 +238,25 @@ namespace lemon {
       /// This class is used to iterate on the arcs of the paths.
       class ArcIt {
       public:
-	/// Default constructor
-	ArcIt() {}
-	/// Invalid constructor
-	ArcIt(Invalid) {}
-	/// Constructor for first arc
-	ArcIt(const PathDumper&) {}
+        /// Default constructor
+        ArcIt() {}
+        /// Invalid constructor
+        ArcIt(Invalid) {}
+        /// Constructor for first arc
+        ArcIt(const PathDumper&) {}
 
         /// Conversion to Arc
-	operator Arc() const { return INVALID; }
+        operator Arc() const { return INVALID; }
 
-	/// Next arc
-	ArcIt& operator++() {return *this;}
+        /// Next arc
+        ArcIt& operator++() {return *this;}
 
-	/// Comparison operator
-	bool operator==(const ArcIt&) const {return true;}
-	/// Comparison operator
-	bool operator!=(const ArcIt&) const {return true;}
- 	/// Comparison operator
- 	bool operator<(const ArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator==(const ArcIt&) const {return true;}
+        /// Comparison operator
+        bool operator!=(const ArcIt&) const {return true;}
+         /// Comparison operator
+         bool operator<(const ArcIt&) const {return false;}
 
       };
 
@@ -266,25 +266,25 @@ namespace lemon {
       /// reverse direction.
       class RevArcIt {
       public:
-	/// Default constructor
-	RevArcIt() {}
-	/// Invalid constructor
-	RevArcIt(Invalid) {}
-	/// Constructor for first arc
-	RevArcIt(const PathDumper &) {}
+        /// Default constructor
+        RevArcIt() {}
+        /// Invalid constructor
+        RevArcIt(Invalid) {}
+        /// Constructor for first arc
+        RevArcIt(const PathDumper &) {}
 
         /// Conversion to Arc
-	operator Arc() const { return INVALID; }
+        operator Arc() const { return INVALID; }
 
-	/// Next arc
-	RevArcIt& operator++() {return *this;}
+        /// Next arc
+        RevArcIt& operator++() {return *this;}
 
-	/// Comparison operator
-	bool operator==(const RevArcIt&) const {return true;}
-	/// Comparison operator
-	bool operator!=(const RevArcIt&) const {return true;}
- 	/// Comparison operator
- 	bool operator<(const RevArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator==(const RevArcIt&) const {return true;}
+        /// Comparison operator
+        bool operator!=(const RevArcIt&) const {return true;}
+         /// Comparison operator
+         bool operator<(const RevArcIt&) const {return false;}
 
       };
 

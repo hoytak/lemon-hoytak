@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -32,7 +32,7 @@ namespace lemon {
 
   /// \ingroup graphbits
   ///
-  /// \brief Notifier class to notify observes about alterations in 
+  /// \brief Notifier class to notify observes about alterations in
   /// a container.
   ///
   /// The simple graph's can be refered as two containers, one node container
@@ -49,7 +49,7 @@ namespace lemon {
   /// an alteration in the graph, which cause only drawback on the
   /// alteration of the graph.
   ///
-  /// This class provides an interface to the container. The \e first() and \e 
+  /// This class provides an interface to the container. The \e first() and \e
   /// next() member functions make possible to iterate on the keys of the
   /// container. The \e id() function returns an integer id for each key.
   /// The \e maxId() function gives back an upper bound of the ids.
@@ -60,7 +60,7 @@ namespace lemon {
   /// \e erase() signals that only one or few items added or erased to or
   /// from the graph. If all items are erased from the graph or from an empty
   /// graph a new graph is builded then it can be signaled with the
-  /// clear() and build() members. Important rule that if we erase items 
+  /// clear() and build() members. Important rule that if we erase items
   /// from graph we should first signal the alteration and after that erase
   /// them from the container, on the other way on item addition we should
   /// first extend the container and just after that signal the alteration.
@@ -68,7 +68,7 @@ namespace lemon {
   /// The alteration can be observed with a class inherited from the
   /// \e ObserverBase nested class. The signals can be handled with
   /// overriding the virtual functions defined in the base class.  The
-  /// observer base can be attached to the notifier with the 
+  /// observer base can be attached to the notifier with the
   /// \e attach() member and can be detached with detach() function. The
   /// alteration handlers should not call any function which signals
   /// an other alteration in the same notifier and should not
@@ -79,13 +79,13 @@ namespace lemon {
   /// observeres will not be notified and the fulfilled additions will
   /// be rolled back by calling the \e erase() or \e clear()
   /// functions. Thence the \e erase() and \e clear() should not throw
-  /// exception. Actullay, it can be throw only 
+  /// exception. Actullay, it can be throw only
   /// \ref AlterationObserver::ImmediateDetach ImmediateDetach
   /// exception which detach the observer from the notifier.
   ///
   /// There are some place when the alteration observing is not completly
   /// reliable. If we want to carry out the node degree in the graph
-  /// as in the \ref InDegMap and we use the reverseEdge that cause 
+  /// as in the \ref InDegMap and we use the reverseEdge that cause
   /// unreliable functionality. Because the alteration observing signals
   /// only erasing and adding but not the reversing it will stores bad
   /// degrees. The sub graph adaptors cannot signal the alterations because
@@ -104,7 +104,7 @@ namespace lemon {
     typedef _Container Container;
     typedef _Item Item;
 
-    /// \brief Exception which can be called from \e clear() and 
+    /// \brief Exception which can be called from \e clear() and
     /// \e erase().
     ///
     /// From the \e clear() and \e erase() function only this
@@ -127,7 +127,7 @@ namespace lemon {
     ///
     /// The build() and clear() members are to notify the observer
     /// about the container is built from an empty container or
-    /// is cleared to an empty container. 
+    /// is cleared to an empty container.
 
     class ObserverBase {
     protected:
@@ -138,7 +138,7 @@ namespace lemon {
       /// \brief Default constructor.
       ///
       /// Default constructor for ObserverBase.
-      /// 
+      ///
       ObserverBase() : _notifier(0) {}
 
       /// \brief Constructor which attach the observer into notifier.
@@ -151,13 +151,13 @@ namespace lemon {
       /// \brief Constructor which attach the obserever to the same notifier.
       ///
       /// Constructor which attach the obserever to the same notifier as
-      /// the other observer is attached to. 
+      /// the other observer is attached to.
       ObserverBase(const ObserverBase& copy) {
-	if (copy.attached()) {
+        if (copy.attached()) {
           attach(*copy.notifier());
-	}
+        }
       }
-	
+
       /// \brief Destructor
       virtual ~ObserverBase() {
         if (attached()) {
@@ -170,9 +170,9 @@ namespace lemon {
       /// This member attaches the observer into an AlterationNotifier.
       ///
       void attach(AlterationNotifier& nf) {
-	nf.attach(*this);
+        nf.attach(*this);
       }
-      
+
       /// \brief Detaches the observer into an AlterationNotifier.
       ///
       /// This member detaches the observer from an AlterationNotifier.
@@ -180,15 +180,15 @@ namespace lemon {
       void detach() {
         _notifier->detach(*this);
       }
-      
-      /// \brief Gives back a pointer to the notifier which the map 
+
+      /// \brief Gives back a pointer to the notifier which the map
       /// attached into.
       ///
       /// This function gives back a pointer to the notifier which the map
       /// attached into.
       ///
       Notifier* notifier() const { return const_cast<Notifier*>(_notifier); }
-      
+
       /// Gives back true when the observer is attached into a notifier.
       bool attached() const { return _notifier != 0; }
 
@@ -197,7 +197,7 @@ namespace lemon {
       ObserverBase& operator=(const ObserverBase& copy);
 
     protected:
-      
+
       Notifier* _notifier;
       typename std::list<ObserverBase*>::iterator _index;
 
@@ -209,7 +209,7 @@ namespace lemon {
       /// subclasses.
       virtual void add(const Item&) = 0;
 
-      /// \brief The member function to notificate the observer about 
+      /// \brief The member function to notificate the observer about
       /// more item is added to the container.
       ///
       /// The add() member function notificates the observer about more item
@@ -222,10 +222,10 @@ namespace lemon {
       ///
       /// The erase() member function notificates the observer about an
       /// item is erased from the container. It have to be overrided in
-      /// the subclasses.	
+      /// the subclasses.
       virtual void erase(const Item&) = 0;
 
-      /// \brief The member function to notificate the observer about 
+      /// \brief The member function to notificate the observer about
       /// more item is erased from the container.
       ///
       /// The erase() member function notificates the observer about more item
@@ -247,50 +247,50 @@ namespace lemon {
       ///
       /// The clear() member function notificates the observer about all
       /// items are erased from the container. It have to be overrided in
-      /// the subclasses.      
+      /// the subclasses.
       virtual void clear() = 0;
 
     };
-	
+
   protected:
 
     const Container* container;
 
-    typedef std::list<ObserverBase*> Observers; 
+    typedef std::list<ObserverBase*> Observers;
     Observers _observers;
 
-		
+
   public:
 
     /// \brief Default constructor.
     ///
-    /// The default constructor of the AlterationNotifier. 
+    /// The default constructor of the AlterationNotifier.
     /// It creates an empty notifier.
-    AlterationNotifier() 
+    AlterationNotifier()
       : container(0) {}
 
     /// \brief Constructor.
     ///
     /// Constructor with the observed container parameter.
-    AlterationNotifier(const Container& _container) 
+    AlterationNotifier(const Container& _container)
       : container(&_container) {}
 
-    /// \brief Copy Constructor of the AlterationNotifier. 
+    /// \brief Copy Constructor of the AlterationNotifier.
     ///
-    /// Copy constructor of the AlterationNotifier. 
+    /// Copy constructor of the AlterationNotifier.
     /// It creates only an empty notifier because the copiable
     /// notifier's observers have to be registered still into that notifier.
-    AlterationNotifier(const AlterationNotifier& _notifier) 
+    AlterationNotifier(const AlterationNotifier& _notifier)
       : container(_notifier.container) {}
 
     /// \brief Destructor.
-    ///		
+    ///
     /// Destructor of the AlterationNotifier.
     ///
     ~AlterationNotifier() {
       typename Observers::iterator it;
       for (it = _observers.begin(); it != _observers.end(); ++it) {
-	(*it)->_notifier = 0;
+        (*it)->_notifier = 0;
       }
     }
 
@@ -338,13 +338,13 @@ namespace lemon {
     int maxId() const {
       return container->maxId(Item());
     }
-		
+
   protected:
 
     void attach(ObserverBase& observer) {
       observer._index = _observers.insert(_observers.begin(), &observer);
       observer._notifier = this;
-    } 
+    }
 
     void detach(ObserverBase& observer) {
       _observers.erase(observer._index);
@@ -353,13 +353,13 @@ namespace lemon {
     }
 
   public:
-	
-    /// \brief Notifies all the registed observers about an item added to 
+
+    /// \brief Notifies all the registed observers about an item added to
     /// the container.
     ///
-    /// It notifies all the registed observers about an item added to 
+    /// It notifies all the registed observers about an item added to
     /// the container.
-    /// 
+    ///
     void add(const Item& item) {
       typename Observers::reverse_iterator it;
       try {
@@ -373,14 +373,14 @@ namespace lemon {
         }
         throw;
       }
-    }	
+    }
 
-    /// \brief Notifies all the registed observers about more item added to 
+    /// \brief Notifies all the registed observers about more item added to
     /// the container.
     ///
-    /// It notifies all the registed observers about more item added to 
+    /// It notifies all the registed observers about more item added to
     /// the container.
-    /// 
+    ///
     void add(const std::vector<Item>& items) {
       typename Observers::reverse_iterator it;
       try {
@@ -394,14 +394,14 @@ namespace lemon {
         }
         throw;
       }
-    }	
+    }
 
-    /// \brief Notifies all the registed observers about an item erased from 
+    /// \brief Notifies all the registed observers about an item erased from
     /// the container.
-    ///	
-    /// It notifies all the registed observers about an item erased from 
+    ///
+    /// It notifies all the registed observers about an item erased from
     /// the container.
-    /// 
+    ///
     void erase(const Item& item) throw() {
       typename Observers::iterator it = _observers.begin();
       while (it != _observers.end()) {
@@ -416,12 +416,12 @@ namespace lemon {
       }
     }
 
-    /// \brief Notifies all the registed observers about more item erased  
+    /// \brief Notifies all the registed observers about more item erased
     /// from the container.
-    ///	
-    /// It notifies all the registed observers about more item erased from 
+    ///
+    /// It notifies all the registed observers about more item erased from
     /// the container.
-    /// 
+    ///
     void erase(const std::vector<Item>& items) {
       typename Observers::iterator it = _observers.begin();
       while (it != _observers.end()) {
@@ -436,9 +436,9 @@ namespace lemon {
       }
     }
 
-    /// \brief Notifies all the registed observers about the container is 
+    /// \brief Notifies all the registed observers about the container is
     /// built.
-    ///		
+    ///
     /// Notifies all the registed observers about the container is built
     /// from an empty container.
     void build() {
@@ -456,7 +456,7 @@ namespace lemon {
       }
     }
 
-    /// \brief Notifies all the registed observers about all items are 
+    /// \brief Notifies all the registed observers about all items are
     /// erased.
     ///
     /// Notifies all the registed observers about all items are erased

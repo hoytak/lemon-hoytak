@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -41,15 +41,15 @@ non-commercial applications under very permissive
 
 \subsection howtoread How to read the documentation
 
-If you want to get a quick start and see the most important features then 
+If you want to get a quick start and see the most important features then
 take a look at our \ref quicktour
 "Quick Tour to LEMON" which will guide you along.
 
-If you already feel like using our library, see the page that tells you 
+If you already feel like using our library, see the page that tells you
 \ref getstart "How to start using LEMON".
 
-If you 
-want to see how LEMON works, see 
+If you
+want to see how LEMON works, see
 some \ref demoprograms "demo programs"!
 
 If you know what you are looking for then try to find it under the

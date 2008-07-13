@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -140,7 +140,7 @@ template <class Digraph>
 void checkDeg()
 {
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
-  
+
   const int nodeNum = 10;
   const int arcNum = 100;
   Digraph digraph;
@@ -155,11 +155,11 @@ void checkDeg()
     arcs[i] = digraph.addArc(nodes[rnd[nodeNum]], nodes[rnd[nodeNum]]);
   }
   for (int i = 0; i < nodeNum; ++i) {
-    check(inDeg[nodes[i]] == countInArcs(digraph, nodes[i]), 
+    check(inDeg[nodes[i]] == countInArcs(digraph, nodes[i]),
           "Wrong in degree map");
   }
   for (int i = 0; i < nodeNum; ++i) {
-    check(outDeg[nodes[i]] == countOutArcs(digraph, nodes[i]), 
+    check(outDeg[nodes[i]] == countOutArcs(digraph, nodes[i]),
           "Wrong out degree map");
   }
 }
@@ -172,15 +172,15 @@ void checkSnapDeg()
   Digraph g;
   Node n1=g.addNode();
   Node n2=g.addNode();
-  
+
   InDegMap<Digraph> ind(g);
-  
+
   g.addArc(n1,n2);
-  
+
   typename Digraph::Snapshot snap(g);
-  
+
   OutDegMap<Digraph> outd(g);
-  
+
   check(ind[n1]==0 && ind[n2]==1, "Wrong InDegMap value.");
   check(outd[n1]==1 && outd[n2]==0, "Wrong OutDegMap value.");
 

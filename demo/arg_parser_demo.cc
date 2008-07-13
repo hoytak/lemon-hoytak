@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -64,7 +64,7 @@ int main(int argc, const char **argv)
   // Add non-parsed arguments (e.g. input files)
   ap.other("infile", "The input file.")
     .other("...");
-  
+
   // Perform the parsing process
   // (in case of any error it terminates the program)
   ap.parse();
@@ -84,7 +84,7 @@ int main(int argc, const char **argv)
   if(ap.given("gra")) std::cout << "  -gra is given\n";
   if(ap.given("grb")) std::cout << "  -grb is given\n";
   if(ap.given("grc")) std::cout << "  -grc is given\n";
-  
+
   switch(ap.files().size()) {
   case 0:
     std::cout << "  No file argument was given.\n";
@@ -94,10 +94,10 @@ int main(int argc, const char **argv)
     break;
   default:
     std::cout << "  "
-	      << ap.files().size() << " file arguments were given. They are:\n";
+              << ap.files().size() << " file arguments were given. They are:\n";
   }
   for(unsigned int i=0;i<ap.files().size();++i)
     std::cout << "    '" << ap.files()[i] << "'\n";
-  
+
   return 0;
 }

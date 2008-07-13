@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -34,7 +34,7 @@
 namespace lemon {
 
   /// \brief Default OperationTraits for the Dijkstra algorithm class.
-  ///  
+  ///
   /// It defines all computational operations and constants which are
   /// used in the Dijkstra algorithm.
   template <typename Value>
@@ -54,7 +54,7 @@ namespace lemon {
   };
 
   /// \brief Widest path OperationTraits for the Dijkstra algorithm class.
-  ///  
+  ///
   /// It defines all computational operations and constants which are
   /// used in the Dijkstra algorithm for widest path computation.
   template <typename Value>
@@ -72,7 +72,7 @@ namespace lemon {
       return left < right;
     }
   };
-  
+
   ///Default traits class of Dijkstra class.
 
   ///Default traits class of Dijkstra class.
@@ -81,7 +81,7 @@ namespace lemon {
   template<class GR, class LM>
   struct DijkstraDefaultTraits
   {
-    ///The digraph type the algorithm runs on. 
+    ///The digraph type the algorithm runs on.
     typedef GR Digraph;
     ///The type of the map that stores the arc lengths.
 
@@ -103,14 +103,14 @@ namespace lemon {
     typedef typename Digraph::template NodeMap<int> HeapCrossRef;
     ///Instantiates a HeapCrossRef.
 
-    ///This function instantiates a \c HeapCrossRef. 
-    /// \param G is the digraph, to which we would like to define the 
+    ///This function instantiates a \c HeapCrossRef.
+    /// \param G is the digraph, to which we would like to define the
     /// HeapCrossRef.
-    static HeapCrossRef *createHeapCrossRef(const GR &G) 
+    static HeapCrossRef *createHeapCrossRef(const GR &G)
     {
       return new HeapCrossRef(G);
     }
-    
+
     ///The heap type used by Dijkstra algorithm.
 
     ///The heap type used by Dijkstra algorithm.
@@ -119,31 +119,31 @@ namespace lemon {
     ///\sa Dijkstra
     typedef BinHeap<typename LM::Value, HeapCrossRef, std::less<Value> > Heap;
 
-    static Heap *createHeap(HeapCrossRef& R) 
+    static Heap *createHeap(HeapCrossRef& R)
     {
       return new Heap(R);
     }
 
     ///\brief The type of the map that stores the last
     ///arcs of the shortest paths.
-    /// 
+    ///
     ///The type of the map that stores the last
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///
     typedef typename Digraph::template NodeMap<typename GR::Arc> PredMap;
     ///Instantiates a PredMap.
- 
-    ///This function instantiates a \c PredMap. 
+
+    ///This function instantiates a \c PredMap.
     ///\param G is the digraph, to which we would like to define the PredMap.
     ///\todo The digraph alone may be insufficient for the initialization
-    static PredMap *createPredMap(const GR &G) 
+    static PredMap *createPredMap(const GR &G)
     {
       return new PredMap(G);
     }
 
     ///The type of the map that stores whether a nodes is processed.
- 
+
     ///The type of the map that stores whether a nodes is processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
@@ -152,8 +152,8 @@ namespace lemon {
     ///\todo named parameter to set this type, function to read and write.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
- 
-    ///This function instantiates a \c ProcessedMap. 
+
+    ///This function instantiates a \c ProcessedMap.
     ///\param g is the digraph, to which
     ///we would like to define the \c ProcessedMap
 #ifdef DOXYGEN
@@ -165,23 +165,23 @@ namespace lemon {
       return new ProcessedMap();
     }
     ///The type of the map that stores the dists of the nodes.
- 
+
     ///The type of the map that stores the dists of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///
     typedef typename Digraph::template NodeMap<typename LM::Value> DistMap;
     ///Instantiates a DistMap.
- 
-    ///This function instantiates a \ref DistMap. 
+
+    ///This function instantiates a \ref DistMap.
     ///\param G is the digraph, to which we would like to define the \ref DistMap
     static DistMap *createDistMap(const GR &G)
     {
       return new DistMap(G);
     }
   };
-  
+
   ///%Dijkstra algorithm class.
-  
+
   /// \ingroup shortest_path
   ///This class provides an efficient implementation of %Dijkstra algorithm.
   ///The arc lengths are passed to the algorithm using a
@@ -202,7 +202,7 @@ namespace lemon {
   ///it is necessary. The default map type is \ref
   ///concepts::Digraph::ArcMap "Digraph::ArcMap<int>".  The value
   ///of LM is not used directly by Dijkstra, it is only passed to \ref
-  ///DijkstraDefaultTraits.  
+  ///DijkstraDefaultTraits.
   ///\tparam TR Traits class to set
   ///various data types used by the algorithm.  The default traits
   ///class is \ref DijkstraDefaultTraits
@@ -214,8 +214,8 @@ namespace lemon {
   template <typename GR, typename LM, typename TR>
 #else
   template <typename GR=ListDigraph,
-	    typename LM=typename GR::template ArcMap<int>,
-	    typename TR=DijkstraDefaultTraits<GR,LM> >
+            typename LM=typename GR::template ArcMap<int>,
+            typename TR=DijkstraDefaultTraits<GR,LM> >
 #endif
   class Dijkstra {
   public:
@@ -228,7 +228,7 @@ namespace lemon {
     class UninitializedParameter : public lemon::UninitializedParameter {
     public:
       virtual const char* what() const throw() {
-	return "lemon::Dijkstra::UninitializedParameter";
+        return "lemon::Dijkstra::UninitializedParameter";
       }
     };
 
@@ -243,7 +243,7 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     ///\e
     typedef typename Digraph::OutArcIt OutArcIt;
-    
+
     ///The type of the length of the arcs.
     typedef typename TR::LengthMap::Value Value;
     ///The type of the map that stores the arc lengths.
@@ -288,36 +288,36 @@ namespace lemon {
     bool local_heap;
 
     ///Creates the maps if necessary.
-    
+
     ///\todo Better memory allocation (instead of new).
-    void create_maps() 
+    void create_maps()
     {
       if(!_pred) {
-	local_pred = true;
-	_pred = Traits::createPredMap(*G);
+        local_pred = true;
+        _pred = Traits::createPredMap(*G);
       }
       if(!_dist) {
-	local_dist = true;
-	_dist = Traits::createDistMap(*G);
+        local_dist = true;
+        _dist = Traits::createDistMap(*G);
       }
       if(!_processed) {
-	local_processed = true;
-	_processed = Traits::createProcessedMap(*G);
+        local_processed = true;
+        _processed = Traits::createProcessedMap(*G);
       }
       if (!_heap_cross_ref) {
-	local_heap_cross_ref = true;
-	_heap_cross_ref = Traits::createHeapCrossRef(*G);
+        local_heap_cross_ref = true;
+        _heap_cross_ref = Traits::createHeapCrossRef(*G);
       }
       if (!_heap) {
-	local_heap = true;
-	_heap = Traits::createHeap(*_heap_cross_ref);
+        local_heap = true;
+        _heap = Traits::createHeap(*_heap_cross_ref);
       }
     }
-    
+
   public :
 
     typedef Dijkstra Create;
- 
+
     ///\name Named template parameters
 
     ///@{
@@ -327,7 +327,7 @@ namespace lemon {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &)
       {
-	throw UninitializedParameter();
+        throw UninitializedParameter();
       }
     };
     ///\ref named-templ-param "Named parameter" for setting PredMap type
@@ -335,17 +335,17 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting PredMap type
     ///
     template <class T>
-    struct DefPredMap 
-      : public Dijkstra< Digraph,	LengthMap, DefPredMapTraits<T> > {
-      typedef Dijkstra< Digraph,	LengthMap, DefPredMapTraits<T> > Create;
+    struct DefPredMap
+      : public Dijkstra< Digraph,        LengthMap, DefPredMapTraits<T> > {
+      typedef Dijkstra< Digraph,        LengthMap, DefPredMapTraits<T> > Create;
     };
-    
+
     template <class T>
     struct DefDistMapTraits : public Traits {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &)
       {
-	throw UninitializedParameter();
+        throw UninitializedParameter();
       }
     };
     ///\ref named-templ-param "Named parameter" for setting DistMap type
@@ -353,17 +353,17 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting DistMap type
     ///
     template <class T>
-    struct DefDistMap 
-      : public Dijkstra< Digraph, LengthMap, DefDistMapTraits<T> > { 
+    struct DefDistMap
+      : public Dijkstra< Digraph, LengthMap, DefDistMapTraits<T> > {
       typedef Dijkstra< Digraph, LengthMap, DefDistMapTraits<T> > Create;
     };
-    
+
     template <class T>
     struct DefProcessedMapTraits : public Traits {
       typedef T ProcessedMap;
-      static ProcessedMap *createProcessedMap(const Digraph &G) 
+      static ProcessedMap *createProcessedMap(const Digraph &G)
       {
-	throw UninitializedParameter();
+        throw UninitializedParameter();
       }
     };
     ///\ref named-templ-param "Named parameter" for setting ProcessedMap type
@@ -371,16 +371,16 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting ProcessedMap type
     ///
     template <class T>
-    struct DefProcessedMap 
-      : public Dijkstra< Digraph,	LengthMap, DefProcessedMapTraits<T> > { 
-      typedef Dijkstra< Digraph,	LengthMap, DefProcessedMapTraits<T> > Create;
+    struct DefProcessedMap
+      : public Dijkstra< Digraph,        LengthMap, DefProcessedMapTraits<T> > {
+      typedef Dijkstra< Digraph,        LengthMap, DefProcessedMapTraits<T> > Create;
     };
-    
+
     struct DefDigraphProcessedMapTraits : public Traits {
       typedef typename Digraph::template NodeMap<bool> ProcessedMap;
-      static ProcessedMap *createProcessedMap(const Digraph &G) 
+      static ProcessedMap *createProcessedMap(const Digraph &G)
       {
-	return new ProcessedMap(G);
+        return new ProcessedMap(G);
       }
     };
     ///\brief \ref named-templ-param "Named parameter"
@@ -390,7 +390,7 @@ namespace lemon {
     ///for setting the ProcessedMap type to be Digraph::NodeMap<bool>.
     ///If you don't set it explicitely, it will be automatically allocated.
     template <class T>
-    struct DefProcessedMapToBeDefaultMap 
+    struct DefProcessedMapToBeDefaultMap
       : public Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits> {
       typedef Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits> Create;
     };
@@ -400,23 +400,23 @@ namespace lemon {
       typedef CR HeapCrossRef;
       typedef H Heap;
       static HeapCrossRef *createHeapCrossRef(const Digraph &) {
-	throw UninitializedParameter();
+        throw UninitializedParameter();
       }
-      static Heap *createHeap(HeapCrossRef &) 
+      static Heap *createHeap(HeapCrossRef &)
       {
-	throw UninitializedParameter();
+        throw UninitializedParameter();
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
     ///heap and cross reference type
     ///
-    ///\ref named-templ-param "Named parameter" for setting heap and cross 
+    ///\ref named-templ-param "Named parameter" for setting heap and cross
     ///reference type
     ///
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct DefHeap
-      : public Dijkstra< Digraph,	LengthMap, DefHeapTraits<H, CR> > { 
-      typedef Dijkstra< Digraph,	LengthMap, DefHeapTraits<H, CR> > Create;
+      : public Dijkstra< Digraph,        LengthMap, DefHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph,        LengthMap, DefHeapTraits<H, CR> > Create;
     };
 
     template <class H, class CR>
@@ -424,24 +424,24 @@ namespace lemon {
       typedef CR HeapCrossRef;
       typedef H Heap;
       static HeapCrossRef *createHeapCrossRef(const Digraph &G) {
-	return new HeapCrossRef(G);
+        return new HeapCrossRef(G);
       }
-      static Heap *createHeap(HeapCrossRef &R) 
+      static Heap *createHeap(HeapCrossRef &R)
       {
-	return new Heap(R);
+        return new Heap(R);
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
     ///heap and cross reference type with automatic allocation
     ///
-    ///\ref named-templ-param "Named parameter" for setting heap and cross 
-    ///reference type. It can allocate the heap and the cross reference 
-    ///object if the cross reference's constructor waits for the digraph as 
+    ///\ref named-templ-param "Named parameter" for setting heap and cross
+    ///reference type. It can allocate the heap and the cross reference
+    ///object if the cross reference's constructor waits for the digraph as
     ///parameter and the heap's constructor waits for the cross reference.
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct DefStandardHeap
-      : public Dijkstra< Digraph,	LengthMap, DefStandardHeapTraits<H, CR> > { 
-      typedef Dijkstra< Digraph,	LengthMap, DefStandardHeapTraits<H, CR> > 
+      : public Dijkstra< Digraph,        LengthMap, DefStandardHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph,        LengthMap, DefStandardHeapTraits<H, CR> >
       Create;
     };
 
@@ -449,8 +449,8 @@ namespace lemon {
     struct DefOperationTraitsTraits : public Traits {
       typedef T OperationTraits;
     };
-    
-    /// \brief \ref named-templ-param "Named parameter" for setting 
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
     /// OperationTraits type
     ///
     /// \ref named-templ-param "Named parameter" for setting OperationTraits
@@ -461,7 +461,7 @@ namespace lemon {
       typedef Dijkstra<Digraph, LengthMap, DefOperationTraitsTraits<T> >
       Create;
     };
-    
+
     ///@}
 
 
@@ -469,10 +469,10 @@ namespace lemon {
 
     Dijkstra() {}
 
-  public:      
-    
+  public:
+
     ///Constructor.
-    
+
     ///\param _G the digraph the algorithm will run on.
     ///\param _length the length map used by the algorithm.
     Dijkstra(const Digraph& _G, const LengthMap& _length) :
@@ -483,9 +483,9 @@ namespace lemon {
       _heap_cross_ref(NULL), local_heap_cross_ref(false),
       _heap(NULL), local_heap(false)
     { }
-    
+
     ///Destructor.
-    ~Dijkstra() 
+    ~Dijkstra()
     {
       if(local_pred) delete _pred;
       if(local_dist) delete _dist;
@@ -498,7 +498,7 @@ namespace lemon {
 
     ///Sets the length map.
     ///\return <tt> (*this) </tt>
-    Dijkstra &lengthMap(const LengthMap &m) 
+    Dijkstra &lengthMap(const LengthMap &m)
     {
       length = &m;
       return *this;
@@ -511,11 +511,11 @@ namespace lemon {
     ///it will allocate one. The destuctor deallocates this
     ///automatically allocated map, of course.
     ///\return <tt> (*this) </tt>
-    Dijkstra &predMap(PredMap &m) 
+    Dijkstra &predMap(PredMap &m)
     {
       if(local_pred) {
-	delete _pred;
-	local_pred=false;
+        delete _pred;
+        local_pred=false;
       }
       _pred = &m;
       return *this;
@@ -528,11 +528,11 @@ namespace lemon {
     ///it will allocate one. The destuctor deallocates this
     ///automatically allocated map, of course.
     ///\return <tt> (*this) </tt>
-    Dijkstra &distMap(DistMap &m) 
+    Dijkstra &distMap(DistMap &m)
     {
       if(local_dist) {
-	delete _dist;
-	local_dist=false;
+        delete _dist;
+        local_dist=false;
       }
       _dist = &m;
       return *this;
@@ -548,13 +548,13 @@ namespace lemon {
     Dijkstra &heap(Heap& hp, HeapCrossRef &cr)
     {
       if(local_heap_cross_ref) {
-	delete _heap_cross_ref;
-	local_heap_cross_ref=false;
+        delete _heap_cross_ref;
+        local_heap_cross_ref=false;
       }
       _heap_cross_ref = &cr;
       if(local_heap) {
-	delete _heap;
-	local_heap=false;
+        delete _heap;
+        local_heap=false;
       }
       _heap = &hp;
       return *this;
@@ -592,12 +592,12 @@ namespace lemon {
       create_maps();
       _heap->clear();
       for ( NodeIt u(*G) ; u!=INVALID ; ++u ) {
-	_pred->set(u,INVALID);
-	_processed->set(u,false);
-	_heap_cross_ref->set(u,Heap::PRE_HEAP);
+        _pred->set(u,INVALID);
+        _processed->set(u,false);
+        _heap_cross_ref->set(u,Heap::PRE_HEAP);
       }
     }
-    
+
     ///Adds a new source node.
 
     ///Adds a new source node to the priority heap.
@@ -610,13 +610,13 @@ namespace lemon {
     void addSource(Node s,Value dst=OperationTraits::zero())
     {
       if(_heap->state(s) != Heap::IN_HEAP) {
-	_heap->push(s,dst);
+        _heap->push(s,dst);
       } else if(OperationTraits::less((*_heap)[s], dst)) {
-	_heap->set(s,dst);
-	_pred->set(s,INVALID);
+        _heap->set(s,dst);
+        _pred->set(s,INVALID);
       }
     }
-    
+
     ///Processes the next node in the priority heap
 
     ///Processes the next node in the priority heap.
@@ -626,45 +626,45 @@ namespace lemon {
     ///\warning The priority heap must not be empty!
     Node processNextNode()
     {
-      Node v=_heap->top(); 
+      Node v=_heap->top();
       Value oldvalue=_heap->prio();
       _heap->pop();
       finalizeNodeData(v,oldvalue);
-      
+
       for(OutArcIt e(*G,v); e!=INVALID; ++e) {
-	Node w=G->target(e); 
-	switch(_heap->state(w)) {
-	case Heap::PRE_HEAP:
-	  _heap->push(w,OperationTraits::plus(oldvalue, (*length)[e])); 
-	  _pred->set(w,e);
-	  break;
-	case Heap::IN_HEAP:
-	  {
-	    Value newvalue = OperationTraits::plus(oldvalue, (*length)[e]);
-	    if ( OperationTraits::less(newvalue, (*_heap)[w]) ) {
-	      _heap->decrease(w, newvalue); 
-	      _pred->set(w,e);
-	    }
-	  }
-	  break;
-	case Heap::POST_HEAP:
-	  break;
-	}
+        Node w=G->target(e);
+        switch(_heap->state(w)) {
+        case Heap::PRE_HEAP:
+          _heap->push(w,OperationTraits::plus(oldvalue, (*length)[e]));
+          _pred->set(w,e);
+          break;
+        case Heap::IN_HEAP:
+          {
+            Value newvalue = OperationTraits::plus(oldvalue, (*length)[e]);
+            if ( OperationTraits::less(newvalue, (*_heap)[w]) ) {
+              _heap->decrease(w, newvalue);
+              _pred->set(w,e);
+            }
+          }
+          break;
+        case Heap::POST_HEAP:
+          break;
+        }
       }
       return v;
     }
 
     ///Next node to be processed.
-    
+
     ///Next node to be processed.
     ///
     ///\return The next node to be processed or INVALID if the priority heap
     /// is empty.
     Node nextNode()
-    { 
+    {
       return !_heap->empty()?_heap->top():INVALID;
     }
- 
+
     ///\brief Returns \c false if there are nodes
     ///to be processed in the priority heap
     ///
@@ -676,7 +676,7 @@ namespace lemon {
     ///Returns the number of the nodes to be processed in the priority heap
     ///
     int queueSize() { return _heap->size(); }
-    
+
     ///Executes the algorithm.
 
     ///Executes the algorithm.
@@ -695,7 +695,7 @@ namespace lemon {
     {
       while ( !_heap->empty() ) processNextNode();
     }
-    
+
     ///Executes the algorithm until \c dest is reached.
 
     ///Executes the algorithm until \c dest is reached.
@@ -715,7 +715,7 @@ namespace lemon {
       while ( !_heap->empty() && _heap->top()!=dest ) processNextNode();
       if ( !_heap->empty() ) finalizeNodeData(_heap->top(),_heap->prio());
     }
-    
+
     ///Executes the algorithm until a condition is met.
 
     ///Executes the algorithm until a condition is met.
@@ -736,9 +736,9 @@ namespace lemon {
       finalizeNodeData(_heap->top(),_heap->prio());
       return _heap->top();
     }
-    
+
     ///Runs %Dijkstra algorithm from node \c s.
-    
+
     ///This method runs the %Dijkstra algorithm from a root node \c s
     ///in order to
     ///compute the
@@ -757,9 +757,9 @@ namespace lemon {
       addSource(s);
       start();
     }
-    
+
     ///Finds the shortest path between \c s and \c t.
-    
+
     ///Finds the shortest path between \c s and \c t.
     ///
     ///\return The length of the shortest s---t path if there exists one,
@@ -777,7 +777,7 @@ namespace lemon {
       start(t);
       return (*_pred)[t]==INVALID?OperationTraits::zero():(*_dist)[t];
     }
-    
+
     ///@}
 
     ///\name Query Functions
@@ -785,14 +785,14 @@ namespace lemon {
     ///functions.\n
     ///Before the use of these functions,
     ///either run() or start() must be called.
-    
+
     ///@{
 
     ///Gives back the shortest path.
-    
+
     ///Gives back the shortest path.
     ///\pre The \c t should be reachable from the source.
-    Path path(Node t) 
+    Path path(Node t)
     {
       return Path(*G, *_pred, t);
     }
@@ -832,21 +832,21 @@ namespace lemon {
     ///tree used in \ref predArc().  \pre \ref run() must be called before
     ///using this function.
     Node predNode(Node v) const { return (*_pred)[v]==INVALID ? INVALID:
-				  G->source((*_pred)[v]); }
-    
+                                  G->source((*_pred)[v]); }
+
     ///Returns a reference to the NodeMap of distances.
 
     ///Returns a reference to the NodeMap of distances. \pre \ref run() must
     ///be called before using this function.
     const DistMap &distMap() const { return *_dist;}
- 
+
     ///Returns a reference to the shortest path tree map.
 
     ///Returns a reference to the NodeMap of the arcs of the
     ///shortest path tree.
     ///\pre \ref run() must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
- 
+
     ///Checks if a node is reachable from the root.
 
     ///Returns \c true if \c v is reachable from the root.
@@ -862,14 +862,14 @@ namespace lemon {
     ///\pre \ref run() must be called before using this function.
     ///
     bool processed(Node v) { return (*_heap_cross_ref)[v] == Heap::POST_HEAP; }
-    
+
     ///@}
   };
 
 
 
 
- 
+
   ///Default traits class of Dijkstra function.
 
   ///Default traits class of Dijkstra function.
@@ -878,7 +878,7 @@ namespace lemon {
   template<class GR, class LM>
   struct DijkstraWizardDefaultTraits
   {
-    ///The digraph type the algorithm runs on. 
+    ///The digraph type the algorithm runs on.
     typedef GR Digraph;
     ///The type of the map that stores the arc lengths.
 
@@ -901,15 +901,15 @@ namespace lemon {
     typedef typename Digraph::template NodeMap<int> HeapCrossRef;
     ///Instantiates a HeapCrossRef.
 
-    ///This function instantiates a \ref HeapCrossRef. 
-    /// \param G is the digraph, to which we would like to define the 
+    ///This function instantiates a \ref HeapCrossRef.
+    /// \param G is the digraph, to which we would like to define the
     /// HeapCrossRef.
     /// \todo The digraph alone may be insufficient for the initialization
-    static HeapCrossRef *createHeapCrossRef(const GR &G) 
+    static HeapCrossRef *createHeapCrossRef(const GR &G)
     {
       return new HeapCrossRef(G);
     }
-    
+
     ///The heap type used by Dijkstra algorithm.
 
     ///The heap type used by Dijkstra algorithm.
@@ -917,36 +917,36 @@ namespace lemon {
     ///\sa BinHeap
     ///\sa Dijkstra
     typedef BinHeap<typename LM::Value, typename GR::template NodeMap<int>,
-		    std::less<Value> > Heap;
+                    std::less<Value> > Heap;
 
-    static Heap *createHeap(HeapCrossRef& R) 
+    static Heap *createHeap(HeapCrossRef& R)
     {
       return new Heap(R);
     }
 
     ///\brief The type of the map that stores the last
     ///arcs of the shortest paths.
-    /// 
+    ///
     ///The type of the map that stores the last
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///
     typedef NullMap <typename GR::Node,typename GR::Arc> PredMap;
     ///Instantiates a PredMap.
- 
-    ///This function instantiates a \ref PredMap. 
+
+    ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the PredMap.
     ///\todo The digraph alone may be insufficient for the initialization
 #ifdef DOXYGEN
-    static PredMap *createPredMap(const GR &g) 
+    static PredMap *createPredMap(const GR &g)
 #else
-    static PredMap *createPredMap(const GR &) 
+    static PredMap *createPredMap(const GR &)
 #endif
     {
       return new PredMap();
     }
     ///The type of the map that stores whether a nodes is processed.
- 
+
     ///The type of the map that stores whether a nodes is processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
@@ -955,8 +955,8 @@ namespace lemon {
     ///\todo named parameter to set this type, function to read and write.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
- 
-    ///This function instantiates a \ref ProcessedMap. 
+
+    ///This function instantiates a \ref ProcessedMap.
     ///\param g is the digraph, to which
     ///we would like to define the \ref ProcessedMap
 #ifdef DOXYGEN
@@ -968,14 +968,14 @@ namespace lemon {
       return new ProcessedMap();
     }
     ///The type of the map that stores the dists of the nodes.
- 
+
     ///The type of the map that stores the dists of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///
     typedef NullMap<typename Digraph::Node,typename LM::Value> DistMap;
     ///Instantiates a DistMap.
- 
-    ///This function instantiates a \ref DistMap. 
+
+    ///This function instantiates a \ref DistMap.
     ///\param g is the digraph, to which we would like to define the \ref DistMap
 #ifdef DOXYGEN
     static DistMap *createDistMap(const GR &g)
@@ -986,7 +986,7 @@ namespace lemon {
       return new DistMap();
     }
   };
-  
+
   /// Default traits used by \ref DijkstraWizard
 
   /// To make it easier to use Dijkstra algorithm
@@ -1018,14 +1018,14 @@ namespace lemon {
 
     public:
     /// Constructor.
-    
+
     /// This constructor does not require parameters, therefore it initiates
     /// all of the attributes to default values (0, INVALID).
     DijkstraWizardBase() : _g(0), _length(0), _pred(0),
-			   _dist(0), _source(INVALID) {}
+                           _dist(0), _source(INVALID) {}
 
     /// Constructor.
-    
+
     /// This constructor requires some parameters,
     /// listed in the parameters list.
     /// Others are initiated to 0.
@@ -1033,12 +1033,12 @@ namespace lemon {
     /// \param l is the initial value of  \ref _length
     /// \param s is the initial value of  \ref _source
     DijkstraWizardBase(const GR &g,const LM &l, Node s=INVALID) :
-      _g(reinterpret_cast<void*>(const_cast<GR*>(&g))), 
-      _length(reinterpret_cast<void*>(const_cast<LM*>(&l))), 
+      _g(reinterpret_cast<void*>(const_cast<GR*>(&g))),
+      _length(reinterpret_cast<void*>(const_cast<LM*>(&l))),
       _pred(0), _dist(0), _source(s) {}
 
   };
-  
+
   /// A class to make the usage of Dijkstra algorithm easier
 
   /// This class is created to make it easier to use Dijkstra algorithm.
@@ -1056,7 +1056,7 @@ namespace lemon {
   /// return the needed class.
   ///
   /// It does not have own \ref run method. When its \ref run method is called
-  /// it initiates a plain \ref Dijkstra class, and calls the \ref 
+  /// it initiates a plain \ref Dijkstra class, and calls the \ref
   /// Dijkstra::run method of it.
   template<class TR>
   class DijkstraWizard : public TR
@@ -1073,7 +1073,7 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     //\e
     typedef typename Digraph::OutArcIt OutArcIt;
-    
+
     ///The type of the map that stores the arc lengths.
     typedef typename TR::LengthMap LengthMap;
     ///The type of the length of the arcs.
@@ -1102,14 +1102,14 @@ namespace lemon {
     ~DijkstraWizard() {}
 
     ///Runs Dijkstra algorithm from a given node.
-    
+
     ///Runs Dijkstra algorithm from a given node.
     ///The node can be given by the \ref source function.
     void run()
     {
       if(Base::_source==INVALID) throw UninitializedParameter();
-      Dijkstra<Digraph,LengthMap,TR> 
-	dij(*reinterpret_cast<const Digraph*>(Base::_g),
+      Dijkstra<Digraph,LengthMap,TR>
+        dij(*reinterpret_cast<const Digraph*>(Base::_g),
             *reinterpret_cast<const LengthMap*>(Base::_length));
       if(Base::_pred) dij.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
       if(Base::_dist) dij.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
@@ -1132,7 +1132,7 @@ namespace lemon {
       static PredMap *createPredMap(const Digraph &) { return 0; };
       DefPredMapBase(const TR &b) : TR(b) {}
     };
-    
+
     ///\brief \ref named-templ-param "Named parameter"
     ///function for setting PredMap type
     ///
@@ -1140,19 +1140,19 @@ namespace lemon {
     ///function for setting PredMap type
     ///
     template<class T>
-    DijkstraWizard<DefPredMapBase<T> > predMap(const T &t) 
+    DijkstraWizard<DefPredMapBase<T> > predMap(const T &t)
     {
       Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
       return DijkstraWizard<DefPredMapBase<T> >(*this);
     }
-    
+
     template<class T>
     struct DefDistMapBase : public Base {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &) { return 0; };
       DefDistMapBase(const TR &b) : TR(b) {}
     };
-    
+
     ///\brief \ref named-templ-param "Named parameter"
     ///function for setting DistMap type
     ///
@@ -1160,24 +1160,24 @@ namespace lemon {
     ///function for setting DistMap type
     ///
     template<class T>
-    DijkstraWizard<DefDistMapBase<T> > distMap(const T &t) 
+    DijkstraWizard<DefDistMapBase<T> > distMap(const T &t)
     {
       Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
       return DijkstraWizard<DefDistMapBase<T> >(*this);
     }
-    
+
     /// Sets the source node, from which the Dijkstra algorithm runs.
 
     /// Sets the source node, from which the Dijkstra algorithm runs.
     /// \param s is the source node.
-    DijkstraWizard<TR> &source(Node s) 
+    DijkstraWizard<TR> &source(Node s)
     {
       Base::_source=s;
       return *this;
     }
-    
+
   };
-  
+
   ///Function type interface for Dijkstra algorithm.
 
   /// \ingroup shortest_path

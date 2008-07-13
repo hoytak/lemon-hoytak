@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -31,7 +31,7 @@ int main() {
   ListGraph::NodeMap<int> base(g);
   UFE U(base);
   vector<ListGraph::Node> n;
-  
+
   for(int i=0;i<20;i++) n.push_back(g.addNode());
 
   U.insert(n[1]);

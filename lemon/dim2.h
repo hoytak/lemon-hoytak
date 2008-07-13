@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -24,7 +24,7 @@
 
 ///\ingroup misc
 ///\file
-///\brief A simple two dimensional vector and a bounding box implementation 
+///\brief A simple two dimensional vector and a bounding box implementation
 ///
 /// The class \ref lemon::dim2::Point "dim2::Point" implements
 /// a two dimensional vector with the usual operations.
@@ -59,8 +59,8 @@ namespace lemon {
       ///First coordinate
       T x;
       ///Second coordinate
-      T y;     
-      
+      T y;
+
       ///Default constructor
       Point() {}
 
@@ -70,7 +70,7 @@ namespace lemon {
       ///Returns the dimension of the vector (i.e. returns 2).
 
       ///The dimension of the vector.
-      ///This function always returns 2. 
+      ///This function always returns 2.
       int size() const { return 2; }
 
       ///Subscripting operator
@@ -92,14 +92,14 @@ namespace lemon {
       T normSquare() const {
         return x*x+y*y;
       }
-  
+
       ///Increment the left hand side by \c u
       Point<T>& operator +=(const Point<T>& u) {
         x += u.x;
         y += u.y;
         return *this;
       }
-  
+
       ///Decrement the left hand side by \c u
       Point<T>& operator -=(const Point<T>& u) {
         x -= u.x;
@@ -120,12 +120,12 @@ namespace lemon {
         y /= u;
         return *this;
       }
-  
+
       ///Return the scalar product of two vectors
       T operator *(const Point<T>& u) const {
         return x*u.x+y*u.y;
       }
-  
+
       ///Return the sum of two vectors
       Point<T> operator+(const Point<T> &u) const {
         Point<T> b=*this;
@@ -169,7 +169,7 @@ namespace lemon {
 
     };
 
-  ///Return a Point 
+  ///Return a Point
 
   ///Return a Point.
   ///\relates Point
@@ -259,7 +259,7 @@ namespace lemon {
     return Point<T>(z.y,-z.x);
   }
 
-  
+
 
   /// A class to calculate or store the bounding box of plainvectors.
 
@@ -270,15 +270,15 @@ namespace lemon {
       Point<T> bottom_left, top_right;
       bool _empty;
     public:
-      
+
       ///Default constructor: creates an empty bounding box
       BoundingBox() { _empty = true; }
 
       ///Construct an instance from one point
       BoundingBox(Point<T> a) { bottom_left=top_right=a; _empty = false; }
-      
+
       ///Construct an instance from two points
-      
+
       ///Construct an instance from two points.
       ///\param a The bottom left corner.
       ///\param b The top right corner.
@@ -286,11 +286,11 @@ namespace lemon {
       ///than those of the top right one.
       BoundingBox(Point<T> a,Point<T> b)
       {
-	bottom_left=a;
-	top_right=b;
-	_empty = false;
+        bottom_left=a;
+        top_right=b;
+        _empty = false;
       }
-      
+
       ///Construct an instance from four numbers
 
       ///Construct an instance from four numbers.
@@ -299,25 +299,25 @@ namespace lemon {
       ///\param r The right side of the box.
       ///\param t The top of the box.
       ///\warning The left side must be no more than the right side and
-      ///bottom must be no more than the top. 
+      ///bottom must be no more than the top.
       BoundingBox(T l,T b,T r,T t)
       {
-	bottom_left=Point<T>(l,b);
-	top_right=Point<T>(r,t);
-	_empty = false;
+        bottom_left=Point<T>(l,b);
+        top_right=Point<T>(r,t);
+        _empty = false;
       }
-      
+
       ///Return \c true if the bounding box is empty.
-      
+
       ///Return \c true if the bounding box is empty (i.e. return \c false
       ///if at least one point was added to the box or the coordinates of
       ///the box were set).
       ///
-      ///The coordinates of an empty bounding box are not defined. 
+      ///The coordinates of an empty bounding box are not defined.
       bool empty() const {
         return _empty;
       }
-      
+
       ///Make the BoundingBox empty
       void clear() {
         _empty=1;
@@ -336,7 +336,7 @@ namespace lemon {
       ///Set the bottom left corner of the box.
       ///It should only be used for non-empty box.
       void bottomLeft(Point<T> p) {
-	bottom_left = p;
+        bottom_left = p;
       }
 
       ///Give back the top right corner of the box
@@ -352,7 +352,7 @@ namespace lemon {
       ///Set the top right corner of the box.
       ///It should only be used for non-empty box.
       void topRight(Point<T> p) {
-	top_right = p;
+        top_right = p;
       }
 
       ///Give back the bottom right corner of the box
@@ -368,10 +368,10 @@ namespace lemon {
       ///Set the bottom right corner of the box.
       ///It should only be used for non-empty box.
       void bottomRight(Point<T> p) {
-	top_right.x = p.x;
-	bottom_left.y = p.y;
+        top_right.x = p.x;
+        bottom_left.y = p.y;
       }
- 
+
       ///Give back the top left corner of the box
 
       ///Give back the top left corner of the box.
@@ -385,8 +385,8 @@ namespace lemon {
       ///Set the top left corner of the box.
       ///It should only be used for non-empty box.
       void topLeft(Point<T> p) {
-	top_right.y = p.y;
-	bottom_left.x = p.x;
+        top_right.y = p.y;
+        bottom_left.x = p.x;
       }
 
       ///Give back the bottom of the box
@@ -402,7 +402,7 @@ namespace lemon {
       ///Set the bottom of the box.
       ///It should only be used for non-empty box.
       void bottom(T t) {
-	bottom_left.y = t;
+        bottom_left.y = t;
       }
 
       ///Give back the top of the box
@@ -418,7 +418,7 @@ namespace lemon {
       ///Set the top of the box.
       ///It should only be used for non-empty box.
       void top(T t) {
-	top_right.y = t;
+        top_right.y = t;
       }
 
       ///Give back the left side of the box
@@ -428,13 +428,13 @@ namespace lemon {
       T left() const {
         return bottom_left.x;
       }
- 
+
       ///Set the left side of the box
 
       ///Set the left side of the box.
       ///It should only be used for non-empty box.
       void left(T t) {
-	bottom_left.x = t;
+        bottom_left.x = t;
       }
 
       /// Give back the right side of the box
@@ -450,7 +450,7 @@ namespace lemon {
       ///Set the right side of the box.
       ///It should only be used for non-empty box.
       void right(T t) {
-	top_right.x = t;
+        top_right.x = t;
       }
 
       ///Give back the height of the box
@@ -478,7 +478,7 @@ namespace lemon {
               (u.y-bottom_left.y)*(top_right.y-u.y) >= 0 );
         }
       }
-  
+
       ///Increments a bounding box with a point
 
       ///Increments a bounding box with a point.
@@ -496,19 +496,19 @@ namespace lemon {
         }
         return *this;
       }
-    
+
       ///Increments a bounding box to contain another bounding box
-      
+
       ///Increments a bounding box to contain another bounding box.
       ///
       BoundingBox& add(const BoundingBox &u){
         if ( !u.empty() ){
           this->add(u.bottomLeft());
-	  this->add(u.topRight());
+          this->add(u.topRight());
         }
         return *this;
       }
-  
+
       ///Intersection of two bounding boxes
 
       ///Intersection of two bounding boxes.
@@ -516,15 +516,15 @@ namespace lemon {
       BoundingBox operator&(const BoundingBox& u) const {
         BoundingBox b;
         if (this->_empty || u._empty) {
-	  b._empty = true;
-	} else {
-	  b.bottom_left.x = std::max(this->bottom_left.x,u.bottom_left.x);
-	  b.bottom_left.y = std::max(this->bottom_left.y,u.bottom_left.y);
-	  b.top_right.x = std::min(this->top_right.x,u.top_right.x);
-	  b.top_right.y = std::min(this->top_right.y,u.top_right.y);
-	  b._empty = b.bottom_left.x > b.top_right.x ||
-	             b.bottom_left.y > b.top_right.y;
-	} 
+          b._empty = true;
+        } else {
+          b.bottom_left.x = std::max(this->bottom_left.x,u.bottom_left.x);
+          b.bottom_left.y = std::max(this->bottom_left.y,u.bottom_left.y);
+          b.top_right.x = std::min(this->top_right.x,u.top_right.x);
+          b.top_right.y = std::min(this->top_right.y,u.top_right.y);
+          b._empty = b.bottom_left.x > b.top_right.x ||
+                     b.bottom_left.y > b.top_right.y;
+        }
         return b;
       }
 
@@ -537,7 +537,7 @@ namespace lemon {
   ///Map of x-coordinates of a \ref Point "Point"-map.
   ///
   template<class M>
-  class XMap 
+  class XMap
   {
     M& _map;
   public:
@@ -549,21 +549,21 @@ namespace lemon {
     Value operator[](Key k) const {return _map[k].x;}
     void set(Key k,Value v) {_map.set(k,typename M::Value(v,_map[k].y));}
   };
-    
+
   ///Returns an \ref XMap class
 
   ///This function just returns an \ref XMap class.
   ///
   ///\ingroup maps
   ///\relates XMap
-  template<class M> 
-  inline XMap<M> xMap(M &m) 
+  template<class M>
+  inline XMap<M> xMap(M &m)
   {
     return XMap<M>(m);
   }
 
-  template<class M> 
-  inline XMap<M> xMap(const M &m) 
+  template<class M>
+  inline XMap<M> xMap(const M &m)
   {
     return XMap<M>(m);
   }
@@ -574,7 +574,7 @@ namespace lemon {
   ///Constant (read only) version of \ref XMap
   ///
   template<class M>
-  class ConstXMap 
+  class ConstXMap
   {
     const M& _map;
   public:
@@ -585,26 +585,26 @@ namespace lemon {
     ConstXMap(const M &map) : _map(map) {}
     Value operator[](Key k) const {return _map[k].x;}
   };
-    
+
   ///Returns a \ref ConstXMap class
 
   ///This function just returns a \ref ConstXMap class.
   ///
   ///\ingroup maps
   ///\relates ConstXMap
-  template<class M> 
-  inline ConstXMap<M> xMap(const M &m) 
+  template<class M>
+  inline ConstXMap<M> xMap(const M &m)
   {
     return ConstXMap<M>(m);
   }
 
   ///Map of y-coordinates of a \ref Point "Point"-map
-    
+
   ///\ingroup maps
   ///Map of y-coordinates of a \ref Point "Point"-map.
   ///
   template<class M>
-  class YMap 
+  class YMap
   {
     M& _map;
   public:
@@ -623,14 +623,14 @@ namespace lemon {
   ///
   ///\ingroup maps
   ///\relates YMap
-  template<class M> 
-  inline YMap<M> yMap(M &m) 
+  template<class M>
+  inline YMap<M> yMap(M &m)
   {
     return YMap<M>(m);
   }
 
-  template<class M> 
-  inline YMap<M> yMap(const M &m) 
+  template<class M>
+  inline YMap<M> yMap(const M &m)
   {
     return YMap<M>(m);
   }
@@ -641,7 +641,7 @@ namespace lemon {
   ///Constant (read only) version of \ref YMap
   ///
   template<class M>
-  class ConstYMap 
+  class ConstYMap
   {
     const M& _map;
   public:
@@ -652,15 +652,15 @@ namespace lemon {
     ConstYMap(const M &map) : _map(map) {}
     Value operator[](Key k) const {return _map[k].y;}
   };
-    
+
   ///Returns a \ref ConstYMap class
 
   ///This function just returns a \ref ConstYMap class.
   ///
   ///\ingroup maps
   ///\relates ConstYMap
-  template<class M> 
-  inline ConstYMap<M> yMap(const M &m) 
+  template<class M>
+  inline ConstYMap<M> yMap(const M &m)
   {
     return ConstYMap<M>(m);
   }
@@ -673,7 +673,7 @@ namespace lemon {
   ///of a \ref Point "Point"-map.
   ///\ingroup maps
   template<class M>
-  class NormSquareMap 
+  class NormSquareMap
   {
     const M& _map;
   public:
@@ -684,15 +684,15 @@ namespace lemon {
     NormSquareMap(const M &map) : _map(map) {}
     Value operator[](Key k) const {return _map[k].normSquare();}
   };
-    
+
   ///Returns a \ref NormSquareMap class
 
   ///This function just returns a \ref NormSquareMap class.
   ///
   ///\ingroup maps
   ///\relates NormSquareMap
-  template<class M> 
-  inline NormSquareMap<M> normSquareMap(const M &m) 
+  template<class M>
+  inline NormSquareMap<M> normSquareMap(const M &m)
   {
     return NormSquareMap<M>(m);
   }
@@ -700,7 +700,7 @@ namespace lemon {
   /// @}
 
   } //namespce dim2
-  
+
 } //namespace lemon
 
 #endif //LEMON_DIM2_H

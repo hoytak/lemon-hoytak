@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -48,7 +48,7 @@ namespace lemon {
   ///\sa FibHeap
   ///\sa Dijkstra
   template <typename _Prio, typename _ItemIntMap,
-	    typename _Compare = std::less<_Prio> >
+            typename _Compare = std::less<_Prio> >
   class BinHeap {
 
   public:
@@ -90,7 +90,7 @@ namespace lemon {
     /// internally to handle the cross references. The value of the map
     /// should be PRE_HEAP (-1) for each element.
     explicit BinHeap(ItemIntMap &_iim) : iim(_iim) {}
-    
+
     /// \brief The constructor.
     ///
     /// The constructor.
@@ -99,7 +99,7 @@ namespace lemon {
     /// should be PRE_HEAP (-1) for each element.
     ///
     /// \param _comp The comparator function object.
-    BinHeap(ItemIntMap &_iim, const Compare &_comp) 
+    BinHeap(ItemIntMap &_iim, const Compare &_comp)
       : iim(_iim), comp(_comp) {}
 
 
@@ -107,20 +107,20 @@ namespace lemon {
     ///
     /// \brief Returns the number of items stored in the heap.
     int size() const { return data.size(); }
-    
+
     /// \brief Checks if the heap stores no items.
     ///
     /// Returns \c true if and only if the heap stores no items.
     bool empty() const { return data.empty(); }
 
     /// \brief Make empty this heap.
-    /// 
+    ///
     /// Make empty this heap. It does not change the cross reference map.
     /// If you want to reuse what is not surely empty you should first clear
     /// the heap and after that you should set the cross reference map for
     /// each item to \c PRE_HEAP.
-    void clear() { 
-      data.clear(); 
+    void clear() {
+      data.clear();
     }
 
   private:
@@ -134,9 +134,9 @@ namespace lemon {
     int bubble_up(int hole, Pair p) {
       int par = parent(hole);
       while( hole>0 && less(p,data[par]) ) {
-	move(data[par],hole);
-	hole = par;
-	par = parent(hole);
+        move(data[par],hole);
+        hole = par;
+        par = parent(hole);
       }
       move(p, hole);
       return hole;
@@ -145,19 +145,19 @@ namespace lemon {
     int bubble_down(int hole, Pair p, int length) {
       int child = second_child(hole);
       while(child < length) {
-	if( less(data[child-1], data[child]) ) {
-	  --child;
-	}
-	if( !less(data[child], p) )
-	  goto ok;
-	move(data[child], hole);
-	hole = child;
-	child = second_child(hole);
+        if( less(data[child-1], data[child]) ) {
+          --child;
+        }
+        if( !less(data[child], p) )
+          goto ok;
+        move(data[child], hole);
+        hole = child;
+        child = second_child(hole);
       }
       child--;
       if( child<length && less(data[child], p) ) {
-	move(data[child], hole);
-	hole=child;
+        move(data[child], hole);
+        hole=child;
       }
     ok:
       move(p, hole);
@@ -181,8 +181,8 @@ namespace lemon {
     }
 
     /// \brief Insert an item into the heap with the given heap.
-    ///    
-    /// Adds \c i to the heap with priority \c p. 
+    ///
+    /// Adds \c i to the heap with priority \c p.
     /// \param i The item to insert.
     /// \param p The priority of the item.
     void push(const Item &i, const Prio &p) { push(Pair(i,p)); }
@@ -190,8 +190,8 @@ namespace lemon {
     /// \brief Returns the item with minimum priority relative to \c Compare.
     ///
     /// This method returns the item with minimum priority relative to \c
-    /// Compare.  
-    /// \pre The heap must be nonempty.  
+    /// Compare.
+    /// \pre The heap must be nonempty.
     Item top() const {
       return data[0].first;
     }
@@ -207,13 +207,13 @@ namespace lemon {
     /// \brief Deletes the item with minimum priority relative to \c Compare.
     ///
     /// This method deletes the item with minimum priority relative to \c
-    /// Compare from the heap.  
-    /// \pre The heap must be non-empty.  
+    /// Compare from the heap.
+    /// \pre The heap must be non-empty.
     void pop() {
       int n = data.size()-1;
       iim.set(data[0].first, POST_HEAP);
       if (n > 0) {
-	bubble_down(0, data[n], n);
+        bubble_down(0, data[n], n);
       }
       data.pop_back();
     }
@@ -228,17 +228,17 @@ namespace lemon {
       int n = data.size()-1;
       iim.set(data[h].first, POST_HEAP);
       if( h < n ) {
-	if ( bubble_up(h, data[n]) == h) {
-	  bubble_down(h, data[n], n);
-	}
+        if ( bubble_up(h, data[n]) == h) {
+          bubble_down(h, data[n], n);
+        }
       }
       data.pop_back();
     }
 
-    
+
     /// \brief Returns the priority of \c i.
     ///
-    /// This function returns the priority of item \c i.  
+    /// This function returns the priority of item \c i.
     /// \pre \c i must be in the heap.
     /// \param i The item.
     Prio operator[](const Item &i) const {
@@ -246,7 +246,7 @@ namespace lemon {
       return data[idx].second;
     }
 
-    /// \brief \c i gets to the heap with priority \c p independently 
+    /// \brief \c i gets to the heap with priority \c p independently
     /// if \c i was already there.
     ///
     /// This method calls \ref push(\c i, \c p) if \c i is not stored
@@ -256,13 +256,13 @@ namespace lemon {
     void set(const Item &i, const Prio &p) {
       int idx = iim[i];
       if( idx < 0 ) {
-	push(i,p);
+        push(i,p);
       }
       else if( comp(p, data[idx].second) ) {
-	bubble_up(idx, Pair(i,p));
+        bubble_up(idx, Pair(i,p));
       }
       else {
-	bubble_down(idx, Pair(i,p), data.size());
+        bubble_down(idx, Pair(i,p), data.size());
       }
     }
 
@@ -277,10 +277,10 @@ namespace lemon {
       int idx = iim[i];
       bubble_up(idx, Pair(i,p));
     }
-    
+
     /// \brief Increases the priority of \c i to \c p.
     ///
-    /// This method sets the priority of item \c i to \c p. 
+    /// This method sets the priority of item \c i to \c p.
     /// \pre \c i must be stored in the heap with priority at most \c
     /// p relative to \c Compare.
     /// \param i The item.
@@ -290,7 +290,7 @@ namespace lemon {
       bubble_down(idx, Pair(i,p), data.size());
     }
 
-    /// \brief Returns if \c item is in, has already been in, or has 
+    /// \brief Returns if \c item is in, has already been in, or has
     /// never been in the heap.
     ///
     /// This method returns PRE_HEAP if \c item has never been in the
@@ -301,7 +301,7 @@ namespace lemon {
     State state(const Item &i) const {
       int s = iim[i];
       if( s>=0 )
-	s=0;
+        s=0;
       return State(s);
     }
 
@@ -311,7 +311,7 @@ namespace lemon {
     /// manually clear the heap when it is important to achive the
     /// better time complexity.
     /// \param i The item.
-    /// \param st The state. It should not be \c IN_HEAP. 
+    /// \param st The state. It should not be \c IN_HEAP.
     void state(const Item& i, State st) {
       switch (st) {
       case POST_HEAP:
@@ -340,7 +340,7 @@ namespace lemon {
     }
 
   }; // class BinHeap
-  
+
 } // namespace lemon
 
 #endif // LEMON_BIN_HEAP_H

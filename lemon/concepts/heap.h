@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -52,14 +52,14 @@ namespace lemon {
       /// from the point of view of the heap, but may be useful for
       /// the user.
       ///
-      /// The \c ItemIntMap must be initialized in such a way, that it 
+      /// The \c ItemIntMap must be initialized in such a way, that it
       /// assigns \c PRE_HEAP (<tt>-1</tt>) to every item.
       enum State {
-	IN_HEAP = 0,
-	PRE_HEAP = -1,
-	POST_HEAP = -2
+        IN_HEAP = 0,
+        PRE_HEAP = -1,
+        POST_HEAP = -2
       };
-      
+
       /// \brief The constructor.
       ///
       /// The constructor.
@@ -85,8 +85,8 @@ namespace lemon {
       void clear();
 
       /// \brief Inserts an item into the heap with the given priority.
-      ///    
-      /// Inserts the given item into the heap with the given priority. 
+      ///
+      /// Inserts the given item into the heap with the given priority.
       /// \param i The item to insert.
       /// \param p The priority of the item.
       void push(const Item &i, const Prio &p) {}
@@ -112,12 +112,12 @@ namespace lemon {
       /// \brief Removes an item from the heap.
       ///
       /// Removes the given item from the heap if it is already stored.
-      /// \param i The item to delete. 
+      /// \param i The item to delete.
       void erase(const Item &i) {}
 
       /// \brief The priority of an item.
       ///
-      /// Returns the priority of the given item.  
+      /// Returns the priority of the given item.
       /// \pre \c i must be in the heap.
       /// \param i The item.
       Prio operator[](const Item &i) const {}
@@ -133,7 +133,7 @@ namespace lemon {
       /// \param i The item.
       /// \param p The priority.
       void set(const Item &i, const Prio &p) {}
-      
+
       /// \brief Decreases the priority of an item to the given value.
       ///
       /// Decreases the priority of an item to the given value.
@@ -174,69 +174,69 @@ namespace lemon {
       template <typename _Heap>
       struct Constraints {
       public:
-	void constraints() {
-	  typedef typename _Heap::Item OwnItem;
-	  typedef typename _Heap::Prio OwnPrio;
-	  typedef typename _Heap::State OwnState;
+        void constraints() {
+          typedef typename _Heap::Item OwnItem;
+          typedef typename _Heap::Prio OwnPrio;
+          typedef typename _Heap::State OwnState;
 
-	  Item item;
-	  Prio prio;
-	  item=Item();
-	  prio=Prio();
-	  ignore_unused_variable_warning(item);
-	  ignore_unused_variable_warning(prio);
+          Item item;
+          Prio prio;
+          item=Item();
+          prio=Prio();
+          ignore_unused_variable_warning(item);
+          ignore_unused_variable_warning(prio);
 
-	  OwnItem own_item;
-	  OwnPrio own_prio;
-	  OwnState own_state;
-	  own_item=Item();
-	  own_prio=Prio();
-	  ignore_unused_variable_warning(own_item);
-	  ignore_unused_variable_warning(own_prio);
-	  ignore_unused_variable_warning(own_state);
+          OwnItem own_item;
+          OwnPrio own_prio;
+          OwnState own_state;
+          own_item=Item();
+          own_prio=Prio();
+          ignore_unused_variable_warning(own_item);
+          ignore_unused_variable_warning(own_prio);
+          ignore_unused_variable_warning(own_state);
 
-	  _Heap heap1(map);
-	  _Heap heap2 = heap1;
-	  ignore_unused_variable_warning(heap1);
-	  ignore_unused_variable_warning(heap2);
-	  
-	  int s = heap.size();
-	  ignore_unused_variable_warning(s);
-	  bool e = heap.empty();
-	  ignore_unused_variable_warning(e);
+          _Heap heap1(map);
+          _Heap heap2 = heap1;
+          ignore_unused_variable_warning(heap1);
+          ignore_unused_variable_warning(heap2);
 
-	  prio = heap.prio();
-	  item = heap.top();
-	  prio = heap[item];
-	  own_prio = heap.prio();
-	  own_item = heap.top();
-	  own_prio = heap[own_item];
+          int s = heap.size();
+          ignore_unused_variable_warning(s);
+          bool e = heap.empty();
+          ignore_unused_variable_warning(e);
 
-	  heap.push(item, prio);
-	  heap.push(own_item, own_prio);
-	  heap.pop();
+          prio = heap.prio();
+          item = heap.top();
+          prio = heap[item];
+          own_prio = heap.prio();
+          own_item = heap.top();
+          own_prio = heap[own_item];
 
-	  heap.set(item, prio);
-	  heap.decrease(item, prio);
-	  heap.increase(item, prio);
-	  heap.set(own_item, own_prio);
-	  heap.decrease(own_item, own_prio);
-	  heap.increase(own_item, own_prio);
+          heap.push(item, prio);
+          heap.push(own_item, own_prio);
+          heap.pop();
 
-	  heap.erase(item);
-	  heap.erase(own_item);
-	  heap.clear();
+          heap.set(item, prio);
+          heap.decrease(item, prio);
+          heap.increase(item, prio);
+          heap.set(own_item, own_prio);
+          heap.decrease(own_item, own_prio);
+          heap.increase(own_item, own_prio);
 
-	  own_state = heap.state(own_item);
-	  heap.state(own_item, own_state);
+          heap.erase(item);
+          heap.erase(own_item);
+          heap.clear();
 
-	  own_state = _Heap::PRE_HEAP;
-	  own_state = _Heap::IN_HEAP;
-	  own_state = _Heap::POST_HEAP;
-	}
+          own_state = heap.state(own_item);
+          heap.state(own_item, own_state);
 
-	_Heap& heap;
-	ItemIntMap& map;
+          own_state = _Heap::PRE_HEAP;
+          own_state = _Heap::IN_HEAP;
+          own_state = _Heap::POST_HEAP;
+        }
+
+        _Heap& heap;
+        ItemIntMap& map;
       };
     };
 

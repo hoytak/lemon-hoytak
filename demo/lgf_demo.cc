@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -21,7 +21,7 @@
 ///\brief Demonstrating graph input and output
 ///
 /// This program gives an example of how to read and write a digraph
-/// and additional maps from/to a stream or a file using the 
+/// and additional maps from/to a stream or a file using the
 /// \ref lgf-format "LGF" format.
 ///
 /// The \c "digraph.lgf" file:
@@ -42,7 +42,7 @@ int main() {
   SmartDigraph g;
   SmartDigraph::ArcMap<int> cap(g);
   SmartDigraph::Node s, t;
-  
+
   try {
     digraphReader("digraph.lgf", g). // read the directed graph into g
       arcMap("capacity", cap).       // read the 'capacity' arc map into cap

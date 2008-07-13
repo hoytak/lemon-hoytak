@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -38,10 +38,10 @@ namespace lemon {
   ///
   /// \brief A \e Union-Find data structure implementation
   ///
-  /// The class implements the \e Union-Find data structure. 
+  /// The class implements the \e Union-Find data structure.
   /// The union operation uses rank heuristic, while
   /// the find operation uses path compression.
-  /// This is a very simple but efficient implementation, providing 
+  /// This is a very simple but efficient implementation, providing
   /// only four methods: join (union), find, insert and size.
   /// For more features see the \ref UnionFindEnum class.
   ///
@@ -50,7 +50,7 @@ namespace lemon {
   /// \sa kruskal()
   ///
   /// \pre You need to add all the elements by the \ref insert()
-  /// method.  
+  /// method.
   template <typename _ItemIntMap>
   class UnionFind {
   public:
@@ -111,7 +111,7 @@ namespace lemon {
 
     /// \brief Inserts a new element into the structure.
     ///
-    /// This method inserts a new element into the data structure. 
+    /// This method inserts a new element into the data structure.
     ///
     /// The method returns the index of the new component.
     int insert(const Item& a) {
@@ -123,7 +123,7 @@ namespace lemon {
 
     /// \brief Joining the components of element \e a and element \e b.
     ///
-    /// This is the \e union operation of the Union-Find structure. 
+    /// This is the \e union operation of the Union-Find structure.
     /// Joins the component of element \e a and component of
     /// element \e b. If \e a and \e b are in the same component then
     /// it returns false otherwise it returns true.
@@ -131,15 +131,15 @@ namespace lemon {
       int ka = repIndex(index[a]);
       int kb = repIndex(index[b]);
 
-      if ( ka == kb ) 
-	return false;
+      if ( ka == kb )
+        return false;
 
       if (items[ka] < items[kb]) {
-	items[ka] += items[kb];
-	items[kb] = ka;
+        items[ka] += items[kb];
+        items[kb] = ka;
       } else {
-	items[kb] += items[ka];
-	items[ka] = kb;
+        items[kb] += items[ka];
+        items[ka] = kb;
       }
       return true;
     }
@@ -173,12 +173,12 @@ namespace lemon {
   template <typename _ItemIntMap>
   class UnionFindEnum {
   public:
-    
+
     typedef _ItemIntMap ItemIntMap;
     typedef typename ItemIntMap::Key Item;
 
   private:
-    
+
     ItemIntMap& index;
 
     // If the parent stores negative value for an item then that item
@@ -202,31 +202,31 @@ namespace lemon {
       int firstItem;
       int next, prev;
     };
-    
+
     std::vector<ClassT> classes;
     int firstClass, firstFreeClass;
 
     int newClass() {
       if (firstFreeClass == -1) {
-	int cdx = classes.size();
-	classes.push_back(ClassT());
-	return cdx;
+        int cdx = classes.size();
+        classes.push_back(ClassT());
+        return cdx;
       } else {
-	int cdx = firstFreeClass;
-	firstFreeClass = classes[firstFreeClass].next;
-	return cdx;
+        int cdx = firstFreeClass;
+        firstFreeClass = classes[firstFreeClass].next;
+        return cdx;
       }
     }
 
     int newItem() {
       if (firstFreeItem == -1) {
-	int idx = items.size();
-	items.push_back(ItemT());
-	return idx;
+        int idx = items.size();
+        items.push_back(ItemT());
+        return idx;
       } else {
-	int idx = firstFreeItem;
-	firstFreeItem = items[firstFreeItem].next;
-	return idx;
+        int idx = firstFreeItem;
+        firstFreeItem = items[firstFreeItem].next;
+        return idx;
       }
     }
 
@@ -267,7 +267,7 @@ namespace lemon {
     void unlaceItem(int idx) {
       items[items[idx].prev].next = items[idx].next;
       items[items[idx].next].prev = items[idx].prev;
-      
+
       items[idx].next = firstFreeItem;
       firstFreeItem = idx;
     }
@@ -278,7 +278,7 @@ namespace lemon {
       int tmp = items[ak].prev;
       items[ak].prev = items[bk].prev;
       items[bk].prev = tmp;
-        
+
     }
 
     void laceClass(int cls) {
@@ -288,7 +288,7 @@ namespace lemon {
       classes[cls].next = firstClass;
       classes[cls].prev = -1;
       firstClass = cls;
-    } 
+    }
 
     void unlaceClass(int cls) {
       if (classes[cls].prev != -1) {
@@ -299,17 +299,17 @@ namespace lemon {
       if (classes[cls].next != -1) {
         classes[classes[cls].next].prev = classes[cls].prev;
       }
-      
+
       classes[cls].next = firstFreeClass;
       firstFreeClass = cls;
-    } 
+    }
 
   public:
 
-    UnionFindEnum(ItemIntMap& _index) 
-      : index(_index), items(), firstFreeItem(-1), 
-	firstClass(-1), firstFreeClass(-1) {}
-    
+    UnionFindEnum(ItemIntMap& _index)
+      : index(_index), items(), firstFreeItem(-1),
+        firstClass(-1), firstFreeClass(-1) {}
+
     /// \brief Inserts the given element into a new component.
     ///
     /// This method creates a new component consisting only of the
@@ -332,14 +332,14 @@ namespace lemon {
       classes[cdx].firstItem = idx;
 
       firstClass = cdx;
-      
+
       return cdx;
     }
 
     /// \brief Inserts the given element into the component of the others.
     ///
     /// This methods inserts the element \e a into the component of the
-    /// element \e comp. 
+    /// element \e comp.
     void insert(const Item& item, int cls) {
       int rdx = classes[cls].firstItem;
       int idx = newItem();
@@ -372,7 +372,7 @@ namespace lemon {
 
     /// \brief Joining the component of element \e a and element \e b.
     ///
-    /// This is the \e union operation of the Union-Find structure. 
+    /// This is the \e union operation of the Union-Find structure.
     /// Joins the component of element \e a and component of
     /// element \e b. If \e a and \e b are in the same component then
     /// returns -1 else returns the remaining class.
@@ -382,7 +382,7 @@ namespace lemon {
       int bk = repIndex(index[b]);
 
       if (ak == bk) {
-	return -1;
+        return -1;
       }
 
       int acx = ~(items[ak].parent);
@@ -391,15 +391,15 @@ namespace lemon {
       int rcx;
 
       if (classes[acx].size > classes[bcx].size) {
-	classes[acx].size += classes[bcx].size;
-	items[bk].parent = ak;
+        classes[acx].size += classes[bcx].size;
+        items[bk].parent = ak;
         unlaceClass(bcx);
-	rcx = acx;
+        rcx = acx;
       } else {
-	classes[bcx].size += classes[acx].size;
-	items[ak].parent = bk;
+        classes[bcx].size += classes[acx].size;
+        items[ak].parent = bk;
         unlaceClass(acx);
-	rcx = bcx;
+        rcx = bcx;
       }
       spliceItems(ak, bk);
 
@@ -413,7 +413,7 @@ namespace lemon {
       return classes[cls].size;
     }
 
-    /// \brief Splits up the component. 
+    /// \brief Splits up the component.
     ///
     /// Splitting the component into singleton components (component
     /// of size one).
@@ -423,15 +423,15 @@ namespace lemon {
       while (idx != fdx) {
         int next = items[idx].next;
 
-	singletonItem(idx);
+        singletonItem(idx);
 
-	int cdx = newClass();        
+        int cdx = newClass();
         items[idx].parent = ~cdx;
 
-	laceClass(cdx);
-	classes[cdx].size = 1;
-	classes[cdx].firstItem = idx;
-        
+        laceClass(cdx);
+        classes[cdx].size = 1;
+        classes[cdx].firstItem = idx;
+
         idx = next;
       }
 
@@ -439,7 +439,7 @@ namespace lemon {
       items[idx].next = idx;
 
       classes[~(items[idx].parent)].size = 1;
-      
+
     }
 
     /// \brief Removes the given element from the structure.
@@ -457,22 +457,22 @@ namespace lemon {
 
       int cdx = classIndex(idx);
       if (idx == fdx) {
-	unlaceClass(cdx);
-	items[idx].next = firstFreeItem;
-	firstFreeItem = idx;
-	return;
+        unlaceClass(cdx);
+        items[idx].next = firstFreeItem;
+        firstFreeItem = idx;
+        return;
       } else {
-	classes[cdx].firstItem = fdx;
-	--classes[cdx].size;
-	items[fdx].parent = ~cdx;
+        classes[cdx].firstItem = fdx;
+        --classes[cdx].size;
+        items[fdx].parent = ~cdx;
 
-	unlaceItem(idx);
-	idx = items[fdx].next;
-	while (idx != fdx) {
-	  items[idx].parent = fdx;
-	  idx = items[idx].next;
-	}
-          
+        unlaceItem(idx);
+        idx = items[fdx].next;
+        while (idx != fdx) {
+          items[idx].parent = fdx;
+          idx = items[idx].next;
+        }
+
       }
 
     }
@@ -514,7 +514,7 @@ namespace lemon {
       ///
       /// Constructor to get invalid iterator
       ClassIt(Invalid) : unionFind(0), cdx(-1) {}
-      
+
       /// \brief Increment operator
       ///
       /// It steps to the next representant item.
@@ -522,7 +522,7 @@ namespace lemon {
         cdx = unionFind->classes[cdx].next;
         return *this;
       }
-      
+
       /// \brief Conversion operator
       ///
       /// It converts the iterator to the current representant item.
@@ -533,17 +533,17 @@ namespace lemon {
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ClassIt& i) { 
+      bool operator==(const ClassIt& i) {
         return i.cdx == cdx;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ClassIt& i) { 
+      bool operator!=(const ClassIt& i) {
         return i.cdx != cdx;
       }
-      
+
     private:
       const UnionFindEnum* unionFind;
       int cdx;
@@ -577,7 +577,7 @@ namespace lemon {
       ///
       /// Constructor to get invalid iterator
       ItemIt(Invalid) : unionFind(0), idx(-1) {}
-      
+
       /// \brief Increment operator
       ///
       /// It steps to the next item in the class.
@@ -586,7 +586,7 @@ namespace lemon {
         if (idx == fdx) idx = -1;
         return *this;
       }
-      
+
       /// \brief Conversion operator
       ///
       /// It converts the iterator to the current item.
@@ -597,17 +597,17 @@ namespace lemon {
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ItemIt& i) { 
+      bool operator==(const ItemIt& i) {
         return i.idx == idx;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ItemIt& i) { 
+      bool operator!=(const ItemIt& i) {
         return i.idx != idx;
       }
-      
+
     private:
       const UnionFindEnum* unionFind;
       int idx, fdx;
@@ -630,12 +630,12 @@ namespace lemon {
   template <typename _ItemIntMap>
   class ExtendFindEnum {
   public:
-    
+
     typedef _ItemIntMap ItemIntMap;
     typedef typename ItemIntMap::Key Item;
 
   private:
-    
+
     ItemIntMap& index;
 
     struct ItemT {
@@ -658,33 +658,33 @@ namespace lemon {
 
     int newClass() {
       if (firstFreeClass != -1) {
-	int cdx = firstFreeClass;
-	firstFreeClass = classes[cdx].next;
-	return cdx;
+        int cdx = firstFreeClass;
+        firstFreeClass = classes[cdx].next;
+        return cdx;
       } else {
-	classes.push_back(ClassT());
-	return classes.size() - 1;
+        classes.push_back(ClassT());
+        return classes.size() - 1;
       }
     }
 
     int newItem() {
       if (firstFreeItem != -1) {
-	int idx = firstFreeItem;
-	firstFreeItem = items[idx].next;
-	return idx;
+        int idx = firstFreeItem;
+        firstFreeItem = items[idx].next;
+        return idx;
       } else {
-	items.push_back(ItemT());
-	return items.size() - 1;
+        items.push_back(ItemT());
+        return items.size() - 1;
       }
     }
 
   public:
 
     /// \brief Constructor
-    ExtendFindEnum(ItemIntMap& _index) 
-      : index(_index), items(), firstFreeItem(-1), 
-	classes(), firstClass(-1), firstFreeClass(-1) {}
-    
+    ExtendFindEnum(ItemIntMap& _index)
+      : index(_index), items(), firstFreeItem(-1),
+        classes(), firstClass(-1), firstFreeClass(-1) {}
+
     /// \brief Inserts the given element into a new component.
     ///
     /// This method creates a new component consisting only of the
@@ -694,10 +694,10 @@ namespace lemon {
       classes[cdx].prev = -1;
       classes[cdx].next = firstClass;
       if (firstClass != -1) {
-	classes[firstClass].prev = cdx;
+        classes[firstClass].prev = cdx;
       }
       firstClass = cdx;
-      
+
       int idx = newItem();
       items[idx].item = item;
       items[idx].cls = cdx;
@@ -707,7 +707,7 @@ namespace lemon {
       classes[cdx].firstItem = idx;
 
       index.set(item, idx);
-      
+
       return cdx;
     }
 
@@ -750,7 +750,7 @@ namespace lemon {
     Item item(int cls) const {
       return items[classes[cls].firstItem].item;
     }
-    
+
     /// \brief Removes the given element from the structure.
     ///
     /// Removes the element from its component and if the component becomes
@@ -761,29 +761,29 @@ namespace lemon {
     void erase(const Item &item) {
       int idx = index[item];
       int cdx = items[idx].cls;
-      
+
       if (idx == items[idx].next) {
-	if (classes[cdx].prev != -1) {
-	  classes[classes[cdx].prev].next = classes[cdx].next; 
-	} else {
-	  firstClass = classes[cdx].next;
-	}
-	if (classes[cdx].next != -1) {
-	  classes[classes[cdx].next].prev = classes[cdx].prev; 
-	}
-	classes[cdx].next = firstFreeClass;
-	firstFreeClass = cdx;
+        if (classes[cdx].prev != -1) {
+          classes[classes[cdx].prev].next = classes[cdx].next;
+        } else {
+          firstClass = classes[cdx].next;
+        }
+        if (classes[cdx].next != -1) {
+          classes[classes[cdx].next].prev = classes[cdx].prev;
+        }
+        classes[cdx].next = firstFreeClass;
+        firstFreeClass = cdx;
       } else {
-	classes[cdx].firstItem = items[idx].next;
-	items[items[idx].next].prev = items[idx].prev;
-	items[items[idx].prev].next = items[idx].next;
+        classes[cdx].firstItem = items[idx].next;
+        items[items[idx].next].prev = items[idx].prev;
+        items[items[idx].prev].next = items[idx].next;
       }
       items[idx].next = firstFreeItem;
       firstFreeItem = idx;
-	
-    }    
 
-    
+    }
+
+
     /// \brief Removes the component of the given element from the structure.
     ///
     /// Removes the component of the given element from the structure.
@@ -796,12 +796,12 @@ namespace lemon {
       firstFreeItem = idx;
 
       if (classes[cdx].prev != -1) {
-	classes[classes[cdx].prev].next = classes[cdx].next; 
+        classes[classes[cdx].prev].next = classes[cdx].next;
       } else {
-	firstClass = classes[cdx].next;
+        firstClass = classes[cdx].next;
       }
       if (classes[cdx].next != -1) {
-	classes[classes[cdx].next].prev = classes[cdx].prev; 
+        classes[classes[cdx].next].prev = classes[cdx].prev;
       }
       classes[cdx].next = firstFreeClass;
       firstFreeClass = cdx;
@@ -824,7 +824,7 @@ namespace lemon {
       ///
       /// Constructor to get invalid iterator
       ClassIt(Invalid) : extendFind(0), cdx(-1) {}
-      
+
       /// \brief Increment operator
       ///
       /// It steps to the next representant item.
@@ -832,7 +832,7 @@ namespace lemon {
         cdx = extendFind->classes[cdx].next;
         return *this;
       }
-      
+
       /// \brief Conversion operator
       ///
       /// It converts the iterator to the current class id.
@@ -843,17 +843,17 @@ namespace lemon {
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ClassIt& i) { 
+      bool operator==(const ClassIt& i) {
         return i.cdx == cdx;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ClassIt& i) { 
+      bool operator!=(const ClassIt& i) {
         return i.cdx != cdx;
       }
-      
+
     private:
       const ExtendFindEnum* extendFind;
       int cdx;
@@ -887,16 +887,16 @@ namespace lemon {
       ///
       /// Constructor to get invalid iterator
       ItemIt(Invalid) : extendFind(0), idx(-1) {}
-      
+
       /// \brief Increment operator
       ///
       /// It steps to the next item in the class.
       ItemIt& operator++() {
         idx = extendFind->items[idx].next;
-	if (fdx == idx) idx = -1;
+        if (fdx == idx) idx = -1;
         return *this;
       }
-      
+
       /// \brief Conversion operator
       ///
       /// It converts the iterator to the current item.
@@ -907,17 +907,17 @@ namespace lemon {
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ItemIt& i) { 
+      bool operator==(const ItemIt& i) {
         return i.idx == idx;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ItemIt& i) { 
+      bool operator!=(const ItemIt& i) {
         return i.idx != idx;
       }
-      
+
     private:
       const ExtendFindEnum* extendFind;
       int idx, fdx;
@@ -949,11 +949,11 @@ namespace lemon {
   /// \pre You need to add all the elements by the \ref insert()
   /// method.
   ///
-  template <typename _Value, typename _ItemIntMap, 
+  template <typename _Value, typename _ItemIntMap,
             typename _Comp = std::less<_Value> >
   class HeapUnionFind {
   public:
-    
+
     typedef _Value Value;
     typedef typename _ItemIntMap::Key Item;
 
@@ -1054,7 +1054,7 @@ namespace lemon {
       }
       id = nodes[id].next;
       while (depth--) {
-        id = nodes[id].left;      
+        id = nodes[id].left;
       }
       return id;
     }
@@ -1132,7 +1132,7 @@ namespace lemon {
       int kd = nodes[id].parent;
       nodes[kd].right = nodes[id].prev;
       nodes[nodes[id].prev].next = -1;
-      
+
       nodes[jd].left = id;
       nodes[id].prev = -1;
       int num = 0;
@@ -1141,7 +1141,7 @@ namespace lemon {
         nodes[jd].right = id;
         id = nodes[id].next;
         ++num;
-      }      
+      }
       nodes[kd].size -= num;
       nodes[jd].size = num;
     }
@@ -1165,84 +1165,84 @@ namespace lemon {
     void repairLeft(int id) {
       int jd = ~(classes[id].parent);
       while (nodes[jd].left != -1) {
-	int kd = nodes[jd].left;
-	if (nodes[jd].size == 1) {
-	  if (nodes[jd].parent < 0) {
-	    classes[id].parent = ~kd;
-	    classes[id].depth -= 1;
-	    nodes[kd].parent = ~id;
-	    deleteNode(jd);
-	    jd = kd;
-	  } else {
-	    int pd = nodes[jd].parent;
-	    if (nodes[nodes[jd].next].size < cmax) {
-	      pushLeft(nodes[jd].next, nodes[jd].left);
-	      if (less(nodes[jd].left, nodes[jd].next)) {
-		nodes[nodes[jd].next].prio = nodes[nodes[jd].left].prio;
-		nodes[nodes[jd].next].item = nodes[nodes[jd].left].item;
-	      } 
-	      popLeft(pd);
-	      deleteNode(jd);
-	      jd = pd;
-	    } else {
-	      int ld = nodes[nodes[jd].next].left;
-	      popLeft(nodes[jd].next);
-	      pushRight(jd, ld);
-	      if (less(ld, nodes[jd].left)) {
-		nodes[jd].item = nodes[ld].item;
-		nodes[jd].prio = nodes[jd].prio;
-	      }
-	      if (nodes[nodes[jd].next].item == nodes[ld].item) {
-		setPrio(nodes[jd].next);
-	      }
-	      jd = nodes[jd].left;
-	    }
-	  }
-	} else {
-	  jd = nodes[jd].left;
-	}
+        int kd = nodes[jd].left;
+        if (nodes[jd].size == 1) {
+          if (nodes[jd].parent < 0) {
+            classes[id].parent = ~kd;
+            classes[id].depth -= 1;
+            nodes[kd].parent = ~id;
+            deleteNode(jd);
+            jd = kd;
+          } else {
+            int pd = nodes[jd].parent;
+            if (nodes[nodes[jd].next].size < cmax) {
+              pushLeft(nodes[jd].next, nodes[jd].left);
+              if (less(nodes[jd].left, nodes[jd].next)) {
+                nodes[nodes[jd].next].prio = nodes[nodes[jd].left].prio;
+                nodes[nodes[jd].next].item = nodes[nodes[jd].left].item;
+              }
+              popLeft(pd);
+              deleteNode(jd);
+              jd = pd;
+            } else {
+              int ld = nodes[nodes[jd].next].left;
+              popLeft(nodes[jd].next);
+              pushRight(jd, ld);
+              if (less(ld, nodes[jd].left)) {
+                nodes[jd].item = nodes[ld].item;
+                nodes[jd].prio = nodes[jd].prio;
+              }
+              if (nodes[nodes[jd].next].item == nodes[ld].item) {
+                setPrio(nodes[jd].next);
+              }
+              jd = nodes[jd].left;
+            }
+          }
+        } else {
+          jd = nodes[jd].left;
+        }
       }
-    }    
+    }
 
     void repairRight(int id) {
       int jd = ~(classes[id].parent);
       while (nodes[jd].right != -1) {
-	int kd = nodes[jd].right;
-	if (nodes[jd].size == 1) {
-	  if (nodes[jd].parent < 0) {
-	    classes[id].parent = ~kd;
-	    classes[id].depth -= 1;
-	    nodes[kd].parent = ~id;
-	    deleteNode(jd);
-	    jd = kd;
-	  } else {
-	    int pd = nodes[jd].parent;
-	    if (nodes[nodes[jd].prev].size < cmax) {
-	      pushRight(nodes[jd].prev, nodes[jd].right);
-	      if (less(nodes[jd].right, nodes[jd].prev)) {
-		nodes[nodes[jd].prev].prio = nodes[nodes[jd].right].prio;
-		nodes[nodes[jd].prev].item = nodes[nodes[jd].right].item;
-	      } 
-	      popRight(pd);
-	      deleteNode(jd);
-	      jd = pd;
-	    } else {
-	      int ld = nodes[nodes[jd].prev].right;
-	      popRight(nodes[jd].prev);
-	      pushLeft(jd, ld);
-	      if (less(ld, nodes[jd].right)) {
-		nodes[jd].item = nodes[ld].item;
-		nodes[jd].prio = nodes[jd].prio;
-	      }
-	      if (nodes[nodes[jd].prev].item == nodes[ld].item) {
-		setPrio(nodes[jd].prev);
-	      }
-	      jd = nodes[jd].right;
-	    }
-	  }
-	} else {
-	  jd = nodes[jd].right;
-	}
+        int kd = nodes[jd].right;
+        if (nodes[jd].size == 1) {
+          if (nodes[jd].parent < 0) {
+            classes[id].parent = ~kd;
+            classes[id].depth -= 1;
+            nodes[kd].parent = ~id;
+            deleteNode(jd);
+            jd = kd;
+          } else {
+            int pd = nodes[jd].parent;
+            if (nodes[nodes[jd].prev].size < cmax) {
+              pushRight(nodes[jd].prev, nodes[jd].right);
+              if (less(nodes[jd].right, nodes[jd].prev)) {
+                nodes[nodes[jd].prev].prio = nodes[nodes[jd].right].prio;
+                nodes[nodes[jd].prev].item = nodes[nodes[jd].right].item;
+              }
+              popRight(pd);
+              deleteNode(jd);
+              jd = pd;
+            } else {
+              int ld = nodes[nodes[jd].prev].right;
+              popRight(nodes[jd].prev);
+              pushLeft(jd, ld);
+              if (less(ld, nodes[jd].right)) {
+                nodes[jd].item = nodes[ld].item;
+                nodes[jd].prio = nodes[jd].prio;
+              }
+              if (nodes[nodes[jd].prev].item == nodes[ld].item) {
+                setPrio(nodes[jd].prev);
+              }
+              jd = nodes[jd].right;
+            }
+          }
+        } else {
+          jd = nodes[jd].right;
+        }
       }
     }
 
@@ -1276,12 +1276,12 @@ namespace lemon {
 
     /// \brief Constructs the union-find.
     ///
-    /// Constructs the union-find.  
+    /// Constructs the union-find.
     /// \brief _index The index map of the union-find. The data
     /// structure uses internally for store references.
-    HeapUnionFind(ItemIntMap& _index) 
-      : index(_index), first_class(-1), 
-	first_free_class(-1), first_free_node(-1) {}
+    HeapUnionFind(ItemIntMap& _index)
+      : index(_index), first_class(-1),
+        first_free_class(-1), first_free_node(-1) {}
 
     /// \brief Insert a new node into a new component.
     ///
@@ -1303,14 +1303,14 @@ namespace lemon {
 
       nodes[id].item = item;
       index[item] = id;
-      
+
       int class_id = newClass();
       classes[class_id].parent = ~id;
       classes[class_id].depth = 0;
 
       classes[class_id].left = -1;
       classes[class_id].right = -1;
-      
+
       if (first_class != -1) {
         classes[first_class].prev = class_id;
       }
@@ -1319,7 +1319,7 @@ namespace lemon {
       first_class = class_id;
 
       nodes[id].parent = ~class_id;
-      
+
       return class_id;
     }
 
@@ -1332,7 +1332,7 @@ namespace lemon {
     int find(const Item& item) const {
       return findClass(index[item]);
     }
-    
+
     /// \brief Joins the classes.
     ///
     /// The current function joins the given classes. The parameter is
@@ -1371,13 +1371,13 @@ namespace lemon {
           classes[classes[l].next].prev = classes[l].prev;
         }
         classes[classes[l].prev].next = classes[l].next;
-        
+
         classes[l].prev = -1;
         classes[l].next = -1;
 
         classes[l].depth = leftNode(l);
         classes[l].parent = class_id;
-        
+
       }
 
       { // merging of heap
@@ -1455,7 +1455,7 @@ namespace lemon {
               push(new_parent, ~(classes[r].parent));
               pushLeft(new_parent, ~(classes[l].parent));
               setPrio(new_parent);
-              
+
               classes[r].parent = ~new_parent;
               classes[r].depth += 1;
             } else {
@@ -1470,15 +1470,15 @@ namespace lemon {
             classes[l].parent = classes[r].parent;
             classes[l].depth = classes[r].depth;
           } else {
-            if (classes[l].depth != 0 && 
-                nodes[~(classes[l].parent)].size + 
+            if (classes[l].depth != 0 &&
+                nodes[~(classes[l].parent)].size +
                 nodes[~(classes[r].parent)].size <= cmax) {
               splice(~(classes[l].parent), ~(classes[r].parent));
               deleteNode(~(classes[r].parent));
               if (less(~(classes[r].parent), ~(classes[l].parent))) {
-                nodes[~(classes[l].parent)].prio = 
+                nodes[~(classes[l].parent)].prio =
                   nodes[~(classes[r].parent)].prio;
-                nodes[~(classes[l].parent)].item = 
+                nodes[~(classes[l].parent)].item =
                   nodes[~(classes[r].parent)].item;
               }
             } else {
@@ -1487,7 +1487,7 @@ namespace lemon {
               push(new_parent, ~(classes[l].parent));
               pushRight(new_parent, ~(classes[r].parent));
               setPrio(new_parent);
-            
+
               classes[l].parent = ~new_parent;
               classes[l].depth += 1;
               nodes[new_parent].parent = ~l;
@@ -1542,12 +1542,12 @@ namespace lemon {
         classes[classes[id].right].next = first_class;
         classes[first_class].prev = classes[id].right;
         first_class = classes[id].left;
-        
+
         if (classes[id].next != -1) {
           classes[classes[id].next].prev = classes[id].prev;
         }
         classes[classes[id].prev].next = classes[id].next;
-        
+
         deleteClass(id);
       }
 
@@ -1557,7 +1557,7 @@ namespace lemon {
           while (nodes[nodes[l].parent].left == l) {
             l = nodes[l].parent;
           }
-          int r = l;    
+          int r = l;
           while (nodes[l].parent >= 0) {
             l = nodes[l].parent;
             int new_node = newNode();
@@ -1580,7 +1580,7 @@ namespace lemon {
 
           repairRight(~(nodes[l].parent));
           repairLeft(cs[i]);
-          
+
           *out++ = cs[i];
         }
       }
@@ -1603,7 +1603,7 @@ namespace lemon {
         increase(item, prio);
       }
     }
-      
+
     /// \brief Increase the priority of the current item.
     ///
     /// Increase the priority of the current item.
@@ -1630,7 +1630,7 @@ namespace lemon {
         kd = nodes[kd].parent;
       }
     }
-    
+
     /// \brief Gives back the minimum priority of the class.
     ///
     /// \return Gives back the minimum priority of the class.
@@ -1646,9 +1646,9 @@ namespace lemon {
     }
 
     /// \brief Gives back a representant item of the class.
-    /// 
+    ///
     /// The representant is indpendent from the priorities of the
-    /// items. 
+    /// items.
     /// \return Gives back a representant item of the class.
     const Item& classRep(int id) const {
       int parent = classes[id].parent;
@@ -1674,12 +1674,12 @@ namespace lemon {
 
       const HeapUnionFind* _huf;
       int _id, _lid;
-      
+
     public:
 
-      /// \brief Default constructor 
+      /// \brief Default constructor
       ///
-      /// Default constructor 
+      /// Default constructor
       ItemIt() {}
 
       ItemIt(const HeapUnionFind& huf, int cls) : _huf(&huf) {
@@ -1695,9 +1695,9 @@ namespace lemon {
         } else {
           _id = _huf->leftNode(id);
           _lid = -1;
-        } 
+        }
       }
-      
+
       /// \brief Increment operator
       ///
       /// It steps to the next item in the class.
@@ -1712,40 +1712,40 @@ namespace lemon {
       operator const Item&() const {
         return _huf->nodes[_id].item;
       }
-      
+
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ItemIt& i) { 
+      bool operator==(const ItemIt& i) {
         return i._id == _id;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ItemIt& i) { 
+      bool operator!=(const ItemIt& i) {
         return i._id != _id;
       }
 
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(Invalid) { 
+      bool operator==(Invalid) {
         return _id == _lid;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(Invalid) { 
+      bool operator!=(Invalid) {
         return _id != _lid;
       }
-      
+
     };
 
     /// \brief Class iterator
     ///
-    /// The iterator stores 
+    /// The iterator stores
     class ClassIt {
     private:
 
@@ -1754,37 +1754,37 @@ namespace lemon {
 
     public:
 
-      ClassIt(const HeapUnionFind& huf) 
+      ClassIt(const HeapUnionFind& huf)
         : _huf(&huf), _id(huf.first_class) {}
 
-      ClassIt(const HeapUnionFind& huf, int cls) 
+      ClassIt(const HeapUnionFind& huf, int cls)
         : _huf(&huf), _id(huf.classes[cls].left) {}
 
       ClassIt(Invalid) : _huf(0), _id(-1) {}
-      
+
       const ClassIt& operator++() {
         _id = _huf->classes[_id].next;
-	return *this;
+        return *this;
       }
 
       /// \brief Equality operator
       ///
       /// Equality operator
-      bool operator==(const ClassIt& i) { 
+      bool operator==(const ClassIt& i) {
         return i._id == _id;
       }
 
       /// \brief Inequality operator
       ///
       /// Inequality operator
-      bool operator!=(const ClassIt& i) { 
+      bool operator!=(const ClassIt& i) {
         return i._id != _id;
-      }      
-      
-      operator int() const {
-	return _id;
       }
-            
+
+      operator int() const {
+        return _id;
+      }
+
     };
 
   };

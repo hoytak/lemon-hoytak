@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -33,13 +33,13 @@ void check_concepts() {
   { // Checking graph components
     checkConcept<BaseGraphComponent, BaseGraphComponent >();
 
-    checkConcept<IDableGraphComponent<>, 
+    checkConcept<IDableGraphComponent<>,
       IDableGraphComponent<> >();
 
-    checkConcept<IterableGraphComponent<>, 
+    checkConcept<IterableGraphComponent<>,
       IterableGraphComponent<> >();
 
-    checkConcept<MappableGraphComponent<>, 
+    checkConcept<MappableGraphComponent<>,
       MappableGraphComponent<> >();
   }
   { // Checking skeleton graph
@@ -134,7 +134,7 @@ void check_graph_validity_erase() {
 //       check(g.row(g(i, j)) == j, "Wrong row");
 //     }
 //   }
-  
+
 //   for (int i = 0; i < w; ++i) {
 //     for (int j = 0; j < h - 1; ++j) {
 //       check(g.source(g.down(g(i, j))) == g(i, j), "Wrong down");
@@ -154,17 +154,17 @@ void check_graph_validity_erase() {
 //   for (int j = 0; j < h; ++j) {
 //     for (int i = 0; i < w - 1; ++i) {
 //       check(g.source(g.right(g(i, j))) == g(i, j), "Wrong right");
-//       check(g.target(g.right(g(i, j))) == g(i + 1, j), "Wrong right");      
+//       check(g.target(g.right(g(i, j))) == g(i + 1, j), "Wrong right");
 //     }
-//     check(g.right(g(w - 1, j)) == INVALID, "Wrong right");    
+//     check(g.right(g(w - 1, j)) == INVALID, "Wrong right");
 //   }
 
 //   for (int j = 0; j < h; ++j) {
 //     for (int i = 1; i < w; ++i) {
 //       check(g.source(g.left(g(i, j))) == g(i, j), "Wrong left");
-//       check(g.target(g.left(g(i, j))) == g(i - 1, j), "Wrong left");      
+//       check(g.target(g.left(g(i, j))) == g(i - 1, j), "Wrong left");
 //     }
-//     check(g.left(g(0, j)) == INVALID, "Wrong left");    
+//     check(g.left(g(0, j)) == INVALID, "Wrong left");
 //   }
 // }
 

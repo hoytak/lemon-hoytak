@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -217,7 +217,7 @@ namespace lemon {
       n.outcir.push_back(G.addEdge(n.outer[i],n.outer[(i+1)%num]));
       n.incir.push_back(G.addEdge(n.inner[i],n.inner[(i+2)%num]));
     }
-    
+
     return n;
   }
 
@@ -246,7 +246,7 @@ namespace lemon {
     bidirDigraph(G);
     checkBidirPetersen(G, num);
   }
-  
+
   template <class Graph>
   void checkGraph() {
     const int num = 5;

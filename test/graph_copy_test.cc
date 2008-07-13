@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -122,7 +122,7 @@ void graph_copy_test() {
       if (i == 0 && j == 0) fe = edge;
     }
   }
-  
+
   ListGraph to;
   ListGraph::NodeMap<int> tnm(to);
   ListGraph::ArcMap<int> tam(to);
@@ -160,12 +160,12 @@ void graph_copy_test() {
   for (SmartGraph::EdgeIt it(from); it != INVALID; ++it) {
     check(ecr[er[it]] == it, "Wrong copy.");
     check(fem[it] == tem[er[it]], "Wrong copy.");
-    check(nr[from.u(it)] == to.u(er[it]) || nr[from.u(it)] == to.v(er[it]), 
-	  "Wrong copy.");
-    check(nr[from.v(it)] == to.u(er[it]) || nr[from.v(it)] == to.v(er[it]), 
-	  "Wrong copy.");
-    check((from.u(it) != from.v(it)) == (to.u(er[it]) != to.v(er[it])), 
-	  "Wrong copy.");
+    check(nr[from.u(it)] == to.u(er[it]) || nr[from.u(it)] == to.v(er[it]),
+          "Wrong copy.");
+    check(nr[from.v(it)] == to.u(er[it]) || nr[from.v(it)] == to.v(er[it]),
+          "Wrong copy.");
+    check((from.u(it) != from.v(it)) == (to.u(er[it]) != to.v(er[it])),
+          "Wrong copy.");
   }
 
   for (ListGraph::NodeIt it(to); it != INVALID; ++it) {
@@ -188,5 +188,5 @@ int main() {
   digraph_copy_test();
   graph_copy_test();
 
-  return 0; 
+  return 0;
 }

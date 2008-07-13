@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -45,18 +45,18 @@ namespace lemon {
 
     template <typename Digraph, typename In, typename Out>
     typename disable_if<lemon::UndirectedTagIndicator<Digraph>,
-		       typename In::value_type::second_type >::type
+                       typename In::value_type::second_type >::type
     kruskal(const Digraph& digraph, const In& in, Out& out,dummy<0> = 0) {
       typedef typename In::value_type::second_type Value;
       typedef typename Digraph::template NodeMap<int> IndexMap;
       typedef typename Digraph::Node Node;
-      
+
       IndexMap index(digraph);
       UnionFind<IndexMap> uf(index);
       for (typename Digraph::NodeIt it(digraph); it != INVALID; ++it) {
         uf.insert(it);
       }
-      
+
       Value tree_value = 0;
       for (typename In::const_iterator it = in.begin(); it != in.end(); ++it) {
         if (uf.join(digraph.target(it->first),digraph.source(it->first))) {
@@ -74,18 +74,18 @@ namespace lemon {
 
     template <typename Graph, typename In, typename Out>
     typename enable_if<lemon::UndirectedTagIndicator<Graph>,
-		       typename In::value_type::second_type >::type
+                       typename In::value_type::second_type >::type
     kruskal(const Graph& graph, const In& in, Out& out,dummy<1> = 1) {
       typedef typename In::value_type::second_type Value;
       typedef typename Graph::template NodeMap<int> IndexMap;
       typedef typename Graph::Node Node;
-      
+
       IndexMap index(graph);
       UnionFind<IndexMap> uf(index);
       for (typename Graph::NodeIt it(graph); it != INVALID; ++it) {
         uf.insert(it);
       }
-      
+
       Value tree_value = 0;
       for (typename In::const_iterator it = in.begin(); it != in.end(); ++it) {
         if (uf.join(graph.u(it->first),graph.v(it->first))) {
@@ -104,7 +104,7 @@ namespace lemon {
     struct PairComp {
       typedef typename Sequence::value_type Value;
       bool operator()(const Value& left, const Value& right) {
-	return left.second < right.second;
+        return left.second < right.second;
       }
     };
 
@@ -114,7 +114,7 @@ namespace lemon {
     };
 
     template <typename In>
-    struct SequenceInputIndicator<In, 
+    struct SequenceInputIndicator<In,
       typename exists<typename In::value_type::first_type>::type> {
       static const bool value = true;
     };
@@ -125,7 +125,7 @@ namespace lemon {
     };
 
     template <typename In>
-    struct MapInputIndicator<In, 
+    struct MapInputIndicator<In,
       typename exists<typename In::Value>::type> {
       static const bool value = true;
     };
@@ -134,9 +134,9 @@ namespace lemon {
     struct SequenceOutputIndicator {
       static const bool value = false;
     };
- 
+
     template <typename Out>
-    struct SequenceOutputIndicator<Out, 
+    struct SequenceOutputIndicator<Out,
       typename exists<typename Out::value_type>::type> {
       static const bool value = true;
     };
@@ -147,7 +147,7 @@ namespace lemon {
     };
 
     template <typename Out>
-    struct MapOutputIndicator<Out, 
+    struct MapOutputIndicator<Out,
       typename exists<typename Out::Value>::type> {
       static const bool value = true;
     };
@@ -157,18 +157,18 @@ namespace lemon {
 
     template <typename In>
     struct KruskalValueSelector<In,
-      typename enable_if<SequenceInputIndicator<In>, void>::type> 
+      typename enable_if<SequenceInputIndicator<In>, void>::type>
     {
       typedef typename In::value_type::second_type Value;
-    };    
+    };
 
     template <typename In>
     struct KruskalValueSelector<In,
-      typename enable_if<MapInputIndicator<In>, void>::type> 
+      typename enable_if<MapInputIndicator<In>, void>::type>
     {
       typedef typename In::Value Value;
-    };    
-    
+    };
+
     template <typename Graph, typename In, typename Out,
               typename InEnable = void>
     struct KruskalInputSelector {};
@@ -176,10 +176,10 @@ namespace lemon {
     template <typename Graph, typename In, typename Out,
               typename InEnable = void>
     struct KruskalOutputSelector {};
-    
+
     template <typename Graph, typename In, typename Out>
     struct KruskalInputSelector<Graph, In, Out,
-      typename enable_if<SequenceInputIndicator<In>, void>::type > 
+      typename enable_if<SequenceInputIndicator<In>, void>::type >
     {
       typedef typename In::value_type::second_type Value;
 
@@ -192,7 +192,7 @@ namespace lemon {
 
     template <typename Graph, typename In, typename Out>
     struct KruskalInputSelector<Graph, In, Out,
-      typename enable_if<MapInputIndicator<In>, void>::type > 
+      typename enable_if<MapInputIndicator<In>, void>::type >
     {
       typedef typename In::Value Value;
       static Value kruskal(const Graph& graph, const In& in, Out& out) {
@@ -201,7 +201,7 @@ namespace lemon {
         typedef typename ItemSetTraits<Graph, MapArc>::ItemIt MapArcIt;
         typedef std::vector<std::pair<MapArc, Value> > Sequence;
         Sequence seq;
-        
+
         for (MapArcIt it(graph); it != INVALID; ++it) {
           seq.push_back(std::make_pair(it, in[it]));
         }
@@ -224,7 +224,7 @@ namespace lemon {
 
     template <typename Graph, typename In, typename Out>
     struct KruskalOutputSelector<Graph, In, Out,
-      typename enable_if<SequenceOutputIndicator<Out>, void>::type > 
+      typename enable_if<SequenceOutputIndicator<Out>, void>::type >
     {
       typedef typename In::value_type::second_type Value;
 
@@ -238,7 +238,7 @@ namespace lemon {
 
     template <typename Graph, typename In, typename Out>
     struct KruskalOutputSelector<Graph, In, Out,
-      typename enable_if<MapOutputIndicator<Out>, void>::type > 
+      typename enable_if<MapOutputIndicator<Out>, void>::type >
     {
       typedef typename In::value_type::second_type Value;
 
@@ -254,17 +254,17 @@ namespace lemon {
   /// \brief Kruskal algorithm to find a minimum cost spanning tree of
   /// a graph.
   ///
-  /// This function runs Kruskal's algorithm to find a minimum cost 
+  /// This function runs Kruskal's algorithm to find a minimum cost
   /// spanning tree.
   /// Due to some C++ hacking, it accepts various input and output types.
   ///
   /// \param g The graph the algorithm runs on.
-  /// It can be either \ref concepts::Digraph "directed" or 
+  /// It can be either \ref concepts::Digraph "directed" or
   /// \ref concepts::Graph "undirected".
-  /// If the graph is directed, the algorithm consider it to be 
+  /// If the graph is directed, the algorithm consider it to be
   /// undirected by disregarding the direction of the arcs.
   ///
-  /// \param in This object is used to describe the arc/edge costs. 
+  /// \param in This object is used to describe the arc/edge costs.
   /// It can be one of the following choices.
   /// - An STL compatible 'Forward Container' with
   /// <tt>std::pair<GR::Arc,X></tt> or
@@ -272,7 +272,7 @@ namespace lemon {
   /// \c X is the type of the costs. The pairs indicates the arcs/edges
   /// along with the assigned cost. <em>They must be in a
   /// cost-ascending order.</em>
-  /// - Any readable arc/edge map. The values of the map indicate the 
+  /// - Any readable arc/edge map. The values of the map indicate the
   /// arc/edge costs.
   ///
   /// \retval out Here we also have a choice.
@@ -292,10 +292,10 @@ namespace lemon {
   /// kruskal(g,cost,tree.begin());
   ///\endcode
   /// Or if we don't know in advance the size of the tree, we can
-  /// write this.  
+  /// write this.
   ///\code
   /// std::vector<Arc> tree;
-  /// kruskal(g,cost,std::back_inserter(tree)); 
+  /// kruskal(g,cost,std::back_inserter(tree));
   ///\endcode
   ///
   /// \return The total cost of the found spanning tree.
@@ -307,18 +307,18 @@ namespace lemon {
 #ifdef DOXYGEN
   template <class Graph, class In, class Out>
   Value kruskal(GR const& g, const In& in, Out& out)
-#else 
+#else
   template <class Graph, class In, class Out>
-  inline typename _kruskal_bits::KruskalValueSelector<In>::Value 
-  kruskal(const Graph& graph, const In& in, Out& out) 
+  inline typename _kruskal_bits::KruskalValueSelector<In>::Value
+  kruskal(const Graph& graph, const In& in, Out& out)
 #endif
   {
     return _kruskal_bits::KruskalInputSelector<Graph, In, Out>::
       kruskal(graph, in, out);
   }
 
- 
-  
+
+
 
   template <class Graph, class In, class Out>
   inline typename _kruskal_bits::KruskalValueSelector<In>::Value
@@ -326,7 +326,7 @@ namespace lemon {
   {
     return _kruskal_bits::KruskalInputSelector<Graph, In, const Out>::
       kruskal(graph, in, out);
-  }  
+  }
 
 } //namespace lemon
 
