@@ -271,17 +271,20 @@ namespace lemon {
 
     ///@}
 
-    void show(std::ostream &os,Opts::iterator i);
-    void show(std::ostream &os,Groups::iterator i);
-    void showHelp(Opts::iterator i);
-    void showHelp(std::vector<OtherArg>::iterator i);
-    void shortHelp();
-    void showHelp();
+  private:
+    void show(std::ostream &os,Opts::const_iterator i) const;
+    void show(std::ostream &os,Groups::const_iterator i) const;
+    void showHelp(Opts::const_iterator i) const;
+    void showHelp(std::vector<OtherArg>::const_iterator i) const;
 
-    void unknownOpt(std::string arg);
+    void unknownOpt(std::string arg) const;
 
-    void requiresValue(std::string arg, OptType t);
-    void checkMandatories();
+    void requiresValue(std::string arg, OptType t) const;
+    void checkMandatories() const;
+
+    void shortHelp() const;
+    void showHelp() const;
+  public:
 
     ///Start the parsing process
     ArgParser &parse();
@@ -293,12 +296,12 @@ namespace lemon {
     }
 
     ///Give back the command name (the 0th argument)
-    const std::string &commandName() { return _command_name; }
+    const std::string &commandName() const { return _command_name; }
 
     ///Check if an opion has been given to the command.
-    bool given(std::string op)
+    bool given(std::string op) const
     {
-      Opts::iterator i = _opts.find(op);
+      Opts::const_iterator i = _opts.find(op);
       return i!=_opts.end()?i->second.set:false;
     }
 
@@ -311,15 +314,15 @@ namespace lemon {
     ///throws an exception (i.e. it performs runtime type checking).
     class RefType
     {
-      ArgParser &_parser;
+      const ArgParser &_parser;
       std::string _name;
     public:
       ///\e
-      RefType(ArgParser &p,const std::string &n) :_parser(p),_name(n) {}
+      RefType(const ArgParser &p,const std::string &n) :_parser(p),_name(n) {}
       ///\e
       operator bool()
       {
-        Opts::iterator i = _parser._opts.find(_name);
+        Opts::const_iterator i = _parser._opts.find(_name);
         LEMON_ASSERT(i!=_parser._opts.end(),
                      std::string()+"Unkown option: '"+_name+"'");
         LEMON_ASSERT(i->second.type==ArgParser::BOOL,
@@ -329,7 +332,7 @@ namespace lemon {
       ///\e
       operator std::string()
       {
-        Opts::iterator i = _parser._opts.find(_name);
+        Opts::const_iterator i = _parser._opts.find(_name);
         LEMON_ASSERT(i!=_parser._opts.end(),
                      std::string()+"Unkown option: '"+_name+"'");
         LEMON_ASSERT(i->second.type==ArgParser::STRING,
@@ -339,7 +342,7 @@ namespace lemon {
       ///\e
       operator double()
       {
-        Opts::iterator i = _parser._opts.find(_name);
+        Opts::const_iterator i = _parser._opts.find(_name);
         LEMON_ASSERT(i!=_parser._opts.end(),
                      std::string()+"Unkown option: '"+_name+"'");
         LEMON_ASSERT(i->second.type==ArgParser::DOUBLE ||
@@ -351,7 +354,7 @@ namespace lemon {
       ///\e
       operator int()
       {
-        Opts::iterator i = _parser._opts.find(_name);
+        Opts::const_iterator i = _parser._opts.find(_name);
         LEMON_ASSERT(i!=_parser._opts.end(),
                      std::string()+"Unkown option: '"+_name+"'");
         LEMON_ASSERT(i->second.type==ArgParser::INTEGER,
@@ -365,7 +368,7 @@ namespace lemon {
 
     ///Give back the value of an option.
     ///\sa RefType
-    RefType operator[](const std::string &n)
+    RefType operator[](const std::string &n) const
     {
       return RefType(*this, n);
     }
@@ -374,7 +377,7 @@ namespace lemon {
 
     ///Give back a reference to a vector consisting of the program arguments
     ///not starting with a '-' character.
-    std::vector<std::string> &files() { return _file_args; }
+    const std::vector<std::string> &files() const { return _file_args; }
 
   };
 }
