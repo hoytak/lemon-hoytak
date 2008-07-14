@@ -300,9 +300,8 @@ namespace lemon {
   ///
   /// \return The total cost of the found spanning tree.
   ///
-  /// \warning If Kruskal runs on an be consistent of using the same
-  /// Arc type for input and output.
-  ///
+  /// \note If the input graph is not (weakly) connected, a spanning 
+  /// forest is calculated instead of a spanning tree.
 
 #ifdef DOXYGEN
   template <class Graph, class In, class Out>
