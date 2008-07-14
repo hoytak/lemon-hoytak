@@ -20,8 +20,8 @@
 /// \file
 /// \brief Demo of the graph drawing function \ref graphToEps()
 ///
-/// This demo program shows examples how to  use the function \ref
-/// graphToEps(). It takes no input but simply creates  six
+/// This demo program shows examples how to use the function \ref
+/// graphToEps(). It takes no input but simply creates seven
 /// <tt>.eps</tt> files demonstrating the capability of \ref
 /// graphToEps(), and showing how to draw directed graphs,
 /// how to handle parallel egdes, how to change the properties (like
@@ -81,7 +81,7 @@ int main()
 
   IdMap<ListDigraph,Node> id(g);
 
-  // Create five .eps files showing the digraph with different options
+  // Create .eps files showing the digraph with different options
   cout << "Create 'graph_to_eps_demo_out_1_pure.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_1_pure.eps").
     coords(coords).
@@ -118,6 +118,7 @@ int main()
     drawArrows().arrowWidth(2).arrowLength(2).
     run();
 
+  // Add more arcs to the digraph
   a=g.addArc(n1,n4); acolors[a]=2; widths[a]=1;
   a=g.addArc(n4,n1); acolors[a]=1; widths[a]=2;
 
@@ -129,9 +130,8 @@ int main()
   a=g.addArc(n1,n2); acolors[a]=6; widths[a]=1;
   a=g.addArc(n1,n2); acolors[a]=7; widths[a]=1;
 
-  cout << "Create 'graph_to_eps_demo_out_par.eps'" << endl;
-  graphToEps(g,"graph_to_eps_demo_out_par.eps").
-    //scale(10).
+  cout << "Create 'graph_to_eps_demo_out_4_par.eps'" << endl;
+  graphToEps(g,"graph_to_eps_demo_out_4_par.eps").
     title("Sample .eps figure (parallel arcs)").
     copyright("(C) 2003-2008 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
@@ -145,8 +145,8 @@ int main()
     enableParallel().parArcDist(1.5).
     run();
 
-  cout << "Create 'graph_to_eps_demo_out_4_par_arr.eps'" << endl;
-  graphToEps(g,"graph_to_eps_demo_out_4_par_arr.eps").
+  cout << "Create 'graph_to_eps_demo_out_5_par_arr.eps'" << endl;
+  graphToEps(g,"graph_to_eps_demo_out_5_par_arr.eps").
     title("Sample .eps figure (parallel arcs and arrowheads)").
     copyright("(C) 2003-2008 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
@@ -161,8 +161,8 @@ int main()
     drawArrows().arrowWidth(1).arrowLength(1).
     run();
 
-  cout << "Create 'graph_to_eps_demo_out_5_par_arr_a4.eps'" << endl;
-  graphToEps(g,"graph_to_eps_demo_out_5_par_arr_a4.eps").
+  cout << "Create 'graph_to_eps_demo_out_6_par_arr_a4.eps'" << endl;
+  graphToEps(g,"graph_to_eps_demo_out_6_par_arr_a4.eps").
     title("Sample .eps figure (fits to A4)").
     copyright("(C) 2003-2008 LEMON Project").
     scaleToA4().
@@ -190,8 +190,8 @@ int main()
     hcolors[n]=i;
   }
 
-  cout << "Create 'graph_to_eps_demo_out_6_colors.eps'" << endl;
-  graphToEps(h,"graph_to_eps_demo_out_6_colors.eps").
+  cout << "Create 'graph_to_eps_demo_out_7_colors.eps'" << endl;
+  graphToEps(h,"graph_to_eps_demo_out_7_colors.eps").
     scale(60).
     title("Sample .eps figure (Palette demo)").
     copyright("(C) 2003-2008 LEMON Project").
