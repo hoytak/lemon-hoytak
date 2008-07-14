@@ -821,7 +821,6 @@ namespace lemon {
     /// Standard Gauss distribution.
     /// \note The Cartesian form of the Box-Muller
     /// transformation is used to generate a random normal distribution.
-    /// \todo Consider using the "ziggurat" method instead.
     double gauss()
     {
       double V1,V2,S;

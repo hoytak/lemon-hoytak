@@ -292,7 +292,6 @@ namespace lemon {
   ///\note If you want to measure the running time of the execution of a certain
   ///function, consider the usage of \ref TimeReport instead.
   ///
-  ///\todo This shouldn't be Unix (Linux) specific.
   ///\sa TimeReport
   class Timer
   {
@@ -487,7 +486,6 @@ namespace lemon {
   ///
   ///\sa Timer
   ///\sa NoTimeReport
-  ///\todo There is no test case for this
   class TimeReport : public Timer
   {
     std::string _title;

@@ -300,7 +300,6 @@ namespace lemon {
     ///may be invalidated.
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    ///\todo It could be implemented in a bit faster way.
     Node split(Node n, bool connect = true)
     {
       Node b = addNode();

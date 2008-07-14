@@ -20,7 +20,6 @@
 ///\file
 ///\brief Classes for representing paths in digraphs.
 ///
-///\todo Iterators have obsolete style
 
 #ifndef LEMON_CONCEPT_PATH_H
 #define LEMON_CONCEPT_PATH_H
