@@ -237,7 +237,7 @@ namespace lemon {
                              static_cast<const char*>(0)))
 
 #    if LEMON_ENABLE_DEBUG
-#      define LEMON_DEBUG(exp, msg)
+#      define LEMON_DEBUG(exp, msg)                                     \
          (static_cast<void> (!!(exp) ? 0 : (                            \
            LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                     \
                                 LEMON_FUNCTION_NAME,                    \
