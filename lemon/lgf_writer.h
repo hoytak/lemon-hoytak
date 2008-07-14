@@ -181,7 +181,7 @@ namespace lemon {
 
     public:
       ValueStorage(const Value& value, const Converter& converter = Converter())
-         : _value(value), _converter(converter) {}
+        : _value(value), _converter(converter) {}
 
       virtual std::string get() {
         return _converter(_value);

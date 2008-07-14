@@ -54,27 +54,27 @@ char test_lgf[] =
   "8\n"
   "9\n"
   "@arcs\n"
-  "                label        capacity\n"
-  "0        5        0        94\n"
-  "3        9        1        11\n"
-  "8        7        2        83\n"
-  "1        2        3        94\n"
-  "5        7        4        35\n"
-  "7        4        5        84\n"
-  "9        5        6        38\n"
-  "0        4        7        96\n"
-  "6        7        8        6\n"
-  "3        1        9        27\n"
-  "5        2        10        77\n"
-  "5        6        11        69\n"
-  "6        5        12        41\n"
-  "4        6        13        70\n"
-  "3        2        14        45\n"
-  "7        9        15        93\n"
-  "5        9        16        50\n"
-  "9        0        17        94\n"
-  "9        6        18        67\n"
-  "0        9        19        86\n"
+  "                label   capacity\n"
+  "0       5       0       94\n"
+  "3       9       1       11\n"
+  "8       7       2       83\n"
+  "1       2       3       94\n"
+  "5       7       4       35\n"
+  "7       4       5       84\n"
+  "9       5       6       38\n"
+  "0       4       7       96\n"
+  "6       7       8       6\n"
+  "3       1       9       27\n"
+  "5       2       10      77\n"
+  "5       6       11      69\n"
+  "6       5       12      41\n"
+  "4       6       13      70\n"
+  "3       2       14      45\n"
+  "7       9       15      93\n"
+  "5       9       16      50\n"
+  "9       0       17      94\n"
+  "9       6       18      67\n"
+  "0       9       19      86\n"
   "@attributes\n"
   "source 3\n";
 
@@ -141,7 +141,7 @@ void dijkstraHeapTest(const Digraph& digraph, const IntArcMap& length,
     Node t = digraph.target(a);
     if (dijkstra.reached(s)) {
       check( dijkstra.dist(t) - dijkstra.dist(s) <= length[a],
-                   "Error in a shortest path tree!");
+             "Error in a shortest path tree!");
     }
   }
 

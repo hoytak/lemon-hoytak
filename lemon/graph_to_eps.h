@@ -908,7 +908,7 @@ public:
           double l=std::sqrt(dvec.normSquare());
           //\todo better 'epsilon' would be nice here.
           dim2::Point<double> d(dvec/std::max(l,EPSILON));
-           dim2::Point<double> m;
+          dim2::Point<double> m;
 //           m=dim2::Point<double>(mycoords[g.target(*i)]+
 //                                 mycoords[g.source(*i)])/2.0;
 
@@ -916,7 +916,7 @@ public:
 //             dvec*(double(_nodeSizes[g.source(*i)])/
 //                (_nodeSizes[g.source(*i)]+_nodeSizes[g.target(*i)]));
 
-           m=dim2::Point<double>(mycoords[g.source(*i)])+
+          m=dim2::Point<double>(mycoords[g.source(*i)])+
             d*(l+_nodeSizes[g.source(*i)]-_nodeSizes[g.target(*i)])/2.0;
 
           for(typename std::vector<Arc>::iterator e=i;e!=j;++e) {

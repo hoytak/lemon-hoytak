@@ -146,7 +146,7 @@ namespace lemon {
 
     public:
       ValueStorage(Value& value, const Converter& converter = Converter())
-         : _value(value), _converter(converter) {}
+        : _value(value), _converter(converter) {}
 
       virtual void set(const std::string& value) {
         _value = _converter(value);
@@ -510,7 +510,7 @@ namespace lemon {
     /// file.
     DigraphReader(const std::string& fn, Digraph& digraph)
       : _is(new std::ifstream(fn.c_str())), local_is(true), _digraph(digraph),
-            _use_nodes(false), _use_arcs(false),
+        _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Constructor
@@ -519,7 +519,7 @@ namespace lemon {
     /// file.
     DigraphReader(const char* fn, Digraph& digraph)
       : _is(new std::ifstream(fn)), local_is(true), _digraph(digraph),
-            _use_nodes(false), _use_arcs(false),
+        _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {}
 
     /// \brief Destructor
@@ -1294,7 +1294,7 @@ namespace lemon {
     /// file.
     GraphReader(const std::string& fn, Graph& graph)
       : _is(new std::ifstream(fn.c_str())), local_is(true), _graph(graph),
-            _use_nodes(false), _use_edges(false),
+        _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Constructor
@@ -1303,7 +1303,7 @@ namespace lemon {
     /// file.
     GraphReader(const char* fn, Graph& graph)
       : _is(new std::ifstream(fn)), local_is(true), _graph(graph),
-            _use_nodes(false), _use_edges(false),
+        _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {}
 
     /// \brief Destructor

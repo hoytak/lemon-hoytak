@@ -494,7 +494,7 @@ namespace lemon {
     Node split(Node n, bool connect = true) {
       Node b = addNode();
       for(OutArcIt e(*this,n);e!=INVALID;) {
-         OutArcIt f=e;
+        OutArcIt f=e;
         ++f;
         changeSource(e,b);
         e=f;

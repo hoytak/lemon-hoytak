@@ -100,8 +100,8 @@ namespace lemon {
         bool operator==(const ArcIt&) const {return true;}
         /// Comparison operator
         bool operator!=(const ArcIt&) const {return true;}
-         /// Comparison operator
-         bool operator<(const ArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator<(const ArcIt&) const {return false;}
 
       };
 
@@ -255,8 +255,8 @@ namespace lemon {
         bool operator==(const ArcIt&) const {return true;}
         /// Comparison operator
         bool operator!=(const ArcIt&) const {return true;}
-         /// Comparison operator
-         bool operator<(const ArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator<(const ArcIt&) const {return false;}
 
       };
 
@@ -283,8 +283,8 @@ namespace lemon {
         bool operator==(const RevArcIt&) const {return true;}
         /// Comparison operator
         bool operator!=(const RevArcIt&) const {return true;}
-         /// Comparison operator
-         bool operator<(const RevArcIt&) const {return false;}
+        /// Comparison operator
+        bool operator<(const RevArcIt&) const {return false;}
 
       };
 

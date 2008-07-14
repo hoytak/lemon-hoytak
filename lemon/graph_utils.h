@@ -52,18 +52,18 @@ namespace lemon {
   ///\note If the graph type is a dependent type, ie. the graph type depend
   ///on a template parameter, then use \c TEMPLATE_DIGRAPH_TYPEDEFS()
   ///macro.
-#define DIGRAPH_TYPEDEFS(Digraph)                                        \
-  typedef Digraph::Node Node;                                                \
-  typedef Digraph::NodeIt NodeIt;                                        \
-  typedef Digraph::Arc Arc;                                                \
-  typedef Digraph::ArcIt ArcIt;                                                \
-  typedef Digraph::InArcIt InArcIt;                                        \
-  typedef Digraph::OutArcIt OutArcIt;                                        \
-  typedef Digraph::NodeMap<bool> BoolNodeMap;                                \
-  typedef Digraph::NodeMap<int> IntNodeMap;                                \
-  typedef Digraph::NodeMap<double> DoubleNodeMap;                        \
-  typedef Digraph::ArcMap<bool> BoolArcMap;                                \
-  typedef Digraph::ArcMap<int> IntArcMap;                                \
+#define DIGRAPH_TYPEDEFS(Digraph)                                       \
+  typedef Digraph::Node Node;                                           \
+  typedef Digraph::NodeIt NodeIt;                                       \
+  typedef Digraph::Arc Arc;                                             \
+  typedef Digraph::ArcIt ArcIt;                                         \
+  typedef Digraph::InArcIt InArcIt;                                     \
+  typedef Digraph::OutArcIt OutArcIt;                                   \
+  typedef Digraph::NodeMap<bool> BoolNodeMap;                           \
+  typedef Digraph::NodeMap<int> IntNodeMap;                             \
+  typedef Digraph::NodeMap<double> DoubleNodeMap;                       \
+  typedef Digraph::ArcMap<bool> BoolArcMap;                             \
+  typedef Digraph::ArcMap<int> IntArcMap;                               \
   typedef Digraph::ArcMap<double> DoubleArcMap
 
   ///Creates convenience typedefs for the digraph types and iterators
@@ -72,18 +72,18 @@ namespace lemon {
   ///
   ///\note Use this macro, if the graph type is a dependent type,
   ///ie. the graph type depend on a template parameter.
-#define TEMPLATE_DIGRAPH_TYPEDEFS(Digraph)                                \
-  typedef typename Digraph::Node Node;                                        \
-  typedef typename Digraph::NodeIt NodeIt;                                \
-  typedef typename Digraph::Arc Arc;                                        \
+#define TEMPLATE_DIGRAPH_TYPEDEFS(Digraph)                              \
+  typedef typename Digraph::Node Node;                                  \
+  typedef typename Digraph::NodeIt NodeIt;                              \
+  typedef typename Digraph::Arc Arc;                                    \
   typedef typename Digraph::ArcIt ArcIt;                                \
-  typedef typename Digraph::InArcIt InArcIt;                                \
-  typedef typename Digraph::OutArcIt OutArcIt;                                \
-  typedef typename Digraph::template NodeMap<bool> BoolNodeMap;                \
-  typedef typename Digraph::template NodeMap<int> IntNodeMap;                \
-  typedef typename Digraph::template NodeMap<double> DoubleNodeMap;        \
-  typedef typename Digraph::template ArcMap<bool> BoolArcMap;                \
-  typedef typename Digraph::template ArcMap<int> IntArcMap;                \
+  typedef typename Digraph::InArcIt InArcIt;                            \
+  typedef typename Digraph::OutArcIt OutArcIt;                          \
+  typedef typename Digraph::template NodeMap<bool> BoolNodeMap;         \
+  typedef typename Digraph::template NodeMap<int> IntNodeMap;           \
+  typedef typename Digraph::template NodeMap<double> DoubleNodeMap;     \
+  typedef typename Digraph::template ArcMap<bool> BoolArcMap;           \
+  typedef typename Digraph::template ArcMap<int> IntArcMap;             \
   typedef typename Digraph::template ArcMap<double> DoubleArcMap
 
   ///Creates convenience typedefs for the graph types and iterators
@@ -96,13 +96,13 @@ namespace lemon {
   ///\note If the graph type is a dependent type, ie. the graph type depend
   ///on a template parameter, then use \c TEMPLATE_DIGRAPH_TYPEDEFS()
   ///macro.
-#define GRAPH_TYPEDEFS(Graph)                                                \
-  DIGRAPH_TYPEDEFS(Graph);                                                \
-  typedef Graph::Edge Edge;                                                \
-  typedef Graph::EdgeIt EdgeIt;                                                \
-  typedef Graph::IncEdgeIt IncEdgeIt;                                        \
-  typedef Graph::EdgeMap<bool> BoolEdgeMap;                                \
-  typedef Graph::EdgeMap<int> IntEdgeMap;                                \
+#define GRAPH_TYPEDEFS(Graph)                                           \
+  DIGRAPH_TYPEDEFS(Graph);                                              \
+  typedef Graph::Edge Edge;                                             \
+  typedef Graph::EdgeIt EdgeIt;                                         \
+  typedef Graph::IncEdgeIt IncEdgeIt;                                   \
+  typedef Graph::EdgeMap<bool> BoolEdgeMap;                             \
+  typedef Graph::EdgeMap<int> IntEdgeMap;                               \
   typedef Graph::EdgeMap<double> DoubleEdgeMap
 
   ///Creates convenience typedefs for the graph types and iterators
@@ -111,13 +111,13 @@ namespace lemon {
   ///
   ///\note Use this macro, if the graph type is a dependent type,
   ///ie. the graph type depend on a template parameter.
-#define TEMPLATE_GRAPH_TYPEDEFS(Graph)                                        \
-  TEMPLATE_DIGRAPH_TYPEDEFS(Graph);                                        \
-  typedef typename Graph::Edge Edge;                                        \
+#define TEMPLATE_GRAPH_TYPEDEFS(Graph)                                  \
+  TEMPLATE_DIGRAPH_TYPEDEFS(Graph);                                     \
+  typedef typename Graph::Edge Edge;                                    \
   typedef typename Graph::EdgeIt EdgeIt;                                \
-  typedef typename Graph::IncEdgeIt IncEdgeIt;                                \
-  typedef typename Graph::template EdgeMap<bool> BoolEdgeMap;                \
-  typedef typename Graph::template EdgeMap<int> IntEdgeMap;                \
+  typedef typename Graph::IncEdgeIt IncEdgeIt;                          \
+  typedef typename Graph::template EdgeMap<bool> BoolEdgeMap;           \
+  typedef typename Graph::template EdgeMap<int> IntEdgeMap;             \
   typedef typename Graph::template EdgeMap<double> DoubleEdgeMap
 
   /// \brief Function to count the items in the graph.

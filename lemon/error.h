@@ -70,7 +70,7 @@ namespace lemon {
       if (ptr.get() == 0) return;
       try {
         if (!copy.valid()) return;
-         *ptr = copy.get();
+        *ptr = copy.get();
       } catch (...) {}
     }
 

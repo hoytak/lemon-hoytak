@@ -66,17 +66,17 @@ namespace lemon {
 #undef LEMON_FIXME
 #undef LEMON_DEBUG
 
-#if (defined(LEMON_ASSERT_LOG) ? 1 : 0) +                \
-  (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +                \
+#if (defined(LEMON_ASSERT_LOG) ? 1 : 0) +               \
+  (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +               \
   (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) > 1
 #error "LEMON assertion system is not set properly"
 #endif
 
-#if ((defined(LEMON_ASSERT_LOG) ? 1 : 0) +                \
-     (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +                \
-     (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) == 1 ||        \
-     defined(LEMON_ENABLE_ASSERTS)) &&                        \
-  (defined(LEMON_DISABLE_ASSERTS) ||                        \
+#if ((defined(LEMON_ASSERT_LOG) ? 1 : 0) +              \
+     (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +            \
+     (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) == 1 ||     \
+     defined(LEMON_ENABLE_ASSERTS)) &&                  \
+  (defined(LEMON_DISABLE_ASSERTS) ||                    \
    defined(NDEBUG))
 #error "LEMON assertion system is not set properly"
 #endif
@@ -168,9 +168,9 @@ namespace lemon {
 /// \ref lemon/assert.h "assert.h" file is reincluded, then the
 /// behaviour is changed appropiately to the new settings.
 #  define LEMON_ASSERT(exp, msg)                                        \
-  (static_cast<void> (!!(exp) ? 0 : (                                        \
-    LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                                \
-                         LEMON_FUNCTION_NAME,                                \
+  (static_cast<void> (!!(exp) ? 0 : (                                   \
+    LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                            \
+                         LEMON_FUNCTION_NAME,                           \
                          ::lemon::_assert_bits::cstringify(msg), #exp), 0)))
 
 /// \ingroup exceptions
@@ -184,9 +184,9 @@ namespace lemon {
 /// \endcode
 ///
 /// \see LEMON_ASSERT
-#  define LEMON_FIXME(msg)                                                \
+#  define LEMON_FIXME(msg)                                              \
   (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,        \
-                        ::lemon::_assert_bits::cstringify(msg),          \
+                        ::lemon::_assert_bits::cstringify(msg),         \
                         static_cast<const char*>(0)))
 
 /// \ingroup exceptions
@@ -212,10 +212,10 @@ namespace lemon {
 /// macro.
 ///
 /// \see LEMON_ASSERT
-#  define LEMON_DEBUG(exp, msg)                                                \
-  (static_cast<void> (!!(exp) ? 0 : (                                        \
+#  define LEMON_DEBUG(exp, msg)                                         \
+  (static_cast<void> (!!(exp) ? 0 : (                                   \
     LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                            \
-                         LEMON_FUNCTION_NAME,                                \
+                         LEMON_FUNCTION_NAME,                           \
                          ::lemon::_assert_bits::cstringify(msg), #exp), 0)))
 
 #else
@@ -225,23 +225,23 @@ namespace lemon {
 #    define LEMON_FIXME(msg) (static_cast<void>(0))
 #    define LEMON_DEBUG(exp, msg) (static_cast<void>(0))
 #  else
-#    define LEMON_ASSERT(exp, msg)                                        \
-       (static_cast<void> (!!(exp) ? 0 : (                                \
+#    define LEMON_ASSERT(exp, msg)                                      \
+       (static_cast<void> (!!(exp) ? 0 : (                              \
         LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                        \
-                             LEMON_FUNCTION_NAME,                        \
-                             ::lemon::_assert_bits::cstringify(msg),        \
+                             LEMON_FUNCTION_NAME,                       \
+                             ::lemon::_assert_bits::cstringify(msg),    \
                              #exp), 0)))
-#    define LEMON_FIXME(msg)                                                \
-       (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,        \
-                             ::lemon::_assert_bits::cstringify(msg),        \
+#    define LEMON_FIXME(msg)                                            \
+       (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,   \
+                             ::lemon::_assert_bits::cstringify(msg),    \
                              static_cast<const char*>(0)))
 
 #    if LEMON_ENABLE_DEBUG
 #      define LEMON_DEBUG(exp, msg)
-         (static_cast<void> (!!(exp) ? 0 : (         \
-           LEMON_ASSERT_HANDLER(__FILE__, __LINE__,  \
-                                LEMON_FUNCTION_NAME, \
-                                ::lemon::_assert_bits::cstringify(msg),     \
+         (static_cast<void> (!!(exp) ? 0 : (                            \
+           LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                     \
+                                LEMON_FUNCTION_NAME,                    \
+                                ::lemon::_assert_bits::cstringify(msg), \
                                 #exp), 0)))
 #    else
 #      define LEMON_DEBUG(exp, msg) (static_cast<void>(0))
@@ -249,13 +249,3 @@ namespace lemon {
 #  endif
 
 #endif
-
-#ifdef DOXYGEN
-
-
-#else
-
-
-#endif
-
-
