@@ -239,11 +239,11 @@ namespace lemon {
     return *this;
   }
 
-  void ArgParser::show(std::ostream &os,Opts::iterator i)
+  void ArgParser::show(std::ostream &os,Opts::const_iterator i) const
   {
     os << "-" << i->first;
     if(i->second.has_syn)
-      for(Opts::iterator j=_opts.begin();j!=_opts.end();++j)
+      for(Opts::const_iterator j=_opts.begin();j!=_opts.end();++j)
         if(j->second.syn&&j->second.help==i->first)
           os << "|-" << j->first;
     switch(i->second.type) {
@@ -261,9 +261,9 @@ namespace lemon {
     }
   }
 
-  void ArgParser::show(std::ostream &os,Groups::iterator i)
+  void ArgParser::show(std::ostream &os,Groups::const_iterator i) const
   {
-    GroupData::Opts::iterator o=i->second.opts.begin();
+    GroupData::Opts::const_iterator o=i->second.opts.begin();
     while(o!=i->second.opts.end()) {
       show(os,_opts.find(*o));
       ++o;
@@ -271,7 +271,7 @@ namespace lemon {
     }
   }
 
-  void ArgParser::showHelp(Opts::iterator i)
+  void ArgParser::showHelp(Opts::const_iterator i) const
   {
     if(i->second.help.size()==0||i->second.syn) return;
     std::cerr << "  ";
@@ -279,20 +279,21 @@ namespace lemon {
     std::cerr << std::endl;
     std::cerr << "     " << i->second.help << std::endl;
   }
-  void ArgParser::showHelp(std::vector<ArgParser::OtherArg>::iterator i)
+  void ArgParser::showHelp(std::vector<ArgParser::OtherArg>::const_iterator i)
+    const
   {
     if(i->help.size()==0) return;
     std::cerr << "  " << i->name << std::endl
               << "     " << i->help << std::endl;
   }
 
-  void ArgParser::shortHelp()
+  void ArgParser::shortHelp() const
   {
     const unsigned int LINE_LEN=77;
     const std::string indent("    ");
     std::cerr << "Usage:\n  " << _command_name;
     int pos=_command_name.size()+2;
-    for(Groups::iterator g=_groups.begin();g!=_groups.end();++g) {
+    for(Groups::const_iterator g=_groups.begin();g!=_groups.end();++g) {
       std::ostringstream cstr;
       cstr << ' ';
       if(!g->second.mandatory) cstr << '[';
@@ -305,7 +306,7 @@ namespace lemon {
       std::cerr << cstr.str();
       pos+=cstr.str().size();
     }
-    for(Opts::iterator i=_opts.begin();i!=_opts.end();++i)
+    for(Opts::const_iterator i=_opts.begin();i!=_opts.end();++i)
       if(!i->second.ingroup&&!i->second.syn) {
         std::ostringstream cstr;
         cstr << ' ';
@@ -319,7 +320,7 @@ namespace lemon {
         std::cerr << cstr.str();
         pos+=cstr.str().size();
       }
-    for(std::vector<OtherArg>::iterator i=_others_help.begin();
+    for(std::vector<OtherArg>::const_iterator i=_others_help.begin();
         i!=_others_help.end();++i)
       {
         std::ostringstream cstr;
@@ -335,18 +336,18 @@ namespace lemon {
     std::cerr << std::endl;
   }
 
-  void ArgParser::showHelp()
+  void ArgParser::showHelp() const
   {
     shortHelp();
     std::cerr << "Where:\n";
-    for(std::vector<OtherArg>::iterator i=_others_help.begin();
+    for(std::vector<OtherArg>::const_iterator i=_others_help.begin();
         i!=_others_help.end();++i) showHelp(i);
-    for(Opts::iterator i=_opts.begin();i!=_opts.end();++i) showHelp(i);
+    for(Opts::const_iterator i=_opts.begin();i!=_opts.end();++i) showHelp(i);
     exit(1);
   }
 
 
-  void ArgParser::unknownOpt(std::string arg)
+  void ArgParser::unknownOpt(std::string arg) const
   {
     std::cerr << "\nUnknown option: " << arg << "\n";
     std::cerr << "\nType '" << _command_name <<
@@ -354,7 +355,7 @@ namespace lemon {
     exit(1);
   }
 
-  void ArgParser::requiresValue(std::string arg, OptType t)
+  void ArgParser::requiresValue(std::string arg, OptType t) const
   {
     std::cerr << "Argument '" << arg << "' requires a";
     switch(t) {
@@ -375,10 +376,10 @@ namespace lemon {
   }
 
 
-  void ArgParser::checkMandatories()
+  void ArgParser::checkMandatories() const
   {
     bool ok=true;
-    for(Opts::iterator i=_opts.begin();i!=_opts.end();++i)
+    for(Opts::const_iterator i=_opts.begin();i!=_opts.end();++i)
       if(i->second.mandatory&&!i->second.set)
         {
           if(ok)
@@ -387,18 +388,18 @@ namespace lemon {
           ok=false;
           showHelp(i);
         }
-    for(Groups::iterator i=_groups.begin();i!=_groups.end();++i)
+    for(Groups::const_iterator i=_groups.begin();i!=_groups.end();++i)
       if(i->second.mandatory||i->second.only_one)
         {
           int set=0;
-          for(GroupData::Opts::iterator o=i->second.opts.begin();
+          for(GroupData::Opts::const_iterator o=i->second.opts.begin();
               o!=i->second.opts.end();++o)
             if(_opts.find(*o)->second.set) ++set;
           if(i->second.mandatory&&!set) {
             std::cerr << _command_name <<
               ": At least one of the following arguments is mandatory.\n";
             ok=false;
-            for(GroupData::Opts::iterator o=i->second.opts.begin();
+            for(GroupData::Opts::const_iterator o=i->second.opts.begin();
                 o!=i->second.opts.end();++o)
               showHelp(_opts.find(*o));
           }
@@ -406,7 +407,7 @@ namespace lemon {
             std::cerr << _command_name <<
               ": At most one of the following arguments can be given.\n";
             ok=false;
-            for(GroupData::Opts::iterator o=i->second.opts.begin();
+            for(GroupData::Opts::const_iterator o=i->second.opts.begin();
                 o!=i->second.opts.end();++o)
               showHelp(_opts.find(*o));
           }
