@@ -22,9 +22,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <lemon/bits/traits.h>
-#include <lemon/bits/utility.h>
-
+#include <lemon/core.h>
 #include <lemon/bits/alteration_notifier.h>
 
 #include <lemon/concept_check.h>

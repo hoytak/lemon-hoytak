@@ -35,7 +35,7 @@
 #endif
 
 #include<lemon/math.h>
-#include<lemon/bits/invalid.h>
+#include<lemon/core.h>
 #include<lemon/dim2.h>
 #include<lemon/maps.h>
 #include<lemon/color.h>

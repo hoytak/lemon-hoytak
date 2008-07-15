@@ -25,8 +25,7 @@
 #ifndef LEMON_CONCEPT_PATH_H
 #define LEMON_CONCEPT_PATH_H
 
-#include <lemon/bits/invalid.h>
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 #include <lemon/concept_check.h>
 
 namespace lemon {

@@ -20,7 +20,7 @@
 ///\brief Some basic non-inline functions and static global data.
 
 #include<lemon/tolerance.h>
-#include<lemon/bits/invalid.h>
+#include<lemon/core.h>
 namespace lemon {
 
   float Tolerance<float>::def_epsilon = 1e-4;

@@ -23,8 +23,7 @@
 #include <functional>
 #include <vector>
 
-#include <lemon/bits/utility.h>
-#include <lemon/bits/traits.h>
+#include <lemon/core.h>
 
 ///\file
 ///\ingroup maps
@@ -1779,6 +1778,926 @@ namespace lemon {
   inline LoggerBoolMap<Iterator> loggerBoolMap(Iterator it) {
     return LoggerBoolMap<Iterator>(it);
   }
+
+  /// Provides an immutable and unique id for each item in the graph.
+
+  /// The IdMap class provides a unique and immutable id for each item of the
+  /// same type (e.g. node) in the graph. This id is <ul><li>\b unique:
+  /// different items (nodes) get different ids <li>\b immutable: the id of an
+  /// item (node) does not change (even if you delete other nodes).  </ul>
+  /// Through this map you get access (i.e. can read) the inner id values of
+  /// the items stored in the graph. This map can be inverted with its member
+  /// class \c InverseMap or with the \c operator() member.
+  ///
+  template <typename _Graph, typename _Item>
+  class IdMap {
+  public:
+    typedef _Graph Graph;
+    typedef int Value;
+    typedef _Item Item;
+    typedef _Item Key;
+
+    /// \brief Constructor.
+    ///
+    /// Constructor of the map.
+    explicit IdMap(const Graph& graph) : _graph(&graph) {}
+
+    /// \brief Gives back the \e id of the item.
+    ///
+    /// Gives back the immutable and unique \e id of the item.
+    int operator[](const Item& item) const { return _graph->id(item);}
+
+    /// \brief Gives back the item by its id.
+    ///
+    /// Gives back the item by its id.
+    Item operator()(int id) { return _graph->fromId(id, Item()); }
+
+  private:
+    const Graph* _graph;
+
+  public:
+
+    /// \brief The class represents the inverse of its owner (IdMap).
+    ///
+    /// The class represents the inverse of its owner (IdMap).
+    /// \see inverse()
+    class InverseMap {
+    public:
+
+      /// \brief Constructor.
+      ///
+      /// Constructor for creating an id-to-item map.
+      explicit InverseMap(const Graph& graph) : _graph(&graph) {}
+
+      /// \brief Constructor.
+      ///
+      /// Constructor for creating an id-to-item map.
+      explicit InverseMap(const IdMap& map) : _graph(map._graph) {}
+
+      /// \brief Gives back the given item from its id.
+      ///
+      /// Gives back the given item from its id.
+      ///
+      Item operator[](int id) const { return _graph->fromId(id, Item());}
+
+    private:
+      const Graph* _graph;
+    };
+
+    /// \brief Gives back the inverse of the map.
+    ///
+    /// Gives back the inverse of the IdMap.
+    InverseMap inverse() const { return InverseMap(*_graph);}
+
+  };
+
+
+  /// \brief General invertable graph-map type.
+
+  /// This type provides simple invertable graph-maps.
+  /// The InvertableMap wraps an arbitrary ReadWriteMap
+  /// and if a key is set to a new value then store it
+  /// in the inverse map.
+  ///
+  /// The values of the map can be accessed
+  /// with stl compatible forward iterator.
+  ///
+  /// \tparam _Graph The graph type.
+  /// \tparam _Item The item type of the graph.
+  /// \tparam _Value The value type of the map.
+  ///
+  /// \see IterableValueMap
+  template <typename _Graph, typename _Item, typename _Value>
+  class InvertableMap
+    : protected ItemSetTraits<_Graph, _Item>::template Map<_Value>::Type {
+  private:
+
+    typedef typename ItemSetTraits<_Graph, _Item>::
+    template Map<_Value>::Type Map;
+    typedef _Graph Graph;
+
+    typedef std::map<_Value, _Item> Container;
+    Container _inv_map;
+
+  public:
+
+    /// The key type of InvertableMap (Node, Arc, Edge).
+    typedef typename Map::Key Key;
+    /// The value type of the InvertableMap.
+    typedef typename Map::Value Value;
+
+
+
+    /// \brief Constructor.
+    ///
+    /// Construct a new InvertableMap for the graph.
+    ///
+    explicit InvertableMap(const Graph& graph) : Map(graph) {}
+
+    /// \brief Forward iterator for values.
+    ///
+    /// This iterator is an stl compatible forward
+    /// iterator on the values of the map. The values can
+    /// be accessed in the [beginValue, endValue) range.
+    ///
+    class ValueIterator
+      : public std::iterator<std::forward_iterator_tag, Value> {
+      friend class InvertableMap;
+    private:
+      ValueIterator(typename Container::const_iterator _it)
+        : it(_it) {}
+    public:
+
+      ValueIterator() {}
+
+      ValueIterator& operator++() { ++it; return *this; }
+      ValueIterator operator++(int) {
+        ValueIterator tmp(*this);
+        operator++();
+        return tmp;
+      }
+
+      const Value& operator*() const { return it->first; }
+      const Value* operator->() const { return &(it->first); }
+
+      bool operator==(ValueIterator jt) const { return it == jt.it; }
+      bool operator!=(ValueIterator jt) const { return it != jt.it; }
+
+    private:
+      typename Container::const_iterator it;
+    };
+
+    /// \brief Returns an iterator to the first value.
+    ///
+    /// Returns an stl compatible iterator to the
+    /// first value of the map. The values of the
+    /// map can be accessed in the [beginValue, endValue)
+    /// range.
+    ValueIterator beginValue() const {
+      return ValueIterator(_inv_map.begin());
+    }
+
+    /// \brief Returns an iterator after the last value.
+    ///
+    /// Returns an stl compatible iterator after the
+    /// last value of the map. The values of the
+    /// map can be accessed in the [beginValue, endValue)
+    /// range.
+    ValueIterator endValue() const {
+      return ValueIterator(_inv_map.end());
+    }
+
+    /// \brief The setter function of the map.
+    ///
+    /// Sets the mapped value.
+    void set(const Key& key, const Value& val) {
+      Value oldval = Map::operator[](key);
+      typename Container::iterator it = _inv_map.find(oldval);
+      if (it != _inv_map.end() && it->second == key) {
+        _inv_map.erase(it);
+      }
+      _inv_map.insert(make_pair(val, key));
+      Map::set(key, val);
+    }
+
+    /// \brief The getter function of the map.
+    ///
+    /// It gives back the value associated with the key.
+    typename MapTraits<Map>::ConstReturnValue
+    operator[](const Key& key) const {
+      return Map::operator[](key);
+    }
+
+    /// \brief Gives back the item by its value.
+    ///
+    /// Gives back the item by its value.
+    Key operator()(const Value& key) const {
+      typename Container::const_iterator it = _inv_map.find(key);
+      return it != _inv_map.end() ? it->second : INVALID;
+    }
+
+  protected:
+
+    /// \brief Erase the key from the map.
+    ///
+    /// Erase the key to the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void erase(const Key& key) {
+      Value val = Map::operator[](key);
+      typename Container::iterator it = _inv_map.find(val);
+      if (it != _inv_map.end() && it->second == key) {
+        _inv_map.erase(it);
+      }
+      Map::erase(key);
+    }
+
+    /// \brief Erase more keys from the map.
+    ///
+    /// Erase more keys from the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void erase(const std::vector<Key>& keys) {
+      for (int i = 0; i < int(keys.size()); ++i) {
+        Value val = Map::operator[](keys[i]);
+        typename Container::iterator it = _inv_map.find(val);
+        if (it != _inv_map.end() && it->second == keys[i]) {
+          _inv_map.erase(it);
+        }
+      }
+      Map::erase(keys);
+    }
+
+    /// \brief Clear the keys from the map and inverse map.
+    ///
+    /// Clear the keys from the map and inverse map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void clear() {
+      _inv_map.clear();
+      Map::clear();
+    }
+
+  public:
+
+    /// \brief The inverse map type.
+    ///
+    /// The inverse of this map. The subscript operator of the map
+    /// gives back always the item what was last assigned to the value.
+    class InverseMap {
+    public:
+      /// \brief Constructor of the InverseMap.
+      ///
+      /// Constructor of the InverseMap.
+      explicit InverseMap(const InvertableMap& inverted)
+        : _inverted(inverted) {}
+
+      /// The value type of the InverseMap.
+      typedef typename InvertableMap::Key Value;
+      /// The key type of the InverseMap.
+      typedef typename InvertableMap::Value Key;
+
+      /// \brief Subscript operator.
+      ///
+      /// Subscript operator. It gives back always the item
+      /// what was last assigned to the value.
+      Value operator[](const Key& key) const {
+        return _inverted(key);
+      }
+
+    private:
+      const InvertableMap& _inverted;
+    };
+
+    /// \brief It gives back the just readable inverse map.
+    ///
+    /// It gives back the just readable inverse map.
+    InverseMap inverse() const {
+      return InverseMap(*this);
+    }
+
+
+
+  };
+
+  /// \brief Provides a mutable, continuous and unique descriptor for each
+  /// item in the graph.
+  ///
+  /// The DescriptorMap class provides a unique and continuous (but mutable)
+  /// descriptor (id) for each item of the same type (e.g. node) in the
+  /// graph. This id is <ul><li>\b unique: different items (nodes) get
+  /// different ids <li>\b continuous: the range of the ids is the set of
+  /// integers between 0 and \c n-1, where \c n is the number of the items of
+  /// this type (e.g. nodes) (so the id of a node can change if you delete an
+  /// other node, i.e. this id is mutable).  </ul> This map can be inverted
+  /// with its member class \c InverseMap, or with the \c operator() member.
+  ///
+  /// \tparam _Graph The graph class the \c DescriptorMap belongs to.
+  /// \tparam _Item The Item is the Key of the Map. It may be Node, Arc or
+  /// Edge.
+  template <typename _Graph, typename _Item>
+  class DescriptorMap
+    : protected ItemSetTraits<_Graph, _Item>::template Map<int>::Type {
+
+    typedef _Item Item;
+    typedef typename ItemSetTraits<_Graph, _Item>::template Map<int>::Type Map;
+
+  public:
+    /// The graph class of DescriptorMap.
+    typedef _Graph Graph;
+
+    /// The key type of DescriptorMap (Node, Arc, Edge).
+    typedef typename Map::Key Key;
+    /// The value type of DescriptorMap.
+    typedef typename Map::Value Value;
+
+    /// \brief Constructor.
+    ///
+    /// Constructor for descriptor map.
+    explicit DescriptorMap(const Graph& _graph) : Map(_graph) {
+      Item it;
+      const typename Map::Notifier* nf = Map::notifier();
+      for (nf->first(it); it != INVALID; nf->next(it)) {
+        Map::set(it, _inv_map.size());
+        _inv_map.push_back(it);
+      }
+    }
+
+  protected:
+
+    /// \brief Add a new key to the map.
+    ///
+    /// Add a new key to the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void add(const Item& item) {
+      Map::add(item);
+      Map::set(item, _inv_map.size());
+      _inv_map.push_back(item);
+    }
+
+    /// \brief Add more new keys to the map.
+    ///
+    /// Add more new keys to the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void add(const std::vector<Item>& items) {
+      Map::add(items);
+      for (int i = 0; i < int(items.size()); ++i) {
+        Map::set(items[i], _inv_map.size());
+        _inv_map.push_back(items[i]);
+      }
+    }
+
+    /// \brief Erase the key from the map.
+    ///
+    /// Erase the key from the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void erase(const Item& item) {
+      Map::set(_inv_map.back(), Map::operator[](item));
+      _inv_map[Map::operator[](item)] = _inv_map.back();
+      _inv_map.pop_back();
+      Map::erase(item);
+    }
+
+    /// \brief Erase more keys from the map.
+    ///
+    /// Erase more keys from the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void erase(const std::vector<Item>& items) {
+      for (int i = 0; i < int(items.size()); ++i) {
+        Map::set(_inv_map.back(), Map::operator[](items[i]));
+        _inv_map[Map::operator[](items[i])] = _inv_map.back();
+        _inv_map.pop_back();
+      }
+      Map::erase(items);
+    }
+
+    /// \brief Build the unique map.
+    ///
+    /// Build the unique map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void build() {
+      Map::build();
+      Item it;
+      const typename Map::Notifier* nf = Map::notifier();
+      for (nf->first(it); it != INVALID; nf->next(it)) {
+        Map::set(it, _inv_map.size());
+        _inv_map.push_back(it);
+      }
+    }
+
+    /// \brief Clear the keys from the map.
+    ///
+    /// Clear the keys from the map. It is called by the
+    /// \c AlterationNotifier.
+    virtual void clear() {
+      _inv_map.clear();
+      Map::clear();
+    }
+
+  public:
+
+    /// \brief Returns the maximal value plus one.
+    ///
+    /// Returns the maximal value plus one in the map.
+    unsigned int size() const {
+      return _inv_map.size();
+    }
+
+    /// \brief Swaps the position of the two items in the map.
+    ///
+    /// Swaps the position of the two items in the map.
+    void swap(const Item& p, const Item& q) {
+      int pi = Map::operator[](p);
+      int qi = Map::operator[](q);
+      Map::set(p, qi);
+      _inv_map[qi] = p;
+      Map::set(q, pi);
+      _inv_map[pi] = q;
+    }
+
+    /// \brief Gives back the \e descriptor of the item.
+    ///
+    /// Gives back the mutable and unique \e descriptor of the map.
+    int operator[](const Item& item) const {
+      return Map::operator[](item);
+    }
+
+    /// \brief Gives back the item by its descriptor.
+    ///
+    /// Gives back th item by its descriptor.
+    Item operator()(int id) const {
+      return _inv_map[id];
+    }
+
+  private:
+
+    typedef std::vector<Item> Container;
+    Container _inv_map;
+
+  public:
+    /// \brief The inverse map type of DescriptorMap.
+    ///
+    /// The inverse map type of DescriptorMap.
+    class InverseMap {
+    public:
+      /// \brief Constructor of the InverseMap.
+      ///
+      /// Constructor of the InverseMap.
+      explicit InverseMap(const DescriptorMap& inverted)
+        : _inverted(inverted) {}
+
+
+      /// The value type of the InverseMap.
+      typedef typename DescriptorMap::Key Value;
+      /// The key type of the InverseMap.
+      typedef typename DescriptorMap::Value Key;
+
+      /// \brief Subscript operator.
+      ///
+      /// Subscript operator. It gives back the item
+      /// that the descriptor belongs to currently.
+      Value operator[](const Key& key) const {
+        return _inverted(key);
+      }
+
+      /// \brief Size of the map.
+      ///
+      /// Returns the size of the map.
+      unsigned int size() const {
+        return _inverted.size();
+      }
+
+    private:
+      const DescriptorMap& _inverted;
+    };
+
+    /// \brief Gives back the inverse of the map.
+    ///
+    /// Gives back the inverse of the map.
+    const InverseMap inverse() const {
+      return InverseMap(*this);
+    }
+  };
+
+  /// \brief Returns the source of the given arc.
+  ///
+  /// The SourceMap gives back the source Node of the given arc.
+  /// \see TargetMap
+  template <typename Digraph>
+  class SourceMap {
+  public:
+
+    typedef typename Digraph::Node Value;
+    typedef typename Digraph::Arc Key;
+
+    /// \brief Constructor
+    ///
+    /// Constructor
+    /// \param _digraph The digraph that the map belongs to.
+    explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
+
+    /// \brief The subscript operator.
+    ///
+    /// The subscript operator.
+    /// \param arc The arc
+    /// \return The source of the arc
+    Value operator[](const Key& arc) const {
+      return _digraph.source(arc);
+    }
+
+  private:
+    const Digraph& _digraph;
+  };
+
+  /// \brief Returns a \ref SourceMap class.
+  ///
+  /// This function just returns an \ref SourceMap class.
+  /// \relates SourceMap
+  template <typename Digraph>
+  inline SourceMap<Digraph> sourceMap(const Digraph& digraph) {
+    return SourceMap<Digraph>(digraph);
+  }
+
+  /// \brief Returns the target of the given arc.
+  ///
+  /// The TargetMap gives back the target Node of the given arc.
+  /// \see SourceMap
+  template <typename Digraph>
+  class TargetMap {
+  public:
+
+    typedef typename Digraph::Node Value;
+    typedef typename Digraph::Arc Key;
+
+    /// \brief Constructor
+    ///
+    /// Constructor
+    /// \param _digraph The digraph that the map belongs to.
+    explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
+
+    /// \brief The subscript operator.
+    ///
+    /// The subscript operator.
+    /// \param e The arc
+    /// \return The target of the arc
+    Value operator[](const Key& e) const {
+      return _digraph.target(e);
+    }
+
+  private:
+    const Digraph& _digraph;
+  };
+
+  /// \brief Returns a \ref TargetMap class.
+  ///
+  /// This function just returns a \ref TargetMap class.
+  /// \relates TargetMap
+  template <typename Digraph>
+  inline TargetMap<Digraph> targetMap(const Digraph& digraph) {
+    return TargetMap<Digraph>(digraph);
+  }
+
+  /// \brief Returns the "forward" directed arc view of an edge.
+  ///
+  /// Returns the "forward" directed arc view of an edge.
+  /// \see BackwardMap
+  template <typename Graph>
+  class ForwardMap {
+  public:
+
+    typedef typename Graph::Arc Value;
+    typedef typename Graph::Edge Key;
+
+    /// \brief Constructor
+    ///
+    /// Constructor
+    /// \param _graph The graph that the map belongs to.
+    explicit ForwardMap(const Graph& graph) : _graph(graph) {}
+
+    /// \brief The subscript operator.
+    ///
+    /// The subscript operator.
+    /// \param key An edge
+    /// \return The "forward" directed arc view of edge
+    Value operator[](const Key& key) const {
+      return _graph.direct(key, true);
+    }
+
+  private:
+    const Graph& _graph;
+  };
+
+  /// \brief Returns a \ref ForwardMap class.
+  ///
+  /// This function just returns an \ref ForwardMap class.
+  /// \relates ForwardMap
+  template <typename Graph>
+  inline ForwardMap<Graph> forwardMap(const Graph& graph) {
+    return ForwardMap<Graph>(graph);
+  }
+
+  /// \brief Returns the "backward" directed arc view of an edge.
+  ///
+  /// Returns the "backward" directed arc view of an edge.
+  /// \see ForwardMap
+  template <typename Graph>
+  class BackwardMap {
+  public:
+
+    typedef typename Graph::Arc Value;
+    typedef typename Graph::Edge Key;
+
+    /// \brief Constructor
+    ///
+    /// Constructor
+    /// \param _graph The graph that the map belongs to.
+    explicit BackwardMap(const Graph& graph) : _graph(graph) {}
+
+    /// \brief The subscript operator.
+    ///
+    /// The subscript operator.
+    /// \param key An edge
+    /// \return The "backward" directed arc view of edge
+    Value operator[](const Key& key) const {
+      return _graph.direct(key, false);
+    }
+
+  private:
+    const Graph& _graph;
+  };
+
+  /// \brief Returns a \ref BackwardMap class
+
+  /// This function just returns a \ref BackwardMap class.
+  /// \relates BackwardMap
+  template <typename Graph>
+  inline BackwardMap<Graph> backwardMap(const Graph& graph) {
+    return BackwardMap<Graph>(graph);
+  }
+
+  /// \brief Potential difference map
+  ///
+  /// If there is an potential map on the nodes then we
+  /// can get an arc map as we get the substraction of the
+  /// values of the target and source.
+  template <typename Digraph, typename NodeMap>
+  class PotentialDifferenceMap {
+  public:
+    typedef typename Digraph::Arc Key;
+    typedef typename NodeMap::Value Value;
+
+    /// \brief Constructor
+    ///
+    /// Contructor of the map
+    explicit PotentialDifferenceMap(const Digraph& digraph,
+                                    const NodeMap& potential)
+      : _digraph(digraph), _potential(potential) {}
+
+    /// \brief Const subscription operator
+    ///
+    /// Const subscription operator
+    Value operator[](const Key& arc) const {
+      return _potential[_digraph.target(arc)] -
+        _potential[_digraph.source(arc)];
+    }
+
+  private:
+    const Digraph& _digraph;
+    const NodeMap& _potential;
+  };
+
+  /// \brief Returns a PotentialDifferenceMap.
+  ///
+  /// This function just returns a PotentialDifferenceMap.
+  /// \relates PotentialDifferenceMap
+  template <typename Digraph, typename NodeMap>
+  PotentialDifferenceMap<Digraph, NodeMap>
+  potentialDifferenceMap(const Digraph& digraph, const NodeMap& potential) {
+    return PotentialDifferenceMap<Digraph, NodeMap>(digraph, potential);
+  }
+
+  /// \brief Map of the node in-degrees.
+  ///
+  /// This map returns the in-degree of a node. Once it is constructed,
+  /// the degrees are stored in a standard NodeMap, so each query is done
+  /// in constant time. On the other hand, the values are updated automatically
+  /// whenever the digraph changes.
+  ///
+  /// \warning Besides addNode() and addArc(), a digraph structure may provide
+  /// alternative ways to modify the digraph. The correct behavior of InDegMap
+  /// is not guarantied if these additional features are used. For example
+  /// the functions \ref ListDigraph::changeSource() "changeSource()",
+  /// \ref ListDigraph::changeTarget() "changeTarget()" and
+  /// \ref ListDigraph::reverseArc() "reverseArc()"
+  /// of \ref ListDigraph will \e not update the degree values correctly.
+  ///
+  /// \sa OutDegMap
+
+  template <typename _Digraph>
+  class InDegMap
+    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
+      ::ItemNotifier::ObserverBase {
+
+  public:
+
+    typedef _Digraph Digraph;
+    typedef int Value;
+    typedef typename Digraph::Node Key;
+
+    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
+    ::ItemNotifier::ObserverBase Parent;
+
+  private:
+
+    class AutoNodeMap
+      : public ItemSetTraits<Digraph, Key>::template Map<int>::Type {
+    public:
+
+      typedef typename ItemSetTraits<Digraph, Key>::
+      template Map<int>::Type Parent;
+
+      AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
+
+      virtual void add(const Key& key) {
+        Parent::add(key);
+        Parent::set(key, 0);
+      }
+
+      virtual void add(const std::vector<Key>& keys) {
+        Parent::add(keys);
+        for (int i = 0; i < int(keys.size()); ++i) {
+          Parent::set(keys[i], 0);
+        }
+      }
+
+      virtual void build() {
+        Parent::build();
+        Key it;
+        typename Parent::Notifier* nf = Parent::notifier();
+        for (nf->first(it); it != INVALID; nf->next(it)) {
+          Parent::set(it, 0);
+        }
+      }
+    };
+
+  public:
+
+    /// \brief Constructor.
+    ///
+    /// Constructor for creating in-degree map.
+    explicit InDegMap(const Digraph& digraph)
+      : _digraph(digraph), _deg(digraph) {
+      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
+
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = countInArcs(_digraph, it);
+      }
+    }
+
+    /// Gives back the in-degree of a Node.
+    int operator[](const Key& key) const {
+      return _deg[key];
+    }
+
+  protected:
+
+    typedef typename Digraph::Arc Arc;
+
+    virtual void add(const Arc& arc) {
+      ++_deg[_digraph.target(arc)];
+    }
+
+    virtual void add(const std::vector<Arc>& arcs) {
+      for (int i = 0; i < int(arcs.size()); ++i) {
+        ++_deg[_digraph.target(arcs[i])];
+      }
+    }
+
+    virtual void erase(const Arc& arc) {
+      --_deg[_digraph.target(arc)];
+    }
+
+    virtual void erase(const std::vector<Arc>& arcs) {
+      for (int i = 0; i < int(arcs.size()); ++i) {
+        --_deg[_digraph.target(arcs[i])];
+      }
+    }
+
+    virtual void build() {
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = countInArcs(_digraph, it);
+      }
+    }
+
+    virtual void clear() {
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = 0;
+      }
+    }
+  private:
+
+    const Digraph& _digraph;
+    AutoNodeMap _deg;
+  };
+
+  /// \brief Map of the node out-degrees.
+  ///
+  /// This map returns the out-degree of a node. Once it is constructed,
+  /// the degrees are stored in a standard NodeMap, so each query is done
+  /// in constant time. On the other hand, the values are updated automatically
+  /// whenever the digraph changes.
+  ///
+  /// \warning Besides addNode() and addArc(), a digraph structure may provide
+  /// alternative ways to modify the digraph. The correct behavior of OutDegMap
+  /// is not guarantied if these additional features are used. For example
+  /// the functions \ref ListDigraph::changeSource() "changeSource()",
+  /// \ref ListDigraph::changeTarget() "changeTarget()" and
+  /// \ref ListDigraph::reverseArc() "reverseArc()"
+  /// of \ref ListDigraph will \e not update the degree values correctly.
+  ///
+  /// \sa InDegMap
+
+  template <typename _Digraph>
+  class OutDegMap
+    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
+      ::ItemNotifier::ObserverBase {
+
+  public:
+
+    typedef _Digraph Digraph;
+    typedef int Value;
+    typedef typename Digraph::Node Key;
+
+    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
+    ::ItemNotifier::ObserverBase Parent;
+
+  private:
+
+    class AutoNodeMap
+      : public ItemSetTraits<Digraph, Key>::template Map<int>::Type {
+    public:
+
+      typedef typename ItemSetTraits<Digraph, Key>::
+      template Map<int>::Type Parent;
+
+      AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
+
+      virtual void add(const Key& key) {
+        Parent::add(key);
+        Parent::set(key, 0);
+      }
+      virtual void add(const std::vector<Key>& keys) {
+        Parent::add(keys);
+        for (int i = 0; i < int(keys.size()); ++i) {
+          Parent::set(keys[i], 0);
+        }
+      }
+      virtual void build() {
+        Parent::build();
+        Key it;
+        typename Parent::Notifier* nf = Parent::notifier();
+        for (nf->first(it); it != INVALID; nf->next(it)) {
+          Parent::set(it, 0);
+        }
+      }
+    };
+
+  public:
+
+    /// \brief Constructor.
+    ///
+    /// Constructor for creating out-degree map.
+    explicit OutDegMap(const Digraph& digraph)
+      : _digraph(digraph), _deg(digraph) {
+      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
+
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = countOutArcs(_digraph, it);
+      }
+    }
+
+    /// Gives back the out-degree of a Node.
+    int operator[](const Key& key) const {
+      return _deg[key];
+    }
+
+  protected:
+
+    typedef typename Digraph::Arc Arc;
+
+    virtual void add(const Arc& arc) {
+      ++_deg[_digraph.source(arc)];
+    }
+
+    virtual void add(const std::vector<Arc>& arcs) {
+      for (int i = 0; i < int(arcs.size()); ++i) {
+        ++_deg[_digraph.source(arcs[i])];
+      }
+    }
+
+    virtual void erase(const Arc& arc) {
+      --_deg[_digraph.source(arc)];
+    }
+
+    virtual void erase(const std::vector<Arc>& arcs) {
+      for (int i = 0; i < int(arcs.size()); ++i) {
+        --_deg[_digraph.source(arcs[i])];
+      }
+    }
+
+    virtual void build() {
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = countOutArcs(_digraph, it);
+      }
+    }
+
+    virtual void clear() {
+      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
+        _deg[it] = 0;
+      }
+    }
+  private:
+
+    const Digraph& _digraph;
+    AutoNodeMap _deg;
+  };
 
   /// @}
 }

@@ -16,28 +16,40 @@
  *
  */
 
-#ifndef LEMON_GRAPH_UTILS_H
-#define LEMON_GRAPH_UTILS_H
+#ifndef LEMON_CORE_H
+#define LEMON_CORE_H
 
-#include <iterator>
 #include <vector>
-#include <map>
-#include <cmath>
 #include <algorithm>
 
-#include <lemon/bits/invalid.h>
-#include <lemon/bits/utility.h>
-#include <lemon/maps.h>
+#include <lemon/bits/enable_if.h>
 #include <lemon/bits/traits.h>
 
-#include <lemon/bits/alteration_notifier.h>
-#include <lemon/bits/default_map.h>
-
-///\ingroup gutils
 ///\file
-///\brief Graph utilities.
+///\brief LEMON core utilities.
 
 namespace lemon {
+
+  /// \brief Dummy type to make it easier to create invalid iterators.
+  ///
+  /// Dummy type to make it easier to create invalid iterators.
+  /// See \ref INVALID for the usage.
+  struct Invalid {
+  public:
+    bool operator==(Invalid) { return true;  }
+    bool operator!=(Invalid) { return false; }
+    bool operator< (Invalid) { return false; }
+  };
+
+  /// \brief Invalid iterators.
+  ///
+  /// \ref Invalid is a global type that converts to each iterator
+  /// in such a way that the value of the target iterator will be invalid.
+#ifdef LEMON_ONLY_TEMPLATES
+  const Invalid INVALID = Invalid();
+#else
+  extern const Invalid INVALID;
+#endif
 
   /// \addtogroup gutils
   /// @{
@@ -137,7 +149,7 @@ namespace lemon {
 
   // Node counting:
 
-  namespace _graph_utils_bits {
+  namespace _core_bits {
 
     template <typename Graph, typename Enable = void>
     struct CountNodesSelector {
@@ -168,12 +180,12 @@ namespace lemon {
   /// function to query the cardinality of the node set.
   template <typename Graph>
   inline int countNodes(const Graph& g) {
-    return _graph_utils_bits::CountNodesSelector<Graph>::count(g);
+    return _core_bits::CountNodesSelector<Graph>::count(g);
   }
 
   // Arc counting:
 
-  namespace _graph_utils_bits {
+  namespace _core_bits {
 
     template <typename Graph, typename Enable = void>
     struct CountArcsSelector {
@@ -204,11 +216,11 @@ namespace lemon {
   /// function to query the cardinality of the arc set.
   template <typename Graph>
   inline int countArcs(const Graph& g) {
-    return _graph_utils_bits::CountArcsSelector<Graph>::count(g);
+    return _core_bits::CountArcsSelector<Graph>::count(g);
   }
 
   // Edge counting:
-  namespace _graph_utils_bits {
+  namespace _core_bits {
 
     template <typename Graph, typename Enable = void>
     struct CountEdgesSelector {
@@ -239,7 +251,7 @@ namespace lemon {
   /// function to query the cardinality of the edge set.
   template <typename Graph>
   inline int countEdges(const Graph& g) {
-    return _graph_utils_bits::CountEdgesSelector<Graph>::count(g);
+    return _core_bits::CountEdgesSelector<Graph>::count(g);
 
   }
 
@@ -280,239 +292,7 @@ namespace lemon {
     return countNodeDegree<Graph, typename Graph::IncEdgeIt>(_g, _n);
   }
 
-  namespace _graph_utils_bits {
-
-    template <typename Graph, typename Enable = void>
-    struct FindArcSelector {
-      typedef typename Graph::Node Node;
-      typedef typename Graph::Arc Arc;
-      static Arc find(const Graph &g, Node u, Node v, Arc e) {
-        if (e == INVALID) {
-          g.firstOut(e, u);
-        } else {
-          g.nextOut(e);
-        }
-        while (e != INVALID && g.target(e) != v) {
-          g.nextOut(e);
-        }
-        return e;
-      }
-    };
-
-    template <typename Graph>
-    struct FindArcSelector<
-      Graph,
-      typename enable_if<typename Graph::FindEdgeTag, void>::type>
-    {
-      typedef typename Graph::Node Node;
-      typedef typename Graph::Arc Arc;
-      static Arc find(const Graph &g, Node u, Node v, Arc prev) {
-        return g.findArc(u, v, prev);
-      }
-    };
-  }
-
-  /// \brief Finds an arc between two nodes of a graph.
-  ///
-  /// Finds an arc from node \c u to node \c v in graph \c g.
-  ///
-  /// If \c prev is \ref INVALID (this is the default value), then
-  /// it finds the first arc from \c u to \c v. Otherwise it looks for
-  /// the next arc from \c u to \c v after \c prev.
-  /// \return The found arc or \ref INVALID if there is no such an arc.
-  ///
-  /// Thus you can iterate through each arc from \c u to \c v as it follows.
-  ///\code
-  /// for(Arc e=findArc(g,u,v);e!=INVALID;e=findArc(g,u,v,e)) {
-  ///   ...
-  /// }
-  ///\endcode
-  ///
-  ///\sa ArcLookUp
-  ///\sa AllArcLookUp
-  ///\sa DynArcLookUp
-  ///\sa ConArcIt
-  template <typename Graph>
-  inline typename Graph::Arc
-  findArc(const Graph &g, typename Graph::Node u, typename Graph::Node v,
-           typename Graph::Arc prev = INVALID) {
-    return _graph_utils_bits::FindArcSelector<Graph>::find(g, u, v, prev);
-  }
-
-  /// \brief Iterator for iterating on arcs connected the same nodes.
-  ///
-  /// Iterator for iterating on arcs connected the same nodes. It is
-  /// higher level interface for the findArc() function. You can
-  /// use it the following way:
-  ///\code
-  /// for (ConArcIt<Graph> it(g, src, trg); it != INVALID; ++it) {
-  ///   ...
-  /// }
-  ///\endcode
-  ///
-  ///\sa findArc()
-  ///\sa ArcLookUp
-  ///\sa AllArcLookUp
-  ///\sa DynArcLookUp
-  template <typename _Graph>
-  class ConArcIt : public _Graph::Arc {
-  public:
-
-    typedef _Graph Graph;
-    typedef typename Graph::Arc Parent;
-
-    typedef typename Graph::Arc Arc;
-    typedef typename Graph::Node Node;
-
-    /// \brief Constructor.
-    ///
-    /// Construct a new ConArcIt iterating on the arcs which
-    /// connects the \c u and \c v node.
-    ConArcIt(const Graph& g, Node u, Node v) : _graph(g) {
-      Parent::operator=(findArc(_graph, u, v));
-    }
-
-    /// \brief Constructor.
-    ///
-    /// Construct a new ConArcIt which continues the iterating from
-    /// the \c e arc.
-    ConArcIt(const Graph& g, Arc a) : Parent(a), _graph(g) {}
-
-    /// \brief Increment operator.
-    ///
-    /// It increments the iterator and gives back the next arc.
-    ConArcIt& operator++() {
-      Parent::operator=(findArc(_graph, _graph.source(*this),
-                                _graph.target(*this), *this));
-      return *this;
-    }
-  private:
-    const Graph& _graph;
-  };
-
-  namespace _graph_utils_bits {
-
-    template <typename Graph, typename Enable = void>
-    struct FindEdgeSelector {
-      typedef typename Graph::Node Node;
-      typedef typename Graph::Edge Edge;
-      static Edge find(const Graph &g, Node u, Node v, Edge e) {
-        bool b;
-        if (u != v) {
-          if (e == INVALID) {
-            g.firstInc(e, b, u);
-          } else {
-            b = g.u(e) == u;
-            g.nextInc(e, b);
-          }
-          while (e != INVALID && (b ? g.v(e) : g.u(e)) != v) {
-            g.nextInc(e, b);
-          }
-        } else {
-          if (e == INVALID) {
-            g.firstInc(e, b, u);
-          } else {
-            b = true;
-            g.nextInc(e, b);
-          }
-          while (e != INVALID && (!b || g.v(e) != v)) {
-            g.nextInc(e, b);
-          }
-        }
-        return e;
-      }
-    };
-
-    template <typename Graph>
-    struct FindEdgeSelector<
-      Graph,
-      typename enable_if<typename Graph::FindEdgeTag, void>::type>
-    {
-      typedef typename Graph::Node Node;
-      typedef typename Graph::Edge Edge;
-      static Edge find(const Graph &g, Node u, Node v, Edge prev) {
-        return g.findEdge(u, v, prev);
-      }
-    };
-  }
-
-  /// \brief Finds an edge between two nodes of a graph.
-  ///
-  /// Finds an edge from node \c u to node \c v in graph \c g.
-  /// If the node \c u and node \c v is equal then each loop edge
-  /// will be enumerated once.
-  ///
-  /// If \c prev is \ref INVALID (this is the default value), then
-  /// it finds the first arc from \c u to \c v. Otherwise it looks for
-  /// the next arc from \c u to \c v after \c prev.
-  /// \return The found arc or \ref INVALID if there is no such an arc.
-  ///
-  /// Thus you can iterate through each arc from \c u to \c v as it follows.
-  ///\code
-  /// for(Edge e = findEdge(g,u,v); e != INVALID;
-  ///     e = findEdge(g,u,v,e)) {
-  ///   ...
-  /// }
-  ///\endcode
-  ///
-  ///\sa ConEdgeIt
-
-  template <typename Graph>
-  inline typename Graph::Edge
-  findEdge(const Graph &g, typename Graph::Node u, typename Graph::Node v,
-            typename Graph::Edge p = INVALID) {
-    return _graph_utils_bits::FindEdgeSelector<Graph>::find(g, u, v, p);
-  }
-
-  /// \brief Iterator for iterating on edges connected the same nodes.
-  ///
-  /// Iterator for iterating on edges connected the same nodes. It is
-  /// higher level interface for the findEdge() function. You can
-  /// use it the following way:
-  ///\code
-  /// for (ConEdgeIt<Graph> it(g, src, trg); it != INVALID; ++it) {
-  ///   ...
-  /// }
-  ///\endcode
-  ///
-  ///\sa findEdge()
-  template <typename _Graph>
-  class ConEdgeIt : public _Graph::Edge {
-  public:
-
-    typedef _Graph Graph;
-    typedef typename Graph::Edge Parent;
-
-    typedef typename Graph::Edge Edge;
-    typedef typename Graph::Node Node;
-
-    /// \brief Constructor.
-    ///
-    /// Construct a new ConEdgeIt iterating on the edges which
-    /// connects the \c u and \c v node.
-    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g) {
-      Parent::operator=(findEdge(_graph, u, v));
-    }
-
-    /// \brief Constructor.
-    ///
-    /// Construct a new ConEdgeIt which continues the iterating from
-    /// the \c e edge.
-    ConEdgeIt(const Graph& g, Edge e) : Parent(e), _graph(g) {}
-
-    /// \brief Increment operator.
-    ///
-    /// It increments the iterator and gives back the next edge.
-    ConEdgeIt& operator++() {
-      Parent::operator=(findEdge(_graph, _graph.u(*this),
-                                 _graph.v(*this), *this));
-      return *this;
-    }
-  private:
-    const Graph& _graph;
-  };
-
-  namespace _graph_utils_bits {
+  namespace _core_bits {
 
     template <typename Digraph, typename Item, typename RefMap>
     class MapCopyBase {
@@ -730,7 +510,7 @@ namespace lemon {
     /// destination graph.
     template <typename NodeRef>
     DigraphCopy& nodeRef(NodeRef& map) {
-      _node_maps.push_back(new _graph_utils_bits::RefCopy<From, Node,
+      _node_maps.push_back(new _core_bits::RefCopy<From, Node,
                            NodeRefMap, NodeRef>(map));
       return *this;
     }
@@ -743,7 +523,7 @@ namespace lemon {
     ///  the Node type of the source graph.
     template <typename NodeCrossRef>
     DigraphCopy& nodeCrossRef(NodeCrossRef& map) {
-      _node_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Node,
+      _node_maps.push_back(new _core_bits::CrossRefCopy<From, Node,
                            NodeRefMap, NodeCrossRef>(map));
       return *this;
     }
@@ -755,7 +535,7 @@ namespace lemon {
     /// and the copied map's key type is the source graph's node type.
     template <typename ToMap, typename FromMap>
     DigraphCopy& nodeMap(ToMap& tmap, const FromMap& map) {
-      _node_maps.push_back(new _graph_utils_bits::MapCopy<From, Node,
+      _node_maps.push_back(new _core_bits::MapCopy<From, Node,
                            NodeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
@@ -764,7 +544,7 @@ namespace lemon {
     ///
     /// Make a copy of the given node.
     DigraphCopy& node(TNode& tnode, const Node& snode) {
-      _node_maps.push_back(new _graph_utils_bits::ItemCopy<From, Node,
+      _node_maps.push_back(new _core_bits::ItemCopy<From, Node,
                            NodeRefMap, TNode>(tnode, snode));
       return *this;
     }
@@ -774,7 +554,7 @@ namespace lemon {
     /// Copies the arc references into the given map.
     template <typename ArcRef>
     DigraphCopy& arcRef(ArcRef& map) {
-      _arc_maps.push_back(new _graph_utils_bits::RefCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::RefCopy<From, Arc,
                           ArcRefMap, ArcRef>(map));
       return *this;
     }
@@ -785,7 +565,7 @@ namespace lemon {
     ///  the given map.
     template <typename ArcCrossRef>
     DigraphCopy& arcCrossRef(ArcCrossRef& map) {
-      _arc_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::CrossRefCopy<From, Arc,
                           ArcRefMap, ArcCrossRef>(map));
       return *this;
     }
@@ -798,7 +578,7 @@ namespace lemon {
     /// type.
     template <typename ToMap, typename FromMap>
     DigraphCopy& arcMap(ToMap& tmap, const FromMap& map) {
-      _arc_maps.push_back(new _graph_utils_bits::MapCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::MapCopy<From, Arc,
                           ArcRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
@@ -807,7 +587,7 @@ namespace lemon {
     ///
     /// Make a copy of the given arc.
     DigraphCopy& arc(TArc& tarc, const Arc& sarc) {
-      _arc_maps.push_back(new _graph_utils_bits::ItemCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::ItemCopy<From, Arc,
                           ArcRefMap, TArc>(tarc, sarc));
       return *this;
     }
@@ -818,7 +598,7 @@ namespace lemon {
     void run() {
       NodeRefMap nodeRefMap(_from);
       ArcRefMap arcRefMap(_from);
-      _graph_utils_bits::DigraphCopySelector<To>::
+      _core_bits::DigraphCopySelector<To>::
         copy(_to, _from, nodeRefMap, arcRefMap);
       for (int i = 0; i < int(_node_maps.size()); ++i) {
         _node_maps[i]->copy(_from, nodeRefMap);
@@ -834,10 +614,10 @@ namespace lemon {
     const From& _from;
     To& _to;
 
-    std::vector<_graph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* >
+    std::vector<_core_bits::MapCopyBase<From, Node, NodeRefMap>* >
     _node_maps;
 
-    std::vector<_graph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* >
+    std::vector<_core_bits::MapCopyBase<From, Arc, ArcRefMap>* >
     _arc_maps;
 
   };
@@ -970,7 +750,7 @@ namespace lemon {
     /// Copies the node references into the given map.
     template <typename NodeRef>
     GraphCopy& nodeRef(NodeRef& map) {
-      _node_maps.push_back(new _graph_utils_bits::RefCopy<From, Node,
+      _node_maps.push_back(new _core_bits::RefCopy<From, Node,
                            NodeRefMap, NodeRef>(map));
       return *this;
     }
@@ -981,7 +761,7 @@ namespace lemon {
     ///  the given map.
     template <typename NodeCrossRef>
     GraphCopy& nodeCrossRef(NodeCrossRef& map) {
-      _node_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Node,
+      _node_maps.push_back(new _core_bits::CrossRefCopy<From, Node,
                            NodeRefMap, NodeCrossRef>(map));
       return *this;
     }
@@ -994,7 +774,7 @@ namespace lemon {
     /// type.
     template <typename ToMap, typename FromMap>
     GraphCopy& nodeMap(ToMap& tmap, const FromMap& map) {
-      _node_maps.push_back(new _graph_utils_bits::MapCopy<From, Node,
+      _node_maps.push_back(new _core_bits::MapCopy<From, Node,
                            NodeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
@@ -1003,7 +783,7 @@ namespace lemon {
     ///
     /// Make a copy of the given node.
     GraphCopy& node(TNode& tnode, const Node& snode) {
-      _node_maps.push_back(new _graph_utils_bits::ItemCopy<From, Node,
+      _node_maps.push_back(new _core_bits::ItemCopy<From, Node,
                            NodeRefMap, TNode>(tnode, snode));
       return *this;
     }
@@ -1013,7 +793,7 @@ namespace lemon {
     /// Copies the arc references into the given map.
     template <typename ArcRef>
     GraphCopy& arcRef(ArcRef& map) {
-      _arc_maps.push_back(new _graph_utils_bits::RefCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::RefCopy<From, Arc,
                           ArcRefMap, ArcRef>(map));
       return *this;
     }
@@ -1024,7 +804,7 @@ namespace lemon {
     ///  the given map.
     template <typename ArcCrossRef>
     GraphCopy& arcCrossRef(ArcCrossRef& map) {
-      _arc_maps.push_back(new _graph_utils_bits::CrossRefCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::CrossRefCopy<From, Arc,
                           ArcRefMap, ArcCrossRef>(map));
       return *this;
     }
@@ -1037,7 +817,7 @@ namespace lemon {
     /// type.
     template <typename ToMap, typename FromMap>
     GraphCopy& arcMap(ToMap& tmap, const FromMap& map) {
-      _arc_maps.push_back(new _graph_utils_bits::MapCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::MapCopy<From, Arc,
                           ArcRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
@@ -1046,7 +826,7 @@ namespace lemon {
     ///
     /// Make a copy of the given arc.
     GraphCopy& arc(TArc& tarc, const Arc& sarc) {
-      _arc_maps.push_back(new _graph_utils_bits::ItemCopy<From, Arc,
+      _arc_maps.push_back(new _core_bits::ItemCopy<From, Arc,
                           ArcRefMap, TArc>(tarc, sarc));
       return *this;
     }
@@ -1056,7 +836,7 @@ namespace lemon {
     /// Copies the edge references into the given map.
     template <typename EdgeRef>
     GraphCopy& edgeRef(EdgeRef& map) {
-      _edge_maps.push_back(new _graph_utils_bits::RefCopy<From, Edge,
+      _edge_maps.push_back(new _core_bits::RefCopy<From, Edge,
                            EdgeRefMap, EdgeRef>(map));
       return *this;
     }
@@ -1067,7 +847,7 @@ namespace lemon {
     /// references) into the given map.
     template <typename EdgeCrossRef>
     GraphCopy& edgeCrossRef(EdgeCrossRef& map) {
-      _edge_maps.push_back(new _graph_utils_bits::CrossRefCopy<From,
+      _edge_maps.push_back(new _core_bits::CrossRefCopy<From,
                            Edge, EdgeRefMap, EdgeCrossRef>(map));
       return *this;
     }
@@ -1080,7 +860,7 @@ namespace lemon {
     /// type.
     template <typename ToMap, typename FromMap>
     GraphCopy& edgeMap(ToMap& tmap, const FromMap& map) {
-      _edge_maps.push_back(new _graph_utils_bits::MapCopy<From, Edge,
+      _edge_maps.push_back(new _core_bits::MapCopy<From, Edge,
                            EdgeRefMap, ToMap, FromMap>(tmap, map));
       return *this;
     }
@@ -1089,7 +869,7 @@ namespace lemon {
     ///
     /// Make a copy of the given edge.
     GraphCopy& edge(TEdge& tedge, const Edge& sedge) {
-      _edge_maps.push_back(new _graph_utils_bits::ItemCopy<From, Edge,
+      _edge_maps.push_back(new _core_bits::ItemCopy<From, Edge,
                            EdgeRefMap, TEdge>(tedge, sedge));
       return *this;
     }
@@ -1101,7 +881,7 @@ namespace lemon {
       NodeRefMap nodeRefMap(_from);
       EdgeRefMap edgeRefMap(_from);
       ArcRefMap arcRefMap(_to, _from, edgeRefMap, nodeRefMap);
-      _graph_utils_bits::GraphCopySelector<To>::
+      _core_bits::GraphCopySelector<To>::
         copy(_to, _from, nodeRefMap, edgeRefMap);
       for (int i = 0; i < int(_node_maps.size()); ++i) {
         _node_maps[i]->copy(_from, nodeRefMap);
@@ -1119,13 +899,13 @@ namespace lemon {
     const From& _from;
     To& _to;
 
-    std::vector<_graph_utils_bits::MapCopyBase<From, Node, NodeRefMap>* >
+    std::vector<_core_bits::MapCopyBase<From, Node, NodeRefMap>* >
     _node_maps;
 
-    std::vector<_graph_utils_bits::MapCopyBase<From, Arc, ArcRefMap>* >
+    std::vector<_core_bits::MapCopyBase<From, Arc, ArcRefMap>* >
     _arc_maps;
 
-    std::vector<_graph_utils_bits::MapCopyBase<From, Edge, EdgeRefMap>* >
+    std::vector<_core_bits::MapCopyBase<From, Edge, EdgeRefMap>* >
     _edge_maps;
 
   };
@@ -1151,928 +931,241 @@ namespace lemon {
     return GraphCopy<To, From>(to, from);
   }
 
-  /// @}
+  namespace _core_bits {
 
-  /// \addtogroup graph_maps
-  /// @{
-
-  /// Provides an immutable and unique id for each item in the graph.
-
-  /// The IdMap class provides a unique and immutable id for each item of the
-  /// same type (e.g. node) in the graph. This id is <ul><li>\b unique:
-  /// different items (nodes) get different ids <li>\b immutable: the id of an
-  /// item (node) does not change (even if you delete other nodes).  </ul>
-  /// Through this map you get access (i.e. can read) the inner id values of
-  /// the items stored in the graph. This map can be inverted with its member
-  /// class \c InverseMap or with the \c operator() member.
-  ///
-  template <typename _Graph, typename _Item>
-  class IdMap {
-  public:
-    typedef _Graph Graph;
-    typedef int Value;
-    typedef _Item Item;
-    typedef _Item Key;
-
-    /// \brief Constructor.
-    ///
-    /// Constructor of the map.
-    explicit IdMap(const Graph& graph) : _graph(&graph) {}
-
-    /// \brief Gives back the \e id of the item.
-    ///
-    /// Gives back the immutable and unique \e id of the item.
-    int operator[](const Item& item) const { return _graph->id(item);}
-
-    /// \brief Gives back the item by its id.
-    ///
-    /// Gives back the item by its id.
-    Item operator()(int id) { return _graph->fromId(id, Item()); }
-
-  private:
-    const Graph* _graph;
-
-  public:
-
-    /// \brief The class represents the inverse of its owner (IdMap).
-    ///
-    /// The class represents the inverse of its owner (IdMap).
-    /// \see inverse()
-    class InverseMap {
-    public:
-
-      /// \brief Constructor.
-      ///
-      /// Constructor for creating an id-to-item map.
-      explicit InverseMap(const Graph& graph) : _graph(&graph) {}
-
-      /// \brief Constructor.
-      ///
-      /// Constructor for creating an id-to-item map.
-      explicit InverseMap(const IdMap& map) : _graph(map._graph) {}
-
-      /// \brief Gives back the given item from its id.
-      ///
-      /// Gives back the given item from its id.
-      ///
-      Item operator[](int id) const { return _graph->fromId(id, Item());}
-
-    private:
-      const Graph* _graph;
-    };
-
-    /// \brief Gives back the inverse of the map.
-    ///
-    /// Gives back the inverse of the IdMap.
-    InverseMap inverse() const { return InverseMap(*_graph);}
-
-  };
-
-
-  /// \brief General invertable graph-map type.
-
-  /// This type provides simple invertable graph-maps.
-  /// The InvertableMap wraps an arbitrary ReadWriteMap
-  /// and if a key is set to a new value then store it
-  /// in the inverse map.
-  ///
-  /// The values of the map can be accessed
-  /// with stl compatible forward iterator.
-  ///
-  /// \tparam _Graph The graph type.
-  /// \tparam _Item The item type of the graph.
-  /// \tparam _Value The value type of the map.
-  ///
-  /// \see IterableValueMap
-  template <typename _Graph, typename _Item, typename _Value>
-  class InvertableMap : protected DefaultMap<_Graph, _Item, _Value> {
-  private:
-
-    typedef DefaultMap<_Graph, _Item, _Value> Map;
-    typedef _Graph Graph;
-
-    typedef std::map<_Value, _Item> Container;
-    Container _inv_map;
-
-  public:
-
-    /// The key type of InvertableMap (Node, Arc, Edge).
-    typedef typename Map::Key Key;
-    /// The value type of the InvertableMap.
-    typedef typename Map::Value Value;
-
-
-
-    /// \brief Constructor.
-    ///
-    /// Construct a new InvertableMap for the graph.
-    ///
-    explicit InvertableMap(const Graph& graph) : Map(graph) {}
-
-    /// \brief Forward iterator for values.
-    ///
-    /// This iterator is an stl compatible forward
-    /// iterator on the values of the map. The values can
-    /// be accessed in the [beginValue, endValue) range.
-    ///
-    class ValueIterator
-      : public std::iterator<std::forward_iterator_tag, Value> {
-      friend class InvertableMap;
-    private:
-      ValueIterator(typename Container::const_iterator _it)
-        : it(_it) {}
-    public:
-
-      ValueIterator() {}
-
-      ValueIterator& operator++() { ++it; return *this; }
-      ValueIterator operator++(int) {
-        ValueIterator tmp(*this);
-        operator++();
-        return tmp;
-      }
-
-      const Value& operator*() const { return it->first; }
-      const Value* operator->() const { return &(it->first); }
-
-      bool operator==(ValueIterator jt) const { return it == jt.it; }
-      bool operator!=(ValueIterator jt) const { return it != jt.it; }
-
-    private:
-      typename Container::const_iterator it;
-    };
-
-    /// \brief Returns an iterator to the first value.
-    ///
-    /// Returns an stl compatible iterator to the
-    /// first value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
-    /// range.
-    ValueIterator beginValue() const {
-      return ValueIterator(_inv_map.begin());
-    }
-
-    /// \brief Returns an iterator after the last value.
-    ///
-    /// Returns an stl compatible iterator after the
-    /// last value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
-    /// range.
-    ValueIterator endValue() const {
-      return ValueIterator(_inv_map.end());
-    }
-
-    /// \brief The setter function of the map.
-    ///
-    /// Sets the mapped value.
-    void set(const Key& key, const Value& val) {
-      Value oldval = Map::operator[](key);
-      typename Container::iterator it = _inv_map.find(oldval);
-      if (it != _inv_map.end() && it->second == key) {
-        _inv_map.erase(it);
-      }
-      _inv_map.insert(make_pair(val, key));
-      Map::set(key, val);
-    }
-
-    /// \brief The getter function of the map.
-    ///
-    /// It gives back the value associated with the key.
-    typename MapTraits<Map>::ConstReturnValue
-    operator[](const Key& key) const {
-      return Map::operator[](key);
-    }
-
-    /// \brief Gives back the item by its value.
-    ///
-    /// Gives back the item by its value.
-    Key operator()(const Value& key) const {
-      typename Container::const_iterator it = _inv_map.find(key);
-      return it != _inv_map.end() ? it->second : INVALID;
-    }
-
-  protected:
-
-    /// \brief Erase the key from the map.
-    ///
-    /// Erase the key to the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void erase(const Key& key) {
-      Value val = Map::operator[](key);
-      typename Container::iterator it = _inv_map.find(val);
-      if (it != _inv_map.end() && it->second == key) {
-        _inv_map.erase(it);
-      }
-      Map::erase(key);
-    }
-
-    /// \brief Erase more keys from the map.
-    ///
-    /// Erase more keys from the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void erase(const std::vector<Key>& keys) {
-      for (int i = 0; i < int(keys.size()); ++i) {
-        Value val = Map::operator[](keys[i]);
-        typename Container::iterator it = _inv_map.find(val);
-        if (it != _inv_map.end() && it->second == keys[i]) {
-          _inv_map.erase(it);
+    template <typename Graph, typename Enable = void>
+    struct FindArcSelector {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Arc Arc;
+      static Arc find(const Graph &g, Node u, Node v, Arc e) {
+        if (e == INVALID) {
+          g.firstOut(e, u);
+        } else {
+          g.nextOut(e);
         }
+        while (e != INVALID && g.target(e) != v) {
+          g.nextOut(e);
+        }
+        return e;
       }
-      Map::erase(keys);
-    }
-
-    /// \brief Clear the keys from the map and inverse map.
-    ///
-    /// Clear the keys from the map and inverse map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void clear() {
-      _inv_map.clear();
-      Map::clear();
-    }
-
-  public:
-
-    /// \brief The inverse map type.
-    ///
-    /// The inverse of this map. The subscript operator of the map
-    /// gives back always the item what was last assigned to the value.
-    class InverseMap {
-    public:
-      /// \brief Constructor of the InverseMap.
-      ///
-      /// Constructor of the InverseMap.
-      explicit InverseMap(const InvertableMap& inverted)
-        : _inverted(inverted) {}
-
-      /// The value type of the InverseMap.
-      typedef typename InvertableMap::Key Value;
-      /// The key type of the InverseMap.
-      typedef typename InvertableMap::Value Key;
-
-      /// \brief Subscript operator.
-      ///
-      /// Subscript operator. It gives back always the item
-      /// what was last assigned to the value.
-      Value operator[](const Key& key) const {
-        return _inverted(key);
-      }
-
-    private:
-      const InvertableMap& _inverted;
     };
 
-    /// \brief It gives back the just readable inverse map.
-    ///
-    /// It gives back the just readable inverse map.
-    InverseMap inverse() const {
-      return InverseMap(*this);
-    }
+    template <typename Graph>
+    struct FindArcSelector<
+      Graph,
+      typename enable_if<typename Graph::FindEdgeTag, void>::type>
+    {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Arc Arc;
+      static Arc find(const Graph &g, Node u, Node v, Arc prev) {
+        return g.findArc(u, v, prev);
+      }
+    };
+  }
 
-
-
-  };
-
-  /// \brief Provides a mutable, continuous and unique descriptor for each
-  /// item in the graph.
+  /// \brief Finds an arc between two nodes of a graph.
   ///
-  /// The DescriptorMap class provides a unique and continuous (but mutable)
-  /// descriptor (id) for each item of the same type (e.g. node) in the
-  /// graph. This id is <ul><li>\b unique: different items (nodes) get
-  /// different ids <li>\b continuous: the range of the ids is the set of
-  /// integers between 0 and \c n-1, where \c n is the number of the items of
-  /// this type (e.g. nodes) (so the id of a node can change if you delete an
-  /// other node, i.e. this id is mutable).  </ul> This map can be inverted
-  /// with its member class \c InverseMap, or with the \c operator() member.
+  /// Finds an arc from node \c u to node \c v in graph \c g.
   ///
-  /// \tparam _Graph The graph class the \c DescriptorMap belongs to.
-  /// \tparam _Item The Item is the Key of the Map. It may be Node, Arc or
-  /// Edge.
-  template <typename _Graph, typename _Item>
-  class DescriptorMap : protected DefaultMap<_Graph, _Item, int> {
+  /// If \c prev is \ref INVALID (this is the default value), then
+  /// it finds the first arc from \c u to \c v. Otherwise it looks for
+  /// the next arc from \c u to \c v after \c prev.
+  /// \return The found arc or \ref INVALID if there is no such an arc.
+  ///
+  /// Thus you can iterate through each arc from \c u to \c v as it follows.
+  ///\code
+  /// for(Arc e=findArc(g,u,v);e!=INVALID;e=findArc(g,u,v,e)) {
+  ///   ...
+  /// }
+  ///\endcode
+  ///
+  ///\sa ArcLookUp
+  ///\sa AllArcLookUp
+  ///\sa DynArcLookUp
+  ///\sa ConArcIt
+  template <typename Graph>
+  inline typename Graph::Arc
+  findArc(const Graph &g, typename Graph::Node u, typename Graph::Node v,
+          typename Graph::Arc prev = INVALID) {
+    return _core_bits::FindArcSelector<Graph>::find(g, u, v, prev);
+  }
 
-    typedef _Item Item;
-    typedef DefaultMap<_Graph, _Item, int> Map;
-
+  /// \brief Iterator for iterating on arcs connected the same nodes.
+  ///
+  /// Iterator for iterating on arcs connected the same nodes. It is
+  /// higher level interface for the findArc() function. You can
+  /// use it the following way:
+  ///\code
+  /// for (ConArcIt<Graph> it(g, src, trg); it != INVALID; ++it) {
+  ///   ...
+  /// }
+  ///\endcode
+  ///
+  ///\sa findArc()
+  ///\sa ArcLookUp
+  ///\sa AllArcLookUp
+  ///\sa DynArcLookUp
+  template <typename _Graph>
+  class ConArcIt : public _Graph::Arc {
   public:
-    /// The graph class of DescriptorMap.
-    typedef _Graph Graph;
 
-    /// The key type of DescriptorMap (Node, Arc, Edge).
-    typedef typename Map::Key Key;
-    /// The value type of DescriptorMap.
-    typedef typename Map::Value Value;
+    typedef _Graph Graph;
+    typedef typename Graph::Arc Parent;
+
+    typedef typename Graph::Arc Arc;
+    typedef typename Graph::Node Node;
 
     /// \brief Constructor.
     ///
-    /// Constructor for descriptor map.
-    explicit DescriptorMap(const Graph& _graph) : Map(_graph) {
-      Item it;
-      const typename Map::Notifier* nf = Map::notifier();
-      for (nf->first(it); it != INVALID; nf->next(it)) {
-        Map::set(it, _inv_map.size());
-        _inv_map.push_back(it);
-      }
+    /// Construct a new ConArcIt iterating on the arcs which
+    /// connects the \c u and \c v node.
+    ConArcIt(const Graph& g, Node u, Node v) : _graph(g) {
+      Parent::operator=(findArc(_graph, u, v));
     }
 
-  protected:
-
-    /// \brief Add a new key to the map.
+    /// \brief Constructor.
     ///
-    /// Add a new key to the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void add(const Item& item) {
-      Map::add(item);
-      Map::set(item, _inv_map.size());
-      _inv_map.push_back(item);
+    /// Construct a new ConArcIt which continues the iterating from
+    /// the \c e arc.
+    ConArcIt(const Graph& g, Arc a) : Parent(a), _graph(g) {}
+
+    /// \brief Increment operator.
+    ///
+    /// It increments the iterator and gives back the next arc.
+    ConArcIt& operator++() {
+      Parent::operator=(findArc(_graph, _graph.source(*this),
+                                _graph.target(*this), *this));
+      return *this;
     }
-
-    /// \brief Add more new keys to the map.
-    ///
-    /// Add more new keys to the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void add(const std::vector<Item>& items) {
-      Map::add(items);
-      for (int i = 0; i < int(items.size()); ++i) {
-        Map::set(items[i], _inv_map.size());
-        _inv_map.push_back(items[i]);
-      }
-    }
-
-    /// \brief Erase the key from the map.
-    ///
-    /// Erase the key from the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void erase(const Item& item) {
-      Map::set(_inv_map.back(), Map::operator[](item));
-      _inv_map[Map::operator[](item)] = _inv_map.back();
-      _inv_map.pop_back();
-      Map::erase(item);
-    }
-
-    /// \brief Erase more keys from the map.
-    ///
-    /// Erase more keys from the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void erase(const std::vector<Item>& items) {
-      for (int i = 0; i < int(items.size()); ++i) {
-        Map::set(_inv_map.back(), Map::operator[](items[i]));
-        _inv_map[Map::operator[](items[i])] = _inv_map.back();
-        _inv_map.pop_back();
-      }
-      Map::erase(items);
-    }
-
-    /// \brief Build the unique map.
-    ///
-    /// Build the unique map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void build() {
-      Map::build();
-      Item it;
-      const typename Map::Notifier* nf = Map::notifier();
-      for (nf->first(it); it != INVALID; nf->next(it)) {
-        Map::set(it, _inv_map.size());
-        _inv_map.push_back(it);
-      }
-    }
-
-    /// \brief Clear the keys from the map.
-    ///
-    /// Clear the keys from the map. It is called by the
-    /// \c AlterationNotifier.
-    virtual void clear() {
-      _inv_map.clear();
-      Map::clear();
-    }
-
-  public:
-
-    /// \brief Returns the maximal value plus one.
-    ///
-    /// Returns the maximal value plus one in the map.
-    unsigned int size() const {
-      return _inv_map.size();
-    }
-
-    /// \brief Swaps the position of the two items in the map.
-    ///
-    /// Swaps the position of the two items in the map.
-    void swap(const Item& p, const Item& q) {
-      int pi = Map::operator[](p);
-      int qi = Map::operator[](q);
-      Map::set(p, qi);
-      _inv_map[qi] = p;
-      Map::set(q, pi);
-      _inv_map[pi] = q;
-    }
-
-    /// \brief Gives back the \e descriptor of the item.
-    ///
-    /// Gives back the mutable and unique \e descriptor of the map.
-    int operator[](const Item& item) const {
-      return Map::operator[](item);
-    }
-
-    /// \brief Gives back the item by its descriptor.
-    ///
-    /// Gives back th item by its descriptor.
-    Item operator()(int id) const {
-      return _inv_map[id];
-    }
-
-  private:
-
-    typedef std::vector<Item> Container;
-    Container _inv_map;
-
-  public:
-    /// \brief The inverse map type of DescriptorMap.
-    ///
-    /// The inverse map type of DescriptorMap.
-    class InverseMap {
-    public:
-      /// \brief Constructor of the InverseMap.
-      ///
-      /// Constructor of the InverseMap.
-      explicit InverseMap(const DescriptorMap& inverted)
-        : _inverted(inverted) {}
-
-
-      /// The value type of the InverseMap.
-      typedef typename DescriptorMap::Key Value;
-      /// The key type of the InverseMap.
-      typedef typename DescriptorMap::Value Key;
-
-      /// \brief Subscript operator.
-      ///
-      /// Subscript operator. It gives back the item
-      /// that the descriptor belongs to currently.
-      Value operator[](const Key& key) const {
-        return _inverted(key);
-      }
-
-      /// \brief Size of the map.
-      ///
-      /// Returns the size of the map.
-      unsigned int size() const {
-        return _inverted.size();
-      }
-
-    private:
-      const DescriptorMap& _inverted;
-    };
-
-    /// \brief Gives back the inverse of the map.
-    ///
-    /// Gives back the inverse of the map.
-    const InverseMap inverse() const {
-      return InverseMap(*this);
-    }
-  };
-
-  /// \brief Returns the source of the given arc.
-  ///
-  /// The SourceMap gives back the source Node of the given arc.
-  /// \see TargetMap
-  template <typename Digraph>
-  class SourceMap {
-  public:
-
-    typedef typename Digraph::Node Value;
-    typedef typename Digraph::Arc Key;
-
-    /// \brief Constructor
-    ///
-    /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
-    explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
-
-    /// \brief The subscript operator.
-    ///
-    /// The subscript operator.
-    /// \param arc The arc
-    /// \return The source of the arc
-    Value operator[](const Key& arc) const {
-      return _digraph.source(arc);
-    }
-
-  private:
-    const Digraph& _digraph;
-  };
-
-  /// \brief Returns a \ref SourceMap class.
-  ///
-  /// This function just returns an \ref SourceMap class.
-  /// \relates SourceMap
-  template <typename Digraph>
-  inline SourceMap<Digraph> sourceMap(const Digraph& digraph) {
-    return SourceMap<Digraph>(digraph);
-  }
-
-  /// \brief Returns the target of the given arc.
-  ///
-  /// The TargetMap gives back the target Node of the given arc.
-  /// \see SourceMap
-  template <typename Digraph>
-  class TargetMap {
-  public:
-
-    typedef typename Digraph::Node Value;
-    typedef typename Digraph::Arc Key;
-
-    /// \brief Constructor
-    ///
-    /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
-    explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
-
-    /// \brief The subscript operator.
-    ///
-    /// The subscript operator.
-    /// \param e The arc
-    /// \return The target of the arc
-    Value operator[](const Key& e) const {
-      return _digraph.target(e);
-    }
-
-  private:
-    const Digraph& _digraph;
-  };
-
-  /// \brief Returns a \ref TargetMap class.
-  ///
-  /// This function just returns a \ref TargetMap class.
-  /// \relates TargetMap
-  template <typename Digraph>
-  inline TargetMap<Digraph> targetMap(const Digraph& digraph) {
-    return TargetMap<Digraph>(digraph);
-  }
-
-  /// \brief Returns the "forward" directed arc view of an edge.
-  ///
-  /// Returns the "forward" directed arc view of an edge.
-  /// \see BackwardMap
-  template <typename Graph>
-  class ForwardMap {
-  public:
-
-    typedef typename Graph::Arc Value;
-    typedef typename Graph::Edge Key;
-
-    /// \brief Constructor
-    ///
-    /// Constructor
-    /// \param _graph The graph that the map belongs to.
-    explicit ForwardMap(const Graph& graph) : _graph(graph) {}
-
-    /// \brief The subscript operator.
-    ///
-    /// The subscript operator.
-    /// \param key An edge
-    /// \return The "forward" directed arc view of edge
-    Value operator[](const Key& key) const {
-      return _graph.direct(key, true);
-    }
-
   private:
     const Graph& _graph;
   };
 
-  /// \brief Returns a \ref ForwardMap class.
-  ///
-  /// This function just returns an \ref ForwardMap class.
-  /// \relates ForwardMap
-  template <typename Graph>
-  inline ForwardMap<Graph> forwardMap(const Graph& graph) {
-    return ForwardMap<Graph>(graph);
+  namespace _core_bits {
+
+    template <typename Graph, typename Enable = void>
+    struct FindEdgeSelector {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Edge Edge;
+      static Edge find(const Graph &g, Node u, Node v, Edge e) {
+        bool b;
+        if (u != v) {
+          if (e == INVALID) {
+            g.firstInc(e, b, u);
+          } else {
+            b = g.u(e) == u;
+            g.nextInc(e, b);
+          }
+          while (e != INVALID && (b ? g.v(e) : g.u(e)) != v) {
+            g.nextInc(e, b);
+          }
+        } else {
+          if (e == INVALID) {
+            g.firstInc(e, b, u);
+          } else {
+            b = true;
+            g.nextInc(e, b);
+          }
+          while (e != INVALID && (!b || g.v(e) != v)) {
+            g.nextInc(e, b);
+          }
+        }
+        return e;
+      }
+    };
+
+    template <typename Graph>
+    struct FindEdgeSelector<
+      Graph,
+      typename enable_if<typename Graph::FindEdgeTag, void>::type>
+    {
+      typedef typename Graph::Node Node;
+      typedef typename Graph::Edge Edge;
+      static Edge find(const Graph &g, Node u, Node v, Edge prev) {
+        return g.findEdge(u, v, prev);
+      }
+    };
   }
 
-  /// \brief Returns the "backward" directed arc view of an edge.
+  /// \brief Finds an edge between two nodes of a graph.
   ///
-  /// Returns the "backward" directed arc view of an edge.
-  /// \see ForwardMap
+  /// Finds an edge from node \c u to node \c v in graph \c g.
+  /// If the node \c u and node \c v is equal then each loop edge
+  /// will be enumerated once.
+  ///
+  /// If \c prev is \ref INVALID (this is the default value), then
+  /// it finds the first arc from \c u to \c v. Otherwise it looks for
+  /// the next arc from \c u to \c v after \c prev.
+  /// \return The found arc or \ref INVALID if there is no such an arc.
+  ///
+  /// Thus you can iterate through each arc from \c u to \c v as it follows.
+  ///\code
+  /// for(Edge e = findEdge(g,u,v); e != INVALID;
+  ///     e = findEdge(g,u,v,e)) {
+  ///   ...
+  /// }
+  ///\endcode
+  ///
+  ///\sa ConEdgeIt
+
   template <typename Graph>
-  class BackwardMap {
+  inline typename Graph::Edge
+  findEdge(const Graph &g, typename Graph::Node u, typename Graph::Node v,
+            typename Graph::Edge p = INVALID) {
+    return _core_bits::FindEdgeSelector<Graph>::find(g, u, v, p);
+  }
+
+  /// \brief Iterator for iterating on edges connected the same nodes.
+  ///
+  /// Iterator for iterating on edges connected the same nodes. It is
+  /// higher level interface for the findEdge() function. You can
+  /// use it the following way:
+  ///\code
+  /// for (ConEdgeIt<Graph> it(g, src, trg); it != INVALID; ++it) {
+  ///   ...
+  /// }
+  ///\endcode
+  ///
+  ///\sa findEdge()
+  template <typename _Graph>
+  class ConEdgeIt : public _Graph::Edge {
   public:
 
-    typedef typename Graph::Arc Value;
-    typedef typename Graph::Edge Key;
+    typedef _Graph Graph;
+    typedef typename Graph::Edge Parent;
 
-    /// \brief Constructor
-    ///
-    /// Constructor
-    /// \param _graph The graph that the map belongs to.
-    explicit BackwardMap(const Graph& graph) : _graph(graph) {}
+    typedef typename Graph::Edge Edge;
+    typedef typename Graph::Node Node;
 
-    /// \brief The subscript operator.
+    /// \brief Constructor.
     ///
-    /// The subscript operator.
-    /// \param key An edge
-    /// \return The "backward" directed arc view of edge
-    Value operator[](const Key& key) const {
-      return _graph.direct(key, false);
+    /// Construct a new ConEdgeIt iterating on the edges which
+    /// connects the \c u and \c v node.
+    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g) {
+      Parent::operator=(findEdge(_graph, u, v));
     }
 
+    /// \brief Constructor.
+    ///
+    /// Construct a new ConEdgeIt which continues the iterating from
+    /// the \c e edge.
+    ConEdgeIt(const Graph& g, Edge e) : Parent(e), _graph(g) {}
+
+    /// \brief Increment operator.
+    ///
+    /// It increments the iterator and gives back the next edge.
+    ConEdgeIt& operator++() {
+      Parent::operator=(findEdge(_graph, _graph.u(*this),
+                                 _graph.v(*this), *this));
+      return *this;
+    }
   private:
     const Graph& _graph;
-  };
-
-  /// \brief Returns a \ref BackwardMap class
-
-  /// This function just returns a \ref BackwardMap class.
-  /// \relates BackwardMap
-  template <typename Graph>
-  inline BackwardMap<Graph> backwardMap(const Graph& graph) {
-    return BackwardMap<Graph>(graph);
-  }
-
-  /// \brief Potential difference map
-  ///
-  /// If there is an potential map on the nodes then we
-  /// can get an arc map as we get the substraction of the
-  /// values of the target and source.
-  template <typename Digraph, typename NodeMap>
-  class PotentialDifferenceMap {
-  public:
-    typedef typename Digraph::Arc Key;
-    typedef typename NodeMap::Value Value;
-
-    /// \brief Constructor
-    ///
-    /// Contructor of the map
-    explicit PotentialDifferenceMap(const Digraph& digraph,
-                                    const NodeMap& potential)
-      : _digraph(digraph), _potential(potential) {}
-
-    /// \brief Const subscription operator
-    ///
-    /// Const subscription operator
-    Value operator[](const Key& arc) const {
-      return _potential[_digraph.target(arc)] -
-        _potential[_digraph.source(arc)];
-    }
-
-  private:
-    const Digraph& _digraph;
-    const NodeMap& _potential;
-  };
-
-  /// \brief Returns a PotentialDifferenceMap.
-  ///
-  /// This function just returns a PotentialDifferenceMap.
-  /// \relates PotentialDifferenceMap
-  template <typename Digraph, typename NodeMap>
-  PotentialDifferenceMap<Digraph, NodeMap>
-  potentialDifferenceMap(const Digraph& digraph, const NodeMap& potential) {
-    return PotentialDifferenceMap<Digraph, NodeMap>(digraph, potential);
-  }
-
-  /// \brief Map of the node in-degrees.
-  ///
-  /// This map returns the in-degree of a node. Once it is constructed,
-  /// the degrees are stored in a standard NodeMap, so each query is done
-  /// in constant time. On the other hand, the values are updated automatically
-  /// whenever the digraph changes.
-  ///
-  /// \warning Besides addNode() and addArc(), a digraph structure may provide
-  /// alternative ways to modify the digraph. The correct behavior of InDegMap
-  /// is not guarantied if these additional features are used. For example
-  /// the functions \ref ListDigraph::changeSource() "changeSource()",
-  /// \ref ListDigraph::changeTarget() "changeTarget()" and
-  /// \ref ListDigraph::reverseArc() "reverseArc()"
-  /// of \ref ListDigraph will \e not update the degree values correctly.
-  ///
-  /// \sa OutDegMap
-
-  template <typename _Digraph>
-  class InDegMap
-    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
-      ::ItemNotifier::ObserverBase {
-
-  public:
-
-    typedef _Digraph Digraph;
-    typedef int Value;
-    typedef typename Digraph::Node Key;
-
-    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
-    ::ItemNotifier::ObserverBase Parent;
-
-  private:
-
-    class AutoNodeMap : public DefaultMap<Digraph, Key, int> {
-    public:
-
-      typedef DefaultMap<Digraph, Key, int> Parent;
-
-      AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
-
-      virtual void add(const Key& key) {
-        Parent::add(key);
-        Parent::set(key, 0);
-      }
-
-      virtual void add(const std::vector<Key>& keys) {
-        Parent::add(keys);
-        for (int i = 0; i < int(keys.size()); ++i) {
-          Parent::set(keys[i], 0);
-        }
-      }
-
-      virtual void build() {
-        Parent::build();
-        Key it;
-        typename Parent::Notifier* nf = Parent::notifier();
-        for (nf->first(it); it != INVALID; nf->next(it)) {
-          Parent::set(it, 0);
-        }
-      }
-    };
-
-  public:
-
-    /// \brief Constructor.
-    ///
-    /// Constructor for creating in-degree map.
-    explicit InDegMap(const Digraph& digraph)
-      : _digraph(digraph), _deg(digraph) {
-      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
-
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = countInArcs(_digraph, it);
-      }
-    }
-
-    /// Gives back the in-degree of a Node.
-    int operator[](const Key& key) const {
-      return _deg[key];
-    }
-
-  protected:
-
-    typedef typename Digraph::Arc Arc;
-
-    virtual void add(const Arc& arc) {
-      ++_deg[_digraph.target(arc)];
-    }
-
-    virtual void add(const std::vector<Arc>& arcs) {
-      for (int i = 0; i < int(arcs.size()); ++i) {
-        ++_deg[_digraph.target(arcs[i])];
-      }
-    }
-
-    virtual void erase(const Arc& arc) {
-      --_deg[_digraph.target(arc)];
-    }
-
-    virtual void erase(const std::vector<Arc>& arcs) {
-      for (int i = 0; i < int(arcs.size()); ++i) {
-        --_deg[_digraph.target(arcs[i])];
-      }
-    }
-
-    virtual void build() {
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = countInArcs(_digraph, it);
-      }
-    }
-
-    virtual void clear() {
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = 0;
-      }
-    }
-  private:
-
-    const Digraph& _digraph;
-    AutoNodeMap _deg;
-  };
-
-  /// \brief Map of the node out-degrees.
-  ///
-  /// This map returns the out-degree of a node. Once it is constructed,
-  /// the degrees are stored in a standard NodeMap, so each query is done
-  /// in constant time. On the other hand, the values are updated automatically
-  /// whenever the digraph changes.
-  ///
-  /// \warning Besides addNode() and addArc(), a digraph structure may provide
-  /// alternative ways to modify the digraph. The correct behavior of OutDegMap
-  /// is not guarantied if these additional features are used. For example
-  /// the functions \ref ListDigraph::changeSource() "changeSource()",
-  /// \ref ListDigraph::changeTarget() "changeTarget()" and
-  /// \ref ListDigraph::reverseArc() "reverseArc()"
-  /// of \ref ListDigraph will \e not update the degree values correctly.
-  ///
-  /// \sa InDegMap
-
-  template <typename _Digraph>
-  class OutDegMap
-    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
-      ::ItemNotifier::ObserverBase {
-
-  public:
-
-    typedef _Digraph Digraph;
-    typedef int Value;
-    typedef typename Digraph::Node Key;
-
-    typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
-    ::ItemNotifier::ObserverBase Parent;
-
-  private:
-
-    class AutoNodeMap : public DefaultMap<Digraph, Key, int> {
-    public:
-
-      typedef DefaultMap<Digraph, Key, int> Parent;
-
-      AutoNodeMap(const Digraph& digraph) : Parent(digraph, 0) {}
-
-      virtual void add(const Key& key) {
-        Parent::add(key);
-        Parent::set(key, 0);
-      }
-      virtual void add(const std::vector<Key>& keys) {
-        Parent::add(keys);
-        for (int i = 0; i < int(keys.size()); ++i) {
-          Parent::set(keys[i], 0);
-        }
-      }
-      virtual void build() {
-        Parent::build();
-        Key it;
-        typename Parent::Notifier* nf = Parent::notifier();
-        for (nf->first(it); it != INVALID; nf->next(it)) {
-          Parent::set(it, 0);
-        }
-      }
-    };
-
-  public:
-
-    /// \brief Constructor.
-    ///
-    /// Constructor for creating out-degree map.
-    explicit OutDegMap(const Digraph& digraph)
-      : _digraph(digraph), _deg(digraph) {
-      Parent::attach(_digraph.notifier(typename Digraph::Arc()));
-
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = countOutArcs(_digraph, it);
-      }
-    }
-
-    /// Gives back the out-degree of a Node.
-    int operator[](const Key& key) const {
-      return _deg[key];
-    }
-
-  protected:
-
-    typedef typename Digraph::Arc Arc;
-
-    virtual void add(const Arc& arc) {
-      ++_deg[_digraph.source(arc)];
-    }
-
-    virtual void add(const std::vector<Arc>& arcs) {
-      for (int i = 0; i < int(arcs.size()); ++i) {
-        ++_deg[_digraph.source(arcs[i])];
-      }
-    }
-
-    virtual void erase(const Arc& arc) {
-      --_deg[_digraph.source(arc)];
-    }
-
-    virtual void erase(const std::vector<Arc>& arcs) {
-      for (int i = 0; i < int(arcs.size()); ++i) {
-        --_deg[_digraph.source(arcs[i])];
-      }
-    }
-
-    virtual void build() {
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = countOutArcs(_digraph, it);
-      }
-    }
-
-    virtual void clear() {
-      for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
-        _deg[it] = 0;
-      }
-    }
-  private:
-
-    const Digraph& _digraph;
-    AutoNodeMap _deg;
   };
 
 
   ///Dynamic arc look up between given endpoints.
 
-  ///\ingroup gutils
   ///Using this class, you can find an arc in a digraph from a given
   ///source to a given target in amortized time <em>O(log d)</em>,
   ///where <em>d</em> is the out-degree of the source node.
@@ -2106,10 +1199,10 @@ namespace lemon {
 
   protected:
 
-    class AutoNodeMap : public DefaultMap<G, Node, Arc> {
+    class AutoNodeMap : public ItemSetTraits<G, Node>::template Map<Arc>::Type {
     public:
 
-      typedef DefaultMap<G, Node, Arc> Parent;
+      typedef typename ItemSetTraits<G, Node>::template Map<Arc>::Type Parent;
 
       AutoNodeMap(const G& digraph) : Parent(digraph, INVALID) {}
 
@@ -2517,7 +1610,6 @@ namespace lemon {
 
   ///Fast arc look up between given endpoints.
 
-  ///\ingroup gutils
   ///Using this class, you can find an arc in a digraph from a given
   ///source to a given target in time <em>O(log d)</em>,
   ///where <em>d</em> is the out-degree of the source node.
@@ -2634,7 +1726,6 @@ namespace lemon {
 
   ///Fast look up of all arcs between given endpoints.
 
-  ///\ingroup gutils
   ///This class is the same as \ref ArcLookUp, with the addition
   ///that it makes it possible to find all arcs between given endpoints.
   ///
@@ -2755,6 +1846,6 @@ namespace lemon {
 
   /// @}
 
-} //END OF NAMESPACE LEMON
+} //namespace lemon
 
 #endif

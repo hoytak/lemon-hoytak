@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <lemon/bits/invalid.h>
+#include <lemon/core.h>
 
 namespace lemon {
 

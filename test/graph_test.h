@@ -19,7 +19,7 @@
 #ifndef LEMON_TEST_GRAPH_TEST_H
 #define LEMON_TEST_GRAPH_TEST_H
 
-#include <lemon/graph_utils.h>
+#include <lemon/core.h>
 #include "test_tools.h"
 
 namespace lemon {

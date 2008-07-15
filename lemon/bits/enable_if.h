@@ -32,15 +32,11 @@
 //             Andrew Lumsdaine (lums at osl.iu.edu)
 
 
-#ifndef LEMON_BITS_UTILITY_H
-#define LEMON_BITS_UTILITY_H
+#ifndef LEMON_BITS_ENABLE_IF_H
+#define LEMON_BITS_ENABLE_IF_H
 
 ///\file
 ///\brief Miscellaneous basic utilities
-///
-///\todo Please rethink the organisation of the basic files like this.
-///E.g. this file might be merged with invalid.h.
-
 
 namespace lemon
 {
@@ -50,9 +46,6 @@ namespace lemon
   /// Basic type for defining "tags". A "YES" condition for \c enable_if.
   ///
   ///\sa False
-  ///
-  /// \todo This should go to a separate "basic_types.h" (or something)
-  /// file.
   struct True {
     ///\e
     static const bool value = true;
@@ -69,8 +62,6 @@ namespace lemon
   };
 
 
-  struct InvalidType {
-  };
 
   template <typename T>
   struct Wrap {

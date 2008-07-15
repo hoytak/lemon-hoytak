@@ -24,12 +24,12 @@ lemon_HEADERS += \
         lemon/color.h \
 	lemon/concept_check.h \
         lemon/counter.h \
+	lemon/core.h \
         lemon/dfs.h \
         lemon/dijkstra.h \
         lemon/dim2.h \
 	lemon/error.h \
         lemon/graph_to_eps.h \
-	lemon/graph_utils.h \
 	lemon/kruskal.h \
 	lemon/lgf_reader.h \
 	lemon/lgf_writer.h \
@@ -49,12 +49,11 @@ bits_HEADERS += \
 	lemon/bits/base_extender.h \
         lemon/bits/bezier.h \
 	lemon/bits/default_map.h \
+        lemon/bits/enable_if.h \
 	lemon/bits/graph_extender.h \
-        lemon/bits/invalid.h \
 	lemon/bits/map_extender.h \
 	lemon/bits/path_dump.h \
 	lemon/bits/traits.h \
-        lemon/bits/utility.h \
 	lemon/bits/vector_map.h
 
 concept_HEADERS += \

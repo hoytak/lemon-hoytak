@@ -24,7 +24,7 @@
 #ifndef LEMON_CONCEPT_GRAPH_COMPONENTS_H
 #define LEMON_CONCEPT_GRAPH_COMPONENTS_H
 
-#include <lemon/bits/invalid.h>
+#include <lemon/core.h>
 #include <lemon/concepts/maps.h>
 
 #include <lemon/bits/alteration_notifier.h>

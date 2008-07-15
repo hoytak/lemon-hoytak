@@ -22,7 +22,7 @@
 #include <vector>
 #include <list>
 
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 
 ///\ingroup graphbits
 ///\file

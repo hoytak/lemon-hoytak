@@ -20,9 +20,9 @@
 #include <ctime>
 
 #include <lemon/random.h>
-#include <lemon/graph_utils.h>
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
+#include <lemon/maps.h>
 
 #include "graph_test.h"
 #include "test_tools.h"
