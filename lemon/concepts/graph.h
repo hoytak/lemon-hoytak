@@ -25,7 +25,7 @@
 
 #include <lemon/concepts/graph_components.h>
 #include <lemon/concepts/graph.h>
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 
 namespace lemon {
   namespace concepts {

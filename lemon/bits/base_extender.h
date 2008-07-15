@@ -19,7 +19,7 @@
 #ifndef LEMON_BITS_BASE_EXTENDER_H
 #define LEMON_BITS_BASE_EXTENDER_H
 
-#include <lemon/bits/invalid.h>
+#include <lemon/core.h>
 #include <lemon/error.h>
 
 #include <lemon/bits/map_extender.h>

@@ -23,7 +23,7 @@
 #ifndef LEMON_CONCEPT_HEAP_H
 #define LEMON_CONCEPT_HEAP_H
 
-#include <lemon/bits/invalid.h>
+#include <lemon/core.h>
 
 namespace lemon {
 

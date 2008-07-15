@@ -20,7 +20,7 @@
 #define LEMON_DIM2_H
 
 #include <iostream>
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 
 ///\ingroup misc
 ///\file

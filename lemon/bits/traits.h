@@ -19,13 +19,16 @@
 #ifndef LEMON_BITS_TRAITS_H
 #define LEMON_BITS_TRAITS_H
 
-#include <lemon/bits/utility.h>
-
 ///\file
 ///\brief Traits for graphs and maps
 ///
 
+#include <lemon/bits/enable_if.h>
+
 namespace lemon {
+
+  struct InvalidType {};
+
   template <typename _Graph, typename _Item>
   class ItemSetTraits {};
 

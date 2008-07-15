@@ -22,12 +22,9 @@
 #include <algorithm>
 #include <vector>
 #include <lemon/unionfind.h>
-// #include <lemon/graph_utils.h>
 #include <lemon/maps.h>
 
-// #include <lemon/radix_sort.h>
-
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 #include <lemon/bits/traits.h>
 
 ///\ingroup spantree
@@ -300,7 +297,7 @@ namespace lemon {
   ///
   /// \return The total cost of the found spanning tree.
   ///
-  /// \note If the input graph is not (weakly) connected, a spanning 
+  /// \note If the input graph is not (weakly) connected, a spanning
   /// forest is calculated instead of a spanning tree.
 
 #ifdef DOXYGEN

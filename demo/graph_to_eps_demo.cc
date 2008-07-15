@@ -31,7 +31,6 @@
 /// \include graph_to_eps_demo.cc
 
 #include<lemon/list_graph.h>
-#include<lemon/graph_utils.h>
 #include<lemon/graph_to_eps.h>
 #include<lemon/math.h>
 

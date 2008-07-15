@@ -19,7 +19,6 @@
 #include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/graph_utils.h>
 #include <lemon/error.h>
 
 #include "test_tools.h"

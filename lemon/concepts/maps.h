@@ -19,7 +19,7 @@
 #ifndef LEMON_CONCEPT_MAPS_H
 #define LEMON_CONCEPT_MAPS_H
 
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 #include <lemon/concept_check.h>
 
 ///\ingroup concept

@@ -34,7 +34,8 @@
 #include <functional>
 
 #include <lemon/assert.h>
-#include <lemon/graph_utils.h>
+#include <lemon/core.h>
+#include <lemon/maps.h>
 
 namespace lemon {
 

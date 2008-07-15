@@ -24,9 +24,8 @@
 ///\brief Dfs algorithm.
 
 #include <lemon/list_graph.h>
-#include <lemon/graph_utils.h>
 #include <lemon/bits/path_dump.h>
-#include <lemon/bits/invalid.h>
+#include <lemon/core.h>
 #include <lemon/error.h>
 #include <lemon/maps.h>
 

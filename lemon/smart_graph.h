@@ -25,14 +25,8 @@
 
 #include <vector>
 
-#include <lemon/bits/invalid.h>
-
-#include <lemon/bits/base_extender.h>
-#include <lemon/bits/graph_extender.h>
-
-#include <lemon/bits/utility.h>
+#include <lemon/core.h>
 #include <lemon/error.h>
-
 #include <lemon/bits/graph_extender.h>
 
 namespace lemon {
