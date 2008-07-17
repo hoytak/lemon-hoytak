@@ -97,15 +97,15 @@ void checkBfs() {
   check(pathTarget(G, p) == t,"path() found a wrong path.");
 
 
-  for(ArcIt e(G); e==INVALID; ++e) {
+  for(ArcIt e(G); e!=INVALID; ++e) {
     Node u=G.source(e);
     Node v=G.target(e);
     check( !bfs_test.reached(u) ||
-           (bfs_test.dist(v) > bfs_test.dist(u)+1),
+           (bfs_test.dist(v) <= bfs_test.dist(u)+1),
            "Wrong output.");
   }
 
-  for(NodeIt v(G); v==INVALID; ++v) {
+  for(NodeIt v(G); v!=INVALID; ++v) {
     check(bfs_test.reached(v),"Each node should be reached.");
     if ( bfs_test.predArc(v)!=INVALID ) {
       Arc e=bfs_test.predArc(v);
