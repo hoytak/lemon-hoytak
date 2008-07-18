@@ -31,6 +31,10 @@ using namespace lemon;
 #undef LEMON_DISABLE_ASSERTS
 #endif
 
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+
 //checking disabled asserts
 #define LEMON_DISABLE_ASSERTS
 #include <lemon/assert.h>

@@ -6,7 +6,7 @@ m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg id -i]))])
 m4_define([lemon_version], [ifelse(lemon_version_number(), [], [lemon_hg_revision()], [lemon_version_number()])])
 
 AC_PREREQ([2.59])
-AC_INIT([LEMON], [lemon_version()], [lemon-devel@lemon.cs.elte.hu], [lemon])
+AC_INIT([Lemon], [lemon_version()], [lemon-user@lemon.cs.elte.hu], [lemon])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
@@ -25,6 +25,7 @@ AC_PROG_LIBTOOL
 AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
 AC_CHECK_PROG([gs_found],[gs],[yes],[no])
 
+dnl Set custom compiler flags when using g++.
 if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes; then
   CXXFLAGS="$CXXFLAGS -Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
 fi
@@ -34,7 +35,7 @@ LX_CHECK_GLPK
 LX_CHECK_CPLEX
 LX_CHECK_SOPLEX
 
-dnl Disable/enable building the demo programs
+dnl Disable/enable building the demo programs.
 AC_ARG_ENABLE([demo],
 AS_HELP_STRING([--enable-demo], [build the demo programs])
 AS_HELP_STRING([--disable-demo], [do not build the demo programs @<:@default@:>@]),
@@ -47,7 +48,7 @@ else
 fi
 AM_CONDITIONAL([WANT_DEMO], [test x"$enable_demo" != x"no"])
 
-dnl Disable/enable building the binary tools
+dnl Disable/enable building the binary tools.
 AC_ARG_ENABLE([tools],
 AS_HELP_STRING([--enable-tools], [build additional tools @<:@default@:>@])
 AS_HELP_STRING([--disable-tools], [do not build additional tools]),
@@ -60,7 +61,7 @@ else
 fi
 AM_CONDITIONAL([WANT_TOOLS], [test x"$enable_tools" != x"no"])
 
-dnl Disable/enable building the benchmarks
+dnl Disable/enable building the benchmarks.
 AC_ARG_ENABLE([benchmark],
 AS_HELP_STRING([--enable-benchmark], [build the benchmarks])
 AS_HELP_STRING([--disable-benchmark], [do not build the benchmarks @<:@default@:>@]),

@@ -15,8 +15,8 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = @abs_top_srcdir@
-STRIP_FROM_INC_PATH    = @abs_top_srcdir@
+STRIP_FROM_PATH        = "@abs_top_srcdir@"
+STRIP_FROM_INC_PATH    = "@abs_top_srcdir@"
 SHORT_NAMES            = YES
 JAVADOC_AUTOBRIEF      = NO
 QT_AUTOBRIEF           = NO
@@ -80,13 +80,13 @@ WARN_LOGFILE           = doxygen.log
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @abs_top_srcdir@/doc \
-                         @abs_top_srcdir@/lemon \
-                         @abs_top_srcdir@/lemon/bits \
-                         @abs_top_srcdir@/lemon/concepts \
-                         @abs_top_srcdir@/demo \
-                         @abs_top_srcdir@/tools \
-                         @abs_top_srcdir@/test/test_tools.h
+INPUT                  = "@abs_top_srcdir@/doc" \
+                         "@abs_top_srcdir@/lemon" \
+                         "@abs_top_srcdir@/lemon/bits" \
+                         "@abs_top_srcdir@/lemon/concepts" \
+                         "@abs_top_srcdir@/demo" \
+                         "@abs_top_srcdir@/tools" \
+                         "@abs_top_srcdir@/test/test_tools.h"
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cc \
@@ -96,13 +96,13 @@ EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = 
-EXAMPLE_PATH           = @abs_top_srcdir@/demo \
-                         @abs_top_srcdir@/LICENSE \
-                         @abs_top_srcdir@/doc
+EXAMPLE_PATH           = "@abs_top_srcdir@/demo" \
+                         "@abs_top_srcdir@/LICENSE" \
+                         "@abs_top_srcdir@/doc"
 EXAMPLE_PATTERNS       = 
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = @abs_top_srcdir@/doc/images \
-                         @abs_top_builddir@/doc/gen-images
+IMAGE_PATH             = "@abs_top_srcdir@/doc/images" \
+                         "@abs_top_builddir@/doc/gen-images"
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
