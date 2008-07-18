@@ -7,7 +7,8 @@ EXTRA_DIST += \
 	doc/license.dox \
 	doc/mainpage.dox \
 	doc/namespaces.dox \
-	doc/html
+	doc/html \
+	doc/CMakeLists.txt
 
 DOC_EPS_IMAGES18 = \
 	nodeshape_0.eps \

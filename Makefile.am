@@ -8,7 +8,8 @@ EXTRA_DIST = \
 	m4/lx_check_cplex.m4 \
 	m4/lx_check_glpk.m4 \
 	m4/lx_check_soplex.m4 \
-	CMakeLists.txt
+	CMakeLists.txt \
+	cmake
 
 pkgconfigdir = $(libdir)/pkgconfig
 lemondir = $(pkgincludedir)
