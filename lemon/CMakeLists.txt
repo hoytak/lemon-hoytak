@@ -1,2 +1,18 @@
-include_directories (${LEMON_SOURCE_DIR})
-add_library (lemon arg_parser.cc base.cc color.cc random.cc)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
+
+ADD_LIBRARY(lemon
+  arg_parser.cc
+  base.cc
+  color.cc
+  random.cc)
+
+INSTALL(
+  TARGETS lemon
+  ARCHIVE DESTINATION lib
+  COMPONENT library)
+
+INSTALL(
+  DIRECTORY . bits concepts
+  DESTINATION include/lemon
+  COMPONENT headers
+  FILES_MATCHING PATTERN "*.h")
