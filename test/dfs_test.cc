@@ -19,6 +19,8 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
+#include <lemon/lgf_reader.h>
+
 #include <lemon/dfs.h>
 #include <lemon/path.h>
 
@@ -26,6 +28,30 @@
 #include "test_tools.h"
 
 using namespace lemon;
+
+char test_lgf[] =
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "@arcs\n"
+  "     label\n"
+  "0 1  0\n"
+  "1 2  1\n"
+  "2 3  2\n"
+  "1 4  3\n"
+  "4 2  4\n"
+  "4 5  5\n"
+  "5 0  6\n"
+  "6 3  7\n"
+  "@attributes\n"
+  "source 0\n"
+  "target 5\n";
 
 void checkDfsCompile()
 {
@@ -39,7 +65,6 @@ void checkDfsCompile()
   bool b;
   DType::DistMap d(G);
   DType::PredMap p(G);
-  //  DType::PredNodeMap pn(G);
 
   DType dfs_test(G);
 
@@ -50,7 +75,6 @@ void checkDfsCompile()
   n  = dfs_test.predNode(n);
   d  = dfs_test.distMap();
   p  = dfs_test.predMap();
-  //  pn = dfs_test.predNodeMap();
   b  = dfs_test.reached(n);
 
   Path<Digraph> pp = dfs_test.path(n);
@@ -80,10 +104,12 @@ void checkDfs() {
 
   Digraph G;
   Node s, t;
-  PetStruct<Digraph> ps = addPetersen(G, 5);
 
-  s=ps.outer[2];
-  t=ps.inner[0];
+  std::istringstream input(test_lgf);
+  digraphReader(input, G).
+    node("source", s).
+    node("target", t).
+    run();
 
   Dfs<Digraph> dfs_test(G);
   dfs_test.run(s);
@@ -95,14 +121,16 @@ void checkDfs() {
   check(pathTarget(G, p) == t,"path() found a wrong path.");
 
   for(NodeIt v(G); v!=INVALID; ++v) {
-    check(dfs_test.reached(v),"Each node should be reached.");
-    if ( dfs_test.predArc(v)!=INVALID ) {
-      Arc e=dfs_test.predArc(v);
-      Node u=G.source(e);
-      check(u==dfs_test.predNode(v),"Wrong tree.");
-      check(dfs_test.dist(v) - dfs_test.dist(u) == 1,
-            "Wrong distance. (" << dfs_test.dist(u) << "->"
-            <<dfs_test.dist(v) << ')');
+    if (dfs_test.reached(v)) {
+      check(v==s || dfs_test.predArc(v)!=INVALID, "Wrong tree.");
+      if (dfs_test.predArc(v)!=INVALID ) {
+        Arc e=dfs_test.predArc(v);
+        Node u=G.source(e);
+        check(u==dfs_test.predNode(v),"Wrong tree.");
+        check(dfs_test.dist(v) - dfs_test.dist(u) == 1,
+              "Wrong distance. (" << dfs_test.dist(u) << "->"
+              <<dfs_test.dist(v) << ')');
+      }
     }
   }
 }

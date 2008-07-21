@@ -19,6 +19,8 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
+#include <lemon/lgf_reader.h>
+
 #include <lemon/dijkstra.h>
 #include <lemon/path.h>
 
@@ -26,6 +28,27 @@
 #include "test_tools.h"
 
 using namespace lemon;
+
+char test_lgf[] =
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "@arcs\n"
+  "     label length\n"
+  "0 1  0     1\n"
+  "1 2  1     1\n"
+  "2 3  2     1\n"
+  "0 3  4     5\n"
+  "0 3  5     10\n"
+  "0 3  6     7\n"
+  "4 2  7     1\n"
+  "@attributes\n"
+  "source 0\n"
+  "target 3\n";
 
 void checkDijkstraCompile()
 {
@@ -84,24 +107,22 @@ void checkDijkstra() {
   Digraph G;
   Node s, t;
   LengthMap length(G);
-  PetStruct<Digraph> ps = addPetersen(G, 5);
 
-  for(int i=0;i<5;i++) {
-    length[ps.outcir[i]]=4;
-    length[ps.incir[i]]=1;
-    length[ps.chords[i]]=10;
-  }
-  s=ps.outer[0];
-  t=ps.inner[1];
+  std::istringstream input(test_lgf);
+  digraphReader(input, G).
+    arcMap("length", length).
+    node("source", s).
+    node("target", t).
+    run();
 
   Dijkstra<Digraph, LengthMap>
         dijkstra_test(G, length);
   dijkstra_test.run(s);
 
-  check(dijkstra_test.dist(t)==13,"Dijkstra found a wrong path.");
+  check(dijkstra_test.dist(t)==3,"Dijkstra found a wrong path.");
 
   Path<Digraph> p = dijkstra_test.path(t);
-  check(p.length()==4,"getPath() found a wrong path.");
+  check(p.length()==3,"getPath() found a wrong path.");
   check(checkPath(G, p),"path() found a wrong path.");
   check(pathSource(G, p) == s,"path() found a wrong path.");
   check(pathTarget(G, p) == t,"path() found a wrong path.");
@@ -115,15 +136,17 @@ void checkDijkstra() {
            dijkstra_test.dist(v) - dijkstra_test.dist(u) - length[e]);
   }
 
-  for(NodeIt v(G); v!=INVALID; ++v){
-    check(dijkstra_test.reached(v),"Each node should be reached.");
-    if ( dijkstra_test.predArc(v)!=INVALID ) {
-      Arc e=dijkstra_test.predArc(v);
-      Node u=G.source(e);
-      check(u==dijkstra_test.predNode(v),"Wrong tree.");
-      check(dijkstra_test.dist(v) - dijkstra_test.dist(u) == length[e],
-            "Wrong distance! Difference: " <<
-            std::abs(dijkstra_test.dist(v)-dijkstra_test.dist(u)-length[e]));
+  for(NodeIt v(G); v!=INVALID; ++v) {
+    if (dijkstra_test.reached(v)) {
+      check(v==s || dijkstra_test.predArc(v)!=INVALID, "Wrong tree.");
+      if (dijkstra_test.predArc(v)!=INVALID ) {
+        Arc e=dijkstra_test.predArc(v);
+        Node u=G.source(e);
+        check(u==dijkstra_test.predNode(v),"Wrong tree.");
+        check(dijkstra_test.dist(v) - dijkstra_test.dist(u) == length[e],
+              "Wrong distance! Difference: " <<
+              std::abs(dijkstra_test.dist(v)-dijkstra_test.dist(u)-length[e]));
+      }
     }
   }
 

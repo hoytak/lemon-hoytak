@@ -3,7 +3,6 @@ EXTRA_DIST += \
 
 noinst_HEADERS += \
 	test/graph_test.h \
-	test/graph_maps_test.h \
         test/test_tools.h
 
 check_PROGRAMS += \

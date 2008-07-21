@@ -24,12 +24,63 @@
 
 #include "test_tools.h"
 #include "graph_test.h"
-#include "graph_maps_test.h"
 
 using namespace lemon;
 using namespace lemon::concepts;
 
-void check_concepts() {
+template <class Digraph>
+void checkDigraph() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+  Digraph G;
+
+  checkGraphNodeList(G, 0);
+  checkGraphArcList(G, 0);
+
+  Node
+    n1 = G.addNode(),
+    n2 = G.addNode(),
+    n3 = G.addNode();
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 0);
+
+  Arc a1 = G.addArc(n1, n2);
+  check(G.source(a1) == n1 && G.target(a1) == n2, "Wrong arc");
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 1);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 0);
+  checkGraphOutArcList(G, n3, 0);
+
+  checkGraphInArcList(G, n1, 0);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 0);
+
+  checkGraphConArcList(G, 1);
+
+  Arc a2 = G.addArc(n2, n1), a3 = G.addArc(n2, n3), a4 = G.addArc(n2, n3);
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 4);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 3);
+  checkGraphOutArcList(G, n3, 0);
+
+  checkGraphInArcList(G, n1, 1);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 2);
+
+  checkGraphConArcList(G, 4);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+
+}
+
+
+void checkConcepts() {
   { // Checking digraph components
     checkConcept<BaseDigraphComponent, BaseDigraphComponent >();
 
@@ -51,27 +102,23 @@ void check_concepts() {
     checkConcept<ExtendableDigraphComponent<>, ListDigraph>();
     checkConcept<ClearableDigraphComponent<>, ListDigraph>();
     checkConcept<ErasableDigraphComponent<>, ListDigraph>();
-    checkDigraphIterators<ListDigraph>();
   }
   { // Checking SmartDigraph
     checkConcept<Digraph, SmartDigraph>();
     checkConcept<AlterableDigraphComponent<>, SmartDigraph>();
     checkConcept<ExtendableDigraphComponent<>, SmartDigraph>();
     checkConcept<ClearableDigraphComponent<>, SmartDigraph>();
-    checkDigraphIterators<SmartDigraph>();
   }
 //  { // Checking FullDigraph
 //    checkConcept<Digraph, FullDigraph>();
-//    checkDigraphIterators<FullDigraph>();
 //  }
 //  { // Checking HyperCubeDigraph
 //    checkConcept<Digraph, HyperCubeDigraph>();
-//    checkDigraphIterators<HyperCubeDigraph>();
 //  }
 }
 
 template <typename Digraph>
-void check_graph_validity() {
+void checkDigraphValidity() {
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   Digraph g;
 
@@ -92,7 +139,7 @@ void check_graph_validity() {
 }
 
 template <typename Digraph>
-void check_graph_validity_erase() {
+void checkDigraphValidityErase() {
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   Digraph g;
 
@@ -120,25 +167,19 @@ void check_graph_validity_erase() {
   check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
 }
 
-void check_digraphs() {
+void checkDigraphs() {
   { // Checking ListDigraph
     checkDigraph<ListDigraph>();
-    checkGraphNodeMap<ListDigraph>();
-    checkGraphArcMap<ListDigraph>();
-
-    check_graph_validity_erase<ListDigraph>();
+    checkDigraphValidityErase<ListDigraph>();
   }
   { // Checking SmartDigraph
     checkDigraph<SmartDigraph>();
-    checkGraphNodeMap<SmartDigraph>();
-    checkGraphArcMap<SmartDigraph>();
-
-    check_graph_validity<SmartDigraph>();
+    checkDigraphValidity<SmartDigraph>();
   }
 }
 
 int main() {
-  check_concepts();
-  check_digraphs();
+  checkDigraphs();
+  checkConcepts();
   return 0;
 }

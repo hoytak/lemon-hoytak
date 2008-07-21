@@ -24,12 +24,78 @@
 
 #include "test_tools.h"
 #include "graph_test.h"
-#include "graph_maps_test.h"
 
 using namespace lemon;
 using namespace lemon::concepts;
 
-void check_concepts() {
+template <class Graph>
+void checkGraph() {
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+
+  Graph G;
+  checkGraphNodeList(G, 0);
+  checkGraphEdgeList(G, 0);
+
+  Node
+    n1 = G.addNode(),
+    n2 = G.addNode(),
+    n3 = G.addNode();
+  checkGraphNodeList(G, 3);
+  checkGraphEdgeList(G, 0);
+
+  Edge e1 = G.addEdge(n1, n2);
+  check((G.u(e1) == n1 && G.v(e1) == n2) || (G.u(e1) == n2 && G.v(e1) == n1),
+        "Wrong edge");
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 2);
+  checkGraphEdgeList(G, 1);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 1);
+  checkGraphOutArcList(G, n3, 0);
+
+  checkGraphInArcList(G, n1, 1);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 0);
+
+  checkGraphIncEdgeList(G, n1, 1);
+  checkGraphIncEdgeList(G, n2, 1);
+  checkGraphIncEdgeList(G, n3, 0);
+
+  checkGraphConArcList(G, 2);
+  checkGraphConEdgeList(G, 1);
+
+  Edge e2 = G.addEdge(n2, n1), e3 = G.addEdge(n2, n3);
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 6);
+  checkGraphEdgeList(G, 3);
+
+  checkGraphOutArcList(G, n1, 2);
+  checkGraphOutArcList(G, n2, 3);
+  checkGraphOutArcList(G, n3, 1);
+
+  checkGraphInArcList(G, n1, 2);
+  checkGraphInArcList(G, n2, 3);
+  checkGraphInArcList(G, n3, 1);
+
+  checkGraphIncEdgeList(G, n1, 2);
+  checkGraphIncEdgeList(G, n2, 3);
+  checkGraphIncEdgeList(G, n3, 1);
+
+  checkGraphConArcList(G, 6);
+  checkGraphConEdgeList(G, 3);
+
+  checkArcDirections(G);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkEdgeIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+  checkGraphEdgeMap(G);
+}
+
+void checkConcepts() {
   { // Checking graph components
     checkConcept<BaseGraphComponent, BaseGraphComponent >();
 
@@ -51,14 +117,12 @@ void check_concepts() {
     checkConcept<ExtendableGraphComponent<>, ListGraph>();
     checkConcept<ClearableGraphComponent<>, ListGraph>();
     checkConcept<ErasableGraphComponent<>, ListGraph>();
-    checkGraphIterators<ListGraph>();
   }
   { // Checking SmartGraph
     checkConcept<Graph, SmartGraph>();
     checkConcept<AlterableGraphComponent<>, SmartGraph>();
     checkConcept<ExtendableGraphComponent<>, SmartGraph>();
     checkConcept<ClearableGraphComponent<>, SmartGraph>();
-    checkGraphIterators<SmartGraph>();
   }
 //  { // Checking FullGraph
 //    checkConcept<Graph, FullGraph>();
@@ -71,7 +135,7 @@ void check_concepts() {
 }
 
 template <typename Graph>
-void check_graph_validity() {
+void checkGraphValidity() {
   TEMPLATE_GRAPH_TYPEDEFS(Graph);
   Graph g;
 
@@ -94,7 +158,7 @@ void check_graph_validity() {
 }
 
 template <typename Graph>
-void check_graph_validity_erase() {
+void checkGraphValidityErase() {
   TEMPLATE_GRAPH_TYPEDEFS(Graph);
   Graph g;
 
@@ -168,20 +232,14 @@ void check_graph_validity_erase() {
 //   }
 // }
 
-void check_graphs() {
+void checkGraphs() {
   { // Checking ListGraph
     checkGraph<ListGraph>();
-    checkGraphNodeMap<ListGraph>();
-    checkGraphEdgeMap<ListGraph>();
-
-    check_graph_validity_erase<ListGraph>();
+    checkGraphValidityErase<ListGraph>();
   }
   { // Checking SmartGraph
     checkGraph<SmartGraph>();
-    checkGraphNodeMap<SmartGraph>();
-    checkGraphEdgeMap<SmartGraph>();
-
-    check_graph_validity<SmartGraph>();
+    checkGraphValidity<SmartGraph>();
   }
 //   { // Checking FullGraph
 //     FullGraph g(5);
@@ -197,7 +255,7 @@ void check_graphs() {
 }
 
 int main() {
-  check_concepts();
-  check_graphs();
+  checkConcepts();
+  checkGraphs();
   return 0;
 }

@@ -19,7 +19,11 @@
 #ifndef LEMON_TEST_GRAPH_TEST_H
 #define LEMON_TEST_GRAPH_TEST_H
 
+#include <set>
+
 #include <lemon/core.h>
+#include <lemon/maps.h>
+
 #include "test_tools.h"
 
 namespace lemon {
@@ -42,6 +46,10 @@ namespace lemon {
     typename Graph::ArcIt e(G);
     for(int i=0;i<cnt;i++) {
       check(e!=INVALID,"Wrong Arc list linking.");
+      check(G.oppositeNode(G.source(e), e) == G.target(e),
+            "Wrong opposite node");
+      check(G.oppositeNode(G.target(e), e) == G.source(e),
+            "Wrong opposite node");
       ++e;
     }
     check(e==INVALID,"Wrong Arc list linking.");
@@ -55,6 +63,8 @@ namespace lemon {
     for(int i=0;i<cnt;i++) {
       check(e!=INVALID,"Wrong OutArc list linking.");
       check(n==G.source(e),"Wrong OutArc list linking.");
+      check(n==G.baseNode(e),"Wrong OutArc list linking.");
+      check(G.target(e)==G.runningNode(e),"Wrong OutArc list linking.");
       ++e;
     }
     check(e==INVALID,"Wrong OutArc list linking.");
@@ -68,6 +78,8 @@ namespace lemon {
     for(int i=0;i<cnt;i++) {
       check(e!=INVALID,"Wrong InArc list linking.");
       check(n==G.target(e),"Wrong InArc list linking.");
+      check(n==G.baseNode(e),"Wrong OutArc list linking.");
+      check(G.source(e)==G.runningNode(e),"Wrong OutArc list linking.");
       ++e;
     }
     check(e==INVALID,"Wrong InArc list linking.");
@@ -80,6 +92,8 @@ namespace lemon {
     typename Graph::EdgeIt e(G);
     for(int i=0;i<cnt;i++) {
       check(e!=INVALID,"Wrong Edge list linking.");
+      check(G.oppositeNode(G.u(e), e) == G.v(e), "Wrong opposite node");
+      check(G.oppositeNode(G.v(e), e) == G.u(e), "Wrong opposite node");
       ++e;
     }
     check(e==INVALID,"Wrong Edge list linking.");
@@ -93,169 +107,177 @@ namespace lemon {
     for(int i=0;i<cnt;i++) {
       check(e!=INVALID,"Wrong IncEdge list linking.");
       check(n==G.u(e) || n==G.v(e),"Wrong IncEdge list linking.");
+      check(n==G.baseNode(e),"Wrong OutArc list linking.");
+      check(G.u(e)==G.runningNode(e) || G.v(e)==G.runningNode(e),
+            "Wrong OutArc list linking.");
       ++e;
     }
     check(e==INVALID,"Wrong IncEdge list linking.");
     check(countIncEdges(G,n)==cnt,"Wrong IncEdge number.");
   }
 
-  template <class Digraph>
-  void checkDigraphIterators() {
-    typedef typename Digraph::Node Node;
-    typedef typename Digraph::NodeIt NodeIt;
-    typedef typename Digraph::Arc Arc;
-    typedef typename Digraph::ArcIt ArcIt;
-    typedef typename Digraph::InArcIt InArcIt;
-    typedef typename Digraph::OutArcIt OutArcIt;
+  template <class Graph>
+  void checkGraphConArcList(const Graph &G, int cnt) {
+    int i = 0;
+    for (typename Graph::NodeIt u(G); u != INVALID; ++u) {
+      for (typename Graph::NodeIt v(G); v != INVALID; ++v) {
+        for (ConArcIt<Graph> a(G, u, v); a != INVALID; ++a) {
+          check(G.source(a) == u, "Wrong iterator.");
+          check(G.target(a) == v, "Wrong iterator.");
+          ++i;
+        }
+      }
+    }
+    check(cnt == i, "Wrong iterator.");
   }
 
   template <class Graph>
-  void checkGraphIterators() {
-    checkDigraphIterators<Graph>();
-    typedef typename Graph::Edge Edge;
-    typedef typename Graph::EdgeIt EdgeIt;
-    typedef typename Graph::IncEdgeIt IncEdgeIt;
-  }
-
-  // Structure returned by addPetersen()
-  template<class Digraph>
-  struct PetStruct
-  {
-    // Vector containing the outer nodes
-    std::vector<typename Digraph::Node> outer;
-    // Vector containing the inner nodes
-    std::vector<typename Digraph::Node> inner;
-    // Vector containing the arcs of the inner circle
-    std::vector<typename Digraph::Arc> incir;
-    // Vector containing the arcs of the outer circle
-    std::vector<typename Digraph::Arc> outcir;
-    // Vector containing the chord arcs
-    std::vector<typename Digraph::Arc> chords;
-  };
-
-  // Adds the reverse pair of all arcs to a digraph
-  template<class Digraph>
-  void bidirDigraph(Digraph &G)
-  {
-    typedef typename Digraph::Arc Arc;
-    typedef typename Digraph::ArcIt ArcIt;
-
-    std::vector<Arc> ee;
-
-    for(ArcIt e(G);e!=INVALID;++e) ee.push_back(e);
-
-    for(int i=0;i<int(ee.size());++i)
-      G.addArc(G.target(ee[i]),G.source(ee[i]));
-  }
-
-  // Adds a Petersen digraph to G.
-  // Returns the nodes and arcs of the generated digraph.
-  template<typename Digraph>
-  PetStruct<Digraph> addPetersen(Digraph &G,int num = 5)
-  {
-    PetStruct<Digraph> n;
-
-    for(int i=0;i<num;i++) {
-      n.outer.push_back(G.addNode());
-      n.inner.push_back(G.addNode());
+  void checkGraphConEdgeList(const Graph &G, int cnt) {
+    int i = 0;
+    for (typename Graph::NodeIt u(G); u != INVALID; ++u) {
+      for (typename Graph::NodeIt v(G); v != INVALID; ++v) {
+        for (ConEdgeIt<Graph> e(G, u, v); e != INVALID; ++e) {
+          check((G.u(e) == u && G.v(e) == v) ||
+                (G.u(e) == v && G.v(e) == u), "Wrong iterator.");
+          i += u == v ? 2 : 1;
+        }
+      }
     }
-
-    for(int i=0;i<num;i++) {
-      n.chords.push_back(G.addArc(n.outer[i],n.inner[i]));
-      n.outcir.push_back(G.addArc(n.outer[i],n.outer[(i+1) % num]));
-      n.incir.push_back(G.addArc(n.inner[i],n.inner[(i+2) % num]));
-    }
-
-    return n;
+    check(2 * cnt == i, "Wrong iterator.");
   }
 
-  // Checks the bidirectioned Petersen digraph
-  template<class Digraph>
-  void checkBidirPetersen(const Digraph &G, int num = 5)
-  {
-    typedef typename Digraph::NodeIt NodeIt;
-
-    checkGraphNodeList(G, 2 * num);
-    checkGraphArcList(G, 6 * num);
-
-    for(NodeIt n(G);n!=INVALID;++n) {
-      checkGraphInArcList(G, n, 3);
-      checkGraphOutArcList(G, n, 3);
+  template <typename Graph>
+  void checkArcDirections(const Graph& G) {
+    for (typename Graph::ArcIt a(G); a != INVALID; ++a) {
+      check(G.source(a) == G.target(G.oppositeArc(a)), "Wrong direction");
+      check(G.target(a) == G.source(G.oppositeArc(a)), "Wrong direction");
+      check(G.direct(a, G.direction(a)) == a, "Wrong direction");
     }
   }
 
-  // Structure returned by addUPetersen()
-  template<class Graph>
-  struct UPetStruct
-  {
-    // Vector containing the outer nodes
-    std::vector<typename Graph::Node> outer;
-    // Vector containing the inner nodes
-    std::vector<typename Graph::Node> inner;
-    // Vector containing the edges of the inner circle
-    std::vector<typename Graph::Edge> incir;
-    // Vector containing the edges of the outer circle
-    std::vector<typename Graph::Edge> outcir;
-    // Vector containing the chord edges
-    std::vector<typename Graph::Edge> chords;
-  };
-
-  // Adds a Petersen graph to \c G.
-  // Returns the nodes and edges of the generated graph.
-  template<typename Graph>
-  UPetStruct<Graph> addUPetersen(Graph &G,int num=5)
-  {
-    UPetStruct<Graph> n;
-
-    for(int i=0;i<num;i++) {
-      n.outer.push_back(G.addNode());
-      n.inner.push_back(G.addNode());
+  template <typename Graph>
+  void checkNodeIds(const Graph& G) {
+    std::set<int> values;
+    for (typename Graph::NodeIt n(G); n != INVALID; ++n) {
+      check(G.nodeFromId(G.id(n)) == n, "Wrong id");
+      check(values.find(G.id(n)) == values.end(), "Wrong id");
+      check(G.id(n) <= G.maxNodeId(), "Wrong maximum id");
+      values.insert(G.id(n));
     }
-
-    for(int i=0;i<num;i++) {
-      n.chords.push_back(G.addEdge(n.outer[i],n.inner[i]));
-      n.outcir.push_back(G.addEdge(n.outer[i],n.outer[(i+1)%num]));
-      n.incir.push_back(G.addEdge(n.inner[i],n.inner[(i+2)%num]));
-    }
-
-    return n;
   }
 
-  // Checks the undirected Petersen graph
-  template<class Graph>
-  void checkUndirPetersen(const Graph &G, int num = 5)
-  {
+  template <typename Graph>
+  void checkArcIds(const Graph& G) {
+    std::set<int> values;
+    for (typename Graph::ArcIt a(G); a != INVALID; ++a) {
+      check(G.arcFromId(G.id(a)) == a, "Wrong id");
+      check(values.find(G.id(a)) == values.end(), "Wrong id");
+      check(G.id(a) <= G.maxArcId(), "Wrong maximum id");
+      values.insert(G.id(a));
+    }
+  }
+
+  template <typename Graph>
+  void checkEdgeIds(const Graph& G) {
+    std::set<int> values;
+    for (typename Graph::EdgeIt e(G); e != INVALID; ++e) {
+      check(G.edgeFromId(G.id(e)) == e, "Wrong id");
+      check(values.find(G.id(e)) == values.end(), "Wrong id");
+      check(G.id(e) <= G.maxEdgeId(), "Wrong maximum id");
+      values.insert(G.id(e));
+    }
+  }
+
+  template <typename Graph>
+  void checkGraphNodeMap(const Graph& G) {
+    typedef typename Graph::Node Node;
     typedef typename Graph::NodeIt NodeIt;
 
-    checkGraphNodeList(G, 2 * num);
-    checkGraphEdgeList(G, 3 * num);
-    checkGraphArcList(G, 6 * num);
+    typedef typename Graph::template NodeMap<int> IntNodeMap;
+    IntNodeMap map(G, 42);
+    for (NodeIt it(G); it != INVALID; ++it) {
+      check(map[it] == 42, "Wrong map constructor.");
+    }
+    int s = 0;
+    for (NodeIt it(G); it != INVALID; ++it) {
+      map[it] = 0;
+      check(map[it] == 0, "Wrong operator[].");
+      map.set(it, s);
+      check(map[it] == s, "Wrong set.");
+      ++s;
+    }
+    s = s * (s - 1) / 2;
+    for (NodeIt it(G); it != INVALID; ++it) {
+      s -= map[it];
+    }
+    check(s == 0, "Wrong sum.");
 
-    for(NodeIt n(G);n!=INVALID;++n) {
-      checkGraphIncEdgeList(G, n, 3);
+    map = constMap<Node>(12);
+    for (NodeIt it(G); it != INVALID; ++it) {
+      check(map[it] == 12, "Wrong operator[].");
     }
   }
 
-  template <class Digraph>
-  void checkDigraph() {
-    const int num = 5;
-    Digraph G;
-    checkGraphNodeList(G, 0);
-    checkGraphArcList(G, 0);
-    addPetersen(G, num);
-    bidirDigraph(G);
-    checkBidirPetersen(G, num);
+  template <typename Graph>
+  void checkGraphArcMap(const Graph& G) {
+    typedef typename Graph::Arc Arc;
+    typedef typename Graph::ArcIt ArcIt;
+
+    typedef typename Graph::template ArcMap<int> IntArcMap;
+    IntArcMap map(G, 42);
+    for (ArcIt it(G); it != INVALID; ++it) {
+      check(map[it] == 42, "Wrong map constructor.");
+    }
+    int s = 0;
+    for (ArcIt it(G); it != INVALID; ++it) {
+      map[it] = 0;
+      check(map[it] == 0, "Wrong operator[].");
+      map.set(it, s);
+      check(map[it] == s, "Wrong set.");
+      ++s;
+    }
+    s = s * (s - 1) / 2;
+    for (ArcIt it(G); it != INVALID; ++it) {
+      s -= map[it];
+    }
+    check(s == 0, "Wrong sum.");
+
+    map = constMap<Arc>(12);
+    for (ArcIt it(G); it != INVALID; ++it) {
+      check(map[it] == 12, "Wrong operator[].");
+    }
   }
 
-  template <class Graph>
-  void checkGraph() {
-    const int num = 5;
-    Graph G;
-    checkGraphNodeList(G, 0);
-    checkGraphEdgeList(G, 0);
-    addUPetersen(G, num);
-    checkUndirPetersen(G, num);
+  template <typename Graph>
+  void checkGraphEdgeMap(const Graph& G) {
+    typedef typename Graph::Edge Edge;
+    typedef typename Graph::EdgeIt EdgeIt;
+
+    typedef typename Graph::template EdgeMap<int> IntEdgeMap;
+    IntEdgeMap map(G, 42);
+    for (EdgeIt it(G); it != INVALID; ++it) {
+      check(map[it] == 42, "Wrong map constructor.");
+    }
+    int s = 0;
+    for (EdgeIt it(G); it != INVALID; ++it) {
+      map[it] = 0;
+      check(map[it] == 0, "Wrong operator[].");
+      map.set(it, s);
+      check(map[it] == s, "Wrong set.");
+      ++s;
+    }
+    s = s * (s - 1) / 2;
+    for (EdgeIt it(G); it != INVALID; ++it) {
+      s -= map[it];
+    }
+    check(s == 0, "Wrong sum.");
+
+    map = constMap<Edge>(12);
+    for (EdgeIt it(G); it != INVALID; ++it) {
+      check(map[it] == 12, "Wrong operator[].");
+    }
   }
+
 
 } //namespace lemon
 
