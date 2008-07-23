@@ -409,9 +409,9 @@ namespace lemon {
           (*it)->erase(item);
           ++it;
         } catch (const ImmediateDetach&) {
-          it = _observers.erase(it);
           (*it)->_index = _observers.end();
           (*it)->_notifier = 0;
+          it = _observers.erase(it);
         }
       }
     }
@@ -429,9 +429,9 @@ namespace lemon {
           (*it)->erase(items);
           ++it;
         } catch (const ImmediateDetach&) {
-          it = _observers.erase(it);
           (*it)->_index = _observers.end();
           (*it)->_notifier = 0;
+          it = _observers.erase(it);
         }
       }
     }
@@ -468,9 +468,9 @@ namespace lemon {
           (*it)->clear();
           ++it;
         } catch (const ImmediateDetach&) {
-          it = _observers.erase(it);
           (*it)->_index = _observers.end();
           (*it)->_notifier = 0;
+          it = _observers.erase(it);
         }
       }
     }
