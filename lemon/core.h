@@ -29,7 +29,7 @@
 ///\brief LEMON core utilities.
 ///
 ///This header file contains core utilities for LEMON.
-///It is automatically included by all graph types, therefore it usually 
+///It is automatically included by all graph types, therefore it usually
 ///do not have to be included directly.
 
 namespace lemon {
@@ -1171,11 +1171,11 @@ namespace lemon {
   ///Dynamic arc look up between given endpoints.
 
   ///Using this class, you can find an arc in a digraph from a given
-  ///source to a given target in amortized time <em>O(log d)</em>,
+  ///source to a given target in amortized time <em>O(log</em>d<em>)</em>,
   ///where <em>d</em> is the out-degree of the source node.
   ///
   ///It is possible to find \e all parallel arcs between two nodes with
-  ///the \c findFirst() and \c findNext() members.
+  ///the \c operator() member.
   ///
   ///See the \ref ArcLookUp and \ref AllArcLookUp classes if your
   ///digraph is not changed so frequently.
@@ -1423,8 +1423,8 @@ namespace lemon {
     void refresh() {
       for(NodeIt n(_g);n!=INVALID;++n) {
         std::vector<Arc> v;
-        for(OutArcIt e(_g,n);e!=INVALID;++e) v.push_back(e);
-        if(v.size()) {
+        for(OutArcIt a(_g,n);a!=INVALID;++a) v.push_back(a);
+        if (!v.empty()) {
           std::sort(v.begin(),v.end(),ArcLess(_g));
           Arc head = refreshRec(v,0,v.size()-1);
           _head.set(n, head);
@@ -1506,111 +1506,81 @@ namespace lemon {
 
     ///Find an arc between two nodes.
 
-    ///Find an arc between two nodes in time <em>O(</em>log<em>d)</em>, where
-    /// <em>d</em> is the number of outgoing arcs of \c s.
+    ///Find an arc between two nodes.
     ///\param s The source node
     ///\param t The target node
-    ///\return An arc from \c s to \c t if there exists,
-    ///\ref INVALID otherwise.
-    Arc operator()(Node s, Node t) const
-    {
-      Arc a = _head[s];
-      if (a == INVALID) return INVALID;
-      while (true) {
-        if (_g.target(a) == t) {
-          const_cast<DynArcLookUp&>(*this).splay(a);
-          return a;
-        } else if (t < _g.target(a)) {
-          if (_left[a] == INVALID) {
-            const_cast<DynArcLookUp&>(*this).splay(a);
-            return INVALID;
+    ///\param p The previous arc between \c s and \c t. It it is INVALID or
+    ///not given, the operator finds the first appropriate arc.
+    ///\return An arc from \c s to \c t after \c p or
+    ///\ref INVALID if there is no more.
+    ///
+    ///For example, you can count the number of arcs from \c u to \c v in the
+    ///following way.
+    ///\code
+    ///DynArcLookUp<ListDigraph> ae(g);
+    ///...
+    ///int n=0;
+    ///for(Arc e=ae(u,v);e!=INVALID;e=ae(u,v,e)) n++;
+    ///\endcode
+    ///
+    ///Finding the arcs take at most <em>O(</em>log<em>d)</em>
+    ///amortized time, specifically, the time complexity of the lookups
+    ///is equal to the optimal search tree implementation for the
+    ///current query distribution in a constant factor.
+    ///
+    ///\note This is a dynamic data structure, therefore the data
+    ///structure is updated after each graph alteration. However,
+    ///theoretically this data structure is faster than \c ArcLookUp
+    ///or AllEdgeLookup, but it often provides worse performance than
+    ///them.
+    ///
+    Arc operator()(Node s, Node t, Arc p = INVALID) const  {
+      if (p == INVALID) {
+        Arc a = _head[s];
+        if (a == INVALID) return INVALID;
+        Arc r = INVALID;
+        while (true) {
+          if (_g.target(a) < t) {
+            if (_right[a] == INVALID) {
+              const_cast<DynArcLookUp&>(*this).splay(a);
+              return r;
+            } else {
+              a = _right[a];
+            }
           } else {
-            a = _left[a];
-          }
-        } else  {
-          if (_right[a] == INVALID) {
-            const_cast<DynArcLookUp&>(*this).splay(a);
-            return INVALID;
-          } else {
-            a = _right[a];
+            if (_g.target(a) == t) {
+              r = a;
+            }
+            if (_left[a] == INVALID) {
+              const_cast<DynArcLookUp&>(*this).splay(a);
+              return r;
+            } else {
+              a = _left[a];
+            }
           }
         }
-      }
-    }
-
-    ///Find the first arc between two nodes.
-
-    ///Find the first arc between two nodes in time
-    /// <em>O(</em>log<em>d)</em>, where <em>d</em> is the number of
-    /// outgoing arcs of \c s.
-    ///\param s The source node
-    ///\param t The target node
-    ///\return An arc from \c s to \c t if there exists, \ref INVALID
-    /// otherwise.
-    Arc findFirst(Node s, Node t) const
-    {
-      Arc a = _head[s];
-      if (a == INVALID) return INVALID;
-      Arc r = INVALID;
-      while (true) {
-        if (_g.target(a) < t) {
-          if (_right[a] == INVALID) {
-            const_cast<DynArcLookUp&>(*this).splay(a);
-            return r;
-          } else {
-            a = _right[a];
-          }
-        } else {
-          if (_g.target(a) == t) {
-            r = a;
-          }
-          if (_left[a] == INVALID) {
-            const_cast<DynArcLookUp&>(*this).splay(a);
-            return r;
-          } else {
-            a = _left[a];
-          }
-        }
-      }
-    }
-
-    ///Find the next arc between two nodes.
-
-    ///Find the next arc between two nodes in time
-    /// <em>O(</em>log<em>d)</em>, where <em>d</em> is the number of
-    /// outgoing arcs of \c s.
-    ///\param s The source node
-    ///\param t The target node
-    ///\return An arc from \c s to \c t if there exists, \ref INVALID
-    /// otherwise.
-
-    ///\note If \c e is not the result of the previous \c findFirst()
-    ///operation then the amorized time bound can not be guaranteed.
-#ifdef DOXYGEN
-    Arc findNext(Node s, Node t, Arc a) const
-#else
-    Arc findNext(Node, Node t, Arc a) const
-#endif
-    {
-      if (_right[a] != INVALID) {
-        a = _right[a];
-        while (_left[a] != INVALID) {
-          a = _left[a];
-        }
-        const_cast<DynArcLookUp&>(*this).splay(a);
       } else {
-        while (_parent[a] != INVALID && _right[_parent[a]] ==  a) {
-          a = _parent[a];
-        }
-        if (_parent[a] == INVALID) {
-          return INVALID;
-        } else {
-          a = _parent[a];
+        Arc a = p;
+        if (_right[a] != INVALID) {
+          a = _right[a];
+          while (_left[a] != INVALID) {
+            a = _left[a];
+          }
           const_cast<DynArcLookUp&>(*this).splay(a);
+        } else {
+          while (_parent[a] != INVALID && _right[_parent[a]] ==  a) {
+            a = _parent[a];
+          }
+          if (_parent[a] == INVALID) {
+            return INVALID;
+          } else {
+            a = _parent[a];
+            const_cast<DynArcLookUp&>(*this).splay(a);
+          }
         }
+        if (_g.target(a) == t) return a;
+        else return INVALID;
       }
-      if (_g.target(a) == t) return a;
-      else return INVALID;
     }
 
   };
