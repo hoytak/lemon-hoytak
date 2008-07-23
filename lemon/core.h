@@ -1384,6 +1384,7 @@ namespace lemon {
         } else {
           _right.set(e, _right[arc]);
           _parent.set(_right[arc], e);
+          _parent.set(e, _parent[arc]);
 
           if (_parent[arc] != INVALID) {
             if (_left[_parent[arc]] == arc) {
@@ -1514,6 +1515,7 @@ namespace lemon {
     Arc operator()(Node s, Node t) const
     {
       Arc a = _head[s];
+      if (a == INVALID) return INVALID;
       while (true) {
         if (_g.target(a) == t) {
           const_cast<DynArcLookUp&>(*this).splay(a);
@@ -1548,6 +1550,7 @@ namespace lemon {
     Arc findFirst(Node s, Node t) const
     {
       Arc a = _head[s];
+      if (a == INVALID) return INVALID;
       Arc r = INVALID;
       while (true) {
         if (_g.target(a) < t) {
