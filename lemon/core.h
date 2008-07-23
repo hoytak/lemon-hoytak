@@ -27,6 +27,10 @@
 
 ///\file
 ///\brief LEMON core utilities.
+///
+///This header file contains core utilities for LEMON.
+///It is automatically included by all graph types, therefore it usually 
+///do not have to be included directly.
 
 namespace lemon {
 
