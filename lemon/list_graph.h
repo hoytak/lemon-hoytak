@@ -395,9 +395,9 @@ namespace lemon {
     /// added to the graph.
     bool valid(Arc a) const { return Parent::valid(a); }
 
-    /// Change the target of \c e to \c n
+    /// Change the target of \c a to \c n
 
-    /// Change the target of \c e to \c n
+    /// Change the target of \c a to \c n
     ///
     ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s referencing
     ///the changed arc remain valid. However <tt>InArcIt</tt>s are
@@ -405,21 +405,21 @@ namespace lemon {
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void changeTarget(Arc e, Node n) {
-      Parent::changeTarget(e,n);
+    void changeTarget(Arc a, Node n) {
+      Parent::changeTarget(a,n);
     }
-    /// Change the source of \c e to \c n
+    /// Change the source of \c a to \c n
 
-    /// Change the source of \c e to \c n
+    /// Change the source of \c a to \c n
     ///
-    ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s referencing
-    ///the changed arc remain valid. However <tt>OutArcIt</tt>s are
+    ///\note The <tt>InArcIt</tt>s referencing the changed arc remain
+    ///valid. However the <tt>ArcIt<tt>s and <tt>OutArcIt</tt>s are
     ///invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void changeSource(Arc e, Node n) {
-      Parent::changeSource(e,n);
+    void changeSource(Arc a, Node n) {
+      Parent::changeSource(a,n);
     }
 
     /// Invert the direction of an arc.
@@ -1114,7 +1114,7 @@ namespace lemon {
 
   protected:
 
-    void changeTarget(Edge e, Node n) {
+    void changeV(Edge e, Node n) {
       if(arcs[2 * e.id].next_out != -1) {
         arcs[arcs[2 * e.id].next_out].prev_out = arcs[2 * e.id].prev_out;
       }
@@ -1135,7 +1135,7 @@ namespace lemon {
       nodes[n.id].first_out = 2 * e.id;
     }
 
-    void changeSource(Edge e, Node n) {
+    void changeU(Edge e, Node n) {
       if(arcs[(2 * e.id) | 1].next_out != -1) {
         arcs[arcs[(2 * e.id) | 1].next_out].prev_out =
           arcs[(2 * e.id) | 1].prev_out;
@@ -1258,66 +1258,32 @@ namespace lemon {
     /// could become valid again later if new edges are
     /// added to the graph.
     bool valid(Edge e) const { return Parent::valid(e); }
-    /// \brief Change the source of \c e to \c n
+    /// \brief Change the end \c u of \c e to \c n
     ///
-    /// This function changes the source of \c e to \c n.
+    /// This function changes the end \c u of \c e to node \c n.
     ///
-    ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s
-    ///referencing the changed arc remain
-    ///valid. However <tt>OutArcIt</tt>s are invalidated.
+    ///\note The <tt>EdgeIt</tt>s and <tt>ArcIt</tt>s referencing the
+    ///changed edge are invalidated and if the changed node is the
+    ///base node of an iterator then this iterator is also
+    ///invalidated.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeSource(Edge e, Node n) {
-      Parent::changeSource(e,n);
+    void changeU(Edge e, Node n) {
+      Parent::changeU(e,n);
     }
-    /// \brief Change the target of \c e to \c n
+    /// \brief Change the end \c v of \c e to \c n
     ///
-    /// This function changes the target of \c e to \c n.
+    /// This function changes the end \c v of \c e to \c n.
     ///
-    /// \note The <tt>ArcIt</tt>s referencing the changed arc remain
-    /// valid. However the other iterators may be invalidated.
-    ///
-    ///\warning This functionality cannot be used together with the
-    ///Snapshot feature.
-    void changeTarget(Edge e, Node n) {
-      Parent::changeTarget(e,n);
-    }
-    /// \brief Change the source of \c e to \c n
-    ///
-    /// This function changes the source of \c e to \c n.
-    /// It also changes the proper node of the represented edge.
-    ///
-    ///\note The <tt>ArcIt</tt>s and <tt>InArcIt</tt>s
-    ///referencing the changed arc remain
-    ///valid. However <tt>OutArcIt</tt>s are invalidated.
+    ///\note The <tt>EdgeIt</tt>s referencing the changed edge remain
+    ///valid, however <tt>ArcIt</tt>s and if the changed node is the
+    ///base node of an iterator then this iterator is invalidated.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    void changeSource(Arc e, Node n) {
-      if (Parent::direction(e)) {
-        Parent::changeSource(e,n);
-      } else {
-        Parent::changeTarget(e,n);
-      }
-    }
-    /// \brief Change the target of \c e to \c n
-    ///
-    /// This function changes the target of \c e to \c n.
-    /// It also changes the proper node of the represented edge.
-    ///
-    ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s
-    ///referencing the changed arc remain
-    ///valid. However <tt>InArcIt</tt>s are invalidated.
-    ///
-    ///\warning This functionality cannot be used together with the
-    ///Snapshot feature.
-    void changeTarget(Arc e, Node n) {
-      if (Parent::direction(e)) {
-        Parent::changeTarget(e,n);
-      } else {
-        Parent::changeSource(e,n);
-      }
+    void changeV(Edge e, Node n) {
+      Parent::changeV(e,n);
     }
     /// \brief Contract two nodes.
     ///
@@ -1337,10 +1303,10 @@ namespace lemon {
         IncEdgeIt f = e; ++f;
         if (r && runningNode(e) == a) {
           erase(e);
-        } else if (source(e) == b) {
-          changeSource(e, a);
+        } else if (u(e) == b) {
+          changeU(e, a);
         } else {
-          changeTarget(e, a);
+          changeV(e, a);
         }
         e = f;
       }
