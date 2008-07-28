@@ -363,6 +363,18 @@ namespace lemon {
       return Parent::addArc(s, t);
     }
 
+    ///\brief Erase a node from the digraph.
+    ///
+    ///Erase a node from the digraph.
+    ///
+    void erase(const Node& n) { Parent::erase(n); }
+
+    ///\brief Erase an arc from the digraph.
+    ///
+    ///Erase an arc from the digraph.
+    ///
+    void erase(const Arc& a) { Parent::erase(a); }
+
     /// Node validity check
 
     /// This function gives back true if the given node is valid,
@@ -1207,6 +1219,18 @@ namespace lemon {
     Edge addEdge(const Node& s, const Node& t) {
       return Parent::addEdge(s, t);
     }
+
+    /// \brief Erase a node from the graph.
+    ///
+    /// Erase a node from the graph.
+    ///
+    void erase(const Node& n) { Parent::erase(n); }
+
+    /// \brief Erase an edge from the graph.
+    ///
+    /// Erase an edge from the graph.
+    ///
+    void erase(const Edge& e) { Parent::erase(e); }
     /// Node validity check
 
     /// This function gives back true if the given node is valid,
