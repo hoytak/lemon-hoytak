@@ -41,7 +41,7 @@ namespace lemon {
   /// value containers which are the node and edge maps.
   ///
   /// The graph's node and edge sets can be changed as we add or erase
-  /// nodes and edges in the graph. Lemon would like to handle easily
+  /// nodes and edges in the graph. LEMON would like to handle easily
   /// that the node and edge maps should contain values for all nodes or
   /// edges. If we want to check on every indicing if the map contains
   /// the current indicing key that cause a drawback in the performance

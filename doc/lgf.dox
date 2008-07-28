@@ -21,7 +21,7 @@ namespace lemon {
 
 
 
-\page lgf-format Lemon Graph Format (LGF)
+\page lgf-format LEMON Graph Format (LGF)
 
 The \e LGF is a <em>column oriented</em>
 file format for storing graphs and associated data like

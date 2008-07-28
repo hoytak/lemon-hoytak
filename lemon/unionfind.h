@@ -497,7 +497,7 @@ namespace lemon {
       firstFreeItem = fdx;
     }
 
-    /// \brief Lemon style iterator for the representant items.
+    /// \brief LEMON style iterator for the representant items.
     ///
     /// ClassIt is a lemon style iterator for the components. It iterates
     /// on the ids of the classes.
@@ -549,7 +549,7 @@ namespace lemon {
       int cdx;
     };
 
-    /// \brief Lemon style iterator for the items of a component.
+    /// \brief LEMON style iterator for the items of a component.
     ///
     /// ClassIt is a lemon style iterator for the components. It iterates
     /// on the items of a class. By example if you want to iterate on
@@ -807,7 +807,7 @@ namespace lemon {
       firstFreeClass = cdx;
     }
 
-    /// \brief Lemon style iterator for the classes.
+    /// \brief LEMON style iterator for the classes.
     ///
     /// ClassIt is a lemon style iterator for the components. It iterates
     /// on the ids of classes.
@@ -859,7 +859,7 @@ namespace lemon {
       int cdx;
     };
 
-    /// \brief Lemon style iterator for the items of a component.
+    /// \brief LEMON style iterator for the items of a component.
     ///
     /// ClassIt is a lemon style iterator for the components. It iterates
     /// on the items of a class. By example if you want to iterate on
@@ -1655,7 +1655,7 @@ namespace lemon {
       return nodes[parent >= 0 ? classes[id].depth : leftNode(id)].item;
     }
 
-    /// \brief Lemon style iterator for the items of a class.
+    /// \brief LEMON style iterator for the items of a class.
     ///
     /// ClassIt is a lemon style iterator for the components. It iterates
     /// on the items of a class. By example if you want to iterate on

@@ -18,7 +18,7 @@
 
 ///\ingroup lemon_io
 ///\file
-///\brief \ref lgf-format "Lemon Graph Format" reader.
+///\brief \ref lgf-format "LEMON Graph Format" reader.
 
 
 #ifndef LEMON_LGF_READER_H
@@ -2301,7 +2301,7 @@ namespace lemon {
   /// \brief Reader for the contents of the \ref lgf-format "LGF" file
   ///
   /// This class can be used to read the sections, the map names and
-  /// the attributes from a file. Usually, the Lemon programs know
+  /// the attributes from a file. Usually, the LEMON programs know
   /// that, which type of graph, which maps and which attributes
   /// should be read from a file, but in general tools (like glemon)
   /// the contents of an LGF file should be guessed somehow. This class
