@@ -20,7 +20,6 @@
 #define LEMON_DIM2_H
 
 #include <iostream>
-#include <lemon/core.h>
 
 ///\ingroup misc
 ///\file
@@ -45,9 +44,9 @@ namespace lemon {
   /// \addtogroup misc
   /// @{
 
-  /// A simple two dimensional vector (plainvector) implementation
+  /// A simple two dimensional vector (plain vector) implementation
 
-  /// A simple two dimensional vector (plainvector) implementation
+  /// A simple two dimensional vector (plain vector) implementation
   /// with the usual vector operations.
   template<typename T>
     class Point {
@@ -186,9 +185,9 @@ namespace lemon {
     return x*u;
   }
 
-  ///Read a plainvector from a stream
+  ///Read a plain vector from a stream
 
-  ///Read a plainvector from a stream.
+  ///Read a plain vector from a stream.
   ///\relates Point
   ///
   template<typename T>
@@ -214,9 +213,9 @@ namespace lemon {
     return is;
   }
 
-  ///Write a plainvector to a stream
+  ///Write a plain vector to a stream
 
-  ///Write a plainvector to a stream.
+  ///Write a plain vector to a stream.
   ///\relates Point
   ///
   template<typename T>
@@ -261,13 +260,13 @@ namespace lemon {
 
 
 
-  /// A class to calculate or store the bounding box of plainvectors.
+    /// A class to calculate or store the bounding box of plain vectors.
 
-  /// A class to calculate or store the bounding box of plainvectors.
-  ///
+    /// A class to calculate or store the bounding box of plain vectors.
+    ///
     template<typename T>
     class BoundingBox {
-      Point<T> bottom_left, top_right;
+      Point<T> _bottom_left, _top_right;
       bool _empty;
     public:
 
@@ -275,7 +274,10 @@ namespace lemon {
       BoundingBox() { _empty = true; }
 
       ///Construct an instance from one point
-      BoundingBox(Point<T> a) { bottom_left=top_right=a; _empty = false; }
+      BoundingBox(Point<T> a) {
+        _bottom_left = _top_right = a;
+        _empty = false;
+      }
 
       ///Construct an instance from two points
 
@@ -286,8 +288,8 @@ namespace lemon {
       ///than those of the top right one.
       BoundingBox(Point<T> a,Point<T> b)
       {
-        bottom_left=a;
-        top_right=b;
+        _bottom_left = a;
+        _top_right = b;
         _empty = false;
       }
 
@@ -302,8 +304,8 @@ namespace lemon {
       ///bottom must be no more than the top.
       BoundingBox(T l,T b,T r,T t)
       {
-        bottom_left=Point<T>(l,b);
-        top_right=Point<T>(r,t);
+        _bottom_left=Point<T>(l,b);
+        _top_right=Point<T>(r,t);
         _empty = false;
       }
 
@@ -320,7 +322,7 @@ namespace lemon {
 
       ///Make the BoundingBox empty
       void clear() {
-        _empty=1;
+        _empty = true;
       }
 
       ///Give back the bottom left corner of the box
@@ -328,15 +330,15 @@ namespace lemon {
       ///Give back the bottom left corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> bottomLeft() const {
-        return bottom_left;
+        return _bottom_left;
       }
 
       ///Set the bottom left corner of the box
 
       ///Set the bottom left corner of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void bottomLeft(Point<T> p) {
-        bottom_left = p;
+        _bottom_left = p;
       }
 
       ///Give back the top right corner of the box
@@ -344,15 +346,15 @@ namespace lemon {
       ///Give back the top right corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> topRight() const {
-        return top_right;
+        return _top_right;
       }
 
       ///Set the top right corner of the box
 
       ///Set the top right corner of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void topRight(Point<T> p) {
-        top_right = p;
+        _top_right = p;
       }
 
       ///Give back the bottom right corner of the box
@@ -360,16 +362,16 @@ namespace lemon {
       ///Give back the bottom right corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> bottomRight() const {
-        return Point<T>(top_right.x,bottom_left.y);
+        return Point<T>(_top_right.x,_bottom_left.y);
       }
 
       ///Set the bottom right corner of the box
 
       ///Set the bottom right corner of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void bottomRight(Point<T> p) {
-        top_right.x = p.x;
-        bottom_left.y = p.y;
+        _top_right.x = p.x;
+        _bottom_left.y = p.y;
       }
 
       ///Give back the top left corner of the box
@@ -377,16 +379,16 @@ namespace lemon {
       ///Give back the top left corner of the box.
       ///If the bounding box is empty, then the return value is not defined.
       Point<T> topLeft() const {
-        return Point<T>(bottom_left.x,top_right.y);
+        return Point<T>(_bottom_left.x,_top_right.y);
       }
 
       ///Set the top left corner of the box
 
       ///Set the top left corner of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void topLeft(Point<T> p) {
-        top_right.y = p.y;
-        bottom_left.x = p.x;
+        _top_right.y = p.y;
+        _bottom_left.x = p.x;
       }
 
       ///Give back the bottom of the box
@@ -394,15 +396,15 @@ namespace lemon {
       ///Give back the bottom of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T bottom() const {
-        return bottom_left.y;
+        return _bottom_left.y;
       }
 
       ///Set the bottom of the box
 
       ///Set the bottom of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void bottom(T t) {
-        bottom_left.y = t;
+        _bottom_left.y = t;
       }
 
       ///Give back the top of the box
@@ -410,15 +412,15 @@ namespace lemon {
       ///Give back the top of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T top() const {
-        return top_right.y;
+        return _top_right.y;
       }
 
       ///Set the top of the box
 
       ///Set the top of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void top(T t) {
-        top_right.y = t;
+        _top_right.y = t;
       }
 
       ///Give back the left side of the box
@@ -426,15 +428,15 @@ namespace lemon {
       ///Give back the left side of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T left() const {
-        return bottom_left.x;
+        return _bottom_left.x;
       }
 
       ///Set the left side of the box
 
       ///Set the left side of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void left(T t) {
-        bottom_left.x = t;
+        _bottom_left.x = t;
       }
 
       /// Give back the right side of the box
@@ -442,15 +444,15 @@ namespace lemon {
       /// Give back the right side of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T right() const {
-        return top_right.x;
+        return _top_right.x;
       }
 
       ///Set the right side of the box
 
       ///Set the right side of the box.
-      ///It should only be used for non-empty box.
+      ///\pre The box must not be empty.
       void right(T t) {
-        top_right.x = t;
+        _top_right.x = t;
       }
 
       ///Give back the height of the box
@@ -458,7 +460,7 @@ namespace lemon {
       ///Give back the height of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T height() const {
-        return top_right.y-bottom_left.y;
+        return _top_right.y-_bottom_left.y;
       }
 
       ///Give back the width of the box
@@ -466,16 +468,16 @@ namespace lemon {
       ///Give back the width of the box.
       ///If the bounding box is empty, then the return value is not defined.
       T width() const {
-        return top_right.x-bottom_left.x;
+        return _top_right.x-_bottom_left.x;
       }
 
       ///Checks whether a point is inside a bounding box
       bool inside(const Point<T>& u) const {
         if (_empty)
           return false;
-        else{
-          return ((u.x-bottom_left.x)*(top_right.x-u.x) >= 0 &&
-              (u.y-bottom_left.y)*(top_right.y-u.y) >= 0 );
+        else {
+          return ( (u.x-_bottom_left.x)*(_top_right.x-u.x) >= 0 &&
+                   (u.y-_bottom_left.y)*(_top_right.y-u.y) >= 0 );
         }
       }
 
@@ -484,15 +486,15 @@ namespace lemon {
       ///Increments a bounding box with a point.
       ///
       BoundingBox& add(const Point<T>& u){
-        if (_empty){
-          bottom_left=top_right=u;
+        if (_empty) {
+          _bottom_left = _top_right = u;
           _empty = false;
         }
-        else{
-          if (bottom_left.x > u.x) bottom_left.x = u.x;
-          if (bottom_left.y > u.y) bottom_left.y = u.y;
-          if (top_right.x < u.x) top_right.x = u.x;
-          if (top_right.y < u.y) top_right.y = u.y;
+        else {
+          if (_bottom_left.x > u.x) _bottom_left.x = u.x;
+          if (_bottom_left.y > u.y) _bottom_left.y = u.y;
+          if (_top_right.x < u.x) _top_right.x = u.x;
+          if (_top_right.y < u.y) _top_right.y = u.y;
         }
         return *this;
       }
@@ -503,8 +505,8 @@ namespace lemon {
       ///
       BoundingBox& add(const BoundingBox &u){
         if ( !u.empty() ){
-          this->add(u.bottomLeft());
-          this->add(u.topRight());
+          add(u._bottom_left);
+          add(u._top_right);
         }
         return *this;
       }
@@ -515,15 +517,15 @@ namespace lemon {
       ///
       BoundingBox operator&(const BoundingBox& u) const {
         BoundingBox b;
-        if (this->_empty || u._empty) {
+        if (_empty || u._empty) {
           b._empty = true;
         } else {
-          b.bottom_left.x = std::max(this->bottom_left.x,u.bottom_left.x);
-          b.bottom_left.y = std::max(this->bottom_left.y,u.bottom_left.y);
-          b.top_right.x = std::min(this->top_right.x,u.top_right.x);
-          b.top_right.y = std::min(this->top_right.y,u.top_right.y);
-          b._empty = b.bottom_left.x > b.top_right.x ||
-                     b.bottom_left.y > b.top_right.y;
+          b._bottom_left.x = std::max(_bottom_left.x, u._bottom_left.x);
+          b._bottom_left.y = std::max(_bottom_left.y, u._bottom_left.y);
+          b._top_right.x = std::min(_top_right.x, u._top_right.x);
+          b._top_right.y = std::min(_top_right.y, u._top_right.y);
+          b._empty = b._bottom_left.x > b._top_right.x ||
+                     b._bottom_left.y > b._top_right.y;
         }
         return b;
       }
