@@ -934,7 +934,7 @@ namespace lemon {
     std::ostream* _os;
     bool local_os;
 
-    Graph& _graph;
+    const Graph& _graph;
 
     std::string _nodes_caption;
     std::string _edges_caption;
