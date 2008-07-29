@@ -58,26 +58,30 @@ int main()
   check(!box1.empty(), "Wrong empty() in dim2::BoundingBox.");
   box1.add(b);
 
-  check(box1.bottomLeft().x==1 &&
-        box1.bottomLeft().y==2 &&
-        box1.topRight().x==3 &&
-        box1.topRight().y==4,
+  check(box1.left()==1 && box1.bottom()==2 &&
+        box1.right()==3 && box1.top()==4,
         "Wrong addition of points to dim2::BoundingBox.");
 
-  p.x=2; p.y=3;
-  check(box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
+  check(box1.inside(Point(2,3)), "Wrong inside() in dim2::BoundingBox.");
+  check(box1.inside(Point(1,3)), "Wrong inside() in dim2::BoundingBox.");
+  check(!box1.inside(Point(0,3)), "Wrong inside() in dim2::BoundingBox.");
 
-  p.x=1; p.y=3;
-  check(box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
-
-  p.x=0; p.y=3;
-  check(!box1.inside(p), "Wrong inside() in dim2::BoundingBox.");
-
-  BB box2(p);
+  BB box2(Point(2,2));
   check(!box2.empty(), "Wrong empty() in dim2::BoundingBox.");
-
-  box2.add(box1);
-  check(box2.inside(p), "Wrong inside() in dim2::BoundingBox.");
+  
+  box2.bottomLeft(Point(2,0));
+  box2.topRight(Point(5,3));
+  BB box3 = box1 & box2;
+  check(!box3.empty() &&
+        box3.left()==2 && box3.bottom()==2 && 
+        box3.right()==3 && box3.top()==3,
+        "Wrong intersection of two dim2::BoundingBox objects.");
+  
+  box1.add(box2);
+  check(!box1.empty() &&
+        box1.left()==1 && box1.bottom()==0 &&
+        box1.right()==5 && box1.top()==4,
+        "Wrong addition of two dim2::BoundingBox objects.");
 
   return 0;
 }
