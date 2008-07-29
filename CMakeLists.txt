@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #  OUTPUT_VARIABLE HG_REVISION
 #  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-SET(PROJECT_NAME "Lemon")
+SET(PROJECT_NAME "LEMON")
 SET(PROJECT_VERSION_MAJOR "0")
 SET(PROJECT_VERSION_MINOR "99")
 SET(PROJECT_VERSION_PATCH "0")
@@ -36,7 +36,7 @@ IF(WIN32)
   SET(CPACK_PACKAGE_VENDOR
     "EGRES - Egervary Research Group on Combinatorial Optimization")
   SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "Lemon - Library of Efficient Models and Optimization in Networks")
+    "LEMON - Library of Efficient Models and Optimization in Networks")
   SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 
   SET(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -57,9 +57,9 @@ IF(WIN32)
   #SET(CPACK_COMPONENT_HTML_DOCUMENTATION_DISPLAY_NAME "HTML documentation")
 
   #SET(CPACK_COMPONENT_HEADERS_DESCRIPTION
-  #  "C++ header files for use with the Lemon library")
+  #  "C++ header files for use with the LEMON library")
   #SET(CPACK_COMPONENT_LIBRARY_DESCRIPTION
-  #  "Static library used to build programs with Lemon")
+  #  "Static library used to build programs with LEMON")
   #SET(CPACK_COMPONENT_HTML_DOCUMENTATION_DESCRIPTION
   #  "Doxygen generated documentation")
 
@@ -70,9 +70,9 @@ IF(WIN32)
   #SET(CPACK_COMPONENT_HTML_DOCUMENTATION_GROUP "Documentation")
 
   #SET(CPACK_COMPONENT_GROUP_DEVELOPMENT_DESCRIPTION
-  #  "Components needed to develop software using Lemon")
+  #  "Components needed to develop software using LEMON")
   #SET(CPACK_COMPONENT_GROUP_DOCUMENTATION_DESCRIPTION
-  #  "Documentation of Lemon")
+  #  "Documentation of LEMON")
 
   #SET(CPACK_ALL_INSTALL_TYPES Full Developer)
 

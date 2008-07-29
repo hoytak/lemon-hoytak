@@ -325,7 +325,7 @@ can be the finding maximum cardinality, maximum weight or minimum cost
 matching. The search can be constrained to find perfect or
 maximum cardinality matching.
 
-Lemon contains the next algorithms:
+LEMON contains the next algorithms:
 - \ref lemon::MaxBipartiteMatching "MaxBipartiteMatching" Hopcroft-Karp
   augmenting path algorithm for calculate maximum cardinality matching in
   bipartite graphs
@@ -476,12 +476,12 @@ and graph related data. Now it supports the LEMON format, the
 */
 
 /**
-@defgroup lemon_io Lemon Input-Output
+@defgroup lemon_io LEMON Input-Output
 @ingroup io_group
-\brief Reading and writing \ref lgf-format "Lemon Graph Format".
+\brief Reading and writing \ref lgf-format "LEMON Graph Format".
 
 This group describes methods for reading and writing
-\ref lgf-format "Lemon Graph Format".
+\ref lgf-format "LEMON Graph Format".
 */
 
 /**
