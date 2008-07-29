@@ -6,7 +6,7 @@ m4_define([lemon_hg_revision], [m4_normalize(esyscmd([hg id -i]))])
 m4_define([lemon_version], [ifelse(lemon_version_number(), [], [lemon_hg_revision()], [lemon_version_number()])])
 
 AC_PREREQ([2.59])
-AC_INIT([Lemon], [lemon_version()], [lemon-user@lemon.cs.elte.hu], [lemon])
+AC_INIT([LEMON], [lemon_version()], [lemon-user@lemon.cs.elte.hu], [lemon])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])

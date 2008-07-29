@@ -82,7 +82,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Lemon style iterator for path arcs
+    /// \brief LEMON style iterator for path arcs
     ///
     /// This class is used to iterate on the arcs of the paths.
     class ArcIt {

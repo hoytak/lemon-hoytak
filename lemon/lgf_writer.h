@@ -18,7 +18,7 @@
 
 ///\ingroup lemon_io
 ///\file
-///\brief \ref lgf-format "Lemon Graph Format" writer.
+///\brief \ref lgf-format "LEMON Graph Format" writer.
 
 
 #ifndef LEMON_LGF_WRITER_H
