@@ -465,7 +465,9 @@ namespace lemon {
       explicit Arc(int id) { _id = id;}
 
     public:
-      operator Edge() const { return edgeFromId(_id / 2); }
+      operator Edge() const { 
+        return _id != -1 ? edgeFromId(_id / 2) : INVALID; 
+      }
 
       Arc() {}
       Arc (Invalid) { _id = -1; }
