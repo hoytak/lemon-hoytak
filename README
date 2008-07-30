@@ -1,60 +1,46 @@
-------------------------------------------------------------------
+==================================================================
 LEMON - a Library of Efficient Models and Optimization in Networks
-------------------------------------------------------------------
+==================================================================
 
-LEMON is the abbreviation of Library of Efficient Models and
-Optimization in Networks. It is an open source library written in
-C++. It provides a set of easy-to-use implementation of common data
-structures and algorithms in the area of optimization and helps
-implementing new ones. It is an especially suitable tool to solve the
-design and optimization problems of telecommunications networks. To
-achieve wide usability, a fundamental design requirement is the
-genericity of interface of data structures and algorithms. LEMON is an
-open source library end invites people all around the world in its
-development.
+LEMON is an open source library written in C++. It provides
+easy-to-use implementations of common data structures and algorithms
+in the area of optimization and helps implementing new ones. The main
+focus is on graphs and graph algorithms, thus it is especially
+suitable for solving design and optimization problems of
+telecommunication networks. To achieve wide usability its data
+structures and algorithms provide generic interfaces.
 
---------
 Contents
---------
+========
 
-COPYING, LICENSE
+LICENSE
 
-  Copying, distribution and modification conditions and terms.
+   Copying, distribution and modification conditions and terms.
 
 INSTALL
 
-  For general building and installation instructions, see the file.
+   General building and installation instructions.
 
 lemon/
 
-  Source code of LEMON itself.
+   Source code of LEMON library.
 
 doc/
 
-  Documentation of LEMON. The starting page is doc/html/index.html.
-  The documentation installs into the directory
-
-    /usr/local/share/doc/lemon/html
-
-  or -- if you use different prefix -- into
-
-    ${prefix}/share/doc/lemon/html
-
-  (see also INSTALL).
+   Documentation of LEMON. The starting page is doc/html/index.html.
 
 demo/
 
-  Some demonstration programs to make you easier to get familiar with
-  LEMON. Use --enable-demo configure option to also compile these codes
-  (see also INSTALL).
+   Some example programs to make you easier to get familiar with LEMON.
 
 test/
 
-  Contains programs to check the integrity and correctness of
-  LEMON. The command 'make check' performs these tests.
+   Contains programs to check the integrity and correctness of LEMON.
 
 benchmark/
   
-  Contains programs measuring the performance of LEMON. Use
-  --enable-benchmark configure option to also compile these codes (see
-  also INSTALL).
+   Contains programs for measuring the performance of algorithms.
+
+tools/
+
+   Various utilities related to LEMON.
