@@ -3,72 +3,95 @@ Installation Instructions
 
    Since you are reading this I assume you already obtained one of the release
 tarballs and successfully extracted it. The latest version of LEMON is
-available at our webpage (http://lemon.cs.elte.hu/).
+available at our web page (http://lemon.cs.elte.hu/).
 
    In order to install LEMON from the extracted source tarball you have to
 issue the following commands:
 
-  1. `cd lemon-x.y.z'
+   1. `cd lemon-x.y.z'
 
-     This changes to the directory which was created when you extracted the
-     sources. The x.y.z part is a version number.
+      This command changes to the directory which was created when you
+      extracted the sources. The x.y.z part is a version number.
 
-  2. `./configure'
+   2. `./configure'
 
-     This runs the configure shell script, which does some checks and
-     configuration (creates makefiles etc).
+      This command runs the configure shell script, which does some checks and
+      creates the makefiles.
 
-  3. `make'
+   3. `make'
 
-     This command compiles the non-template part of LEMON into libemon.a file.
-     It also compiles the benchmark and demo programs when enabled.
+      This command compiles the non-template part of LEMON into libemon.a
+      file. It also compiles the programs in the tools, benchmark and demo
+      subdirectories when enabled.
 
-  4. `make check'
+   4. `make check'
 
-     This step is optional, but recommended. It runs the test programs that we
-     developed for LEMON to check whether the library works properly on your
-     platform.
+      This step is optional, but recommended. It runs the test programs that
+      we developed for LEMON to check whether the library works properly on
+      your platform.
 
-  5. `make install'
+   5. `make install'
 
-     This command installs LEMON under /usr/local (you will need root
-     privileges to be able to do that). If you want to install it to some
-     other location, then pass the --prefix=DIRECTORY flag to configure in
-     step 1. For example: `./configure --prefix=/home/username/lemon'
+      This command installs LEMON under /usr/local (you will need root
+      privileges to be able to do that). If you want to install it to some
+      other location, then pass the --prefix=DIRECTORY flag to configure in
+      step 2. For example: `./configure --prefix=/home/username/lemon'.
+
+   6. `make install-html'
+
+      This command installs the documentation under share/doc/lemon/docs. The
+      generated documentation is included in the tarball. If you want to
+      generate it yourself, then run `make html'. Note that for this you need
+      to have the following programs installed: Doxygen, Graphviz, Ghostscript,
+      Latex.
 
 
-Configure Flags
-===============
+Configure Options and Variables
+===============================
 
-   You can pass the following flags to configure in step 1
-(see ./configure --help for more):
+   In step 2 you can customize the actions of configure by setting variables
+and passing options to it. This can be done like this:
+`./configure [OPTION]... [VARIABLE=VALUE]...'
 
-CXX=comp
+   Below you will find some useful variables and options (see
+`./configure --help' for more):
+
+CXX='comp'
 
   Change the C++ compiler to 'comp'.
 
 CXXFLAGS='flags'
 
-  Pass the 'flags' to the compiler. For example
-  CXXFLAGS='-O3 -march=pentium-m'
-  turns  on generation of aggressively optimized
-  Pentium-M specific code.
+  Pass the 'flags' to the compiler. For example CXXFLAGS='-O3 -march=pentium-m'
+  turns on generation of aggressively optimized Pentium-M specific code.
+
+--prefix=PREFIX
+
+  Set the installation prefix to PREFIX. By default it is /usr/local.
 
 --enable-demo
 
-   Build the demo programs too.
+   Build the examples in the demo subdirectory.
 
 --disable-demo
 
-   Do not build the demo programs (default).
+   Do not build the examples in the demo subdirectory (default).
 
 --enable-benchmark
 
-   Build the benchmark programs too.
+   Build the programs in the benchmark subdirectory.
 
 --disable-benchmark
 
-   Do not build the benchmark programs (default).
+   Do not build the programs in the benchmark subdirectory (default).
+
+--enable-tools
+
+   Build the programs in the tools subdirectory (default).
+
+--disable-tools
+
+   Do not build the programs in the tools subdirectory.
 
 --with-glpk[=PREFIX]
 
@@ -115,3 +138,25 @@ CXXFLAGS='flags'
 --without-cplex
 
    Disable CPLEX support.
+
+--with-soplex[=PREFIX]
+
+   Enable SoPlex support (default). You should specify the prefix too if
+   you installed SoPlex to some non-standard location (e.g. your home
+   directory). If it is not found, SoPlex support will be disabled.
+
+--with-soplex-includedir=DIR
+
+   The directory where the SoPlex header files are located. This is only
+   useful when the SoPlex headers and libraries are not under the same
+   prefix (which is unlikely).
+
+--with-soplex-libdir=DIR
+
+   The directory where the SoPlex libraries are located. This is only
+   useful when the SoPlex headers and libraries are not under the same
+   prefix (which is unlikely).
+
+--without-soplex
+
+   Disable SoPlex support.
