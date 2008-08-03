@@ -21,7 +21,7 @@
 
 ///\ingroup search
 ///\file
-///\brief Bfs algorithm.
+///\brief BFS algorithm.
 
 #include <lemon/list_graph.h>
 #include <lemon/graph_utils.h>
@@ -32,8 +32,6 @@
 
 namespace lemon {
 
-
-
   ///Default traits class of Bfs class.
 
   ///Default traits class of Bfs class.
@@ -41,73 +39,75 @@ namespace lemon {
   template<class GR>
   struct BfsDefaultTraits
   {
-    ///The digraph type the algorithm runs on.
+    ///The type of the digraph the algorithm runs on.
     typedef GR Digraph;
-    ///\brief The type of the map that stores the last
+
+    ///\brief The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     ///
-    ///The type of the map that stores the last
+    ///The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///
-    typedef typename Digraph::template NodeMap<typename GR::Arc> PredMap;
-    ///Instantiates a PredMap.
+    typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
+    ///Instantiates a \ref PredMap.
 
     ///This function instantiates a \ref PredMap.
-    ///\param G is the digraph, to which we would like to define the PredMap.
+    ///\param g is the digraph, to which we would like to define the
+    ///\ref PredMap.
     ///\todo The digraph alone may be insufficient to initialize
-    static PredMap *createPredMap(const GR &G)
+    static PredMap *createPredMap(const Digraph &g)
     {
-      return new PredMap(G);
+      return new PredMap(g);
     }
+
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///\todo named parameter to set this type, function to read and write.
+    ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a ProcessedMap.
+    ///Instantiates a \ref ProcessedMap.
 
     ///This function instantiates a \ref ProcessedMap.
     ///\param g is the digraph, to which
     ///we would like to define the \ref ProcessedMap
 #ifdef DOXYGEN
-    static ProcessedMap *createProcessedMap(const GR &g)
+    static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
-    static ProcessedMap *createProcessedMap(const GR &)
+    static ProcessedMap *createProcessedMap(const Digraph &)
 #endif
     {
       return new ProcessedMap();
     }
+
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///\todo named parameter to set this type, function to read and write.
+    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a ReachedMap.
+    ///Instantiates a \ref ReachedMap.
 
     ///This function instantiates a \ref ReachedMap.
-    ///\param G is the digraph, to which
+    ///\param g is the digraph, to which
     ///we would like to define the \ref ReachedMap.
-    static ReachedMap *createReachedMap(const GR &G)
+    static ReachedMap *createReachedMap(const Digraph &g)
     {
-      return new ReachedMap(G);
+      return new ReachedMap(g);
     }
-    ///The type of the map that stores the dists of the nodes.
 
-    ///The type of the map that stores the dists of the nodes.
+    ///The type of the map that stores the distances of the nodes.
+
+    ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///
     typedef typename Digraph::template NodeMap<int> DistMap;
-    ///Instantiates a DistMap.
+    ///Instantiates a \ref DistMap.
 
     ///This function instantiates a \ref DistMap.
-    ///\param G is the digraph, to which we would like to define
-    ///the \ref DistMap
-    static DistMap *createDistMap(const GR &G)
+    ///\param g is the digraph, to which we would like to define the
+    ///\ref DistMap.
+    static DistMap *createDistMap(const Digraph &g)
     {
-      return new DistMap(G);
+      return new DistMap(g);
     }
   };
 
@@ -116,15 +116,18 @@ namespace lemon {
   ///\ingroup search
   ///This class provides an efficient implementation of the %BFS algorithm.
   ///
-  ///\tparam GR The digraph type the algorithm runs on. The default value is
-  ///\ref ListDigraph. The value of GR is not used directly by Bfs, it
-  ///is only passed to \ref BfsDefaultTraits.
+  ///There is also a \ref bfs() "function type interface" for the BFS
+  ///algorithm, which is convenient in the simplier cases and it can be
+  ///used easier.
+  ///
+  ///\tparam GR The type of the digraph the algorithm runs on.
+  ///The default value is \ref ListDigraph. The value of GR is not used
+  ///directly by \ref Bfs, it is only passed to \ref BfsDefaultTraits.
   ///\tparam TR Traits class to set various data types used by the algorithm.
   ///The default traits class is
   ///\ref BfsDefaultTraits "BfsDefaultTraits<GR>".
   ///See \ref BfsDefaultTraits for the documentation of
   ///a Bfs traits class.
-
 #ifdef DOXYGEN
   template <typename GR,
             typename TR>
@@ -134,12 +137,10 @@ namespace lemon {
 #endif
   class Bfs {
   public:
-    /**
-     * \brief \ref Exception for uninitialized parameters.
-     *
-     * This error represents problems in the initialization
-     * of the parameters of the algorithms.
-     */
+    ///\ref Exception for uninitialized parameters.
+
+    ///This error represents problems in the initialization of the
+    ///parameters of the algorithm.
     class UninitializedParameter : public lemon::UninitializedParameter {
     public:
       virtual const char* what() const throw() {
@@ -147,19 +148,24 @@ namespace lemon {
       }
     };
 
-    typedef TR Traits;
-    ///The type of the underlying digraph.
+    ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
 
-    ///\brief The type of the map that stores the last
-    ///arcs of the shortest paths.
+    ///\brief The type of the map that stores the predecessor arcs of the
+    ///shortest paths.
     typedef typename TR::PredMap PredMap;
-    ///The type of the map indicating which nodes are reached.
-    typedef typename TR::ReachedMap ReachedMap;
-    ///The type of the map indicating which nodes are processed.
-    typedef typename TR::ProcessedMap ProcessedMap;
-    ///The type of the map that stores the dists of the nodes.
+    ///The type of the map that stores the distances of the nodes.
     typedef typename TR::DistMap DistMap;
+    ///The type of the map that indicates which nodes are reached.
+    typedef typename TR::ReachedMap ReachedMap;
+    ///The type of the map that indicates which nodes are processed.
+    typedef typename TR::ProcessedMap ProcessedMap;
+    ///The type of the paths.
+    typedef PredMapPath<Digraph, PredMap> Path;
+
+    ///The traits class.
+    typedef TR Traits;
+
   private:
 
     typedef typename Digraph::Node Node;
@@ -167,23 +173,23 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::OutArcIt OutArcIt;
 
-    /// Pointer to the underlying digraph.
+    //Pointer to the underlying digraph.
     const Digraph *G;
-    ///Pointer to the map of predecessors arcs.
+    //Pointer to the map of predecessor arcs.
     PredMap *_pred;
-    ///Indicates if \ref _pred is locally allocated (\c true) or not.
+    //Indicates if _pred is locally allocated (true) or not.
     bool local_pred;
-    ///Pointer to the map of distances.
+    //Pointer to the map of distances.
     DistMap *_dist;
-    ///Indicates if \ref _dist is locally allocated (\c true) or not.
+    //Indicates if _dist is locally allocated (true) or not.
     bool local_dist;
-    ///Pointer to the map of reached status of the nodes.
+    //Pointer to the map of reached status of the nodes.
     ReachedMap *_reached;
-    ///Indicates if \ref _reached is locally allocated (\c true) or not.
+    //Indicates if _reached is locally allocated (true) or not.
     bool local_reached;
-    ///Pointer to the map of processed status of the nodes.
+    //Pointer to the map of processed status of the nodes.
     ProcessedMap *_processed;
-    ///Indicates if \ref _processed is locally allocated (\c true) or not.
+    //Indicates if _processed is locally allocated (true) or not.
     bool local_processed;
 
     std::vector<typename Digraph::Node> _queue;
@@ -191,7 +197,6 @@ namespace lemon {
     int _curr_dist;
 
     ///Creates the maps if necessary.
-
     ///\todo Better memory allocation (instead of new).
     void create_maps()
     {
@@ -234,10 +239,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///PredMap type
+    ///\ref PredMap type.
     ///
-    ///\ref named-templ-param "Named parameter" for setting PredMap type
-    ///
+    ///\ref named-templ-param "Named parameter" for setting
+    ///\ref PredMap type.
     template <class T>
     struct DefPredMap : public Bfs< Digraph, DefPredMapTraits<T> > {
       typedef Bfs< Digraph, DefPredMapTraits<T> > Create;
@@ -252,10 +257,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///DistMap type
+    ///\ref DistMap type.
     ///
-    ///\ref named-templ-param "Named parameter" for setting DistMap type
-    ///
+    ///\ref named-templ-param "Named parameter" for setting
+    ///\ref DistMap type.
     template <class T>
     struct DefDistMap : public Bfs< Digraph, DefDistMapTraits<T> > {
       typedef Bfs< Digraph, DefDistMapTraits<T> > Create;
@@ -270,10 +275,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ReachedMap type
+    ///\ref ReachedMap type.
     ///
-    ///\ref named-templ-param "Named parameter" for setting ReachedMap type
-    ///
+    ///\ref named-templ-param "Named parameter" for setting
+    ///\ref ReachedMap type.
     template <class T>
     struct DefReachedMap : public Bfs< Digraph, DefReachedMapTraits<T> > {
       typedef Bfs< Digraph, DefReachedMapTraits<T> > Create;
@@ -288,10 +293,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type
+    ///\ref ProcessedMap type.
     ///
-    ///\ref named-templ-param "Named parameter" for setting ProcessedMap type
-    ///
+    ///\ref named-templ-param "Named parameter" for setting
+    ///\ref ProcessedMap type.
     template <class T>
     struct DefProcessedMap : public Bfs< Digraph, DefProcessedMapTraits<T> > {
       typedef Bfs< Digraph, DefProcessedMapTraits<T> > Create;
@@ -299,16 +304,16 @@ namespace lemon {
 
     struct DefDigraphProcessedMapTraits : public Traits {
       typedef typename Digraph::template NodeMap<bool> ProcessedMap;
-      static ProcessedMap *createProcessedMap(const Digraph &G)
+      static ProcessedMap *createProcessedMap(const Digraph &g)
       {
-        return new ProcessedMap(G);
+        return new ProcessedMap(g);
       }
     };
-    ///\brief \ref named-templ-param "Named parameter"
-    ///for setting the ProcessedMap type to be Digraph::NodeMap<bool>.
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///
-    ///\ref named-templ-param "Named parameter"
-    ///for setting the ProcessedMap type to be Digraph::NodeMap<bool>.
+    ///\ref named-templ-param "Named parameter" for setting
+    ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
     template <class T>
     struct DefProcessedMapToBeDefaultMap :
@@ -322,10 +327,10 @@ namespace lemon {
 
     ///Constructor.
 
-    ///\param _G the digraph the algorithm will run on.
-    ///
-    Bfs(const Digraph& _G) :
-      G(&_G),
+    ///Constructor.
+    ///\param g The digraph the algorithm runs on.
+    Bfs(const Digraph &g) :
+      G(&g),
       _pred(NULL), local_pred(false),
       _dist(NULL), local_dist(false),
       _reached(NULL), local_reached(false),
@@ -341,9 +346,9 @@ namespace lemon {
       if(local_processed) delete _processed;
     }
 
-    ///Sets the map storing the predecessor arcs.
+    ///Sets the map that stores the predecessor arcs.
 
-    ///Sets the map storing the predecessor arcs.
+    ///Sets the map that stores the predecessor arcs.
     ///If you don't use this function before calling \ref run(),
     ///it will allocate one. The destructor deallocates this
     ///automatically allocated map, of course.
@@ -358,9 +363,9 @@ namespace lemon {
       return *this;
     }
 
-    ///Sets the map indicating the reached nodes.
+    ///Sets the map that indicates which nodes are reached.
 
-    ///Sets the map indicating the reached nodes.
+    ///Sets the map that indicates which nodes are reached.
     ///If you don't use this function before calling \ref run(),
     ///it will allocate one. The destructor deallocates this
     ///automatically allocated map, of course.
@@ -375,9 +380,9 @@ namespace lemon {
       return *this;
     }
 
-    ///Sets the map indicating the processed nodes.
+    ///Sets the map that indicates which nodes are processed.
 
-    ///Sets the map indicating the processed nodes.
+    ///Sets the map that indicates which nodes are processed.
     ///If you don't use this function before calling \ref run(),
     ///it will allocate one. The destructor deallocates this
     ///automatically allocated map, of course.
@@ -392,9 +397,10 @@ namespace lemon {
       return *this;
     }
 
-    ///Sets the map storing the distances calculated by the algorithm.
+    ///Sets the map that stores the distances of the nodes.
 
-    ///Sets the map storing the distances calculated by the algorithm.
+    ///Sets the map that stores the distances of the nodes calculated by
+    ///the algorithm.
     ///If you don't use this function before calling \ref run(),
     ///it will allocate one. The destructor deallocates this
     ///automatically allocated map, of course.
@@ -410,20 +416,21 @@ namespace lemon {
     }
 
   public:
+
     ///\name Execution control
     ///The simplest way to execute the algorithm is to use
-    ///one of the member functions called \c run(...).
+    ///one of the member functions called \ref lemon::Bfs::run() "run()".
     ///\n
-    ///If you need more control on the execution,
-    ///first you must call \ref init(), then you can add several source nodes
-    ///with \ref addSource().
-    ///Finally \ref start() will perform the actual path
-    ///computation.
+    ///If you need more control on the execution, first you must call
+    ///\ref lemon::Bfs::init() "init()", then you can add several source
+    ///nodes with \ref lemon::Bfs::addSource() "addSource()".
+    ///Finally \ref lemon::Bfs::start() "start()" will perform the
+    ///actual path computation.
 
     ///@{
 
-    ///\brief Initializes the internal data structures.
-    ///
+    ///Initializes the internal data structures.
+
     ///Initializes the internal data structures.
     ///
     void init()
@@ -461,7 +468,7 @@ namespace lemon {
     ///
     ///\return The processed node.
     ///
-    ///\warning The queue must not be empty!
+    ///\pre The queue must not be empty.
     Node processNextNode()
     {
       if(_queue_tail==_queue_next_dist) {
@@ -483,16 +490,17 @@ namespace lemon {
 
     ///Processes the next node.
 
-    ///Processes the next node. And checks that the given target node
+    ///Processes the next node and checks if the given target node
     ///is reached. If the target node is reachable from the processed
-    ///node then the reached parameter will be set true. The reached
-    ///parameter should be initially false.
+    ///node, then the \c reach parameter will be set to \c true.
     ///
     ///\param target The target node.
-    ///\retval reach Indicates that the target node is reached.
+    ///\retval reach Indicates if the target node is reached.
+    ///It should be initially \c false.
+    ///
     ///\return The processed node.
     ///
-    ///\warning The queue must not be empty!
+    ///\pre The queue must not be empty.
     Node processNextNode(Node target, bool& reach)
     {
       if(_queue_tail==_queue_next_dist) {
@@ -515,16 +523,19 @@ namespace lemon {
 
     ///Processes the next node.
 
-    ///Processes the next node. And checks that at least one of
-    ///reached node has true value in the \c nm node map. If one node
-    ///with true value is reachable from the processed node then the
-    ///rnode parameter will be set to the first of such nodes.
+    ///Processes the next node and checks if at least one of reached
+    ///nodes has \c true value in the \c nm node map. If one node
+    ///with \c true value is reachable from the processed node, then the
+    ///\c rnode parameter will be set to the first of such nodes.
     ///
-    ///\param nm The node map of possible targets.
+    ///\param nm A \c bool (or convertible) node map that indicates the
+    ///possible targets.
     ///\retval rnode The reached target node.
+    ///It should be initially \c INVALID.
+    ///
     ///\return The processed node.
     ///
-    ///\warning The queue must not be empty!
+    ///\pre The queue must not be empty.
     template<class NM>
     Node processNextNode(const NM& nm, Node& rnode)
     {
@@ -546,58 +557,73 @@ namespace lemon {
       return n;
     }
 
-    ///Next node to be processed.
+    ///The next node to be processed.
 
-    ///Next node to be processed.
-    ///
-    ///\return The next node to be processed or INVALID if the queue is
-    /// empty.
-    Node nextNode()
+    ///Returns the next node to be processed or \c INVALID if the queue
+    ///is empty.
+    Node nextNode() const
     {
       return _queue_tail<_queue_head?_queue[_queue_tail]:INVALID;
     }
 
     ///\brief Returns \c false if there are nodes
-    ///to be processed in the queue
+    ///to be processed.
     ///
     ///Returns \c false if there are nodes
-    ///to be processed in the queue
-    bool emptyQueue() { return _queue_tail==_queue_head; }
+    ///to be processed in the queue.
+    bool emptyQueue() const { return _queue_tail==_queue_head; }
+
     ///Returns the number of the nodes to be processed.
 
     ///Returns the number of the nodes to be processed in the queue.
-    int queueSize() { return _queue_head-_queue_tail; }
+    int queueSize() const { return _queue_head-_queue_tail; }
 
     ///Executes the algorithm.
 
     ///Executes the algorithm.
-    ///
-    ///\pre init() must be called and at least one node should be added
-    ///with addSource() before using this function.
     ///
     ///This method runs the %BFS algorithm from the root node(s)
-    ///in order to
-    ///compute the
-    ///shortest path to each node. The algorithm computes
-    ///- The shortest path tree.
-    ///- The distance of each node from the root(s).
+    ///in order to compute the shortest path to each node.
+    ///
+    ///The algorithm computes
+    ///- the shortest path tree (forest),
+    ///- the distance of each node from the root(s).
+    ///
+    ///\pre init() must be called and at least one root node should be
+    ///added with addSource() before using this function.
+    ///
+    ///\note <tt>b.start()</tt> is just a shortcut of the following code.
+    ///\code
+    ///  while ( !b.emptyQueue() ) {
+    ///    b.processNextNode();
+    ///  }
+    ///\endcode
     void start()
     {
       while ( !emptyQueue() ) processNextNode();
     }
 
-    ///Executes the algorithm until \c dest is reached.
+    ///Executes the algorithm until the given target node is reached.
 
-    ///Executes the algorithm until \c dest is reached.
-    ///
-    ///\pre init() must be called and at least one node should be added
-    ///with addSource() before using this function.
+    ///Executes the algorithm until the given target node is reached.
     ///
     ///This method runs the %BFS algorithm from the root node(s)
     ///in order to compute the shortest path to \c dest.
+    ///
     ///The algorithm computes
-    ///- The shortest path to \c  dest.
-    ///- The distance of \c dest from the root(s).
+    ///- the shortest path to \c dest,
+    ///- the distance of \c dest from the root(s).
+    ///
+    ///\pre init() must be called and at least one root node should be
+    ///added with addSource() before using this function.
+    ///
+    ///\note <tt>b.start(t)</tt> is just a shortcut of the following code.
+    ///\code
+    ///  bool reach = false;
+    ///  while ( !b.emptyQueue() && !reach ) {
+    ///    b.processNextNode(t, reach);
+    ///  }
+    ///\endcode
     void start(Node dest)
     {
       bool reach = false;
@@ -608,17 +634,29 @@ namespace lemon {
 
     ///Executes the algorithm until a condition is met.
     ///
-    ///\pre init() must be called and at least one node should be added
-    ///with addSource() before using this function.
+    ///This method runs the %BFS algorithm from the root node(s) in
+    ///order to compute the shortest path to a node \c v with
+    /// <tt>nm[v]</tt> true, if such a node can be found.
     ///
-    ///\param nm must be a bool (or convertible) node map. The
-    ///algorithm will stop when it reaches a node \c v with
-    /// <tt>nm[v]</tt> true.
+    ///\param nm A \c bool (or convertible) node map. The algorithm
+    ///will stop when it reaches a node \c v with <tt>nm[v]</tt> true.
     ///
     ///\return The reached node \c v with <tt>nm[v]</tt> true or
     ///\c INVALID if no such node was found.
-    template<class NM>
-    Node start(const NM &nm)
+    ///
+    ///\pre init() must be called and at least one root node should be
+    ///added with addSource() before using this function.
+    ///
+    ///\note <tt>b.start(nm)</tt> is just a shortcut of the following code.
+    ///\code
+    ///  Node rnode = INVALID;
+    ///  while ( !b.emptyQueue() && rnode == INVALID ) {
+    ///    b.processNextNode(nm, rnode);
+    ///  }
+    ///  return rnode;
+    ///\endcode
+    template<class NodeBoolMap>
+    Node start(const NodeBoolMap &nm)
     {
       Node rnode = INVALID;
       while ( !emptyQueue() && rnode == INVALID ) {
@@ -627,16 +665,16 @@ namespace lemon {
       return rnode;
     }
 
-    ///Runs %BFS algorithm from node \c s.
+    ///Runs the algorithm from the given node.
 
-    ///This method runs the %BFS algorithm from a root node \c s
-    ///in order to
-    ///compute the
-    ///shortest path to each node. The algorithm computes
-    ///- The shortest path tree.
-    ///- The distance of each node from the root.
+    ///This method runs the %BFS algorithm from node \c s
+    ///in order to compute the shortest path to each node.
     ///
-    ///\note b.run(s) is just a shortcut of the following code.
+    ///The algorithm computes
+    ///- the shortest path tree,
+    ///- the distance of each node from the root.
+    ///
+    ///\note <tt>b.run(s)</tt> is just a shortcut of the following code.
     ///\code
     ///  b.init();
     ///  b.addSource(s);
@@ -650,12 +688,14 @@ namespace lemon {
 
     ///Finds the shortest path between \c s and \c t.
 
-    ///Finds the shortest path between \c s and \c t.
+    ///This method runs the %BFS algorithm from node \c s
+    ///in order to compute the shortest path to \c t.
     ///
-    ///\return The length of the shortest s---t path if there exists one,
-    ///0 otherwise.
-    ///\note Apart from the return value, b.run(s) is
-    ///just a shortcut of the following code.
+    ///\return The length of the shortest <tt>s</tt>--<tt>t</tt> path,
+    ///if \c t is reachable form \c s, \c 0 otherwise.
+    ///
+    ///\note Apart from the return value, <tt>b.run(s,t)</tt> is just a
+    ///shortcut of the following code.
     ///\code
     ///  b.init();
     ///  b.addSource(s);
@@ -668,116 +708,152 @@ namespace lemon {
       return reached(t) ? _curr_dist : 0;
     }
 
+    ///Runs the algorithm to visit all nodes in the digraph.
+
+    ///This method runs the %BFS algorithm in order to
+    ///compute the shortest path to each node.
+    ///
+    ///The algorithm computes
+    ///- the shortest path tree (forest),
+    ///- the distance of each node from the root(s).
+    ///
+    ///\note <tt>b.run(s)</tt> is just a shortcut of the following code.
+    ///\code
+    ///  b.init();
+    ///  for (NodeIt n(gr); n != INVALID; ++n) {
+    ///    if (!b.reached(n)) {
+    ///      b.addSource(n);
+    ///      b.start();
+    ///    }
+    ///  }
+    ///\endcode
+    void run() {
+      init();
+      for (NodeIt n(*G); n != INVALID; ++n) {
+        if (!reached(n)) {
+          addSource(n);
+          start();
+        }
+      }
+    }
+
     ///@}
 
     ///\name Query Functions
     ///The result of the %BFS algorithm can be obtained using these
     ///functions.\n
-    ///Before the use of these functions,
-    ///either run() or start() must be calleb.
+    ///Either \ref lemon::Bfs::run() "run()" or \ref lemon::Bfs::start()
+    ///"start()" must be called before using them.
 
     ///@{
 
-    typedef PredMapPath<Digraph, PredMap> Path;
+    ///The shortest path to a node.
 
-    ///Gives back the shortest path.
-
-    ///Gives back the shortest path.
-    ///\pre The \c t should be reachable from the source.
-    Path path(Node t)
-    {
-      return Path(*G, *_pred, t);
-    }
+    ///Returns the shortest path to a node.
+    ///
+    ///\warning \c t should be reachable from the root(s).
+    ///
+    ///\pre Either \ref run() or \ref start() must be called before
+    ///using this function.
+    Path path(Node t) const { return Path(*G, *_pred, t); }
 
     ///The distance of a node from the root(s).
 
     ///Returns the distance of a node from the root(s).
-    ///\pre \ref run() must be called before using this function.
-    ///\warning If node \c v in unreachable from the root(s) the return value
-    ///of this function is undefined.
+    ///
+    ///\warning If node \c v is not reachable from the root(s), then
+    ///the return value of this function is undefined.
+    ///
+    ///\pre Either \ref run() or \ref start() must be called before
+    ///using this function.
     int dist(Node v) const { return (*_dist)[v]; }
 
-    ///Returns the 'previous arc' of the shortest path tree.
+    ///Returns the 'previous arc' of the shortest path tree for a node.
 
-    ///For a node \c v it returns the 'previous arc'
-    ///of the shortest path tree,
-    ///i.e. it returns the last arc of a shortest path from the root(s) to \c
-    ///v. It is \ref INVALID
-    ///if \c v is unreachable from the root(s) or \c v is a root. The
-    ///shortest path tree used here is equal to the shortest path tree used in
-    ///\ref predNode().
-    ///\pre Either \ref run() or \ref start() must be called before using
-    ///this function.
+    ///This function returns the 'previous arc' of the shortest path
+    ///tree for the node \c v, i.e. it returns the last arc of a
+    ///shortest path from the root(s) to \c v. It is \c INVALID if \c v
+    ///is not reachable from the root(s) or if \c v is a root.
+    ///
+    ///The shortest path tree used here is equal to the shortest path
+    ///tree used in \ref predNode().
+    ///
+    ///\pre Either \ref run() or \ref start() must be called before
+    ///using this function.
     Arc predArc(Node v) const { return (*_pred)[v];}
 
-    ///Returns the 'previous node' of the shortest path tree.
+    ///Returns the 'previous node' of the shortest path tree for a node.
 
-    ///For a node \c v it returns the 'previous node'
-    ///of the shortest path tree,
-    ///i.e. it returns the last but one node from a shortest path from the
-    ///root(a) to \c /v.
-    ///It is INVALID if \c v is unreachable from the root(s) or
-    ///if \c v itself a root.
+    ///This function returns the 'previous node' of the shortest path
+    ///tree for the node \c v, i.e. it returns the last but one node
+    ///from a shortest path from the root(s) to \c v. It is \c INVALID
+    ///if \c v is not reachable from the root(s) or if \c v is a root.
+    ///
     ///The shortest path tree used here is equal to the shortest path
     ///tree used in \ref predArc().
+    ///
     ///\pre Either \ref run() or \ref start() must be called before
     ///using this function.
     Node predNode(Node v) const { return (*_pred)[v]==INVALID ? INVALID:
                                   G->source((*_pred)[v]); }
 
-    ///Returns a reference to the NodeMap of distances.
-
-    ///Returns a reference to the NodeMap of distances.
-    ///\pre Either \ref run() or \ref init() must
-    ///be called before using this function.
+    ///\brief Returns a const reference to the node map that stores the
+    /// distances of the nodes.
+    ///
+    ///Returns a const reference to the node map that stores the distances
+    ///of the nodes calculated by the algorithm.
+    ///
+    ///\pre Either \ref run() or \ref init()
+    ///must be called before using this function.
     const DistMap &distMap() const { return *_dist;}
 
-    ///Returns a reference to the shortest path tree map.
-
-    ///Returns a reference to the NodeMap of the arcs of the
-    ///shortest path tree.
+    ///\brief Returns a const reference to the node map that stores the
+    ///predecessor arcs.
+    ///
+    ///Returns a const reference to the node map that stores the predecessor
+    ///arcs, which form the shortest path tree.
+    ///
     ///\pre Either \ref run() or \ref init()
     ///must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
 
-    ///Checks if a node is reachable from the root.
+    ///Checks if a node is reachable from the root(s).
 
-    ///Returns \c true if \c v is reachable from the root.
-    ///\warning The source nodes are indicated as unreached.
+    ///Returns \c true if \c v is reachable from the root(s).
     ///\pre Either \ref run() or \ref start()
     ///must be called before using this function.
-    ///
-    bool reached(Node v) { return (*_reached)[v]; }
+    bool reached(Node v) const { return (*_reached)[v]; }
 
     ///@}
   };
 
-  ///Default traits class of Bfs function.
+  ///Default traits class of bfs() function.
 
-  ///Default traits class of Bfs function.
+  ///Default traits class of bfs() function.
   ///\tparam GR Digraph type.
   template<class GR>
   struct BfsWizardDefaultTraits
   {
-    ///The digraph type the algorithm runs on.
+    ///The type of the digraph the algorithm runs on.
     typedef GR Digraph;
-    ///\brief The type of the map that stores the last
+
+    ///\brief The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     ///
-    ///The type of the map that stores the last
+    ///The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///
-    typedef NullMap<typename Digraph::Node,typename GR::Arc> PredMap;
-    ///Instantiates a PredMap.
+    typedef NullMap<typename Digraph::Node,typename Digraph::Arc> PredMap;
+    ///Instantiates a \ref PredMap.
 
     ///This function instantiates a \ref PredMap.
-    ///\param g is the digraph, to which we would like to define the PredMap.
+    ///\param g is the digraph, to which we would like to define the
+    ///\ref PredMap.
     ///\todo The digraph alone may be insufficient to initialize
 #ifdef DOXYGEN
-    static PredMap *createPredMap(const GR &g)
+    static PredMap *createPredMap(const Digraph &g)
 #else
-    static PredMap *createPredMap(const GR &)
+    static PredMap *createPredMap(const Digraph &)
 #endif
     {
       return new PredMap();
@@ -787,63 +863,63 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///\todo named parameter to set this type, function to read and write.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a ProcessedMap.
+    ///Instantiates a \ref ProcessedMap.
 
     ///This function instantiates a \ref ProcessedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the \ref ProcessedMap
+    ///we would like to define the \ref ProcessedMap.
 #ifdef DOXYGEN
-    static ProcessedMap *createProcessedMap(const GR &g)
+    static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
-    static ProcessedMap *createProcessedMap(const GR &)
+    static ProcessedMap *createProcessedMap(const Digraph &)
 #endif
     {
       return new ProcessedMap();
     }
+
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///\todo named parameter to set this type, function to read and write.
+    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a ReachedMap.
+    ///Instantiates a \ref ReachedMap.
 
     ///This function instantiates a \ref ReachedMap.
-    ///\param G is the digraph, to which
+    ///\param g is the digraph, to which
     ///we would like to define the \ref ReachedMap.
-    static ReachedMap *createReachedMap(const GR &G)
+    static ReachedMap *createReachedMap(const Digraph &g)
     {
-      return new ReachedMap(G);
+      return new ReachedMap(g);
     }
-    ///The type of the map that stores the dists of the nodes.
 
-    ///The type of the map that stores the dists of the nodes.
+    ///The type of the map that stores the distances of the nodes.
+
+    ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///
     typedef NullMap<typename Digraph::Node,int> DistMap;
-    ///Instantiates a DistMap.
+    ///Instantiates a \ref DistMap.
 
     ///This function instantiates a \ref DistMap.
     ///\param g is the digraph, to which we would like to define
     ///the \ref DistMap
 #ifdef DOXYGEN
-    static DistMap *createDistMap(const GR &g)
+    static DistMap *createDistMap(const Digraph &g)
 #else
-    static DistMap *createDistMap(const GR &)
+    static DistMap *createDistMap(const Digraph &)
 #endif
     {
       return new DistMap();
     }
   };
 
-  /// Default traits used by \ref BfsWizard
+  /// Default traits class used by \ref BfsWizard
 
   /// To make it easier to use Bfs algorithm
-  ///we have created a wizard class.
+  /// we have created a wizard class.
   /// This \ref BfsWizard class needs default traits,
-  ///as well as the \ref Bfs class.
+  /// as well as the \ref Bfs class.
   /// The \ref BfsWizardBase is a class to be the default traits of the
   /// \ref BfsWizard class.
   template<class GR>
@@ -852,20 +928,20 @@ namespace lemon {
 
     typedef BfsWizardDefaultTraits<GR> Base;
   protected:
-    /// Type of the nodes in the digraph.
+    //The type of the nodes in the digraph.
     typedef typename Base::Digraph::Node Node;
 
-    /// Pointer to the underlying digraph.
+    //Pointer to the digraph the algorithm runs on.
     void *_g;
-    ///Pointer to the map of reached nodes.
+    //Pointer to the map of reached nodes.
     void *_reached;
-    ///Pointer to the map of processed nodes.
+    //Pointer to the map of processed nodes.
     void *_processed;
-    ///Pointer to the map of predecessors arcs.
+    //Pointer to the map of predecessors arcs.
     void *_pred;
-    ///Pointer to the map of distances.
+    //Pointer to the map of distances.
     void *_dist;
-    ///Pointer to the source node.
+    //Pointer to the source node.
     Node _source;
 
     public:
@@ -874,26 +950,28 @@ namespace lemon {
     /// This constructor does not require parameters, therefore it initiates
     /// all of the attributes to default values (0, INVALID).
     BfsWizardBase() : _g(0), _reached(0), _processed(0), _pred(0),
-                           _dist(0), _source(INVALID) {}
+                      _dist(0), _source(INVALID) {}
 
     /// Constructor.
 
     /// This constructor requires some parameters,
     /// listed in the parameters list.
     /// Others are initiated to 0.
-    /// \param g is the initial value of  \ref _g
-    /// \param s is the initial value of  \ref _source
+    /// \param g The digraph the algorithm runs on.
+    /// \param s The source node.
     BfsWizardBase(const GR &g, Node s=INVALID) :
       _g(reinterpret_cast<void*>(const_cast<GR*>(&g))),
       _reached(0), _processed(0), _pred(0), _dist(0), _source(s) {}
 
   };
 
-  /// A class to make the usage of Bfs algorithm easier
+  /// Auxiliary class for the function type interface of BFS algorithm.
 
-  /// This class is created to make it easier to use Bfs algorithm.
-  /// It uses the functions and features of the plain \ref Bfs,
-  /// but it is much simpler to use it.
+  /// This auxiliary class is created to implement the function type
+  /// interface of \ref Bfs algorithm. It uses the functions and features
+  /// of the plain \ref Bfs, but it is much simpler to use it.
+  /// It should only be used through the \ref bfs() function, which makes
+  /// it easier to use the algorithm.
   ///
   /// Simplicity means that the way to change the types defined
   /// in the traits class is based on functions that returns the new class
@@ -902,41 +980,37 @@ namespace lemon {
   /// the new class with the modified type comes from
   /// the original class by using the ::
   /// operator. In the case of \ref BfsWizard only
-  /// a function have to be called and it will
+  /// a function have to be called, and it will
   /// return the needed class.
   ///
-  /// It does not have own \ref run method. When its \ref run method is called
-  /// it initiates a plain \ref Bfs class, and calls the \ref Bfs::run
-  /// method of it.
+  /// It does not have own \ref run() method. When its \ref run() method
+  /// is called, it initiates a plain \ref Bfs object, and calls the
+  /// \ref Bfs::run() method of it.
   template<class TR>
   class BfsWizard : public TR
   {
     typedef TR Base;
 
-    ///The type of the underlying digraph.
+    ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
-    //\e
+
     typedef typename Digraph::Node Node;
-    //\e
     typedef typename Digraph::NodeIt NodeIt;
-    //\e
     typedef typename Digraph::Arc Arc;
-    //\e
     typedef typename Digraph::OutArcIt OutArcIt;
 
-    ///\brief The type of the map that stores
-    ///the reached nodes
-    typedef typename TR::ReachedMap ReachedMap;
-    ///\brief The type of the map that stores
-    ///the processed nodes
-    typedef typename TR::ProcessedMap ProcessedMap;
-    ///\brief The type of the map that stores the last
+    ///\brief The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     typedef typename TR::PredMap PredMap;
-    ///The type of the map that stores the dists of the nodes.
+    ///\brief The type of the map that stores the distances of the nodes.
     typedef typename TR::DistMap DistMap;
+    ///\brief The type of the map that indicates which nodes are reached.
+    typedef typename TR::ReachedMap ReachedMap;
+    ///\brief The type of the map that indicates which nodes are processed.
+    typedef typename TR::ProcessedMap ProcessedMap;
 
   public:
+
     /// Constructor.
     BfsWizard() : TR() {}
 
@@ -952,10 +1026,10 @@ namespace lemon {
 
     ~BfsWizard() {}
 
-    ///Runs Bfs algorithm from a given node.
+    ///Runs BFS algorithm from a source node.
 
-    ///Runs Bfs algorithm from a given node.
-    ///The node can be given by the \ref source function.
+    ///Runs BFS algorithm from a source node.
+    ///The node can be given with the \ref source() function.
     void run()
     {
       if(Base::_source==INVALID) throw UninitializedParameter();
@@ -971,97 +1045,14 @@ namespace lemon {
       alg.run(Base::_source);
     }
 
-    ///Runs Bfs algorithm from the given node.
+    ///Runs BFS algorithm from the given node.
 
-    ///Runs Bfs algorithm from the given node.
+    ///Runs BFS algorithm from the given node.
     ///\param s is the given source.
     void run(Node s)
     {
       Base::_source=s;
       run();
-    }
-
-    template<class T>
-    struct DefPredMapBase : public Base {
-      typedef T PredMap;
-      static PredMap *createPredMap(const Digraph &) { return 0; };
-      DefPredMapBase(const TR &b) : TR(b) {}
-    };
-
-    ///\brief \ref named-templ-param "Named parameter"
-    ///function for setting PredMap
-    ///
-    /// \ref named-templ-param "Named parameter"
-    ///function for setting PredMap
-    ///
-    template<class T>
-    BfsWizard<DefPredMapBase<T> > predMap(const T &t)
-    {
-      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefPredMapBase<T> >(*this);
-    }
-
-
-    template<class T>
-    struct DefReachedMapBase : public Base {
-      typedef T ReachedMap;
-      static ReachedMap *createReachedMap(const Digraph &) { return 0; };
-      DefReachedMapBase(const TR &b) : TR(b) {}
-    };
-
-    ///\brief \ref named-templ-param "Named parameter"
-    ///function for setting ReachedMap
-    ///
-    /// \ref named-templ-param "Named parameter"
-    ///function for setting ReachedMap
-    ///
-    template<class T>
-    BfsWizard<DefReachedMapBase<T> > reachedMap(const T &t)
-    {
-      Base::_reached=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefReachedMapBase<T> >(*this);
-    }
-
-
-    template<class T>
-    struct DefProcessedMapBase : public Base {
-      typedef T ProcessedMap;
-      static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
-      DefProcessedMapBase(const TR &b) : TR(b) {}
-    };
-
-    ///\brief \ref named-templ-param "Named parameter"
-    ///function for setting ProcessedMap
-    ///
-    /// \ref named-templ-param "Named parameter"
-    ///function for setting ProcessedMap
-    ///
-    template<class T>
-    BfsWizard<DefProcessedMapBase<T> > processedMap(const T &t)
-    {
-      Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefProcessedMapBase<T> >(*this);
-    }
-
-
-    template<class T>
-    struct DefDistMapBase : public Base {
-      typedef T DistMap;
-      static DistMap *createDistMap(const Digraph &) { return 0; };
-      DefDistMapBase(const TR &b) : TR(b) {}
-    };
-
-    ///\brief \ref named-templ-param "Named parameter"
-    ///function for setting DistMap type
-    ///
-    /// \ref named-templ-param "Named parameter"
-    ///function for setting DistMap type
-    ///
-    template<class T>
-    BfsWizard<DefDistMapBase<T> > distMap(const T &t)
-    {
-      Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefDistMapBase<T> >(*this);
     }
 
     /// Sets the source node, from which the Bfs algorithm runs.
@@ -1072,6 +1063,78 @@ namespace lemon {
     {
       Base::_source=s;
       return *this;
+    }
+
+    template<class T>
+    struct DefPredMapBase : public Base {
+      typedef T PredMap;
+      static PredMap *createPredMap(const Digraph &) { return 0; };
+      DefPredMapBase(const TR &b) : TR(b) {}
+    };
+    ///\brief \ref named-templ-param "Named parameter"
+    ///for setting \ref PredMap object.
+    ///
+    /// \ref named-templ-param "Named parameter"
+    ///for setting \ref PredMap object.
+    template<class T>
+    BfsWizard<DefPredMapBase<T> > predMap(const T &t)
+    {
+      Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<DefPredMapBase<T> >(*this);
+    }
+
+    template<class T>
+    struct DefReachedMapBase : public Base {
+      typedef T ReachedMap;
+      static ReachedMap *createReachedMap(const Digraph &) { return 0; };
+      DefReachedMapBase(const TR &b) : TR(b) {}
+    };
+    ///\brief \ref named-templ-param "Named parameter"
+    ///for setting \ref ReachedMap object.
+    ///
+    /// \ref named-templ-param "Named parameter"
+    ///for setting \ref ReachedMap object.
+    template<class T>
+    BfsWizard<DefReachedMapBase<T> > reachedMap(const T &t)
+    {
+      Base::_reached=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<DefReachedMapBase<T> >(*this);
+    }
+
+    template<class T>
+    struct DefProcessedMapBase : public Base {
+      typedef T ProcessedMap;
+      static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
+      DefProcessedMapBase(const TR &b) : TR(b) {}
+    };
+    ///\brief \ref named-templ-param "Named parameter"
+    ///for setting \ref ProcessedMap object.
+    ///
+    /// \ref named-templ-param "Named parameter"
+    ///for setting \ref ProcessedMap object.
+    template<class T>
+    BfsWizard<DefProcessedMapBase<T> > processedMap(const T &t)
+    {
+      Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<DefProcessedMapBase<T> >(*this);
+    }
+
+    template<class T>
+    struct DefDistMapBase : public Base {
+      typedef T DistMap;
+      static DistMap *createDistMap(const Digraph &) { return 0; };
+      DefDistMapBase(const TR &b) : TR(b) {}
+    };
+    ///\brief \ref named-templ-param "Named parameter"
+    ///for setting \ref DistMap object.
+    ///
+    /// \ref named-templ-param "Named parameter"
+    ///for setting \ref DistMap object.
+    template<class T>
+    BfsWizard<DefDistMapBase<T> > distMap(const T &t)
+    {
+      Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<DefDistMapBase<T> >(*this);
     }
 
   };
@@ -1101,38 +1164,38 @@ namespace lemon {
   }
 
 #ifdef DOXYGEN
-  /// \brief Visitor class for bfs.
+  /// \brief Visitor class for BFS.
   ///
   /// This class defines the interface of the BfsVisit events, and
-  /// it could be the base of a real Visitor class.
+  /// it could be the base of a real visitor class.
   template <typename _Digraph>
   struct BfsVisitor {
     typedef _Digraph Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
-    /// \brief Called when the arc reach a node.
+    /// \brief Called for the source node(s) of the BFS.
     ///
-    /// It is called when the bfs find an arc which target is not
-    /// reached yet.
-    void discover(const Arc& arc) {}
-    /// \brief Called when the node reached first time.
+    /// This function is called for the source node(s) of the BFS.
+    void start(const Node& node) {}
+    /// \brief Called when a node is reached first time.
     ///
-    /// It is Called when the node reached first time.
+    /// This function is called when a node is reached first time.
     void reach(const Node& node) {}
-    /// \brief Called when the arc examined but target of the arc
+    /// \brief Called when a node is processed.
+    ///
+    /// This function is called when a node is processed.
+    void process(const Node& node) {}
+    /// \brief Called when an arc reaches a new node.
+    ///
+    /// This function is called when the BFS finds an arc whose target node
+    /// is not reached yet.
+    void discover(const Arc& arc) {}
+    /// \brief Called when an arc is examined but its target node is
     /// already discovered.
     ///
-    /// It called when the arc examined but the target of the arc
+    /// This function is called when an arc is examined but its target node is
     /// already discovered.
     void examine(const Arc& arc) {}
-    /// \brief Called for the source node of the bfs.
-    ///
-    /// It is called for the source node of the bfs.
-    void start(const Node& node) {}
-    /// \brief Called when the node processed.
-    ///
-    /// It is Called when the node processed.
-    void process(const Node& node) {}
   };
 #else
   template <typename _Digraph>
@@ -1140,22 +1203,22 @@ namespace lemon {
     typedef _Digraph Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
-    void discover(const Arc&) {}
-    void reach(const Node&) {}
-    void examine(const Arc&) {}
     void start(const Node&) {}
+    void reach(const Node&) {}
     void process(const Node&) {}
+    void discover(const Arc&) {}
+    void examine(const Arc&) {}
 
     template <typename _Visitor>
     struct Constraints {
       void constraints() {
         Arc arc;
         Node node;
-        visitor.discover(arc);
-        visitor.reach(node);
-        visitor.examine(arc);
         visitor.start(node);
+        visitor.reach(node);
         visitor.process(node);
+        visitor.discover(arc);
+        visitor.examine(arc);
       }
       _Visitor& visitor;
     };
@@ -1165,21 +1228,20 @@ namespace lemon {
   /// \brief Default traits class of BfsVisit class.
   ///
   /// Default traits class of BfsVisit class.
-  /// \tparam _Digraph Digraph type.
+  /// \tparam _Digraph The type of the digraph the algorithm runs on.
   template<class _Digraph>
   struct BfsVisitDefaultTraits {
 
-    /// \brief The digraph type the algorithm runs on.
+    /// \brief The type of the digraph the algorithm runs on.
     typedef _Digraph Digraph;
 
     /// \brief The type of the map that indicates which nodes are reached.
     ///
     /// The type of the map that indicates which nodes are reached.
-    /// It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    /// \todo named parameter to set this type, function to read and write.
+    /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
 
-    /// \brief Instantiates a ReachedMap.
+    /// \brief Instantiates a \ref ReachedMap.
     ///
     /// This function instantiates a \ref ReachedMap.
     /// \param digraph is the digraph, to which
@@ -1192,28 +1254,28 @@ namespace lemon {
 
   /// \ingroup search
   ///
-  /// \brief %BFS Visit algorithm class.
+  /// \brief %BFS algorithm class with visitor interface.
   ///
   /// This class provides an efficient implementation of the %BFS algorithm
   /// with visitor interface.
   ///
   /// The %BfsVisit class provides an alternative interface to the Bfs
   /// class. It works with callback mechanism, the BfsVisit object calls
-  /// on every bfs event the \c Visitor class member functions.
+  /// the member functions of the \c Visitor class on every BFS event.
   ///
-  /// \tparam _Digraph The digraph type the algorithm runs on.
+  /// \tparam _Digraph The type of the digraph the algorithm runs on.
   /// The default value is
-  /// \ref ListDigraph. The value of _Digraph is not used directly by Bfs, it
-  /// is only passed to \ref BfsDefaultTraits.
-  /// \tparam _Visitor The Visitor object for the algorithm. The
-  /// \ref BfsVisitor "BfsVisitor<_Digraph>" is an empty Visitor which
-  /// does not observe the Bfs events. If you want to observe the bfs
-  /// events you should implement your own Visitor class.
+  /// \ref ListDigraph. The value of _Digraph is not used directly by
+  /// \ref BfsVisit, it is only passed to \ref BfsVisitDefaultTraits.
+  /// \tparam _Visitor The Visitor type that is used by the algorithm.
+  /// \ref BfsVisitor "BfsVisitor<_Digraph>" is an empty visitor, which
+  /// does not observe the BFS events. If you want to observe the BFS
+  /// events, you should implement your own visitor class.
   /// \tparam _Traits Traits class to set various data types used by the
   /// algorithm. The default traits class is
   /// \ref BfsVisitDefaultTraits "BfsVisitDefaultTraits<_Digraph>".
   /// See \ref BfsVisitDefaultTraits for the documentation of
-  /// a Bfs visit traits class.
+  /// a BFS visit traits class.
 #ifdef DOXYGEN
   template <typename _Digraph, typename _Visitor, typename _Traits>
 #else
@@ -1227,7 +1289,7 @@ namespace lemon {
     /// \brief \ref Exception for uninitialized parameters.
     ///
     /// This error represents problems in the initialization
-    /// of the parameters of the algorithms.
+    /// of the parameters of the algorithm.
     class UninitializedParameter : public lemon::UninitializedParameter {
     public:
       virtual const char* what() const throw()
@@ -1236,13 +1298,16 @@ namespace lemon {
       }
     };
 
+    ///The traits class.
     typedef _Traits Traits;
 
+    ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
 
+    ///The visitor type used by the algorithm.
     typedef _Visitor Visitor;
 
-    ///The type of the map indicating which nodes are reached.
+    ///The type of the map that indicates which nodes are reached.
     typedef typename Traits::ReachedMap ReachedMap;
 
   private:
@@ -1252,21 +1317,20 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::OutArcIt OutArcIt;
 
-    /// Pointer to the underlying digraph.
+    //Pointer to the underlying digraph.
     const Digraph *_digraph;
-    /// Pointer to the visitor object.
+    //Pointer to the visitor object.
     Visitor *_visitor;
-    ///Pointer to the map of reached status of the nodes.
+    //Pointer to the map of reached status of the nodes.
     ReachedMap *_reached;
-    ///Indicates if \ref _reached is locally allocated (\c true) or not.
+    //Indicates if _reached is locally allocated (true) or not.
     bool local_reached;
 
     std::vector<typename Digraph::Node> _list;
     int _list_front, _list_back;
 
-    /// \brief Creates the maps if necessary.
-    ///
-    /// Creates the maps if necessary.
+    ///Creates the maps if necessary.
+    ///\todo Better memory allocation (instead of new).
     void create_maps() {
       if(!_reached) {
         local_reached = true;
@@ -1293,9 +1357,9 @@ namespace lemon {
       }
     };
     /// \brief \ref named-templ-param "Named parameter" for setting
-    /// ReachedMap type
+    /// ReachedMap type.
     ///
-    /// \ref named-templ-param "Named parameter" for setting ReachedMap type
+    /// \ref named-templ-param "Named parameter" for setting ReachedMap type.
     template <class T>
     struct DefReachedMap : public BfsVisit< Digraph, Visitor,
                                             DefReachedMapTraits<T> > {
@@ -1309,25 +1373,22 @@ namespace lemon {
     ///
     /// Constructor.
     ///
-    /// \param digraph the digraph the algorithm will run on.
-    /// \param visitor The visitor of the algorithm.
-    ///
+    /// \param digraph The digraph the algorithm runs on.
+    /// \param visitor The visitor object of the algorithm.
     BfsVisit(const Digraph& digraph, Visitor& visitor)
       : _digraph(&digraph), _visitor(&visitor),
         _reached(0), local_reached(false) {}
 
     /// \brief Destructor.
-    ///
-    /// Destructor.
     ~BfsVisit() {
       if(local_reached) delete _reached;
     }
 
-    /// \brief Sets the map indicating if a node is reached.
+    /// \brief Sets the map that indicates which nodes are reached.
     ///
-    /// Sets the map indicating if a node is reached.
+    /// Sets the map that indicates which nodes are reached.
     /// If you don't use this function before calling \ref run(),
-    /// it will allocate one. The destuctor deallocates this
+    /// it will allocate one. The destructor deallocates this
     /// automatically allocated map, of course.
     /// \return <tt> (*this) </tt>
     BfsVisit &reachedMap(ReachedMap &m) {
@@ -1340,21 +1401,23 @@ namespace lemon {
     }
 
   public:
+
     /// \name Execution control
     /// The simplest way to execute the algorithm is to use
-    /// one of the member functions called \c run(...).
+    /// one of the member functions called \ref lemon::BfsVisit::run()
+    /// "run()".
     /// \n
-    /// If you need more control on the execution,
-    /// first you must call \ref init(), then you can adda source node
-    /// with \ref addSource().
-    /// Finally \ref start() will perform the actual path
-    /// computation.
+    /// If you need more control on the execution, first you must call
+    /// \ref lemon::BfsVisit::init() "init()", then you can add several
+    /// source nodes with \ref lemon::BfsVisit::addSource() "addSource()".
+    /// Finally \ref lemon::BfsVisit::start() "start()" will perform the
+    /// actual path computation.
 
     /// @{
+
     /// \brief Initializes the internal data structures.
     ///
     /// Initializes the internal data structures.
-    ///
     void init() {
       create_maps();
       _list.resize(countNodes(*_digraph));
@@ -1382,7 +1445,7 @@ namespace lemon {
     ///
     /// \return The processed node.
     ///
-    /// \pre The queue must not be empty!
+    /// \pre The queue must not be empty.
     Node processNextNode() {
       Node n = _list[++_list_front];
       _visitor->process(n);
@@ -1403,16 +1466,17 @@ namespace lemon {
 
     /// \brief Processes the next node.
     ///
-    /// Processes the next node. And checks that the given target node
+    /// Processes the next node and checks if the given target node
     /// is reached. If the target node is reachable from the processed
-    /// node then the reached parameter will be set true. The reached
-    /// parameter should be initially false.
+    /// node, then the \c reach parameter will be set to \c true.
     ///
     /// \param target The target node.
-    /// \retval reach Indicates that the target node is reached.
+    /// \retval reach Indicates if the target node is reached.
+    /// It should be initially \c false.
+    ///
     /// \return The processed node.
     ///
-    /// \warning The queue must not be empty!
+    /// \pre The queue must not be empty.
     Node processNextNode(Node target, bool& reach) {
       Node n = _list[++_list_front];
       _visitor->process(n);
@@ -1434,16 +1498,19 @@ namespace lemon {
 
     /// \brief Processes the next node.
     ///
-    /// Processes the next node. And checks that at least one of
-    /// reached node has true value in the \c nm node map. If one node
-    /// with true value is reachable from the processed node then the
-    /// rnode parameter will be set to the first of such nodes.
+    /// Processes the next node and checks if at least one of reached
+    /// nodes has \c true value in the \c nm node map. If one node
+    /// with \c true value is reachable from the processed node, then the
+    /// \c rnode parameter will be set to the first of such nodes.
     ///
-    /// \param nm The node map of possible targets.
+    /// \param nm A \c bool (or convertible) node map that indicates the
+    /// possible targets.
     /// \retval rnode The reached target node.
+    /// It should be initially \c INVALID.
+    ///
     /// \return The processed node.
     ///
-    /// \warning The queue must not be empty!
+    /// \pre The queue must not be empty.
     template <typename NM>
     Node processNextNode(const NM& nm, Node& rnode) {
       Node n = _list[++_list_front];
@@ -1464,44 +1531,71 @@ namespace lemon {
       return n;
     }
 
-    /// \brief Next node to be processed.
+    /// \brief The next node to be processed.
     ///
-    /// Next node to be processed.
-    ///
-    /// \return The next node to be processed or INVALID if the stack is
-    /// empty.
-    Node nextNode() {
+    /// Returns the next node to be processed or \c INVALID if the queue
+    /// is empty.
+    Node nextNode() const {
       return _list_front != _list_back ? _list[_list_front + 1] : INVALID;
     }
 
     /// \brief Returns \c false if there are nodes
-    /// to be processed in the queue
+    /// to be processed.
     ///
     /// Returns \c false if there are nodes
-    /// to be processed in the queue
-    bool emptyQueue() { return _list_front == _list_back; }
+    /// to be processed in the queue.
+    bool emptyQueue() const { return _list_front == _list_back; }
 
     /// \brief Returns the number of the nodes to be processed.
     ///
     /// Returns the number of the nodes to be processed in the queue.
-    int queueSize() { return _list_back - _list_front; }
+    int queueSize() const { return _list_back - _list_front; }
 
     /// \brief Executes the algorithm.
     ///
     /// Executes the algorithm.
     ///
-    /// \pre init() must be called and at least one node should be added
+    /// This method runs the %BFS algorithm from the root node(s)
+    /// in order to compute the shortest path to each node.
+    ///
+    /// The algorithm computes
+    /// - the shortest path tree (forest),
+    /// - the distance of each node from the root(s).
+    ///
+    /// \pre init() must be called and at least one root node should be added
     /// with addSource() before using this function.
+    ///
+    /// \note <tt>b.start()</tt> is just a shortcut of the following code.
+    /// \code
+    ///   while ( !b.emptyQueue() ) {
+    ///     b.processNextNode();
+    ///   }
+    /// \endcode
     void start() {
       while ( !emptyQueue() ) processNextNode();
     }
 
-    /// \brief Executes the algorithm until \c dest is reached.
+    /// \brief Executes the algorithm until the given target node is reached.
     ///
-    /// Executes the algorithm until \c dest is reached.
+    /// Executes the algorithm until the given target node is reached.
     ///
-    /// \pre init() must be called and at least one node should be added
-    /// with addSource() before using this function.
+    /// This method runs the %BFS algorithm from the root node(s)
+    /// in order to compute the shortest path to \c dest.
+    ///
+    /// The algorithm computes
+    /// - the shortest path to \c dest,
+    /// - the distance of \c dest from the root(s).
+    ///
+    /// \pre init() must be called and at least one root node should be
+    /// added with addSource() before using this function.
+    ///
+    /// \note <tt>b.start(t)</tt> is just a shortcut of the following code.
+    /// \code
+    ///   bool reach = false;
+    ///   while ( !b.emptyQueue() && !reach ) {
+    ///     b.processNextNode(t, reach);
+    ///   }
+    /// \endcode
     void start(Node dest) {
       bool reach = false;
       while ( !emptyQueue() && !reach ) processNextNode(dest, reach);
@@ -1511,15 +1605,28 @@ namespace lemon {
     ///
     /// Executes the algorithm until a condition is met.
     ///
-    /// \pre init() must be called and at least one node should be added
-    /// with addSource() before using this function.
+    /// This method runs the %BFS algorithm from the root node(s) in
+    /// order to compute the shortest path to a node \c v with
+    /// <tt>nm[v]</tt> true, if such a node can be found.
     ///
-    ///\param nm must be a bool (or convertible) node map. The
-    ///algorithm will stop when it reaches a node \c v with
+    /// \param nm must be a bool (or convertible) node map. The
+    /// algorithm will stop when it reaches a node \c v with
     /// <tt>nm[v]</tt> true.
     ///
-    ///\return The reached node \c v with <tt>nm[v]</tt> true or
-    ///\c INVALID if no such node was found.
+    /// \return The reached node \c v with <tt>nm[v]</tt> true or
+    /// \c INVALID if no such node was found.
+    ///
+    /// \pre init() must be called and at least one root node should be
+    /// added with addSource() before using this function.
+    ///
+    /// \note <tt>b.start(nm)</tt> is just a shortcut of the following code.
+    /// \code
+    ///   Node rnode = INVALID;
+    ///   while ( !b.emptyQueue() && rnode == INVALID ) {
+    ///     b.processNextNode(nm, rnode);
+    ///   }
+    ///   return rnode;
+    /// \endcode
     template <typename NM>
     Node start(const NM &nm) {
       Node rnode = INVALID;
@@ -1529,10 +1636,16 @@ namespace lemon {
       return rnode;
     }
 
-    /// \brief Runs %BFSVisit algorithm from node \c s.
+    /// \brief Runs the algorithm from the given node.
     ///
-    /// This method runs the %BFS algorithm from a root node \c s.
-    /// \note b.run(s) is just a shortcut of the following code.
+    /// This method runs the %BFS algorithm from node \c s
+    /// in order to compute the shortest path to each node.
+    ///
+    /// The algorithm computes
+    /// - the shortest path tree,
+    /// - the distance of each node from the root.
+    ///
+    /// \note <tt>b.run(s)</tt> is just a shortcut of the following code.
     ///\code
     ///   b.init();
     ///   b.addSource(s);
@@ -1544,19 +1657,21 @@ namespace lemon {
       start();
     }
 
-    /// \brief Runs %BFSVisit algorithm to visit all nodes in the digraph.
+    /// \brief Runs the algorithm to visit all nodes in the digraph.
     ///
     /// This method runs the %BFS algorithm in order to
-    /// compute the %BFS path to each node. The algorithm computes
-    /// - The %BFS tree.
-    /// - The distance of each node from the root in the %BFS tree.
+    /// compute the shortest path to each node.
     ///
-    ///\note b.run() is just a shortcut of the following code.
+    /// The algorithm computes
+    /// - the shortest path tree (forest),
+    /// - the distance of each node from the root(s).
+    ///
+    /// \note <tt>b.run(s)</tt> is just a shortcut of the following code.
     ///\code
     ///  b.init();
-    ///  for (NodeIt it(digraph); it != INVALID; ++it) {
-    ///    if (!b.reached(it)) {
-    ///      b.addSource(it);
+    ///  for (NodeIt n(gr); n != INVALID; ++n) {
+    ///    if (!b.reached(n)) {
+    ///      b.addSource(n);
     ///      b.start();
     ///    }
     ///  }
@@ -1570,27 +1685,28 @@ namespace lemon {
         }
       }
     }
+
     ///@}
 
     /// \name Query Functions
     /// The result of the %BFS algorithm can be obtained using these
     /// functions.\n
-    /// Before the use of these functions,
-    /// either run() or start() must be called.
+    /// Either \ref lemon::BfsVisit::run() "run()" or
+    /// \ref lemon::BfsVisit::start() "start()" must be called before
+    /// using them.
     ///@{
 
-    /// \brief Checks if a node is reachable from the root.
+    /// \brief Checks if a node is reachable from the root(s).
     ///
     /// Returns \c true if \c v is reachable from the root(s).
-    /// \warning The source nodes are inditated as unreachable.
     /// \pre Either \ref run() or \ref start()
     /// must be called before using this function.
-    ///
     bool reached(Node v) { return (*_reached)[v]; }
+
     ///@}
+
   };
 
 } //END OF NAMESPACE LEMON
 
 #endif
-
