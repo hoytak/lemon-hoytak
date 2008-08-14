@@ -19,7 +19,7 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
-//#include <lemon/full_graph.h>
+#include <lemon/full_graph.h>
 //#include <lemon/hypercube_graph.h>
 
 #include "test_tools.h"
@@ -76,6 +76,39 @@ void checkDigraph() {
   checkArcIds(G);
   checkGraphNodeMap(G);
   checkGraphArcMap(G);
+
+}
+
+void checkFullDigraph(int num) {
+  typedef FullDigraph Digraph;
+  DIGRAPH_TYPEDEFS(Digraph);
+  Digraph G(num);
+
+  checkGraphNodeList(G, num);
+  checkGraphArcList(G, num * num);
+
+  for (NodeIt n(G); n != INVALID; ++n) {
+    checkGraphOutArcList(G, n, num);
+    checkGraphInArcList(G, n, num);
+  }
+
+  checkGraphConArcList(G, num * num);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+
+  for (int i = 0; i < G.nodeNum(); ++i) {
+    check(G.index(G(i)) == i, "Wrong index");
+  }
+
+  for (NodeIt s(G); s != INVALID; ++s) {
+    for (NodeIt t(G); t != INVALID; ++t) {
+      Arc a = G.arc(s, t);
+      check(G.source(a) == s && G.target(a) == t, "Wrong arc lookup");
+    }
+  }
 
 }
 
@@ -175,6 +208,9 @@ void checkDigraphs() {
   { // Checking SmartDigraph
     checkDigraph<SmartDigraph>();
     checkDigraphValidity<SmartDigraph>();
+  }
+  { // Checking FullDigraph
+    checkFullDigraph(8);
   }
 }
 

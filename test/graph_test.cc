@@ -19,7 +19,7 @@
 #include <lemon/concepts/graph.h>
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
-// #include <lemon/full_graph.h>
+#include <lemon/full_graph.h>
 // #include <lemon/grid_graph.h>
 
 #include "test_tools.h"
@@ -95,6 +95,53 @@ void checkGraph() {
   checkGraphEdgeMap(G);
 }
 
+void checkFullGraph(int num) {
+  typedef FullGraph Graph;
+  GRAPH_TYPEDEFS(Graph);
+
+  Graph G(num);
+  checkGraphNodeList(G, num);
+  checkGraphEdgeList(G, num * (num - 1) / 2);
+
+  for (NodeIt n(G); n != INVALID; ++n) {
+    checkGraphOutArcList(G, n, num - 1);    
+    checkGraphInArcList(G, n, num - 1);    
+    checkGraphIncEdgeList(G, n, num - 1);    
+  }
+
+  checkGraphConArcList(G, num * (num - 1));
+  checkGraphConEdgeList(G, num * (num - 1) / 2);
+
+  checkArcDirections(G);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkEdgeIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+  checkGraphEdgeMap(G);
+
+  
+  for (int i = 0; i < G.nodeNum(); ++i) {
+    check(G.index(G(i)) == i, "Wrong index");
+  }
+
+  for (NodeIt u(G); u != INVALID; ++u) {
+    for (NodeIt v(G); v != INVALID; ++v) {
+      Edge e = G.edge(u, v);
+      Arc a = G.arc(u, v);
+      if (u == v) {
+        check(e == INVALID, "Wrong edge lookup");
+        check(a == INVALID, "Wrong arc lookup");
+      } else {
+        check((G.u(e) == u && G.v(e) == v) ||
+              (G.u(e) == v && G.v(e) == u), "Wrong edge lookup");
+        check(G.source(a) == u && G.target(a) == v, "Wrong arc lookup");
+      }
+    }
+  }
+}
+
 void checkConcepts() {
   { // Checking graph components
     checkConcept<BaseGraphComponent, BaseGraphComponent >();
@@ -124,14 +171,12 @@ void checkConcepts() {
     checkConcept<ExtendableGraphComponent<>, SmartGraph>();
     checkConcept<ClearableGraphComponent<>, SmartGraph>();
   }
-//  { // Checking FullGraph
-//    checkConcept<Graph, FullGraph>();
-//    checkGraphIterators<FullGraph>();
-//  }
-//  { // Checking GridGraph
-//    checkConcept<Graph, GridGraph>();
-//    checkGraphIterators<GridGraph>();
-//  }
+  { // Checking FullGraph
+    checkConcept<Graph, FullGraph>();
+  }
+//   { // Checking GridGraph
+//     checkConcept<Graph, GridGraph>();
+//   }
 }
 
 template <typename Graph>
@@ -241,11 +286,10 @@ void checkGraphs() {
     checkGraph<SmartGraph>();
     checkGraphValidity<SmartGraph>();
   }
-//   { // Checking FullGraph
-//     FullGraph g(5);
-//     checkGraphNodeList(g, 5);
-//     checkGraphEdgeList(g, 10);
-//   }
+  { // Checking FullGraph   
+    checkFullGraph(7);
+    checkFullGraph(8);
+  }
 //   { // Checking GridGraph
 //     GridGraph g(5, 6);
 //     checkGraphNodeList(g, 30);
