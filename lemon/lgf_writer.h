@@ -37,6 +37,9 @@
 #include <lemon/core.h>
 #include <lemon/maps.h>
 
+#include <lemon/concept_check.h>
+#include <lemon/concepts/maps.h>
+
 namespace lemon {
 
   namespace _writer_bits {
@@ -303,6 +306,45 @@ namespace lemon {
       }
       return os;
     }
+
+    class Section {
+    public:
+      virtual ~Section() {}
+      virtual void process(std::ostream& os) = 0;
+    };
+
+    template <typename Functor>
+    class LineSection : public Section {
+    private:
+
+      Functor _functor;
+
+    public:
+
+      LineSection(const Functor& functor) : _functor(functor) {}
+      virtual ~LineSection() {}
+
+      virtual void process(std::ostream& os) {
+        std::string line;
+        while (!(line = _functor()).empty()) os << line << std::endl;
+      }
+    };
+
+    template <typename Functor>
+    class StreamSection : public Section {
+    private:
+
+      Functor _functor;
+
+    public:
+
+      StreamSection(const Functor& functor) : _functor(functor) {}
+      virtual ~StreamSection() {}
+
+      virtual void process(std::ostream& os) {
+        _functor(os);
+      }
+    };
 
   }
 
@@ -1490,6 +1532,209 @@ namespace lemon {
   template <typename Graph>
   GraphWriter<Graph> graphWriter(const char* fn, const Graph& graph) {
     GraphWriter<Graph> tmp(fn, graph);
+    return tmp;
+  }
+
+  class SectionWriter;
+
+  SectionWriter sectionWriter(std::istream& is);
+  SectionWriter sectionWriter(const std::string& fn);
+  SectionWriter sectionWriter(const char* fn);
+
+  /// \ingroup lemon_io
+  ///
+  /// \brief Section writer class
+  ///
+  /// In the \ref lgf-format "LGF" file extra sections can be placed,
+  /// which contain any data in arbitrary format. Such sections can be
+  /// written with this class. A writing rule can be added to the
+  /// class with two different functions. With the \c sectionLines()
+  /// function a generator can write the section line-by-line, while
+  /// with the \c sectionStream() member the section can be written to
+  /// an output stream.
+  class SectionWriter {
+  private:
+
+    std::ostream* _os;
+    bool local_os;
+
+    typedef std::vector<std::pair<std::string, _writer_bits::Section*> >
+    Sections;
+
+    Sections _sections;
+
+  public:
+
+    /// \brief Constructor
+    ///
+    /// Construct a section writer, which writes to the given output
+    /// stream.
+    SectionWriter(std::ostream& os)
+      : _os(&os), local_os(false) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct a section writer, which writes into the given file.
+    SectionWriter(const std::string& fn)
+      : _os(new std::ofstream(fn.c_str())), local_os(true) {}
+
+    /// \brief Constructor
+    ///
+    /// Construct a section writer, which writes into the given file.
+    SectionWriter(const char* fn)
+      : _os(new std::ofstream(fn)), local_os(true) {}
+
+    /// \brief Destructor
+    ~SectionWriter() {
+      for (Sections::iterator it = _sections.begin();
+           it != _sections.end(); ++it) {
+        delete it->second;
+      }
+
+      if (local_os) {
+        delete _os;
+      }
+
+    }
+
+  private:
+
+    friend SectionWriter sectionWriter(std::ostream& os);
+    friend SectionWriter sectionWriter(const std::string& fn);
+    friend SectionWriter sectionWriter(const char* fn);
+
+    SectionWriter(SectionWriter& other)
+      : _os(other._os), local_os(other.local_os) {
+
+      other._os = 0;
+      other.local_os = false;
+
+      _sections.swap(other._sections);
+    }
+
+    SectionWriter& operator=(const SectionWriter&);
+
+  public:
+
+    /// \name Section writers
+    /// @{
+
+    /// \brief Add a section writer with line oriented writing
+    ///
+    /// The first parameter is the type descriptor of the section, the
+    /// second is a generator with std::string values. At the writing
+    /// process, the returned \c std::string will be written into the
+    /// output file until it is an empty string.
+    ///
+    /// For example, an integer vector is written into a section.
+    ///\code
+    ///  @numbers
+    ///  12 45 23 78
+    ///  4 28 38 28
+    ///  23 6 16
+    ///\endcode
+    ///
+    /// The generator is implemented as a struct.
+    ///\code
+    ///  struct NumberSection {
+    ///    std::vector<int>::const_iterator _it, _end;
+    ///    NumberSection(const std::vector<int>& data)
+    ///      : _it(data.begin()), _end(data.end()) {}
+    ///    std::string operator()() {
+    ///      int rem_in_line = 4;
+    ///      std::ostringstream ls;
+    ///      while (rem_in_line > 0 && _it != _end) {
+    ///        ls << *(_it++) << ' ';
+    ///        --rem_in_line;
+    ///      }
+    ///      return ls.str();
+    ///    }
+    ///  };
+    ///
+    ///  // ...
+    ///
+    ///  writer.sectionLines("numbers", NumberSection(vec));
+    ///\endcode
+    template <typename Functor>
+    SectionWriter& sectionLines(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is empty.");
+      _sections.push_back(std::make_pair(type,
+        new _writer_bits::LineSection<Functor>(functor)));
+      return *this;
+    }
+
+
+    /// \brief Add a section writer with stream oriented writing
+    ///
+    /// The first parameter is the type of the section, the second is
+    /// a functor, which takes a \c std::ostream& parameter. The
+    /// functor writes the section to the output stream.
+    /// \warning The last line must be closed with end-line character.
+    template <typename Functor>
+    SectionWriter& sectionStream(const std::string& type, Functor functor) {
+      LEMON_ASSERT(!type.empty(), "Type is empty.");
+      _sections.push_back(std::make_pair(type,
+         new _writer_bits::StreamSection<Functor>(functor)));
+      return *this;
+    }
+
+    /// @}
+
+  public:
+
+
+    /// \name Execution of the writer
+    /// @{
+
+    /// \brief Start the batch processing
+    ///
+    /// This function starts the batch processing.
+    void run() {
+
+      LEMON_ASSERT(_os != 0, "This writer is assigned to an other writer");
+
+      for (Sections::iterator it = _sections.begin();
+           it != _sections.end(); ++it) {
+        (*_os) << '@' << it->first << std::endl;
+        it->second->process(*_os);
+      }
+    }
+
+    /// \brief Give back the stream of the writer
+    ///
+    /// Returns the stream of the writer
+    std::ostream& ostream() {
+      return *_os;
+    }
+
+    /// @}
+
+  };
+
+  /// \brief Return a \ref SectionWriter class
+  ///
+  /// This function just returns a \ref SectionWriter class.
+  /// \relates SectionWriter
+  inline SectionWriter sectionWriter(std::ostream& os) {
+    SectionWriter tmp(os);
+    return tmp;
+  }
+
+  /// \brief Return a \ref SectionWriter class
+  ///
+  /// This function just returns a \ref SectionWriter class.
+  /// \relates SectionWriter
+  inline SectionWriter sectionWriter(const std::string& fn) {
+    SectionWriter tmp(fn);
+    return tmp;
+  }
+
+  /// \brief Return a \ref SectionWriter class
+  ///
+  /// This function just returns a \ref SectionWriter class.
+  /// \relates SectionWriter
+  inline SectionWriter sectionWriter(const char* fn) {
+    SectionWriter tmp(fn);
     return tmp;
   }
 }
