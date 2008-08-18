@@ -30,6 +30,7 @@ demo/*.eps
 syntax: regexp
 (.*/)?\#[^/]*\#$
 ^doc/html/.*
+^doc/.*\.tag
 ^autom4te.cache/.*
 ^build-aux/.*
 ^objs.*/.*
