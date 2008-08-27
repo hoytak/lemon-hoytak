@@ -221,7 +221,7 @@ namespace lemon {
   template<typename T>
   inline std::ostream& operator<<(std::ostream &os, const Point<T>& z)
   {
-    os << "(" << z.x << ", " << z.y << ")";
+    os << "(" << z.x << "," << z.y << ")";
     return os;
   }
 
@@ -532,6 +532,47 @@ namespace lemon {
 
     };//class Boundingbox
 
+
+  ///Read a bounding box from a stream
+
+  ///Read a bounding box from a stream.
+  ///\relates BoundingBox
+  template<typename T>
+  inline std::istream& operator>>(std::istream &is, BoundingBox<T>& b) {
+    char c;
+    Point<T> p;
+    if (is >> c) {
+      if (c != '(') is.putback(c);
+    } else {
+      is.clear();
+    }
+    if (!(is >> p)) return is;
+    b.bottomLeft(p);
+    if (is >> c) {
+      if (c != ',') is.putback(c);
+    } else {
+      is.clear();
+    }
+    if (!(is >> p)) return is;
+    b.topRight(p);
+    if (is >> c) {
+      if (c != ')') is.putback(c);
+    } else {
+      is.clear();
+    }
+    return is;
+  }
+
+  ///Write a bounding box to a stream
+
+  ///Write a bounding box to a stream.
+  ///\relates BoundingBox
+  template<typename T>
+  inline std::ostream& operator<<(std::ostream &os, const BoundingBox<T>& b)
+  {
+    os << "(" << b.bottomLeft() << "," << b.topRight() << ")";
+    return os;
+  }
 
   ///Map of x-coordinates of a \ref Point "Point"-map
 
