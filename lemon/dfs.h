@@ -1209,6 +1209,11 @@ namespace lemon {
   /// class. It works with callback mechanism, the DfsVisit object calls
   /// the member functions of the \c Visitor class on every DFS event.
   ///
+  /// This interface of the DFS algorithm should be used in special cases
+  /// when extra actions have to be performed in connection with certain
+  /// events of the DFS algorithm. Otherwise consider to use Dfs or dfs()
+  /// instead.
+  ///
   /// \tparam _Digraph The type of the digraph the algorithm runs on.
   /// The default value is
   /// \ref ListDigraph. The value of _Digraph is not used directly by
