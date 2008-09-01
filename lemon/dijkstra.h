@@ -1068,6 +1068,8 @@ namespace lemon {
     void *_g;
     //Pointer to the length map
     void *_length;
+    //Pointer to the map of processed nodes.
+    void *_processed;
     //Pointer to the map of predecessors arcs.
     void *_pred;
     //Pointer to the map of distances.
@@ -1080,7 +1082,7 @@ namespace lemon {
 
     /// This constructor does not require parameters, therefore it initiates
     /// all of the attributes to default values (0, INVALID).
-    DijkstraWizardBase() : _g(0), _length(0), _pred(0),
+    DijkstraWizardBase() : _g(0), _length(0), _processed(0), _pred(0),
                            _dist(0), _source(INVALID) {}
 
     /// Constructor.
@@ -1094,7 +1096,7 @@ namespace lemon {
     DijkstraWizardBase(const GR &g,const LM &l, Node s=INVALID) :
       _g(reinterpret_cast<void*>(const_cast<GR*>(&g))),
       _length(reinterpret_cast<void*>(const_cast<LM*>(&l))),
-      _pred(0), _dist(0), _source(s) {}
+      _processed(0), _pred(0), _dist(0), _source(s) {}
 
   };
 
@@ -1173,8 +1175,12 @@ namespace lemon {
       Dijkstra<Digraph,LengthMap,TR>
         dij(*reinterpret_cast<const Digraph*>(Base::_g),
             *reinterpret_cast<const LengthMap*>(Base::_length));
-      if(Base::_pred) dij.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
-      if(Base::_dist) dij.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
+      if(Base::_processed)
+        dij.processedMap(*reinterpret_cast<ProcessedMap*>(Base::_processed));
+      if(Base::_pred)
+        dij.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
+      if(Base::_dist)
+        dij.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
       dij.run(Base::_source);
     }
 
