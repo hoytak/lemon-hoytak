@@ -131,7 +131,7 @@ template <typename Heap>
 void dijkstraHeapTest(const Digraph& digraph, const IntArcMap& length,
                       Node source) {
 
-  typename Dijkstra<Digraph, IntArcMap>::template DefStandardHeap<Heap>::
+  typename Dijkstra<Digraph, IntArcMap>::template SetStandardHeap<Heap>::
     Create dijkstra(digraph, length);
 
   dijkstra.run(source);

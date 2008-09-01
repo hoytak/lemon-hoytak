@@ -331,7 +331,7 @@ namespace lemon {
     ///@{
 
     template <class T>
-    struct DefPredMapTraits : public Traits {
+    struct SetPredMapTraits : public Traits {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &)
       {
@@ -344,13 +344,13 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref PredMap type.
     template <class T>
-    struct DefPredMap
-      : public Dijkstra< Digraph, LengthMap, DefPredMapTraits<T> > {
-      typedef Dijkstra< Digraph, LengthMap, DefPredMapTraits<T> > Create;
+    struct SetPredMap
+      : public Dijkstra< Digraph, LengthMap, SetPredMapTraits<T> > {
+      typedef Dijkstra< Digraph, LengthMap, SetPredMapTraits<T> > Create;
     };
 
     template <class T>
-    struct DefDistMapTraits : public Traits {
+    struct SetDistMapTraits : public Traits {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &)
       {
@@ -363,13 +363,13 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref DistMap type.
     template <class T>
-    struct DefDistMap
-      : public Dijkstra< Digraph, LengthMap, DefDistMapTraits<T> > {
-      typedef Dijkstra< Digraph, LengthMap, DefDistMapTraits<T> > Create;
+    struct SetDistMap
+      : public Dijkstra< Digraph, LengthMap, SetDistMapTraits<T> > {
+      typedef Dijkstra< Digraph, LengthMap, SetDistMapTraits<T> > Create;
     };
 
     template <class T>
-    struct DefProcessedMapTraits : public Traits {
+    struct SetProcessedMapTraits : public Traits {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &)
       {
@@ -382,12 +382,12 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref ProcessedMap type.
     template <class T>
-    struct DefProcessedMap
-      : public Dijkstra< Digraph, LengthMap, DefProcessedMapTraits<T> > {
-      typedef Dijkstra< Digraph, LengthMap, DefProcessedMapTraits<T> > Create;
+    struct SetProcessedMap
+      : public Dijkstra< Digraph, LengthMap, SetProcessedMapTraits<T> > {
+      typedef Dijkstra< Digraph, LengthMap, SetProcessedMapTraits<T> > Create;
     };
 
-    struct DefDigraphProcessedMapTraits : public Traits {
+    struct SetStandardProcessedMapTraits : public Traits {
       typedef typename Digraph::template NodeMap<bool> ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &g)
       {
@@ -400,15 +400,14 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
-    template <class T>
-    struct DefProcessedMapToBeDefaultMap
-      : public Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits> {
-      typedef Dijkstra< Digraph, LengthMap, DefDigraphProcessedMapTraits>
+    struct SetStandardProcessedMap
+      : public Dijkstra< Digraph, LengthMap, SetStandardProcessedMapTraits > {
+      typedef Dijkstra< Digraph, LengthMap, SetStandardProcessedMapTraits >
       Create;
     };
 
     template <class H, class CR>
-    struct DefHeapTraits : public Traits {
+    struct SetHeapTraits : public Traits {
       typedef CR HeapCrossRef;
       typedef H Heap;
       static HeapCrossRef *createHeapCrossRef(const Digraph &) {
@@ -425,13 +424,13 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting heap and cross
     ///reference type.
     template <class H, class CR = typename Digraph::template NodeMap<int> >
-    struct DefHeap
-      : public Dijkstra< Digraph, LengthMap, DefHeapTraits<H, CR> > {
-      typedef Dijkstra< Digraph, LengthMap, DefHeapTraits<H, CR> > Create;
+    struct SetHeap
+      : public Dijkstra< Digraph, LengthMap, SetHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph, LengthMap, SetHeapTraits<H, CR> > Create;
     };
 
     template <class H, class CR>
-    struct DefStandardHeapTraits : public Traits {
+    struct SetStandardHeapTraits : public Traits {
       typedef CR HeapCrossRef;
       typedef H Heap;
       static HeapCrossRef *createHeapCrossRef(const Digraph &G) {
@@ -450,14 +449,14 @@ namespace lemon {
     ///object if the cross reference's constructor waits for the digraph as
     ///parameter and the heap's constructor waits for the cross reference.
     template <class H, class CR = typename Digraph::template NodeMap<int> >
-    struct DefStandardHeap
-      : public Dijkstra< Digraph, LengthMap, DefStandardHeapTraits<H, CR> > {
-      typedef Dijkstra< Digraph, LengthMap, DefStandardHeapTraits<H, CR> >
+    struct SetStandardHeap
+      : public Dijkstra< Digraph, LengthMap, SetStandardHeapTraits<H, CR> > {
+      typedef Dijkstra< Digraph, LengthMap, SetStandardHeapTraits<H, CR> >
       Create;
     };
 
     template <class T>
-    struct DefOperationTraitsTraits : public Traits {
+    struct SetOperationTraitsTraits : public Traits {
       typedef T OperationTraits;
     };
 
@@ -467,9 +466,9 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref OperationTraits type.
     template <class T>
-    struct DefOperationTraits
-      : public Dijkstra<Digraph, LengthMap, DefOperationTraitsTraits<T> > {
-      typedef Dijkstra<Digraph, LengthMap, DefOperationTraitsTraits<T> >
+    struct SetOperationTraits
+      : public Dijkstra<Digraph, LengthMap, SetOperationTraitsTraits<T> > {
+      typedef Dijkstra<Digraph, LengthMap, SetOperationTraitsTraits<T> >
       Create;
     };
 
@@ -1199,10 +1198,10 @@ namespace lemon {
     }
 
     template<class T>
-    struct DefPredMapBase : public Base {
+    struct SetPredMapBase : public Base {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &) { return 0; };
-      DefPredMapBase(const TR &b) : TR(b) {}
+      SetPredMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref PredMap object.
@@ -1210,17 +1209,17 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter"
     ///for setting \ref PredMap object.
     template<class T>
-    DijkstraWizard<DefPredMapBase<T> > predMap(const T &t)
+    DijkstraWizard<SetPredMapBase<T> > predMap(const T &t)
     {
       Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return DijkstraWizard<DefPredMapBase<T> >(*this);
+      return DijkstraWizard<SetPredMapBase<T> >(*this);
     }
 
     template<class T>
-    struct DefProcessedMapBase : public Base {
+    struct SetProcessedMapBase : public Base {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
-      DefProcessedMapBase(const TR &b) : TR(b) {}
+      SetProcessedMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref ProcessedMap object.
@@ -1228,17 +1227,17 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter"
     ///for setting \ref ProcessedMap object.
     template<class T>
-    DijkstraWizard<DefProcessedMapBase<T> > processedMap(const T &t)
+    DijkstraWizard<SetProcessedMapBase<T> > processedMap(const T &t)
     {
       Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return DijkstraWizard<DefProcessedMapBase<T> >(*this);
+      return DijkstraWizard<SetProcessedMapBase<T> >(*this);
     }
 
     template<class T>
-    struct DefDistMapBase : public Base {
+    struct SetDistMapBase : public Base {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &) { return 0; };
-      DefDistMapBase(const TR &b) : TR(b) {}
+      SetDistMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref DistMap object.
@@ -1246,10 +1245,10 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter"
     ///for setting \ref DistMap object.
     template<class T>
-    DijkstraWizard<DefDistMapBase<T> > distMap(const T &t)
+    DijkstraWizard<SetDistMapBase<T> > distMap(const T &t)
     {
       Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return DijkstraWizard<DefDistMapBase<T> >(*this);
+      return DijkstraWizard<SetDistMapBase<T> >(*this);
     }
 
   };
