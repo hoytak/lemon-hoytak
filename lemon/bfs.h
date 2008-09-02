@@ -1262,6 +1262,11 @@ namespace lemon {
   /// class. It works with callback mechanism, the BfsVisit object calls
   /// the member functions of the \c Visitor class on every BFS event.
   ///
+  /// This interface of the BFS algorithm should be used in special cases
+  /// when extra actions have to be performed in connection with certain
+  /// events of the BFS algorithm. Otherwise consider to use Bfs or bfs()
+  /// instead.
+  ///
   /// \tparam _Digraph The type of the digraph the algorithm runs on.
   /// The default value is
   /// \ref ListDigraph. The value of _Digraph is not used directly by
