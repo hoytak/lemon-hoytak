@@ -59,7 +59,7 @@ namespace lemon {
     public:
       Arc() {}
 
-      /// Invalid arc constructor
+      // Invalid arc constructor
       Arc(Invalid i) : Edge(i), forward(true) {}
 
       bool operator==(const Arc &that) const {
@@ -74,38 +74,41 @@ namespace lemon {
       }
     };
 
+    /// First node of the edge
+    Node u(const Edge &e) const {
+      return Parent::source(e);
+    }
 
-
-    using Parent::source;
-
-    /// Source of the given Arc.
+    /// Source of the given arc
     Node source(const Arc &e) const {
       return e.forward ? Parent::source(e) : Parent::target(e);
     }
 
-    using Parent::target;
+    /// Second node of the edge
+    Node v(const Edge &e) const {
+      return Parent::target(e);
+    }
 
-    /// Target of the given Arc.
+    /// Target of the given arc
     Node target(const Arc &e) const {
       return e.forward ? Parent::target(e) : Parent::source(e);
     }
 
     /// \brief Directed arc from an edge.
     ///
-    /// Returns a directed arc corresponding to the specified Edge.
-    /// If the given bool is true the given edge and the
-    /// returned arc have the same source node.
-    static Arc direct(const Edge &ue, bool d) {
-      return Arc(ue, d);
+    /// Returns a directed arc corresponding to the specified edge.
+    /// If the given bool is true, the first node of the given edge and
+    /// the source node of the returned arc are the same.
+    static Arc direct(const Edge &e, bool d) {
+      return Arc(e, d);
     }
 
-    /// Returns whether the given directed arc is same orientation as the
-    /// corresponding edge.
+    /// Returns whether the given directed arc has the same orientation
+    /// as the corresponding edge.
     ///
     /// \todo reference to the corresponding point of the undirected digraph
     /// concept. "What does the direction of an edge mean?"
-    static bool direction(const Arc &e) { return e.forward; }
-
+    static bool direction(const Arc &a) { return a.forward; }
 
     using Parent::first;
     using Parent::next;
@@ -228,7 +231,6 @@ namespace lemon {
     int maxEdgeId() const {
       return Parent::maxArcId();
     }
-
 
     int arcNum() const {
       return 2 * Parent::arcNum();
