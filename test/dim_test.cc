@@ -50,38 +50,38 @@ int main()
   p = b/l;
   check(p.x==1 && p.y==2, "Wrong dim2::Point division by a scalar.");
 
-  typedef dim2::BoundingBox<int> BB;
-  BB box1;
-  check(box1.empty(), "Wrong empty() in dim2::BoundingBox.");
+  typedef dim2::Box<int> Box;
+  Box box1;
+  check(box1.empty(), "Wrong empty() in dim2::Box.");
 
   box1.add(a);
-  check(!box1.empty(), "Wrong empty() in dim2::BoundingBox.");
+  check(!box1.empty(), "Wrong empty() in dim2::Box.");
   box1.add(b);
 
   check(box1.left()==1 && box1.bottom()==2 &&
         box1.right()==3 && box1.top()==4,
-        "Wrong addition of points to dim2::BoundingBox.");
+        "Wrong addition of points to dim2::Box.");
 
-  check(box1.inside(Point(2,3)), "Wrong inside() in dim2::BoundingBox.");
-  check(box1.inside(Point(1,3)), "Wrong inside() in dim2::BoundingBox.");
-  check(!box1.inside(Point(0,3)), "Wrong inside() in dim2::BoundingBox.");
+  check(box1.inside(Point(2,3)), "Wrong inside() in dim2::Box.");
+  check(box1.inside(Point(1,3)), "Wrong inside() in dim2::Box.");
+  check(!box1.inside(Point(0,3)), "Wrong inside() in dim2::Box.");
 
-  BB box2(Point(2,2));
-  check(!box2.empty(), "Wrong empty() in dim2::BoundingBox.");
-  
+  Box box2(Point(2,2));
+  check(!box2.empty(), "Wrong empty() in dim2::Box.");
+
   box2.bottomLeft(Point(2,0));
   box2.topRight(Point(5,3));
-  BB box3 = box1 & box2;
+  Box box3 = box1 & box2;
   check(!box3.empty() &&
-        box3.left()==2 && box3.bottom()==2 && 
+        box3.left()==2 && box3.bottom()==2 &&
         box3.right()==3 && box3.top()==3,
-        "Wrong intersection of two dim2::BoundingBox objects.");
-  
+        "Wrong intersection of two dim2::Box objects.");
+
   box1.add(box2);
   check(!box1.empty() &&
         box1.left()==1 && box1.bottom()==0 &&
         box1.right()==5 && box1.top()==4,
-        "Wrong addition of two dim2::BoundingBox objects.");
+        "Wrong addition of two dim2::Box objects.");
 
   return 0;
 }

@@ -725,10 +725,10 @@ public:
 
     double diag_len = 1;
     if(!(_absoluteNodeSizes&&_absoluteArcWidths)) {
-      dim2::BoundingBox<double> bb;
+      dim2::Box<double> bb;
       for(NodeIt n(g);n!=INVALID;++n) bb.add(mycoords[n]);
       if (bb.empty()) {
-        bb = dim2::BoundingBox<double>(dim2::Point<double>(0,0));
+        bb = dim2::Box<double>(dim2::Point<double>(0,0));
       }
       diag_len = std::sqrt((bb.bottomLeft()-bb.topRight()).normSquare());
       if(diag_len<EPSILON) diag_len = 1;
@@ -736,7 +736,7 @@ public:
       if(!_absoluteArcWidths) _arcWidthScale*=diag_len;
     }
 
-    dim2::BoundingBox<double> bb;
+    dim2::Box<double> bb;
     for(NodeIt n(g);n!=INVALID;++n) {
       double ns=_nodeSizes[n]*_nodeScale;
       dim2::Point<double> p(ns,ns);
@@ -758,7 +758,7 @@ public:
       }
     }
     if (bb.empty()) {
-      bb = dim2::BoundingBox<double>(dim2::Point<double>(0,0));
+      bb = dim2::Box<double>(dim2::Point<double>(0,0));
     }
 
     if(_scaleToA4)
