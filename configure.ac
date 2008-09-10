@@ -31,9 +31,9 @@ if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes; then
 fi
 
 dnl Checks for libraries.
-LX_CHECK_GLPK
-LX_CHECK_CPLEX
-LX_CHECK_SOPLEX
+#LX_CHECK_GLPK
+#LX_CHECK_CPLEX
+#LX_CHECK_SOPLEX
 
 dnl Disable/enable building the demo programs.
 AC_ARG_ENABLE([demo],
@@ -108,10 +108,10 @@ echo
 echo C++ compiler.................. : $CXX
 echo C++ compiles flags............ : $CXXFLAGS
 echo
-echo GLPK support.................. : $lx_glpk_found
-echo CPLEX support................. : $lx_cplex_found
-echo SOPLEX support................ : $lx_soplex_found
-echo
+#echo GLPK support.................. : $lx_glpk_found
+#echo CPLEX support................. : $lx_cplex_found
+#echo SOPLEX support................ : $lx_soplex_found
+#echo
 echo Build benchmarks.............. : $enable_benchmark
 echo Build demo programs........... : $enable_demo
 echo Build additional tools........ : $enable_tools
