@@ -230,7 +230,7 @@ namespace lemon {
     ///@{
 
     template <class T>
-    struct DefPredMapTraits : public Traits {
+    struct SetPredMapTraits : public Traits {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &)
       {
@@ -243,12 +243,12 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref PredMap type.
     template <class T>
-    struct DefPredMap : public Bfs< Digraph, DefPredMapTraits<T> > {
-      typedef Bfs< Digraph, DefPredMapTraits<T> > Create;
+    struct SetPredMap : public Bfs< Digraph, SetPredMapTraits<T> > {
+      typedef Bfs< Digraph, SetPredMapTraits<T> > Create;
     };
 
     template <class T>
-    struct DefDistMapTraits : public Traits {
+    struct SetDistMapTraits : public Traits {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &)
       {
@@ -261,12 +261,12 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref DistMap type.
     template <class T>
-    struct DefDistMap : public Bfs< Digraph, DefDistMapTraits<T> > {
-      typedef Bfs< Digraph, DefDistMapTraits<T> > Create;
+    struct SetDistMap : public Bfs< Digraph, SetDistMapTraits<T> > {
+      typedef Bfs< Digraph, SetDistMapTraits<T> > Create;
     };
 
     template <class T>
-    struct DefReachedMapTraits : public Traits {
+    struct SetReachedMapTraits : public Traits {
       typedef T ReachedMap;
       static ReachedMap *createReachedMap(const Digraph &)
       {
@@ -279,12 +279,12 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref ReachedMap type.
     template <class T>
-    struct DefReachedMap : public Bfs< Digraph, DefReachedMapTraits<T> > {
-      typedef Bfs< Digraph, DefReachedMapTraits<T> > Create;
+    struct SetReachedMap : public Bfs< Digraph, SetReachedMapTraits<T> > {
+      typedef Bfs< Digraph, SetReachedMapTraits<T> > Create;
     };
 
     template <class T>
-    struct DefProcessedMapTraits : public Traits {
+    struct SetProcessedMapTraits : public Traits {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &)
       {
@@ -297,11 +297,11 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref ProcessedMap type.
     template <class T>
-    struct DefProcessedMap : public Bfs< Digraph, DefProcessedMapTraits<T> > {
-      typedef Bfs< Digraph, DefProcessedMapTraits<T> > Create;
+    struct SetProcessedMap : public Bfs< Digraph, SetProcessedMapTraits<T> > {
+      typedef Bfs< Digraph, SetProcessedMapTraits<T> > Create;
     };
 
-    struct DefDigraphProcessedMapTraits : public Traits {
+    struct SetStandardProcessedMapTraits : public Traits {
       typedef typename Digraph::template NodeMap<bool> ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &g)
       {
@@ -314,10 +314,9 @@ namespace lemon {
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
-    template <class T>
-    struct DefProcessedMapToBeDefaultMap :
-      public Bfs< Digraph, DefDigraphProcessedMapTraits> {
-      typedef Bfs< Digraph, DefDigraphProcessedMapTraits> Create;
+    struct SetStandardProcessedMap :
+      public Bfs< Digraph, SetStandardProcessedMapTraits > {
+      typedef Bfs< Digraph, SetStandardProcessedMapTraits > Create;
     };
 
     ///@}
@@ -1065,10 +1064,10 @@ namespace lemon {
     }
 
     template<class T>
-    struct DefPredMapBase : public Base {
+    struct SetPredMapBase : public Base {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &) { return 0; };
-      DefPredMapBase(const TR &b) : TR(b) {}
+      SetPredMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref PredMap object.
@@ -1076,17 +1075,17 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter"
     ///for setting \ref PredMap object.
     template<class T>
-    BfsWizard<DefPredMapBase<T> > predMap(const T &t)
+    BfsWizard<SetPredMapBase<T> > predMap(const T &t)
     {
       Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefPredMapBase<T> >(*this);
+      return BfsWizard<SetPredMapBase<T> >(*this);
     }
 
     template<class T>
-    struct DefReachedMapBase : public Base {
+    struct SetReachedMapBase : public Base {
       typedef T ReachedMap;
       static ReachedMap *createReachedMap(const Digraph &) { return 0; };
-      DefReachedMapBase(const TR &b) : TR(b) {}
+      SetReachedMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref ReachedMap object.
@@ -1094,17 +1093,17 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter"
     ///for setting \ref ReachedMap object.
     template<class T>
-    BfsWizard<DefReachedMapBase<T> > reachedMap(const T &t)
+    BfsWizard<SetReachedMapBase<T> > reachedMap(const T &t)
     {
       Base::_reached=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefReachedMapBase<T> >(*this);
+      return BfsWizard<SetReachedMapBase<T> >(*this);
     }
 
     template<class T>
-    struct DefProcessedMapBase : public Base {
+    struct SetProcessedMapBase : public Base {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
-      DefProcessedMapBase(const TR &b) : TR(b) {}
+      SetProcessedMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref ProcessedMap object.
@@ -1112,17 +1111,17 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter"
     ///for setting \ref ProcessedMap object.
     template<class T>
-    BfsWizard<DefProcessedMapBase<T> > processedMap(const T &t)
+    BfsWizard<SetProcessedMapBase<T> > processedMap(const T &t)
     {
       Base::_processed=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefProcessedMapBase<T> >(*this);
+      return BfsWizard<SetProcessedMapBase<T> >(*this);
     }
 
     template<class T>
-    struct DefDistMapBase : public Base {
+    struct SetDistMapBase : public Base {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &) { return 0; };
-      DefDistMapBase(const TR &b) : TR(b) {}
+      SetDistMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-templ-param "Named parameter"
     ///for setting \ref DistMap object.
@@ -1130,10 +1129,10 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter"
     ///for setting \ref DistMap object.
     template<class T>
-    BfsWizard<DefDistMapBase<T> > distMap(const T &t)
+    BfsWizard<SetDistMapBase<T> > distMap(const T &t)
     {
       Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<DefDistMapBase<T> >(*this);
+      return BfsWizard<SetDistMapBase<T> >(*this);
     }
 
   };
@@ -1354,7 +1353,7 @@ namespace lemon {
 
     ///@{
     template <class T>
-    struct DefReachedMapTraits : public Traits {
+    struct SetReachedMapTraits : public Traits {
       typedef T ReachedMap;
       static ReachedMap *createReachedMap(const Digraph &digraph) {
         throw UninitializedParameter();
@@ -1365,9 +1364,9 @@ namespace lemon {
     ///
     /// \ref named-templ-param "Named parameter" for setting ReachedMap type.
     template <class T>
-    struct DefReachedMap : public BfsVisit< Digraph, Visitor,
-                                            DefReachedMapTraits<T> > {
-      typedef BfsVisit< Digraph, Visitor, DefReachedMapTraits<T> > Create;
+    struct SetReachedMap : public BfsVisit< Digraph, Visitor,
+                                            SetReachedMapTraits<T> > {
+      typedef BfsVisit< Digraph, Visitor, SetReachedMapTraits<T> > Create;
     };
     ///@}
 
