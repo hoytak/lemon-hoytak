@@ -227,6 +227,7 @@ namespace lemon {
       NodeMap(const Digraph& digraph, const _Value& value)
         : Parent(digraph, value) {}
 
+    private:
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
       }
@@ -251,6 +252,7 @@ namespace lemon {
       ArcMap(const Digraph& digraph, const _Value& value)
         : Parent(digraph, value) {}
 
+    private:
       ArcMap& operator=(const ArcMap& cmap) {
         return operator=<ArcMap>(cmap);
       }
@@ -608,6 +610,7 @@ namespace lemon {
       NodeMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
 
+    private:
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
       }
@@ -632,6 +635,7 @@ namespace lemon {
       ArcMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
 
+    private:
       ArcMap& operator=(const ArcMap& cmap) {
         return operator=<ArcMap>(cmap);
       }
@@ -657,6 +661,7 @@ namespace lemon {
       EdgeMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
 
+    private:
       EdgeMap& operator=(const EdgeMap& cmap) {
         return operator=<EdgeMap>(cmap);
       }

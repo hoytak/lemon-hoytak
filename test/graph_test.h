@@ -212,10 +212,10 @@ namespace lemon {
     }
     check(s == 0, "Wrong sum.");
 
-    map = constMap<Node>(12);
-    for (NodeIt it(G); it != INVALID; ++it) {
-      check(map[it] == 12, "Wrong operator[].");
-    }
+    // map = constMap<Node>(12);
+    // for (NodeIt it(G); it != INVALID; ++it) {
+    //   check(map[it] == 12, "Wrong operator[].");
+    // }
   }
 
   template <typename Graph>
@@ -242,10 +242,10 @@ namespace lemon {
     }
     check(s == 0, "Wrong sum.");
 
-    map = constMap<Arc>(12);
-    for (ArcIt it(G); it != INVALID; ++it) {
-      check(map[it] == 12, "Wrong operator[].");
-    }
+    // map = constMap<Arc>(12);
+    // for (ArcIt it(G); it != INVALID; ++it) {
+    //   check(map[it] == 12, "Wrong operator[].");
+    // }
   }
 
   template <typename Graph>
@@ -272,10 +272,10 @@ namespace lemon {
     }
     check(s == 0, "Wrong sum.");
 
-    map = constMap<Edge>(12);
-    for (EdgeIt it(G); it != INVALID; ++it) {
-      check(map[it] == 12, "Wrong operator[].");
-    }
+    // map = constMap<Edge>(12);
+    // for (EdgeIt it(G); it != INVALID; ++it) {
+    //   check(map[it] == 12, "Wrong operator[].");
+    // }
   }
 
 

@@ -103,6 +103,7 @@ namespace lemon {
       }
     }
 
+  private:
     /// \brief Constructor to copy a map of the same map type.
     ///
     /// Constructor to copy a map of the same map type.
@@ -150,6 +151,7 @@ namespace lemon {
       return *this;
     }
 
+  public:
     /// \brief The destructor of the map.
     ///
     /// The destructor of the map.

@@ -1005,6 +1005,8 @@ namespace lemon {
       ///
       /// Construct a new map for the graph and initalise the values.
       GraphMap(const Graph&, const Value&) {}
+
+    private:
       /// \brief Copy constructor.
       ///
       /// Copy Constructor.
@@ -1021,6 +1023,7 @@ namespace lemon {
         return *this;
       }
 
+    public:
       template<typename _Map>
       struct Constraints {
         void constraints() {
@@ -1030,13 +1033,14 @@ namespace lemon {
           // Constructor with a graph and a default value parameter
           _Map a2(g,t);
           // Copy constructor.
-          _Map b(c);
+          // _Map b(c);
 
-          ReadMap<Key, Value> cmap;
-          b = cmap;
+          // ReadMap<Key, Value> cmap;
+          // b = cmap;
 
+          ignore_unused_variable_warning(a);
           ignore_unused_variable_warning(a2);
-          ignore_unused_variable_warning(b);
+          // ignore_unused_variable_warning(b);
         }
 
         const _Map &c;
@@ -1082,6 +1086,7 @@ namespace lemon {
         NodeMap(const MappableDigraphComponent& digraph, const _Value& value)
           : Parent(digraph, value) {}
 
+      private:
         /// \brief Copy constructor.
         ///
         /// Copy Constructor.
@@ -1119,6 +1124,7 @@ namespace lemon {
         ArcMap(const MappableDigraphComponent& digraph, const _Value& value)
           : Parent(digraph, value) {}
 
+      private:
         /// \brief Copy constructor.
         ///
         /// Copy Constructor.
@@ -1215,6 +1221,7 @@ namespace lemon {
         EdgeMap(const MappableGraphComponent& graph, const _Value& value)
           : Parent(graph, value) {}
 
+      private:
         /// \brief Copy constructor.
         ///
         /// Copy Constructor.
