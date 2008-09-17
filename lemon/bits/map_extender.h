@@ -62,6 +62,7 @@ namespace lemon {
     MapExtender(const Graph& graph, const Value& value)
       : Parent(graph, value) {}
 
+  private:
     MapExtender& operator=(const MapExtender& cmap) {
       return operator=<MapExtender>(cmap);
     }
@@ -72,6 +73,7 @@ namespace lemon {
       return *this;
     }
 
+  public:
     class MapIt : public Item {
     public:
 
@@ -200,6 +202,7 @@ namespace lemon {
     SubMapExtender(const Graph& _graph, const Value& _value)
       : Parent(_graph, _value), graph(_graph) {}
 
+  private:
     SubMapExtender& operator=(const SubMapExtender& cmap) {
       return operator=<MapExtender>(cmap);
     }
@@ -214,6 +217,7 @@ namespace lemon {
       return *this;
     }
 
+  public:
     class MapIt : public Item {
     public:
 
