@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -25,19 +25,19 @@
 Several modern languages provide a convenient way to refer the
 function parameters by name also when you call the function. It is
 especially comfortable in case of a function having tons of parameters
-with natural default values. Sadly, C++ lack this amenity. 
+with natural default values. Sadly, C++ lack this amenity.
 
 However, with a crafty trick and with some little
 inconvenience, it is possible to emulate is.
 The example below shows how to do it.
 
 \code
-class namedFn 
+class namedFn
 {
   int _id;
   double _val;
   int _dim;
-  
+
   public:
   namedFn() : _id(0), _val(1), _dim(2) {}
   namedFn& id(int p)     { _id  = p ; return *this; }
@@ -45,9 +45,9 @@ class namedFn
   namedFn& dim(int p)    { _dim = p ; return *this; }
 
   run() {
-  std::cout << "Here comes the function itself\n" <<
-            << "With parameters "
-            << _id << ", " << _val << ", " << _dim << std::endl; 
+    std::cout << "Here comes the function itself\n" <<
+              << "With parameters "
+              << _id << ", " << _val << ", " << _dim << std::endl;
   }
 };
 \endcode
@@ -76,7 +76,7 @@ everywhere in LEMON.</b>
 
 \section named-templ-func-param Named Function Template Parameters
 
-A named parameter can also be a template functions. The usage is
+A named parameter can also be a template function. The usage is
 exactly the same, but the implementation behind is a kind of black
 magic and they are the dirtiest part of the LEMON code.
 
@@ -103,14 +103,14 @@ the class with new traits class, but instead adaptor classes can
 be used as shown in the following example.
 
 \code
-Dijkstra<>::SetPredNodeMap<NullMap<Node,Node> >::Create
+Dijkstra<>::SetPredMap<NullMap<Node,Arc> >::Create
 \endcode
 
 It can also be used in conjunction with other named template
 parameters in arbitrary order.
 
 \code
-Dijkstra<>::SetDistMap<MyMap>::SetPredMap<NullMap<Node,Edge> >::Create
+Dijkstra<>::SetDistMap<MyMap>::SetPredMap<NullMap<Node,Arc> >::Create
 \endcode
 
 The result will be an instantiated Dijkstra class, in which the
