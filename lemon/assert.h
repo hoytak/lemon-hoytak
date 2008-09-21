@@ -107,8 +107,10 @@ namespace lemon {
 #    define LEMON_FUNCTION_NAME (__PRETTY_FUNCTION__)
 #  elif defined _MSC_VER
 #    define LEMON_FUNCTION_NAME (__FUNCSIG__)
-#  else
+#  elif __STDC_VERSION__ >= 199901L
 #    define LEMON_FUNCTION_NAME (__func__)
+#  else
+#    define LEMON_FUNCTION_NAME ("<unknown>")
 #  endif
 #endif
 
