@@ -22,21 +22,14 @@
 
 \section named-func-param Named Function Parameters
 
-C++ makes it possible to use default parameter values when calling a
-function. In such a case we do not have to give value for parameters,
-the program will use the default ones.  Unfortunately sometimes this
-is not enough. If we do not want to give values for all the
-parameters, only for some of them we come across problems, because an
-arbitrary set of parameters cannot be omitted. On the other hand
-parameters have a fixed order in the head of the function.  C++ can
-apply the default values only in the back of the order, if we do not
-give other value for them.  So we can not give the function for
-example the value of the first, and the third parameter, expecting
-that the program will aplly the default value for the second
-parameter.  However sometimes we would like to use some functinos
-exactly in this way. With a crafty trick and with some little
-inconvenience this is possible. We have implemented this little trick
-as an example below.
+Several modern languages provide a convenient way to refer the
+function parameters by name also when you call the function. It is
+especially comfortable in case of a function having tons of parameters
+with natural default values. Sadly, C++ lack this amenity. 
+
+However, with a crafty trick and with some little
+inconvenience, it is possible to emulate is.
+The example below shows how to do it.
 
 \code
 class namedFn 
@@ -52,63 +45,62 @@ class namedFn
   namedFn& dim(int p)    { _dim = p ; return *this; }
 
   run() {
-    printf("Here is the function itself.");
+  std::cout << "Here comes the function itself\n" <<
+            << "With parameters "
+            << _id << ", " << _val << ", " << _dim << std::endl; 
   }
 };
 \endcode
 
+Then you can use it like this.
 
-The usage is the following.
-
-We have to define a class, let's call it \c namedFn.  Let us assume that
-we would like to use a parameter, called \c X. In the \c namedFn class we
-have to define an \c _X attribute, and a function \c X. The function
-expects a parameter with the type of \c _X, and sets the value of
-\c _X. After setting the value the function returns the class itself. The
-class also have to have a function, called for example <tt>run()</tt>, we have
-to implement here the original function itself. The constructor of the
-class have to give all the attributes like \c _X the default values of
-them.
-
-If we instantiate this class, the default values will be set for the
-attributes (originally the parameters), initially. If we call function
-\c X, we get a class with the modified parameter value of
-\c X. Therefore we can modify any parameter-value, independently from the
-order. To run the algorithm we have to call the <tt>run()</tt> function at the
-end of the row.
-
-Example:
 \code
 namedFn().id(3).val(2).run();
 \endcode
 
+The trick is obvious, each "named parameter" changes one component of
+the underlying class, then gives back a reference to it. Finally,
+<tt>run()</tt> executes the algorithm itself.
+
 \note Although it is a class, namedFn is used pretty much like as it were
-a function. That it why it is called namedFn and not \c NamedFn.
+a function. That it why we called it namedFn instead of \c NamedFn.
 
-\note In fact, the final <tt>.run()</tt> could be made unnecessary if the
-actual function code were put in the destructor instead. This however would make
-hard to implement functions with return values, and would also make the
-implementation of \ref named-templ-func-param "named template parameters"
-very problematic. <b>Therefore, by convention, <tt>.run()</tt> must be used
-to explicitly execute function having named parameters in Lemon.</b>
+\note In fact, the final <tt>.run()</tt> could be made unnecessary,
+because the algorithm could also be implemented in the destructor of
+\c namedFn instead. This however would make it impossible to implement
+functions with return values, and would also cause serious problems when
+implementing \ref named-templ-func-param "named template parameters".
+<b>Therefore, by convention, <tt>.run()</tt> must be used
+explicitly to execute a function having named parameters
+everywhere in LEMON.</b>
 
+\section named-templ-func-param Named Function Template Parameters
+
+A named parameter can also be a template functions. The usage is
+exactly the same, but the implementation behind is a kind of black
+magic and they are the dirtiest part of the LEMON code.
+
+You will probably never need to know how it works, but if you really
+committed, have a look at \ref lemon/graph_to_eps.h for an example.
 
 \section traits-classes Traits Classes
 
-The procedure above can also be applied when defining classes. In this
-case the type of the attributes can be changed.  Initially we have to
-define a class with the default attribute types. This is the so called
-Traits Class. Later on the types of these attributes can be changed,
-as described below. In our software \ref lemon::DijkstraDefaultTraits is an
-example of how a traits class looks like.
+A similar game can also be played when defining classes. In this case
+the type of the class attributes can be changed. Initially we have to
+define a special class called <em>Traits Class</em> defining the
+default type of the attributes. Then the types of these attributes can
+be changed in the same way as described in the next section.
+
+See \ref lemon::DijkstraDefaultTraits for an
+example how a traits class implementation looks like.
 
 \section named-templ-param Named Class Template Parameters
 
 If we would like to change the type of an attribute in a class that
 was instantiated by using a traits class as a template parameter, and
-the class contains named parameters, we do not have to reinstantiate
-the class with new traits class. Instead of that, adaptor classes can
-be used like in the following cases.
+the class contains named parameters, we do not have to instantiate again
+the class with new traits class, but instead adaptor classes can
+be used as shown in the following example.
 
 \code
 Dijkstra<>::SetPredNodeMap<NullMap<Node,Node> >::Create
@@ -123,11 +115,5 @@ Dijkstra<>::SetDistMap<MyMap>::SetPredMap<NullMap<Node,Edge> >::Create
 
 The result will be an instantiated Dijkstra class, in which the
 DistMap and the PredMap is modified.
-
-\section named-templ-func-param Named Function Template Parameters
-
-If the class has so called wizard functions, the new class with the
-modified tpye of attributes can be returned by the appropriate wizard
-function. The usage of these wizard functions is the following:
 
 */
