@@ -62,7 +62,6 @@ void checkBfsCompile()
   bool b;
   BType::DistMap d(G);
   BType::PredMap p(G);
-  //  BType::PredNodeMap pn(G);
 
   BType bfs_test(G);
 
@@ -72,9 +71,7 @@ void checkBfsCompile()
   e  = bfs_test.predArc(n);
   n  = bfs_test.predNode(n);
   d  = bfs_test.distMap();
-
   p  = bfs_test.predMap();
-  //  pn = bfs_test.predNodeMap();
   b  = bfs_test.reached(n);
 
   Path<Digraph> pp = bfs_test.path(n);
@@ -88,14 +85,30 @@ void checkBfsFunctionCompile()
   typedef Digraph::Node Node;
 
   Digraph g;
-  bfs(g,Node()).run();
-  bfs(g).source(Node()).run();
+  bool b;
+  bfs(g).run(Node());
+  b=bfs(g).run(Node(),Node());
+  bfs(g).run();
   bfs(g)
-    .predMap(concepts::WriteMap<Node,Arc>())
-    .distMap(concepts::WriteMap<Node,VType>())
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
     .reachedMap(concepts::ReadWriteMap<Node,bool>())
     .processedMap(concepts::WriteMap<Node,bool>())
     .run(Node());
+  b=bfs(g)
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
+    .reachedMap(concepts::ReadWriteMap<Node,bool>())
+    .processedMap(concepts::WriteMap<Node,bool>())
+    .path(concepts::Path<Digraph>())
+    .dist(VType())
+    .run(Node(),Node());
+  bfs(g)
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
+    .reachedMap(concepts::ReadWriteMap<Node,bool>())
+    .processedMap(concepts::WriteMap<Node,bool>())
+    .run();
 }
 
 template <class Digraph>
@@ -114,7 +127,7 @@ void checkBfs() {
   Bfs<Digraph> bfs_test(G);
   bfs_test.run(s);
 
-  check(bfs_test.dist(t)==2,"Bfs found a wrong path." << bfs_test.dist(t));
+  check(bfs_test.dist(t)==2,"Bfs found a wrong path.");
 
   Path<Digraph> p = bfs_test.path(t);
   check(p.length()==2,"path() found a wrong path.");
@@ -128,7 +141,7 @@ void checkBfs() {
     Node v=G.target(a);
     check( !bfs_test.reached(u) ||
            (bfs_test.dist(v) <= bfs_test.dist(u)+1),
-           "Wrong output." << G.id(v) << ' ' << G.id(u));
+           "Wrong output. " << G.id(u) << "->" << G.id(v));
   }
 
   for(NodeIt v(G); v!=INVALID; ++v) {
@@ -140,10 +153,14 @@ void checkBfs() {
         check(u==bfs_test.predNode(v),"Wrong tree.");
         check(bfs_test.dist(v) - bfs_test.dist(u) == 1,
               "Wrong distance. Difference: "
-              << std::abs(bfs_test.dist(v) - bfs_test.dist(u)
-                          - 1));
+              << std::abs(bfs_test.dist(v) - bfs_test.dist(u) - 1));
       }
     }
+  }
+
+  {
+    NullMap<Node,Arc> myPredMap;
+    bfs(G).predMap(myPredMap).run(s);
   }
 }
 
