@@ -27,8 +27,9 @@
 
 namespace lemon {
 
-  inline void assert_fail_log(const char *file, int line, const char *function,
-                              const char *message, const char *assertion)
+  inline void assert_fail_abort(const char *file, int line,
+                                const char *function, const char* message,
+                                const char *assertion)
   {
     std::cerr << file << ":" << line << ": ";
     if (function)
@@ -37,13 +38,6 @@ namespace lemon {
     if (assertion)
       std::cerr << " (assertion '" << assertion << "' failed)";
     std::cerr << std::endl;
-  }
-
-  inline void assert_fail_abort(const char *file, int line,
-                                const char *function, const char* message,
-                                const char *assertion)
-  {
-    assert_fail_log(file, line, function, message, assertion);
     std::abort();
   }
 
@@ -63,17 +57,14 @@ namespace lemon {
 #endif // LEMON_ASSERT_H
 
 #undef LEMON_ASSERT
-#undef LEMON_FIXME
 #undef LEMON_DEBUG
 
-#if (defined(LEMON_ASSERT_LOG) ? 1 : 0) +               \
-  (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +               \
+#if (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +               \
   (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) > 1
 #error "LEMON assertion system is not set properly"
 #endif
 
-#if ((defined(LEMON_ASSERT_LOG) ? 1 : 0) +              \
-     (defined(LEMON_ASSERT_ABORT) ? 1 : 0) +            \
+#if ((defined(LEMON_ASSERT_ABORT) ? 1 : 0) +            \
      (defined(LEMON_ASSERT_CUSTOM) ? 1 : 0) == 1 ||     \
      defined(LEMON_ENABLE_ASSERTS)) &&                  \
   (defined(LEMON_DISABLE_ASSERTS) ||                    \
@@ -82,10 +73,7 @@ namespace lemon {
 #endif
 
 
-#if defined LEMON_ASSERT_LOG
-#  undef LEMON_ASSERT_HANDLER
-#  define LEMON_ASSERT_HANDLER ::lemon::assert_fail_log
-#elif defined LEMON_ASSERT_ABORT
+#if defined LEMON_ASSERT_ABORT
 #  undef LEMON_ASSERT_HANDLER
 #  define LEMON_ASSERT_HANDLER ::lemon::assert_fail_abort
 #elif defined LEMON_ASSERT_CUSTOM
@@ -120,12 +108,12 @@ namespace lemon {
 ///
 /// \brief Macro for assertion with customizable message
 ///
-/// Macro for assertion with customizable message.  \param exp An
-/// expression that must be convertible to \c bool.  If it is \c
-/// false, then an assertion is raised. The concrete behaviour depends
-/// on the settings of the assertion system.  \param msg A <tt>const
-/// char*</tt> parameter, which can be used to provide information
-/// about the circumstances of the failed assertion.
+/// Macro for assertion with customizable message.  
+/// \param exp An expression that must be convertible to \c bool.  If it is \c
+/// false, then an assertion is raised. The concrete behaviour depends on the
+/// settings of the assertion system.
+/// \param msg A <tt>const char*</tt> parameter, which can be used to provide
+/// information about the circumstances of the failed assertion.
 ///
 /// The assertions are enabled in the default behaviour.
 /// You can disable them with the following code:
@@ -139,17 +127,12 @@ namespace lemon {
 /// \endcode
 /// The checking is also disabled when the standard macro \c NDEBUG is defined.
 ///
-/// The LEMON assertion system has a wide range of customization
-/// properties. As a default behaviour the failed assertion prints a
-/// short log message to the standard error and aborts the execution.
+/// As a default behaviour the failed assertion prints a short log message to
+/// the standard error and aborts the execution.
 ///
-/// The following modes can be used in the assertion system:
-///
-/// - \c LEMON_ASSERT_LOG The failed assertion prints a short log
-///   message to the standard error and continues the execution.
-/// - \c LEMON_ASSERT_ABORT This mode is similar to the \c
-///   LEMON_ASSERT_LOG, but it aborts the program. It is the default
-///   behaviour.
+/// However, the following modes can be used in the assertion system:
+/// - \c LEMON_ASSERT_ABORT The failed assertion prints a short log message to
+///   the standard error and aborts the program. It is the default behaviour.
 /// - \c LEMON_ASSERT_CUSTOM The user can define own assertion handler
 ///   function.
 ///   \code
@@ -174,22 +157,6 @@ namespace lemon {
     LEMON_ASSERT_HANDLER(__FILE__, __LINE__,                            \
                          LEMON_FUNCTION_NAME,                           \
                          ::lemon::_assert_bits::cstringify(msg), #exp), 0)))
-
-/// \ingroup exceptions
-///
-/// \brief Macro for mark not yet implemented features.
-///
-/// Macro for mark not yet implemented features and outstanding bugs.
-/// It is close to be the shortcut of the following code:
-/// \code
-///   LEMON_ASSERT(false, msg);
-/// \endcode
-///
-/// \see LEMON_ASSERT
-#  define LEMON_FIXME(msg)                                              \
-  (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,        \
-                        ::lemon::_assert_bits::cstringify(msg),         \
-                        static_cast<const char*>(0)))
 
 /// \ingroup exceptions
 ///
@@ -224,7 +191,6 @@ namespace lemon {
 
 #  ifndef LEMON_ASSERT_HANDLER
 #    define LEMON_ASSERT(exp, msg)  (static_cast<void>(0))
-#    define LEMON_FIXME(msg) (static_cast<void>(0))
 #    define LEMON_DEBUG(exp, msg) (static_cast<void>(0))
 #  else
 #    define LEMON_ASSERT(exp, msg)                                      \
@@ -233,11 +199,6 @@ namespace lemon {
                              LEMON_FUNCTION_NAME,                       \
                              ::lemon::_assert_bits::cstringify(msg),    \
                              #exp), 0)))
-#    define LEMON_FIXME(msg)                                            \
-       (LEMON_ASSERT_HANDLER(__FILE__, __LINE__, LEMON_FUNCTION_NAME,   \
-                             ::lemon::_assert_bits::cstringify(msg),    \
-                             static_cast<const char*>(0)))
-
 #    if LEMON_ENABLE_DEBUG
 #      define LEMON_DEBUG(exp, msg)                                     \
          (static_cast<void> (!!(exp) ? 0 : (                            \

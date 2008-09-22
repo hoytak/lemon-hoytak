@@ -47,14 +47,9 @@ void assertion_text_disable() {
   LEMON_ASSERT(false, "This is a fault message");
 }
 
-void fixme_disable() {
-  LEMON_FIXME("fixme_disable() is fixme!");
-}
-
 void check_assertion_disable() {
   no_assertion_text_disable();
   assertion_text_disable();
-  fixme_disable();
 }
 #undef LEMON_DISABLE_ASSERTS
 
@@ -78,15 +73,10 @@ void assertion_text_custom() {
   LEMON_ASSERT(false, "This is a fault message");
 }
 
-void fixme_custom() {
-  LEMON_FIXME("fixme_custom() is fixme!");
-}
-
 void check_assertion_custom() {
   no_assertion_text_custom();
   assertion_text_custom();
-  fixme_custom();
-  check(cnt == 2, "The custom assert handler does not work");
+  check(cnt == 1, "The custom assert handler does not work");
 }
 
 #undef LEMON_ASSERT_CUSTOM
