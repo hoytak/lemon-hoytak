@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_ARG_PARSER
-#define LEMON_ARG_PARSER
+#ifndef LEMON_ARG_PARSER_H
+#define LEMON_ARG_PARSER_H
 
 #include <vector>
 #include <map>
@@ -382,4 +382,4 @@ namespace lemon {
   };
 }
 
-#endif // LEMON_ARG_PARSER
+#endif // LEMON_ARG_PARSER_H

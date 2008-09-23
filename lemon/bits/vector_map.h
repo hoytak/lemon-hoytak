@@ -100,6 +100,7 @@ namespace lemon {
       container.resize(Parent::notifier()->maxId() + 1, value);
     }
 
+  private:
     /// \brief Copy constructor
     ///
     /// Copy constructor.

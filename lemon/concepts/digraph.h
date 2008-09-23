@@ -434,6 +434,7 @@ namespace lemon {
         ///\e
         NodeMap(const Digraph&, T) { }
 
+      private:
         ///Copy constructor
         NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
         ///Assignment operator
@@ -456,6 +457,7 @@ namespace lemon {
         ArcMap(const Digraph&) { }
         ///\e
         ArcMap(const Digraph&, T) { }
+      private:
         ///Copy constructor
         ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
         ///Assignment operator

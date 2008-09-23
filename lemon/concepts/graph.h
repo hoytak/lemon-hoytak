@@ -512,6 +512,7 @@ namespace lemon {
         ///\e
         NodeMap(const Graph&, T) { }
 
+      private:
         ///Copy constructor
         NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
         ///Assignment operator
@@ -535,6 +536,7 @@ namespace lemon {
         ArcMap(const Graph&) { }
         ///\e
         ArcMap(const Graph&, T) { }
+      private:
         ///Copy constructor
         ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
         ///Assignment operator
@@ -558,6 +560,7 @@ namespace lemon {
         EdgeMap(const Graph&) { }
         ///\e
         EdgeMap(const Graph&, T) { }
+      private:
         ///Copy constructor
         EdgeMap(const EdgeMap& em) : ReadWriteMap<Edge,T>(em) {}
         ///Assignment operator
