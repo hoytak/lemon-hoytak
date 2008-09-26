@@ -63,11 +63,11 @@ void digraph_copy_test() {
   ListDigraph::NodeMap<SmartDigraph::Node> ncr(to);
   ListDigraph::ArcMap<SmartDigraph::Arc> ecr(to);
 
-  DigraphCopy<ListDigraph, SmartDigraph>(to, from).
-    nodeMap(tnm, fnm).arcMap(tam, fam).
+  digraphCopy(from, to).
+    nodeMap(fnm, tnm).arcMap(fam, tam).
     nodeRef(nr).arcRef(er).
     nodeCrossRef(ncr).arcCrossRef(ecr).
-    node(tn, fn).arc(ta, fa).run();
+    node(fn, tn).arc(fa, ta).run();
 
   for (SmartDigraph::NodeIt it(from); it != INVALID; ++it) {
     check(ncr[nr[it]] == it, "Wrong copy.");
@@ -138,11 +138,11 @@ void graph_copy_test() {
   ListGraph::ArcMap<SmartGraph::Arc> acr(to);
   ListGraph::EdgeMap<SmartGraph::Edge> ecr(to);
 
-  GraphCopy<ListGraph, SmartGraph>(to, from).
-    nodeMap(tnm, fnm).arcMap(tam, fam).edgeMap(tem, fem).
+  graphCopy(from, to).
+    nodeMap(fnm, tnm).arcMap(fam, tam).edgeMap(fem, tem).
     nodeRef(nr).arcRef(ar).edgeRef(er).
     nodeCrossRef(ncr).arcCrossRef(acr).edgeCrossRef(ecr).
-    node(tn, fn).arc(ta, fa).edge(te, fe).run();
+    node(fn, tn).arc(fa, ta).edge(fe, te).run();
 
   for (SmartGraph::NodeIt it(from); it != INVALID; ++it) {
     check(ncr[nr[it]] == it, "Wrong copy.");
