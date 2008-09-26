@@ -607,11 +607,11 @@ namespace lemon {
     ///Executes the algorithm until the given target node is reached.
     ///
     ///This method runs the %BFS algorithm from the root node(s)
-    ///in order to compute the shortest path to \c dest.
+    ///in order to compute the shortest path to \c t.
     ///
     ///The algorithm computes
-    ///- the shortest path to \c dest,
-    ///- the distance of \c dest from the root(s).
+    ///- the shortest path to \c t,
+    ///- the distance of \c t from the root(s).
     ///
     ///\pre init() must be called and at least one root node should be
     ///added with addSource() before using this function.
@@ -623,10 +623,10 @@ namespace lemon {
     ///    b.processNextNode(t, reach);
     ///  }
     ///\endcode
-    void start(Node dest)
+    void start(Node t)
     {
       bool reach = false;
-      while ( !emptyQueue() && !reach ) processNextNode(dest, reach);
+      while ( !emptyQueue() && !reach ) processNextNode(t, reach);
     }
 
     ///Executes the algorithm until a condition is met.
@@ -664,7 +664,7 @@ namespace lemon {
       return rnode;
     }
 
-    ///Runs the algorithm from the given node.
+    ///Runs the algorithm from the given source node.
 
     ///This method runs the %BFS algorithm from node \c s
     ///in order to compute the shortest path to each node.
@@ -688,10 +688,10 @@ namespace lemon {
     ///Finds the shortest path between \c s and \c t.
 
     ///This method runs the %BFS algorithm from node \c s
-    ///in order to compute the shortest path to \c t.
+    ///in order to compute the shortest path to node \c t
+    ///(it stops searching when \c t is processed).
     ///
-    ///\return The length of the shortest <tt>s</tt>--<tt>t</tt> path,
-    ///if \c t is reachable form \c s, \c 0 otherwise.
+    ///\return \c true if \c t is reachable form \c s.
     ///
     ///\note Apart from the return value, <tt>b.run(s,t)</tt> is just a
     ///shortcut of the following code.
@@ -700,11 +700,11 @@ namespace lemon {
     ///  b.addSource(s);
     ///  b.start(t);
     ///\endcode
-    int run(Node s,Node t) {
+    bool run(Node s,Node t) {
       init();
       addSource(s);
       start(t);
-      return reached(t) ? _curr_dist : 0;
+      return reached(t);
     }
 
     ///Runs the algorithm to visit all nodes in the digraph.
@@ -1621,11 +1621,11 @@ namespace lemon {
     /// Executes the algorithm until the given target node is reached.
     ///
     /// This method runs the %BFS algorithm from the root node(s)
-    /// in order to compute the shortest path to \c dest.
+    /// in order to compute the shortest path to \c t.
     ///
     /// The algorithm computes
-    /// - the shortest path to \c dest,
-    /// - the distance of \c dest from the root(s).
+    /// - the shortest path to \c t,
+    /// - the distance of \c t from the root(s).
     ///
     /// \pre init() must be called and at least one root node should be
     /// added with addSource() before using this function.
@@ -1637,9 +1637,9 @@ namespace lemon {
     ///     b.processNextNode(t, reach);
     ///   }
     /// \endcode
-    void start(Node dest) {
+    void start(Node t) {
       bool reach = false;
-      while ( !emptyQueue() && !reach ) processNextNode(dest, reach);
+      while ( !emptyQueue() && !reach ) processNextNode(t, reach);
     }
 
     /// \brief Executes the algorithm until a condition is met.
@@ -1677,7 +1677,7 @@ namespace lemon {
       return rnode;
     }
 
-    /// \brief Runs the algorithm from the given node.
+    /// \brief Runs the algorithm from the given source node.
     ///
     /// This method runs the %BFS algorithm from node \c s
     /// in order to compute the shortest path to each node.
@@ -1696,6 +1696,28 @@ namespace lemon {
       init();
       addSource(s);
       start();
+    }
+
+    /// \brief Finds the shortest path between \c s and \c t.
+    ///
+    /// This method runs the %BFS algorithm from node \c s
+    /// in order to compute the shortest path to node \c t
+    /// (it stops searching when \c t is processed).
+    ///
+    /// \return \c true if \c t is reachable form \c s.
+    ///
+    /// \note Apart from the return value, <tt>b.run(s,t)</tt> is just a
+    /// shortcut of the following code.
+    ///\code
+    ///   b.init();
+    ///   b.addSource(s);
+    ///   b.start(t);
+    ///\endcode
+    bool run(Node s,Node t) {
+      init();
+      addSource(s);
+      start(t);
+      return reached(t);
     }
 
     /// \brief Runs the algorithm to visit all nodes in the digraph.

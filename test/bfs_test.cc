@@ -54,27 +54,52 @@ void checkBfsCompile()
 {
   typedef concepts::Digraph Digraph;
   typedef Bfs<Digraph> BType;
+  typedef Digraph::Node Node;
+  typedef Digraph::Arc Arc;
 
   Digraph G;
-  Digraph::Node n;
-  Digraph::Arc e;
+  Node s, t;
+  Arc e;
   int l;
   bool b;
   BType::DistMap d(G);
   BType::PredMap p(G);
+  Path<Digraph> pp;
 
-  BType bfs_test(G);
+  {
+    BType bfs_test(G);
 
-  bfs_test.run(n);
+    bfs_test.run(s);
+    bfs_test.run(s,t);
+    bfs_test.run();
 
-  l  = bfs_test.dist(n);
-  e  = bfs_test.predArc(n);
-  n  = bfs_test.predNode(n);
-  d  = bfs_test.distMap();
-  p  = bfs_test.predMap();
-  b  = bfs_test.reached(n);
+    l  = bfs_test.dist(t);
+    e  = bfs_test.predArc(t);
+    s  = bfs_test.predNode(t);
+    b  = bfs_test.reached(t);
+    d  = bfs_test.distMap();
+    p  = bfs_test.predMap();
+    pp = bfs_test.path(t);
+  }
+  {
+    BType
+      ::SetPredMap<concepts::ReadWriteMap<Node,Arc> >
+      ::SetDistMap<concepts::ReadWriteMap<Node,int> >
+      ::SetReachedMap<concepts::ReadWriteMap<Node,bool> >
+      ::SetProcessedMap<concepts::WriteMap<Node,bool> >
+      ::SetStandardProcessedMap
+      ::Create bfs_test(G);
 
-  Path<Digraph> pp = bfs_test.path(n);
+    bfs_test.run(s);
+    bfs_test.run(s,t);
+    bfs_test.run();
+
+    l  = bfs_test.dist(t);
+    e  = bfs_test.predArc(t);
+    s  = bfs_test.predNode(t);
+    b  = bfs_test.reached(t);
+    pp = bfs_test.path(t);
+  }
 }
 
 void checkBfsFunctionCompile()

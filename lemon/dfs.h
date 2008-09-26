@@ -558,17 +558,17 @@ namespace lemon {
     ///Executes the algorithm until the given target node is reached.
     ///
     ///This method runs the %DFS algorithm from the root node
-    ///in order to compute the DFS path to \c dest.
+    ///in order to compute the DFS path to \c t.
     ///
     ///The algorithm computes
-    ///- the %DFS path to \c dest,
-    ///- the distance of \c dest from the root in the %DFS tree.
+    ///- the %DFS path to \c t,
+    ///- the distance of \c t from the root in the %DFS tree.
     ///
     ///\pre init() must be called and a root node should be
     ///added with addSource() before using this function.
-    void start(Node dest)
+    void start(Node t)
     {
-      while ( !emptyQueue() && G->target(_stack[_stack_head])!=dest )
+      while ( !emptyQueue() && G->target(_stack[_stack_head])!=t )
         processNextArc();
     }
 
@@ -598,7 +598,7 @@ namespace lemon {
       return emptyQueue() ? INVALID : _stack[_stack_head];
     }
 
-    ///Runs the algorithm from the given node.
+    ///Runs the algorithm from the given source node.
 
     ///This method runs the %DFS algorithm from node \c s
     ///in order to compute the DFS path to each node.
@@ -622,10 +622,10 @@ namespace lemon {
     ///Finds the %DFS path between \c s and \c t.
 
     ///This method runs the %DFS algorithm from node \c s
-    ///in order to compute the DFS path to \c t.
+    ///in order to compute the DFS path to node \c t
+    ///(it stops searching when \c t is processed)
     ///
-    ///\return The length of the <tt>s</tt>--<tt>t</tt> DFS path,
-    ///if \c t is reachable form \c s, \c 0 otherwise.
+    ///\return \c true if \c t is reachable form \c s.
     ///
     ///\note Apart from the return value, <tt>d.run(s,t)</tt> is
     ///just a shortcut of the following code.
@@ -634,11 +634,11 @@ namespace lemon {
     ///  d.addSource(s);
     ///  d.start(t);
     ///\endcode
-    int run(Node s,Node t) {
+    bool run(Node s,Node t) {
       init();
       addSource(s);
       start(t);
-      return reached(t)?_stack_head+1:0;
+      return reached(t);
     }
 
     ///Runs the algorithm to visit all nodes in the digraph.
@@ -1526,16 +1526,16 @@ namespace lemon {
     /// Executes the algorithm until the given target node is reached.
     ///
     /// This method runs the %DFS algorithm from the root node
-    /// in order to compute the DFS path to \c dest.
+    /// in order to compute the DFS path to \c t.
     ///
     /// The algorithm computes
-    /// - the %DFS path to \c dest,
-    /// - the distance of \c dest from the root in the %DFS tree.
+    /// - the %DFS path to \c t,
+    /// - the distance of \c t from the root in the %DFS tree.
     ///
     /// \pre init() must be called and a root node should be added
     /// with addSource() before using this function.
-    void start(Node dest) {
-      while ( !emptyQueue() && _digraph->target(_stack[_stack_head]) != dest )
+    void start(Node t) {
+      while ( !emptyQueue() && _digraph->target(_stack[_stack_head]) != t )
         processNextArc();
     }
 
@@ -1564,7 +1564,7 @@ namespace lemon {
       return emptyQueue() ? INVALID : _stack[_stack_head];
     }
 
-    /// \brief Runs the algorithm from the given node.
+    /// \brief Runs the algorithm from the given source node.
     ///
     /// This method runs the %DFS algorithm from node \c s.
     /// in order to compute the DFS path to each node.
@@ -1588,10 +1588,10 @@ namespace lemon {
     /// \brief Finds the %DFS path between \c s and \c t.
 
     /// This method runs the %DFS algorithm from node \c s
-    /// in order to compute the DFS path to \c t.
+    /// in order to compute the DFS path to node \c t
+    /// (it stops searching when \c t is processed).
     ///
-    /// \return The length of the <tt>s</tt>--<tt>t</tt> DFS path,
-    /// if \c t is reachable form \c s, \c 0 otherwise.
+    /// \return \c true if \c t is reachable form \c s.
     ///
     /// \note Apart from the return value, <tt>d.run(s,t)</tt> is
     /// just a shortcut of the following code.
@@ -1600,11 +1600,11 @@ namespace lemon {
     ///   d.addSource(s);
     ///   d.start(t);
     ///\endcode
-    int run(Node s,Node t) {
+    bool run(Node s,Node t) {
       init();
       addSource(s);
       start(t);
-      return reached(t)?_stack_head+1:0;
+      return reached(t);
     }
 
     /// \brief Runs the algorithm to visit all nodes in the digraph.

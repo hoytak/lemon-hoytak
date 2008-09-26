@@ -728,23 +728,26 @@ namespace lemon {
       while ( !emptyQueue() ) processNextNode();
     }
 
-    ///Executes the algorithm until the given target node is reached.
+    ///Executes the algorithm until the given target node is processed.
 
-    ///Executes the algorithm until the given target node is reached.
+    ///Executes the algorithm until the given target node is processed.
     ///
     ///This method runs the %Dijkstra algorithm from the root node(s)
-    ///in order to compute the shortest path to \c dest.
+    ///in order to compute the shortest path to \c t.
     ///
     ///The algorithm computes
-    ///- the shortest path to \c dest,
-    ///- the distance of \c dest from the root(s).
+    ///- the shortest path to \c t,
+    ///- the distance of \c t from the root(s).
     ///
     ///\pre init() must be called and at least one root node should be
     ///added with addSource() before using this function.
-    void start(Node dest)
+    void start(Node t)
     {
-      while ( !_heap->empty() && _heap->top()!=dest ) processNextNode();
-      if ( !_heap->empty() ) finalizeNodeData(_heap->top(),_heap->prio());
+      while ( !_heap->empty() && _heap->top()!=t ) processNextNode();
+      if ( !_heap->empty() ) {
+        finalizeNodeData(_heap->top(),_heap->prio());
+        _heap->pop();
+      }
     }
 
     ///Executes the algorithm until a condition is met.
@@ -772,7 +775,7 @@ namespace lemon {
       return _heap->top();
     }
 
-    ///Runs the algorithm from the given node.
+    ///Runs the algorithm from the given source node.
 
     ///This method runs the %Dijkstra algorithm from node \c s
     ///in order to compute the shortest path to each node.
@@ -796,10 +799,10 @@ namespace lemon {
     ///Finds the shortest path between \c s and \c t.
 
     ///This method runs the %Dijkstra algorithm from node \c s
-    ///in order to compute the shortest path to \c t.
+    ///in order to compute the shortest path to node \c t
+    ///(it stops searching when \c t is processed).
     ///
-    ///\return The length of the shortest <tt>s</tt>--<tt>t</tt> path,
-    ///if \c t is reachable form \c s, \c 0 otherwise.
+    ///\return \c true if \c t is reachable form \c s.
     ///
     ///\note Apart from the return value, <tt>d.run(s,t)</tt> is just a
     ///shortcut of the following code.
@@ -808,11 +811,11 @@ namespace lemon {
     ///  d.addSource(s);
     ///  d.start(t);
     ///\endcode
-    Value run(Node s,Node t) {
+    bool run(Node s,Node t) {
       init();
       addSource(s);
       start(t);
-      return (*_pred)[t]==INVALID?OperationTraits::zero():(*_dist)[t];
+      return (*_heap_cross_ref)[t] == Heap::POST_HEAP;
     }
 
     ///@}
@@ -908,7 +911,7 @@ namespace lemon {
 
     ///Returns \c true if \c v is processed, i.e. the shortest
     ///path to \c v has already found.
-    ///\pre Either \ref run() or \ref start()
+    ///\pre Either \ref run() or \ref init()
     ///must be called before using this function.
     bool processed(Node v) const { return (*_heap_cross_ref)[v] ==
                                           Heap::POST_HEAP; }
@@ -917,8 +920,12 @@ namespace lemon {
 
     ///Returns the current distance of a node from the root(s).
     ///It may be decreased in the following processes.
-    ///\pre \c v should be reached but not processed.
-    Value currentDist(Node v) const { return (*_heap)[v]; }
+    ///\pre Either \ref run() or \ref init()
+    ///must be called before using this function and
+    ///node \c v must be reached but not necessarily processed.
+    Value currentDist(Node v) const {
+      return processed(v) ? (*_dist)[v] : (*_heap)[v];
+    }
 
     ///@}
   };
