@@ -20,7 +20,6 @@
 #include <lemon/smart_graph.h>
 #include <lemon/list_graph.h>
 #include <lemon/lgf_reader.h>
-
 #include <lemon/dfs.h>
 #include <lemon/path.h>
 
@@ -88,14 +87,30 @@ void checkDfsFunctionCompile()
   typedef Digraph::Node Node;
 
   Digraph g;
-  dfs(g,Node()).run();
-  dfs(g).source(Node()).run();
+  bool b;
+  dfs(g).run(Node());
+  b=dfs(g).run(Node(),Node());
+  dfs(g).run();
   dfs(g)
-    .predMap(concepts::WriteMap<Node,Arc>())
-    .distMap(concepts::WriteMap<Node,VType>())
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
     .reachedMap(concepts::ReadWriteMap<Node,bool>())
     .processedMap(concepts::WriteMap<Node,bool>())
     .run(Node());
+  b=dfs(g)
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
+    .reachedMap(concepts::ReadWriteMap<Node,bool>())
+    .processedMap(concepts::WriteMap<Node,bool>())
+    .path(concepts::Path<Digraph>())
+    .dist(VType())
+    .run(Node(),Node());
+  dfs(g)
+    .predMap(concepts::ReadWriteMap<Node,Arc>())
+    .distMap(concepts::ReadWriteMap<Node,VType>())
+    .reachedMap(concepts::ReadWriteMap<Node,bool>())
+    .processedMap(concepts::WriteMap<Node,bool>())
+    .run();
 }
 
 template <class Digraph>
@@ -129,9 +144,14 @@ void checkDfs() {
         check(u==dfs_test.predNode(v),"Wrong tree.");
         check(dfs_test.dist(v) - dfs_test.dist(u) == 1,
               "Wrong distance. (" << dfs_test.dist(u) << "->"
-              <<dfs_test.dist(v) << ')');
+              << dfs_test.dist(v) << ")");
       }
     }
+  }
+
+  {
+    NullMap<Node,Arc> myPredMap;
+    dfs(G).predMap(myPredMap).run(s);
   }
 }
 

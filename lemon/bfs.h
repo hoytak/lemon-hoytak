@@ -28,6 +28,7 @@
 #include <lemon/core.h>
 #include <lemon/error.h>
 #include <lemon/maps.h>
+#include <lemon/path.h>
 
 namespace lemon {
 
@@ -113,7 +114,7 @@ namespace lemon {
   ///\ingroup search
   ///This class provides an efficient implementation of the %BFS algorithm.
   ///
-  ///There is also a \ref bfs() "function type interface" for the BFS
+  ///There is also a \ref bfs() "function-type interface" for the BFS
   ///algorithm, which is convenient in the simplier cases and it can be
   ///used easier.
   ///
@@ -838,25 +839,22 @@ namespace lemon {
     ///The type of the map that stores the predecessor
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    typedef NullMap<typename Digraph::Node,typename Digraph::Arc> PredMap;
+    typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
     ///Instantiates a \ref PredMap.
 
     ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
     ///\ref PredMap.
-#ifdef DOXYGEN
     static PredMap *createPredMap(const Digraph &g)
-#else
-    static PredMap *createPredMap(const Digraph &)
-#endif
     {
-      return new PredMap();
+      return new PredMap(g);
     }
 
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \ref ProcessedMap.
 
@@ -891,21 +889,22 @@ namespace lemon {
 
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///
-    typedef NullMap<typename Digraph::Node,int> DistMap;
+    typedef typename Digraph::template NodeMap<int> DistMap;
     ///Instantiates a \ref DistMap.
 
     ///This function instantiates a \ref DistMap.
     ///\param g is the digraph, to which we would like to define
     ///the \ref DistMap
-#ifdef DOXYGEN
     static DistMap *createDistMap(const Digraph &g)
-#else
-    static DistMap *createDistMap(const Digraph &)
-#endif
     {
-      return new DistMap();
+      return new DistMap(g);
     }
+
+    ///The type of the shortest paths.
+
+    ///The type of the shortest paths.
+    ///It must meet the \ref concepts::Path "Path" concept.
+    typedef lemon::Path<Digraph> Path;
   };
 
   /// Default traits class used by \ref BfsWizard
@@ -935,51 +934,39 @@ namespace lemon {
     void *_pred;
     //Pointer to the map of distances.
     void *_dist;
-    //Pointer to the source node.
-    Node _source;
+    //Pointer to the shortest path to the target node.
+    void *_path;
+    //Pointer to the distance of the target node.
+    int *_di;
 
     public:
     /// Constructor.
 
     /// This constructor does not require parameters, therefore it initiates
-    /// all of the attributes to default values (0, INVALID).
+    /// all of the attributes to \c 0.
     BfsWizardBase() : _g(0), _reached(0), _processed(0), _pred(0),
-                      _dist(0), _source(INVALID) {}
+                      _dist(0), _path(0), _di(0) {}
 
     /// Constructor.
 
-    /// This constructor requires some parameters,
-    /// listed in the parameters list.
-    /// Others are initiated to 0.
+    /// This constructor requires one parameter,
+    /// others are initiated to \c 0.
     /// \param g The digraph the algorithm runs on.
-    /// \param s The source node.
-    BfsWizardBase(const GR &g, Node s=INVALID) :
+    BfsWizardBase(const GR &g) :
       _g(reinterpret_cast<void*>(const_cast<GR*>(&g))),
-      _reached(0), _processed(0), _pred(0), _dist(0), _source(s) {}
+      _reached(0), _processed(0), _pred(0), _dist(0),  _path(0), _di(0) {}
 
   };
 
-  /// Auxiliary class for the function type interface of BFS algorithm.
+  /// Auxiliary class for the function-type interface of BFS algorithm.
 
-  /// This auxiliary class is created to implement the function type
-  /// interface of \ref Bfs algorithm. It uses the functions and features
-  /// of the plain \ref Bfs, but it is much simpler to use it.
-  /// It should only be used through the \ref bfs() function, which makes
-  /// it easier to use the algorithm.
+  /// This auxiliary class is created to implement the
+  /// \ref bfs() "function-type interface" of \ref Bfs algorithm.
+  /// It does not have own \ref run() method, it uses the functions
+  /// and features of the plain \ref Bfs.
   ///
-  /// Simplicity means that the way to change the types defined
-  /// in the traits class is based on functions that returns the new class
-  /// and not on templatable built-in classes.
-  /// When using the plain \ref Bfs
-  /// the new class with the modified type comes from
-  /// the original class by using the ::
-  /// operator. In the case of \ref BfsWizard only
-  /// a function have to be called, and it will
-  /// return the needed class.
-  ///
-  /// It does not have own \ref run() method. When its \ref run() method
-  /// is called, it initiates a plain \ref Bfs object, and calls the
-  /// \ref Bfs::run() method of it.
+  /// This class should only be used through the \ref bfs() function,
+  /// which makes it easier to use the algorithm.
   template<class TR>
   class BfsWizard : public TR
   {
@@ -1002,6 +989,8 @@ namespace lemon {
     typedef typename TR::ReachedMap ReachedMap;
     ///\brief The type of the map that indicates which nodes are processed.
     typedef typename TR::ProcessedMap ProcessedMap;
+    ///The type of the shortest paths
+    typedef typename TR::Path Path;
 
   public:
 
@@ -1012,51 +1001,70 @@ namespace lemon {
 
     /// Constructor that requires parameters.
     /// These parameters will be the default values for the traits class.
-    BfsWizard(const Digraph &g, Node s=INVALID) :
-      TR(g,s) {}
+    /// \param g The digraph the algorithm runs on.
+    BfsWizard(const Digraph &g) :
+      TR(g) {}
 
     ///Copy constructor
     BfsWizard(const TR &b) : TR(b) {}
 
     ~BfsWizard() {}
 
-    ///Runs BFS algorithm from a source node.
+    ///Runs BFS algorithm from the given source node.
 
-    ///Runs BFS algorithm from a source node.
-    ///The node can be given with the \ref source() function.
-    void run()
-    {
-      if(Base::_source==INVALID) throw UninitializedParameter();
-      Bfs<Digraph,TR> alg(*reinterpret_cast<const Digraph*>(Base::_g));
-      if(Base::_reached)
-        alg.reachedMap(*reinterpret_cast<ReachedMap*>(Base::_reached));
-      if(Base::_processed)
-        alg.processedMap(*reinterpret_cast<ProcessedMap*>(Base::_processed));
-      if(Base::_pred)
-        alg.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
-      if(Base::_dist)
-        alg.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
-      alg.run(Base::_source);
-    }
-
-    ///Runs BFS algorithm from the given node.
-
-    ///Runs BFS algorithm from the given node.
-    ///\param s is the given source.
+    ///This method runs BFS algorithm from node \c s
+    ///in order to compute the shortest path to each node.
     void run(Node s)
     {
-      Base::_source=s;
-      run();
+      Bfs<Digraph,TR> alg(*reinterpret_cast<const Digraph*>(Base::_g));
+      if (Base::_pred)
+        alg.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
+      if (Base::_dist)
+        alg.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
+      if (Base::_reached)
+        alg.reachedMap(*reinterpret_cast<ReachedMap*>(Base::_reached));
+      if (Base::_processed)
+        alg.processedMap(*reinterpret_cast<ProcessedMap*>(Base::_processed));
+      if (s!=INVALID)
+        alg.run(s);
+      else
+        alg.run();
     }
 
-    /// Sets the source node, from which the Bfs algorithm runs.
+    ///Finds the shortest path between \c s and \c t.
 
-    /// Sets the source node, from which the Bfs algorithm runs.
-    /// \param s is the source node.
-    BfsWizard<TR> &source(Node s)
+    ///This method runs BFS algorithm from node \c s
+    ///in order to compute the shortest path to node \c t
+    ///(it stops searching when \c t is processed).
+    ///
+    ///\return \c true if \c t is reachable form \c s.
+    bool run(Node s, Node t)
     {
-      Base::_source=s;
-      return *this;
+      if (s==INVALID || t==INVALID) throw UninitializedParameter();
+      Bfs<Digraph,TR> alg(*reinterpret_cast<const Digraph*>(Base::_g));
+      if (Base::_pred)
+        alg.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
+      if (Base::_dist)
+        alg.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
+      if (Base::_reached)
+        alg.reachedMap(*reinterpret_cast<ReachedMap*>(Base::_reached));
+      if (Base::_processed)
+        alg.processedMap(*reinterpret_cast<ProcessedMap*>(Base::_processed));
+      alg.run(s,t);
+      if (Base::_path)
+        *reinterpret_cast<Path*>(Base::_path) = alg.path(t);
+      if (Base::_di)
+        *Base::_di = alg.dist(t);
+      return alg.reached(t);
+    }
+
+    ///Runs BFS algorithm to visit all nodes in the digraph.
+
+    ///This method runs BFS algorithm in order to compute
+    ///the shortest path to each node.
+    void run()
+    {
+      run(INVALID);
     }
 
     template<class T>
@@ -1065,10 +1073,10 @@ namespace lemon {
       static PredMap *createPredMap(const Digraph &) { return 0; };
       SetPredMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-templ-param "Named parameter"
+    ///\brief \ref named-func-param "Named parameter"
     ///for setting \ref PredMap object.
     ///
-    /// \ref named-templ-param "Named parameter"
+    ///\ref named-func-param "Named parameter"
     ///for setting \ref PredMap object.
     template<class T>
     BfsWizard<SetPredMapBase<T> > predMap(const T &t)
@@ -1083,10 +1091,10 @@ namespace lemon {
       static ReachedMap *createReachedMap(const Digraph &) { return 0; };
       SetReachedMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-templ-param "Named parameter"
+    ///\brief \ref named-func-param "Named parameter"
     ///for setting \ref ReachedMap object.
     ///
-    /// \ref named-templ-param "Named parameter"
+    /// \ref named-func-param "Named parameter"
     ///for setting \ref ReachedMap object.
     template<class T>
     BfsWizard<SetReachedMapBase<T> > reachedMap(const T &t)
@@ -1096,15 +1104,33 @@ namespace lemon {
     }
 
     template<class T>
+    struct SetDistMapBase : public Base {
+      typedef T DistMap;
+      static DistMap *createDistMap(const Digraph &) { return 0; };
+      SetDistMapBase(const TR &b) : TR(b) {}
+    };
+    ///\brief \ref named-func-param "Named parameter"
+    ///for setting \ref DistMap object.
+    ///
+    /// \ref named-func-param "Named parameter"
+    ///for setting \ref DistMap object.
+    template<class T>
+    BfsWizard<SetDistMapBase<T> > distMap(const T &t)
+    {
+      Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<SetDistMapBase<T> >(*this);
+    }
+
+    template<class T>
     struct SetProcessedMapBase : public Base {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
       SetProcessedMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-templ-param "Named parameter"
+    ///\brief \ref named-func-param "Named parameter"
     ///for setting \ref ProcessedMap object.
     ///
-    /// \ref named-templ-param "Named parameter"
+    /// \ref named-func-param "Named parameter"
     ///for setting \ref ProcessedMap object.
     template<class T>
     BfsWizard<SetProcessedMapBase<T> > processedMap(const T &t)
@@ -1114,37 +1140,49 @@ namespace lemon {
     }
 
     template<class T>
-    struct SetDistMapBase : public Base {
-      typedef T DistMap;
-      static DistMap *createDistMap(const Digraph &) { return 0; };
-      SetDistMapBase(const TR &b) : TR(b) {}
+    struct SetPathBase : public Base {
+      typedef T Path;
+      SetPathBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-templ-param "Named parameter"
-    ///for setting \ref DistMap object.
+    ///\brief \ref named-func-param "Named parameter"
+    ///for getting the shortest path to the target node.
     ///
-    /// \ref named-templ-param "Named parameter"
-    ///for setting \ref DistMap object.
+    ///\ref named-func-param "Named parameter"
+    ///for getting the shortest path to the target node.
     template<class T>
-    BfsWizard<SetDistMapBase<T> > distMap(const T &t)
+    BfsWizard<SetPathBase<T> > path(const T &t)
     {
-      Base::_dist=reinterpret_cast<void*>(const_cast<T*>(&t));
-      return BfsWizard<SetDistMapBase<T> >(*this);
+      Base::_path=reinterpret_cast<void*>(const_cast<T*>(&t));
+      return BfsWizard<SetPathBase<T> >(*this);
+    }
+
+    ///\brief \ref named-func-param "Named parameter"
+    ///for getting the distance of the target node.
+    ///
+    ///\ref named-func-param "Named parameter"
+    ///for getting the distance of the target node.
+    BfsWizard dist(const int &d)
+    {
+      Base::_di=const_cast<int*>(&d);
+      return *this;
     }
 
   };
 
-  ///Function type interface for Bfs algorithm.
+  ///Function-type interface for BFS algorithm.
 
   /// \ingroup search
-  ///Function type interface for Bfs algorithm.
+  ///Function-type interface for BFS algorithm.
   ///
-  ///This function also has several
-  ///\ref named-templ-func-param "named parameters",
+  ///This function also has several \ref named-func-param "named parameters",
   ///they are declared as the members of class \ref BfsWizard.
-  ///The following
-  ///example shows how to use these parameters.
+  ///The following examples show how to use these parameters.
   ///\code
-  ///  bfs(g,source).predMap(preds).run();
+  ///  // Compute shortest path from node s to each node
+  ///  bfs(g).predMap(preds).distMap(dists).run(s);
+  ///
+  ///  // Compute shortest path from s to t
+  ///  bool reached = bfs(g).path(p).dist(d).run(s,t);
   ///\endcode
   ///\warning Don't forget to put the \ref BfsWizard::run() "run()"
   ///to the end of the parameter list.
@@ -1152,9 +1190,9 @@ namespace lemon {
   ///\sa Bfs
   template<class GR>
   BfsWizard<BfsWizardBase<GR> >
-  bfs(const GR &g,typename GR::Node s=INVALID)
+  bfs(const GR &digraph)
   {
-    return BfsWizard<BfsWizardBase<GR> >(g,s);
+    return BfsWizard<BfsWizardBase<GR> >(digraph);
   }
 
 #ifdef DOXYGEN
