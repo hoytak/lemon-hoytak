@@ -54,7 +54,6 @@ namespace lemon {
     ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
     ///\ref PredMap.
-    ///\todo The digraph alone may be insufficient to initialize
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -64,7 +63,6 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \ref ProcessedMap.
 
@@ -196,8 +194,7 @@ namespace lemon {
     int _queue_head,_queue_tail,_queue_next_dist;
     int _curr_dist;
 
-    ///Creates the maps if necessary.
-    ///\todo Better memory allocation (instead of new).
+    //Creates the maps if necessary.
     void create_maps()
     {
       if(!_pred) {
@@ -848,7 +845,6 @@ namespace lemon {
     ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
     ///\ref PredMap.
-    ///\todo The digraph alone may be insufficient to initialize
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -1370,8 +1366,7 @@ namespace lemon {
     std::vector<typename Digraph::Node> _list;
     int _list_front, _list_back;
 
-    ///Creates the maps if necessary.
-    ///\todo Better memory allocation (instead of new).
+    //Creates the maps if necessary.
     void create_maps() {
       if(!_reached) {
         local_reached = true;

@@ -105,9 +105,6 @@ namespace lemon {
 
     /// Returns whether the given directed arc has the same orientation
     /// as the corresponding edge.
-    ///
-    /// \todo reference to the corresponding point of the undirected digraph
-    /// concept. "What does the direction of an edge mean?"
     static bool direction(const Arc &a) { return a.forward; }
 
     using Parent::first;

@@ -666,7 +666,6 @@ public:
   ///this function calls the algorithm itself, i.e. in this case
   ///it draws the graph.
   void run() {
-    //\todo better 'epsilon' would be nice here.
     const double EPSILON=1e-9;
     if(dontPrint) return;
 
@@ -707,7 +706,6 @@ public:
       double max_w=0;
       for(ArcIt e(g);e!=INVALID;++e)
         max_w=std::max(double(_arcWidths[e]),max_w);
-      //\todo better 'epsilon' would be nice here.
       if(max_w>EPSILON) {
         _arcWidthScale/=max_w;
       }
@@ -717,7 +715,6 @@ public:
       double max_s=0;
       for(NodeIt n(g);n!=INVALID;++n)
         max_s=std::max(double(_nodeSizes[n]),max_s);
-      //\todo better 'epsilon' would be nice here.
       if(max_s>EPSILON) {
         _nodeScale/=max_s;
       }
@@ -873,7 +870,6 @@ public:
            << -bb.left() << ' ' << -bb.bottom() << " translate\n";
       }
       else {
-        //\todo Verify centering
         double sc= std::min((A4HEIGHT-2*A4BORDER)/bb.width(),
                   (A4WIDTH-2*A4BORDER)/bb.height());
         os << ((A4WIDTH -2*A4BORDER)-sc*bb.height())/2 + A4BORDER << ' '
@@ -906,7 +902,6 @@ public:
           dim2::Point<double>
             dvec(mycoords[g.target(*i)]-mycoords[g.source(*i)]);
           double l=std::sqrt(dvec.normSquare());
-          //\todo better 'epsilon' would be nice here.
           dim2::Point<double> d(dvec/std::max(l,EPSILON));
           dim2::Point<double> m;
 //           m=dim2::Point<double>(mycoords[g.target(*i)]+

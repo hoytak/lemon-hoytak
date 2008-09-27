@@ -24,8 +24,6 @@
 ///\brief A basic tool to handle the anomalies of calculation with
 ///floating point numbers.
 ///
-///\todo It should be in a module like "Basic tools"
-
 
 namespace lemon {
 

@@ -36,8 +36,6 @@
 ///\file
 ///\brief Basic utilities for concept checking.
 ///
-///\todo Are we still using BOOST concept checking utility?
-///Is the BOOST copyright notice necessary?
 
 #ifndef LEMON_CONCEPT_CHECK_H
 #define LEMON_CONCEPT_CHECK_H
