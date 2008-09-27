@@ -484,8 +484,6 @@ namespace lemon {
   /// function.
   ///
   /// \sa CombineMap
-  ///
-  /// \todo Check the requirements.
   template <typename M1, typename M2>
   class ComposeMap : public MapBase<typename M2::Key, typename M1::Value> {
     const M1 &_m1;
@@ -540,8 +538,6 @@ namespace lemon {
   /// function.
   ///
   /// \sa ComposeMap
-  ///
-  /// \todo Check the requirements.
   template<typename M1, typename M2, typename F,
            typename V = typename F::result_type>
   class CombineMap : public MapBase<typename M1::Key, V> {

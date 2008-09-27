@@ -42,10 +42,9 @@ namespace lemon {
   /// automatically updates the map when a key is added to or erased from
   /// the map. This map type uses the std::vector to store the values.
   ///
-  /// \tparam _Notifier The AlterationNotifier that will notify this map.
+  /// \tparam _Graph The graph this map is attached to.
   /// \tparam _Item The item type of the graph items.
   /// \tparam _Value The value type of the map.
-  /// \todo Fix the doc: there is _Graph parameter instead of _Notifier.
   template <typename _Graph, typename _Item, typename _Value>
   class VectorMap
     : public ItemSetTraits<_Graph, _Item>::ItemNotifier::ObserverBase {

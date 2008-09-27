@@ -102,8 +102,6 @@ namespace lemon {
   protected:
     ///\e
 
-    ///\todo The good solution is boost::shared_ptr...
-    ///
     mutable std::auto_ptr<std::ostringstream> buf;
 
     ///\e

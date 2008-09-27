@@ -9,13 +9,14 @@ This utility just prints the length of the longest path
 in the revision graph from revison 0 to the current one.
 """
     exit(0)
-plist = os.popen("hg parents --template='{rev}\n'").readlines()
+plist = os.popen("HGRCPATH='' hg parents --template='{rev}\n'").readlines()
 if len(plist)>1:
     print "You are in the process of merging"
     exit(1)
 PAR = int(plist[0])
 
-f = os.popen("hg log -r 0:tip --template='{rev} {parents}\n'").readlines()
+f = os.popen("HGRCPATH='' hg log -r 0:tip --template='{rev} {parents}\n'").\
+    readlines()
 REV = -1
 lengths=[]
 for l in f:

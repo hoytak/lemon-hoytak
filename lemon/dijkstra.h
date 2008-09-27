@@ -144,7 +144,6 @@ namespace lemon {
     ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
     ///\ref PredMap.
-    ///\todo The digraph alone may be insufficient for the initialization
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -155,8 +154,6 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
-    ///\todo If it is set to a real map,
-    ///Dijkstra::processed() should read this.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \ref ProcessedMap.
 
@@ -297,8 +294,7 @@ namespace lemon {
     //Indicates if _heap is locally allocated (true) or not.
     bool local_heap;
 
-    ///Creates the maps if necessary.
-    ///\todo Better memory allocation (instead of new).
+    //Creates the maps if necessary.
     void create_maps()
     {
       if(!_pred) {
@@ -965,7 +961,6 @@ namespace lemon {
     ///This function instantiates a \ref HeapCrossRef.
     /// \param g is the digraph, to which we would like to define the
     /// HeapCrossRef.
-    /// \todo The digraph alone may be insufficient for the initialization
     static HeapCrossRef *createHeapCrossRef(const Digraph &g)
     {
       return new HeapCrossRef(g);
@@ -1001,7 +996,6 @@ namespace lemon {
     ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
     ///\ref PredMap.
-    ///\todo The digraph alone may be insufficient to initialize
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -1012,9 +1006,6 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
-    ///\todo If it is set to a real map,
-    ///Dijkstra::processed() should read this.
-    ///\todo named parameter to set this type, function to read and write.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \ref ProcessedMap.
 
@@ -1060,7 +1051,6 @@ namespace lemon {
   /// as well as the \ref Dijkstra class.
   /// The \ref DijkstraWizardBase is a class to be the default traits of the
   /// \ref DijkstraWizard class.
-  /// \todo More named parameters are required...
   template<class GR,class LM>
   class DijkstraWizardBase : public DijkstraWizardDefaultTraits<GR,LM>
   {
