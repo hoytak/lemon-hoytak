@@ -16,22 +16,8 @@
  *
  */
 
-// This file contains a modified version of the concept checking
-// utility from BOOST.
-// See the appropriate copyright notice below.
-
-// (C) Copyright Jeremy Siek 2000.
-// Distributed under the Boost Software License, Version 1.0. (See
-// accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
-//
-// Revision History:
-//   05 May   2001: Workarounds for HP aCC from Thomas Matelich. (Jeremy Siek)
-//   02 April 2001: Removed limits header altogether. (Jeremy Siek)
-//   01 April 2001: Modified to use new <boost/limits.hpp> header. (JMaddock)
-//
-
-// See http://www.boost.org/libs/concept_check for documentation.
+// The contents of this file was inspired by the concept checking
+// utility of the BOOST library (http://www.boost.org).
 
 ///\file
 ///\brief Basic utilities for concept checking.
