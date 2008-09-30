@@ -310,8 +310,9 @@ namespace lemon {
 
     ///This is the type of the return value of ArgParser::operator[]().
     ///It automatically converts to \c int, \c double, \c bool or
-    ///\c std::string if the type of the option matches, otherwise it
-    ///throws an exception (i.e. it performs runtime type checking).
+    ///\c std::string if the type of the option matches, which is checked
+    ///with an \ref LEMON_ASSERT "assertion" (i.e. it performs runtime
+    ///type checking).
     class RefType
     {
       const ArgParser &_parser;

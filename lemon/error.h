@@ -35,380 +35,238 @@ namespace lemon {
   /// \addtogroup exceptions
   /// @{
 
-  /// \brief Exception safe wrapper class.
+  /// \brief Generic exception class.
   ///
-  /// Exception safe wrapper class to implement the members of exceptions.
-  template <typename _Type>
-  class ExceptionMember {
-  public:
-    typedef _Type Type;
-
-    ExceptionMember() throw() {
-      try {
-        ptr.reset(new Type());
-      } catch (...) {}
-    }
-
-    ExceptionMember(const Type& type) throw() {
-      try {
-        ptr.reset(new Type());
-        if (ptr.get() == 0) return;
-        *ptr = type;
-      } catch (...) {}
-    }
-
-    ExceptionMember(const ExceptionMember& copy) throw() {
-      try {
-        if (!copy.valid()) return;
-        ptr.reset(new Type());
-        if (ptr.get() == 0) return;
-        *ptr = copy.get();
-      } catch (...) {}
-    }
-
-    ExceptionMember& operator=(const ExceptionMember& copy) throw() {
-      if (ptr.get() == 0) return;
-      try {
-        if (!copy.valid()) return;
-        *ptr = copy.get();
-      } catch (...) {}
-    }
-
-    void set(const Type& type) throw() {
-      if (ptr.get() == 0) return;
-      try {
-        *ptr = type;
-      } catch (...) {}
-    }
-
-    const Type& get() const {
-      return *ptr;
-    }
-
-    bool valid() const throw() {
-      return ptr.get() != 0;
-    }
-
-  private:
-    std::auto_ptr<_Type> ptr;
-  };
-
-  /// Exception-safe convenient error message builder class.
-
-  /// Helper class which provides a convenient ostream-like (operator <<
-  /// based) interface to create a string message. Mostly useful in
-  /// exception classes (therefore the name).
-  class ErrorMessage {
-  protected:
-    ///\e
-
-    mutable std::auto_ptr<std::ostringstream> buf;
-
-    ///\e
-    bool init() throw() {
-      try {
-        buf.reset(new std::ostringstream);
-      }
-      catch(...) {
-        buf.reset();
-      }
-      return buf.get();
-    }
-
-  public:
-
-    ///\e
-    ErrorMessage() throw() { init(); }
-
-    ErrorMessage(const ErrorMessage& em) throw() : buf(em.buf) { }
-
-    ///\e
-    ErrorMessage(const char *msg) throw() {
-      init();
-      *this << msg;
-    }
-
-    ///\e
-    ErrorMessage(const std::string &msg) throw() {
-      init();
-      *this << msg;
-    }
-
-    ///\e
-    template <typename T>
-    ErrorMessage& operator<<(const T &t) throw() {
-      if( ! buf.get() ) return *this;
-
-      try {
-        *buf << t;
-      }
-      catch(...) {
-        buf.reset();
-      }
-      return *this;
-    }
-
-    ///\e
-    const char* message() throw() {
-      if( ! buf.get() ) return 0;
-
-      const char* mes = 0;
-      try {
-        mes = buf->str().c_str();
-      }
-      catch(...) {}
-      return mes;
-    }
-
-  };
-
-  /// Generic exception class.
-
   /// Base class for exceptions used in LEMON.
   ///
   class Exception : public std::exception {
   public:
-    ///\e
+    ///\e Constructor
     Exception() {}
-    ///\e
+    ///\e Virtual destructor
     virtual ~Exception() throw() {}
-    ///\e
+    ///\e A short description of the exception
     virtual const char* what() const throw() {
       return "lemon::Exception";
     }
   };
 
-  /// One of the two main subclasses of \ref Exception.
-
-  /// Logic errors represent problems in the internal logic of a program;
-  /// in theory, these are preventable, and even detectable before the
-  /// program runs (e.g. violations of class invariants).
+  /// \brief Input-Output error
   ///
-  /// A typical example for this is \ref UninitializedParameter.
-  class LogicError : public Exception {
-  public:
-    virtual const char* what() const throw() {
-      return "lemon::LogicError";
-    }
-  };
-
-  /// \ref Exception for uninitialized parameters.
-
-  /// This error represents problems in the initialization
-  /// of the parameters of the algorithms.
-  class UninitializedParameter : public LogicError {
-  public:
-    virtual const char* what() const throw() {
-      return "lemon::UninitializedParameter";
-    }
-  };
-
-
-  /// One of the two main subclasses of \ref Exception.
-
-  /// Runtime errors represent problems outside the scope of a program;
-  /// they cannot be easily predicted and can generally only be caught
-  /// as the program executes.
-  class RuntimeError : public Exception {
-  public:
-    virtual const char* what() const throw() {
-      return "lemon::RuntimeError";
-    }
-  };
-
-  ///\e
-  class RangeError : public RuntimeError {
-  public:
-    virtual const char* what() const throw() {
-      return "lemon::RangeError";
-    }
-  };
-
-  ///\e
-  class IoError : public RuntimeError {
-  public:
-    virtual const char* what() const throw() {
-      return "lemon::IoError";
-    }
-  };
-
-  ///\e
-  class DataFormatError : public IoError {
+  /// This exception is thrown when a file operation cannot be
+  /// succeeded.
+  class IoError : public Exception {
   protected:
-    ExceptionMember<std::string> _message;
-    ExceptionMember<std::string> _file;
+    std::string _message;
+    std::string _file;
+
+    mutable std::string _what;
+  public:
+
+    /// Copy constructor
+    IoError(const IoError &error) {
+      message(error._message);
+      file(error._file);
+    }
+
+    /// Constructor
+    explicit IoError(const char *message) {
+      IoError::message(message);
+    }
+
+    /// Constructor
+    explicit IoError(const std::string &message) {
+      IoError::message(message);
+    }
+
+    /// Constructor
+    IoError(const std::string &file, const char *message) {
+      IoError::message(message);
+      IoError::file(file);
+    }
+
+    /// Constructor
+    IoError(const std::string &file, const std::string &message) {
+      IoError::message(message);
+      IoError::file(file);
+    }
+
+    /// Virtual destructor
+    virtual ~IoError() throw() {}
+
+    /// Set the error message
+    void message(const char *message) {
+      try {
+        _message = message;
+      } catch (...) {}
+    }
+
+    /// Set the error message
+    void message(const std::string& message) {
+      try {
+        _message = message;
+      } catch (...) {}
+    }
+
+    /// Set the file name
+    void file(const std::string &file) {
+      try {
+        _file = file;
+      } catch (...) {}
+    }
+
+    /// Returns the error message
+    const std::string& message() const {
+      return _message;
+    }
+
+    /// \brief Returns the filename
+    ///
+    /// Returns the filename or empty string if the filename was not
+    /// specified.
+    const std::string& file() const {
+      return _file;
+    }
+
+    /// \brief Returns a short error message
+    ///
+    /// Returns a short error message which contains the message, the
+    /// file name and the line number.
+    virtual const char* what() const throw() {
+      try {
+        _what.clear();
+        std::ostringstream oss;
+        oss << "lemon:IoError" << ": ";
+        oss << message();
+        if (!file().empty()) {
+          oss << " (";
+          if (!file().empty()) oss << "with file '" << file() << "'";
+          oss << ")";
+        }
+        _what = oss.str();
+      }
+      catch (...) {}
+      if (!_what.empty()) return _what.c_str();
+      else return "lemon:IoError";
+    }
+
+  };
+
+  /// \brief Format error
+  ///
+  /// This class is used to indicate if an input file has wrong
+  /// formatting, or a data representation is not legal.
+  class FormatError : public Exception {
+  protected:
+    std::string _message;
+    std::string _file;
     int _line;
 
-    mutable ExceptionMember<std::string> _message_holder;
+    mutable std::string _what;
   public:
 
-    DataFormatError(const DataFormatError &dfe) :
-      IoError(dfe), _message(dfe._message), _file(dfe._file),
-      _line(dfe._line) {}
+    /// Copy constructor
+    FormatError(const FormatError &error) {
+      message(error._message);
+      file(error._file);
+      line(error._line);
+    }
 
-    ///\e
-    explicit DataFormatError(const char *the_message)
-      : _message(the_message), _line(0) {}
+    /// Constructor
+    explicit FormatError(const char *message) {
+      FormatError::message(message);
+      _line = 0;
+    }
 
-    ///\e
-    DataFormatError(const std::string &file_name, int line_num,
-                    const char *the_message)
-      : _message(the_message), _line(line_num) { file(file_name); }
+    /// Constructor
+    explicit FormatError(const std::string &message) {
+      FormatError::message(message);
+      _line = 0;
+    }
 
-    ///\e
-    void line(int ln) { _line = ln; }
-    ///\e
-    void message(const std::string& msg) { _message.set(msg); }
-    ///\e
-    void file(const std::string &fl) { _file.set(fl); }
+    /// Constructor
+    FormatError(const std::string &file, int line, const char *message) {
+      FormatError::message(message);
+      FormatError::file(file);
+      FormatError::line(line);
+    }
 
-    ///\e
+    /// Constructor
+    FormatError(const std::string &file, int line, const std::string &message) {
+      FormatError::message(message);
+      FormatError::file(file);
+      FormatError::line(line);
+    }
+
+    /// Virtual destructor
+    virtual ~FormatError() throw() {}
+
+    /// Set the line number
+    void line(int line) { _line = line; }
+
+    /// Set the error message
+    void message(const char *message) {
+      try {
+        _message = message;
+      } catch (...) {}
+    }
+
+    /// Set the error message
+    void message(const std::string& message) {
+      try {
+        _message = message;
+      } catch (...) {}
+    }
+
+    /// Set the file name
+    void file(const std::string &file) {
+      try {
+        _file = file;
+      } catch (...) {}
+    }
+
+    /// \brief Returns the line number
+    ///
+    /// Returns the line number or zero if it was not specified.
     int line() const { return _line; }
-    ///\e
-    const char* message() const {
-      if (_message.valid() && !_message.get().empty()) {
-        return _message.get().c_str();
-      } else {
-        return 0;
-      }
+
+    /// Returns the error message
+    const std::string& message() const {
+      return _message;
     }
 
-    /// \brief Returns the filename.
+    /// \brief Returns the filename
     ///
-    /// Returns \e null if the filename was not specified.
-    const char* file() const {
-      if (_file.valid() && !_file.get().empty()) {
-        return _file.get().c_str();
-      } else {
-        return 0;
-      }
+    /// Returns the filename or empty string if the filename was not
+    /// specified.
+    const std::string& file() const {
+      return _file;
     }
 
-    ///\e
+    /// \brief Returns a short error message
+    ///
+    /// Returns a short error message which contains the message, the
+    /// file name and the line number.
     virtual const char* what() const throw() {
       try {
-        std::ostringstream ostr;
-        ostr << "lemon:DataFormatError" << ": ";
-        if (message()) ostr << message();
-        if( file() || line() != 0 ) {
-          ostr << " (";
-          if( file() ) ostr << "in file '" << file() << "'";
-          if( file() && line() != 0 ) ostr << " ";
-          if( line() != 0 ) ostr << "at line " << line();
-          ostr << ")";
+        _what.clear();
+        std::ostringstream oss;
+        oss << "lemon:FormatError" << ": ";
+        oss << message();
+        if (!file().empty() || line() != 0) {
+          oss << " (";
+          if (!file().empty()) oss << "in file '" << file() << "'";
+          if (!file().empty() && line() != 0) oss << " ";
+          if (line() != 0) oss << "at line " << line();
+          oss << ")";
         }
-        _message_holder.set(ostr.str());
+        _what = oss.str();
       }
       catch (...) {}
-      if( _message_holder.valid()) return _message_holder.get().c_str();
-      return "lemon:DataFormatError";
+      if (!_what.empty()) return _what.c_str();
+      else return "lemon:FormatError";
     }
 
-    virtual ~DataFormatError() throw() {}
-  };
-
-  ///\e
-  class FileOpenError : public IoError {
-  protected:
-    ExceptionMember<std::string> _file;
-
-    mutable ExceptionMember<std::string> _message_holder;
-  public:
-
-    FileOpenError(const FileOpenError &foe) :
-      IoError(foe), _file(foe._file) {}
-
-    ///\e
-    explicit FileOpenError(const std::string& fl)
-      : _file(fl) {}
-
-
-    ///\e
-    void file(const std::string &fl) { _file.set(fl); }
-
-    /// \brief Returns the filename.
-    ///
-    /// Returns \e null if the filename was not specified.
-    const char* file() const {
-      if (_file.valid() && !_file.get().empty()) {
-        return _file.get().c_str();
-      } else {
-        return 0;
-      }
-    }
-
-    ///\e
-    virtual const char* what() const throw() {
-      try {
-        std::ostringstream ostr;
-        ostr << "lemon::FileOpenError" << ": ";
-        ostr << "Cannot open file - " << file();
-        _message_holder.set(ostr.str());
-      }
-      catch (...) {}
-      if( _message_holder.valid()) return _message_holder.get().c_str();
-      return "lemon::FileOpenError";
-    }
-    virtual ~FileOpenError() throw() {}
-  };
-
-  class IoParameterError : public IoError {
-  protected:
-    ExceptionMember<std::string> _message;
-    ExceptionMember<std::string> _file;
-
-    mutable ExceptionMember<std::string> _message_holder;
-  public:
-
-    IoParameterError(const IoParameterError &ile) :
-      IoError(ile), _message(ile._message), _file(ile._file) {}
-
-    ///\e
-    explicit IoParameterError(const char *the_message)
-      : _message(the_message) {}
-
-    ///\e
-    IoParameterError(const char *file_name, const char *the_message)
-      : _message(the_message), _file(file_name) {}
-
-     ///\e
-    void message(const std::string& msg) { _message.set(msg); }
-    ///\e
-    void file(const std::string &fl) { _file.set(fl); }
-
-     ///\e
-    const char* message() const {
-      if (_message.valid()) {
-        return _message.get().c_str();
-      } else {
-        return 0;
-      }
-    }
-
-    /// \brief Returns the filename.
-    ///
-    /// Returns \c 0 if the filename was not specified.
-    const char* file() const {
-      if (_file.valid()) {
-        return _file.get().c_str();
-      } else {
-        return 0;
-      }
-    }
-
-    ///\e
-    virtual const char* what() const throw() {
-      try {
-        std::ostringstream ostr;
-        if (message()) ostr << message();
-        if (file()) ostr << "(when reading file '" << file() << "')";
-        _message_holder.set(ostr.str());
-      }
-      catch (...) {}
-      if( _message_holder.valid() ) return _message_holder.get().c_str();
-      return "lemon:IoParameterError";
-    }
-    virtual ~IoParameterError() throw() {}
   };
 
   /// @}

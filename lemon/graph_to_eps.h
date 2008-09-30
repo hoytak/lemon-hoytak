@@ -40,6 +40,7 @@
 #include<lemon/maps.h>
 #include<lemon/color.h>
 #include<lemon/bits/bezier.h>
+#include<lemon/error.h>
 
 
 ///\ingroup eps_io
@@ -1166,8 +1167,13 @@ template<class G>
 GraphToEps<DefaultGraphToEpsTraits<G> >
 graphToEps(G &g,const char *file_name)
 {
+  std::ostream* os = new std::ofstream(file_name);
+  if (!(*os)) {
+    delete os;
+    throw IoError(file_name, "Cannot write file");
+  }
   return GraphToEps<DefaultGraphToEpsTraits<G> >
-    (DefaultGraphToEpsTraits<G>(g,*new std::ofstream(file_name),true));
+    (DefaultGraphToEpsTraits<G>(g,*os,true));
 }
 
 ///Generates an EPS file from a graph
@@ -1182,8 +1188,13 @@ template<class G>
 GraphToEps<DefaultGraphToEpsTraits<G> >
 graphToEps(G &g,const std::string& file_name)
 {
+  std::ostream* os = new std::ofstream(file_name.c_str());
+  if (!(*os)) {
+    delete os;
+    throw IoError(file_name, "Cannot write file");
+  }
   return GraphToEps<DefaultGraphToEpsTraits<G> >
-    (DefaultGraphToEpsTraits<G>(g,*new std::ofstream(file_name.c_str()),true));
+    (DefaultGraphToEpsTraits<G>(g,*os,true));
 }
 
 } //END OF NAMESPACE LEMON

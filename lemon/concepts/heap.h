@@ -129,7 +129,6 @@ namespace lemon {
       /// already stored in the heap.
       /// Otherwise it inserts the given item with the given priority.
       ///
-      /// It may throw an \ref UnderflowPriorityException.
       /// \param i The item.
       /// \param p The priority.
       void set(const Item &i, const Prio &p) {}

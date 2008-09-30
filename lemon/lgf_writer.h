@@ -55,7 +55,7 @@ namespace lemon {
 
     template <typename T>
     bool operator<(const T&, const T&) {
-      throw DataFormatError("Label map is not comparable");
+      throw FormatError("Label map is not comparable");
     }
 
     template <typename _Map>
@@ -203,7 +203,7 @@ namespace lemon {
         typename std::map<Value, std::string>::const_iterator it =
           _map.find(str);
         if (it == _map.end()) {
-          throw DataFormatError("Item not found");
+          throw FormatError("Item not found");
         }
         return it->second;
       }
@@ -223,7 +223,7 @@ namespace lemon {
         typename std::map<typename Graph::Edge, std::string>
           ::const_iterator it = _map.find(val);
         if (it == _map.end()) {
-          throw DataFormatError("Item not found");
+          throw FormatError("Item not found");
         }
         return (_graph.direction(val) ? '+' : '-') + it->second;
       }
@@ -462,7 +462,9 @@ namespace lemon {
     /// output file.
     DigraphWriter(const std::string& fn, const Digraph& digraph)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
-        _skip_nodes(false), _skip_arcs(false) {}
+        _skip_nodes(false), _skip_arcs(false) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Constructor
     ///
@@ -470,7 +472,9 @@ namespace lemon {
     /// output file.
     DigraphWriter(const char* fn, const Digraph& digraph)
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
-        _skip_nodes(false), _skip_arcs(false) {}
+        _skip_nodes(false), _skip_arcs(false) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Destructor
     ~DigraphWriter() {
@@ -1018,7 +1022,9 @@ namespace lemon {
     /// output file.
     GraphWriter(const std::string& fn, const Graph& graph)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _graph(graph),
-        _skip_nodes(false), _skip_edges(false) {}
+        _skip_nodes(false), _skip_edges(false) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Constructor
     ///
@@ -1026,7 +1032,9 @@ namespace lemon {
     /// output file.
     GraphWriter(const char* fn, const Graph& graph)
       : _os(new std::ofstream(fn)), local_os(true), _graph(graph),
-        _skip_nodes(false), _skip_edges(false) {}
+        _skip_nodes(false), _skip_edges(false) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Destructor
     ~GraphWriter() {
@@ -1576,13 +1584,17 @@ namespace lemon {
     ///
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const std::string& fn)
-      : _os(new std::ofstream(fn.c_str())), local_os(true) {}
+      : _os(new std::ofstream(fn.c_str())), local_os(true) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Constructor
     ///
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const char* fn)
-      : _os(new std::ofstream(fn)), local_os(true) {}
+      : _os(new std::ofstream(fn)), local_os(true) {
+      if (!(*_os)) throw IoError(fn, "Cannot write file");
+    }
 
     /// \brief Destructor
     ~SectionWriter() {

@@ -49,7 +49,7 @@ int main() {
       node("source", s).             // read 'source' node to s
       node("target", t).             // read 'target' node to t
       run();
-  } catch (DataFormatError& error) { // check if there was any error
+  } catch (Exception& error) { // check if there was any error
     std::cerr << "Error: " << error.what() << std::endl;
     return -1;
   }

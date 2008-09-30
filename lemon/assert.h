@@ -108,7 +108,7 @@ namespace lemon {
 ///
 /// \brief Macro for assertion with customizable message
 ///
-/// Macro for assertion with customizable message.  
+/// Macro for assertion with customizable message.
 /// \param exp An expression that must be convertible to \c bool.  If it is \c
 /// false, then an assertion is raised. The concrete behaviour depends on the
 /// settings of the assertion system.
