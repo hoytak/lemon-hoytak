@@ -136,16 +136,6 @@ namespace lemon {
 #endif
   class Dfs {
   public:
-    ///\ref Exception for uninitialized parameters.
-
-    ///This error represents problems in the initialization of the
-    ///parameters of the algorithm.
-    class UninitializedParameter : public lemon::UninitializedParameter {
-    public:
-      virtual const char* what() const throw() {
-        return "lemon::Dfs::UninitializedParameter";
-      }
-    };
 
     ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
@@ -232,7 +222,8 @@ namespace lemon {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "PredMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -250,7 +241,8 @@ namespace lemon {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "DistMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -268,7 +260,8 @@ namespace lemon {
       typedef T ReachedMap;
       static ReachedMap *createReachedMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "ReachedMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -286,7 +279,8 @@ namespace lemon {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "ProcessedMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -974,7 +968,6 @@ namespace lemon {
     ///\return \c true if \c t is reachable form \c s.
     bool run(Node s, Node t)
     {
-      if (s==INVALID || t==INVALID) throw UninitializedParameter();
       Dfs<Digraph,TR> alg(*reinterpret_cast<const Digraph*>(Base::_g));
       if (Base::_pred)
         alg.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
@@ -1270,18 +1263,6 @@ namespace lemon {
   class DfsVisit {
   public:
 
-    /// \brief \ref Exception for uninitialized parameters.
-    ///
-    /// This error represents problems in the initialization
-    /// of the parameters of the algorithm.
-    class UninitializedParameter : public lemon::UninitializedParameter {
-    public:
-      virtual const char* what() const throw()
-      {
-        return "lemon::DfsVisit::UninitializedParameter";
-      }
-    };
-
     ///The traits class.
     typedef _Traits Traits;
 
@@ -1336,7 +1317,8 @@ namespace lemon {
     struct SetReachedMapTraits : public Traits {
       typedef T ReachedMap;
       static ReachedMap *createReachedMap(const Digraph &digraph) {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "ReachedMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     /// \brief \ref named-templ-param "Named parameter" for setting

@@ -225,16 +225,6 @@ namespace lemon {
 #endif
   class Dijkstra {
   public:
-    ///\ref Exception for uninitialized parameters.
-
-    ///This error represents problems in the initialization of the
-    ///parameters of the algorithm.
-    class UninitializedParameter : public lemon::UninitializedParameter {
-    public:
-      virtual const char* what() const throw() {
-        return "lemon::Dijkstra::UninitializedParameter";
-      }
-    };
 
     ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
@@ -332,7 +322,8 @@ namespace lemon {
       typedef T PredMap;
       static PredMap *createPredMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "PredMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -351,7 +342,8 @@ namespace lemon {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "DistMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -370,7 +362,8 @@ namespace lemon {
       typedef T ProcessedMap;
       static ProcessedMap *createProcessedMap(const Digraph &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "ProcessedMap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -408,11 +401,13 @@ namespace lemon {
       typedef CR HeapCrossRef;
       typedef H Heap;
       static HeapCrossRef *createHeapCrossRef(const Digraph &) {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "HeapCrossRef is not initialized");
+        return 0; // ignore warnings
       }
       static Heap *createHeap(HeapCrossRef &)
       {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "Heap is not initialized");
+        return 0; // ignore warnings
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
@@ -1158,7 +1153,6 @@ namespace lemon {
     ///in order to compute the shortest path to each node.
     void run(Node s)
     {
-      if (s==INVALID) throw UninitializedParameter();
       Dijkstra<Digraph,LengthMap,TR>
         dijk(*reinterpret_cast<const Digraph*>(Base::_g),
              *reinterpret_cast<const LengthMap*>(Base::_length));
@@ -1180,7 +1174,6 @@ namespace lemon {
     ///\return \c true if \c t is reachable form \c s.
     bool run(Node s, Node t)
     {
-      if (s==INVALID || t==INVALID) throw UninitializedParameter();
       Dijkstra<Digraph,LengthMap,TR>
         dijk(*reinterpret_cast<const Digraph*>(Base::_g),
              *reinterpret_cast<const LengthMap*>(Base::_length));
