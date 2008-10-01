@@ -1258,7 +1258,7 @@ namespace lemon {
 #else
   template <typename _Digraph = ListDigraph,
             typename _Visitor = DfsVisitor<_Digraph>,
-            typename _Traits = DfsDefaultTraits<_Digraph> >
+            typename _Traits = DfsVisitDefaultTraits<_Digraph> >
 #endif
   class DfsVisit {
   public:

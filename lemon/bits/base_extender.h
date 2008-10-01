@@ -298,12 +298,12 @@ namespace lemon {
     public:
       Red() {}
       Red(const Node& node) : Node(node) {
-        LEMON_ASSERT(Parent::red(node) || node == INVALID,
-                     typename Parent::NodeSetError());
+        LEMON_DEBUG(Parent::red(node) || node == INVALID,
+                    typename Parent::NodeSetError());
       }
       Red& operator=(const Node& node) {
-        LEMON_ASSERT(Parent::red(node) || node == INVALID,
-                     typename Parent::NodeSetError());
+        LEMON_DEBUG(Parent::red(node) || node == INVALID,
+                    typename Parent::NodeSetError());
         Node::operator=(node);
         return *this;
       }
@@ -330,12 +330,12 @@ namespace lemon {
     public:
       Blue() {}
       Blue(const Node& node) : Node(node) {
-        LEMON_ASSERT(Parent::blue(node) || node == INVALID,
-                     typename Parent::NodeSetError());
+        LEMON_DEBUG(Parent::blue(node) || node == INVALID,
+                    typename Parent::NodeSetError());
       }
       Blue& operator=(const Node& node) {
-        LEMON_ASSERT(Parent::blue(node) || node == INVALID,
-                     typename Parent::NodeSetError());
+        LEMON_DEBUG(Parent::blue(node) || node == INVALID,
+                    typename Parent::NodeSetError());
         Node::operator=(node);
         return *this;
       }
