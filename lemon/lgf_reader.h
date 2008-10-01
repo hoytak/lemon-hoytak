@@ -516,7 +516,7 @@ namespace lemon {
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Constructor
@@ -528,7 +528,7 @@ namespace lemon {
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Destructor
@@ -879,7 +879,7 @@ namespace lemon {
             maps.find(_node_maps[i].first);
           if (jt == maps.end()) {
             std::ostringstream msg;
-            msg << "Map not found in file: " << _node_maps[i].first;
+            msg << "Map not found: " << _node_maps[i].first;
             throw FormatError(msg.str());
           }
           map_index[i] = jt->second;
@@ -908,7 +908,7 @@ namespace lemon {
           }
         }
         if (line >> std::ws >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         Node n;
         if (!_use_nodes) {
@@ -917,7 +917,7 @@ namespace lemon {
             _node_index.insert(std::make_pair(tokens[label_index], n));
         } else {
           if (label_index == -1)
-            throw FormatError("Label map not found in file");
+            throw FormatError("Label map not found");
           typename std::map<std::string, Node>::iterator it =
             _node_index.find(tokens[label_index]);
           if (it == _node_index.end()) {
@@ -972,7 +972,7 @@ namespace lemon {
             maps.find(_arc_maps[i].first);
           if (jt == maps.end()) {
             std::ostringstream msg;
-            msg << "Map not found in file: " << _arc_maps[i].first;
+            msg << "Map not found: " << _arc_maps[i].first;
             throw FormatError(msg.str());
           }
           map_index[i] = jt->second;
@@ -1010,7 +1010,7 @@ namespace lemon {
           }
         }
         if (line >> std::ws >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         Arc a;
         if (!_use_arcs) {
@@ -1038,7 +1038,7 @@ namespace lemon {
             _arc_index.insert(std::make_pair(tokens[label_index], a));
         } else {
           if (label_index == -1)
-            throw FormatError("Label map not found in file");
+            throw FormatError("Label map not found");
           typename std::map<std::string, Arc>::iterator it =
             _arc_index.find(tokens[label_index]);
           if (it == _arc_index.end()) {
@@ -1073,13 +1073,13 @@ namespace lemon {
         if (!_reader_bits::readToken(line, token))
           throw FormatError("Attribute value not found");
         if (line >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         {
           std::set<std::string>::iterator it = read_attr.find(attr);
           if (it != read_attr.end()) {
             std::ostringstream msg;
-            msg << "Multiple occurence of attribute " << attr;
+            msg << "Multiple occurence of attribute: " << attr;
             throw FormatError(msg.str());
           }
           read_attr.insert(attr);
@@ -1101,7 +1101,7 @@ namespace lemon {
            it != _attributes.end(); ++it) {
         if (read_attr.find(it->first) == read_attr.end()) {
           std::ostringstream msg;
-          msg << "Attribute not found in file: " << it->first;
+          msg << "Attribute not found: " << it->first;
           throw FormatError(msg.str());
         }
       }
@@ -1117,9 +1117,6 @@ namespace lemon {
     /// This function starts the batch processing
     void run() {
       LEMON_ASSERT(_is != 0, "This reader assigned to an other reader");
-      if (!*_is) {
-        throw FormatError("Cannot find file");
-      }
 
       bool nodes_done = _skip_nodes;
       bool arcs_done = _skip_arcs;
@@ -1138,7 +1135,7 @@ namespace lemon {
           _reader_bits::readToken(line, caption);
 
           if (line >> c)
-            throw FormatError("Extra character on the end of line");
+            throw FormatError("Extra character at the end of line");
 
           if (section == "nodes" && !nodes_done) {
             if (_nodes_caption.empty() || _nodes_caption == caption) {
@@ -1308,7 +1305,7 @@ namespace lemon {
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Constructor
@@ -1320,7 +1317,7 @@ namespace lemon {
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Destructor
@@ -1715,7 +1712,7 @@ namespace lemon {
             maps.find(_node_maps[i].first);
           if (jt == maps.end()) {
             std::ostringstream msg;
-            msg << "Map not found in file: " << _node_maps[i].first;
+            msg << "Map not found: " << _node_maps[i].first;
             throw FormatError(msg.str());
           }
           map_index[i] = jt->second;
@@ -1744,7 +1741,7 @@ namespace lemon {
           }
         }
         if (line >> std::ws >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         Node n;
         if (!_use_nodes) {
@@ -1753,7 +1750,7 @@ namespace lemon {
             _node_index.insert(std::make_pair(tokens[label_index], n));
         } else {
           if (label_index == -1)
-            throw FormatError("Label map not found in file");
+            throw FormatError("Label map not found");
           typename std::map<std::string, Node>::iterator it =
             _node_index.find(tokens[label_index]);
           if (it == _node_index.end()) {
@@ -1808,7 +1805,7 @@ namespace lemon {
             maps.find(_edge_maps[i].first);
           if (jt == maps.end()) {
             std::ostringstream msg;
-            msg << "Map not found in file: " << _edge_maps[i].first;
+            msg << "Map not found: " << _edge_maps[i].first;
             throw FormatError(msg.str());
           }
           map_index[i] = jt->second;
@@ -1846,7 +1843,7 @@ namespace lemon {
           }
         }
         if (line >> std::ws >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         Edge e;
         if (!_use_edges) {
@@ -1874,7 +1871,7 @@ namespace lemon {
             _edge_index.insert(std::make_pair(tokens[label_index], e));
         } else {
           if (label_index == -1)
-            throw FormatError("Label map not found in file");
+            throw FormatError("Label map not found");
           typename std::map<std::string, Edge>::iterator it =
             _edge_index.find(tokens[label_index]);
           if (it == _edge_index.end()) {
@@ -1909,13 +1906,13 @@ namespace lemon {
         if (!_reader_bits::readToken(line, token))
           throw FormatError("Attribute value not found");
         if (line >> c)
-          throw FormatError("Extra character on the end of line");
+          throw FormatError("Extra character at the end of line");
 
         {
           std::set<std::string>::iterator it = read_attr.find(attr);
           if (it != read_attr.end()) {
             std::ostringstream msg;
-            msg << "Multiple occurence of attribute " << attr;
+            msg << "Multiple occurence of attribute: " << attr;
             throw FormatError(msg.str());
           }
           read_attr.insert(attr);
@@ -1937,7 +1934,7 @@ namespace lemon {
            it != _attributes.end(); ++it) {
         if (read_attr.find(it->first) == read_attr.end()) {
           std::ostringstream msg;
-          msg << "Attribute not found in file: " << it->first;
+          msg << "Attribute not found: " << it->first;
           throw FormatError(msg.str());
         }
       }
@@ -1972,7 +1969,7 @@ namespace lemon {
           _reader_bits::readToken(line, caption);
 
           if (line >> c)
-            throw FormatError("Extra character on the end of line");
+            throw FormatError("Extra character at the end of line");
 
           if (section == "nodes" && !nodes_done) {
             if (_nodes_caption.empty() || _nodes_caption == caption) {
@@ -2095,7 +2092,7 @@ namespace lemon {
     SectionReader(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true),
         _filename(fn) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Constructor
@@ -2104,7 +2101,7 @@ namespace lemon {
     SectionReader(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true),
         _filename(fn) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Destructor
@@ -2261,11 +2258,11 @@ namespace lemon {
           _reader_bits::readToken(line, caption);
 
           if (line >> c)
-            throw FormatError("Extra character on the end of line");
+            throw FormatError("Extra character at the end of line");
 
           if (extra_sections.find(section) != extra_sections.end()) {
             std::ostringstream msg;
-            msg << "Multiple occurence of section " << section;
+            msg << "Multiple occurence of section: " << section;
             throw FormatError(msg.str());
           }
           Sections::iterator it = _sections.find(section);
@@ -2387,7 +2384,7 @@ namespace lemon {
     /// file.
     LgfContents(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Constructor
@@ -2396,7 +2393,7 @@ namespace lemon {
     /// file.
     LgfContents(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {
-      if (!(*_is)) throw IoError(fn, "Cannot open file");
+      if (!(*_is)) throw IoError("Cannot open file", fn);
     }
 
     /// \brief Destructor

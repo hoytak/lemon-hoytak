@@ -463,7 +463,7 @@ namespace lemon {
     DigraphWriter(const std::string& fn, const Digraph& digraph)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Constructor
@@ -473,7 +473,7 @@ namespace lemon {
     DigraphWriter(const char* fn, const Digraph& digraph)
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Destructor
@@ -1023,7 +1023,7 @@ namespace lemon {
     GraphWriter(const std::string& fn, const Graph& graph)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Constructor
@@ -1033,7 +1033,7 @@ namespace lemon {
     GraphWriter(const char* fn, const Graph& graph)
       : _os(new std::ofstream(fn)), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Destructor
@@ -1585,7 +1585,7 @@ namespace lemon {
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Constructor
@@ -1593,7 +1593,7 @@ namespace lemon {
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const char* fn)
       : _os(new std::ofstream(fn)), local_os(true) {
-      if (!(*_os)) throw IoError(fn, "Cannot write file");
+      if (!(*_os)) throw IoError("Cannot write file", fn);
     }
 
     /// \brief Destructor

@@ -1170,7 +1170,7 @@ graphToEps(G &g,const char *file_name)
   std::ostream* os = new std::ofstream(file_name);
   if (!(*os)) {
     delete os;
-    throw IoError(file_name, "Cannot write file");
+    throw IoError("Cannot write file", file_name);
   }
   return GraphToEps<DefaultGraphToEpsTraits<G> >
     (DefaultGraphToEpsTraits<G>(g,*os,true));
@@ -1191,7 +1191,7 @@ graphToEps(G &g,const std::string& file_name)
   std::ostream* os = new std::ofstream(file_name.c_str());
   if (!(*os)) {
     delete os;
-    throw IoError(file_name, "Cannot write file");
+    throw IoError("Cannot write file", file_name);
   }
   return GraphToEps<DefaultGraphToEpsTraits<G> >
     (DefaultGraphToEpsTraits<G>(g,*os,true));
