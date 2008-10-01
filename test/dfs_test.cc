@@ -146,7 +146,7 @@ void checkDfs() {
   Node s, t;
 
   std::istringstream input(test_lgf);
-  digraphReader(input, G).
+  digraphReader(G, input).
     node("source", s).
     node("target", t).
     run();

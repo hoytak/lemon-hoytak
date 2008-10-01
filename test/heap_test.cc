@@ -167,7 +167,7 @@ int main() {
   Node source;
 
   std::istringstream input(test_lgf);
-  digraphReader(input, digraph).
+  digraphReader(digraph, input).
     arcMap("capacity", length).
     node("source", source).
     run();

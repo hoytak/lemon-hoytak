@@ -142,7 +142,7 @@ void checkDijkstra() {
   LengthMap length(G);
 
   std::istringstream input(test_lgf);
-  digraphReader(input, G).
+  digraphReader(G, input).
     arcMap("length", length).
     node("source", s).
     node("target", t).
