@@ -463,7 +463,10 @@ namespace lemon {
     DigraphWriter(const Digraph& digraph, const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -473,7 +476,10 @@ namespace lemon {
     DigraphWriter(const Digraph& digraph, const char* fn)
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Destructor
@@ -1024,7 +1030,10 @@ namespace lemon {
     GraphWriter(const Graph& graph, const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -1034,7 +1043,10 @@ namespace lemon {
     GraphWriter(const Graph& graph, const char* fn)
       : _os(new std::ofstream(fn)), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Destructor
@@ -1587,7 +1599,10 @@ namespace lemon {
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -1595,7 +1610,10 @@ namespace lemon {
     /// Construct a section writer, which writes into the given file.
     SectionWriter(const char* fn)
       : _os(new std::ofstream(fn)), local_os(true) {
-      if (!(*_os)) throw IoError("Cannot write file", fn);
+      if (!(*_os)) {
+        delete _os;
+        throw IoError("Cannot write file", fn);
+      }
     }
 
     /// \brief Destructor

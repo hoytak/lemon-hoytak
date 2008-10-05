@@ -517,7 +517,10 @@ namespace lemon {
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -529,7 +532,10 @@ namespace lemon {
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Destructor
@@ -1308,7 +1314,10 @@ namespace lemon {
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -1320,7 +1329,10 @@ namespace lemon {
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Destructor
@@ -2094,7 +2106,10 @@ namespace lemon {
     SectionReader(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true),
         _filename(fn) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -2103,7 +2118,10 @@ namespace lemon {
     SectionReader(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true),
         _filename(fn) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Destructor
@@ -2386,7 +2404,10 @@ namespace lemon {
     /// file.
     LgfContents(const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Constructor
@@ -2395,7 +2416,10 @@ namespace lemon {
     /// file.
     LgfContents(const char* fn)
       : _is(new std::ifstream(fn)), local_is(true) {
-      if (!(*_is)) throw IoError("Cannot open file", fn);
+      if (!(*_is)) {
+        delete _is;
+        throw IoError("Cannot open file", fn);
+      }
     }
 
     /// \brief Destructor
