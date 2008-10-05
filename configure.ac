@@ -21,6 +21,9 @@ AC_CONFIG_HEADERS([config.h lemon/config.h])
 
 lx_cmdline_cxxflags_set=${CXXFLAGS+set}
 
+dnl Do compilation tests using the C++ compiler.
+AC_LANG([C++])
+
 dnl Checks for programs.
 AC_PROG_CXX
 AC_PROG_CXXCPP
@@ -31,8 +34,19 @@ AC_PROG_LIBTOOL
 AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
 AC_CHECK_PROG([gs_found],[gs],[yes],[no])
 
+dnl Detect Intel compiler.
+AC_MSG_CHECKING([whether we are using the Intel C++ compiler])
+AC_COMPILE_IFELSE([#ifndef __INTEL_COMPILER
+choke me
+#endif], [ICC=[yes]], [ICC=[no]])
+if test x"$ICC" = x"yes"; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
 dnl Set custom compiler flags when using g++.
-if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes; then
+if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes -a "$ICC" = no; then
   CXXFLAGS="$CXXFLAGS -Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
 fi
 
