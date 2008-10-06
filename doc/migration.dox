@@ -1,0 +1,61 @@
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library.
+ *
+ * Copyright (C) 2003-2008
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+/*!
+
+\page migration Migration from the 0.x Series
+
+This guide gives an in depth description on what has changed compared
+to the 0.x release series. 
+
+Many of these changes adjusted automatically by the
+<tt>script/lemon-0.x-to-1.x.sh</tt> tool. Those requiring manual
+update are typeset <b>boldface</b>.
+
+\section migration-graph Graph Related Name Changes
+
+- Directed graphs are called \c Digraph and they have <tt>Arc</tt>s
+  instead of <tt>Edge</tt>s, while the undirected graph is called \c
+  Graph (instead of \c UGraph) and they have <tt>Edge</tt>s (instead
+  of <tt>UEdge</tt>s). This changes reflected thoroughly everywhere in
+  the library. Namely,
+  - \c Graph -> \c Digraph
+    - \c ListGraph -> \c ListDigraph, \c SmartGraph -> \c SmartDigraph etc.
+  - \c UGraph -> \c Graph
+    - \c ListUGraph -> \c ListGraph, \c SmartUGraph -> \c SmartGraph etc.
+  - \c Edge -> \c Arc
+  - \c UEdge -> \c Edge
+  - \c EdgeMap -> \c ArcMap
+  - \c UEdgeMap -> \c EdgeMap
+  - Class names and function names containing the words \e edge or \e arc
+    should also be updated.
+- <b>The two endpoints of an (\e undirected) \c Edge can be obtained by the
+  <tt>u()</tt> and <tt>v()</tt> member function of the graph class
+  (instead of <tt>source()</tt> and <tt>target()</tt>). This change
+  must be done by hand.</b>
+  \n Of course, you can still use <tt>source()</tt> and <tt>target()</tt>
+  for <tt>Arc</tt>s (directed edges).
+
+\section migration-lgf LGF tools
+
+\section migration-search BFS, DFS and Dijkstra
+
+\section migration-error Exceptions and Debug tools
+
+\section migration-other Others
+*/
