@@ -16,12 +16,13 @@
  *
  */
 
+namespace lemon {
 /*!
 
 \page migration Migration from the 0.x Series
 
 This guide gives an in depth description on what has changed compared
-to the 0.x release series. 
+to the 0.x release series.
 
 Many of these changes adjusted automatically by the
 <tt>script/lemon-0.x-to-1.x.sh</tt> tool. Those requiring manual
@@ -29,33 +30,76 @@ update are typeset <b>boldface</b>.
 
 \section migration-graph Graph Related Name Changes
 
-- Directed graphs are called \c Digraph and they have <tt>Arc</tt>s
-  instead of <tt>Edge</tt>s, while the undirected graph is called \c
-  Graph (instead of \c UGraph) and they have <tt>Edge</tt>s (instead
-  of <tt>UEdge</tt>s). This changes reflected thoroughly everywhere in
+- \ref concepts::Digraph "Directed graphs" are called \c Digraph and
+  they have <tt>Arc</tt>s (instead of <tt>Edge</tt>s), while
+  \ref concepts::Graph "undirected graphs" are called \c Graph
+  (instead of \c UGraph) and they have <tt>Edge</tt>s (instead of
+  <tt>UEdge</tt>s). These changes reflected thoroughly everywhere in
   the library. Namely,
   - \c Graph -> \c Digraph
-    - \c ListGraph -> \c ListDigraph, \c SmartGraph -> \c SmartDigraph etc.
+    - \c %ListGraph -> \c ListDigraph, \c %SmartGraph -> \c SmartDigraph etc.
   - \c UGraph -> \c Graph
     - \c ListUGraph -> \c ListGraph, \c SmartUGraph -> \c SmartGraph etc.
-  - \c Edge -> \c Arc
-  - \c UEdge -> \c Edge
-  - \c EdgeMap -> \c ArcMap
-  - \c UEdgeMap -> \c EdgeMap
-  - Class names and function names containing the words \e edge or \e arc
-    should also be updated.
+  - \c Edge -> \c Arc, \c UEdge -> \c Edge
+  - \c EdgeMap -> \c ArcMap, \c UEdgeMap -> \c EdgeMap
+  - \c EdgeIt -> \c ArcIt, \c UEdgeIt -> \c EdgeIt
+  - Class names and function names containing the words \c graph,
+    \c ugraph, \e edge or \e arc should also be updated.
 - <b>The two endpoints of an (\e undirected) \c Edge can be obtained by the
-  <tt>u()</tt> and <tt>v()</tt> member function of the graph class
+  <tt>u()</tt> and <tt>v()</tt> member function of the graph
   (instead of <tt>source()</tt> and <tt>target()</tt>). This change
   must be done by hand.</b>
   \n Of course, you can still use <tt>source()</tt> and <tt>target()</tt>
   for <tt>Arc</tt>s (directed edges).
 
+\warning
+<b>The <tt>script/lemon-0.x-to-1.x.sh</tt> tool replaces all instances of
+the words \c graph, \c digraph, \c edge and \c arc, so it replaces them
+in strings, comments etc. as well as in all identifiers.</b>
+
 \section migration-lgf LGF tools
 
 \section migration-search BFS, DFS and Dijkstra
+- <b>Using the function interface of BFS, DFS and %Dijkstra both source and
+  target nodes can be given as parameters of the <tt>run()</tt> function
+  (instead of \c bfs(), \c dfs() or \c dijkstra() itself).</b>
+- \ref named-templ-param "Named class template parameters" of \c Bfs,
+  \c Dfs, \c Dijkstra, \c BfsVisit, \c DfsVisit are renamed to start
+  with "Set" instead of "Def". Namely,
+  - \c DefPredMap -> \c SetPredMap
+  - \c DefDistMap -> \c SetDistMap
+  - \c DefReachedMap -> \c SetReachedMap
+  - \c DefProcessedMap -> \c SetProcessedMap
+  - \c DefHeap -> \c SetHeap
+  - \c DefStandardHeap -> \c SetStandardHeap
+  - \c DefOperationTraits -> \c SetOperationTraits
+  - \c DefProcessedMapToBeDefaultMap -> \c SetStandardProcessedMap
 
 \section migration-error Exceptions and Debug tools
 
 \section migration-other Others
+- <b>The contents of <tt>graph_utils.h</tt> are moved to <tt>core.h</tt>
+  and <tt>maps.h</tt>. <tt>core.h</tt> is included by all graph types,
+  therefore it usually do not have to be included directly.</b>
+- <b><tt>path_utils.h</tt> is merged to \c path.h.</b>
+- <b>The parameters of the graph copying tools (i.e. \c GraphCopy,
+  \c DigraphCopy) have to be given in the from-to order.</b>
+- \c copyDigraph() and \c copyGraph() are renamed to \c digraphCopy()
+  and \c graphCopy(), respectively.
+- The of
+ - DefXyzMap --> SetXyzMap
+ - DefHeap --> SetHeap
+ - DefStandardHeap --> SetStandardHeap
+ - DefOperationTraits --> SetOperationTraits
+ - DefProcessedMapToBeDefaultMap --> SetStandardProcessedMap
+- Some map types should also been renamed. Namely,
+  - \c IntegerMap -> \c RangeMap
+  - \c StdMap -> \c SparseMap
+  - \c FunctorMap -> \c FunctorToMap
+  - \c MapFunctor -> \c MapToFunctor
+  - \c ForkWriteMap -> \c ForkMap
+  - \c StoreBoolMap -> \c LoggerBoolMap
+- \c dim2::BoundingBox -> \c dim2::Box
+
 */
+}
