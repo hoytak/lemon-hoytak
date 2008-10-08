@@ -391,15 +391,37 @@ namespace lemon {
   template <typename Digraph>
   class DigraphReader;
 
+  /// \brief Return a \ref DigraphReader class
+  ///
+  /// This function just returns a \ref DigraphReader class.
+  /// \relates DigraphReader
   template <typename Digraph>
   DigraphReader<Digraph> digraphReader(Digraph& digraph,
-                                       std::istream& is = std::cin);
+                                       std::istream& is = std::cin) {
+    DigraphReader<Digraph> tmp(digraph, is);
+    return tmp;
+  }
 
+  /// \brief Return a \ref DigraphReader class
+  ///
+  /// This function just returns a \ref DigraphReader class.
+  /// \relates DigraphReader
   template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const std::string& fn);
+  DigraphReader<Digraph> digraphReader(Digraph& digraph,
+                                       const std::string& fn) {
+    DigraphReader<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
 
+  /// \brief Return a \ref DigraphReader class
+  ///
+  /// This function just returns a \ref DigraphReader class.
+  /// \relates DigraphReader
   template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const char *fn);
+  DigraphReader<Digraph> digraphReader(Digraph& digraph, const char* fn) {
+    DigraphReader<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
 
   /// \ingroup lemon_io
   ///
@@ -1189,50 +1211,38 @@ namespace lemon {
 
   };
 
-  /// \brief Return a \ref DigraphReader class
-  ///
-  /// This function just returns a \ref DigraphReader class.
-  /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph,
-                                       std::istream& is = std::cin) {
-    DigraphReader<Digraph> tmp(digraph, is);
-    return tmp;
-  }
-
-  /// \brief Return a \ref DigraphReader class
-  ///
-  /// This function just returns a \ref DigraphReader class.
-  /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph,
-                                       const std::string& fn) {
-    DigraphReader<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
-
-  /// \brief Return a \ref DigraphReader class
-  ///
-  /// This function just returns a \ref DigraphReader class.
-  /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const char* fn) {
-    DigraphReader<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
-
   template <typename Graph>
   class GraphReader;
 
+  /// \brief Return a \ref GraphReader class
+  ///
+  /// This function just returns a \ref GraphReader class.
+  /// \relates GraphReader
   template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph,
-                                 std::istream& is = std::cin);
+  GraphReader<Graph> graphReader(Graph& graph, std::istream& is = std::cin) {
+    GraphReader<Graph> tmp(graph, is);
+    return tmp;
+  }
 
+  /// \brief Return a \ref GraphReader class
+  ///
+  /// This function just returns a \ref GraphReader class.
+  /// \relates GraphReader
   template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const std::string& fn);
+  GraphReader<Graph> graphReader(Graph& graph, const std::string& fn) {
+    GraphReader<Graph> tmp(graph, fn);
+    return tmp;
+  }
 
+  /// \brief Return a \ref GraphReader class
+  ///
+  /// This function just returns a \ref GraphReader class.
+  /// \relates GraphReader
   template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const char *fn);
+  GraphReader<Graph> graphReader(Graph& graph, const char* fn) {
+    GraphReader<Graph> tmp(graph, fn);
+    return tmp;
+  }
 
   /// \ingroup lemon_io
   ///
@@ -2030,36 +2040,6 @@ namespace lemon {
     /// @}
 
   };
-
-  /// \brief Return a \ref GraphReader class
-  ///
-  /// This function just returns a \ref GraphReader class.
-  /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, std::istream& is = std::cin) {
-    GraphReader<Graph> tmp(graph, is);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphReader class
-  ///
-  /// This function just returns a \ref GraphReader class.
-  /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const std::string& fn) {
-    GraphReader<Graph> tmp(graph, fn);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphReader class
-  ///
-  /// This function just returns a \ref GraphReader class.
-  /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const char* fn) {
-    GraphReader<Graph> tmp(graph, fn);
-    return tmp;
-  }
 
   class SectionReader;
 
