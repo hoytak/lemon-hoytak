@@ -58,7 +58,7 @@ namespace lemon {
   /// \addtogroup gutils
   /// @{
 
-  ///Create convenient typedefs for the digraph types and iterators
+  ///Create convenience typedefs for the digraph types and iterators
 
   ///This \c \#define creates convenient type definitions for the following
   ///types of \c Digraph: \c Node,  \c NodeIt, \c Arc, \c ArcIt, \c InArcIt,
@@ -80,9 +80,9 @@ namespace lemon {
   typedef Digraph::NodeMap<double> DoubleNodeMap;                       \
   typedef Digraph::ArcMap<bool> BoolArcMap;                             \
   typedef Digraph::ArcMap<int> IntArcMap;                               \
-  typedef Digraph::ArcMap<double> DoubleArcMap;
+  typedef Digraph::ArcMap<double> DoubleArcMap
 
-  ///Create convenient typedefs for the digraph types and iterators
+  ///Create convenience typedefs for the digraph types and iterators
 
   ///\see DIGRAPH_TYPEDEFS
   ///
@@ -100,9 +100,9 @@ namespace lemon {
   typedef typename Digraph::template NodeMap<double> DoubleNodeMap;     \
   typedef typename Digraph::template ArcMap<bool> BoolArcMap;           \
   typedef typename Digraph::template ArcMap<int> IntArcMap;             \
-  typedef typename Digraph::template ArcMap<double> DoubleArcMap;
+  typedef typename Digraph::template ArcMap<double> DoubleArcMap
 
-  ///Create convenient typedefs for the graph types and iterators
+  ///Create convenience typedefs for the graph types and iterators
 
   ///This \c \#define creates the same convenient type definitions as defined
   ///by \ref DIGRAPH_TYPEDEFS(Graph) and six more, namely it creates
@@ -119,9 +119,9 @@ namespace lemon {
   typedef Graph::IncEdgeIt IncEdgeIt;                                   \
   typedef Graph::EdgeMap<bool> BoolEdgeMap;                             \
   typedef Graph::EdgeMap<int> IntEdgeMap;                               \
-  typedef Graph::EdgeMap<double> DoubleEdgeMap;
+  typedef Graph::EdgeMap<double> DoubleEdgeMap
 
-  ///Create convenient typedefs for the graph types and iterators
+  ///Create convenience typedefs for the graph types and iterators
 
   ///\see GRAPH_TYPEDEFS
   ///
@@ -134,7 +134,7 @@ namespace lemon {
   typedef typename Graph::IncEdgeIt IncEdgeIt;                          \
   typedef typename Graph::template EdgeMap<bool> BoolEdgeMap;           \
   typedef typename Graph::template EdgeMap<int> IntEdgeMap;             \
-  typedef typename Graph::template EdgeMap<double> DoubleEdgeMap;
+  typedef typename Graph::template EdgeMap<double> DoubleEdgeMap
 
   /// \brief Function to count the items in a graph.
   ///
