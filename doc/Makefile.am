@@ -6,6 +6,7 @@ EXTRA_DIST += \
 	doc/lgf.dox \
 	doc/license.dox \
 	doc/mainpage.dox \
+	doc/migration.dox \
 	doc/named-param.dox \
 	doc/namespaces.dox \
 	doc/html \
