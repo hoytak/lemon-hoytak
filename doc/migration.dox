@@ -57,7 +57,37 @@ update are typeset <b>boldface</b>.
 the words \c graph, \c digraph, \c edge and \c arc, so it replaces them
 in strings, comments etc. as well as in all identifiers.</b>
 
-\section migration-lgf LGF tools
+\section migration-lgf LGF tools 
+ - The \ref lgf-format "LGF file format" has changed,
+   <tt>\@nodeset</tt> has changed to <tt>\@nodes</tt>,
+   <tt>\@edgeset</tt> and <tt>\@uedgeset</tt> to <tt>\@arcs</tt> or
+   <tt>\@edges</tt>, which become completely equivalents. The
+   <tt>\@nodes</tt>, <tt>\@edges</tt> and <tt>\@uedges</tt> sections are
+   removed from the format, the content of them should be
+   the part of <tt>\@attributes</tt> section. The data fields in
+   the sections must follow a strict format, they must be either character
+   sequences without whitespaces or quoted strings.
+ - The <tt>LemonReader</tt> and <tt>LemonWriter</tt> core interfaces
+   are no longer available.
+ - The implementation of the general section readers and writers has changed
+   they are simple functors now. Beside the old
+   stream based section handling, currently line oriented section
+   reading and writing are also supported. In the
+   section readers the lines must be counted manually. The sections
+   should be read and written with the SectionWriter and SectionReader
+   classes.
+ - Instead of the item readers and writers, item converters should be
+   used. The converters are functors, which map the type to
+   std::string or std::string to the type. The converters for standard
+   containers hasn't yet been implemented in the new LEMON. The converters
+   can return strings in any format, because if it is necessary, the LGF
+   writer and reader will quote and unquote the given value.
+ - The DigraphReader and DigraphWriter can used similarly to the
+   0.x series, however the <tt>read</tt> or <tt>write</tt> prefix of
+   the member functions are removed.
+ - The new LEMON supports the function like interface, the \c
+   digraphReader and \c digraphWriter functions are more convenient than
+   using the classes directly.
 
 \section migration-search BFS, DFS and Dijkstra
 - <b>Using the function interface of BFS, DFS and %Dijkstra both source and
