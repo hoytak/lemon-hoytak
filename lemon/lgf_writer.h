@@ -351,17 +351,38 @@ namespace lemon {
   template <typename Digraph>
   class DigraphWriter;
 
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       std::ostream& os = std::cout);
+                                       std::ostream& os = std::cout) {
+    DigraphWriter<Digraph> tmp(digraph, os);
+    return tmp;
+  }
 
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const std::string& fn);
+                                       const std::string& fn) {
+    DigraphWriter<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
 
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const char *fn);
+                                       const char* fn) {
+    DigraphWriter<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
 
   /// \ingroup lemon_io
   ///
@@ -913,51 +934,39 @@ namespace lemon {
     /// @}
   };
 
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       std::ostream& os = std::cout) {
-    DigraphWriter<Digraph> tmp(digraph, os);
-    return tmp;
-  }
-
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const std::string& fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
-
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const char* fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
-
   template <typename Graph>
   class GraphWriter;
 
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
   template <typename Graph>
   GraphWriter<Graph> graphWriter(const Graph& graph,
-                                 std::ostream& os = std::cout);
+                                 std::ostream& os = std::cout) {
+    GraphWriter<Graph> tmp(graph, os);
+    return tmp;
+  }
 
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn);
+  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn) {
+    GraphWriter<Graph> tmp(graph, fn);
+    return tmp;
+  }
 
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const char *fn);
+  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn) {
+    GraphWriter<Graph> tmp(graph, fn);
+    return tmp;
+  }
 
   /// \ingroup lemon_io
   ///
@@ -1525,37 +1534,6 @@ namespace lemon {
 
     /// @}
   };
-
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph,
-                                 std::ostream& os = std::cout) {
-    GraphWriter<Graph> tmp(graph, os);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn) {
-    GraphWriter<Graph> tmp(graph, fn);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn) {
-    GraphWriter<Graph> tmp(graph, fn);
-    return tmp;
-  }
 
   class SectionWriter;
 
