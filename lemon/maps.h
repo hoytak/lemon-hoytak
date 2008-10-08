@@ -73,9 +73,9 @@ namespace lemon {
     void set(const Key&, const Value&) {}
   };
 
-  /// Returns a \ref NullMap class
+  /// Returns a \c NullMap class
 
-  /// This function just returns a \ref NullMap class.
+  /// This function just returns a \c NullMap class.
   /// \relates NullMap
   template <typename K, typename V>
   NullMap<K, V> nullMap() {
@@ -88,7 +88,7 @@ namespace lemon {
   /// This \ref concepts::ReadMap "readable map" assigns a specified
   /// value to each key.
   ///
-  /// In other aspects it is equivalent to \ref NullMap.
+  /// In other aspects it is equivalent to \c NullMap.
   /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
   /// concept, but it absorbs the data written to it.
   ///
@@ -133,9 +133,9 @@ namespace lemon {
     ConstMap(const ConstMap<K, V1> &, const Value &v) : _value(v) {}
   };
 
-  /// Returns a \ref ConstMap class
+  /// Returns a \c ConstMap class
 
-  /// This function just returns a \ref ConstMap class.
+  /// This function just returns a \c ConstMap class.
   /// \relates ConstMap
   template<typename K, typename V>
   inline ConstMap<K, V> constMap(const V &v) {
@@ -156,7 +156,7 @@ namespace lemon {
   /// This \ref concepts::ReadMap "readable map" assigns a specified
   /// value to each key.
   ///
-  /// In other aspects it is equivalent to \ref NullMap.
+  /// In other aspects it is equivalent to \c NullMap.
   /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
   /// concept, but it absorbs the data written to it.
   ///
@@ -182,9 +182,9 @@ namespace lemon {
     void set(const Key&, const Value&) {}
   };
 
-  /// Returns a \ref ConstMap class with inlined constant value
+  /// Returns a \c ConstMap class with inlined constant value
 
-  /// This function just returns a \ref ConstMap class with inlined
+  /// This function just returns a \c ConstMap class with inlined
   /// constant value.
   /// \relates ConstMap
   template<typename K, typename V, V v>
@@ -212,9 +212,9 @@ namespace lemon {
     }
   };
 
-  /// Returns an \ref IdentityMap class
+  /// Returns an \c IdentityMap class
 
-  /// This function just returns an \ref IdentityMap class.
+  /// This function just returns an \c IdentityMap class.
   /// \relates IdentityMap
   template<typename T>
   inline IdentityMap<T> identityMap() {
@@ -228,7 +228,7 @@ namespace lemon {
   /// This map is essentially a wrapper for \c std::vector. It assigns
   /// values to integer keys from the range <tt>[0..size-1]</tt>.
   /// It can be used with some data structures, for example
-  /// \ref UnionFind, \ref BinHeap, when the used items are small
+  /// \c UnionFind, \c BinHeap, when the used items are small
   /// integers. This map conforms the \ref concepts::ReferenceMap
   /// "ReferenceMap" concept.
   ///
@@ -268,7 +268,7 @@ namespace lemon {
     RangeMap(const std::vector<V1>& vector)
       : _vector(vector.begin(), vector.end()) {}
 
-    /// Constructs the map from another \ref RangeMap.
+    /// Constructs the map from another \c RangeMap.
     template <typename V1>
     RangeMap(const RangeMap<V1> &c)
       : _vector(c._vector.begin(), c._vector.end()) {}
@@ -311,19 +311,19 @@ namespace lemon {
     }
   };
 
-  /// Returns a \ref RangeMap class
+  /// Returns a \c RangeMap class
 
-  /// This function just returns a \ref RangeMap class.
+  /// This function just returns a \c RangeMap class.
   /// \relates RangeMap
   template<typename V>
   inline RangeMap<V> rangeMap(int size = 0, const V &value = V()) {
     return RangeMap<V>(size, value);
   }
 
-  /// \brief Returns a \ref RangeMap class created from an appropriate
+  /// \brief Returns a \c RangeMap class created from an appropriate
   /// \c std::vector
 
-  /// This function just returns a \ref RangeMap class created from an
+  /// This function just returns a \c RangeMap class created from an
   /// appropriate \c std::vector.
   /// \relates RangeMap
   template<typename V>
@@ -388,7 +388,7 @@ namespace lemon {
               const Value &value = Value())
       : _map(map.begin(), map.end()), _value(value) {}
 
-    /// \brief Constructs the map from another \ref SparseMap.
+    /// \brief Constructs the map from another \c SparseMap.
     template<typename V1, typename Comp1>
     SparseMap(const SparseMap<Key, V1, Comp1> &c)
       : _map(c._map.begin(), c._map.end()), _value(c._value) {}
@@ -433,9 +433,9 @@ namespace lemon {
     }
   };
 
-  /// Returns a \ref SparseMap class
+  /// Returns a \c SparseMap class
 
-  /// This function just returns a \ref SparseMap class with specified
+  /// This function just returns a \c SparseMap class with specified
   /// default value.
   /// \relates SparseMap
   template<typename K, typename V, typename Compare>
@@ -448,10 +448,10 @@ namespace lemon {
     return SparseMap<K, V, std::less<K> >(value);
   }
 
-  /// \brief Returns a \ref SparseMap class created from an appropriate
+  /// \brief Returns a \c SparseMap class created from an appropriate
   /// \c std::map
 
-  /// This function just returns a \ref SparseMap class created from an
+  /// This function just returns a \c SparseMap class created from an
   /// appropriate \c std::map.
   /// \relates SparseMap
   template<typename K, typename V, typename Compare>
@@ -501,9 +501,9 @@ namespace lemon {
     operator[](const Key &k) const { return _m1[_m2[k]]; }
   };
 
-  /// Returns a \ref ComposeMap class
+  /// Returns a \c ComposeMap class
 
-  /// This function just returns a \ref ComposeMap class.
+  /// This function just returns a \c ComposeMap class.
   ///
   /// If \c m1 and \c m2 are maps and the \c Value type of \c m2 is
   /// convertible to the \c Key of \c m1, then <tt>composeMap(m1,m2)[x]</tt>
@@ -556,9 +556,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _f(_m1[k],_m2[k]); }
   };
 
-  /// Returns a \ref CombineMap class
+  /// Returns a \c CombineMap class
 
-  /// This function just returns a \ref CombineMap class.
+  /// This function just returns a \c CombineMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c double
   /// values, then
@@ -625,9 +625,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _f(k); }
   };
 
-  /// Returns a \ref FunctorToMap class
+  /// Returns a \c FunctorToMap class
 
-  /// This function just returns a \ref FunctorToMap class.
+  /// This function just returns a \c FunctorToMap class.
   ///
   /// This function is specialized for adaptable binary function
   /// classes and C++ functions.
@@ -684,9 +684,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m[k]; }
   };
 
-  /// Returns a \ref MapToFunctor class
+  /// Returns a \c MapToFunctor class
 
-  /// This function just returns a \ref MapToFunctor class.
+  /// This function just returns a \c MapToFunctor class.
   /// \relates MapToFunctor
   template<typename M>
   inline MapToFunctor<M> mapToFunctor(const M &m) {
@@ -723,9 +723,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m[k]; }
   };
 
-  /// Returns a \ref ConvertMap class
+  /// Returns a \c ConvertMap class
 
-  /// This function just returns a \ref ConvertMap class.
+  /// This function just returns a \c ConvertMap class.
   /// \relates ConvertMap
   template<typename V, typename M>
   inline ConvertMap<M, V> convertMap(const M &map) {
@@ -763,9 +763,9 @@ namespace lemon {
     void set(const Key &k, const Value &v) { _m1.set(k,v); _m2.set(k,v); }
   };
 
-  /// Returns a \ref ForkMap class
+  /// Returns a \c ForkMap class
 
-  /// This function just returns a \ref ForkMap class.
+  /// This function just returns a \c ForkMap class.
   /// \relates ForkMap
   template <typename M1, typename M2>
   inline ForkMap<M1,M2> forkMap(M1 &m1, M2 &m2) {
@@ -807,9 +807,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]+_m2[k]; }
   };
 
-  /// Returns an \ref AddMap class
+  /// Returns an \c AddMap class
 
-  /// This function just returns an \ref AddMap class.
+  /// This function just returns an \c AddMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c double
   /// values, then <tt>addMap(m1,m2)[x]</tt> will be equal to
@@ -855,9 +855,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]-_m2[k]; }
   };
 
-  /// Returns a \ref SubMap class
+  /// Returns a \c SubMap class
 
-  /// This function just returns a \ref SubMap class.
+  /// This function just returns a \c SubMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c double
   /// values, then <tt>subMap(m1,m2)[x]</tt> will be equal to
@@ -904,9 +904,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]*_m2[k]; }
   };
 
-  /// Returns a \ref MulMap class
+  /// Returns a \c MulMap class
 
-  /// This function just returns a \ref MulMap class.
+  /// This function just returns a \c MulMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c double
   /// values, then <tt>mulMap(m1,m2)[x]</tt> will be equal to
@@ -952,9 +952,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]/_m2[k]; }
   };
 
-  /// Returns a \ref DivMap class
+  /// Returns a \c DivMap class
 
-  /// This function just returns a \ref DivMap class.
+  /// This function just returns a \c DivMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c double
   /// values, then <tt>divMap(m1,m2)[x]</tt> will be equal to
@@ -1038,9 +1038,9 @@ namespace lemon {
     void set(const Key &k, const Value &v) { _m.set(k, v-_v); }
   };
 
-  /// Returns a \ref ShiftMap class
+  /// Returns a \c ShiftMap class
 
-  /// This function just returns a \ref ShiftMap class.
+  /// This function just returns a \c ShiftMap class.
   ///
   /// For example, if \c m is a map with \c double values and \c v is
   /// \c double, then <tt>shiftMap(m,v)[x]</tt> will be equal to
@@ -1052,9 +1052,9 @@ namespace lemon {
     return ShiftMap<M, C>(m,v);
   }
 
-  /// Returns a \ref ShiftWriteMap class
+  /// Returns a \c ShiftWriteMap class
 
-  /// This function just returns a \ref ShiftWriteMap class.
+  /// This function just returns a \c ShiftWriteMap class.
   ///
   /// For example, if \c m is a map with \c double values and \c v is
   /// \c double, then <tt>shiftWriteMap(m,v)[x]</tt> will be equal to
@@ -1140,9 +1140,9 @@ namespace lemon {
     void set(const Key &k, const Value &v) { _m.set(k, v/_v); }
   };
 
-  /// Returns a \ref ScaleMap class
+  /// Returns a \c ScaleMap class
 
-  /// This function just returns a \ref ScaleMap class.
+  /// This function just returns a \c ScaleMap class.
   ///
   /// For example, if \c m is a map with \c double values and \c v is
   /// \c double, then <tt>scaleMap(m,v)[x]</tt> will be equal to
@@ -1154,9 +1154,9 @@ namespace lemon {
     return ScaleMap<M, C>(m,v);
   }
 
-  /// Returns a \ref ScaleWriteMap class
+  /// Returns a \c ScaleWriteMap class
 
-  /// This function just returns a \ref ScaleWriteMap class.
+  /// This function just returns a \c ScaleWriteMap class.
   ///
   /// For example, if \c m is a map with \c double values and \c v is
   /// \c double, then <tt>scaleWriteMap(m,v)[x]</tt> will be equal to
@@ -1240,9 +1240,9 @@ namespace lemon {
     void set(const Key &k, const Value &v) { _m.set(k, -v); }
   };
 
-  /// Returns a \ref NegMap class
+  /// Returns a \c NegMap class
 
-  /// This function just returns a \ref NegMap class.
+  /// This function just returns a \c NegMap class.
   ///
   /// For example, if \c m is a map with \c double values, then
   /// <tt>negMap(m)[x]</tt> will be equal to <tt>-m[x]</tt>.
@@ -1253,9 +1253,9 @@ namespace lemon {
     return NegMap<M>(m);
   }
 
-  /// Returns a \ref NegWriteMap class
+  /// Returns a \c NegWriteMap class
 
-  /// This function just returns a \ref NegWriteMap class.
+  /// This function just returns a \c NegWriteMap class.
   ///
   /// For example, if \c m is a map with \c double values, then
   /// <tt>negWriteMap(m)[x]</tt> will be equal to <tt>-m[x]</tt>.
@@ -1296,9 +1296,9 @@ namespace lemon {
 
   };
 
-  /// Returns an \ref AbsMap class
+  /// Returns an \c AbsMap class
 
-  /// This function just returns an \ref AbsMap class.
+  /// This function just returns an \c AbsMap class.
   ///
   /// For example, if \c m is a map with \c double values, then
   /// <tt>absMap(m)[x]</tt> will be equal to <tt>m[x]</tt> if
@@ -1345,9 +1345,9 @@ namespace lemon {
     Value operator[](const Key&) const { return true; }
   };
 
-  /// Returns a \ref TrueMap class
+  /// Returns a \c TrueMap class
 
-  /// This function just returns a \ref TrueMap class.
+  /// This function just returns a \c TrueMap class.
   /// \relates TrueMap
   template<typename K>
   inline TrueMap<K> trueMap() {
@@ -1382,9 +1382,9 @@ namespace lemon {
     Value operator[](const Key&) const { return false; }
   };
 
-  /// Returns a \ref FalseMap class
+  /// Returns a \c FalseMap class
 
-  /// This function just returns a \ref FalseMap class.
+  /// This function just returns a \c FalseMap class.
   /// \relates FalseMap
   template<typename K>
   inline FalseMap<K> falseMap() {
@@ -1429,9 +1429,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]&&_m2[k]; }
   };
 
-  /// Returns an \ref AndMap class
+  /// Returns an \c AndMap class
 
-  /// This function just returns an \ref AndMap class.
+  /// This function just returns an \c AndMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c bool values,
   /// then <tt>andMap(m1,m2)[x]</tt> will be equal to
@@ -1477,9 +1477,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]||_m2[k]; }
   };
 
-  /// Returns an \ref OrMap class
+  /// Returns an \c OrMap class
 
-  /// This function just returns an \ref OrMap class.
+  /// This function just returns an \c OrMap class.
   ///
   /// For example, if \c m1 and \c m2 are both maps with \c bool values,
   /// then <tt>orMap(m1,m2)[x]</tt> will be equal to
@@ -1544,9 +1544,9 @@ namespace lemon {
     void set(const Key &k, bool v) { _m.set(k, !v); }
   };
 
-  /// Returns a \ref NotMap class
+  /// Returns a \c NotMap class
 
-  /// This function just returns a \ref NotMap class.
+  /// This function just returns a \c NotMap class.
   ///
   /// For example, if \c m is a map with \c bool values, then
   /// <tt>notMap(m)[x]</tt> will be equal to <tt>!m[x]</tt>.
@@ -1557,9 +1557,9 @@ namespace lemon {
     return NotMap<M>(m);
   }
 
-  /// Returns a \ref NotWriteMap class
+  /// Returns a \c NotWriteMap class
 
-  /// This function just returns a \ref NotWriteMap class.
+  /// This function just returns a \c NotWriteMap class.
   ///
   /// For example, if \c m is a map with \c bool values, then
   /// <tt>notWriteMap(m)[x]</tt> will be equal to <tt>!m[x]</tt>.
@@ -1605,9 +1605,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]==_m2[k]; }
   };
 
-  /// Returns an \ref EqualMap class
+  /// Returns an \c EqualMap class
 
-  /// This function just returns an \ref EqualMap class.
+  /// This function just returns an \c EqualMap class.
   ///
   /// For example, if \c m1 and \c m2 are maps with keys and values of
   /// the same type, then <tt>equalMap(m1,m2)[x]</tt> will be equal to
@@ -1653,9 +1653,9 @@ namespace lemon {
     Value operator[](const Key &k) const { return _m1[k]<_m2[k]; }
   };
 
-  /// Returns an \ref LessMap class
+  /// Returns an \c LessMap class
 
-  /// This function just returns an \ref LessMap class.
+  /// This function just returns an \c LessMap class.
   ///
   /// For example, if \c m1 and \c m2 are maps with keys and values of
   /// the same type, then <tt>lessMap(m1,m2)[x]</tt> will be equal to
@@ -1745,9 +1745,9 @@ namespace lemon {
     Iterator _end;
   };
 
-  /// Returns a \ref LoggerBoolMap class
+  /// Returns a \c LoggerBoolMap class
 
-  /// This function just returns a \ref LoggerBoolMap class.
+  /// This function just returns a \c LoggerBoolMap class.
   ///
   /// The most important usage of it is storing certain nodes or arcs
   /// that were marked \c true by an algorithm.
@@ -1767,7 +1767,7 @@ namespace lemon {
   ///
   /// \note LoggerBoolMap is just \ref concepts::WriteMap "writable", so
   /// it cannot be used when a readable map is needed, for example as
-  /// \c ReachedMap for \ref Bfs, \ref Dfs and \ref Dijkstra algorithms.
+  /// \c ReachedMap for \c Bfs, \c Dfs and \c Dijkstra algorithms.
   ///
   /// \relates LoggerBoolMap
   template<typename Iterator>
@@ -2282,9 +2282,9 @@ namespace lemon {
     const Digraph& _digraph;
   };
 
-  /// \brief Returns a \ref SourceMap class.
+  /// \brief Returns a \c SourceMap class.
   ///
-  /// This function just returns an \ref SourceMap class.
+  /// This function just returns an \c SourceMap class.
   /// \relates SourceMap
   template <typename Digraph>
   inline SourceMap<Digraph> sourceMap(const Digraph& digraph) {
@@ -2321,9 +2321,9 @@ namespace lemon {
     const Digraph& _digraph;
   };
 
-  /// \brief Returns a \ref TargetMap class.
+  /// \brief Returns a \c TargetMap class.
   ///
-  /// This function just returns a \ref TargetMap class.
+  /// This function just returns a \c TargetMap class.
   /// \relates TargetMap
   template <typename Digraph>
   inline TargetMap<Digraph> targetMap(const Digraph& digraph) {
@@ -2360,9 +2360,9 @@ namespace lemon {
     const Graph& _graph;
   };
 
-  /// \brief Returns a \ref ForwardMap class.
+  /// \brief Returns a \c ForwardMap class.
   ///
-  /// This function just returns an \ref ForwardMap class.
+  /// This function just returns an \c ForwardMap class.
   /// \relates ForwardMap
   template <typename Graph>
   inline ForwardMap<Graph> forwardMap(const Graph& graph) {
@@ -2399,9 +2399,9 @@ namespace lemon {
     const Graph& _graph;
   };
 
-  /// \brief Returns a \ref BackwardMap class
+  /// \brief Returns a \c BackwardMap class
 
-  /// This function just returns a \ref BackwardMap class.
+  /// This function just returns a \c BackwardMap class.
   /// \relates BackwardMap
   template <typename Graph>
   inline BackwardMap<Graph> backwardMap(const Graph& graph) {
