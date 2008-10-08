@@ -77,21 +77,29 @@ in strings, comments etc. as well as in all identifiers.</b>
 
 \section migration-error Exceptions and Debug tools
 
+<b>The class hierarchy of exceptions has largely been simplified. Now,
+only the i/o related tools may throw exceptions. All other exceptions
+have been replaced with either the \c LEMON_ASSERT or the \c LEMON_DEBUG
+macros.</b>
+
+<b>On the other hand, the parameter order of constructors of the
+exceptions has been changed. See \ref IoError and \ref FormatError for
+more details.</b>
+
 \section migration-other Others
 - <b>The contents of <tt>graph_utils.h</tt> are moved to <tt>core.h</tt>
   and <tt>maps.h</tt>. <tt>core.h</tt> is included by all graph types,
   therefore it usually do not have to be included directly.</b>
 - <b><tt>path_utils.h</tt> is merged to \c path.h.</b>
+- <b>The semantic of the assignment operations and copy constructors of maps
+  are still under discussion. So, you must copy them by hand (i.e. copy
+  each entry one-by-one)</b>
 - <b>The parameters of the graph copying tools (i.e. \c GraphCopy,
   \c DigraphCopy) have to be given in the from-to order.</b>
 - \c copyDigraph() and \c copyGraph() are renamed to \c digraphCopy()
   and \c graphCopy(), respectively.
-- The of
- - DefXyzMap --> SetXyzMap
- - DefHeap --> SetHeap
- - DefStandardHeap --> SetStandardHeap
- - DefOperationTraits --> SetOperationTraits
- - DefProcessedMapToBeDefaultMap --> SetStandardProcessedMap
+- <b>The interface of \ref DynArcLookUp has changed. It is now the same as
+  of \ref ArcLookUp and \ref AllArcLookUp</b>
 - Some map types should also been renamed. Namely,
   - \c IntegerMap -> \c RangeMap
   - \c StdMap -> \c SparseMap

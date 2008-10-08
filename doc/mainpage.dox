@@ -56,5 +56,5 @@ If you know what you are looking for then try to find it under the
 <a class="el" href="modules.html">Modules</a>
 section.
 
-
+If you are a user of the old (0.x) series of LEMON, please check out the \ref migration "Migration Guide" for the backward incompatibilities.
 */
