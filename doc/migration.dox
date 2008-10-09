@@ -57,7 +57,7 @@ update are typeset <b>boldface</b>.
 the words \c graph, \c digraph, \c edge and \c arc, so it replaces them
 in strings, comments etc. as well as in all identifiers.</b>
 
-\section migration-lgf LGF tools 
+\section migration-lgf LGF tools
  - The \ref lgf-format "LGF file format" has changed,
    <tt>\@nodeset</tt> has changed to <tt>\@nodes</tt>,
    <tt>\@edgeset</tt> and <tt>\@uedgeset</tt> to <tt>\@arcs</tt> or

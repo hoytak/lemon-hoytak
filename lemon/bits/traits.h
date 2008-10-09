@@ -19,9 +19,9 @@
 #ifndef LEMON_BITS_TRAITS_H
 #define LEMON_BITS_TRAITS_H
 
-///\file
-///\brief Traits for graphs and maps
-///
+//\file
+//\brief Traits for graphs and maps
+//
 
 #include <lemon/bits/enable_if.h>
 

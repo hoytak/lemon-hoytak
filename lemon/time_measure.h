@@ -311,8 +311,8 @@ namespace lemon {
     ///\name Control the state of the timer
     ///Basically a Timer can be either running or stopped,
     ///but it provides a bit finer control on the execution.
-    ///The \ref lemon::Timer "Timer" also counts the number of 
-    ///\ref lemon::Timer::start() "start()" executions, and it stops 
+    ///The \ref lemon::Timer "Timer" also counts the number of
+    ///\ref lemon::Timer::start() "start()" executions, and it stops
     ///only after the same amount (or more) \ref lemon::Timer::stop()
     ///"stop()"s. This can be useful e.g. to compute the running time
     ///of recursive functions.

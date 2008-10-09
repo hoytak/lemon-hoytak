@@ -576,7 +576,7 @@ namespace lemon {
   ///Map of x-coordinates of a <tt>Point</tt>-map
 
   ///Map of x-coordinates of a \ref Point "Point"-map.
-  ///\ingroup maps
+  ///
   template<class M>
   class XMap
   {
@@ -594,8 +594,6 @@ namespace lemon {
   ///Returns an XMap class
 
   ///This function just returns an XMap class.
-  ///
-  ///\ingroup maps
   ///\relates XMap
   template<class M>
   inline XMap<M> xMap(M &m)
@@ -612,7 +610,7 @@ namespace lemon {
   ///Constant (read only) version of XMap
 
   ///Constant (read only) version of XMap.
-  ///\ingroup maps
+  ///
   template<class M>
   class ConstXMap
   {
@@ -629,8 +627,6 @@ namespace lemon {
   ///Returns a ConstXMap class
 
   ///This function just returns a ConstXMap class.
-  ///
-  ///\ingroup maps
   ///\relates ConstXMap
   template<class M>
   inline ConstXMap<M> xMap(const M &m)
@@ -641,7 +637,7 @@ namespace lemon {
   ///Map of y-coordinates of a <tt>Point</tt>-map
 
   ///Map of y-coordinates of a \ref Point "Point"-map.
-  ///\ingroup maps
+  ///
   template<class M>
   class YMap
   {
@@ -659,8 +655,6 @@ namespace lemon {
   ///Returns a YMap class
 
   ///This function just returns a YMap class.
-  ///
-  ///\ingroup maps
   ///\relates YMap
   template<class M>
   inline YMap<M> yMap(M &m)
@@ -677,7 +671,7 @@ namespace lemon {
   ///Constant (read only) version of YMap
 
   ///Constant (read only) version of YMap.
-  ///\ingroup maps
+  ///
   template<class M>
   class ConstYMap
   {
@@ -694,8 +688,6 @@ namespace lemon {
   ///Returns a ConstYMap class
 
   ///This function just returns a ConstYMap class.
-  ///
-  ///\ingroup maps
   ///\relates ConstYMap
   template<class M>
   inline ConstYMap<M> yMap(const M &m)
@@ -708,7 +700,6 @@ namespace lemon {
   ///
   ///Map of the \ref Point::normSquare() "normSquare()"
   ///of a \ref Point "Point"-map.
-  ///\ingroup maps
   template<class M>
   class NormSquareMap
   {
@@ -725,8 +716,6 @@ namespace lemon {
   ///Returns a NormSquareMap class
 
   ///This function just returns a NormSquareMap class.
-  ///
-  ///\ingroup maps
   ///\relates NormSquareMap
   template<class M>
   inline NormSquareMap<M> normSquareMap(const M &m)

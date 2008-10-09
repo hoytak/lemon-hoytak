@@ -28,14 +28,14 @@
 #include <lemon/concept_check.h>
 #include <lemon/concepts/maps.h>
 
-///\ingroup digraphbits
-///\file
-///\brief Extenders for the digraph types
+//\ingroup digraphbits
+//\file
+//\brief Extenders for the digraph types
 namespace lemon {
 
-  /// \ingroup digraphbits
-  ///
-  /// \brief BaseDigraph to BaseGraph extender
+  // \ingroup digraphbits
+  //
+  // \brief BaseDigraph to BaseGraph extender
   template <typename Base>
   class UndirDigraphExtender : public Base {
 
@@ -74,37 +74,37 @@ namespace lemon {
       }
     };
 
-    /// First node of the edge
+    // First node of the edge
     Node u(const Edge &e) const {
       return Parent::source(e);
     }
 
-    /// Source of the given arc
+    // Source of the given arc
     Node source(const Arc &e) const {
       return e.forward ? Parent::source(e) : Parent::target(e);
     }
 
-    /// Second node of the edge
+    // Second node of the edge
     Node v(const Edge &e) const {
       return Parent::target(e);
     }
 
-    /// Target of the given arc
+    // Target of the given arc
     Node target(const Arc &e) const {
       return e.forward ? Parent::target(e) : Parent::source(e);
     }
 
-    /// \brief Directed arc from an edge.
-    ///
-    /// Returns a directed arc corresponding to the specified edge.
-    /// If the given bool is true, the first node of the given edge and
-    /// the source node of the returned arc are the same.
+    // \brief Directed arc from an edge.
+    //
+    // Returns a directed arc corresponding to the specified edge.
+    // If the given bool is true, the first node of the given edge and
+    // the source node of the returned arc are the same.
     static Arc direct(const Edge &e, bool d) {
       return Arc(e, d);
     }
 
-    /// Returns whether the given directed arc has the same orientation
-    /// as the corresponding edge.
+    // Returns whether the given directed arc has the same orientation
+    // as the corresponding edge.
     static bool direction(const Arc &a) { return a.forward; }
 
     using Parent::first;

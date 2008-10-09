@@ -1683,6 +1683,11 @@ namespace lemon {
 
   }
 
+  /// @}
+
+  /// \addtogroup maps
+  /// @{
+
   /// \brief Writable bool map for logging each \c true assigned element
   ///
   /// A \ref concepts::WriteMap "writable" bool map for logging
@@ -1774,6 +1779,11 @@ namespace lemon {
   inline LoggerBoolMap<Iterator> loggerBoolMap(Iterator it) {
     return LoggerBoolMap<Iterator>(it);
   }
+
+  /// @}
+
+  /// \addtogroup graph_maps
+  /// @{
 
   /// Provides an immutable and unique id for each item in the graph.
 
@@ -1881,8 +1891,6 @@ namespace lemon {
     typedef typename Map::Key Key;
     /// The value type of the InvertableMap.
     typedef typename Map::Value Value;
-
-
 
     /// \brief Constructor.
     ///
@@ -2048,8 +2056,6 @@ namespace lemon {
     InverseMap inverse() const {
       return InverseMap(*this);
     }
-
-
 
   };
 

@@ -35,29 +35,29 @@
 #ifndef LEMON_BITS_ENABLE_IF_H
 #define LEMON_BITS_ENABLE_IF_H
 
-///\file
-///\brief Miscellaneous basic utilities
+//\file
+//\brief Miscellaneous basic utilities
 
 namespace lemon
 {
 
-  /// Basic type for defining "tags". A "YES" condition for \c enable_if.
+  // Basic type for defining "tags". A "YES" condition for \c enable_if.
 
-  /// Basic type for defining "tags". A "YES" condition for \c enable_if.
-  ///
-  ///\sa False
+  // Basic type for defining "tags". A "YES" condition for \c enable_if.
+  //
+  //\sa False
   struct True {
-    ///\e
+    //\e
     static const bool value = true;
   };
 
-  /// Basic type for defining "tags". A "NO" condition for \c enable_if.
+  // Basic type for defining "tags". A "NO" condition for \c enable_if.
 
-  /// Basic type for defining "tags". A "NO" condition for \c enable_if.
-  ///
-  ///\sa True
+  // Basic type for defining "tags". A "NO" condition for \c enable_if.
+  //
+  //\sa True
   struct False {
-    ///\e
+    //\e
     static const bool value = false;
   };
 
