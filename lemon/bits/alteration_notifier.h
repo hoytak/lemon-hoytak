@@ -79,8 +79,7 @@ namespace lemon {
   /// observeres will not be notified and the fulfilled additions will
   /// be rolled back by calling the \e erase() or \e clear()
   /// functions. Thence the \e erase() and \e clear() should not throw
-  /// exception. Actullay, it can be throw only
-  /// \ref AlterationObserver::ImmediateDetach ImmediateDetach
+  /// exception. Actullay, it can be throw only \ref ImmediateDetach 
   /// exception which detach the observer from the notifier.
   ///
   /// There are some place when the alteration observing is not completly

@@ -149,7 +149,7 @@ namespace lemon {
 
 // #endif
 
-  /// \e
+  /// DefaultMap class
   template <typename _Graph, typename _Item, typename _Value>
   class DefaultMap
     : public DefaultMapSelector<_Graph, _Item, _Value>::Map {

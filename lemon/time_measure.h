@@ -311,12 +311,11 @@ namespace lemon {
     ///\name Control the state of the timer
     ///Basically a Timer can be either running or stopped,
     ///but it provides a bit finer control on the execution.
-    ///The \ref Timer also counts the number of \ref start()
-    ///executions, and is stops only after the same amount (or more)
-    ///\ref stop() "stop()"s. This can be useful e.g. to compute
-    ///the running time
+    ///The \ref lemon::Timer "Timer" also counts the number of 
+    ///\ref lemon::Timer::start() "start()" executions, and it stops 
+    ///only after the same amount (or more) \ref lemon::Timer::stop()
+    ///"stop()"s. This can be useful e.g. to compute the running time
     ///of recursive functions.
-    ///
 
     ///@{
 
@@ -472,7 +471,7 @@ namespace lemon {
     ///@}
   };
 
-  ///Same as \ref Timer but prints a report on destruction.
+  ///Same as Timer but prints a report on destruction.
 
   ///Same as \ref Timer but prints a report on destruction.
   ///This example shows its usage.
@@ -491,22 +490,22 @@ namespace lemon {
     std::string _title;
     std::ostream &_os;
   public:
-    ///\e
+    ///Constructor
 
+    ///Constructor.
     ///\param title This text will be printed before the ellapsed time.
     ///\param os The stream to print the report to.
     ///\param run Sets whether the timer should start immediately.
-
     TimeReport(std::string title,std::ostream &os=std::cerr,bool run=true)
       : Timer(run), _title(title), _os(os){}
-    ///\e Prints the ellapsed time on destruction.
+    ///Destructor that prints the ellapsed time
     ~TimeReport()
     {
       _os << _title << *this << std::endl;
     }
   };
 
-  ///'Do nothing' version of \ref TimeReport
+  ///'Do nothing' version of TimeReport
 
   ///\sa TimeReport
   ///

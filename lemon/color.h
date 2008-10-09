@@ -92,7 +92,7 @@ namespace lemon {
   /// Dark cyan color constant
   extern const Color DARK_CYAN;
 
-  ///Map <tt>int</tt>s to different \ref Color "Color"s
+  ///Map <tt>int</tt>s to different <tt>Color</tt>s
 
   ///This map assigns one of the predefined \ref Color "Color"s to
   ///each <tt>int</tt>. It is possible to change the colors as well as

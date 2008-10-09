@@ -849,7 +849,7 @@ namespace lemon {
     /// \brief Return true when the path is empty.
     int empty() const { return len == 0; }
 
-    /// \break Erase all arcs in the digraph.
+    /// \brief Erase all arcs in the digraph.
     void clear() {
       len = 0;
       if (arcs) delete[] arcs;

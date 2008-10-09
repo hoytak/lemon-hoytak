@@ -43,7 +43,7 @@ namespace lemon {
   template<typename K, typename V>
   class MapBase {
   public:
-    /// \biref The key type of the map.
+    /// \brief The key type of the map.
     typedef K Key;
     /// \brief The value type of the map.
     /// (The type of objects associated with the keys).
@@ -2266,7 +2266,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
+    /// \param digraph The digraph that the map belongs to.
     explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
@@ -2305,7 +2305,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
+    /// \param digraph The digraph that the map belongs to.
     explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
@@ -2344,7 +2344,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _graph The graph that the map belongs to.
+    /// \param graph The graph that the map belongs to.
     explicit ForwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.
@@ -2383,7 +2383,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _graph The graph that the map belongs to.
+    /// \param graph The graph that the map belongs to.
     explicit BackwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.

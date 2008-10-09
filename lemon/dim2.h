@@ -259,10 +259,10 @@ namespace lemon {
 
 
 
-  /// Bounding box of plain vectors (\ref Point points).
+  /// Bounding box of plain vectors (points).
 
   /// A class to calculate or store the bounding box of plain vectors
-  /// (\ref Point points).
+  /// (\ref Point "points").
   template<typename T>
   class Box {
       Point<T> _bottom_left, _top_right;
@@ -573,11 +573,10 @@ namespace lemon {
     return os;
   }
 
-  ///Map of x-coordinates of a \ref Point "Point"-map
+  ///Map of x-coordinates of a <tt>Point</tt>-map
 
-  ///\ingroup maps
   ///Map of x-coordinates of a \ref Point "Point"-map.
-  ///
+  ///\ingroup maps
   template<class M>
   class XMap
   {
@@ -592,9 +591,9 @@ namespace lemon {
     void set(Key k,Value v) {_map.set(k,typename M::Value(v,_map[k].y));}
   };
 
-  ///Returns an \ref XMap class
+  ///Returns an XMap class
 
-  ///This function just returns an \ref XMap class.
+  ///This function just returns an XMap class.
   ///
   ///\ingroup maps
   ///\relates XMap
@@ -610,11 +609,10 @@ namespace lemon {
     return XMap<M>(m);
   }
 
-  ///Constant (read only) version of \ref XMap
+  ///Constant (read only) version of XMap
 
+  ///Constant (read only) version of XMap.
   ///\ingroup maps
-  ///Constant (read only) version of \ref XMap
-  ///
   template<class M>
   class ConstXMap
   {
@@ -628,9 +626,9 @@ namespace lemon {
     Value operator[](Key k) const {return _map[k].x;}
   };
 
-  ///Returns a \ref ConstXMap class
+  ///Returns a ConstXMap class
 
-  ///This function just returns a \ref ConstXMap class.
+  ///This function just returns a ConstXMap class.
   ///
   ///\ingroup maps
   ///\relates ConstXMap
@@ -640,11 +638,10 @@ namespace lemon {
     return ConstXMap<M>(m);
   }
 
-  ///Map of y-coordinates of a \ref Point "Point"-map
+  ///Map of y-coordinates of a <tt>Point</tt>-map
 
-  ///\ingroup maps
   ///Map of y-coordinates of a \ref Point "Point"-map.
-  ///
+  ///\ingroup maps
   template<class M>
   class YMap
   {
@@ -659,9 +656,9 @@ namespace lemon {
     void set(Key k,Value v) {_map.set(k,typename M::Value(_map[k].x,v));}
   };
 
-  ///Returns a \ref YMap class
+  ///Returns a YMap class
 
-  ///This function just returns a \ref YMap class.
+  ///This function just returns a YMap class.
   ///
   ///\ingroup maps
   ///\relates YMap
@@ -677,11 +674,10 @@ namespace lemon {
     return YMap<M>(m);
   }
 
-  ///Constant (read only) version of \ref YMap
+  ///Constant (read only) version of YMap
 
+  ///Constant (read only) version of YMap.
   ///\ingroup maps
-  ///Constant (read only) version of \ref YMap
-  ///
   template<class M>
   class ConstYMap
   {
@@ -695,9 +691,9 @@ namespace lemon {
     Value operator[](Key k) const {return _map[k].y;}
   };
 
-  ///Returns a \ref ConstYMap class
+  ///Returns a ConstYMap class
 
-  ///This function just returns a \ref ConstYMap class.
+  ///This function just returns a ConstYMap class.
   ///
   ///\ingroup maps
   ///\relates ConstYMap
@@ -708,8 +704,7 @@ namespace lemon {
   }
 
 
-  ///\brief Map of the \ref Point::normSquare() "normSquare()"
-  ///of a \ref Point "Point"-map
+  ///\brief Map of the normSquare() of a <tt>Point</tt>-map
   ///
   ///Map of the \ref Point::normSquare() "normSquare()"
   ///of a \ref Point "Point"-map.
@@ -727,9 +722,9 @@ namespace lemon {
     Value operator[](Key k) const {return _map[k].normSquare();}
   };
 
-  ///Returns a \ref NormSquareMap class
+  ///Returns a NormSquareMap class
 
-  ///This function just returns a \ref NormSquareMap class.
+  ///This function just returns a NormSquareMap class.
   ///
   ///\ingroup maps
   ///\relates NormSquareMap

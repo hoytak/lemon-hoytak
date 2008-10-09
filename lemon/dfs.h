@@ -835,7 +835,7 @@ namespace lemon {
     typedef lemon::Path<Digraph> Path;
   };
 
-  /// Default traits class used by \ref DfsWizard
+  /// Default traits class used by DfsWizard
 
   /// To make it easier to use Dfs algorithm
   /// we have created a wizard class.
