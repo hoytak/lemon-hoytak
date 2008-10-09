@@ -54,7 +54,9 @@ in conjunction with other graph representations.
 
 You are free to use the graph structure that fit your requirements
 the best, most graph algorithms and auxiliary data structures can be used
-with any graph structures.
+with any graph structure.
+
+<b>See also:</b> \ref graph_concepts "Graph Structure Concepts".
 */
 
 /**
@@ -74,8 +76,10 @@ On the other hand they are not light-weight structures as the adaptors.
 
 This group describes the map structures implemented in LEMON.
 
-LEMON provides several special purpose maps that e.g. combine
+LEMON provides several special purpose maps and map adaptors that e.g. combine
 new maps from existing ones.
+
+<b>See also:</b> \ref map_concepts "Map Concepts".
 */
 
 /**
@@ -86,7 +90,6 @@ new maps from existing ones.
 This group describes maps that are specifically designed to assign
 values to the nodes and arcs of graphs.
 */
-
 
 /**
 \defgroup map_adaptors Map Adaptors
@@ -104,7 +107,7 @@ They can make arithmetic and logical operations between one or two maps
 The typical usage of this classes is passing implicit maps to
 algorithms.  If a function type algorithm is called then the function
 type map adaptors can be used comfortable. For example let's see the
-usage of map adaptors with the \c digraphToEps() function.
+usage of map adaptors with the \c graphToEps() function.
 \code
   Color nodeColor(int deg) {
     if (deg >= 2) {
@@ -118,13 +121,13 @@ usage of map adaptors with the \c digraphToEps() function.
 
   Digraph::NodeMap<int> degree_map(graph);
 
-  digraphToEps(graph, "graph.eps")
+  graphToEps(graph, "graph.eps")
     .coords(coords).scaleToA4().undirected()
     .nodeColors(composeMap(functorToMap(nodeColor), degree_map))
     .run();
 \endcode
 The \c functorToMap() function makes an \c int to \c Color map from the
-\e nodeColor() function. The \c composeMap() compose the \e degree_map
+\c nodeColor() function. The \c composeMap() compose the \c degree_map
 and the previously created map. The composed map is a proper function to
 get the color of each node.
 
@@ -173,7 +176,6 @@ efficient to have e.g. the Dijkstra algorithm to store its result in
 any kind of path structure.
 
 \sa lemon::concepts::Path
-
 */
 
 /**
@@ -184,7 +186,6 @@ any kind of path structure.
 This group describes some data structures implemented in LEMON in
 order to make it easier to implement combinatorial algorithms.
 */
-
 
 /**
 @defgroup algs Algorithms
@@ -201,11 +202,11 @@ implemented in LEMON.
 \brief Common graph search algorithms.
 
 This group describes the common graph search algorithms like
-Breadth-first search (Bfs) and Depth-first search (Dfs).
+Breadth-First Search (BFS) and Depth-First Search (DFS).
 */
 
 /**
-@defgroup shortest_path Shortest Path algorithms
+@defgroup shortest_path Shortest Path Algorithms
 @ingroup algs
 \brief Algorithms for finding shortest paths.
 
@@ -213,7 +214,7 @@ This group describes the algorithms for finding shortest paths in graphs.
 */
 
 /**
-@defgroup max_flow Maximum Flow algorithms
+@defgroup max_flow Maximum Flow Algorithms
 @ingroup algs
 \brief Algorithms for finding maximum flows.
 
@@ -241,11 +242,10 @@ In most cases the \ref lemon::Preflow "Preflow" algorithm provides the
 fastest method to compute the maximum flow. All impelementations
 provides functions to query the minimum cut, which is the dual linear
 programming problem of the maximum flow.
-
 */
 
 /**
-@defgroup min_cost_flow Minimum Cost Flow algorithms
+@defgroup min_cost_flow Minimum Cost Flow Algorithms
 @ingroup algs
 
 \brief Algorithms for finding minimum cost flows and circulations.
@@ -255,7 +255,7 @@ circulations.
 */
 
 /**
-@defgroup min_cut Minimum Cut algorithms
+@defgroup min_cut Minimum Cut Algorithms
 @ingroup algs
 
 \brief Algorithms for finding minimum cut in graphs.
@@ -282,11 +282,10 @@ LEMON contains several algorithms related to minimum cut problems:
 
 If you want to find minimum cut just between two distinict nodes,
 please see the \ref max_flow "Maximum Flow page".
-
 */
 
 /**
-@defgroup graph_prop Connectivity and other graph properties
+@defgroup graph_prop Connectivity and Other Graph Properties
 @ingroup algs
 \brief Algorithms for discovering the graph properties
 
@@ -298,7 +297,7 @@ like connectivity, bipartiteness, euler property, simplicity etc.
 */
 
 /**
-@defgroup planar Planarity embedding and drawing
+@defgroup planar Planarity Embedding and Drawing
 @ingroup algs
 \brief Algorithms for planarity checking, embedding and drawing
 
@@ -310,7 +309,7 @@ embedding and drawing.
 */
 
 /**
-@defgroup matching Matching algorithms
+@defgroup matching Matching Algorithms
 @ingroup algs
 \brief Algorithms for finding matchings in graphs and bipartite graphs.
 
@@ -348,11 +347,10 @@ LEMON contains the next algorithms:
 
 \image html bipartite_matching.png
 \image latex bipartite_matching.eps "Bipartite Matching" width=\textwidth
-
 */
 
 /**
-@defgroup spantree Minimum Spanning Tree algorithms
+@defgroup spantree Minimum Spanning Tree Algorithms
 @ingroup algs
 \brief Algorithms for finding a minimum cost spanning tree in a graph.
 
@@ -360,9 +358,8 @@ This group describes the algorithms for finding a minimum cost spanning
 tree in a graph
 */
 
-
 /**
-@defgroup auxalg Auxiliary algorithms
+@defgroup auxalg Auxiliary Algorithms
 @ingroup algs
 \brief Auxiliary algorithms implemented in LEMON.
 
@@ -371,7 +368,8 @@ in order to make it easier to implement complex algorithms.
 */
 
 /**
-@defgroup approx Approximation algorithms
+@defgroup approx Approximation Algorithms
+@ingroup algs
 \brief Approximation algorithms.
 
 This group describes the approximation and heuristic algorithms
@@ -385,22 +383,20 @@ implemented in LEMON.
 
 This group describes some general optimization frameworks
 implemented in LEMON.
-
 */
 
 /**
-@defgroup lp_group Lp and Mip solvers
+@defgroup lp_group Lp and Mip Solvers
 @ingroup gen_opt_group
 \brief Lp and Mip solver interfaces for LEMON.
 
 This group describes Lp and Mip solver interfaces for LEMON. The
 various LP solvers could be used in the same manner with this
 interface.
-
 */
 
 /**
-@defgroup lp_utils Tools for Lp and Mip solvers
+@defgroup lp_utils Tools for Lp and Mip Solvers
 @ingroup lp_group
 \brief Helper tools to the Lp and Mip solvers.
 
@@ -441,21 +437,12 @@ debugging and testing.
 */
 
 /**
-@defgroup timecount Time measuring and Counting
+@defgroup timecount Time Measuring and Counting
 @ingroup misc
 \brief Simple tools for measuring the performance of algorithms.
 
 This group describes simple tools for measuring the performance
 of algorithms.
-*/
-
-/**
-@defgroup graphbits Tools for Graph Implementation
-@ingroup utils
-\brief Tools to make it easier to create graphs.
-
-This group describes the tools that makes it easier to create graphs and
-the maps that dynamically update with the graph changes.
 */
 
 /**
@@ -471,28 +458,28 @@ This group describes the exceptions defined in LEMON.
 \brief Graph Input-Output methods
 
 This group describes the tools for importing and exporting graphs
-and graph related data. Now it supports the LEMON format, the
-\c DIMACS format and the encapsulated postscript (EPS) format.
+and graph related data. Now it supports the \ref lgf-format
+"LEMON Graph Format", the \c DIMACS format and the encapsulated
+postscript (EPS) format.
 */
 
 /**
 @defgroup lemon_io LEMON Input-Output
 @ingroup io_group
-\brief Reading and writing \ref lgf-format "LEMON Graph Format".
+\brief Reading and writing LEMON Graph Format.
 
 This group describes methods for reading and writing
 \ref lgf-format "LEMON Graph Format".
 */
 
 /**
-@defgroup eps_io Postscript exporting
+@defgroup eps_io Postscript Exporting
 @ingroup io_group
 \brief General \c EPS drawer and graph exporter
 
 This group describes general \c EPS drawing methods and special
 graph exporting tools.
 */
-
 
 /**
 @defgroup concept Concepts
@@ -521,9 +508,7 @@ The purpose of the classes in this group is fourfold.
   concept indeed provides all the required features.
 
 - Finally, They can serve as a skeleton of a new implementation of a concept.
-
 */
-
 
 /**
 @defgroup graph_concepts Graph Structure Concepts
@@ -534,10 +519,12 @@ This group describes the skeletons and concept checking classes of LEMON's
 graph structures and helper classes used to implement these.
 */
 
-/* --- Unused group
-@defgroup experimental Experimental Structures and Algorithms
-This group describes some Experimental structures and algorithms.
-The stuff here is subject to change.
+/**
+@defgroup map_concepts Map Concepts
+@ingroup concept
+\brief Skeleton and concept checking classes for maps
+
+This group describes the skeletons and concept checking classes of maps.
 */
 
 /**

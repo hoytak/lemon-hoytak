@@ -22,7 +22,7 @@
 #include <lemon/core.h>
 #include <lemon/concept_check.h>
 
-///\ingroup concept
+///\ingroup map_concepts
 ///\file
 ///\brief The concept of maps.
 
@@ -30,7 +30,7 @@ namespace lemon {
 
   namespace concepts {
 
-    /// \addtogroup concept
+    /// \addtogroup map_concepts
     /// @{
 
     /// Readable map concept

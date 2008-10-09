@@ -62,7 +62,7 @@ namespace lemon {
     };
   }
 
-///Default traits class of \ref GraphToEps
+///Default traits class of GraphToEps
 
 ///Default traits class of \ref GraphToEps.
 ///

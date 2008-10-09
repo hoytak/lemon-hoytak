@@ -19,11 +19,11 @@
 #ifndef LEMON_BEZIER_H
 #define LEMON_BEZIER_H
 
-///\ingroup misc
-///\file
-///\brief Classes to compute with Bezier curves.
-///
-///Up to now this file is used internally by \ref graph_to_eps.h
+//\ingroup misc
+//\file
+//\brief Classes to compute with Bezier curves.
+//
+//Up to now this file is used internally by \ref graph_to_eps.h
 
 #include<lemon/dim2.h>
 

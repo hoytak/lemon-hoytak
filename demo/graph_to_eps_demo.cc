@@ -26,7 +26,7 @@
 /// graphToEps(), and showing how to draw directed graphs,
 /// how to handle parallel egdes, how to change the properties (like
 /// color, shape, size, title etc.) of nodes and arcs individually
-/// using appropriate \ref maps-page "graph maps".
+/// using appropriate graph maps.
 ///
 /// \include graph_to_eps_demo.cc
 

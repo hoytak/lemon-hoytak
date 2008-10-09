@@ -78,7 +78,7 @@ values. The source and target tokens must be node labels.
  2   3   18
 \endcode
 
-The \c \@edges is just a synonym of \c \@arcs. The @arcs section can
+The \c \@edges is just a synonym of \c \@arcs. The \@arcs section can
 also store the edge set of an undirected graph. In such case there is
 a conventional method for store arc maps in the file, if two columns
 has the same caption with \c '+' and \c '-' prefix, then these columns

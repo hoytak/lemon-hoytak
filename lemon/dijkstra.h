@@ -453,7 +453,7 @@ namespace lemon {
     };
 
     /// \brief \ref named-templ-param "Named parameter" for setting
-    ///\ref OperationTraits type
+    ///\c OperationTraits type
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\ref OperationTraits type.
@@ -1038,7 +1038,7 @@ namespace lemon {
     typedef lemon::Path<Digraph> Path;
   };
 
-  /// Default traits class used by \ref DijkstraWizard
+  /// Default traits class used by DijkstraWizard
 
   /// To make it easier to use Dijkstra algorithm
   /// we have created a wizard class.

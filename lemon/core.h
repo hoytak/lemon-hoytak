@@ -1554,7 +1554,7 @@ namespace lemon {
     ///\note This is a dynamic data structure, therefore the data
     ///structure is updated after each graph alteration. Thus although
     ///this data structure is theoretically faster than \ref ArcLookUp
-    ///and \ref AllArcLookup, it often provides worse performance than
+    ///and \ref AllArcLookUp, it often provides worse performance than
     ///them.
     Arc operator()(Node s, Node t, Arc p = INVALID) const  {
       if (p == INVALID) {
@@ -1699,8 +1699,8 @@ namespace lemon {
 
     ///Find an arc between two nodes.
 
-    ///Find an arc between two nodes in time <em>O</em>(log<em>d</em>), where
-    ///<em>d</em> is the number of outgoing arcs of \c s.
+    ///Find an arc between two nodes in time <em>O</em>(log<em>d</em>),
+    ///where <em>d</em> is the number of outgoing arcs of \c s.
     ///\param s The source node.
     ///\param t The target node.
     ///\return An arc from \c s to \c t if there exists,
@@ -1817,8 +1817,8 @@ namespace lemon {
     ///for(Arc a = ae(u,v); a != INVALID; a=ae(u,v,a)) n++;
     ///\endcode
     ///
-    ///Finding the first arc take <em>O</em>(log<em>d</em>) time, where
-    ///<em>d</em> is the number of outgoing arcs of \c s. Then, the
+    ///Finding the first arc take <em>O</em>(log<em>d</em>) time,
+    ///where <em>d</em> is the number of outgoing arcs of \c s. Then the
     ///consecutive arcs are found in constant time.
     ///
     ///\warning If you change the digraph, refresh() must be called before using

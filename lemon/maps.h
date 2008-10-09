@@ -43,7 +43,7 @@ namespace lemon {
   template<typename K, typename V>
   class MapBase {
   public:
-    /// \biref The key type of the map.
+    /// \brief The key type of the map.
     typedef K Key;
     /// \brief The value type of the map.
     /// (The type of objects associated with the keys).
@@ -1683,6 +1683,11 @@ namespace lemon {
 
   }
 
+  /// @}
+
+  /// \addtogroup maps
+  /// @{
+
   /// \brief Writable bool map for logging each \c true assigned element
   ///
   /// A \ref concepts::WriteMap "writable" bool map for logging
@@ -1774,6 +1779,11 @@ namespace lemon {
   inline LoggerBoolMap<Iterator> loggerBoolMap(Iterator it) {
     return LoggerBoolMap<Iterator>(it);
   }
+
+  /// @}
+
+  /// \addtogroup graph_maps
+  /// @{
 
   /// Provides an immutable and unique id for each item in the graph.
 
@@ -1881,8 +1891,6 @@ namespace lemon {
     typedef typename Map::Key Key;
     /// The value type of the InvertableMap.
     typedef typename Map::Value Value;
-
-
 
     /// \brief Constructor.
     ///
@@ -2048,8 +2056,6 @@ namespace lemon {
     InverseMap inverse() const {
       return InverseMap(*this);
     }
-
-
 
   };
 
@@ -2266,7 +2272,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
+    /// \param digraph The digraph that the map belongs to.
     explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
@@ -2305,7 +2311,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _digraph The digraph that the map belongs to.
+    /// \param digraph The digraph that the map belongs to.
     explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
 
     /// \brief The subscript operator.
@@ -2344,7 +2350,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _graph The graph that the map belongs to.
+    /// \param graph The graph that the map belongs to.
     explicit ForwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.
@@ -2383,7 +2389,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param _graph The graph that the map belongs to.
+    /// \param graph The graph that the map belongs to.
     explicit BackwardMap(const Graph& graph) : _graph(graph) {}
 
     /// \brief The subscript operator.
