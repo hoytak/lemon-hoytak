@@ -24,6 +24,7 @@ noinst_HEADERS =
 noinst_PROGRAMS =
 bin_PROGRAMS =
 check_PROGRAMS =
+dist_bin_SCRIPTS =
 TESTS =
 XFAIL_TESTS =
 
@@ -31,7 +32,6 @@ include lemon/Makefile.am
 include test/Makefile.am
 include doc/Makefile.am
 include demo/Makefile.am
-include benchmark/Makefile.am
 include tools/Makefile.am
 
 MRPROPERFILES = \
