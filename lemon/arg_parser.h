@@ -46,7 +46,7 @@ namespace lemon {
   protected:
 
     int _argc;
-    const char **_argv;
+    const char * const *_argv;
 
     enum OptType { UNKNOWN=0, BOOL=1, STRING=2, DOUBLE=3, INTEGER=4, FUNC=5 };
 
@@ -119,7 +119,7 @@ namespace lemon {
   public:
 
     ///Constructor
-    ArgParser(int argc, const char **argv);
+    ArgParser(int argc, const char * const *argv);
 
     ~ArgParser();
 

@@ -49,11 +49,11 @@ namespace lemon {
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
-    ///Instantiates a \ref PredMap.
+    ///Instantiates a PredMap.
 
-    ///This function instantiates a \ref PredMap.
+    ///This function instantiates a PredMap.
     ///\param g is the digraph, to which we would like to define the
-    ///\ref PredMap.
+    ///PredMap.
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -64,11 +64,11 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a \ref ProcessedMap.
+    ///Instantiates a ProcessedMap.
 
-    ///This function instantiates a \ref ProcessedMap.
+    ///This function instantiates a ProcessedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the \ref ProcessedMap
+    ///we would like to define the ProcessedMap
 #ifdef DOXYGEN
     static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
@@ -83,11 +83,11 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
     ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a \ref ReachedMap.
+    ///Instantiates a ReachedMap.
 
-    ///This function instantiates a \ref ReachedMap.
+    ///This function instantiates a ReachedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the \ref ReachedMap.
+    ///we would like to define the ReachedMap.
     static ReachedMap *createReachedMap(const Digraph &g)
     {
       return new ReachedMap(g);
@@ -98,11 +98,11 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<int> DistMap;
-    ///Instantiates a \ref DistMap.
+    ///Instantiates a DistMap.
 
-    ///This function instantiates a \ref DistMap.
+    ///This function instantiates a DistMap.
     ///\param g is the digraph, to which we would like to define the
-    ///\ref DistMap.
+    ///DistMap.
     static DistMap *createDistMap(const Digraph &g)
     {
       return new DistMap(g);
@@ -227,10 +227,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///\ref PredMap type.
+    ///PredMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///\ref PredMap type.
+    ///PredMap type.
     template <class T>
     struct SetPredMap : public Bfs< Digraph, SetPredMapTraits<T> > {
       typedef Bfs< Digraph, SetPredMapTraits<T> > Create;
@@ -246,10 +246,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///\ref DistMap type.
+    ///DistMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///\ref DistMap type.
+    ///DistMap type.
     template <class T>
     struct SetDistMap : public Bfs< Digraph, SetDistMapTraits<T> > {
       typedef Bfs< Digraph, SetDistMapTraits<T> > Create;
@@ -265,10 +265,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///\ref ReachedMap type.
+    ///ReachedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///\ref ReachedMap type.
+    ///ReachedMap type.
     template <class T>
     struct SetReachedMap : public Bfs< Digraph, SetReachedMapTraits<T> > {
       typedef Bfs< Digraph, SetReachedMapTraits<T> > Create;
@@ -284,10 +284,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///\ref ProcessedMap type.
+    ///ProcessedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///\ref ProcessedMap type.
+    ///ProcessedMap type.
     template <class T>
     struct SetProcessedMap : public Bfs< Digraph, SetProcessedMapTraits<T> > {
       typedef Bfs< Digraph, SetProcessedMapTraits<T> > Create;
@@ -302,10 +302,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///\ref ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
     struct SetStandardProcessedMap :
       public Bfs< Digraph, SetStandardProcessedMapTraits > {
@@ -835,11 +835,11 @@ namespace lemon {
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
-    ///Instantiates a \ref PredMap.
+    ///Instantiates a PredMap.
 
-    ///This function instantiates a \ref PredMap.
+    ///This function instantiates a PredMap.
     ///\param g is the digraph, to which we would like to define the
-    ///\ref PredMap.
+    ///PredMap.
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -851,11 +851,11 @@ namespace lemon {
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a \ref ProcessedMap.
+    ///Instantiates a ProcessedMap.
 
-    ///This function instantiates a \ref ProcessedMap.
+    ///This function instantiates a ProcessedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the \ref ProcessedMap.
+    ///we would like to define the ProcessedMap.
 #ifdef DOXYGEN
     static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
@@ -870,11 +870,11 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
     ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a \ref ReachedMap.
+    ///Instantiates a ReachedMap.
 
-    ///This function instantiates a \ref ReachedMap.
+    ///This function instantiates a ReachedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the \ref ReachedMap.
+    ///we would like to define the ReachedMap.
     static ReachedMap *createReachedMap(const Digraph &g)
     {
       return new ReachedMap(g);
@@ -885,11 +885,11 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<int> DistMap;
-    ///Instantiates a \ref DistMap.
+    ///Instantiates a DistMap.
 
-    ///This function instantiates a \ref DistMap.
+    ///This function instantiates a DistMap.
     ///\param g is the digraph, to which we would like to define
-    ///the \ref DistMap
+    ///the DistMap
     static DistMap *createDistMap(const Digraph &g)
     {
       return new DistMap(g);
@@ -902,7 +902,7 @@ namespace lemon {
     typedef lemon::Path<Digraph> Path;
   };
 
-  /// Default traits class used by \ref BfsWizard
+  /// Default traits class used by BfsWizard
 
   /// To make it easier to use Bfs algorithm
   /// we have created a wizard class.
@@ -1068,10 +1068,10 @@ namespace lemon {
       SetPredMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-func-param "Named parameter"
-    ///for setting \ref PredMap object.
+    ///for setting PredMap object.
     ///
     ///\ref named-func-param "Named parameter"
-    ///for setting \ref PredMap object.
+    ///for setting PredMap object.
     template<class T>
     BfsWizard<SetPredMapBase<T> > predMap(const T &t)
     {
@@ -1086,10 +1086,10 @@ namespace lemon {
       SetReachedMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-func-param "Named parameter"
-    ///for setting \ref ReachedMap object.
+    ///for setting ReachedMap object.
     ///
     /// \ref named-func-param "Named parameter"
-    ///for setting \ref ReachedMap object.
+    ///for setting ReachedMap object.
     template<class T>
     BfsWizard<SetReachedMapBase<T> > reachedMap(const T &t)
     {
@@ -1104,10 +1104,10 @@ namespace lemon {
       SetDistMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-func-param "Named parameter"
-    ///for setting \ref DistMap object.
+    ///for setting DistMap object.
     ///
     /// \ref named-func-param "Named parameter"
-    ///for setting \ref DistMap object.
+    ///for setting DistMap object.
     template<class T>
     BfsWizard<SetDistMapBase<T> > distMap(const T &t)
     {
@@ -1122,10 +1122,10 @@ namespace lemon {
       SetProcessedMapBase(const TR &b) : TR(b) {}
     };
     ///\brief \ref named-func-param "Named parameter"
-    ///for setting \ref ProcessedMap object.
+    ///for setting ProcessedMap object.
     ///
     /// \ref named-func-param "Named parameter"
-    ///for setting \ref ProcessedMap object.
+    ///for setting ProcessedMap object.
     template<class T>
     BfsWizard<SetProcessedMapBase<T> > processedMap(const T &t)
     {
@@ -1267,11 +1267,11 @@ namespace lemon {
     /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
 
-    /// \brief Instantiates a \ref ReachedMap.
+    /// \brief Instantiates a ReachedMap.
     ///
-    /// This function instantiates a \ref ReachedMap.
+    /// This function instantiates a ReachedMap.
     /// \param digraph is the digraph, to which
-    /// we would like to define the \ref ReachedMap.
+    /// we would like to define the ReachedMap.
     static ReachedMap *createReachedMap(const Digraph &digraph) {
       return new ReachedMap(digraph);
     }

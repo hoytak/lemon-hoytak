@@ -26,12 +26,11 @@ namespace lemon {
     exit(1);
   }
 
-  ArgParser::ArgParser(int argc, const char **argv) :_argc(argc), _argv(argv),
-                                                     _command_name(argv[0]) {
+  ArgParser::ArgParser(int argc, const char * const *argv)
+    :_argc(argc), _argv(argv), _command_name(argv[0]) {
     funcOption("-help","Print a short help message",_showHelp,this);
     synonym("help","-help");
     synonym("h","-help");
-
   }
 
   ArgParser::~ArgParser()

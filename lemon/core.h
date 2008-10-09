@@ -58,7 +58,7 @@ namespace lemon {
   /// \addtogroup gutils
   /// @{
 
-  ///Create convenient typedefs for the digraph types and iterators
+  ///Create convenience typedefs for the digraph types and iterators
 
   ///This \c \#define creates convenient type definitions for the following
   ///types of \c Digraph: \c Node,  \c NodeIt, \c Arc, \c ArcIt, \c InArcIt,
@@ -80,9 +80,9 @@ namespace lemon {
   typedef Digraph::NodeMap<double> DoubleNodeMap;                       \
   typedef Digraph::ArcMap<bool> BoolArcMap;                             \
   typedef Digraph::ArcMap<int> IntArcMap;                               \
-  typedef Digraph::ArcMap<double> DoubleArcMap;
+  typedef Digraph::ArcMap<double> DoubleArcMap
 
-  ///Create convenient typedefs for the digraph types and iterators
+  ///Create convenience typedefs for the digraph types and iterators
 
   ///\see DIGRAPH_TYPEDEFS
   ///
@@ -100,9 +100,9 @@ namespace lemon {
   typedef typename Digraph::template NodeMap<double> DoubleNodeMap;     \
   typedef typename Digraph::template ArcMap<bool> BoolArcMap;           \
   typedef typename Digraph::template ArcMap<int> IntArcMap;             \
-  typedef typename Digraph::template ArcMap<double> DoubleArcMap;
+  typedef typename Digraph::template ArcMap<double> DoubleArcMap
 
-  ///Create convenient typedefs for the graph types and iterators
+  ///Create convenience typedefs for the graph types and iterators
 
   ///This \c \#define creates the same convenient type definitions as defined
   ///by \ref DIGRAPH_TYPEDEFS(Graph) and six more, namely it creates
@@ -119,9 +119,9 @@ namespace lemon {
   typedef Graph::IncEdgeIt IncEdgeIt;                                   \
   typedef Graph::EdgeMap<bool> BoolEdgeMap;                             \
   typedef Graph::EdgeMap<int> IntEdgeMap;                               \
-  typedef Graph::EdgeMap<double> DoubleEdgeMap;
+  typedef Graph::EdgeMap<double> DoubleEdgeMap
 
-  ///Create convenient typedefs for the graph types and iterators
+  ///Create convenience typedefs for the graph types and iterators
 
   ///\see GRAPH_TYPEDEFS
   ///
@@ -134,7 +134,7 @@ namespace lemon {
   typedef typename Graph::IncEdgeIt IncEdgeIt;                          \
   typedef typename Graph::template EdgeMap<bool> BoolEdgeMap;           \
   typedef typename Graph::template EdgeMap<int> IntEdgeMap;             \
-  typedef typename Graph::template EdgeMap<double> DoubleEdgeMap;
+  typedef typename Graph::template EdgeMap<double> DoubleEdgeMap
 
   /// \brief Function to count the items in a graph.
   ///
@@ -1554,7 +1554,7 @@ namespace lemon {
     ///\note This is a dynamic data structure, therefore the data
     ///structure is updated after each graph alteration. Thus although
     ///this data structure is theoretically faster than \ref ArcLookUp
-    ///and \ref AllArcLookup, it often provides worse performance than
+    ///and \ref AllArcLookUp, it often provides worse performance than
     ///them.
     Arc operator()(Node s, Node t, Arc p = INVALID) const  {
       if (p == INVALID) {
@@ -1699,8 +1699,8 @@ namespace lemon {
 
     ///Find an arc between two nodes.
 
-    ///Find an arc between two nodes in time <em>O</em>(log<em>d</em>), where
-    ///<em>d</em> is the number of outgoing arcs of \c s.
+    ///Find an arc between two nodes in time <em>O</em>(log<em>d</em>),
+    ///where <em>d</em> is the number of outgoing arcs of \c s.
     ///\param s The source node.
     ///\param t The target node.
     ///\return An arc from \c s to \c t if there exists,
@@ -1817,8 +1817,8 @@ namespace lemon {
     ///for(Arc a = ae(u,v); a != INVALID; a=ae(u,v,a)) n++;
     ///\endcode
     ///
-    ///Finding the first arc take <em>O</em>(log<em>d</em>) time, where
-    ///<em>d</em> is the number of outgoing arcs of \c s. Then, the
+    ///Finding the first arc take <em>O</em>(log<em>d</em>) time,
+    ///where <em>d</em> is the number of outgoing arcs of \c s. Then the
     ///consecutive arcs are found in constant time.
     ///
     ///\warning If you change the digraph, refresh() must be called before using

@@ -413,7 +413,7 @@ namespace lemon {
     /// Change the source of \c a to \c n
     ///
     ///\note The <tt>InArcIt</tt>s referencing the changed arc remain
-    ///valid. However the <tt>ArcIt<tt>s and <tt>OutArcIt</tt>s are
+    ///valid. However the <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s are
     ///invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot

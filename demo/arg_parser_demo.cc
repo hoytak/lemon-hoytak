@@ -27,7 +27,7 @@
 #include <lemon/arg_parser.h>
 
 using namespace lemon;
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
   // Initialize the argument parser
   ArgParser ap(argc, argv);

@@ -81,19 +81,6 @@ else
 fi
 AM_CONDITIONAL([WANT_TOOLS], [test x"$enable_tools" != x"no"])
 
-dnl Disable/enable building the benchmarks.
-AC_ARG_ENABLE([benchmark],
-AS_HELP_STRING([--enable-benchmark], [build the benchmarks])
-AS_HELP_STRING([--disable-benchmark], [do not build the benchmarks @<:@default@:>@]),
-              [], [enable_benchmark=no])
-AC_MSG_CHECKING([whether to build the benchmarks])
-if test x"$enable_benchmark" != x"no"; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-AM_CONDITIONAL([WANT_BENCHMARK], [test x"$enable_benchmark" != x"no"])
-
 dnl Checks for header files.
 AC_CHECK_HEADERS(limits.h sys/time.h sys/times.h unistd.h)
 
@@ -132,7 +119,6 @@ echo
 #echo CPLEX support................. : $lx_cplex_found
 #echo SOPLEX support................ : $lx_soplex_found
 #echo
-echo Build benchmarks.............. : $enable_benchmark
 echo Build demo programs........... : $enable_demo
 echo Build additional tools........ : $enable_tools
 echo

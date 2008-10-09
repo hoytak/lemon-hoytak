@@ -982,7 +982,7 @@ namespace lemon {
     /// \brief Class describing the concept of graph maps
     ///
     /// This class describes the common interface of the graph maps
-    /// (NodeMap, ArcMap), that is \ref maps-page "maps" which can be used to
+    /// (NodeMap, ArcMap), that is maps that can be used to
     /// associate data to graph descriptors (nodes or arcs).
     template <typename _Graph, typename _Item, typename _Value>
     class GraphMap : public ReadWriteMap<_Item, _Value> {

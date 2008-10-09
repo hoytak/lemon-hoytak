@@ -37,10 +37,6 @@ test/
 
    Contains programs to check the integrity and correctness of LEMON.
 
-benchmark/
-  
-   Contains programs for measuring the performance of algorithms.
-
 tools/
 
    Various utilities related to LEMON.

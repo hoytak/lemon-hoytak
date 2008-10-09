@@ -19,14 +19,13 @@
 #ifndef LEMON_BITS_DEFAULT_MAP_H
 #define LEMON_BITS_DEFAULT_MAP_H
 
-
 #include <lemon/bits/array_map.h>
 #include <lemon/bits/vector_map.h>
 //#include <lemon/bits/debug_map.h>
 
-///\ingroup graphbits
-///\file
-///\brief Graph maps that construct and destruct their elements dynamically.
+//\ingroup graphbits
+//\file
+//\brief Graph maps that construct and destruct their elements dynamically.
 
 namespace lemon {
 
@@ -149,7 +148,7 @@ namespace lemon {
 
 // #endif
 
-  /// \e
+  // DefaultMap class
   template <typename _Graph, typename _Item, typename _Value>
   class DefaultMap
     : public DefaultMapSelector<_Graph, _Item, _Value>::Map {
