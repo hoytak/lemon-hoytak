@@ -1,5 +1,6 @@
 EXTRA_DIST += \
 	doc/Doxyfile.in \
+	doc/DoxygenLayout.xml \
 	doc/coding_style.dox \
 	doc/dirs.dox \
 	doc/groups.dox \
