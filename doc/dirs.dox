@@ -18,9 +18,9 @@
 
 /**
 \dir demo
-\brief A collection of demo application.
+\brief A collection of demo applications.
 
-This directory contains several simple demo application, mainly
+This directory contains several simple demo applications, mainly
 for educational purposes.
 */
 
@@ -28,7 +28,8 @@ for educational purposes.
 \dir doc
 \brief Auxiliary (and the whole generated) documentation.
 
-Auxiliary (and the whole generated) documentation.
+This directory contains some auxiliary pages and the whole generated
+documentation.
 */
 
 /**
@@ -41,19 +42,16 @@ of the code.
 
 /**
 \dir tools
-\brief Some useful executables
+\brief Some useful executables.
 
 This directory contains the sources of some useful complete executables.
-
 */
-
-
 
 /**
 \dir lemon
-\brief Base include directory of LEMON
+\brief Base include directory of LEMON.
 
-This is the base directory of lemon includes, so each include file must be
+This is the base directory of LEMON includes, so each include file must be
 prefixed with this, e.g.
 \code
 #include<lemon/list_graph.h>
@@ -63,17 +61,17 @@ prefixed with this, e.g.
 
 /**
 \dir concepts
-\brief Concept descriptors and checking classes
+\brief Concept descriptors and checking classes.
 
-This directory contains the concept descriptors and concept checkers. As a user
-you typically don't have to deal with these files.
+This directory contains the concept descriptors and concept checking tools.
+For more information see the \ref concept "Concepts" module.
 */
 
 /**
 \dir bits
-\brief Implementation helper files
+\brief Auxiliary tools for implementation.
 
-This directory contains some helper classes to implement graphs, maps and
-some other classes. As a user you typically don't have to deal with these
-files.
+This directory contains some auxiliary classes for implementing graphs, 
+maps and some other classes.
+As a user you typically don't have to deal with these files.
 */

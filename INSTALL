@@ -1,11 +1,11 @@
 Installation Instructions
 =========================
 
-   Since you are reading this I assume you already obtained one of the release
+Since you are reading this I assume you already obtained one of the release
 tarballs and successfully extracted it. The latest version of LEMON is
 available at our web page (http://lemon.cs.elte.hu/).
 
-   In order to install LEMON from the extracted source tarball you have to
+In order to install LEMON from the extracted source tarball you have to
 issue the following commands:
 
    1. `cd lemon-x.y.z'
@@ -21,8 +21,8 @@ issue the following commands:
    3. `make'
 
       This command compiles the non-template part of LEMON into libemon.a
-      file. It also compiles the programs in the tools, benchmark and demo
-      subdirectories when enabled.
+      file. It also compiles the programs in the tools and demo subdirectories
+      when enabled.
 
    4. `make check'
 
@@ -49,12 +49,12 @@ issue the following commands:
 Configure Options and Variables
 ===============================
 
-   In step 2 you can customize the actions of configure by setting variables
+In step 2 you can customize the actions of configure by setting variables
 and passing options to it. This can be done like this:
 `./configure [OPTION]... [VARIABLE=VALUE]...'
 
-   Below you will find some useful variables and options (see
-`./configure --help' for more):
+Below you will find some useful variables and options (see `./configure --help'
+for more):
 
 CXX='comp'
 
@@ -76,14 +76,6 @@ CXXFLAGS='flags'
 --disable-demo
 
    Do not build the examples in the demo subdirectory (default).
-
---enable-benchmark
-
-   Build the programs in the benchmark subdirectory.
-
---disable-benchmark
-
-   Do not build the programs in the benchmark subdirectory (default).
 
 --enable-tools
 

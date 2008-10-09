@@ -35,7 +35,7 @@ demo/
 
 test/
 
-   Contains programs to check the integrity and correctness of LEMON.
+   Programs to check the integrity and correctness of LEMON.
 
 tools/
 

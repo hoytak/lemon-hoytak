@@ -165,7 +165,7 @@ This group describes two dimensional data storages implemented in LEMON.
 /**
 @defgroup paths Path Structures
 @ingroup datas
-\brief Path structures implemented in LEMON.
+\brief %Path structures implemented in LEMON.
 
 This group describes the path structures implemented in LEMON.
 
@@ -490,12 +490,12 @@ classes implemented in LEMON.
 
 The purpose of the classes in this group is fourfold.
 
-- These classes contain the documentations of the concepts. In order
+- These classes contain the documentations of the %concepts. In order
   to avoid document multiplications, an implementation of a concept
   simply refers to the corresponding concept class.
 
 - These classes declare every functions, <tt>typedef</tt>s etc. an
-  implementation of the concepts should provide, however completely
+  implementation of the %concepts should provide, however completely
   without implementations and real data structures behind the
   interface. On the other hand they should provide nothing else. All
   the algorithms working on a data structure meeting a certain concept
