@@ -24,6 +24,7 @@
 
 #include <lemon/bits/enable_if.h>
 #include <lemon/bits/traits.h>
+#include <lemon/assert.h>
 
 ///\file
 ///\brief LEMON core utilities.

@@ -33,7 +33,6 @@
 #include <vector>
 #include <functional>
 
-#include <lemon/assert.h>
 #include <lemon/core.h>
 #include <lemon/maps.h>
 

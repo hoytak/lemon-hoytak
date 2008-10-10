@@ -31,7 +31,6 @@
 #include <set>
 #include <map>
 
-#include <lemon/assert.h>
 #include <lemon/core.h>
 
 #include <lemon/lgf_writer.h>
