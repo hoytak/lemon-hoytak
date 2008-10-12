@@ -1,11 +1,12 @@
-20XX-XX-XX Version 1.0 released
+2008-10-13 Version 1.0 released
 
 	This is the first stable release of LEMON. Compared to the 0.x
 	release series, it features a considerably smaller but more
 	matured set of tools. The API has also completely revised and
 	changed in several places.
 
-	* The major name changes compared to the 0.x series
+	* The major name changes compared to the 0.x series (see the
+          Migration Guide in the doc for more details)
           * Graph -> Digraph, UGraph -> Graph
           * Edge -> Arc, UEdge -> Edge
 	  * source(UEdge)/target(UEdge) -> u(Edge)/v(Edge)
