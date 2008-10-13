@@ -17,7 +17,6 @@ SET(TESTS
   kruskal_test
   maps_test
   max_matching_test
-  max_weighted_matching_test
   random_test
   path_test
   time_measure_test

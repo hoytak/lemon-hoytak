@@ -17,165 +17,294 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <queue>
 #include <lemon/math.h>
 #include <cstdlib>
 
-#include "test_tools.h"
-#include <lemon/list_graph.h>
 #include <lemon/max_matching.h>
+#include <lemon/smart_graph.h>
+#include <lemon/lgf_reader.h>
+
+#include "test_tools.h"
 
 using namespace std;
 using namespace lemon;
 
-int main() {
+GRAPH_TYPEDEFS(SmartGraph);
 
-  typedef ListGraph Graph;
 
-  GRAPH_TYPEDEFS(Graph);
+const int lgfn = 3;
+const std::string lgf[lgfn] = {
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "7\n"
+  "@edges\n"
+  "     label  weight\n"
+  "7 4  0      984\n"
+  "0 7  1      73\n"
+  "7 1  2      204\n"
+  "2 3  3      583\n"
+  "2 7  4      565\n"
+  "2 1  5      582\n"
+  "0 4  6      551\n"
+  "2 5  7      385\n"
+  "1 5  8      561\n"
+  "5 3  9      484\n"
+  "7 5  10     904\n"
+  "3 6  11     47\n"
+  "7 6  12     888\n"
+  "3 0  13     747\n"
+  "6 1  14     310\n",
 
-  Graph g;
-  g.clear();
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "7\n"
+  "@edges\n"
+  "     label  weight\n"
+  "2 5  0      710\n"
+  "0 5  1      241\n"
+  "2 4  2      856\n"
+  "2 6  3      762\n"
+  "4 1  4      747\n"
+  "6 1  5      962\n"
+  "4 7  6      723\n"
+  "1 7  7      661\n"
+  "2 3  8      376\n"
+  "1 0  9      416\n"
+  "6 7  10     391\n",
 
-  std::vector<Graph::Node> nodes;
-  for (int i=0; i<13; ++i)
-      nodes.push_back(g.addNode());
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "7\n"
+  "@edges\n"
+  "     label  weight\n"
+  "6 2  0      553\n"
+  "0 7  1      653\n"
+  "6 3  2      22\n"
+  "4 7  3      846\n"
+  "7 2  4      981\n"
+  "7 6  5      250\n"
+  "5 2  6      539\n",
+};
 
-  g.addEdge(nodes[0], nodes[0]);
-  g.addEdge(nodes[6], nodes[10]);
-  g.addEdge(nodes[5], nodes[10]);
-  g.addEdge(nodes[4], nodes[10]);
-  g.addEdge(nodes[3], nodes[11]);
-  g.addEdge(nodes[1], nodes[6]);
-  g.addEdge(nodes[4], nodes[7]);
-  g.addEdge(nodes[1], nodes[8]);
-  g.addEdge(nodes[0], nodes[8]);
-  g.addEdge(nodes[3], nodes[12]);
-  g.addEdge(nodes[6], nodes[9]);
-  g.addEdge(nodes[9], nodes[11]);
-  g.addEdge(nodes[2], nodes[10]);
-  g.addEdge(nodes[10], nodes[8]);
-  g.addEdge(nodes[5], nodes[8]);
-  g.addEdge(nodes[6], nodes[3]);
-  g.addEdge(nodes[0], nodes[5]);
-  g.addEdge(nodes[6], nodes[12]);
+void checkMatching(const SmartGraph& graph,
+                   const MaxMatching<SmartGraph>& mm) {
+  int num = 0;
 
-  MaxMatching<Graph> max_matching(g);
-  max_matching.init();
-  max_matching.startDense();
+  IntNodeMap comp_index(graph);
+  UnionFind<IntNodeMap> comp(comp_index);
 
-  int s=0;
-  Graph::NodeMap<Node> mate(g,INVALID);
-  max_matching.mateMap(mate);
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( mate[v]!=INVALID ) ++s;
-  }
-  int size=int(s/2);  //size will be used as the size of a maxmatching
+  int barrier_num = 0;
 
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    max_matching.mate(v);
-  }
-
-  check ( size == max_matching.size(), "mate() returns a different size matching than max_matching.size()" );
-
-  Graph::NodeMap<MaxMatching<Graph>::DecompType> pos0(g);
-  max_matching.decomposition(pos0);
-
-  max_matching.init();
-  max_matching.startSparse();
-  s=0;
-  max_matching.mateMap(mate);
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( mate[v]!=INVALID ) ++s;
-  }
-  check ( int(s/2) == size, "The size does not equal!" );
-
-  Graph::NodeMap<MaxMatching<Graph>::DecompType> pos1(g);
-  max_matching.decomposition(pos1);
-
-  max_matching.run();
-  s=0;
-  max_matching.mateMap(mate);
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( mate[v]!=INVALID ) ++s;
-  }
-  check ( int(s/2) == size, "The size does not equal!" );
-
-  Graph::NodeMap<MaxMatching<Graph>::DecompType> pos2(g);
-  max_matching.decomposition(pos2);
-
-  max_matching.run();
-  s=0;
-  max_matching.mateMap(mate);
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( mate[v]!=INVALID ) ++s;
-  }
-  check ( int(s/2) == size, "The size does not equal!" );
-
-  Graph::NodeMap<MaxMatching<Graph>::DecompType> pos(g);
-  max_matching.decomposition(pos);
-
-  bool ismatching=true;
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( mate[v]!=INVALID ) {
-      Node u=mate[v];
-      if (mate[u]!=v) ismatching=false;
+  for (NodeIt n(graph); n != INVALID; ++n) {
+    check(mm.decomposition(n) == MaxMatching<SmartGraph>::EVEN ||
+          mm.matching(n) != INVALID, "Wrong Gallai-Edmonds decomposition");
+    if (mm.decomposition(n) == MaxMatching<SmartGraph>::ODD) {
+      ++barrier_num;
+    } else {
+      comp.insert(n);
     }
   }
-  check ( ismatching, "It is not a matching!" );
 
-  bool coincide=true;
-  for(NodeIt v(g); v!=INVALID; ++v) {
-   if ( pos0[v] != pos1[v] || pos1[v]!=pos2[v] || pos2[v]!=pos[v] ) {
-     coincide=false;
+  for (EdgeIt e(graph); e != INVALID; ++e) {
+    if (mm.matching(e)) {
+      check(e == mm.matching(graph.u(e)), "Wrong matching");
+      check(e == mm.matching(graph.v(e)), "Wrong matching");
+      ++num;
+    }
+    check(mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::EVEN ||
+          mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::MATCHED,
+          "Wrong Gallai-Edmonds decomposition");
+
+    check(mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::EVEN ||
+          mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::MATCHED,
+          "Wrong Gallai-Edmonds decomposition");
+
+    if (mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::ODD &&
+        mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::ODD) {
+      comp.join(graph.u(e), graph.v(e));
     }
   }
-  check ( coincide, "The decompositions do not coincide! " );
 
-  bool noarc=true;
-  for(EdgeIt e(g); e!=INVALID; ++e) {
-   if ( (pos[g.v(e)]==max_matching.C &&
-         pos[g.u(e)]==max_matching.D) ||
-         (pos[g.v(e)]==max_matching.D &&
-          pos[g.u(e)]==max_matching.C) )
-      noarc=false;
-  }
-  check ( noarc, "There are arcs between D and C!" );
-
-  bool oddcomp=true;
-  Graph::NodeMap<bool> todo(g,true);
-  int num_comp=0;
-  for(NodeIt v(g); v!=INVALID; ++v) {
-   if ( pos[v]==max_matching.D && todo[v] ) {
-      int comp_size=1;
-      ++num_comp;
-      std::queue<Node> Q;
-      Q.push(v);
-      todo.set(v,false);
-      while (!Q.empty()) {
-        Node w=Q.front();
-        Q.pop();
-        for(IncEdgeIt e(g,w); e!=INVALID; ++e) {
-          Node u=g.runningNode(e);
-          if ( pos[u]==max_matching.D && todo[u] ) {
-            ++comp_size;
-            Q.push(u);
-            todo.set(u,false);
-          }
+  std::set<int> comp_root;
+  int odd_comp_num = 0;
+  for (NodeIt n(graph); n != INVALID; ++n) {
+    if (mm.decomposition(n) != MaxMatching<SmartGraph>::ODD) {
+      int root = comp.find(n);
+      if (comp_root.find(root) == comp_root.end()) {
+        comp_root.insert(root);
+        if (comp.size(n) % 2 == 1) {
+          ++odd_comp_num;
         }
       }
-      if ( !(comp_size % 2) ) oddcomp=false;
     }
   }
-  check ( oddcomp, "A component of g[D] is not odd." );
 
-  int barrier=0;
-  for(NodeIt v(g); v!=INVALID; ++v) {
-    if ( pos[v]==max_matching.A ) ++barrier;
+  check(mm.matchingSize() == num, "Wrong matching");
+  check(2 * num == countNodes(graph) - (odd_comp_num - barrier_num),
+         "Wrong matching");
+  return;
+}
+
+void checkWeightedMatching(const SmartGraph& graph,
+                   const SmartGraph::EdgeMap<int>& weight,
+                   const MaxWeightedMatching<SmartGraph>& mwm) {
+  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+    if (graph.u(e) == graph.v(e)) continue;
+    int rw = mwm.nodeValue(graph.u(e)) + mwm.nodeValue(graph.v(e));
+
+    for (int i = 0; i < mwm.blossomNum(); ++i) {
+      bool s = false, t = false;
+      for (MaxWeightedMatching<SmartGraph>::BlossomIt n(mwm, i);
+           n != INVALID; ++n) {
+        if (graph.u(e) == n) s = true;
+        if (graph.v(e) == n) t = true;
+      }
+      if (s == true && t == true) {
+        rw += mwm.blossomValue(i);
+      }
+    }
+    rw -= weight[e] * mwm.dualScale;
+
+    check(rw >= 0, "Negative reduced weight");
+    check(rw == 0 || !mwm.matching(e),
+          "Non-zero reduced weight on matching edge");
   }
-  int expected_size=int( countNodes(g)-num_comp+barrier)/2;
-  check ( size==expected_size, "The size of the matching is wrong." );
+
+  int pv = 0;
+  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
+    if (mwm.matching(n) != INVALID) {
+      check(mwm.nodeValue(n) >= 0, "Invalid node value");
+      pv += weight[mwm.matching(n)];
+      SmartGraph::Node o = graph.target(mwm.matching(n));
+      check(mwm.mate(n) == o, "Invalid matching");
+      check(mwm.matching(n) == graph.oppositeArc(mwm.matching(o)),
+            "Invalid matching");
+    } else {
+      check(mwm.mate(n) == INVALID, "Invalid matching");
+      check(mwm.nodeValue(n) == 0, "Invalid matching");
+    }
+  }
+
+  int dv = 0;
+  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
+    dv += mwm.nodeValue(n);
+  }
+
+  for (int i = 0; i < mwm.blossomNum(); ++i) {
+    check(mwm.blossomValue(i) >= 0, "Invalid blossom value");
+    check(mwm.blossomSize(i) % 2 == 1, "Even blossom size");
+    dv += mwm.blossomValue(i) * ((mwm.blossomSize(i) - 1) / 2);
+  }
+
+  check(pv * mwm.dualScale == dv * 2, "Wrong duality");
+
+  return;
+}
+
+void checkWeightedPerfectMatching(const SmartGraph& graph,
+                          const SmartGraph::EdgeMap<int>& weight,
+                          const MaxWeightedPerfectMatching<SmartGraph>& mwpm) {
+  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+    if (graph.u(e) == graph.v(e)) continue;
+    int rw = mwpm.nodeValue(graph.u(e)) + mwpm.nodeValue(graph.v(e));
+
+    for (int i = 0; i < mwpm.blossomNum(); ++i) {
+      bool s = false, t = false;
+      for (MaxWeightedPerfectMatching<SmartGraph>::BlossomIt n(mwpm, i);
+           n != INVALID; ++n) {
+        if (graph.u(e) == n) s = true;
+        if (graph.v(e) == n) t = true;
+      }
+      if (s == true && t == true) {
+        rw += mwpm.blossomValue(i);
+      }
+    }
+    rw -= weight[e] * mwpm.dualScale;
+
+    check(rw >= 0, "Negative reduced weight");
+    check(rw == 0 || !mwpm.matching(e),
+          "Non-zero reduced weight on matching edge");
+  }
+
+  int pv = 0;
+  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
+    check(mwpm.matching(n) != INVALID, "Non perfect");
+    pv += weight[mwpm.matching(n)];
+    SmartGraph::Node o = graph.target(mwpm.matching(n));
+    check(mwpm.mate(n) == o, "Invalid matching");
+    check(mwpm.matching(n) == graph.oppositeArc(mwpm.matching(o)),
+          "Invalid matching");
+  }
+
+  int dv = 0;
+  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
+    dv += mwpm.nodeValue(n);
+  }
+
+  for (int i = 0; i < mwpm.blossomNum(); ++i) {
+    check(mwpm.blossomValue(i) >= 0, "Invalid blossom value");
+    check(mwpm.blossomSize(i) % 2 == 1, "Even blossom size");
+    dv += mwpm.blossomValue(i) * ((mwpm.blossomSize(i) - 1) / 2);
+  }
+
+  check(pv * mwpm.dualScale == dv * 2, "Wrong duality");
+
+  return;
+}
+
+
+int main() {
+
+  for (int i = 0; i < lgfn; ++i) {
+    SmartGraph graph;
+    SmartGraph::EdgeMap<int> weight(graph);
+
+    istringstream lgfs(lgf[i]);
+    graphReader(graph, lgfs).
+      edgeMap("weight", weight).run();
+
+    MaxMatching<SmartGraph> mm(graph);
+    mm.run();
+    checkMatching(graph, mm);
+
+    MaxWeightedMatching<SmartGraph> mwm(graph, weight);
+    mwm.run();
+    checkWeightedMatching(graph, weight, mwm);
+
+    MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
+    bool perfect = mwpm.run();
+
+    check(perfect == (mm.matchingSize() * 2 == countNodes(graph)),
+          "Perfect matching found");
+
+    if (perfect) {
+      checkWeightedPerfectMatching(graph, weight, mwpm);
+    }
+  }
 
   return 0;
 }
