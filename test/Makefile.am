@@ -19,6 +19,7 @@ check_PROGRAMS += \
 	test/heap_test \
 	test/kruskal_test \
         test/maps_test \
+	test/radix_sort_test \
         test/random_test \
         test/path_test \
         test/test_tools_fail \
@@ -43,6 +44,7 @@ test_heap_test_SOURCES = test/heap_test.cc
 test_kruskal_test_SOURCES = test/kruskal_test.cc
 test_maps_test_SOURCES = test/maps_test.cc
 test_path_test_SOURCES = test/path_test.cc
+test_radix_sort_test_SOURCES = test/radix_sort_test.cc
 test_random_test_SOURCES = test/random_test.cc
 test_test_tools_fail_SOURCES = test/test_tools_fail.cc
 test_test_tools_pass_SOURCES = test/test_tools_pass.cc

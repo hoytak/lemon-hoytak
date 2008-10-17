@@ -36,6 +36,7 @@ lemon_HEADERS += \
 	lemon/maps.h \
 	lemon/math.h \
 	lemon/path.h \
+	lemon/radix_sort.h \
         lemon/random.h \
 	lemon/smart_graph.h \
         lemon/time_measure.h \
