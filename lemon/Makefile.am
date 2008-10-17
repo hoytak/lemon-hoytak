@@ -35,6 +35,7 @@ lemon_HEADERS += \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
+	lemon/nauty_reader.h \
 	lemon/path.h \
         lemon/random.h \
 	lemon/smart_graph.h \
