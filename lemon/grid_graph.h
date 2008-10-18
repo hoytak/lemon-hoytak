@@ -184,6 +184,7 @@ namespace lemon {
 
     class Edge {
       friend class GridGraphBase;
+      friend class Arc;
 
     protected:
       int _id;
@@ -472,15 +473,15 @@ namespace lemon {
   /// in the \c [0..width()-1] range and j is in the \c
   /// [0..height()-1] range.  Two nodes are connected in the graph if
   /// the indexes differ exactly on one position and exactly one is
-  /// the difference. The nodes of the graph be indexed by position
-  /// with \c operator()() function. The positions of the nodes can be
+  /// the difference. The nodes of the graph can be indexed by position
+  /// with the \c operator()() function. The positions of the nodes can be
   /// get with \c pos(), \c col() and \c row() members. The outgoing
   /// arcs can be retrieved with the \c right(), \c up(), \c left()
   /// and \c down() functions, where the bottom-left corner is the
   /// origin.
   ///
   /// \image html grid_graph.png
-  /// \image latex grid_graph.eps "Grid digraph" row_num=\textrow_num
+  /// \image latex grid_graph.eps "Grid graph" row_num=\textrow_num
   ///
   /// A short example about the basic usage:
   ///\code
@@ -493,10 +494,10 @@ namespace lemon {
   /// }
   ///\endcode
   ///
-  /// The graph type is fully conform to the \ref concepts::Graph
+  /// This graph type is fully conform to the \ref concepts::Graph
   /// "Graph" concept, and it also has an important extra feature
-  /// that its maps are real \ref concepts::ReferenceMap "reference
-  /// map"s.
+  /// that its maps are real \ref concepts::ReferenceMap
+  /// "reference map"s.
   class GridGraph : public ExtendedGridGraphBase {
   public:
 

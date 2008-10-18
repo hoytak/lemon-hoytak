@@ -192,8 +192,8 @@ void checkGridGraph(int width, int height) {
   GRAPH_TYPEDEFS(Graph);
   Graph G(width, height);
 
-  check(G.width() == width, "Wrong row number");
-  check(G.height() == height, "Wrong column number");
+  check(G.width() == width, "Wrong column number");
+  check(G.height() == height, "Wrong row number");
 
   for (int i = 0; i < width; ++i) {
     for (int j = 0; j < height; ++j) {
