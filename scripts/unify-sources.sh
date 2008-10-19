@@ -3,9 +3,166 @@
 YEAR=`date +2003-%Y`
 HGROOT=`hg root`
 
-function update_header() {
+# file enumaration modes
+
+function all_files() {
+    hg status -a -m -c |
+    cut -d ' ' -f 2 | grep -E '(\.(cc|h|dox)$|Makefile\.am$)' |
+    while read file; do echo $HGROOT/$file; done
+}
+
+function modified_files() {
+    hg status -a -m |
+    cut -d ' ' -f 2 | grep -E  '(\.(cc|h|dox)$|Makefile\.am$)' |
+    while read file; do echo $HGROOT/$file; done
+}
+
+function changed_files() {
+    {
+        if [ -n "$HG_PARENT1" ]
+        then
+            hg status --rev $HG_PARENT1:$HG_NODE -a -m
+        fi
+        if [ -n "$HG_PARENT2" ]
+        then
+            hg status --rev $HG_PARENT2:$HG_NODE -a -m
+        fi
+    } | cut -d ' ' -f 2 | grep -E '(\.(cc|h|dox)$|Makefile\.am$)' | 
+    sort | uniq |
+    while read file; do echo $HGROOT/$file; done
+}
+
+function given_files() {
+    for file in $GIVEN_FILES
+    do
+	echo $file
+    done
+}
+
+# actions
+
+function update_action() {
+    if ! diff -q $1 $2 >/dev/null
+    then
+	echo -n " [$3 updated]"
+	rm $2
+	mv $1 $2
+	CHANGED=YES
+    fi
+}
+
+function update_warning() {
+    echo -n " [$2 warning]"
+    WARNED=YES
+}
+
+function update_init() {
+    echo Update source files...
+    TOTAL_FILES=0
+    CHANGED_FILES=0
+    WARNED_FILES=0
+}
+
+function update_done() {
+    echo $CHANGED_FILES out of $TOTAL_FILES files has been changed.
+    echo $WARNED_FILES out of $TOTAL_FILES files has been warned.
+}
+
+function update_begin() {
+    ((TOTAL_FILES++))
+    CHANGED=NO
+    WARNED=NO
+}
+
+function update_end() {
+    if [ $CHANGED == YES ]
+    then
+	((++CHANGED_FILES))
+    fi
+    if [ $WARNED == YES ]
+    then
+	((++WARNED_FILES))
+    fi
+}
+
+function check_action() {
+    if ! diff -q $1 $2 >/dev/null
+    then
+	echo -n " [$3 failed]"
+	FAILED=YES
+    fi
+}
+
+function check_warning() {
+    echo -n " [$2 warning]"
+    WARNED=YES
+}
+
+function check_init() {
+    echo Check source files...
+    FAILED_FILES=0
+    WARNED_FILES=0
+    TOTAL_FILES=0
+}
+
+function check_done() {
+    echo $FAILED_FILES out of $TOTAL_FILES files has been failed.
+    echo $WARNED_FILES out of $TOTAL_FILES files has been warned.
+
+    if [ $FAILED_FILES -gt 0 ]
+    then
+	return 1
+    elif [ $WARNED_FILES -gt 0 ]
+    then
+	if [ "$WARNING" == 'INTERACTIVE' ]
+	then
+	    echo -n "Assume as normal behaviour? (yes/no) "
+	    while read answer
+	    do
+		if [ "$answer" == 'yes' ]
+		then
+		    return 0
+		elif [ "$answer" == 'no' ]
+		then
+		    return 1
+		fi
+		echo -n "Assume as normal behaviour? (yes/no) "		    
+	    done
+	elif [ "$WARNING" == 'WERROR' ]
+	then
+	    return 1
+	fi
+    fi
+}
+
+function check_begin() {
+    ((TOTAL_FILES++))
+    FAILED=NO
+    WARNED=NO
+}
+
+function check_end() {
+    if [ $FAILED == YES ]
+    then
+	((++FAILED_FILES))
+    fi
+    if [ $WARNED == YES ]
+    then
+	((++WARNED_FILES))
+    fi
+}
+
+
+
+# checks
+
+function header_check() {
+    if echo $1 | grep -q -E 'Makefile\.am$'
+    then
+	return
+    fi
+
     TMP_FILE=`mktemp`
-    FILE_NAME=$1
 
     (echo "/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
@@ -25,110 +182,156 @@ function update_header() {
  *
  */
 "
-	awk 'BEGIN { pm=0; }
+    awk 'BEGIN { pm=0; }
      pm==3 { print }
      /\/\* / && pm==0 { pm=1;}
      /[^:blank:]/ && (pm==0 || pm==2) { pm=3; print;}
      /\*\// && pm==1 { pm=2;}
     ' $1
-	) >$TMP_FILE
+    ) >$TMP_FILE
 
-    HEADER_CH=`diff -q $TMP_FILE $FILE_NAME >/dev/null&&echo NO||echo YES`
-
-    rm $FILE_NAME
-    mv $TMP_FILE $FILE_NAME
+    "$ACTION"_action "$TMP_FILE" "$1" header
 }
 
-function update_tabs() {
+function tabs_check() {
+    if echo $1 | grep -q -v -E 'Makefile\.am$'
+    then
+        OLD_PATTERN=$(echo -e '\t')
+        NEW_PATTERN='        '
+    else
+        OLD_PATTERN='        '
+        NEW_PATTERN=$(echo -e '\t')
+    fi
     TMP_FILE=`mktemp`
-    FILE_NAME=$1
+    cat $1 | sed -e "s/$OLD_PATTERN/$NEW_PATTERN/g" >$TMP_FILE
 
-    cat $1 |
-    sed -e 's/\t/        /g' >$TMP_FILE
-
-    TABS_CH=`diff -q $TMP_FILE $FILE_NAME >/dev/null&&echo NO||echo YES`
-
-    rm $FILE_NAME
-    mv $TMP_FILE $FILE_NAME
+    "$ACTION"_action "$TMP_FILE" "$1" 'tabs'
 }
 
-function remove_trailing_space() {
+function spaces_check() {
     TMP_FILE=`mktemp`
-    FILE_NAME=$1
+    cat $1 | sed -e 's/ \+$//g' >$TMP_FILE
 
-    cat $1 |
-    sed -e 's/ \+$//g' >$TMP_FILE
-
-    SPACES_CH=`diff -q $TMP_FILE $FILE_NAME >/dev/null&&echo NO||echo YES`
-
-    rm $FILE_NAME
-    mv $TMP_FILE $FILE_NAME
+    "$ACTION"_action "$TMP_FILE" "$1" 'spaces'
 }
 
-function long_line_test() {
-    cat $1 |grep -q -E '.{81,}'
-}
-
-function update_file() {
-    echo -n '    update' $i ...
-
-    update_header $1
-    update_tabs $1
-    remove_trailing_space $1
-
-    CHANGED=NO;
-    if [[ $HEADER_CH = YES ]];
+function long_lines_check() {
+    if cat $1 | grep -q -E '.{81,}'
     then
-	echo -n '  [header updated]'
-	CHANGED=YES;
-    fi
-    if [[ $TABS_CH = YES ]];
-    then
-	echo -n ' [tabs removed]'
-	CHANGED=YES;
-    fi
-    if [[ $SPACES_CH = YES ]];
-    then
-	echo -n ' [trailing spaces removed]'
-	CHANGED=YES;
-    fi
-    if long_line_test $1 ;
-    then
-	echo -n ' [LONG LINES]'
-	((LONG_LINE_FILES++))
-    fi
-    echo
-    if [[ $CHANGED = YES ]];
-    then
-	((CHANGED_FILES++))
+	"$ACTION"_warning $1 'long lines'
     fi
 }
 
-CHANGED_FILES=0
-TOTAL_FILES=0
-LONG_LINE_FILES=0
-if [ $# == 0 ]; then
-    echo Update all source files...
-    for i in `hg manifest|grep -E  '\.(cc|h|dox)$'`
+# process the file
+
+function process_file() {
+    echo -n "    $ACTION " $1...
+
+    CHECKING="header tabs spaces long_lines"
+
+    "$ACTION"_begin $1
+    for check in $CHECKING
     do
-	update_file $HGROOT/$i
-	((TOTAL_FILES++))
+	"$check"_check $1
     done
-    echo '  done.'
-else
-    for i in $*
+    "$ACTION"_end $1
+    echo
+}
+
+function process_all {
+    "$ACTION"_init
+    while read file
     do
-	update_file $i
-	((TOTAL_FILES++))
-    done
+	process_file $file
+    done < <($FILES)
+    "$ACTION"_done
+}
+
+while [ $# -gt 0 ]
+do
+    
+    if [ "$1" == '--help' ] || [ "$1" == '-h' ]
+    then
+	echo -n \
+"Usage:
+  $0 [OPTIONS] [files]
+Options:
+  --dry-run|-n
+     Check the given files, but do not modify them.
+  --interactive|-i
+     If --dry-run is specified and files are warned then a message is
+     prompted whether the warnings should be turned to errors.
+  --werror|-w
+     If --dry-run is specified and the warnings are turned to errors.
+  --all|-a
+     All files in the repository will be checked.
+  --modified|-m
+     Check only the modified source files. This option is proper to
+     use before a commit. E.g. all files which are modified or added
+     into the repository will be updated.
+  --changed|-c
+     Check only the changed source files compared to the parent(s) of
+     the current hg node.  This option is proper to use as hg hook
+     script. E.g. to check all your commited source files with this
+     script add the following section to the appropriate .hg/hgrc
+     file.
+
+       [hooks]
+       pretxncommit.checksources = scripts/unify-sources.sh -c -n -i
+
+  --help|-h
+     Print this help message.
+  files
+     The files to check/unify. If no file names are given, the
+     modified source will be checked/unified
+
+"
+        exit 0
+    elif [ "$1" == '--dry-run' ] || [ "$1" == '-n' ]
+    then
+	[ -n "$ACTION" ] && echo "Invalid option $1" >&2 && exit 1
+	ACTION=check
+    elif [ "$1" == "--all" ] || [ "$1" == '-a' ]
+    then
+	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	FILES=all_files
+    elif [ "$1" == "--changed" ] || [ "$1" == '-c' ]
+    then
+	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	FILES=changed_files
+    elif [ "$1" == "--modified" ] || [ "$1" == '-m' ]
+    then
+	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	FILES=modified_files
+    elif [ "$1" == "--interactive" ] || [ "$1" == "-i" ]
+    then
+	[ -n "$WARNING" ] && echo "Invalid option $1" >&2 && exit 1
+	WARNING='INTERACTIVE'
+    elif [ "$1" == "--werror" ] || [ "$1" == "-w" ]
+    then
+	[ -n "$WARNING" ] && echo "Invalid option $1" >&2 && exit 1
+	WARNING='WERROR'
+    elif [ $(echo $1 | cut -c 1) == '-' ]
+    then
+	echo "Invalid option $1" >&2 && exit 1
+    else
+	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	GIVEN_FILES=$@
+	FILES=given_files
+	break
+    fi
+    
+    shift
+done
+
+if [ -z $FILES ]
+then
+    FILES=modified_files
 fi
-echo $CHANGED_FILES out of $TOTAL_FILES files has been changed.
-if [[ $LONG_LINE_FILES -gt 1 ]]; then
-    echo
-    echo WARNING: $LONG_LINE_FILES files contains long lines!    
-    echo
-elif [[ $LONG_LINE_FILES -gt 0 ]]; then
-    echo
-    echo WARNING: a file contains long lines!
-    echo
+
+if [ -z $ACTION ]
+then
+    ACTION=update
 fi
+
+process_all
