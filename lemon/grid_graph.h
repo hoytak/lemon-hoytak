@@ -19,14 +19,10 @@
 #ifndef GRID_GRAPH_H
 #define GRID_GRAPH_H
 
-#include <iostream>
 #include <lemon/core.h>
-#include <lemon/assert.h>
-
-#include <lemon/bits/base_extender.h>
 #include <lemon/bits/graph_extender.h>
-
 #include <lemon/dim2.h>
+#include <lemon/assert.h>
 
 ///\ingroup graphs
 ///\file
@@ -41,6 +37,7 @@ namespace lemon {
     typedef GridGraphBase Graph;
 
     class Node;
+    class Edge;
     class Arc;
 
   public:
@@ -49,58 +46,31 @@ namespace lemon {
 
   protected:
 
-    void construct(int w, int h) {
-      _height = h; _width = w;
-      _nodeNum = h * w; _arcNum = 2 * _nodeNum - w - h;
-      _arcLimit = _nodeNum - w;
-    }
-
-    Arc _down(Node n) const {
-      if (n.id < _nodeNum - _width) {
-        return Arc(n.id);
-      } else {
-        return INVALID;
-      }
-    }
-
-    Arc _up(Node n) const {
-      if (n.id >= _width) {
-        return Arc(n.id - _width);
-      } else {
-        return INVALID;
-      }
-    }
-
-    Arc _right(Node n) const {
-      if (n.id % _width < _width - 1) {
-        return _arcLimit + n.id % _width + (n.id / _width) * (_width - 1);
-      } else {
-        return INVALID;
-      }
-    }
-
-    Arc _left(Node n) const {
-      if (n.id % _width > 0) {
-        return _arcLimit + n.id % _width + (n.id / _width) * (_width - 1) - 1;
-      } else {
-        return INVALID;
-      }
+    void construct(int width, int height) {
+       _width = width; _height = height;
+      _node_num = width * height;
+      _edge_num = 2 * _node_num - width - height;
+      _edge_limit = _node_num - _width;
     }
 
   public:
 
     Node operator()(int i, int j) const {
-      LEMON_ASSERT(0 <= i && i < width() &&
-                   0 <= j && j < height(), "lemon::GridGraph::IndexError");
+      LEMON_DEBUG(0 <= i && i < _width &&
+                  0 <= j  && j < _height, "Index out of range");
       return Node(i + j * _width);
     }
 
-    int row(Node n) const {
-      return n.id / _width;
+    int col(Node n) const {
+      return n._id % _width;
     }
 
-    int col(Node n) const {
-      return n.id % _width;
+    int row(Node n) const {
+      return n._id / _width;
+    }
+
+    dim2::Point<int> pos(Node n) const {
+      return dim2::Point<int>(col(n), row(n));
     }
 
     int width() const {
@@ -114,45 +84,86 @@ namespace lemon {
     typedef True NodeNumTag;
     typedef True ArcNumTag;
 
-    int nodeNum() const { return _nodeNum; }
-    int arcNum() const { return _arcNum; }
+    int nodeNum() const { return _node_num; }
+    int edgeNum() const { return _edge_num; }
+    int arcNum() const { return 2 * _edge_num; }
 
-    int maxNodeId() const { return nodeNum() - 1; }
-    int maxArcId() const { return arcNum() - 1; }
-
-    Node source(Arc e) const {
-      if (e.id < _arcLimit) {
-        return e.id;
+    Node u(Edge edge) const {
+      if (edge._id < _edge_limit) {
+        return edge._id;
       } else {
-        return (e.id - _arcLimit) % (_width - 1) +
-          (e.id - _arcLimit) / (_width - 1) * _width;
+        return (edge._id - _edge_limit) % (_width - 1) +
+          (edge._id - _edge_limit) / (_width - 1) * _width;
       }
     }
 
-    Node target(Arc e) const {
-      if (e.id < _arcLimit) {
-        return e.id + _width;
+    Node v(Edge edge) const {
+      if (edge._id < _edge_limit) {
+        return edge._id + _width;
       } else {
-        return (e.id - _arcLimit) % (_width - 1) +
-          (e.id - _arcLimit) / (_width - 1) * _width + 1;
+        return (edge._id - _edge_limit) % (_width - 1) +
+          (edge._id - _edge_limit) / (_width - 1) * _width + 1;
       }
     }
 
-    static int id(Node v) { return v.id; }
-    static int id(Arc e) { return e.id; }
+    Node source(Arc arc) const {
+      return (arc._id & 1) == 1 ? u(arc) : v(arc);
+    }
+
+    Node target(Arc arc) const {
+      return (arc._id & 1) == 1 ? v(arc) : u(arc);
+    }
+
+    static int id(Node node) { return node._id; }
+    static int id(Edge edge) { return edge._id; }
+    static int id(Arc arc) { return arc._id; }
+
+    int maxNodeId() const { return _node_num - 1; }
+    int maxEdgeId() const { return _edge_num - 1; }
+    int maxArcId() const { return 2 * _edge_num - 1; }
 
     static Node nodeFromId(int id) { return Node(id);}
-
+    static Edge edgeFromId(int id) { return Edge(id);}
     static Arc arcFromId(int id) { return Arc(id);}
 
-    typedef True FindArcTag;
+    typedef True FindEdgeTag;
+
+    Edge findEdge(Node u, Node v, Edge prev = INVALID) const {
+      if (prev != INVALID) return INVALID;
+      if (v._id > u._id) {
+        if (v._id - u._id == _width)
+          return Edge(u._id);
+        if (v._id - u._id == 1 && u._id % _width < _width - 1) {
+          return Edge(u._id / _width * (_width - 1) +
+                      u._id % _width + _edge_limit);
+        }
+      } else {
+        if (u._id - v._id == _width)
+          return Edge(v._id);
+        if (u._id - v._id == 1 && v._id % _width < _width - 1) {
+          return Edge(v._id / _width * (_width - 1) +
+                      v._id % _width + _edge_limit);
+        }
+      }
+      return INVALID;
+    }
 
     Arc findArc(Node u, Node v, Arc prev = INVALID) const {
       if (prev != INVALID) return INVALID;
-      if (v.id - u.id == _width) return Arc(u.id);
-      if (v.id - u.id == 1 && u.id % _width < _width - 1) {
-        return Arc(u.id / _width * (_width - 1) +
-                   u.id % _width + _arcLimit);
+      if (v._id > u._id) {
+        if (v._id - u._id == _width)
+          return Arc((u._id << 1) | 1);
+        if (v._id - u._id == 1 && u._id % _width < _width - 1) {
+          return Arc(((u._id / _width * (_width - 1) +
+                       u._id % _width + _edge_limit) << 1) | 1);
+        }
+      } else {
+        if (u._id - v._id == _width)
+          return Arc(v._id << 1);
+        if (u._id - v._id == 1 && v._id % _width < _width - 1) {
+          return Arc((v._id / _width * (_width - 1) +
+                       v._id % _width + _edge_limit) << 1);
+        }
       }
       return INVALID;
     }
@@ -161,127 +172,331 @@ namespace lemon {
       friend class GridGraphBase;
 
     protected:
-      int id;
-      Node(int _id) : id(_id) {}
+      int _id;
+      Node(int id) : _id(id) {}
     public:
       Node() {}
-      Node (Invalid) { id = -1; }
-      bool operator==(const Node node) const { return id == node.id; }
-      bool operator!=(const Node node) const { return id != node.id; }
-      bool operator<(const Node node) const { return id < node.id; }
+      Node (Invalid) : _id(-1) {}
+      bool operator==(const Node node) const {return _id == node._id;}
+      bool operator!=(const Node node) const {return _id != node._id;}
+      bool operator<(const Node node) const {return _id < node._id;}
+    };
+
+    class Edge {
+      friend class GridGraphBase;
+
+    protected:
+      int _id;
+
+      Edge(int id) : _id(id) {}
+
+    public:
+      Edge() {}
+      Edge (Invalid) : _id(-1) {}
+      bool operator==(const Edge edge) const {return _id == edge._id;}
+      bool operator!=(const Edge edge) const {return _id != edge._id;}
+      bool operator<(const Edge edge) const {return _id < edge._id;}
     };
 
     class Arc {
       friend class GridGraphBase;
 
     protected:
-      int id;
-      Arc(int _id) : id(_id) {}
+      int _id;
+
+      Arc(int id) : _id(id) {}
+
     public:
       Arc() {}
-      Arc (Invalid) { id = -1; }
-      bool operator==(const Arc arc) const { return id == arc.id; }
-      bool operator!=(const Arc arc) const { return id != arc.id; }
-      bool operator<(const Arc arc) const { return id < arc.id; }
+      Arc (Invalid) : _id(-1) {}
+      operator Edge() const { return _id != -1 ? Edge(_id >> 1) : INVALID; }
+      bool operator==(const Arc arc) const {return _id == arc._id;}
+      bool operator!=(const Arc arc) const {return _id != arc._id;}
+      bool operator<(const Arc arc) const {return _id < arc._id;}
     };
 
+    static bool direction(Arc arc) {
+      return (arc._id & 1) == 1;
+    }
+
+    static Arc direct(Edge edge, bool dir) {
+      return Arc((edge._id << 1) | (dir ? 1 : 0));
+    }
+
     void first(Node& node) const {
-      node.id = nodeNum() - 1;
+      node._id = _node_num - 1;
     }
 
     static void next(Node& node) {
-      --node.id;
+      --node._id;
+    }
+
+    void first(Edge& edge) const {
+      edge._id = _edge_num - 1;
+    }
+
+    static void next(Edge& edge) {
+      --edge._id;
     }
 
     void first(Arc& arc) const {
-      arc.id = arcNum() - 1;
+      arc._id = 2 * _edge_num - 1;
     }
 
     static void next(Arc& arc) {
-      --arc.id;
+      --arc._id;
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      if (node.id < _nodeNum - _width) {
-        arc.id = node.id;
-      } else if (node.id % _width < _width - 1) {
-        arc.id = _arcLimit + node.id % _width +
-          (node.id / _width) * (_width - 1);
-      } else {
-        arc.id = -1;
+      if (node._id % _width < _width - 1) {
+        arc._id = (_edge_limit + node._id % _width +
+                   (node._id / _width) * (_width - 1)) << 1 | 1;
+        return;
       }
+      if (node._id < _node_num - _width) {
+        arc._id = node._id << 1 | 1;
+        return;
+      }
+      if (node._id % _width > 0) {
+        arc._id = (_edge_limit + node._id % _width +
+                   (node._id / _width) * (_width - 1) - 1) << 1;
+        return;
+      }
+      if (node._id >= _width) {
+        arc._id = (node._id - _width) << 1;
+        return;
+      }
+      arc._id = -1;
     }
 
     void nextOut(Arc& arc) const {
-      if (arc.id >= _arcLimit) {
-        arc.id = -1;
-      } else if (arc.id % _width < _width - 1) {
-        arc.id = _arcLimit + arc.id % _width +
-          (arc.id / _width) * (_width - 1);
+      int nid = arc._id >> 1;
+      if ((arc._id & 1) == 1) {
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width;
+          if (nid < _node_num - _width) {
+            arc._id = nid << 1 | 1;
+            return;
+          }
+        }
+        if (nid % _width > 0) {
+          arc._id = (_edge_limit + nid % _width +
+                     (nid / _width) * (_width - 1) - 1) << 1;
+          return;
+        }
+        if (nid >= _width) {
+          arc._id = (nid - _width) << 1;
+          return;
+        }
       } else {
-        arc.id = -1;
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width + 1;
+          if (nid >= _width) {
+            arc._id = (nid - _width) << 1;
+            return;
+          }
+        }
       }
+      arc._id = -1;
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      if (node.id >= _width) {
-        arc.id = node.id - _width;
-      } else if (node.id % _width > 0) {
-        arc.id = _arcLimit + node.id % _width +
-          (node.id / _width) * (_width - 1) - 1;
-      } else {
-        arc.id = -1;
+      if (node._id % _width < _width - 1) {
+        arc._id = (_edge_limit + node._id % _width +
+                   (node._id / _width) * (_width - 1)) << 1;
+        return;
       }
+      if (node._id < _node_num - _width) {
+        arc._id = node._id << 1;
+        return;
+      }
+      if (node._id % _width > 0) {
+        arc._id = (_edge_limit + node._id % _width +
+                   (node._id / _width) * (_width - 1) - 1) << 1 | 1;
+        return;
+      }
+      if (node._id >= _width) {
+        arc._id = (node._id - _width) << 1 | 1;
+        return;
+      }
+      arc._id = -1;
     }
 
     void nextIn(Arc& arc) const {
-      if (arc.id >= _arcLimit) {
-        arc.id = -1;
-      } else if (arc.id % _width > 0) {
-        arc.id = _arcLimit + arc.id % _width +
-          (arc.id / _width + 1) * (_width - 1) - 1;
+      int nid = arc._id >> 1;
+      if ((arc._id & 1) == 0) {
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width;
+          if (nid < _node_num - _width) {
+            arc._id = nid << 1;
+            return;
+          }
+        }
+        if (nid % _width > 0) {
+          arc._id = (_edge_limit + nid % _width +
+                     (nid / _width) * (_width - 1) - 1) << 1 | 1;
+          return;
+        }
+        if (nid >= _width) {
+          arc._id = (nid - _width) << 1 | 1;
+          return;
+        }
       } else {
-        arc.id = -1;
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width + 1;
+          if (nid >= _width) {
+            arc._id = (nid - _width) << 1 | 1;
+            return;
+          }
+        }
+      }
+      arc._id = -1;
+    }
+
+    void firstInc(Edge& edge, bool& dir, const Node& node) const {
+      if (node._id % _width < _width - 1) {
+        edge._id = _edge_limit + node._id % _width +
+          (node._id / _width) * (_width - 1);
+        dir = true;
+        return;
+      }
+      if (node._id < _node_num - _width) {
+        edge._id = node._id;
+        dir = true;
+        return;
+      }
+      if (node._id % _width > 0) {
+        edge._id = _edge_limit + node._id % _width +
+          (node._id / _width) * (_width - 1) - 1;
+        dir = false;
+        return;
+      }
+      if (node._id >= _width) {
+        edge._id = node._id - _width;
+        dir = false;
+        return;
+      }
+      edge._id = -1;
+      dir = true;
+    }
+
+    void nextInc(Edge& edge, bool& dir) const {
+      int nid = edge._id;
+      if (dir) {
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width;
+          if (nid < _node_num - _width) {
+            edge._id = nid;
+            return;
+          }
+        }
+        if (nid % _width > 0) {
+          edge._id = _edge_limit + nid % _width +
+            (nid / _width) * (_width - 1) - 1;
+          dir = false;
+          return;
+        }
+        if (nid >= _width) {
+          edge._id = nid - _width;
+          dir = false;
+          return;
+        }
+      } else {
+        if (nid >= _edge_limit) {
+          nid = (nid - _edge_limit) % (_width - 1) +
+            (nid - _edge_limit) / (_width - 1) * _width + 1;
+          if (nid >= _width) {
+            edge._id = nid - _width;
+            return;
+          }
+        }
+      }
+      edge._id = -1;
+      dir = true;
+    }
+
+    Arc right(Node n) const {
+      if (n._id % _width < _width - 1) {
+        return Arc(((_edge_limit + n._id % _width +
+                    (n._id / _width) * (_width - 1)) << 1) | 1);
+      } else {
+        return INVALID;
+      }
+    }
+
+    Arc left(Node n) const {
+      if (n._id % _width > 0) {
+        return Arc((_edge_limit + n._id % _width +
+                     (n._id / _width) * (_width - 1) - 1) << 1);
+      } else {
+        return INVALID;
+      }
+    }
+
+    Arc up(Node n) const {
+      if (n._id < _edge_limit) {
+        return Arc((n._id << 1) | 1);
+      } else {
+        return INVALID;
+      }
+    }
+
+    Arc down(Node n) const {
+      if (n._id >= _width) {
+        return Arc((n._id - _width) << 1);
+      } else {
+        return INVALID;
       }
     }
 
   private:
     int _width, _height;
-    int _nodeNum, _arcNum;
-    int _arcLimit;
+    int _node_num, _edge_num;
+    int _edge_limit;
   };
 
-  typedef GraphExtender<UndirDigraphExtender<GridGraphBase> >
-    ExtendedGridGraphBase;
+
+  typedef GraphExtender<GridGraphBase> ExtendedGridGraphBase;
 
   /// \ingroup graphs
   ///
   /// \brief Grid graph class
   ///
   /// This class implements a special graph type. The nodes of the
-  /// graph can be indiced by two integer \c (i,j) value where \c i
-  /// is in the \c [0,width) range and j is in the [0, height) range.
-  /// Two nodes are connected in the graph if the indices differ only
-  /// on one position and only one is the difference.
+  /// graph can be indexed by two integer \c (i,j) value where \c i is
+  /// in the \c [0..width()-1] range and j is in the \c
+  /// [0..height()-1] range.  Two nodes are connected in the graph if
+  /// the indexes differ exactly on one position and exactly one is
+  /// the difference. The nodes of the graph be indexed by position
+  /// with \c operator()() function. The positions of the nodes can be
+  /// get with \c pos(), \c col() and \c row() members. The outgoing
+  /// arcs can be retrieved with the \c right(), \c up(), \c left()
+  /// and \c down() functions, where the bottom-left corner is the
+  /// origin.
   ///
   /// \image html grid_graph.png
-  /// \image latex grid_graph.eps "Grid graph" width=\textwidth
+  /// \image latex grid_graph.eps "Grid digraph" row_num=\textrow_num
   ///
-  /// The graph can be indiced in the following way:
+  /// A short example about the basic usage:
   ///\code
-  /// GridGraph gr(w, h);
-  /// GridGraph::NodeMap<int> val(gr);
-  /// for (int i = 0; i < gr.width(); ++i) {
-  ///   for (int j = 0; j < gr.height(); ++j) {
-  ///     val[gr(i, j)] = i + j;
+  /// GridGraph graph(rows, cols);
+  /// GridGraph::NodeMap<int> val(graph);
+  /// for (int i = 0; i < graph.width(); ++i) {
+  ///   for (int j = 0; j < graph.height(); ++j) {
+  ///     val[graph(i, j)] = i + j;
   ///   }
   /// }
   ///\endcode
   ///
-  /// This graph type is fully conform to the \ref concepts::Graph
-  /// "Undirected Graph" concept, and it also has an important extra
-  /// feature that its maps are real \ref concepts::ReferenceMap
-  /// "reference map"s.
+  /// The graph type is fully conform to the \ref concepts::Graph
+  /// "Graph" concept, and it also has an important extra feature
+  /// that its maps are real \ref concepts::ReferenceMap "reference
+  /// map"s.
   class GridGraph : public ExtendedGridGraphBase {
   public:
 
@@ -292,39 +507,21 @@ namespace lemon {
     /// Map to get the indices of the nodes as dim2::Point<int>.
     class IndexMap {
     public:
-      /// The key type of the map
+      /// \brief The key type of the map
       typedef GridGraph::Node Key;
-      /// The value type of the map
+      /// \brief The value type of the map
       typedef dim2::Point<int> Value;
 
+      /// \brief Constructor
+      ///
       /// Constructor
       IndexMap(const GridGraph& graph) : _graph(graph) {}
 
-      /// The subscript operator
-      Value operator[](const Key& key) const {
-        return dim2::Point<int>(_graph.row(key), _graph.col(key));
-      }
-
-    private:
-      const GridGraph& _graph;
-    };
-
-    /// \brief Map to get the row of the nodes.
-    ///
-    /// Map to get the row of the nodes.
-    class RowMap {
-    public:
-      /// The key type of the map
-      typedef GridGraph::Node Key;
-      /// The value type of the map
-      typedef int Value;
-
-      /// Constructor
-      RowMap(const GridGraph& graph) : _graph(graph) {}
-
-      /// The subscript operator
-      Value operator[](const Key& key) const {
-        return _graph.row(key);
+      /// \brief The subscript operator
+      ///
+      /// The subscript operator.
+      Value operator[](Key key) const {
+        return _graph.pos(key);
       }
 
     private:
@@ -336,17 +533,47 @@ namespace lemon {
     /// Map to get the column of the nodes.
     class ColMap {
     public:
-      /// The key type of the map
+      /// \brief The key type of the map
       typedef GridGraph::Node Key;
-      /// The value type of the map
+      /// \brief The value type of the map
       typedef int Value;
 
+      /// \brief Constructor
+      ///
       /// Constructor
       ColMap(const GridGraph& graph) : _graph(graph) {}
 
-      /// The subscript operator
-      Value operator[](const Key& key) const {
+      /// \brief The subscript operator
+      ///
+      /// The subscript operator.
+      Value operator[](Key key) const {
         return _graph.col(key);
+      }
+
+    private:
+      const GridGraph& _graph;
+    };
+
+    /// \brief Map to get the row of the nodes.
+    ///
+    /// Map to get the row of the nodes.
+    class RowMap {
+    public:
+      /// \brief The key type of the map
+      typedef GridGraph::Node Key;
+      /// \brief The value type of the map
+      typedef int Value;
+
+      /// \brief Constructor
+      ///
+      /// Constructor
+      RowMap(const GridGraph& graph) : _graph(graph) {}
+
+      /// \brief The subscript operator
+      ///
+      /// The subscript operator.
+      Value operator[](Key key) const {
+        return _graph.row(key);
       }
 
     private:
@@ -355,14 +582,15 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Constructor.
-    /// \param width The width of the grid.
-    /// \param height The height of the grid.
+    /// Construct a grid graph with given size.
     GridGraph(int width, int height) { construct(width, height); }
 
     /// \brief Resize the graph
     ///
-    /// Resize the grid.
+    /// Resize the graph. The function will fully destroy and rebuild
+    /// the graph.  This cause that the maps of the graph will
+    /// reallocated automatically and the previous values will be
+    /// lost.
     void resize(int width, int height) {
       Parent::notifier(Arc()).clear();
       Parent::notifier(Edge()).clear();
@@ -380,13 +608,6 @@ namespace lemon {
       return Parent::operator()(i, j);
     }
 
-    /// \brief Gives back the row index of the node.
-    ///
-    /// Gives back the row index of the node.
-    int row(Node n) const {
-      return Parent::row(n);
-    }
-
     /// \brief Gives back the column index of the node.
     ///
     /// Gives back the column index of the node.
@@ -394,78 +615,88 @@ namespace lemon {
       return Parent::col(n);
     }
 
-    /// \brief Gives back the width of the grid.
+    /// \brief Gives back the row index of the node.
     ///
-    /// Gives back the width of the grid.
+    /// Gives back the row index of the node.
+    int row(Node n) const {
+      return Parent::row(n);
+    }
+
+    /// \brief Gives back the position of the node.
+    ///
+    /// Gives back the position of the node, ie. the <tt>(col,row)</tt> pair.
+    dim2::Point<int> pos(Node n) const {
+      return Parent::pos(n);
+    }
+
+    /// \brief Gives back the number of the columns.
+    ///
+    /// Gives back the number of the columns.
     int width() const {
       return Parent::width();
     }
 
-    /// \brief Gives back the height of the grid.
+    /// \brief Gives back the number of the rows.
     ///
-    /// Gives back the height of the grid.
+    /// Gives back the number of the rows.
     int height() const {
       return Parent::height();
-    }
-
-    /// \brief Gives back the arc goes down from the node.
-    ///
-    /// Gives back the arc goes down from the node. If there is not
-    /// outgoing arc then it gives back \c INVALID.
-    Arc down(Node n) const {
-      Edge e = _down(n);
-      return e != INVALID ? direct(e, true) : INVALID;
-    }
-
-    /// \brief Gives back the arc goes up from the node.
-    ///
-    /// Gives back the arc goes up from the node. If there is not
-    /// outgoing arc then it gives back \c INVALID.
-    Arc up(Node n) const {
-      Edge e = _up(n);
-      return e != INVALID ? direct(e, false) : INVALID;
     }
 
     /// \brief Gives back the arc goes right from the node.
     ///
     /// Gives back the arc goes right from the node. If there is not
-    /// outgoing arc then it gives back \c INVALID.
+    /// outgoing arc then it gives back INVALID.
     Arc right(Node n) const {
-      Edge e = _right(n);
-      return e != INVALID ? direct(e, true) : INVALID;
+      return Parent::right(n);
     }
 
     /// \brief Gives back the arc goes left from the node.
     ///
     /// Gives back the arc goes left from the node. If there is not
-    /// outgoing arc then it gives back \c INVALID.
+    /// outgoing arc then it gives back INVALID.
     Arc left(Node n) const {
-      Edge e = _left(n);
-      return e != INVALID ? direct(e, false) : INVALID;
+      return Parent::left(n);
     }
 
-  }; // class GridGraph
+    /// \brief Gives back the arc goes up from the node.
+    ///
+    /// Gives back the arc goes up from the node. If there is not
+    /// outgoing arc then it gives back INVALID.
+    Arc up(Node n) const {
+      return Parent::up(n);
+    }
 
-  /// \brief Index map of the grid graph
-  ///
-  /// Just returns an IndexMap for the grid graph.
-  inline GridGraph::IndexMap indexMap(const GridGraph& graph) {
-    return GridGraph::IndexMap(graph);
-  }
+    /// \brief Gives back the arc goes down from the node.
+    ///
+    /// Gives back the arc goes down from the node. If there is not
+    /// outgoing arc then it gives back INVALID.
+    Arc down(Node n) const {
+      return Parent::down(n);
+    }
 
-  /// \brief Row map of the grid graph
-  ///
-  /// Just returns a RowMap for the grid graph.
-  inline GridGraph::RowMap rowMap(const GridGraph& graph) {
-    return GridGraph::RowMap(graph);
-  }
+    /// \brief Index map of the grid graph
+    ///
+    /// Just returns an IndexMap for the grid graph.
+    IndexMap indexMap() const {
+      return IndexMap(*this);
+    }
 
-  /// \brief Column map of the grid graph
-  ///
-  /// Just returns a ColMap for the grid graph.
-  inline GridGraph::ColMap colMap(const GridGraph& graph) {
-    return GridGraph::ColMap(graph);
-  }
+    /// \brief Row map of the grid graph
+    ///
+    /// Just returns a RowMap for the grid graph.
+    RowMap rowMap() const {
+      return RowMap(*this);
+    }
+
+    /// \brief Column map of the grid graph
+    ///
+    /// Just returns a ColMap for the grid graph.
+    ColMap colMap() const {
+      return ColMap(*this);
+    }
+
+  };
+
 }
-
-#endif // GRID_GRAPH_H
+#endif

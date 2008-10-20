@@ -13,6 +13,7 @@ IF(DOXYGEN_EXECUTABLE AND GHOSTSCRIPT_EXECUTABLE)
     ADD_CUSTOM_TARGET(html
       COMMAND rm -rf gen-images
       COMMAND mkdir gen-images
+      COMMAND ${GHOSTSCRIPT_EXECUTABLE} -dNOPAUSE -dBATCH -q -dEPSCrop -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sDEVICE=pngalpha -r18 -sOutputFile=gen-images/grid_graph.png ${CMAKE_CURRENT_SOURCE_DIR}/images/grid_graph.eps
       COMMAND ${GHOSTSCRIPT_EXECUTABLE} -dNOPAUSE -dBATCH -q -dEPSCrop -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sDEVICE=pngalpha -r18 -sOutputFile=gen-images/nodeshape_0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_0.eps
       COMMAND ${GHOSTSCRIPT_EXECUTABLE} -dNOPAUSE -dBATCH -q -dEPSCrop -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sDEVICE=pngalpha -r18 -sOutputFile=gen-images/nodeshape_1.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_1.eps
       COMMAND ${GHOSTSCRIPT_EXECUTABLE} -dNOPAUSE -dBATCH -q -dEPSCrop -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sDEVICE=pngalpha -r18 -sOutputFile=gen-images/nodeshape_2.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_2.eps

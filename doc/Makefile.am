@@ -11,6 +11,7 @@ EXTRA_DIST += \
 	doc/CMakeLists.txt
 
 DOC_EPS_IMAGES18 = \
+	grid_graph.eps \
 	nodeshape_0.eps \
 	nodeshape_1.eps \
 	nodeshape_2.eps \
