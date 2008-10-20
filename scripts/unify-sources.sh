@@ -88,13 +88,24 @@ function update_end() {
 function check_action() {
     if ! diff -q $1 $2 >/dev/null
     then
-	echo -n " [$3 failed]"
+	echo
+	echo -n "      $3 failed at line(s): "
+	echo -n $(diff $1 $2 | grep '^[0-9]' | sed "s/^\(.*\)c.*$/ \1/g" | 
+	          sed "s/,/-/g" | paste -s -d',')
 	FAILED=YES
     fi
 }
 
 function check_warning() {
-    echo -n " [$2 warning]"
+    echo
+    if [ "$2" == 'long lines' ]
+    then
+        echo -n "      $2 warning at line(s): "
+        echo -n $(grep -n -E '.{81,}' $1 | sed "s/^\([0-9]*\)/ \1\t/g" | 
+                  cut -f 1 | paste -s -d',')
+    else
+        echo -n "      $2 warning"
+    fi
     WARNED=YES
 }
 
