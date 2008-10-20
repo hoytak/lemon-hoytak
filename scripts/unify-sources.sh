@@ -65,7 +65,7 @@ function update_init() {
 
 function update_done() {
     echo $CHANGED_FILES out of $TOTAL_FILES files has been changed.
-    echo $WARNED_FILES out of $TOTAL_FILES files has been warned.
+    echo $WARNED_FILES out of $TOTAL_FILES files triggered warnings.
 }
 
 function update_begin() {
@@ -107,7 +107,7 @@ function check_init() {
 
 function check_done() {
     echo $FAILED_FILES out of $TOTAL_FILES files has been failed.
-    echo $WARNED_FILES out of $TOTAL_FILES files has been warned.
+    echo $WARNED_FILES out of $TOTAL_FILES files triggered warnings.
 
     if [ $FAILED_FILES -gt 0 ]
     then
@@ -116,7 +116,7 @@ function check_done() {
     then
 	if [ "$WARNING" == 'INTERACTIVE' ]
 	then
-	    echo -n "Assume as normal behaviour? (yes/no) "
+	    echo -n "Are the files with warnings acceptable? (yes/no) "
 	    while read answer
 	    do
 		if [ "$answer" == 'yes' ]
@@ -126,7 +126,7 @@ function check_done() {
 		then
 		    return 1
 		fi
-		echo -n "Assume as normal behaviour? (yes/no) "		    
+		echo -n "Are the files with warnings acceptable? (yes/no) "
 	    done
 	elif [ "$WARNING" == 'WERROR' ]
 	then
@@ -257,24 +257,23 @@ do
   $0 [OPTIONS] [files]
 Options:
   --dry-run|-n
-     Check the given files, but do not modify them.
+     Check the files, but do not modify them.
   --interactive|-i
-     If --dry-run is specified and files are warned then a message is
-     prompted whether the warnings should be turned to errors.
+     If --dry-run is specified and the checker emits warnings,
+     then the user is asked if the warnings should be considered
+     errors.
   --werror|-w
-     If --dry-run is specified and the warnings are turned to errors.
+     Make all warnings into errors.
   --all|-a
      All files in the repository will be checked.
   --modified|-m
-     Check only the modified source files. This option is proper to
-     use before a commit. E.g. all files which are modified or added
-     into the repository will be updated.
+     Check only the modified (and new) source files. This option is
+     useful to check the modification before making a commit.
   --changed|-c
      Check only the changed source files compared to the parent(s) of
-     the current hg node.  This option is proper to use as hg hook
-     script. E.g. to check all your commited source files with this
-     script add the following section to the appropriate .hg/hgrc
-     file.
+     the current hg node.  This option is useful as hg hook script.
+     To automatically check all your changes before making a commit,
+     add the following section to the appropriate .hg/hgrc file.
 
        [hooks]
        pretxncommit.checksources = scripts/unify-sources.sh -c -n -i
