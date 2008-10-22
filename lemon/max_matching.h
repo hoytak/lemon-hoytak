@@ -39,19 +39,19 @@ namespace lemon {
   ///
   /// \brief Edmonds' alternating forest maximum matching algorithm.
   ///
-  /// This class provides Edmonds' alternating forest matching
-  /// algorithm. The starting matching (if any) can be passed to the
-  /// algorithm using some of init functions.
+  /// This class implements Edmonds' alternating forest matching
+  /// algorithm. The algorithm can be started from an arbitrary initial
+  /// matching (the default is the empty one)
   ///
-  /// The dual side of a matching is a map of the nodes to
+  /// The dual solution of the problem is a map of the nodes to
   /// MaxMatching::Status, having values \c EVEN/D, \c ODD/A and \c
   /// MATCHED/C showing the Gallai-Edmonds decomposition of the
   /// graph. The nodes in \c EVEN/D induce a graph with
   /// factor-critical components, the nodes in \c ODD/A form the
   /// barrier, and the nodes in \c MATCHED/C induce a graph having a
-  /// perfect matching. The number of the fractor critical components
+  /// perfect matching. The number of the factor-critical components
   /// minus the number of barrier nodes is a lower bound on the
-  /// unmatched nodes, and if the matching is optimal this bound is
+  /// unmatched nodes, and the matching is optimal if and only if this bound is
   /// tight. This decomposition can be attained by calling \c
   /// decomposition() after running the algorithm.
   ///
@@ -66,8 +66,7 @@ namespace lemon {
 
     ///\brief Indicates the Gallai-Edmonds decomposition of the graph.
     ///
-    ///Indicates the Gallai-Edmonds decomposition of the graph, which
-    ///shows an upper bound on the size of a maximum matching. The
+    ///Indicates the Gallai-Edmonds decomposition of the graph. The
     ///nodes with Status \c EVEN/D induce a graph with factor-critical
     ///components, the nodes in \c ODD/A form the canonical barrier,
     ///and the nodes in \c MATCHED/C induce a graph having a perfect
@@ -410,13 +409,13 @@ namespace lemon {
     }
 
     /// \name Execution control
-    /// The simplest way to execute the algorithm is to use the member
+    /// The simplest way to execute the algorithm is to use the
     /// \c run() member function.
     /// \n
 
-    /// If you need more control on the execution, first you must call
+    /// If you need better control on the execution, you must call
     /// \ref init(), \ref greedyInit() or \ref matchingInit()
-    /// functions, then you can start the algorithm with the \ref
+    /// functions first, then you can start the algorithm with the \ref
     /// startParse() or startDense() functions.
 
     ///@{
@@ -433,9 +432,9 @@ namespace lemon {
       }
     }
 
-    ///\brief Finds a greedy matching for initial matching.
+    ///\brief Finds an initial matching in a greedy way
     ///
-    ///For initial matchig it finds a maximal greedy matching.
+    ///It finds an initial matching in a greedy way.
     void greedyInit() {
       createStructures();
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -459,7 +458,7 @@ namespace lemon {
     }
 
 
-    /// \brief Initialize the matching from the map containing a matching.
+    /// \brief Initialize the matching from a map containing.
     ///
     /// Initialize the matching from a \c bool valued \c Edge map. This
     /// map must have the property that there are no two incident edges
@@ -507,7 +506,7 @@ namespace lemon {
     /// \brief Starts Edmonds' algorithm.
     ///
     /// It runs Edmonds' algorithm with a heuristic of postponing
-    /// shrinks, giving a faster algorithm for dense graphs.
+    /// shrinks, therefore resulting in a faster algorithm for dense graphs.
     void startDense() {
       for(NodeIt n(_graph); n != INVALID; ++n) {
         if ((*_status)[n] == UNMATCHED) {
@@ -538,13 +537,13 @@ namespace lemon {
     /// @}
 
     /// \name Primal solution
-    /// Functions for get the primal solution, ie. the matching.
+    /// Functions to get the primal solution, ie. the matching.
 
     /// @{
 
-    ///\brief Returns the size of the actual matching stored.
+    ///\brief Returns the size of the current matching.
     ///
-    ///Returns the size of the actual matching stored. After \ref
+    ///Returns the size of the current matching. After \ref
     ///run() it returns the size of the maximum matching in the graph.
     int matchingSize() const {
       int size = 0;
@@ -583,7 +582,7 @@ namespace lemon {
     /// @}
 
     /// \name Dual solution
-    /// Functions for get the dual solution, ie. the decomposition.
+    /// Functions to get the dual solution, ie. the decomposition.
 
     /// @{
 
@@ -645,7 +644,7 @@ namespace lemon {
   /// be asked with \c matching() or mate() functions. The dual
   /// solution can be get with \c nodeValue(), \c blossomNum() and \c
   /// blossomValue() members and \ref MaxWeightedMatching::BlossomIt
-  /// "BlossomIt" nested class which is able to iterate on the nodes
+  /// "BlossomIt" nested class, which is able to iterate on the nodes
   /// of a blossom. If the value type is integral then the dual
   /// solution is multiplied by \ref MaxWeightedMatching::dualScale "4".
   template <typename _Graph,
@@ -1630,7 +1629,7 @@ namespace lemon {
     }
 
     /// \name Execution control
-    /// The simplest way to execute the algorithm is to use the member
+    /// The simplest way to execute the algorithm is to use the
     /// \c run() member function.
 
     ///@{
@@ -1791,13 +1790,13 @@ namespace lemon {
     /// @}
 
     /// \name Primal solution
-    /// Functions for get the primal solution, ie. the matching.
+    /// Functions to get the primal solution, ie. the matching.
 
     /// @{
 
-    /// \brief Returns the matching value.
+    /// \brief Returns the weight of the matching.
     ///
-    /// Returns the matching value.
+    /// Returns the weight of the matching.
     Value matchingValue() const {
       Value sum = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -1848,7 +1847,7 @@ namespace lemon {
     /// @}
 
     /// \name Dual solution
-    /// Functions for get the dual solution.
+    /// Functions to get the dual solution.
 
     /// @{
 
@@ -1898,17 +1897,17 @@ namespace lemon {
       return _blossom_potential[k].value;
     }
 
-    /// \brief Lemon iterator for get the items of the blossom.
+    /// \brief Iterator for obtaining the nodes of the blossom.
     ///
-    /// Lemon iterator for get the nodes of the blossom. This class
-    /// provides a common style lemon iterator which gives back a
+    /// Iterator for obtaining the nodes of the blossom. This class
+    /// provides a common lemon style iterator for listing a
     /// subset of the nodes.
     class BlossomIt {
     public:
 
       /// \brief Constructor.
       ///
-      /// Constructor for get the nodes of the variable.
+      /// Constructor to get the nodes of the variable.
       BlossomIt(const MaxWeightedMatching& algorithm, int variable)
         : _algorithm(&algorithm)
       {
@@ -2817,7 +2816,7 @@ namespace lemon {
     }
 
     /// \name Execution control
-    /// The simplest way to execute the algorithm is to use the member
+    /// The simplest way to execute the algorithm is to use the
     /// \c run() member function.
 
     ///@{
@@ -2955,7 +2954,7 @@ namespace lemon {
     /// @}
 
     /// \name Primal solution
-    /// Functions for get the primal solution, ie. the matching.
+    /// Functions to get the primal solution, ie. the matching.
 
     /// @{
 
@@ -2996,7 +2995,7 @@ namespace lemon {
     /// @}
 
     /// \name Dual solution
-    /// Functions for get the dual solution.
+    /// Functions to get the dual solution.
 
     /// @{
 
@@ -3046,17 +3045,17 @@ namespace lemon {
       return _blossom_potential[k].value;
     }
 
-    /// \brief Lemon iterator for get the items of the blossom.
+    /// \brief Iterator for obtaining the nodes of the blossom.
     ///
-    /// Lemon iterator for get the nodes of the blossom. This class
-    /// provides a common style lemon iterator which gives back a
+    /// Iterator for obtaining the nodes of the blossom. This class
+    /// provides a common lemon style iterator for listing a
     /// subset of the nodes.
     class BlossomIt {
     public:
 
       /// \brief Constructor.
       ///
-      /// Constructor for get the nodes of the variable.
+      /// Constructor to get the nodes of the variable.
       BlossomIt(const MaxWeightedPerfectMatching& algorithm, int variable)
         : _algorithm(&algorithm)
       {
