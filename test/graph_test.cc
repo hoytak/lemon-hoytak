@@ -20,7 +20,7 @@
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
 // #include <lemon/full_graph.h>
-// #include <lemon/grid_graph.h>
+#include <lemon/grid_graph.h>
 
 #include "test_tools.h"
 #include "graph_test.h"
@@ -128,10 +128,9 @@ void checkConcepts() {
 //    checkConcept<Graph, FullGraph>();
 //    checkGraphIterators<FullGraph>();
 //  }
-//  { // Checking GridGraph
-//    checkConcept<Graph, GridGraph>();
-//    checkGraphIterators<GridGraph>();
-//  }
+  { // Checking GridGraph
+    checkConcept<Graph, GridGraph>();
+  }
 }
 
 template <typename Graph>
@@ -188,49 +187,84 @@ void checkGraphValidityErase() {
   check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
 }
 
-// void checkGridGraph(const GridGraph& g, int w, int h) {
-//   check(g.width() == w, "Wrong width");
-//   check(g.height() == h, "Wrong height");
+void checkGridGraph(int width, int height) {
+  typedef GridGraph Graph;
+  GRAPH_TYPEDEFS(Graph);
+  Graph G(width, height);
 
-//   for (int i = 0; i < w; ++i) {
-//     for (int j = 0; j < h; ++j) {
-//       check(g.col(g(i, j)) == i, "Wrong col");
-//       check(g.row(g(i, j)) == j, "Wrong row");
-//     }
-//   }
+  check(G.width() == width, "Wrong column number");
+  check(G.height() == height, "Wrong row number");
 
-//   for (int i = 0; i < w; ++i) {
-//     for (int j = 0; j < h - 1; ++j) {
-//       check(g.source(g.down(g(i, j))) == g(i, j), "Wrong down");
-//       check(g.target(g.down(g(i, j))) == g(i, j + 1), "Wrong down");
-//     }
-//     check(g.down(g(i, h - 1)) == INVALID, "Wrong down");
-//   }
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height; ++j) {
+      check(G.col(G(i, j)) == i, "Wrong column");
+      check(G.row(G(i, j)) == j, "Wrong row");
+      check(G.pos(G(i, j)).x == i, "Wrong column");
+      check(G.pos(G(i, j)).y == j, "Wrong row");
+    }
+  }
 
-//   for (int i = 0; i < w; ++i) {
-//     for (int j = 1; j < h; ++j) {
-//       check(g.source(g.up(g(i, j))) == g(i, j), "Wrong up");
-//       check(g.target(g.up(g(i, j))) == g(i, j - 1), "Wrong up");
-//     }
-//     check(g.up(g(i, 0)) == INVALID, "Wrong up");
-//   }
+  for (int j = 0; j < height; ++j) {
+    for (int i = 0; i < width - 1; ++i) {
+      check(G.source(G.right(G(i, j))) == G(i, j), "Wrong right");
+      check(G.target(G.right(G(i, j))) == G(i + 1, j), "Wrong right");
+    }
+    check(G.right(G(width - 1, j)) == INVALID, "Wrong right");
+  }
 
-//   for (int j = 0; j < h; ++j) {
-//     for (int i = 0; i < w - 1; ++i) {
-//       check(g.source(g.right(g(i, j))) == g(i, j), "Wrong right");
-//       check(g.target(g.right(g(i, j))) == g(i + 1, j), "Wrong right");
-//     }
-//     check(g.right(g(w - 1, j)) == INVALID, "Wrong right");
-//   }
+  for (int j = 0; j < height; ++j) {
+    for (int i = 1; i < width; ++i) {
+      check(G.source(G.left(G(i, j))) == G(i, j), "Wrong left");
+      check(G.target(G.left(G(i, j))) == G(i - 1, j), "Wrong left");
+    }
+    check(G.left(G(0, j)) == INVALID, "Wrong left");
+  }
 
-//   for (int j = 0; j < h; ++j) {
-//     for (int i = 1; i < w; ++i) {
-//       check(g.source(g.left(g(i, j))) == g(i, j), "Wrong left");
-//       check(g.target(g.left(g(i, j))) == g(i - 1, j), "Wrong left");
-//     }
-//     check(g.left(g(0, j)) == INVALID, "Wrong left");
-//   }
-// }
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height - 1; ++j) {
+      check(G.source(G.up(G(i, j))) == G(i, j), "Wrong up");
+      check(G.target(G.up(G(i, j))) == G(i, j + 1), "Wrong up");
+    }
+    check(G.up(G(i, height - 1)) == INVALID, "Wrong up");
+  }
+
+  for (int i = 0; i < width; ++i) {
+    for (int j = 1; j < height; ++j) {
+      check(G.source(G.down(G(i, j))) == G(i, j), "Wrong down");
+      check(G.target(G.down(G(i, j))) == G(i, j - 1), "Wrong down");
+    }
+    check(G.down(G(i, 0)) == INVALID, "Wrong down");
+  }
+
+  checkGraphNodeList(G, width * height);
+  checkGraphEdgeList(G, width * (height - 1) + (width - 1) * height);
+  checkGraphArcList(G, 2 * (width * (height - 1) + (width - 1) * height));
+
+  for (NodeIt n(G); n != INVALID; ++n) {
+    int nb = 4;
+    if (G.col(n) == 0) --nb;
+    if (G.col(n) == width - 1) --nb;
+    if (G.row(n) == 0) --nb;
+    if (G.row(n) == height - 1) --nb;
+
+    checkGraphOutArcList(G, n, nb);
+    checkGraphInArcList(G, n, nb);
+    checkGraphIncEdgeList(G, n, nb);
+  }
+
+  checkArcDirections(G);
+
+  checkGraphConArcList(G, 2 * (width * (height - 1) + (width - 1) * height));
+  checkGraphConEdgeList(G, width * (height - 1) + (width - 1) * height);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkEdgeIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+  checkGraphEdgeMap(G);
+
+}
 
 void checkGraphs() {
   { // Checking ListGraph
@@ -246,12 +280,13 @@ void checkGraphs() {
 //     checkGraphNodeList(g, 5);
 //     checkGraphEdgeList(g, 10);
 //   }
-//   { // Checking GridGraph
-//     GridGraph g(5, 6);
-//     checkGraphNodeList(g, 30);
-//     checkGraphEdgeList(g, 49);
-//     checkGridGraph(g, 5, 6);
-//   }
+  { // Checking GridGraph
+    checkGridGraph(5, 8);
+    checkGridGraph(8, 5);
+    checkGridGraph(5, 5);
+    checkGridGraph(0, 0);
+    checkGridGraph(1, 1);
+  }
 }
 
 int main() {

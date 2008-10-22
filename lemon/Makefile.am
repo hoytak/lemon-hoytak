@@ -29,6 +29,7 @@ lemon_HEADERS += \
         lemon/dim2.h \
 	lemon/error.h \
         lemon/graph_to_eps.h \
+        lemon/grid_graph.h \
 	lemon/kruskal.h \
 	lemon/lgf_reader.h \
 	lemon/lgf_writer.h \
