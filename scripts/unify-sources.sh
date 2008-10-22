@@ -88,13 +88,24 @@ function update_end() {
 function check_action() {
     if ! diff -q $1 $2 >/dev/null
     then
-	echo -n " [$3 failed]"
+	echo
+	echo -n "      $3 failed at line(s): "
+	echo -n $(diff $1 $2 | grep '^[0-9]' | sed "s/^\(.*\)c.*$/ \1/g" | 
+	          sed "s/,/-/g" | paste -s -d',')
 	FAILED=YES
     fi
 }
 
 function check_warning() {
-    echo -n " [$2 warning]"
+    echo
+    if [ "$2" == 'long lines' ]
+    then
+        echo -n "      $2 warning at line(s): "
+        echo -n $(grep -n -E '.{81,}' $1 | sed "s/^\([0-9]*\)/ \1\t/g" | 
+                  cut -f 1 | paste -s -d',')
+    else
+        echo -n "      $2 warning"
+    fi
     WARNED=YES
 }
 
@@ -212,7 +223,7 @@ function spaces_check() {
     TMP_FILE=`mktemp`
     cat $1 | sed -e 's/ \+$//g' >$TMP_FILE
 
-    "$ACTION"_action "$TMP_FILE" "$1" 'spaces'
+    "$ACTION"_action "$TMP_FILE" "$1" 'trailing spaces'
 }
 
 function long_lines_check() {
@@ -225,7 +236,7 @@ function long_lines_check() {
 # process the file
 
 function process_file() {
-    echo -n "    $ACTION " $1...
+    echo -n "    $ACTION $1..."
 
     CHECKING="header tabs spaces long_lines"
 
@@ -265,7 +276,7 @@ Options:
   --werror|-w
      Make all warnings into errors.
   --all|-a
-     All files in the repository will be checked.
+     Check all source files in the repository.
   --modified|-m
      Check only the modified (and new) source files. This option is
      useful to check the modification before making a commit.
@@ -281,36 +292,36 @@ Options:
   --help|-h
      Print this help message.
   files
-     The files to check/unify. If no file names are given, the
-     modified source will be checked/unified
-
+     The files to check/unify. If no file names are given, the modified
+     source files will be checked/unified (just like using the
+     --modified|-m option).
 "
         exit 0
     elif [ "$1" == '--dry-run' ] || [ "$1" == '-n' ]
     then
-	[ -n "$ACTION" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$ACTION" ] && echo "Conflicting action options" >&2 && exit 1
 	ACTION=check
     elif [ "$1" == "--all" ] || [ "$1" == '-a' ]
     then
-	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$FILES" ] && echo "Conflicting target options" >&2 && exit 1
 	FILES=all_files
     elif [ "$1" == "--changed" ] || [ "$1" == '-c' ]
     then
-	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$FILES" ] && echo "Conflicting target options" >&2 && exit 1
 	FILES=changed_files
     elif [ "$1" == "--modified" ] || [ "$1" == '-m' ]
     then
-	[ -n "$FILES" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$FILES" ] && echo "Conflicting target options" >&2 && exit 1
 	FILES=modified_files
     elif [ "$1" == "--interactive" ] || [ "$1" == "-i" ]
     then
-	[ -n "$WARNING" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$WARNING" ] && echo "Conflicting warning options" >&2 && exit 1
 	WARNING='INTERACTIVE'
     elif [ "$1" == "--werror" ] || [ "$1" == "-w" ]
     then
-	[ -n "$WARNING" ] && echo "Invalid option $1" >&2 && exit 1
+	[ -n "$WARNING" ] && echo "Conflicting warning options" >&2 && exit 1
 	WARNING='WERROR'
-    elif [ $(echo $1 | cut -c 1) == '-' ]
+    elif [ $(echo x$1 | cut -c 2) == '-' ]
     then
 	echo "Invalid option $1" >&2 && exit 1
     else

@@ -51,7 +51,7 @@ namespace lemon {
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
     ///Instantiates a PredMap.
 
-    ///This function instantiates a PredMap.
+    ///This function instantiates a PredMap.  
     ///\param g is the digraph, to which we would like to define the
     ///PredMap.
     static PredMap *createPredMap(const Digraph &g)
@@ -80,8 +80,7 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are reached.
 
-    ///The type of the map that indicates which nodes are reached.
-    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///The type of the map that indicates which nodes are reached.///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
     ///Instantiates a ReachedMap.
 

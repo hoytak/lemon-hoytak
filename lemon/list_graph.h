@@ -840,8 +840,8 @@ namespace lemon {
       explicit Arc(int pid) { id = pid;}
 
     public:
-      operator Edge() const { 
-        return id != -1 ? edgeFromId(id / 2) : INVALID; 
+      operator Edge() const {
+        return id != -1 ? edgeFromId(id / 2) : INVALID;
       }
 
       Arc() {}
