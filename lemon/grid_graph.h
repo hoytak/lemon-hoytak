@@ -481,7 +481,7 @@ namespace lemon {
   /// origin.
   ///
   /// \image html grid_graph.png
-  /// \image latex grid_graph.eps "Grid graph" row_num=\textrow_num
+  /// \image latex grid_graph.eps "Grid graph" width=\textwidth
   ///
   /// A short example about the basic usage:
   ///\code
