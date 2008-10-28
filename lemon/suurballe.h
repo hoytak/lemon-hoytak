@@ -33,29 +33,31 @@ namespace lemon {
   /// \addtogroup shortest_path
   /// @{
 
-  /// \brief Implementation of an algorithm for finding arc-disjoint
-  /// paths between two nodes having minimum total length.
+  /// \brief Algorithm for finding arc-disjoint paths between two nodes
+  /// having minimum total length.
   ///
   /// \ref lemon::Suurballe "Suurballe" implements an algorithm for
   /// finding arc-disjoint paths having minimum total length (cost)
-  /// from a given source node to a given target node in a directed
-  /// digraph.
+  /// from a given source node to a given target node in a digraph.
   ///
   /// In fact, this implementation is the specialization of the
   /// \ref CapacityScaling "successive shortest path" algorithm.
   ///
-  /// \tparam Digraph The directed digraph type the algorithm runs on.
+  /// \tparam Digraph The digraph type the algorithm runs on.
+  /// The default value is \c ListDigraph.
   /// \tparam LengthMap The type of the length (cost) map.
+  /// The default value is <tt>Digraph::ArcMap<int></tt>.
   ///
   /// \warning Length values should be \e non-negative \e integers.
   ///
   /// \note For finding node-disjoint paths this algorithm can be used
   /// with \ref SplitDigraphAdaptor.
-  ///
-  /// \author Attila Bernath and Peter Kovacs
-  
-  template < typename Digraph, 
+#ifdef DOXYGEN
+  template <typename Digraph, typename LengthMap>
+#else
+  template < typename Digraph = ListDigraph,
              typename LengthMap = typename Digraph::template ArcMap<int> >
+#endif
   class Suurballe
   {
     TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
@@ -75,7 +77,7 @@ namespace lemon {
 
   private:
   
-    /// \brief Special implementation of the \ref Dijkstra algorithm
+    /// \brief Special implementation of the Dijkstra algorithm
     /// for finding shortest paths in the residual network.
     ///
     /// \ref ResidualDijkstra is a special implementation of the
@@ -90,7 +92,7 @@ namespace lemon {
 
     private:
 
-      // The directed digraph the algorithm runs on
+      // The digraph the algorithm runs on
       const Digraph &_graph;
 
       // The main maps
@@ -120,7 +122,7 @@ namespace lemon {
         _graph(digraph), _flow(flow), _length(length), _potential(potential),
         _dist(digraph), _pred(pred), _s(s), _t(t) {}
 
-      /// \brief Runs the algorithm. Returns \c true if a path is found
+      /// \brief Run the algorithm. It returns \c true if a path is found
       /// from the source node to the target node.
       bool run() {
         HeapCrossRef heap_cross_ref(_graph, Heap::PRE_HEAP);
@@ -129,7 +131,7 @@ namespace lemon {
         _pred[_s] = INVALID;
         _proc_nodes.clear();
 
-        // Processing nodes
+        // Process nodes
         while (!heap.empty() && heap.top() != _t) {
           Node u = heap.top(), v;
           Length d = heap.prio() + _potential[u], nd;
@@ -137,7 +139,7 @@ namespace lemon {
           heap.pop();
           _proc_nodes.push_back(u);
 
-          // Traversing outgoing arcs
+          // Traverse outgoing arcs
           for (OutArcIt e(_graph, u); e != INVALID; ++e) {
             if (_flow[e] == 0) {
               v = _graph.target(e);
@@ -159,7 +161,7 @@ namespace lemon {
             }
           }
 
-          // Traversing incoming arcs
+          // Traverse incoming arcs
           for (InArcIt e(_graph, u); e != INVALID; ++e) {
             if (_flow[e] == 1) {
               v = _graph.source(e);
@@ -183,7 +185,7 @@ namespace lemon {
         }
         if (heap.empty()) return false;
 
-        // Updating potentials of processed nodes
+        // Update potentials of processed nodes
         Length t_dist = heap.prio();
         for (int i = 0; i < int(_proc_nodes.size()); ++i)
           _potential[_proc_nodes[i]] += _dist[_proc_nodes[i]] - t_dist;
@@ -194,7 +196,7 @@ namespace lemon {
 
   private:
 
-    // The directed digraph the algorithm runs on
+    // The digraph the algorithm runs on
     const Digraph &_graph;
     // The length map
     const LengthMap &_length;
@@ -227,7 +229,7 @@ namespace lemon {
     ///
     /// Constructor.
     ///
-    /// \param digraph The directed digraph the algorithm runs on.
+    /// \param digraph The digraph the algorithm runs on.
     /// \param length The length (cost) values of the arcs.
     /// \param s The source node.
     /// \param t The target node.
@@ -245,9 +247,9 @@ namespace lemon {
       delete _dijkstra;
     }
 
-    /// \brief Sets the flow map.
+    /// \brief Set the flow map.
     ///
-    /// Sets the flow map.
+    /// This function sets the flow map.
     ///
     /// The found flow contains only 0 and 1 values. It is the union of
     /// the found arc-disjoint paths.
@@ -262,9 +264,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Sets the potential map.
+    /// \brief Set the potential map.
     ///
-    /// Sets the potential map.
+    /// This function sets the potential map.
     ///
     /// The potentials provide the dual solution of the underlying 
     /// minimum cost flow problem.
@@ -288,14 +290,14 @@ namespace lemon {
 
     /// @{
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm.
+    /// This function runs the algorithm.
     ///
     /// \param k The number of paths to be found.
     ///
-    /// \return \c k if there are at least \c k arc-disjoint paths
-    /// from \c s to \c t. Otherwise it returns the number of
+    /// \return \c k if there are at least \c k arc-disjoint paths from
+    /// \c s to \c t in the digraph. Otherwise it returns the number of
     /// arc-disjoint paths found.
     ///
     /// \note Apart from the return value, <tt>s.run(k)</tt> is just a
@@ -312,11 +314,11 @@ namespace lemon {
       return _path_num;
     }
 
-    /// \brief Initializes the algorithm.
+    /// \brief Initialize the algorithm.
     ///
-    /// Initializes the algorithm.
+    /// This function initializes the algorithm.
     void init() {
-      // Initializing maps
+      // Initialize maps
       if (!_flow) {
         _flow = new FlowMap(_graph);
         _local_flow = true;
@@ -333,27 +335,27 @@ namespace lemon {
                                         _source, _target );
     }
 
-    /// \brief Executes the successive shortest path algorithm to find
+    /// \brief Execute the successive shortest path algorithm to find
     /// an optimal flow.
     ///
-    /// Executes the successive shortest path algorithm to find a
-    /// minimum cost flow, which is the union of \c k or less
+    /// This function executes the successive shortest path algorithm to
+    /// find a minimum cost flow, which is the union of \c k or less
     /// arc-disjoint paths.
     ///
-    /// \return \c k if there are at least \c k arc-disjoint paths
-    /// from \c s to \c t. Otherwise it returns the number of
+    /// \return \c k if there are at least \c k arc-disjoint paths from
+    /// \c s to \c t in the digraph. Otherwise it returns the number of
     /// arc-disjoint paths found.
     ///
     /// \pre \ref init() must be called before using this function.
     int findFlow(int k = 2) {
-      // Finding shortest paths
+      // Find shortest paths
       _path_num = 0;
       while (_path_num < k) {
-        // Running Dijkstra
+        // Run Dijkstra
         if (!_dijkstra->run()) break;
         ++_path_num;
 
-        // Setting the flow along the found shortest path
+        // Set the flow along the found shortest path
         Node u = _target;
         Arc e;
         while ((e = _pred[u]) != INVALID) {
@@ -369,17 +371,17 @@ namespace lemon {
       return _path_num;
     }
     
-    /// \brief Computes the paths from the flow.
+    /// \brief Compute the paths from the flow.
     ///
-    /// Computes the paths from the flow.
+    /// This function computes the paths from the flow.
     ///
     /// \pre \ref init() and \ref findFlow() must be called before using
     /// this function.
     void findPaths() {
-      // Creating the residual flow map (the union of the paths not
-      // found so far)
+      // Create the residual flow map (the union of the paths not found
+      // so far)
       FlowMap res_flow(_graph);
-      for(ArcIt a(_graph);a!=INVALID;++a) res_flow[a]=(*_flow)[a];
+      for(ArcIt a(_graph); a != INVALID; ++a) res_flow[a] = (*_flow)[a];
 
       paths.clear();
       paths.resize(_path_num);
@@ -398,66 +400,66 @@ namespace lemon {
     /// @}
 
     /// \name Query Functions
-    /// The result of the algorithm can be obtained using these
+    /// The results of the algorithm can be obtained using these
     /// functions.
     /// \n The algorithm should be executed before using them.
 
     /// @{
 
-    /// \brief Returns a const reference to the arc map storing the
+    /// \brief Return a const reference to the arc map storing the
     /// found flow.
     ///
-    /// Returns a const reference to the arc map storing the flow that
-    /// is the union of the found arc-disjoint paths.
+    /// This function returns a const reference to the arc map storing
+    /// the flow that is the union of the found arc-disjoint paths.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     const FlowMap& flowMap() const {
       return *_flow;
     }
 
-    /// \brief Returns a const reference to the node map storing the
+    /// \brief Return a const reference to the node map storing the
     /// found potentials (the dual solution).
     ///
-    /// Returns a const reference to the node map storing the found
-    /// potentials that provide the dual solution of the underlying 
-    /// minimum cost flow problem.
+    /// This function returns a const reference to the node map storing
+    /// the found potentials that provide the dual solution of the
+    /// underlying minimum cost flow problem.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     const PotentialMap& potentialMap() const {
       return *_potential;
     }
 
-    /// \brief Returns the flow on the given arc.
+    /// \brief Return the flow on the given arc.
     ///
-    /// Returns the flow on the given arc.
+    /// This function returns the flow on the given arc.
     /// It is \c 1 if the arc is involved in one of the found paths,
     /// otherwise it is \c 0.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     int flow(const Arc& arc) const {
       return (*_flow)[arc];
     }
 
-    /// \brief Returns the potential of the given node.
+    /// \brief Return the potential of the given node.
     ///
-    /// Returns the potential of the given node.
+    /// This function returns the potential of the given node.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     Length potential(const Node& node) const {
       return (*_potential)[node];
     }
 
-    /// \brief Returns the total length (cost) of the found paths (flow).
+    /// \brief Return the total length (cost) of the found paths (flow).
     ///
-    /// Returns the total length (cost) of the found paths (flow).
-    /// The complexity of the function is \f$ O(e) \f$.
+    /// This function returns the total length (cost) of the found paths
+    /// (flow). The complexity of the function is \f$ O(e) \f$.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     Length totalLength() const {
       Length c = 0;
       for (ArcIt e(_graph); e != INVALID; ++e)
@@ -465,25 +467,25 @@ namespace lemon {
       return c;
     }
 
-    /// \brief Returns the number of the found paths.
+    /// \brief Return the number of the found paths.
     ///
-    /// Returns the number of the found paths.
+    /// This function returns the number of the found paths.
     ///
-    /// \pre \ref run() or findFlow() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findFlow() must be called before using
+    /// this function.
     int pathNum() const {
       return _path_num;
     }
 
-    /// \brief Returns a const reference to the specified path.
+    /// \brief Return a const reference to the specified path.
     ///
-    /// Returns a const reference to the specified path.
+    /// This function returns a const reference to the specified path.
     ///
     /// \param i The function returns the \c i-th path.
     /// \c i must be between \c 0 and <tt>%pathNum()-1</tt>.
     ///
-    /// \pre \ref run() or findPaths() must be called before using this
-    /// function.
+    /// \pre \ref run() or \ref findPaths() must be called before using
+    /// this function.
     Path path(int i) const {
       return paths[i];
     }

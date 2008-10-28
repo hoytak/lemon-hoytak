@@ -28,7 +28,7 @@
 
 using namespace lemon;
 
-// Checks the feasibility of the flow
+// Check the feasibility of the flow
 template <typename Digraph, typename FlowMap>
 bool checkFlow( const Digraph& gr, const FlowMap& flow, 
                 typename Digraph::Node s, typename Digraph::Node t,
@@ -52,13 +52,13 @@ bool checkFlow( const Digraph& gr, const FlowMap& flow,
   return true;
 }
 
-// Checks the optimalitiy of the flow
+// Check the optimalitiy of the flow
 template < typename Digraph, typename CostMap, 
            typename FlowMap, typename PotentialMap >
 bool checkOptimality( const Digraph& gr, const CostMap& cost,
                       const FlowMap& flow, const PotentialMap& pi )
 {
-  // Checking the Complementary Slackness optimality condition
+  // Check the "Complementary Slackness" optimality condition
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   bool opt = true;
   for (ArcIt e(gr); e != INVALID; ++e) {
@@ -71,12 +71,12 @@ bool checkOptimality( const Digraph& gr, const CostMap& cost,
   return opt;
 }
 
-// Checks a path
-template < typename Digraph, typename Path >
+// Check a path
+template <typename Digraph, typename Path>
 bool checkPath( const Digraph& gr, const Path& path,
                 typename Digraph::Node s, typename Digraph::Node t)
 {
-  // Checking the Complementary Slackness optimality condition
+  // Check the "Complementary Slackness" optimality condition
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   Node n = s;
   for (int i = 0; i < path.length(); ++i) {
@@ -91,7 +91,7 @@ int main()
 {
   DIGRAPH_TYPEDEFS(ListDigraph);
 
-  // Reading the test digraph
+  // Read the test digraph
   ListDigraph digraph;
   ListDigraph::ArcMap<int> length(digraph);
   Node source, target;
@@ -111,7 +111,7 @@ int main()
     run();
   input.close();
   
-  // Finding 2 paths
+  // Find 2 paths
   {
     Suurballe<ListDigraph> suurballe(digraph, length, source, target);
     check(suurballe.run(2) == 2, "Wrong number of paths");
@@ -126,7 +126,7 @@ int main()
             "Wrong path");
   }
 
-  // Finding 3 paths
+  // Find 3 paths
   {
     Suurballe<ListDigraph> suurballe(digraph, length, source, target);
     check(suurballe.run(3) == 3, "Wrong number of paths");
@@ -141,7 +141,7 @@ int main()
             "Wrong path");
   }
 
-  // Finding 5 paths (only 3 can be found)
+  // Find 5 paths (only 3 can be found)
   {
     Suurballe<ListDigraph> suurballe(digraph, length, source, target);
     check(suurballe.run(5) == 3, "Wrong number of paths");
