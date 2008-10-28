@@ -25,7 +25,7 @@ This guide gives an in depth description on what has changed compared
 to the 0.x release series.
 
 Many of these changes adjusted automatically by the
-<tt>script/lemon-0.x-to-1.x.sh</tt> tool. Those requiring manual
+<tt>lemon-0.x-to-1.x.sh</tt> tool. Those requiring manual
 update are typeset <b>boldface</b>.
 
 \section migration-graph Graph Related Name Changes
@@ -53,9 +53,11 @@ update are typeset <b>boldface</b>.
   for <tt>Arc</tt>s (directed edges).
 
 \warning
-<b>The <tt>script/lemon-0.x-to-1.x.sh</tt> tool replaces all instances of
-the words \c graph, \c digraph, \c edge and \c arc, so it replaces them
-in strings, comments etc. as well as in all identifiers.</b>
+<b>The <tt>lemon-0.x-to-1.x.sh</tt> script replaces the words \c graph,
+\c ugraph, \c edge and \c uedge in your own identifiers and in
+strings, comments etc. as well as in all LEMON specific identifiers.
+So use the script carefully and make a backup copy of your source files
+before applying the script to them.</b>
 
 \section migration-lgf LGF tools
  - The \ref lgf-format "LGF file format" has changed,

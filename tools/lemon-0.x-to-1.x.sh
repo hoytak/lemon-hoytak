@@ -14,27 +14,36 @@ do
     TMP=`mktemp`
     sed -e "s/undirected graph/_gr_aph_label_/g"\
         -e "s/undirected edge/_ed_ge_label_/g"\
-        -e "s/graph_/_gr_aph_label__/g"\
-        -e "s/_graph/__gr_aph_label_/g"\
         -e "s/UGraph/_Gr_aph_label_/g"\
-        -e "s/uGraph/_gr_aph_label_/g"\
-        -e "s/ugraph/_gr_aph_label_/g"\
+        -e "s/u[Gg]raph/_gr_aph_label_/g"\
+        -e "s/\<Graph\>/_Digr_aph_label_/g"\
+        -e "s/\<graph\>/_digr_aph_label_/g"\
+        -e "s/\<Graphs\>/_Digr_aph_label_s/g"\
+        -e "s/\<graphs\>/_digr_aph_label_s/g"\
+        -e "s/_Graph/__Gr_aph_label_/g"\
+        -e "s/\([Gg]\)raph\([a-z_]\)/_\1r_aph_label_\2/g"\
+        -e "s/\([a-z_]\)graph/\1_gr_aph_label_/g"\
         -e "s/Graph/_Digr_aph_label_/g"\
         -e "s/graph/_digr_aph_label_/g"\
         -e "s/UEdge/_Ed_ge_label_/g"\
-        -e "s/uEdge/_ed_ge_label_/g"\
-        -e "s/uedge/_ed_ge_label_/g"\
+        -e "s/u[Ee]dge/_ed_ge_label_/g"\
         -e "s/IncEdgeIt/_In_cEd_geIt_label_/g"\
+        -e "s/\<Edge\>/_Ar_c_label_/g"\
+        -e "s/\<edge\>/_ar_c_label_/g"\
+        -e "s/\<Edges\>/_Ar_c_label_s/g"\
+        -e "s/\<edges\>/_ar_c_label_s/g"\
+        -e "s/_Edge/__Ed_ge_label_/g"\
+        -e "s/Edge\([a-z_]\)/_Ed_ge_label_\1/g"\
+        -e "s/edge\([a-z_]\)/_ed_ge_label_\1/g"\
+        -e "s/\([a-z_]\)edge/\1_ed_ge_label_/g"\
         -e "s/Edge/_Ar_c_label_/g"\
         -e "s/edge/_ar_c_label_/g"\
-        -e "s/ANode/_Re_d_label_/g"\
-        -e "s/BNode/_Blu_e_label_/g"\
-        -e "s/A-Node/_Re_d_label_/g"\
-        -e "s/B-Node/_Blu_e_label_/g"\
-        -e "s/anode/_re_d_label_/g"\
-        -e "s/bnode/_blu_e_label_/g"\
-        -e "s/aNode/_re_d_label_/g"\
-        -e "s/bNode/_blu_e_label_/g"\
+        -e "s/A[Nn]ode/_Re_d_label_/g"\
+        -e "s/B[Nn]ode/_Blu_e_label_/g"\
+        -e "s/A-[Nn]ode/_Re_d_label_/g"\
+        -e "s/B-[Nn]ode/_Blu_e_label_/g"\
+        -e "s/a[Nn]ode/_re_d_label_/g"\
+        -e "s/b[Nn]ode/_blu_e_label_/g"\
         -e "s/_Digr_aph_label_/Digraph/g"\
         -e "s/_digr_aph_label_/digraph/g"\
         -e "s/_Gr_aph_label_/Graph/g"\
@@ -48,6 +57,8 @@ do
         -e "s/_Blu_e_label_/Blue/g"\
         -e "s/_re_d_label_/red/g"\
         -e "s/_blu_e_label_/blue/g"\
+        -e "s/DigraphToEps/GraphToEps/g"\
+        -e "s/digraphToEps/graphToEps/g"\
         -e "s/\<DefPredMap\>/SetPredMap/g"\
         -e "s/\<DefDistMap\>/SetDistMap/g"\
         -e "s/\<DefReachedMap\>/SetReachedMap/g"\
