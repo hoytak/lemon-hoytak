@@ -40,6 +40,7 @@ lemon_HEADERS += \
 	lemon/path.h \
         lemon/random.h \
 	lemon/smart_graph.h \
+	lemon/suurballe.h \
         lemon/time_measure.h \
         lemon/tolerance.h \
 	lemon/unionfind.h
