@@ -86,25 +86,35 @@ function update_end() {
 }
 
 function check_action() {
+    if [ "$3" == 'tabs' ]
+    then
+        PATTERN=$(echo -e '\t')
+    elif [ "$3" == 'trailing spaces' ]
+    then
+        PATTERN='\ +$'
+    else
+        PATTERN='*'
+    fi
+
     if ! diff -q $1 $2 >/dev/null
     then
-	echo
-	echo -n "      $3 failed at line(s): "
-	echo -n $(diff $1 $2 | grep '^[0-9]' | sed "s/^\(.*\)c.*$/ \1/g" | 
-	          sed "s/,/-/g" | paste -s -d',')
-	FAILED=YES
+        if [ "$PATTERN" == '*' ]
+        then
+            diff $1 $2 | grep '^[0-9]' | sed "s|^\(.*\)c.*$|$2:\1: check failed: $3|g" |
+              sed "s/:\([0-9]*\),\([0-9]*\):\(.*\)$/:\1:\3 (until line \2)/g"
+        else
+            grep -n -E "$PATTERN" $2 | sed "s|^\([0-9]*\):.*$|$2:\1: check failed: $3|g"
+        fi
+        FAILED=YES
     fi
 }
 
 function check_warning() {
-    echo
     if [ "$2" == 'long lines' ]
     then
-        echo -n "      $2 warning at line(s): "
-        echo -n $(grep -n -E '.{81,}' $1 | sed "s/^\([0-9]*\)/ \1\t/g" | 
-                  cut -f 1 | paste -s -d',')
+        grep -n -E '.{81,}' $1 | sed "s|^\([0-9]*\):.*$|$1:\1: warning: $2|g"
     else
-        echo -n "      $2 warning"
+        echo "$1: warning: $2"
     fi
     WARNED=YES
 }
@@ -236,7 +246,12 @@ function long_lines_check() {
 # process the file
 
 function process_file() {
-    echo -n "    $ACTION $1..."
+    if [ "$ACTION" == 'update' ]
+    then
+        echo -n "    $ACTION $1..."
+    else
+        echo "	  $ACTION $1..."
+    fi
 
     CHECKING="header tabs spaces long_lines"
 
@@ -246,7 +261,10 @@ function process_file() {
 	"$check"_check $1
     done
     "$ACTION"_end $1
-    echo
+    if [ "$ACTION" == 'update' ]
+    then
+        echo
+    fi
 }
 
 function process_all {
