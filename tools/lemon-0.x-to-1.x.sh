@@ -12,8 +12,14 @@ for i in $@
 do
     echo Update $i...
     TMP=`mktemp`
-    sed -e "s/undirected graph/_gr_aph_label_/g"\
-        -e "s/undirected edge/_ed_ge_label_/g"\
+    sed -e "s/\<undirected graph\>/_gr_aph_label_/g"\
+        -e "s/\<undirected graphs\>/_gr_aph_label_s/g"\
+        -e "s/\<undirected edge\>/_ed_ge_label_/g"\
+        -e "s/\<undirected edges\>/_ed_ge_label_s/g"\
+        -e "s/\<directed graph\>/_digr_aph_label_/g"\
+        -e "s/\<directed graphs\>/_digr_aph_label_s/g"\
+        -e "s/\<directed edge\>/_ar_c_label_/g"\
+        -e "s/\<directed edges\>/_ar_c_label_s/g"\
         -e "s/UGraph/_Gr_aph_label_/g"\
         -e "s/u[Gg]raph/_gr_aph_label_/g"\
         -e "s/\<Graph\>/_Digr_aph_label_/g"\
@@ -44,6 +50,10 @@ do
         -e "s/B-[Nn]ode/_Blu_e_label_/g"\
         -e "s/a[Nn]ode/_re_d_label_/g"\
         -e "s/b[Nn]ode/_blu_e_label_/g"\
+        -e "s/\<UGRAPH_TYPEDEFS\([ \t]*([ \t]*\)typename[ \t]/TEMPLATE__GR_APH_TY_PEDE_FS_label_\1/g"\
+        -e "s/\<GRAPH_TYPEDEFS\([ \t]*([ \t]*\)typename[ \t]/TEMPLATE__DIGR_APH_TY_PEDE_FS_label_\1/g"\
+        -e "s/\<UGRAPH_TYPEDEFS\>/_GR_APH_TY_PEDE_FS_label_/g"\
+        -e "s/\<GRAPH_TYPEDEFS\>/_DIGR_APH_TY_PEDE_FS_label_/g"\
         -e "s/_Digr_aph_label_/Digraph/g"\
         -e "s/_digr_aph_label_/digraph/g"\
         -e "s/_Gr_aph_label_/Graph/g"\
@@ -57,6 +67,8 @@ do
         -e "s/_Blu_e_label_/Blue/g"\
         -e "s/_re_d_label_/red/g"\
         -e "s/_blu_e_label_/blue/g"\
+        -e "s/_GR_APH_TY_PEDE_FS_label_/GRAPH_TYPEDEFS/g"\
+        -e "s/_DIGR_APH_TY_PEDE_FS_label_/DIGRAPH_TYPEDEFS/g"\
         -e "s/DigraphToEps/GraphToEps/g"\
         -e "s/digraphToEps/graphToEps/g"\
         -e "s/\<DefPredMap\>/SetPredMap/g"\
