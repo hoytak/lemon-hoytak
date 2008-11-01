@@ -142,9 +142,9 @@ void checkConcepts() {
     checkConcept<ExtendableDigraphComponent<>, SmartDigraph>();
     checkConcept<ClearableDigraphComponent<>, SmartDigraph>();
   }
-//  { // Checking FullDigraph
-//    checkConcept<Digraph, FullDigraph>();
-//  }
+  { // Checking FullDigraph
+    checkConcept<Digraph, FullDigraph>();
+  }
 //  { // Checking HyperCubeDigraph
 //    checkConcept<Digraph, HyperCubeDigraph>();
 //  }

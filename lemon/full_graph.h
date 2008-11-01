@@ -19,14 +19,13 @@
 #ifndef LEMON_FULL_GRAPH_H
 #define LEMON_FULL_GRAPH_H
 
-#include <lemon/math.h>
-
 #include <lemon/core.h>
 #include <lemon/bits/graph_extender.h>
 
 ///\ingroup graphs
 ///\file
-///\brief FullDigraph and FullGraph classes.
+///\brief FullGraph and FullDigraph classes.
+
 namespace lemon {
 
   class FullDigraphBase {
@@ -67,12 +66,10 @@ namespace lemon {
     Node source(Arc arc) const { return arc._id / _node_num; }
     Node target(Arc arc) const { return arc._id % _node_num; }
 
-
     static int id(Node node) { return node._id; }
     static int id(Arc arc) { return arc._id; }
 
     static Node nodeFromId(int id) { return Node(id);}
-
     static Arc arcFromId(int id) { return Arc(id);}
 
     typedef True FindArcTag;
@@ -80,7 +77,6 @@ namespace lemon {
     Arc findArc(Node s, Node t, Arc prev = INVALID) const {
       return prev != INVALID ? arc(s, t) : INVALID;
     }
-
 
     class Node {
       friend class FullDigraphBase;
@@ -157,14 +153,20 @@ namespace lemon {
   /// This is a simple and fast directed full graph implementation.
   /// From each node go arcs to each node (including the source node),
   /// therefore the number of the arcs in the digraph is the square of
-  /// the node number. The digraph is completely static, so you can
-  /// neither add nor delete either arcs or nodes, and it needs just
+  /// the node number. This digraph type is completely static, so you
+  /// can neither add nor delete either arcs or nodes, and it needs
   /// constant space in memory.
   ///
-  /// Thus it conforms to the \ref concepts::Digraph "Digraph" concept
+  /// This class conforms to the \ref concepts::Digraph "Digraph" concept
   /// and it also has an important extra feature that its maps are
   /// real \ref concepts::ReferenceMap "reference map"s.
-  /// \sa concepts::Digraph.
+  ///
+  /// The \c FullDigraph and \c FullGraph classes are very similar,
+  /// but there are two differences. While this class conforms only
+  /// to the \ref concepts::Digraph "Digraph" concept, the \c FullGraph
+  /// class conforms to the \ref concepts::Graph "Graph" concept,
+  /// moreover \c FullGraph does not contain a loop arc for each
+  /// node as \c FullDigraph does.
   ///
   /// \sa FullGraph
   class FullDigraph : public ExtendedFullDigraphBase {
@@ -177,15 +179,15 @@ namespace lemon {
 
     /// \brief Constructor
     ///
+    /// Constructor.
     /// \param n The number of the nodes.
     FullDigraph(int n) { construct(n); }
 
-    /// \brief Resize the digraph
+    /// \brief Resizes the digraph
     ///
-    /// Resize the digraph. The function will fully destroy and
-    /// rebuild the digraph.  This cause that the maps of the digraph
-    /// will reallocated automatically and the previous values will be
-    /// lost.
+    /// Resizes the digraph. The function will fully destroy and
+    /// rebuild the digraph. This cause that the maps of the digraph will
+    /// reallocated automatically and the previous values will be lost.
     void resize(int n) {
       Parent::notifier(Arc()).clear();
       Parent::notifier(Node()).clear();
@@ -196,23 +198,23 @@ namespace lemon {
 
     /// \brief Returns the node with the given index.
     ///
-    /// Returns the node with the given index. Because it is a
-    /// static size digraph the node's of the digraph can be indexed
-    /// in the range <tt>[0..nodeNum()-1]</tt> and the index of
-    /// the node can accessed by the \e index() member.
+    /// Returns the node with the given index. Since it is a static
+    /// digraph its nodes can be indexed with integers from the range
+    /// <tt>[0..nodeNum()-1]</tt>.
+    /// \sa index()
     Node operator()(int ix) const { return Parent::operator()(ix); }
 
-    /// \brief Returns the index of the node.
+    /// \brief Returns the index of the given node.
     ///
-    /// Returns the index of the node. Because it is a
-    /// static size digraph the node's of the digraph can be indexed
-    /// in the range <tt>[0..nodeNum()-1]</tt> and the index of
-    /// the node can accessed by the \e index() member.
+    /// Returns the index of the given node. Since it is a static
+    /// digraph its nodes can be indexed with integers from the range
+    /// <tt>[0..nodeNum()-1]</tt>.
+    /// \sa operator()
     int index(const Node& node) const { return Parent::index(node); }
 
-    /// \brief Returns the arc connects the given nodes.
+    /// \brief Returns the arc connecting the given nodes.
     ///
-    /// Returns the arc connects the given nodes.
+    /// Returns the arc connecting the given nodes.
     Arc arc(const Node& u, const Node& v) const {
       return Parent::arc(u, v);
     }
@@ -279,7 +281,6 @@ namespace lemon {
     }
 
   public:
-
 
     Node operator()(int ix) const { return Node(ix); }
     int index(const Node& node) const { return node._id; }
@@ -367,6 +368,7 @@ namespace lemon {
 
     class Edge {
       friend class FullGraphBase;
+      friend class Arc;
 
     protected:
       int _id;
@@ -518,20 +520,21 @@ namespace lemon {
   ///
   /// This is a simple and fast undirected full graph
   /// implementation. From each node go edge to each other node,
-  /// therefore the number of edges in the graph is
-  /// <tt>n(n-1)/2</tt>. It is completely static, so you can neither
-  /// add nor delete either edges or nodes, and it needs just constant
+  /// therefore the number of edges in the graph is \f$n(n-1)/2\f$.
+  /// This graph type is completely static, so you can neither
+  /// add nor delete either edges or nodes, and it needs constant
   /// space in memory.
   ///
-  /// The \e FullDigraph and \e FullGraph classes are very similar,
-  /// but there are two differences. While the \e FullDigraph class is
-  /// conform just to the \ref concepts::Digraph "Digraph" concept,
-  /// this class is conform to the \ref concepts::Graph "Graph"
-  /// concept. In addition, the \e FullGraph class does not contain a
-  /// loop arc from each node as the \e FullDigraph does.
+  /// This class conforms to the \ref concepts::Graph "Graph" concept
+  /// and it also has an important extra feature that its maps are
+  /// real \ref concepts::ReferenceMap "reference map"s.
   ///
-  /// It also has an important extra feature that its maps are real
-  /// \ref concepts::ReferenceMap "reference map"s.
+  /// The \c FullGraph and \c FullDigraph classes are very similar,
+  /// but there are two differences. While the \c FullDigraph class
+  /// conforms only to the \ref concepts::Digraph "Digraph" concept,
+  /// this class conforms to the \ref concepts::Graph "Graph" concept,
+  /// moreover \c FullGraph does not contain a loop arc for each
+  /// node as \c FullDigraph does.
   ///
   /// \sa FullDigraph
   class FullGraph : public ExtendedFullGraphBase {
@@ -544,15 +547,15 @@ namespace lemon {
 
     /// \brief Constructor
     ///
+    /// Constructor.
     /// \param n The number of the nodes.
     FullGraph(int n) { construct(n); }
 
-    /// \brief Resize the graph
+    /// \brief Resizes the graph
     ///
-    /// Resize the graph. The function will fully destroy and rebuild
-    /// the graph.  This cause that the maps of the graph will
-    /// reallocated automatically and the previous values will be
-    /// lost.
+    /// Resizes the graph. The function will fully destroy and
+    /// rebuild the graph. This cause that the maps of the graph will
+    /// reallocated automatically and the previous values will be lost.
     void resize(int n) {
       Parent::notifier(Arc()).clear();
       Parent::notifier(Edge()).clear();
@@ -565,30 +568,23 @@ namespace lemon {
 
     /// \brief Returns the node with the given index.
     ///
-    /// Returns the node with the given index. Because it is a static
-    /// size graph the node's of the graph can be indexed in the range
-    /// <tt>[0..nodeNum()-1]</tt> and the index of the node can
-    /// accessed by the \e index() member.
+    /// Returns the node with the given index. Since it is a static
+    /// graph its nodes can be indexed with integers from the range
+    /// <tt>[0..nodeNum()-1]</tt>.
+    /// \sa index()
     Node operator()(int ix) const { return Parent::operator()(ix); }
 
-    /// \brief Returns the index of the node.
+    /// \brief Returns the index of the given node.
     ///
-    /// Returns the index of the node. Because it is a static size
-    /// graph the node's of the graph can be indexed in the range
-    /// <tt>[0..nodeNum()-1]</tt> and the index of the node can
-    /// accessed by the \e index() member.
+    /// Returns the index of the given node. Since it is a static
+    /// graph its nodes can be indexed with integers from the range
+    /// <tt>[0..nodeNum()-1]</tt>.
+    /// \sa operator()
     int index(const Node& node) const { return Parent::index(node); }
 
-    /// \brief Number of nodes.
-    int nodeNum() const { return Parent::nodeNum(); }
-    /// \brief Number of arcs.
-    int arcNum() const { return Parent::arcNum(); }
-    /// \brief Number of edges.
-    int edgeNum() const { return Parent::edgeNum(); }
-
-    /// \brief Returns the arc connects the given nodes.
+    /// \brief Returns the arc connecting the given nodes.
     ///
-    /// Returns the arc connects the given nodes.
+    /// Returns the arc connecting the given nodes.
     Arc arc(const Node& s, const Node& t) const {
       return Parent::arc(s, t);
     }
@@ -599,6 +595,14 @@ namespace lemon {
     Edge edge(const Node& u, const Node& v) const {
       return Parent::edge(u, v);
     }
+
+    /// \brief Number of nodes.
+    int nodeNum() const { return Parent::nodeNum(); }
+    /// \brief Number of arcs.
+    int arcNum() const { return Parent::arcNum(); }
+    /// \brief Number of edges.
+    int edgeNum() const { return Parent::edgeNum(); }
+
   };
 
 
