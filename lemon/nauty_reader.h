@@ -23,17 +23,10 @@
 #include <iostream>
 #include <string>
 
-/// \ingroup io_group
-///
-/// @defgroup nauty_group NAUTY format
-///
-/// \brief Read \e Nauty format
-///
-/// Tool to read graphs from \e Nauty format data
-
 /// \ingroup nauty_group
 /// \file
 /// \brief Nauty file reader.
+
 namespace lemon {
 
   /// \ingroup nauty_group
