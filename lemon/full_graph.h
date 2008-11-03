@@ -75,7 +75,7 @@ namespace lemon {
     typedef True FindArcTag;
 
     Arc findArc(Node s, Node t, Arc prev = INVALID) const {
-      return prev != INVALID ? arc(s, t) : INVALID;
+      return prev == INVALID ? arc(s, t) : INVALID;
     }
 
     class Node {
