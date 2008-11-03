@@ -16,6 +16,7 @@ check_PROGRAMS += \
 	test/dim_test \
 	test/edge_set_test \
 	test/error_test \
+	test/euler_test \
 	test/graph_copy_test \
 	test/graph_test \
 	test/graph_utils_test \
@@ -54,6 +55,7 @@ test_dijkstra_test_SOURCES = test/dijkstra_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
 test_edge_set_test_SOURCES = test/edge_set_test.cc
 test_error_test_SOURCES = test/error_test.cc
+test_euler_test_SOURCES = test/euler_test.cc
 test_graph_copy_test_SOURCES = test/graph_copy_test.cc
 test_graph_test_SOURCES = test/graph_test.cc
 test_graph_utils_test_SOURCES = test/graph_utils_test.cc

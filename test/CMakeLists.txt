@@ -20,6 +20,7 @@ SET(TESTS
   dim_test
   edge_set_test
   error_test
+  euler_test
   graph_copy_test
   graph_test
   graph_utils_test

@@ -54,7 +54,6 @@ namespace lemon {
   ///\endcode
   ///If \c g is not Euler then the resulted tour will not be full or closed.
   ///\sa EulerIt
-  ///\todo Test required
   template<class Digraph>
   class DiEulerIt
   {
@@ -146,7 +145,6 @@ namespace lemon {
   ///
   ///If \c g is not Euler then the resulted tour will not be full or closed.
   ///\sa EulerIt
-  ///\todo Test required
   template<class Digraph>
   class EulerIt
   {
@@ -240,7 +238,6 @@ namespace lemon {
   ///and only if it is connected and the number of incident arcs is even
   ///for each node. <em>Therefore, there are digraphs which are not Eulerian,
   ///but still have an Euler tour</em>.
-  ///\todo Test required
   template<class Digraph>
 #ifdef DOXYGEN
   bool
