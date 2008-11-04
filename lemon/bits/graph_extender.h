@@ -29,12 +29,12 @@
 
 //\ingroup graphbits
 //\file
-//\brief Extenders for the digraph types
+//\brief Extenders for the graph types
 namespace lemon {
 
   // \ingroup graphbits
   //
-  // \brief Extender for the Digraphs
+  // \brief Extender for the digraph implementations
   template <typename Base>
   class DigraphExtender : public Base {
   public:

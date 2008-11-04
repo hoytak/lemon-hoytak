@@ -30,7 +30,7 @@
 
 //\ingroup digraphbits
 //\file
-//\brief Extenders for the digraph types
+//\brief Extenders for the graph types
 namespace lemon {
 
   // \ingroup digraphbits

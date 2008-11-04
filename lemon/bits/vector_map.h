@@ -38,9 +38,9 @@ namespace lemon {
   //
   // \brief Graph map based on the std::vector storage.
   //
-  // The VectorMap template class is graph map structure what
-  // automatically updates the map when a key is added to or erased from
-  // the map. This map type uses the std::vector to store the values.
+  // The VectorMap template class is graph map structure that automatically
+  // updates the map when a key is added to or erased from the graph.
+  // This map type uses std::vector to store the values.
   //
   // \tparam _Graph The graph this map is attached to.
   // \tparam _Item The item type of the graph items.
@@ -169,7 +169,7 @@ namespace lemon {
 
     // \brief Adds a new key to the map.
     //
-    // It adds a new key to the map. It called by the observer notifier
+    // It adds a new key to the map. It is called by the observer notifier
     // and it overrides the add() member function of the observer base.
     virtual void add(const Key& key) {
       int id = Parent::notifier()->id(key);
@@ -180,7 +180,7 @@ namespace lemon {
 
     // \brief Adds more new keys to the map.
     //
-    // It adds more new keys to the map. It called by the observer notifier
+    // It adds more new keys to the map. It is called by the observer notifier
     // and it overrides the add() member function of the observer base.
     virtual void add(const std::vector<Key>& keys) {
       int max = container.size() - 1;
@@ -195,7 +195,7 @@ namespace lemon {
 
     // \brief Erase a key from the map.
     //
-    // Erase a key from the map. It called by the observer notifier
+    // Erase a key from the map. It is called by the observer notifier
     // and it overrides the erase() member function of the observer base.
     virtual void erase(const Key& key) {
       container[Parent::notifier()->id(key)] = Value();
@@ -203,7 +203,7 @@ namespace lemon {
 
     // \brief Erase more keys from the map.
     //
-    // Erase more keys from the map. It called by the observer notifier
+    // It erases more keys from the map. It is called by the observer notifier
     // and it overrides the erase() member function of the observer base.
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
@@ -211,9 +211,9 @@ namespace lemon {
       }
     }
 
-    // \brief Buildes the map.
+    // \brief Build the map.
     //
-    // It buildes the map. It called by the observer notifier
+    // It builds the map. It is called by the observer notifier
     // and it overrides the build() member function of the observer base.
     virtual void build() {
       int size = Parent::notifier()->maxId() + 1;
@@ -223,7 +223,7 @@ namespace lemon {
 
     // \brief Clear the map.
     //
-    // It erase all items from the map. It called by the observer notifier
+    // It erases all items from the map. It is called by the observer notifier
     // and it overrides the clear() member function of the observer base.
     virtual void clear() {
       container.clear();
