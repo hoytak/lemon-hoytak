@@ -38,7 +38,7 @@ namespace lemon {
   /// graphs of several classes with given node number (e.g.
   /// general, connected, biconnected, triangle-free, 4-cycle-free,
   /// bipartite and graphs with given edge number and degree
-  /// constraints). This function reads a \e nauty \e graph \e format
+  /// constraints). This function reads a \e nauty \e graph6 \e format
   /// line from the given stream and builds it in the given graph.
   ///
   /// The site of nauty package: http://cs.anu.edu.au/~bdm/nauty/
