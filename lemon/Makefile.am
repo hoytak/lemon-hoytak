@@ -28,6 +28,7 @@ lemon_HEADERS += \
         lemon/dijkstra.h \
         lemon/dim2.h \
 	lemon/error.h \
+	lemon/full_graph.h \
         lemon/graph_to_eps.h \
         lemon/grid_graph.h \
 	lemon/kruskal.h \
