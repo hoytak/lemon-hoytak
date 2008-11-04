@@ -23,17 +23,10 @@
 #include <iostream>
 #include <string>
 
-/// \ingroup io_group
-///
-/// @defgroup nauty_group NAUTY format
-///
-/// \brief Read \e Nauty format
-///
-/// Tool to read graphs from \e Nauty format data
-
 /// \ingroup nauty_group
 /// \file
 /// \brief Nauty file reader.
+
 namespace lemon {
 
   /// \ingroup nauty_group
@@ -42,16 +35,16 @@ namespace lemon {
   ///
   /// The \e geng program is in the \e gtools suite of the nauty
   /// package. This tool can generate all non-isomorphic undirected
-  /// graphs with given node number from several classes (for example,
+  /// graphs of several classes with given node number (e.g.
   /// general, connected, biconnected, triangle-free, 4-cycle-free,
   /// bipartite and graphs with given edge number and degree
-  /// constraints). This function reads a \e nauty \e graph6 \e format
+  /// constraints). This function reads a \e nauty \e graph \e format
   /// line from the given stream and builds it in the given graph.
   ///
   /// The site of nauty package: http://cs.anu.edu.au/~bdm/nauty/
   ///
-  /// For example, the number of all non-isomorphic connected graphs
-  /// can be computed with following code.
+  /// For example, the number of all non-isomorphic planar graphs
+  /// can be computed with the following code.
   ///\code
   /// int num = 0;
   /// SmartGraph graph;
@@ -63,12 +56,12 @@ namespace lemon {
   ///\endcode
   ///
   /// The nauty files are quite huge, therefore instead of the direct
-  /// file generation the pipelining is recommended.
+  /// file generation pipelining is recommended. For example,
   ///\code
-  /// ./geng -c 10 | ./num_of_pg
+  /// ./geng -c 10 | ./num_of_planar_graphs
   ///\endcode
   template <typename Graph>
-  std::istream& readNauty(Graph& graph, std::istream& is) {
+  std::istream& readNauty(Graph& graph, std::istream& is = std::cin) {
     graph.clear();
 
     std::string line;

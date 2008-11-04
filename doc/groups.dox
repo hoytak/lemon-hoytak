@@ -464,7 +464,7 @@ postscript (EPS) format.
 */
 
 /**
-@defgroup lemon_io LEMON Input-Output
+@defgroup lemon_io LEMON Graph Format
 @ingroup io_group
 \brief Reading and writing LEMON Graph Format.
 
@@ -479,6 +479,13 @@ This group describes methods for reading and writing
 
 This group describes general \c EPS drawing methods and special
 graph exporting tools.
+*/
+
+/**
+@defgroup nauty_group NAUTY Format
+@ingroup io_group
+\brief Read \e Nauty format
+Tool to read graphs from \e Nauty format data.
 */
 
 /**
