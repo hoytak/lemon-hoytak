@@ -48,7 +48,7 @@ namespace lemon {
   ///\code
   /// int num = 0;
   /// SmartGraph graph;
-  /// while (readNauty(graph, std::cin)) {
+  /// while (readNautyGraph(graph, std::cin)) {
   ///   PlanarityChecking<SmartGraph> pc(graph);
   ///   if (pc.run()) ++num;
   /// }
@@ -61,7 +61,7 @@ namespace lemon {
   /// ./geng -c 10 | ./num_of_planar_graphs
   ///\endcode
   template <typename Graph>
-  std::istream& readNauty(Graph& graph, std::istream& is = std::cin) {
+  std::istream& readNautyGraph(Graph& graph, std::istream& is = std::cin) {
     graph.clear();
 
     std::string line;
