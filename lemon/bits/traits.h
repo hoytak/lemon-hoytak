@@ -218,6 +218,19 @@ namespace lemon {
   };
 
   template <typename Graph, typename Enable = void>
+  struct ArcNumTagIndicator {
+    static const bool value = false;
+  };
+
+  template <typename Graph>
+  struct ArcNumTagIndicator<
+    Graph,
+    typename enable_if<typename Graph::ArcNumTag, void>::type
+  > {
+    static const bool value = true;
+  };
+
+  template <typename Graph, typename Enable = void>
   struct EdgeNumTagIndicator {
     static const bool value = false;
   };
@@ -226,6 +239,19 @@ namespace lemon {
   struct EdgeNumTagIndicator<
     Graph,
     typename enable_if<typename Graph::EdgeNumTag, void>::type
+  > {
+    static const bool value = true;
+  };
+
+  template <typename Graph, typename Enable = void>
+  struct FindArcTagIndicator {
+    static const bool value = false;
+  };
+
+  template <typename Graph>
+  struct FindArcTagIndicator<
+    Graph,
+    typename enable_if<typename Graph::FindArcTag, void>::type
   > {
     static const bool value = true;
   };

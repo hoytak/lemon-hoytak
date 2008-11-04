@@ -82,6 +82,7 @@ namespace lemon {
     }
 
     typedef True NodeNumTag;
+    typedef True EdgeNumTag;
     typedef True ArcNumTag;
 
     int nodeNum() const { return _node_num; }
@@ -127,6 +128,7 @@ namespace lemon {
     static Arc arcFromId(int id) { return Arc(id);}
 
     typedef True FindEdgeTag;
+    typedef True FindArcTag;
 
     Edge findEdge(Node u, Node v, Edge prev = INVALID) const {
       if (prev != INVALID) return INVALID;

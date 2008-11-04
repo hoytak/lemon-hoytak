@@ -67,7 +67,7 @@ namespace lemon {
       : nodes(_g.nodes), arcs(_g.arcs) { }
 
     typedef True NodeNumTag;
-    typedef True EdgeNumTag;
+    typedef True ArcNumTag;
 
     int nodeNum() const { return nodes.size(); }
     int arcNum() const { return arcs.size(); }
