@@ -20,7 +20,7 @@
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
 #include <lemon/full_graph.h>
-//#include <lemon/hypercube_graph.h>
+#include <lemon/hypercube_graph.h>
 
 #include "test_tools.h"
 #include "graph_test.h"
@@ -112,6 +112,35 @@ void checkFullDigraph(int num) {
 
 }
 
+void checkHypercubeDigraph(int dim) {
+  DIGRAPH_TYPEDEFS(HypercubeDigraph);
+
+  HypercubeDigraph G(dim);
+  checkGraphNodeList(G, 1 << dim);
+  checkGraphArcList(G, (1 << dim) * dim);
+
+  Node n = G.nodeFromId(dim);
+
+  checkGraphOutArcList(G, n, dim);
+  for (OutArcIt a(G, n); a != INVALID; ++a)
+    check(G.source(a) == n &&
+          G.id(G.target(a)) == G.id(n) ^ (1 << G.dimension(a)),
+          "Wrong arc");
+
+  checkGraphInArcList(G, n, dim);
+  for (InArcIt a(G, n); a != INVALID; ++a)
+    check(G.target(a) == n &&
+          G.id(G.source(a)) == G.id(n) ^ (1 << G.dimension(a)),
+          "Wrong arc");
+
+  checkGraphConArcList(G, (1 << dim) * dim);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+}
+
 
 void checkConcepts() {
   { // Checking digraph components
@@ -145,9 +174,9 @@ void checkConcepts() {
   { // Checking FullDigraph
     checkConcept<Digraph, FullDigraph>();
   }
-//  { // Checking HyperCubeDigraph
-//    checkConcept<Digraph, HyperCubeDigraph>();
-//  }
+  { // Checking HypercubeDigraph
+    checkConcept<Digraph, HypercubeDigraph>();
+  }
 }
 
 template <typename Digraph>
@@ -211,6 +240,12 @@ void checkDigraphs() {
   }
   { // Checking FullDigraph
     checkFullDigraph(8);
+  }
+  { // Checking HypercubeDigraph
+    checkHypercubeDigraph(1);
+    checkHypercubeDigraph(2);
+    checkHypercubeDigraph(3);
+    checkHypercubeDigraph(4);
   }
 }
 
