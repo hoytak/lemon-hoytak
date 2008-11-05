@@ -90,6 +90,7 @@ do
         -e "s/\<StoreBoolMap\>/LoggerBoolMap/g"\
         -e "s/\<storeBoolMap\>/loggerBoolMap/g"\
         -e "s/\<BoundingBox\>/Box/g"\
+        -e "s/\<readNauty\>/readNautyGraph/g"\
     <$i > $TMP
     mv $TMP $i
 done
