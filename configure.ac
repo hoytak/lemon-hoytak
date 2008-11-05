@@ -19,8 +19,6 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
 AC_CONFIG_SRCDIR([lemon/list_graph.h])
 AC_CONFIG_HEADERS([config.h lemon/config.h])
 
-lx_cmdline_cxxflags_set=${CXXFLAGS+set}
-
 dnl Do compilation tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -46,9 +44,10 @@ else
 fi
 
 dnl Set custom compiler flags when using g++.
-if test x"$lx_cmdline_cxxflags_set" != x"set" -a "$GXX" = yes -a "$ICC" = no; then
-  CXXFLAGS="$CXXFLAGS -Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
+if test "$GXX" = yes -a "$ICC" = no; then
+  WARNINGCXXFLAGS="-Wall -W -Wall -W -Wunused -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-char-subscripts -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -ansi -fno-strict-aliasing -Wold-style-cast -Wno-unknown-pragmas"
 fi
+AC_SUBST([WARNINGCXXFLAGS])
 
 dnl Checks for libraries.
 #LX_CHECK_GLPK
@@ -113,7 +112,7 @@ echo
 echo Package version............... : $PACKAGE-$VERSION
 echo
 echo C++ compiler.................. : $CXX
-echo C++ compiles flags............ : $CXXFLAGS
+echo C++ compiles flags............ : $WARNINGCXXFLAGS $CXXFLAGS
 echo
 #echo GLPK support.................. : $lx_glpk_found
 #echo CPLEX support................. : $lx_cplex_found

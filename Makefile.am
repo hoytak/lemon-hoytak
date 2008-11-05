@@ -1,5 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
+
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir)
 LDADD = $(top_builddir)/lemon/libemon.la
 
