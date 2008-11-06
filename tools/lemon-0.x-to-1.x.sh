@@ -81,6 +81,7 @@ do
         -e "s/\<DefProcessedMapToBeDefaultMap\>/SetStandardProcessedMap/g"\
         -e "s/\<copyGraph\>/graphCopy/g"\
         -e "s/\<copyDigraph\>/digraphCopy/g"\
+        -e "s/\<HyperCubeDigraph\>/HypercubeGraph/g"\
         -e "s/\<IntegerMap\>/RangeMap/g"\
         -e "s/\<integerMap\>/rangeMap/g"\
         -e "s/\<\([sS]\)tdMap\>/\1parseMap/g"\

@@ -20,7 +20,6 @@
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
 #include <lemon/full_graph.h>
-//#include <lemon/hypercube_graph.h>
 
 #include "test_tools.h"
 #include "graph_test.h"
@@ -112,7 +111,6 @@ void checkFullDigraph(int num) {
 
 }
 
-
 void checkConcepts() {
   { // Checking digraph components
     checkConcept<BaseDigraphComponent, BaseDigraphComponent >();
@@ -145,9 +143,6 @@ void checkConcepts() {
   { // Checking FullDigraph
     checkConcept<Digraph, FullDigraph>();
   }
-//  { // Checking HyperCubeDigraph
-//    checkConcept<Digraph, HyperCubeDigraph>();
-//  }
 }
 
 template <typename Digraph>
