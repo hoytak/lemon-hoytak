@@ -21,6 +21,7 @@
 #include <lemon/smart_graph.h>
 #include <lemon/full_graph.h>
 #include <lemon/grid_graph.h>
+#include <lemon/hypercube_graph.h>
 
 #include "test_tools.h"
 #include "graph_test.h"
@@ -104,9 +105,9 @@ void checkFullGraph(int num) {
   checkGraphEdgeList(G, num * (num - 1) / 2);
 
   for (NodeIt n(G); n != INVALID; ++n) {
-    checkGraphOutArcList(G, n, num - 1);    
-    checkGraphInArcList(G, n, num - 1);    
-    checkGraphIncEdgeList(G, n, num - 1);    
+    checkGraphOutArcList(G, n, num - 1);
+    checkGraphInArcList(G, n, num - 1);
+    checkGraphIncEdgeList(G, n, num - 1);
   }
 
   checkGraphConArcList(G, num * (num - 1));
@@ -121,7 +122,7 @@ void checkFullGraph(int num) {
   checkGraphArcMap(G);
   checkGraphEdgeMap(G);
 
-  
+
   for (int i = 0; i < G.nodeNum(); ++i) {
     check(G.index(G(i)) == i, "Wrong index");
   }
@@ -176,6 +177,9 @@ void checkConcepts() {
   }
   { // Checking GridGraph
     checkConcept<Graph, GridGraph>();
+  }
+  { // Checking HypercubeGraph
+    checkConcept<Graph, HypercubeGraph>();
   }
 }
 
@@ -312,6 +316,54 @@ void checkGridGraph(int width, int height) {
 
 }
 
+void checkHypercubeGraph(int dim) {
+  GRAPH_TYPEDEFS(HypercubeGraph);
+
+  HypercubeGraph G(dim);
+  checkGraphNodeList(G, 1 << dim);
+  checkGraphEdgeList(G, dim * (1 << dim-1));
+  checkGraphArcList(G, dim * (1 << dim));
+
+  Node n = G.nodeFromId(dim);
+
+  for (NodeIt n(G); n != INVALID; ++n) {
+    checkGraphIncEdgeList(G, n, dim);
+    for (IncEdgeIt e(G, n); e != INVALID; ++e) {
+      check( (G.u(e) == n &&
+              G.id(G.v(e)) == G.id(n) ^ (1 << G.dimension(e))) ||
+             (G.v(e) == n &&
+              G.id(G.u(e)) == G.id(n) ^ (1 << G.dimension(e))),
+             "Wrong edge or wrong dimension");
+    }
+
+    checkGraphOutArcList(G, n, dim);
+    for (OutArcIt a(G, n); a != INVALID; ++a) {
+      check(G.source(a) == n &&
+            G.id(G.target(a)) == G.id(n) ^ (1 << G.dimension(a)),
+            "Wrong arc or wrong dimension");
+    }
+
+    checkGraphInArcList(G, n, dim);
+    for (InArcIt a(G, n); a != INVALID; ++a) {
+      check(G.target(a) == n &&
+            G.id(G.source(a)) == G.id(n) ^ (1 << G.dimension(a)),
+            "Wrong arc or wrong dimension");
+    }
+  }
+
+  checkGraphConArcList(G, (1 << dim) * dim);
+  checkGraphConEdgeList(G, dim * (1 << dim-1));
+
+  checkArcDirections(G);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkEdgeIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+  checkGraphEdgeMap(G);
+}
+
 void checkGraphs() {
   { // Checking ListGraph
     checkGraph<ListGraph>();
@@ -321,7 +373,7 @@ void checkGraphs() {
     checkGraph<SmartGraph>();
     checkGraphValidity<SmartGraph>();
   }
-  { // Checking FullGraph   
+  { // Checking FullGraph
     checkFullGraph(7);
     checkFullGraph(8);
   }
@@ -331,6 +383,12 @@ void checkGraphs() {
     checkGridGraph(5, 5);
     checkGridGraph(0, 0);
     checkGridGraph(1, 1);
+  }
+  { // Checking HypercubeGraph
+    checkHypercubeGraph(1);
+    checkHypercubeGraph(2);
+    checkHypercubeGraph(3);
+    checkHypercubeGraph(4);
   }
 }
 

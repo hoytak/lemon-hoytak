@@ -19,128 +19,230 @@
 #ifndef HYPERCUBE_GRAPH_H
 #define HYPERCUBE_GRAPH_H
 
-#include <iostream>
 #include <vector>
 #include <lemon/core.h>
-#include <lemon/error.h>
-
-#include <lemon/bits/base_extender.h>
+#include <lemon/assert.h>
 #include <lemon/bits/graph_extender.h>
 
 ///\ingroup graphs
 ///\file
-///\brief HypercubeDigraph class.
+///\brief HypercubeGraph class.
 
 namespace lemon {
 
-  class HypercubeDigraphBase {
+  class HypercubeGraphBase {
 
   public:
 
-    typedef HypercubeDigraphBase Digraph;
+    typedef HypercubeGraphBase Graph;
 
     class Node;
+    class Edge;
     class Arc;
 
   public:
 
-    HypercubeDigraphBase() {}
+    HypercubeGraphBase() {}
 
   protected:
 
     void construct(int dim) {
+      LEMON_ASSERT(dim >= 1, "The number of dimensions must be at least 1.");
       _dim = dim;
-      _nodeNum = 1 << dim;
+      _node_num = 1 << dim;
+      _edge_num = dim * (1 << dim-1);
     }
 
   public:
 
     typedef True NodeNumTag;
+    typedef True EdgeNumTag;
     typedef True ArcNumTag;
 
-    int nodeNum() const { return _nodeNum; }
-    int arcNum() const { return _nodeNum * _dim; }
+    int nodeNum() const { return _node_num; }
+    int edgeNum() const { return _edge_num; }
+    int arcNum() const { return 2 * _edge_num; }
 
-    int maxNodeId() const { return nodeNum() - 1; }
-    int maxArcId() const { return arcNum() - 1; }
-
-    Node source(Arc e) const {
-      return e.id / _dim;
-    }
-
-    Node target(Arc e) const {
-      return (e.id / _dim) ^ (1 << (e.id % _dim));
-    }
-
-    static int id(Node v) { return v.id; }
-    static int id(Arc e) { return e.id; }
+    int maxNodeId() const { return _node_num - 1; }
+    int maxEdgeId() const { return _edge_num - 1; }
+    int maxArcId() const { return 2 * _edge_num - 1; }
 
     static Node nodeFromId(int id) { return Node(id); }
-
+    static Edge edgeFromId(int id) { return Edge(id); }
     static Arc arcFromId(int id) { return Arc(id); }
 
+    static int id(Node node) { return node._id; }
+    static int id(Edge edge) { return edge._id; }
+    static int id(Arc arc) { return arc._id; }
+
+    Node u(Edge edge) const {
+      int base = edge._id & ((1 << _dim-1) - 1);
+      int k = edge._id >> _dim-1;
+      return ((base >> k) << k+1) | (base & ((1 << k) - 1));
+    }
+
+    Node v(Edge edge) const {
+      int base = edge._id & ((1 << _dim-1) - 1);
+      int k = edge._id >> _dim-1;
+      return ((base >> k) << k+1) | (base & ((1 << k) - 1)) | (1 << k);
+    }
+
+    Node source(Arc arc) const {
+      return (arc._id & 1) == 1 ? u(arc) : v(arc);
+    }
+
+    Node target(Arc arc) const {
+      return (arc._id & 1) == 1 ? v(arc) : u(arc);
+    }
+
+    typedef True FindEdgeTag;
+    typedef True FindArcTag;
+
+    Edge findEdge(Node u, Node v, Edge prev = INVALID) const {
+      if (prev != INVALID) return INVALID;
+      int d = u._id ^ v._id;
+      int k = 0;
+      if (d == 0) return INVALID;
+      for ( ; (d & 1) == 0; d >>= 1) ++k;
+      if (d >> 1 != 0) return INVALID;
+      return (k << _dim-1) | ((u._id >> k+1) << k) | (u._id & ((1 << k) - 1));
+    }
+
+    Arc findArc(Node u, Node v, Arc prev = INVALID) const {
+      Edge edge = findEdge(u, v, prev);
+      if (edge == INVALID) return INVALID;
+      int k = edge._id >> _dim-1;
+      return ((u._id >> k) & 1) == 1 ? edge._id << 1 : (edge._id << 1) | 1;
+    }
+
     class Node {
-      friend class HypercubeDigraphBase;
+      friend class HypercubeGraphBase;
+
     protected:
-      int id;
-      Node(int _id) { id = _id;}
+      int _id;
+      Node(int id) : _id(id) {}
     public:
       Node() {}
-      Node (Invalid) { id = -1; }
-      bool operator==(const Node node) const { return id == node.id; }
-      bool operator!=(const Node node) const { return id != node.id; }
-      bool operator<(const Node node) const { return id < node.id; }
+      Node (Invalid) : _id(-1) {}
+      bool operator==(const Node node) const {return _id == node._id;}
+      bool operator!=(const Node node) const {return _id != node._id;}
+      bool operator<(const Node node) const {return _id < node._id;}
+    };
+
+    class Edge {
+      friend class HypercubeGraphBase;
+      friend class Arc;
+
+    protected:
+      int _id;
+
+      Edge(int id) : _id(id) {}
+
+    public:
+      Edge() {}
+      Edge (Invalid) : _id(-1) {}
+      bool operator==(const Edge edge) const {return _id == edge._id;}
+      bool operator!=(const Edge edge) const {return _id != edge._id;}
+      bool operator<(const Edge edge) const {return _id < edge._id;}
     };
 
     class Arc {
-      friend class HypercubeDigraphBase;
+      friend class HypercubeGraphBase;
+
     protected:
-      int id;
-      Arc(int _id) : id(_id) {}
+      int _id;
+
+      Arc(int id) : _id(id) {}
+
     public:
-      Arc() { }
-      Arc (Invalid) { id = -1; }
-      bool operator==(const Arc arc) const { return id == arc.id; }
-      bool operator!=(const Arc arc) const { return id != arc.id; }
-      bool operator<(const Arc arc) const { return id < arc.id; }
+      Arc() {}
+      Arc (Invalid) : _id(-1) {}
+      operator Edge() const { return _id != -1 ? Edge(_id >> 1) : INVALID; }
+      bool operator==(const Arc arc) const {return _id == arc._id;}
+      bool operator!=(const Arc arc) const {return _id != arc._id;}
+      bool operator<(const Arc arc) const {return _id < arc._id;}
     };
 
     void first(Node& node) const {
-      node.id = nodeNum() - 1;
+      node._id = _node_num - 1;
     }
 
     static void next(Node& node) {
-      --node.id;
+      --node._id;
+    }
+
+    void first(Edge& edge) const {
+      edge._id = _edge_num - 1;
+    }
+
+    static void next(Edge& edge) {
+      --edge._id;
     }
 
     void first(Arc& arc) const {
-      arc.id = arcNum() - 1;
+      arc._id = 2 * _edge_num - 1;
     }
 
     static void next(Arc& arc) {
-      --arc.id;
+      --arc._id;
+    }
+
+    void firstInc(Edge& edge, bool& dir, const Node& node) const {
+      edge._id = node._id >> 1;
+      dir = (node._id & 1) == 0;
+    }
+
+    void nextInc(Edge& edge, bool& dir) const {
+      Node n = dir ? u(edge) : v(edge);
+      int k = (edge._id >> _dim-1) + 1;
+      if (k < _dim) {
+        edge._id = (k << _dim-1) |
+                   ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        dir = ((n._id >> k) & 1) == 0;
+      } else {
+        edge._id = -1;
+        dir = true;
+      }
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      arc.id = node.id * _dim;
+      arc._id = ((node._id >> 1) << 1) | (~node._id & 1);
     }
 
     void nextOut(Arc& arc) const {
-      ++arc.id;
-      if (arc.id % _dim == 0) arc.id = -1;
+      Node n = (arc._id & 1) == 1 ? u(arc) : v(arc);
+      int k = (arc._id >> _dim) + 1;
+      if (k < _dim) {
+        arc._id = (k << _dim-1) |
+                  ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        arc._id = (arc._id << 1) | (~(n._id >> k) & 1);
+      } else {
+        arc._id = -1;
+      }
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      arc.id = (node.id ^ 1) * _dim;
+      arc._id = ((node._id >> 1) << 1) | (node._id & 1);
     }
 
     void nextIn(Arc& arc) const {
-      int cnt = arc.id % _dim;
-      if ((cnt + 1) % _dim == 0) {
-        arc.id = -1;
+      Node n = (arc._id & 1) == 1 ? v(arc) : u(arc);
+      int k = (arc._id >> _dim) + 1;
+      if (k < _dim) {
+        arc._id = (k << _dim-1) |
+                  ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        arc._id = (arc._id << 1) | ((n._id >> k) & 1);
       } else {
-        arc.id = ((arc.id / _dim) ^ ((1 << cnt) * 3)) * _dim + cnt + 1;
+        arc._id = -1;
       }
+    }
+
+    static bool direction(Arc arc) {
+      return (arc._id & 1) == 1;
+    }
+
+    static Arc direct(Edge edge, bool dir) {
+      return Arc((edge._id << 1) | (dir ? 1 : 0));
     }
 
     int dimension() const {
@@ -148,15 +250,19 @@ namespace lemon {
     }
 
     bool projection(Node node, int n) const {
-      return static_cast<bool>(node.id & (1 << n));
+      return static_cast<bool>(node._id & (1 << n));
+    }
+
+    int dimension(Edge edge) const {
+      return edge._id >> _dim-1;
     }
 
     int dimension(Arc arc) const {
-      return arc.id % _dim;
+      return arc._id >> _dim;
     }
 
     int index(Node node) const {
-      return node.id;
+      return node._id;
     }
 
     Node operator()(int ix) const {
@@ -164,131 +270,148 @@ namespace lemon {
     }
 
   private:
-    int _dim, _nodeNum;
+    int _dim;
+    int _node_num, _edge_num;
   };
 
 
-  typedef DigraphExtender<HypercubeDigraphBase> ExtendedHypercubeDigraphBase;
+  typedef GraphExtender<HypercubeGraphBase> ExtendedHypercubeGraphBase;
 
-  /// \ingroup digraphs
+  /// \ingroup graphs
   ///
-  /// \brief Hypercube digraph class
+  /// \brief Hypercube graph class
   ///
-  /// This class implements a special digraph type. The nodes of the
-  /// digraph are indiced with integers with at most \c dim binary digits.
-  /// Two nodes are connected in the digraph if the indices differ only
-  /// on one position in the binary form.
+  /// This class implements a special graph type. The nodes of the graph
+  /// are indiced with integers with at most \c dim binary digits.
+  /// Two nodes are connected in the graph if and only if their indices
+  /// differ only on one position in the binary form.
   ///
-  /// \note The type of the \c ids is chosen to \c int because efficiency
-  /// reasons. Thus the maximum dimension of this implementation is 26.
+  /// \note The type of the indices is chosen to \c int for efficiency
+  /// reasons. Thus the maximum dimension of this implementation is 26
+  /// (assuming that the size of \c int is 32 bit).
   ///
-  /// The digraph type is fully conform to the \ref concepts::Digraph
-  /// concept but it does not conform to \ref concepts::Graph.
-  class HypercubeDigraph : public ExtendedHypercubeDigraphBase {
+  /// This graph type is fully conform to the \ref concepts::Graph
+  /// "Graph" concept, and it also has an important extra feature
+  /// that its maps are real \ref concepts::ReferenceMap
+  /// "reference map"s.
+  class HypercubeGraph : public ExtendedHypercubeGraphBase {
   public:
 
-    typedef ExtendedHypercubeDigraphBase Parent;
+    typedef ExtendedHypercubeGraphBase Parent;
 
-    /// \brief Construct a hypercube digraph with \c dim dimension.
+    /// \brief Constructs a hypercube graph with \c dim dimensions.
     ///
-    /// Construct a hypercube digraph with \c dim dimension.
-    HypercubeDigraph(int dim) { construct(dim); }
+    /// Constructs a hypercube graph with \c dim dimensions.
+    HypercubeGraph(int dim) { construct(dim); }
 
-    /// \brief Gives back the number of the dimensions.
+    /// \brief The number of dimensions.
     ///
-    /// Gives back the number of the dimensions.
+    /// Gives back the number of dimensions.
     int dimension() const {
       return Parent::dimension();
     }
 
-    /// \brief Returns true if the n'th bit of the node is one.
+    /// \brief Returns \c true if the n'th bit of the node is one.
     ///
-    /// Returns true if the n'th bit of the node is one.
+    /// Returns \c true if the n'th bit of the node is one.
     bool projection(Node node, int n) const {
       return Parent::projection(node, n);
     }
 
-    /// \brief The dimension id of the arc.
+    /// \brief The dimension id of an edge.
     ///
-    /// It returns the dimension id of the arc. It can
-    /// be in the \f$ \{0, 1, \dots, dim-1\} \f$ interval.
+    /// Gives back the dimension id of the given edge.
+    /// It is in the [0..dim-1] range.
+    int dimension(Edge edge) const {
+      return Parent::dimension(edge);
+    }
+
+    /// \brief The dimension id of an arc.
+    ///
+    /// Gives back the dimension id of the given arc.
+    /// It is in the [0..dim-1] range.
     int dimension(Arc arc) const {
       return Parent::dimension(arc);
     }
 
-    /// \brief Gives back the index of the node.
+    /// \brief The index of a node.
     ///
-    /// Gives back the index of the node. The lower bits of the
-    /// integer describes the node.
+    /// Gives back the index of the given node.
+    /// The lower bits of the integer describes the node.
     int index(Node node) const {
       return Parent::index(node);
     }
 
-    /// \brief Gives back the node by its index.
+    /// \brief Gives back a node by its index.
     ///
-    /// Gives back the node by its index.
+    /// Gives back a node by its index.
     Node operator()(int ix) const {
       return Parent::operator()(ix);
     }
 
     /// \brief Number of nodes.
     int nodeNum() const { return Parent::nodeNum(); }
+    /// \brief Number of edges.
+    int edgeNum() const { return Parent::edgeNum(); }
     /// \brief Number of arcs.
     int arcNum() const { return Parent::arcNum(); }
 
     /// \brief Linear combination map.
     ///
-    /// It makes possible to give back a linear combination
-    /// for each node. This function works like the \c std::accumulate
-    /// so it accumulates the \c bf binary function with the \c fv
-    /// first value. The map accumulates only on that dimensions where
-    /// the node's index is one. The accumulated values should be
-    /// given by the \c begin and \c end iterators and the length of this
-    /// range should be equal to the dimension number of the digraph.
+    /// This map makes possible to give back a linear combination
+    /// for each node. It works like the \c std::accumulate function,
+    /// so it accumulates the \c bf binary function with the \c fv first
+    /// value. The map accumulates only on that positions (dimensions)
+    /// where the index of the node is one. The values that have to be
+    /// accumulated should be given by the \c begin and \c end iterators
+    /// and the length of this range should be equal to the dimension
+    /// number of the graph.
     ///
     ///\code
     /// const int DIM = 3;
-    /// HypercubeDigraph digraph(DIM);
+    /// HypercubeGraph graph(DIM);
     /// dim2::Point<double> base[DIM];
     /// for (int k = 0; k < DIM; ++k) {
     ///   base[k].x = rnd();
     ///   base[k].y = rnd();
     /// }
-    /// HypercubeDigraph::HyperMap<dim2::Point<double> >
-    ///   pos(digraph, base, base + DIM, dim2::Point<double>(0.0, 0.0));
+    /// HypercubeGraph::HyperMap<dim2::Point<double> >
+    ///   pos(graph, base, base + DIM, dim2::Point<double>(0.0, 0.0));
     ///\endcode
     ///
-    /// \see HypercubeDigraph
+    /// \see HypercubeGraph
     template <typename T, typename BF = std::plus<T> >
     class HyperMap {
     public:
 
+      /// \brief The key type of the map
       typedef Node Key;
+      /// \brief The value type of the map
       typedef T Value;
-
 
       /// \brief Constructor for HyperMap.
       ///
-      /// Construct a HyperMap for the given digraph. The accumulated values
-      /// should be given by the \c begin and \c end iterators and the length
-      /// of this range should be equal to the dimension number of the digraph.
+      /// Construct a HyperMap for the given graph. The values that have
+      /// to be accumulated should be given by the \c begin and \c end
+      /// iterators and the length of this range should be equal to the
+      /// dimension number of the graph.
       ///
-      /// This function accumulates the \c bf binary function with
-      /// the \c fv first value. The map accumulates only on that dimensions
-      /// where the node's index is one.
+      /// This map accumulates the \c bf binary function with the \c fv
+      /// first value on that positions (dimensions) where the index of
+      /// the node is one.
       template <typename It>
-      HyperMap(const Digraph& digraph, It begin, It end,
-               T fv = 0.0, const BF& bf = BF())
-        : _graph(digraph), _values(begin, end), _first_value(fv), _bin_func(bf)
+      HyperMap(const Graph& graph, It begin, It end,
+               T fv = 0, const BF& bf = BF())
+        : _graph(graph), _values(begin, end), _first_value(fv), _bin_func(bf)
       {
-        LEMON_ASSERT(_values.size() == digraph.dimension(),
-                     "Wrong size of dimension");
+        LEMON_ASSERT(_values.size() == graph.dimension(),
+                     "Wrong size of range");
       }
 
-      /// \brief Gives back the partial accumulated value.
+      /// \brief The partial accumulated value.
       ///
       /// Gives back the partial accumulated value.
-      Value operator[](Key k) const {
+      Value operator[](const Key& k) const {
         Value val = _first_value;
         int id = _graph.index(k);
         int n = 0;
@@ -303,7 +426,7 @@ namespace lemon {
       }
 
     private:
-      const Digraph& _graph;
+      const Graph& _graph;
       std::vector<T> _values;
       T _first_value;
       BF _bin_func;
