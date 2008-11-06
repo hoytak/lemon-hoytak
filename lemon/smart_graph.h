@@ -480,6 +480,13 @@ namespace lemon {
     SmartGraphBase()
       : nodes(), arcs() {}
 
+    typedef True NodeNumTag;
+    typedef True EdgeNumTag;
+    typedef True ArcNumTag;
+
+    int nodeNum() const { return nodes.size(); }
+    int edgeNum() const { return arcs.size() / 2; }
+    int arcNum() const { return arcs.size(); }
 
     int maxNodeId() const { return nodes.size()-1; }
     int maxEdgeId() const { return arcs.size() / 2 - 1; }
