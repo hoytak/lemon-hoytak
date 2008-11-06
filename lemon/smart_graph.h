@@ -305,7 +305,9 @@ namespace lemon {
       Node b = addNode();
       nodes[b._id].first_out=nodes[n._id].first_out;
       nodes[n._id].first_out=-1;
-      for(int i=nodes[b._id].first_out;i!=-1;i++) arcs[i].source=b._id;
+      for(int i=nodes[b._id].first_out; i!=-1; i=arcs[i].next_out) {
+        arcs[i].source=b._id;
+      }
       if(connect) addArc(n,b);
       return b;
     }
