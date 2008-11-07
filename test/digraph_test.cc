@@ -29,7 +29,7 @@ using namespace lemon;
 using namespace lemon::concepts;
 
 template <class Digraph>
-void checkDigraph() {
+void checkDigraphBuild() {
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   Digraph G;
 
@@ -58,7 +58,208 @@ void checkDigraph() {
 
   checkGraphConArcList(G, 1);
 
-  Arc a2 = G.addArc(n2, n1), a3 = G.addArc(n2, n3), a4 = G.addArc(n2, n3);
+  Arc a2 = G.addArc(n2, n1),
+      a3 = G.addArc(n2, n3),
+      a4 = G.addArc(n2, n3);
+
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 4);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 3);
+  checkGraphOutArcList(G, n3, 0);
+
+  checkGraphInArcList(G, n1, 1);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 2);
+
+  checkGraphConArcList(G, 4);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+}
+
+template <class Digraph>
+void checkDigraphSplit() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+
+  Digraph G;
+  Node n1 = G.addNode(), n2 = G.addNode(), n3 = G.addNode();
+  Arc a1 = G.addArc(n1, n2), a2 = G.addArc(n2, n1),
+      a3 = G.addArc(n2, n3), a4 = G.addArc(n2, n3);
+
+  Node n4 = G.split(n2);
+
+  check(G.target(OutArcIt(G, n2)) == n4 &&
+        G.source(InArcIt(G, n4)) == n2,
+        "Wrong split.");
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 5);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 1);
+  checkGraphOutArcList(G, n3, 0);
+  checkGraphOutArcList(G, n4, 3);
+
+  checkGraphInArcList(G, n1, 1);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 2);
+  checkGraphInArcList(G, n4, 1);
+
+  checkGraphConArcList(G, 5);
+}
+
+template <class Digraph>
+void checkDigraphAlter() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+
+  Digraph G;
+  Node n1 = G.addNode(), n2 = G.addNode(),
+       n3 = G.addNode(), n4 = G.addNode();
+  Arc a1 = G.addArc(n1, n2), a2 = G.addArc(n4, n1),
+      a3 = G.addArc(n4, n3), a4 = G.addArc(n4, n3),
+      a5 = G.addArc(n2, n4);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 5);
+
+  // Check changeSource() and changeTarget()
+  G.changeTarget(a4, n1);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 5);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 1);
+  checkGraphOutArcList(G, n3, 0);
+  checkGraphOutArcList(G, n4, 3);
+
+  checkGraphInArcList(G, n1, 2);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 1);
+  checkGraphInArcList(G, n4, 1);
+
+  checkGraphConArcList(G, 5);
+
+  G.changeSource(a4, n3);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 5);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 1);
+  checkGraphOutArcList(G, n3, 1);
+  checkGraphOutArcList(G, n4, 2);
+
+  checkGraphInArcList(G, n1, 2);
+  checkGraphInArcList(G, n2, 1);
+  checkGraphInArcList(G, n3, 1);
+  checkGraphInArcList(G, n4, 1);
+
+  checkGraphConArcList(G, 5);
+
+  // Check contract()
+  G.contract(n2, n4, false);
+
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 5);
+
+  checkGraphOutArcList(G, n1, 1);
+  checkGraphOutArcList(G, n2, 3);
+  checkGraphOutArcList(G, n3, 1);
+
+  checkGraphInArcList(G, n1, 2);
+  checkGraphInArcList(G, n2, 2);
+  checkGraphInArcList(G, n3, 1);
+
+  checkGraphConArcList(G, 5);
+
+  G.contract(n2, n1);
+
+  checkGraphNodeList(G, 2);
+  checkGraphArcList(G, 3);
+
+  checkGraphOutArcList(G, n2, 2);
+  checkGraphOutArcList(G, n3, 1);
+
+  checkGraphInArcList(G, n2, 2);
+  checkGraphInArcList(G, n3, 1);
+
+  checkGraphConArcList(G, 3);
+}
+
+template <class Digraph>
+void checkDigraphErase() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+
+  Digraph G;
+  Node n1 = G.addNode(), n2 = G.addNode(),
+       n3 = G.addNode(), n4 = G.addNode();
+  Arc a1 = G.addArc(n1, n2), a2 = G.addArc(n4, n1),
+      a3 = G.addArc(n4, n3), a4 = G.addArc(n3, n1),
+      a5 = G.addArc(n2, n4);
+
+  // Check arc deletion
+  G.erase(a1);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 4);
+
+  checkGraphOutArcList(G, n1, 0);
+  checkGraphOutArcList(G, n2, 1);
+  checkGraphOutArcList(G, n3, 1);
+  checkGraphOutArcList(G, n4, 2);
+
+  checkGraphInArcList(G, n1, 2);
+  checkGraphInArcList(G, n2, 0);
+  checkGraphInArcList(G, n3, 1);
+  checkGraphInArcList(G, n4, 1);
+
+  checkGraphConArcList(G, 4);
+
+  // Check node deletion
+  G.erase(n4);
+
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 1);
+
+  checkGraphOutArcList(G, n1, 0);
+  checkGraphOutArcList(G, n2, 0);
+  checkGraphOutArcList(G, n3, 1);
+  checkGraphOutArcList(G, n4, 0);
+
+  checkGraphInArcList(G, n1, 1);
+  checkGraphInArcList(G, n2, 0);
+  checkGraphInArcList(G, n3, 0);
+  checkGraphInArcList(G, n4, 0);
+
+  checkGraphConArcList(G, 1);
+}
+
+
+template <class Digraph>
+void checkDigraphSnapshot() {
+  TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+
+  Digraph G;
+  Node n1 = G.addNode(), n2 = G.addNode(), n3 = G.addNode();
+  Arc a1 = G.addArc(n1, n2), a2 = G.addArc(n2, n1),
+      a3 = G.addArc(n2, n3), a4 = G.addArc(n2, n3);
+
+  typename Digraph::Snapshot snapshot(G);
+
+  Node n = G.addNode();
+  G.addArc(n3, n);
+  G.addArc(n, n3);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 6);
+
+  snapshot.restore();
+
   checkGraphNodeList(G, 3);
   checkGraphArcList(G, 4);
 
@@ -77,8 +278,16 @@ void checkDigraph() {
   checkGraphNodeMap(G);
   checkGraphArcMap(G);
 
-}
+  G.addNode();
+  snapshot.save(G);
 
+  G.addArc(G.addNode(), G.addNode());
+
+  snapshot.restore();
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 4);
+}
 
 void checkConcepts() {
   { // Checking digraph components
@@ -169,11 +378,17 @@ void checkDigraphValidityErase() {
 
 void checkDigraphs() {
   { // Checking ListDigraph
-    checkDigraph<ListDigraph>();
+    checkDigraphBuild<ListDigraph>();
+    checkDigraphSplit<ListDigraph>();
+    checkDigraphAlter<ListDigraph>();
+    checkDigraphErase<ListDigraph>();
+    checkDigraphSnapshot<ListDigraph>();
     checkDigraphValidityErase<ListDigraph>();
   }
   { // Checking SmartDigraph
-    checkDigraph<SmartDigraph>();
+    checkDigraphBuild<SmartDigraph>();
+    checkDigraphSplit<SmartDigraph>();
+    checkDigraphSnapshot<SmartDigraph>();
     checkDigraphValidity<SmartDigraph>();
   }
 }
