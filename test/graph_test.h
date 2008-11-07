@@ -117,6 +117,15 @@ namespace lemon {
   }
 
   template <class Graph>
+  void checkGraphIncEdgeArcLists(const Graph &G, typename Graph::Node n,
+                                 int cnt)
+  {
+    checkGraphIncEdgeList(G, n, cnt);
+    checkGraphOutArcList(G, n, cnt);
+    checkGraphInArcList(G, n, cnt);
+  }
+
+  template <class Graph>
   void checkGraphConArcList(const Graph &G, int cnt) {
     int i = 0;
     for (typename Graph::NodeIt u(G); u != INVALID; ++u) {

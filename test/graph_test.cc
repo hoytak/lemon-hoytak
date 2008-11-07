@@ -30,12 +30,13 @@ using namespace lemon;
 using namespace lemon::concepts;
 
 template <class Graph>
-void checkGraph() {
+void checkGraphBuild() {
   TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
   Graph G;
   checkGraphNodeList(G, 0);
   checkGraphEdgeList(G, 0);
+  checkGraphArcList(G, 0);
 
   Node
     n1 = G.addNode(),
@@ -43,48 +44,36 @@ void checkGraph() {
     n3 = G.addNode();
   checkGraphNodeList(G, 3);
   checkGraphEdgeList(G, 0);
+  checkGraphArcList(G, 0);
 
   Edge e1 = G.addEdge(n1, n2);
   check((G.u(e1) == n1 && G.v(e1) == n2) || (G.u(e1) == n2 && G.v(e1) == n1),
         "Wrong edge");
+
   checkGraphNodeList(G, 3);
-  checkGraphArcList(G, 2);
   checkGraphEdgeList(G, 1);
+  checkGraphArcList(G, 2);
 
-  checkGraphOutArcList(G, n1, 1);
-  checkGraphOutArcList(G, n2, 1);
-  checkGraphOutArcList(G, n3, 0);
+  checkGraphIncEdgeArcLists(G, n1, 1);
+  checkGraphIncEdgeArcLists(G, n2, 1);
+  checkGraphIncEdgeArcLists(G, n3, 0);
 
-  checkGraphInArcList(G, n1, 1);
-  checkGraphInArcList(G, n2, 1);
-  checkGraphInArcList(G, n3, 0);
-
-  checkGraphIncEdgeList(G, n1, 1);
-  checkGraphIncEdgeList(G, n2, 1);
-  checkGraphIncEdgeList(G, n3, 0);
-
-  checkGraphConArcList(G, 2);
   checkGraphConEdgeList(G, 1);
+  checkGraphConArcList(G, 2);
 
-  Edge e2 = G.addEdge(n2, n1), e3 = G.addEdge(n2, n3);
+  Edge e2 = G.addEdge(n2, n1),
+       e3 = G.addEdge(n2, n3);
+
   checkGraphNodeList(G, 3);
-  checkGraphArcList(G, 6);
   checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
 
-  checkGraphOutArcList(G, n1, 2);
-  checkGraphOutArcList(G, n2, 3);
-  checkGraphOutArcList(G, n3, 1);
+  checkGraphIncEdgeArcLists(G, n1, 2);
+  checkGraphIncEdgeArcLists(G, n2, 3);
+  checkGraphIncEdgeArcLists(G, n3, 1);
 
-  checkGraphInArcList(G, n1, 2);
-  checkGraphInArcList(G, n2, 3);
-  checkGraphInArcList(G, n3, 1);
-
-  checkGraphIncEdgeList(G, n1, 2);
-  checkGraphIncEdgeList(G, n2, 3);
-  checkGraphIncEdgeList(G, n3, 1);
-
-  checkGraphConArcList(G, 6);
   checkGraphConEdgeList(G, 3);
+  checkGraphConArcList(G, 6);
 
   checkArcDirections(G);
 
@@ -94,6 +83,183 @@ void checkGraph() {
   checkGraphNodeMap(G);
   checkGraphArcMap(G);
   checkGraphEdgeMap(G);
+}
+
+template <class Graph>
+void checkGraphAlter() {
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+
+  Graph G;
+  Node n1 = G.addNode(), n2 = G.addNode(),
+       n3 = G.addNode(), n4 = G.addNode();
+  Edge e1 = G.addEdge(n1, n2), e2 = G.addEdge(n2, n1),
+       e3 = G.addEdge(n2, n3), e4 = G.addEdge(n1, n4),
+       e5 = G.addEdge(n4, n3);
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 5);
+  checkGraphArcList(G, 10);
+
+  // Check changeU() and changeV()
+  if (G.u(e2) == n2) {
+    G.changeU(e2, n3);
+  } else {
+    G.changeV(e2, n3);
+  }
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 5);
+  checkGraphArcList(G, 10);
+
+  checkGraphIncEdgeArcLists(G, n1, 3);
+  checkGraphIncEdgeArcLists(G, n2, 2);
+  checkGraphIncEdgeArcLists(G, n3, 3);
+  checkGraphIncEdgeArcLists(G, n4, 2);
+
+  checkGraphConEdgeList(G, 5);
+  checkGraphConArcList(G, 10);
+
+  if (G.u(e2) == n1) {
+    G.changeU(e2, n2);
+  } else {
+    G.changeV(e2, n2);
+  }
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 5);
+  checkGraphArcList(G, 10);
+
+  checkGraphIncEdgeArcLists(G, n1, 2);
+  checkGraphIncEdgeArcLists(G, n2, 3);
+  checkGraphIncEdgeArcLists(G, n3, 3);
+  checkGraphIncEdgeArcLists(G, n4, 2);
+
+  checkGraphConEdgeList(G, 5);
+  checkGraphConArcList(G, 10);
+
+  // Check contract()
+  G.contract(n1, n4, false);
+
+  checkGraphNodeList(G, 3);
+  checkGraphEdgeList(G, 5);
+  checkGraphArcList(G, 10);
+
+  checkGraphIncEdgeArcLists(G, n1, 4);
+  checkGraphIncEdgeArcLists(G, n2, 3);
+  checkGraphIncEdgeArcLists(G, n3, 3);
+
+  checkGraphConEdgeList(G, 5);
+  checkGraphConArcList(G, 10);
+
+  G.contract(n2, n3);
+
+  checkGraphNodeList(G, 2);
+  checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
+
+  checkGraphIncEdgeArcLists(G, n1, 4);
+  checkGraphIncEdgeArcLists(G, n2, 2);
+
+  checkGraphConEdgeList(G, 3);
+  checkGraphConArcList(G, 6);
+}
+
+template <class Graph>
+void checkGraphErase() {
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+
+  Graph G;
+  Node n1 = G.addNode(), n2 = G.addNode(),
+       n3 = G.addNode(), n4 = G.addNode();
+  Edge e1 = G.addEdge(n1, n2), e2 = G.addEdge(n2, n1),
+       e3 = G.addEdge(n2, n3), e4 = G.addEdge(n1, n4),
+       e5 = G.addEdge(n4, n3);
+
+  // Check edge deletion
+  G.erase(e2);
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 4);
+  checkGraphArcList(G, 8);
+
+  checkGraphIncEdgeArcLists(G, n1, 2);
+  checkGraphIncEdgeArcLists(G, n2, 2);
+  checkGraphIncEdgeArcLists(G, n3, 2);
+  checkGraphIncEdgeArcLists(G, n4, 2);
+
+  checkGraphConEdgeList(G, 4);
+  checkGraphConArcList(G, 8);
+
+  // Check node deletion
+  G.erase(n3);
+
+  checkGraphNodeList(G, 3);
+  checkGraphEdgeList(G, 2);
+  checkGraphArcList(G, 4);
+
+  checkGraphIncEdgeArcLists(G, n1, 2);
+  checkGraphIncEdgeArcLists(G, n2, 1);
+  checkGraphIncEdgeArcLists(G, n4, 1);
+
+  checkGraphConEdgeList(G, 2);
+  checkGraphConArcList(G, 4);
+}
+
+
+template <class Graph>
+void checkGraphSnapshot() {
+  TEMPLATE_GRAPH_TYPEDEFS(Graph);
+
+  Graph G;
+  Node n1 = G.addNode(), n2 = G.addNode(), n3 = G.addNode();
+  Edge e1 = G.addEdge(n1, n2), e2 = G.addEdge(n2, n1),
+       e3 = G.addEdge(n2, n3);
+
+  checkGraphNodeList(G, 3);
+  checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
+
+  typename Graph::Snapshot snapshot(G);
+
+  Node n = G.addNode();
+  G.addEdge(n3, n);
+  G.addEdge(n, n3);
+  G.addEdge(n3, n2);
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 6);
+  checkGraphArcList(G, 12);
+
+  snapshot.restore();
+
+  checkGraphNodeList(G, 3);
+  checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
+
+  checkGraphIncEdgeArcLists(G, n1, 2);
+  checkGraphIncEdgeArcLists(G, n2, 3);
+  checkGraphIncEdgeArcLists(G, n3, 1);
+
+  checkGraphConEdgeList(G, 3);
+  checkGraphConArcList(G, 6);
+
+  checkNodeIds(G);
+  checkEdgeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphEdgeMap(G);
+  checkGraphArcMap(G);
+
+  G.addNode();
+  snapshot.save(G);
+
+  G.addEdge(G.addNode(), G.addNode());
+
+  snapshot.restore();
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
 }
 
 void checkFullGraph(int num) {
@@ -366,11 +532,15 @@ void checkHypercubeGraph(int dim) {
 
 void checkGraphs() {
   { // Checking ListGraph
-    checkGraph<ListGraph>();
+    checkGraphBuild<ListGraph>();
+    checkGraphAlter<ListGraph>();
+    checkGraphErase<ListGraph>();
+    checkGraphSnapshot<ListGraph>();
     checkGraphValidityErase<ListGraph>();
   }
   { // Checking SmartGraph
-    checkGraph<SmartGraph>();
+    checkGraphBuild<SmartGraph>();
+    checkGraphSnapshot<SmartGraph>();
     checkGraphValidity<SmartGraph>();
   }
   { // Checking FullGraph
