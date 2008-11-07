@@ -50,7 +50,7 @@ namespace lemon {
       LEMON_ASSERT(dim >= 1, "The number of dimensions must be at least 1.");
       _dim = dim;
       _node_num = 1 << dim;
-      _edge_num = dim * (1 << dim-1);
+      _edge_num = dim * (1 << (dim-1));
     }
 
   public:
@@ -76,15 +76,15 @@ namespace lemon {
     static int id(Arc arc) { return arc._id; }
 
     Node u(Edge edge) const {
-      int base = edge._id & ((1 << _dim-1) - 1);
-      int k = edge._id >> _dim-1;
-      return ((base >> k) << k+1) | (base & ((1 << k) - 1));
+      int base = edge._id & ((1 << (_dim-1)) - 1);
+      int k = edge._id >> (_dim-1);
+      return ((base >> k) << (k+1)) | (base & ((1 << k) - 1));
     }
 
     Node v(Edge edge) const {
-      int base = edge._id & ((1 << _dim-1) - 1);
-      int k = edge._id >> _dim-1;
-      return ((base >> k) << k+1) | (base & ((1 << k) - 1)) | (1 << k);
+      int base = edge._id & ((1 << (_dim-1)) - 1);
+      int k = edge._id >> (_dim-1);
+      return ((base >> k) << (k+1)) | (base & ((1 << k) - 1)) | (1 << k);
     }
 
     Node source(Arc arc) const {
@@ -105,13 +105,14 @@ namespace lemon {
       if (d == 0) return INVALID;
       for ( ; (d & 1) == 0; d >>= 1) ++k;
       if (d >> 1 != 0) return INVALID;
-      return (k << _dim-1) | ((u._id >> k+1) << k) | (u._id & ((1 << k) - 1));
+      return (k << (_dim-1)) | ((u._id >> (k+1)) << k) |
+        (u._id & ((1 << k) - 1));
     }
 
     Arc findArc(Node u, Node v, Arc prev = INVALID) const {
       Edge edge = findEdge(u, v, prev);
       if (edge == INVALID) return INVALID;
-      int k = edge._id >> _dim-1;
+      int k = edge._id >> (_dim-1);
       return ((u._id >> k) & 1) == 1 ? edge._id << 1 : (edge._id << 1) | 1;
     }
 
@@ -194,10 +195,10 @@ namespace lemon {
 
     void nextInc(Edge& edge, bool& dir) const {
       Node n = dir ? u(edge) : v(edge);
-      int k = (edge._id >> _dim-1) + 1;
+      int k = (edge._id >> (_dim-1)) + 1;
       if (k < _dim) {
-        edge._id = (k << _dim-1) |
-                   ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        edge._id = (k << (_dim-1)) |
+          ((n._id >> (k+1)) << k) | (n._id & ((1 << k) - 1));
         dir = ((n._id >> k) & 1) == 0;
       } else {
         edge._id = -1;
@@ -213,8 +214,8 @@ namespace lemon {
       Node n = (arc._id & 1) == 1 ? u(arc) : v(arc);
       int k = (arc._id >> _dim) + 1;
       if (k < _dim) {
-        arc._id = (k << _dim-1) |
-                  ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        arc._id = (k << (_dim-1)) |
+          ((n._id >> (k+1)) << k) | (n._id & ((1 << k) - 1));
         arc._id = (arc._id << 1) | (~(n._id >> k) & 1);
       } else {
         arc._id = -1;
@@ -229,8 +230,8 @@ namespace lemon {
       Node n = (arc._id & 1) == 1 ? v(arc) : u(arc);
       int k = (arc._id >> _dim) + 1;
       if (k < _dim) {
-        arc._id = (k << _dim-1) |
-                  ((n._id >> k+1) << k) | (n._id & ((1 << k) - 1));
+        arc._id = (k << (_dim-1)) |
+          ((n._id >> (k+1)) << k) | (n._id & ((1 << k) - 1));
         arc._id = (arc._id << 1) | ((n._id >> k) & 1);
       } else {
         arc._id = -1;
@@ -254,7 +255,7 @@ namespace lemon {
     }
 
     int dimension(Edge edge) const {
-      return edge._id >> _dim-1;
+      return edge._id >> (_dim-1);
     }
 
     int dimension(Arc arc) const {

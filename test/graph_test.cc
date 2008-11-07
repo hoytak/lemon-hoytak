@@ -321,7 +321,7 @@ void checkHypercubeGraph(int dim) {
 
   HypercubeGraph G(dim);
   checkGraphNodeList(G, 1 << dim);
-  checkGraphEdgeList(G, dim * (1 << dim-1));
+  checkGraphEdgeList(G, dim * (1 << (dim-1)));
   checkGraphArcList(G, dim * (1 << dim));
 
   Node n = G.nodeFromId(dim);
@@ -330,29 +330,29 @@ void checkHypercubeGraph(int dim) {
     checkGraphIncEdgeList(G, n, dim);
     for (IncEdgeIt e(G, n); e != INVALID; ++e) {
       check( (G.u(e) == n &&
-              G.id(G.v(e)) == G.id(n) ^ (1 << G.dimension(e))) ||
+              G.id(G.v(e)) == (G.id(n) ^ (1 << G.dimension(e)))) ||
              (G.v(e) == n &&
-              G.id(G.u(e)) == G.id(n) ^ (1 << G.dimension(e))),
+              G.id(G.u(e)) == (G.id(n) ^ (1 << G.dimension(e)))),
              "Wrong edge or wrong dimension");
     }
 
     checkGraphOutArcList(G, n, dim);
     for (OutArcIt a(G, n); a != INVALID; ++a) {
       check(G.source(a) == n &&
-            G.id(G.target(a)) == G.id(n) ^ (1 << G.dimension(a)),
+            G.id(G.target(a)) == (G.id(n) ^ (1 << G.dimension(a))),
             "Wrong arc or wrong dimension");
     }
 
     checkGraphInArcList(G, n, dim);
     for (InArcIt a(G, n); a != INVALID; ++a) {
       check(G.target(a) == n &&
-            G.id(G.source(a)) == G.id(n) ^ (1 << G.dimension(a)),
+            G.id(G.source(a)) == (G.id(n) ^ (1 << G.dimension(a))),
             "Wrong arc or wrong dimension");
     }
   }
 
   checkGraphConArcList(G, (1 << dim) * dim);
-  checkGraphConEdgeList(G, dim * (1 << dim-1));
+  checkGraphConEdgeList(G, dim * (1 << (dim-1)));
 
   checkArcDirections(G);
 
