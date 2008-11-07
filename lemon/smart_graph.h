@@ -730,8 +730,8 @@ namespace lemon {
         dir.push_back(arcFromId(n));
         dir.push_back(arcFromId(n-1));
         Parent::notifier(Arc()).erase(dir);
-        nodes[arcs[n].target].first_out=arcs[n].next_out;
-        nodes[arcs[n-1].target].first_out=arcs[n-1].next_out;
+        nodes[arcs[n-1].target].first_out=arcs[n].next_out;
+        nodes[arcs[n].target].first_out=arcs[n-1].next_out;
         arcs.pop_back();
         arcs.pop_back();
       }
