@@ -688,22 +688,6 @@ namespace lemon {
       return real<double>();
     }
 
-    /// \brief Returns a random real number the range [0, b)
-    ///
-    /// It returns a random real number from the range [0, b).
-    template <typename Number>
-    Number real(Number b) {
-      return real<Number>() * b;
-    }
-
-    /// \brief Returns a random real number from the range [a, b)
-    ///
-    /// It returns a random real number from the range [a, b).
-    template <typename Number>
-    Number real(Number a, Number b) {
-      return real<Number>() * (b - a) + a;
-    }
-
     /// \brief Returns a random real number from the range [0, 1)
     ///
     /// It returns a random double from the range [0, 1).
@@ -714,17 +698,15 @@ namespace lemon {
     /// \brief Returns a random real number from the range [0, b)
     ///
     /// It returns a random real number from the range [0, b).
-    template <typename Number>
-    Number operator()(Number b) {
-      return real<Number>() * b;
+    double operator()(double b) {
+      return real<double>() * b;
     }
 
     /// \brief Returns a random real number from the range [a, b)
     ///
     /// It returns a random real number from the range [a, b).
-    template <typename Number>
-    Number operator()(Number a, Number b) {
-      return real<Number>() * (b - a) + a;
+    double operator()(double a, double b) {
+      return real<double>() * (b - a) + a;
     }
 
     /// \brief Returns a random integer from a range
