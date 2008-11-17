@@ -380,20 +380,19 @@ namespace lemon {
       if(new_level>_highest_active) _highest_active=new_level;
     }
 
-    ///Mark the node as it did not reach the max level
+    ///Move an inactive item to the top but one level (in a dirty way).
 
-    ///Mark the node as it did not reach the max level. It sets the
-    ///level to the under the max level value. The node will be never
-    ///more activated because the push operation from the maximum
-    ///level is forbidden in the push-relabel algorithms. The node
-    ///should be lifted previously to the top level.
-    void markToBottom(Item i) {
+    ///This function moves an inactive item to the top but one level.
+    ///It makes the underlying datastructure corrupt, so use is only if
+    ///you really know what it is for.
+    ///\pre The item is on the top level.
+    void dirtyTopButOne(Item i) {
       _level[i] = _max_level - 1;
     }
 
-    ///Lift all nodes on and above a level to the top (and deactivate them).
+    ///Lift all items on and above a level to the top (and deactivate them).
 
-    ///This function lifts all nodes on and above level \c l to \c
+    ///This function lifts all items on and above level \c l to \c
     ///maxLevel(), and also deactivates them.
     void liftToTop(int l)
     {
@@ -749,7 +748,7 @@ namespace lemon {
     ///Lift the highest active to top.
 
     ///Lift the item returned by highestActive() to the top level and
-    ///deactivates the node.
+    ///deactivates the item.
     ///
     void liftHighestActiveToTop() {
       Item i = _first[_highest_active];
@@ -897,20 +896,19 @@ namespace lemon {
       }
     }
 
-    ///Mark the node as it did not reach the max level
+    ///Move an inactive item to the top but one level (in a dirty way).
 
-    ///Mark the node as it did not reach the max level. It sets the
-    ///level to the under the max level value. The node will be never
-    ///more activated because the push operation from the maximum
-    ///level is forbidden in the push-relabel algorithms. The node
-    ///should be lifted previously to the top level.
-    void markToBottom(Item i) {
+    ///This function moves an inactive item to the top but one level.
+    ///It makes the underlying datastructure corrupt, so use is only if
+    ///you really know what it is for.
+    ///\pre The item is on the top level.
+    void dirtyTopButOne(Item i) {
       _level.set(i, _max_level - 1);
     }
 
-    ///Lift all nodes on and above a level to the top (and deactivate them).
+    ///Lift all items on and above a level to the top (and deactivate them).
 
-    ///This function lifts all nodes on and above level \c l to \c
+    ///This function lifts all items on and above level \c l to \c
     ///maxLevel(), and also deactivates them.
     void liftToTop(int l)  {
       for (int i = l + 1; _first[i] != INVALID; ++i) {
