@@ -57,7 +57,7 @@ namespace lemon {
 
   private:
 
-    typedef typename std::vector<Item>::iterator Vit;
+    typedef Item *Vit;
     typedef typename ItemSetTraits<Graph,Item>::template Map<Vit>::Type VitMap;
     typedef typename ItemSetTraits<Graph,Item>::template Map<int>::Type IntMap;
 
@@ -433,10 +433,10 @@ namespace lemon {
     void initStart()
     {
       _init_lev=0;
-      _init_num=_items.begin();
-      _first[0]=_items.begin();
-      _last_active[0]=_items.begin()-1;
-      Vit n=_items.begin();
+      _init_num=&_items[0];
+      _first[0]=&_items[0];
+      _last_active[0]=&_items[0]-1;
+      Vit n=&_items[0];
       for(typename ItemSetTraits<Graph,Item>::ItemIt i(_g);i!=INVALID;++i)
         {
           *n=i;
@@ -475,8 +475,8 @@ namespace lemon {
           _first[_init_lev]=_init_num;
           _last_active[_init_lev]=_init_num-1;
         }
-      _first[_max_level+1]=_items.begin()+_item_num;
-      _last_active[_max_level+1]=_items.begin()+_item_num-1;
+      _first[_max_level+1]=&_items[0]+_item_num;
+      _last_active[_max_level+1]=&_items[0]+_item_num-1;
       _highest_active = -1;
     }
 
