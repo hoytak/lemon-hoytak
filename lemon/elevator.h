@@ -74,7 +74,7 @@ namespace lemon {
 
     void copy(Item i, Vit p)
     {
-      _where[*p=i]=p;
+      _where.set(*p=i,p);
     }
     void copy(Vit s, Vit p)
     {
@@ -82,15 +82,15 @@ namespace lemon {
         {
           Item i=*s;
           *p=i;
-          _where[i]=p;
+          _where.set(i,p);
         }
     }
     void swap(Vit i, Vit j)
     {
       Item ti=*i;
       Vit ct = _where[ti];
-      _where[ti]=_where[*i=*j];
-      _where[*j]=ct;
+      _where.set(ti,_where[*i=*j]);
+      _where.set(*j,ct);
       *j=ti;
     }
 
@@ -227,7 +227,8 @@ namespace lemon {
     ///
     void liftHighestActive()
     {
-      ++_level[*_last_active[_highest_active]];
+      Item it = *_last_active[_highest_active];
+      _level.set(it,_level[it]+1);
       swap(_last_active[_highest_active]--,_last_active[_highest_active+1]);
       --_first[++_highest_active];
     }
@@ -250,7 +251,7 @@ namespace lemon {
           --_last_active[l];
         }
       copy(li,_first[new_level]);
-      _level[li]=new_level;
+      _level.set(li,new_level);
       _highest_active=new_level;
     }
 
@@ -274,7 +275,7 @@ namespace lemon {
         }
       copy(li,_first[_max_level]);
       --_last_active[_max_level];
-      _level[li]=_max_level;
+      _level.set(li,_max_level);
 
       while(_highest_active>=0 &&
             _last_active[_highest_active]<_first[_highest_active])
@@ -305,7 +306,8 @@ namespace lemon {
     ///by one.
     Item liftActiveOn(int level)
     {
-      ++_level[*_last_active[level]];
+      Item it =*_last_active[level];
+      _level.set(it,_level[it]+1);
       swap(_last_active[level]--, --_first[level+1]);
       if (level+1>_highest_active) ++_highest_active;
     }
@@ -325,7 +327,7 @@ namespace lemon {
           copy(--_first[l+1], _last_active[l]--);
         }
       copy(ai,_first[new_level]);
-      _level[ai]=new_level;
+      _level.set(ai,new_level);
       if (new_level>_highest_active) _highest_active=new_level;
     }
 
@@ -345,7 +347,7 @@ namespace lemon {
         }
       copy(ai,_first[_max_level]);
       --_last_active[_max_level];
-      _level[ai]=_max_level;
+      _level.set(ai,_max_level);
 
       if (_highest_active==level) {
         while(_highest_active>=0 &&
@@ -376,7 +378,7 @@ namespace lemon {
           copy(--_first[l+1],_last_active[l]--);
         }
       copy(i,_first[new_level]);
-      _level[i]=new_level;
+      _level.set(i,new_level);
       if(new_level>_highest_active) _highest_active=new_level;
     }
 
@@ -387,7 +389,7 @@ namespace lemon {
     ///you really know what it is for.
     ///\pre The item is on the top level.
     void dirtyTopButOne(Item i) {
-      _level[i] = _max_level - 1;
+      _level.set(i,_max_level - 1);
     }
 
     ///Lift all items on and above a level to the top (and deactivate them).
@@ -399,7 +401,7 @@ namespace lemon {
       const Vit f=_first[l];
       const Vit tl=_first[_max_level];
       for(Vit i=f;i!=tl;++i)
-        _level[*i]=_max_level;
+        _level.set(*i,_max_level);
       for(int i=l;i<=_max_level;i++)
         {
           _first[i]=f;
@@ -440,8 +442,8 @@ namespace lemon {
       for(typename ItemSetTraits<Graph,Item>::ItemIt i(_g);i!=INVALID;++i)
         {
           *n=i;
-          _where[i]=n;
-          _level[i]=_max_level;
+          _where.set(i,n);
+          _level.set(i,_max_level);
           ++n;
         }
     }
@@ -450,8 +452,8 @@ namespace lemon {
 
     void initAddItem(Item i)
     {
-     swap(_where[i],_init_num);
-      _level[i]=_init_lev;
+      swap(_where[i],_init_num);
+      _level.set(i,_init_lev);
       ++_init_num;
     }
 
