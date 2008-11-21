@@ -193,7 +193,7 @@ namespace lemon {
     ///@{
 
     template <typename _FlowMap>
-    struct DefFlowMapTraits : public Traits {
+    struct SetFlowMapTraits : public Traits {
       typedef _FlowMap FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
         LEMON_ASSERT(false, "FlowMap is not initialized");
@@ -207,14 +207,14 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter" for setting FlowMap
     /// type
     template <typename _FlowMap>
-    struct DefFlowMap
-      : public Preflow<Digraph, CapacityMap, DefFlowMapTraits<_FlowMap> > {
+    struct SetFlowMap
+      : public Preflow<Digraph, CapacityMap, SetFlowMapTraits<_FlowMap> > {
       typedef Preflow<Digraph, CapacityMap,
-                      DefFlowMapTraits<_FlowMap> > Create;
+                      SetFlowMapTraits<_FlowMap> > Create;
     };
 
     template <typename _Elevator>
-    struct DefElevatorTraits : public Traits {
+    struct SetElevatorTraits : public Traits {
       typedef _Elevator Elevator;
       static Elevator *createElevator(const Digraph&, int) {
         LEMON_ASSERT(false, "Elevator is not initialized");
@@ -228,14 +228,14 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter" for setting Elevator
     /// type
     template <typename _Elevator>
-    struct DefElevator
-      : public Preflow<Digraph, CapacityMap, DefElevatorTraits<_Elevator> > {
+    struct SetElevator
+      : public Preflow<Digraph, CapacityMap, SetElevatorTraits<_Elevator> > {
       typedef Preflow<Digraph, CapacityMap,
-                      DefElevatorTraits<_Elevator> > Create;
+                      SetElevatorTraits<_Elevator> > Create;
     };
 
     template <typename _Elevator>
-    struct DefStandardElevatorTraits : public Traits {
+    struct SetStandardElevatorTraits : public Traits {
       typedef _Elevator Elevator;
       static Elevator *createElevator(const Digraph& digraph, int max_level) {
         return new Elevator(digraph, max_level);
@@ -249,11 +249,11 @@ namespace lemon {
     /// type. The Elevator should be standard constructor interface, ie.
     /// the digraph and the maximum level should be passed to it.
     template <typename _Elevator>
-    struct DefStandardElevator
+    struct SetStandardElevator
       : public Preflow<Digraph, CapacityMap,
-                       DefStandardElevatorTraits<_Elevator> > {
+                       SetStandardElevatorTraits<_Elevator> > {
       typedef Preflow<Digraph, CapacityMap,
-                      DefStandardElevatorTraits<_Elevator> > Create;
+                      SetStandardElevatorTraits<_Elevator> > Create;
     };
 
     /// @}

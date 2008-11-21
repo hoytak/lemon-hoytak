@@ -46,7 +46,7 @@ void checkPreflow()
   FlowMap flow;
   CutMap cut;
 
-  Preflow<Digraph, CapMap>::DefFlowMap<FlowMap>::Create preflow_test(g,cap,n,n);
+  Preflow<Digraph, CapMap>::SetFlowMap<FlowMap>::Create preflow_test(g,cap,n,n);
 
   preflow_test.capacityMap(cap);
   flow = preflow_test.flowMap();
