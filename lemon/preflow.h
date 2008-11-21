@@ -19,7 +19,6 @@
 #ifndef LEMON_PREFLOW_H
 #define LEMON_PREFLOW_H
 
-#include <lemon/error.h>
 #include <lemon/tolerance.h>
 #include <lemon/elevator.h>
 
@@ -132,17 +131,6 @@ namespace lemon {
     typedef typename Traits::Elevator Elevator;
     typedef typename Traits::Tolerance Tolerance;
 
-    /// \brief \ref Exception for uninitialized parameters.
-    ///
-    /// This error represents problems in the initialization
-    /// of the parameters of the algorithms.
-    class UninitializedParameter : public lemon::Exception {
-    public:
-      virtual const char* what() const throw() {
-        return "lemon::Preflow::UninitializedParameter";
-      }
-    };
-
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
@@ -208,7 +196,8 @@ namespace lemon {
     struct DefFlowMapTraits : public Traits {
       typedef _FlowMap FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "FlowMap is not initialized");
+        return 0; // ignore warnings
       }
     };
 
@@ -228,7 +217,8 @@ namespace lemon {
     struct DefElevatorTraits : public Traits {
       typedef _Elevator Elevator;
       static Elevator *createElevator(const Digraph&, int) {
-        throw UninitializedParameter();
+        LEMON_ASSERT(false, "Elevator is not initialized");
+        return 0; // ignore warnings
       }
     };
 
