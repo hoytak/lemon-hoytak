@@ -27,7 +27,8 @@
 ///for labeling items in push-relabel type algorithms.
 ///
 
-#include <test/test_tools.h>
+#include <lemon/bits/traits.h>
+
 namespace lemon {
 
   ///Class for handling "labels" in push-relabel type algorithms.
@@ -44,9 +45,9 @@ namespace lemon {
   ///
   ///\sa LinkedElevator
   ///
-  ///\param Graph the underlying graph type
+  ///\param Graph Type of the underlying graph.
   ///\param Item Type of the items the data is assigned to (Graph::Node,
-  ///Graph::Edge, Graph::UEdge)
+  ///Graph::Arc, Graph::Edge).
   template<class Graph, class Item>
   class Elevator
   {
@@ -100,15 +101,15 @@ namespace lemon {
 
     ///Constructor with given maximum level.
     ///
-    ///\param g The underlying graph
-    ///\param max_level Set the range of the possible labels to
-    ///[0...\c max_level]
-    Elevator(const Graph &g,int max_level) :
-      _g(g),
+    ///\param graph The underlying graph.
+    ///\param max_level The maximum allowed level.
+    ///Set the range of the possible labels to <tt>[0..max_level]</tt>.
+    Elevator(const Graph &graph,int max_level) :
+      _g(graph),
       _max_level(max_level),
       _item_num(_max_level),
-      _where(g),
-      _level(g,0),
+      _where(graph),
+      _level(graph,0),
       _items(_max_level),
       _first(_max_level+2),
       _last_active(_max_level+2),
@@ -117,15 +118,15 @@ namespace lemon {
 
     ///Constructor.
     ///
-    ///\param g The underlying graph
-    ///The range of the possible labels is [0...\c max_level],
+    ///\param graph The underlying graph.
+    ///Set the range of the possible labels to <tt>[0..max_level]</tt>,
     ///where \c max_level is equal to the number of labeled items in the graph.
-    Elevator(const Graph &g) :
-      _g(g),
-      _max_level(countItems<Graph, Item>(g)),
+    Elevator(const Graph &graph) :
+      _g(graph),
+      _max_level(countItems<Graph, Item>(graph)),
       _item_num(_max_level),
-      _where(g),
-      _level(g,0),
+      _where(graph),
+      _level(graph,0),
       _items(_max_level),
       _first(_max_level+2),
       _last_active(_max_level+2),
@@ -167,7 +168,7 @@ namespace lemon {
     {
       return _first[l+1]-_first[l];
     }
-    ///Return true if the level is empty.
+    ///Return true if level \c l is empty.
     bool emptyLevel(int l) const
     {
       return _first[l+1]-_first[l]==0;
@@ -182,7 +183,7 @@ namespace lemon {
     {
       return _last_active[l]-_first[l]+1;
     }
-    ///Return true if there is not active item on level \c l.
+    ///Return true if there is no active item on level \c l.
     bool activeFree(int l) const
     {
       return _last_active[l]<_first[l];
@@ -201,20 +202,16 @@ namespace lemon {
 
     ///Return a highest level active item.
 
-    ///Return a highest level active item.
-    ///
-    ///\return the highest level active item or INVALID if there is no active
+    ///Return a highest level active item or INVALID if there is no active
     ///item.
     Item highestActive() const
     {
       return _highest_active>=0?*_last_active[_highest_active]:INVALID;
     }
 
-    ///Return a highest active level.
+    ///Return the highest active level.
 
-    ///Return a highest active level.
-    ///
-    ///\return the level of the highest active item or -1 if there is no active
+    ///Return the level of the highest active item or -1 if there is no active
     ///item.
     int highestActiveLevel() const
     {
@@ -233,7 +230,7 @@ namespace lemon {
       --_first[++_highest_active];
     }
 
-    ///Lift the highest active item.
+    ///Lift the highest active item to the given level.
 
     ///Lift the item returned by highestActive() to level \c new_level.
     ///
@@ -255,14 +252,10 @@ namespace lemon {
       _highest_active=new_level;
     }
 
-    ///Lift the highest active item.
+    ///Lift the highest active item to the top level.
 
     ///Lift the item returned by highestActive() to the top level and
-    ///deactivates it.
-    ///
-    ///\warning \c new_level must be strictly higher
-    ///than the current level.
-    ///
+    ///deactivate it.
     void liftHighestActiveToTop()
     {
       const Item li = *_last_active[_highest_active];
@@ -289,20 +282,18 @@ namespace lemon {
 
     ///@{
 
-    ///Returns an active item on level \c l.
+    ///Return an active item on level \c l.
 
-    ///Returns an active item on level \c l.
-    ///
-    ///Returns an active item on level \c l or \ref INVALID if there is no such
+    ///Return an active item on level \c l or \ref INVALID if there is no such
     ///an item. (\c l must be from the range [0...\c max_level].
     Item activeOn(int l) const
     {
       return _last_active[l]>=_first[l]?*_last_active[l]:INVALID;
     }
 
-    ///Lifts the active item returned by \c activeOn() member function.
+    ///Lift the active item returned by \c activeOn(level) by one.
 
-    ///Lifts the active item returned by \c activeOn() member function
+    ///Lift the active item returned by \ref activeOn() "activeOn(level)"
     ///by one.
     Item liftActiveOn(int level)
     {
@@ -312,9 +303,9 @@ namespace lemon {
       if (level+1>_highest_active) ++_highest_active;
     }
 
-    ///Lifts the active item returned by \c activeOn() member function.
+    ///Lift the active item returned by \c activeOn(level) to the given level.
 
-    ///Lifts the active item returned by \c activeOn() member function
+    ///Lift the active item returned by \ref activeOn() "activeOn(level)"
     ///to the given level.
     void liftActiveOn(int level, int new_level)
     {
@@ -331,10 +322,10 @@ namespace lemon {
       if (new_level>_highest_active) _highest_active=new_level;
     }
 
-    ///Lifts the active item returned by \c activeOn() member function.
+    ///Lift the active item returned by \c activeOn(level) to the top level.
 
-    ///Lifts the active item returned by \c activeOn() member function
-    ///to the top level.
+    ///Lift the active item returned by \ref activeOn() "activeOn(level)"
+    ///to the top level and deactivate it.
     void liftActiveToTop(int level)
     {
       const Item ai = *_last_active[level];
@@ -384,18 +375,19 @@ namespace lemon {
 
     ///Move an inactive item to the top but one level (in a dirty way).
 
-    ///This function moves an inactive item to the top but one level.
-    ///It makes the underlying datastructure corrupt, so use is only if
-    ///you really know what it is for.
+    ///This function moves an inactive item from the top level to the top
+    ///but one level (in a dirty way).
+    ///\warning It makes the underlying datastructure corrupt, so use it
+    ///only if you really know what it is for.
     ///\pre The item is on the top level.
     void dirtyTopButOne(Item i) {
       _level.set(i,_max_level - 1);
     }
 
-    ///Lift all items on and above a level to the top (and deactivate them).
+    ///Lift all items on and above the given level to the top level.
 
-    ///This function lifts all items on and above level \c l to \c
-    ///maxLevel(), and also deactivates them.
+    ///This function lifts all items on and above level \c l to the top
+    ///level and deactivates them.
     void liftToTop(int l)
     {
       const Vit f=_first[l];
@@ -420,18 +412,16 @@ namespace lemon {
   public:
 
     ///\name Initialization
-    ///Using this function you can initialize the levels of the item.
+    ///Using these functions you can initialize the levels of the items.
     ///\n
-    ///This initializatios is started with calling \c initStart().
-    ///Then the
-    ///items should be listed levels by levels statring with the lowest one
-    ///(with level 0). This is done by using \c initAddItem()
-    ///and \c initNewLevel(). Finally \c initFinish() must be called.
-    ///The items not listed will be put on the highest level.
+    ///The initialization must be started with calling \c initStart().
+    ///Then the items should be listed level by level starting with the
+    ///lowest one (level 0) using \c initAddItem() and \c initNewLevel().
+    ///Finally \c initFinish() must be called.
+    ///The items not listed are put on the highest level.
     ///@{
 
     ///Start the initialization process.
-
     void initStart()
     {
       _init_lev=0;
@@ -449,7 +439,6 @@ namespace lemon {
     }
 
     ///Add an item to the current level.
-
     void initAddItem(Item i)
     {
       swap(_where[i],_init_num);
@@ -469,7 +458,6 @@ namespace lemon {
     }
 
     ///Finalize the initialization process.
-
     void initFinish()
     {
       for(_init_lev++;_init_lev<=_max_level;_init_lev++)
@@ -500,9 +488,9 @@ namespace lemon {
   ///
   ///\sa Elevator
   ///
-  ///\param Graph the underlying graph type
+  ///\param Graph Type of the underlying graph.
   ///\param Item Type of the items the data is assigned to (Graph::Node,
-  ///Graph::Edge, Graph::UEdge)
+  ///Graph::Arc, Graph::Edge).
   template <class Graph, class Item>
   class LinkedElevator {
   public:
@@ -533,9 +521,9 @@ namespace lemon {
 
     ///Constructor with given maximum level.
     ///
-    ///\param g The underlying graph
-    ///\param max_level Set the range of the possible labels to
-    ///[0...\c max_level]
+    ///\param graph The underlying graph.
+    ///\param max_level The maximum allowed level.
+    ///Set the range of the possible labels to <tt>[0..max_level]</tt>.
     LinkedElevator(const Graph& graph, int max_level)
       : _graph(graph), _max_level(max_level), _item_num(_max_level),
         _first(_max_level + 1), _last(_max_level + 1),
@@ -546,8 +534,8 @@ namespace lemon {
 
     ///Constructor.
     ///
-    ///\param g The underlying graph
-    ///The range of the possible labels is [0...\c max_level],
+    ///\param graph The underlying graph.
+    ///Set the range of the possible labels to <tt>[0..max_level]</tt>,
     ///where \c max_level is equal to the number of labeled items in the graph.
     LinkedElevator(const Graph& graph)
       : _graph(graph), _max_level(countItems<Graph, Item>(graph)),
@@ -657,7 +645,7 @@ namespace lemon {
       return num;
     }
 
-    ///Return true if there is not active item on level \c l.
+    ///Return true if there is no active item on level \c l.
     bool activeFree(int l) const {
       return _first[l] == INVALID || !_active[_first[l]];
     }
@@ -675,20 +663,16 @@ namespace lemon {
 
     ///Return a highest level active item.
 
-    ///Return a highest level active item.
-    ///
-    ///\return the highest level active item or INVALID if there is no
-    ///active item.
+    ///Return a highest level active item or INVALID if there is no active
+    ///item.
     Item highestActive() const {
       return _highest_active >= 0 ? _first[_highest_active] : INVALID;
     }
 
-    ///Return a highest active level.
+    ///Return the highest active level.
 
-    ///Return a highest active level.
-    ///
-    ///\return the level of the highest active item or -1 if there is
-    ///no active item.
+    ///Return the level of the highest active item or -1 if there is no active
+    ///item.
     int highestActiveLevel() const {
       return _highest_active;
     }
@@ -719,7 +703,7 @@ namespace lemon {
       }
     }
 
-    ///Lift the highest active item.
+    ///Lift the highest active item to the given level.
 
     ///Lift the item returned by highestActive() to level \c new_level.
     ///
@@ -747,11 +731,10 @@ namespace lemon {
       }
     }
 
-    ///Lift the highest active to top.
+    ///Lift the highest active item to the top level.
 
     ///Lift the item returned by highestActive() to the top level and
-    ///deactivates the item.
-    ///
+    ///deactivate it.
     void liftHighestActiveToTop() {
       Item i = _first[_highest_active];
       _level.set(i, _max_level);
@@ -773,20 +756,18 @@ namespace lemon {
 
     ///@{
 
-    ///Returns an active item on level \c l.
+    ///Return an active item on level \c l.
 
-    ///Returns an active item on level \c l.
-    ///
-    ///Returns an active item on level \c l or \ref INVALID if there is no such
+    ///Return an active item on level \c l or \ref INVALID if there is no such
     ///an item. (\c l must be from the range [0...\c max_level].
     Item activeOn(int l) const
     {
       return _active[_first[l]] ? _first[l] : INVALID;
     }
 
-    ///Lifts the active item returned by \c activeOn() member function.
+    ///Lift the active item returned by \c activeOn(l) by one.
 
-    ///Lifts the active item returned by \c activeOn() member function
+    ///Lift the active item returned by \ref activeOn() "activeOn(l)"
     ///by one.
     Item liftActiveOn(int l)
     {
@@ -813,10 +794,10 @@ namespace lemon {
       }
     }
 
-    /// \brief Lifts the active item returned by \c activeOn() member function.
-    ///
-    /// Lifts the active item returned by \c activeOn() member function
-    /// to the given level.
+    ///Lift the active item returned by \c activeOn(l) to the given level.
+
+    ///Lift the active item returned by \ref activeOn() "activeOn(l)"
+    ///to the given level.
     void liftActiveOn(int l, int new_level)
     {
       Item i = _first[l];
@@ -842,10 +823,10 @@ namespace lemon {
       }
     }
 
-    ///Lifts the active item returned by \c activeOn() member function.
+    ///Lift the active item returned by \c activeOn(l) to the top level.
 
-    ///Lifts the active item returned by \c activeOn() member function
-    ///to the top level.
+    ///Lift the active item returned by \ref activeOn() "activeOn(l)"
+    ///to the top level and deactivate it.
     void liftActiveToTop(int l)
     {
       Item i = _first[l];
@@ -900,18 +881,19 @@ namespace lemon {
 
     ///Move an inactive item to the top but one level (in a dirty way).
 
-    ///This function moves an inactive item to the top but one level.
-    ///It makes the underlying datastructure corrupt, so use is only if
-    ///you really know what it is for.
+    ///This function moves an inactive item from the top level to the top
+    ///but one level (in a dirty way).
+    ///\warning It makes the underlying datastructure corrupt, so use it
+    ///only if you really know what it is for.
     ///\pre The item is on the top level.
     void dirtyTopButOne(Item i) {
       _level.set(i, _max_level - 1);
     }
 
-    ///Lift all items on and above a level to the top (and deactivate them).
+    ///Lift all items on and above the given level to the top level.
 
-    ///This function lifts all items on and above level \c l to \c
-    ///maxLevel(), and also deactivates them.
+    ///This function lifts all items on and above level \c l to the top
+    ///level and deactivates them.
     void liftToTop(int l)  {
       for (int i = l + 1; _first[i] != INVALID; ++i) {
         Item n = _first[i];
@@ -936,18 +918,16 @@ namespace lemon {
   public:
 
     ///\name Initialization
-    ///Using this function you can initialize the levels of the item.
+    ///Using these functions you can initialize the levels of the items.
     ///\n
-    ///This initializatios is started with calling \c initStart().
-    ///Then the
-    ///items should be listed levels by levels statring with the lowest one
-    ///(with level 0). This is done by using \c initAddItem()
-    ///and \c initNewLevel(). Finally \c initFinish() must be called.
-    ///The items not listed will be put on the highest level.
+    ///The initialization must be started with calling \c initStart().
+    ///Then the items should be listed level by level starting with the
+    ///lowest one (level 0) using \c initAddItem() and \c initNewLevel().
+    ///Finally \c initFinish() must be called.
+    ///The items not listed are put on the highest level.
     ///@{
 
     ///Start the initialization process.
-
     void initStart() {
 
       for (int i = 0; i <= _max_level; ++i) {
@@ -962,7 +942,6 @@ namespace lemon {
     }
 
     ///Add an item to the current level.
-
     void initAddItem(Item i) {
       _level.set(i, _init_level);
       if (_last[_init_level] == INVALID) {
@@ -987,7 +966,6 @@ namespace lemon {
     }
 
     ///Finalize the initialization process.
-
     void initFinish() {
       _highest_active = -1;
     }
