@@ -42,6 +42,7 @@ lemon_HEADERS += \
 	lemon/max_matching.h \
 	lemon/nauty_reader.h \
 	lemon/path.h \
+	lemon/preflow.h \
         lemon/random.h \
 	lemon/smart_graph.h \
 	lemon/suurballe.h \

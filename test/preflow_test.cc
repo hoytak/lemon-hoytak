@@ -1,0 +1,205 @@
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library.
+ *
+ * Copyright (C) 2003-2008
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+#include <fstream>
+#include <string>
+
+#include "test_tools.h"
+#include <lemon/smart_graph.h>
+#include <lemon/preflow.h>
+#include <lemon/concepts/digraph.h>
+#include <lemon/concepts/maps.h>
+#include <lemon/lgf_reader.h>
+
+using namespace lemon;
+
+void checkPreflow()
+{
+  typedef int VType;
+  typedef concepts::Digraph Digraph;
+
+  typedef Digraph::Node Node;
+  typedef Digraph::Arc Arc;
+  typedef concepts::ReadMap<Arc,VType> CapMap;
+  typedef concepts::ReadWriteMap<Arc,VType> FlowMap;
+  typedef concepts::WriteMap<Node,bool> CutMap;
+
+  Digraph g;
+  Node n;
+  Arc e;
+  CapMap cap;
+  FlowMap flow;
+  CutMap cut;
+
+  Preflow<Digraph, CapMap>::DefFlowMap<FlowMap>::Create preflow_test(g,cap,n,n);
+
+  preflow_test.capacityMap(cap);
+  flow = preflow_test.flowMap();
+  preflow_test.flowMap(flow);
+  preflow_test.source(n);
+  preflow_test.target(n);
+
+  preflow_test.init();
+  preflow_test.flowInit(cap);
+  preflow_test.startFirstPhase();
+  preflow_test.startSecondPhase();
+  preflow_test.run();
+  preflow_test.runMinCut();
+
+  preflow_test.flowValue();
+  preflow_test.minCut(n);
+  preflow_test.minCutMap(cut);
+  preflow_test.flow(e);
+
+}
+
+int cutValue (const SmartDigraph& g,
+              const SmartDigraph::NodeMap<bool>& cut,
+              const SmartDigraph::ArcMap<int>& cap) {
+
+  int c=0;
+  for(SmartDigraph::ArcIt e(g); e!=INVALID; ++e) {
+    if (cut[g.source(e)] && !cut[g.target(e)]) c+=cap[e];
+  }
+  return c;
+}
+
+bool checkFlow(const SmartDigraph& g,
+               const SmartDigraph::ArcMap<int>& flow,
+               const SmartDigraph::ArcMap<int>& cap,
+               SmartDigraph::Node s, SmartDigraph::Node t) {
+
+  for (SmartDigraph::ArcIt e(g); e != INVALID; ++e) {
+    if (flow[e] < 0 || flow[e] > cap[e]) return false;
+  }
+
+  for (SmartDigraph::NodeIt n(g); n != INVALID; ++n) {
+    if (n == s || n == t) continue;
+    int sum = 0;
+    for (SmartDigraph::OutArcIt e(g, n); e != INVALID; ++e) {
+      sum += flow[e];
+    }
+    for (SmartDigraph::InArcIt e(g, n); e != INVALID; ++e) {
+      sum -= flow[e];
+    }
+    if (sum != 0) return false;
+  }
+  return true;
+}
+
+int main() {
+
+  typedef SmartDigraph Digraph;
+
+  typedef Digraph::Node Node;
+  typedef Digraph::NodeIt NodeIt;
+  typedef Digraph::ArcIt ArcIt;
+  typedef Digraph::ArcMap<int> CapMap;
+  typedef Digraph::ArcMap<int> FlowMap;
+  typedef Digraph::NodeMap<bool> CutMap;
+
+  typedef Preflow<Digraph, CapMap> PType;
+
+  std::string f_name;
+  if( getenv("srcdir") )
+    f_name = std::string(getenv("srcdir"));
+  else f_name = ".";
+  f_name += "/test/preflow_graph.lgf";
+
+  std::ifstream file(f_name.c_str());
+
+  check(file, "Input file '" << f_name << "' not found.");
+
+  Digraph g;
+  Node s, t;
+  CapMap cap(g);
+  DigraphReader<Digraph>(g,file).
+    arcMap("capacity", cap).
+    node("source",s).
+    node("target",t).
+    run();
+
+  PType preflow_test(g, cap, s, t);
+  preflow_test.run();
+
+  check(checkFlow(g, preflow_test.flowMap(), cap, s, t),
+        "The flow is not feasible.");
+
+  CutMap min_cut(g);
+  preflow_test.minCutMap(min_cut);
+  int min_cut_value=cutValue(g,min_cut,cap);
+
+  check(preflow_test.flowValue() == min_cut_value,
+        "The max flow value is not equal to the three min cut values.");
+
+  FlowMap flow(g);
+  for(ArcIt e(g); e!=INVALID; ++e) flow[e] = preflow_test.flowMap()[e];
+
+  int flow_value=preflow_test.flowValue();
+
+  for(ArcIt e(g); e!=INVALID; ++e) cap[e]=2*cap[e];
+  preflow_test.flowInit(flow);
+  preflow_test.startFirstPhase();
+
+  CutMap min_cut1(g);
+  preflow_test.minCutMap(min_cut1);
+  min_cut_value=cutValue(g,min_cut1,cap);
+
+  check(preflow_test.flowValue() == min_cut_value &&
+        min_cut_value == 2*flow_value,
+        "The max flow value or the min cut value is wrong.");
+
+  preflow_test.startSecondPhase();
+
+  check(checkFlow(g, preflow_test.flowMap(), cap, s, t),
+        "The flow is not feasible.");
+
+  CutMap min_cut2(g);
+  preflow_test.minCutMap(min_cut2);
+  min_cut_value=cutValue(g,min_cut2,cap);
+
+  check(preflow_test.flowValue() == min_cut_value &&
+        min_cut_value == 2*flow_value,
+        "The max flow value or the three min cut values were not doubled");
+
+
+  preflow_test.flowMap(flow);
+
+  NodeIt tmp1(g,s);
+  ++tmp1;
+  if ( tmp1 != INVALID ) s=tmp1;
+
+  NodeIt tmp2(g,t);
+  ++tmp2;
+  if ( tmp2 != INVALID ) t=tmp2;
+
+  preflow_test.source(s);
+  preflow_test.target(t);
+
+  preflow_test.run();
+
+  CutMap min_cut3(g);
+  preflow_test.minCutMap(min_cut3);
+  min_cut_value=cutValue(g,min_cut3,cap);
+
+
+  check(preflow_test.flowValue() == min_cut_value,
+        "The max flow value or the three min cut values are incorrect.");
+
+  return 0;
+}
