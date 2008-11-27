@@ -54,7 +54,7 @@ namespace lemon {
   template <typename Digraph, typename LowerMap,
     typename CapacityMap, typename CostMap,
     typename SupplyMap>
-  void readDimacs( std::istream& is,
+  void readDimacsMin( std::istream& is,
                    Digraph &g,
                    LowerMap& lower,
                    CapacityMap& capacity,
@@ -118,7 +118,7 @@ namespace lemon {
   /// capacities are written to \c capacity and \c s and \c t are
   /// set to the source and the target nodes.
   template<typename Digraph, typename CapacityMap>
-  void readDimacs(std::istream& is, Digraph &g, CapacityMap& capacity,
+  void readDimacsMax(std::istream& is, Digraph &g, CapacityMap& capacity,
                   typename Digraph::Node &s, typename Digraph::Node &t) {
     g.clear();
     std::vector<typename Digraph::Node> nodes;
@@ -181,9 +181,10 @@ namespace lemon {
   /// capacities are written to \c capacity and \c s is set to the
   /// source node.
   template<typename Digraph, typename CapacityMap>
-  void readDimacs(std::istream& is, Digraph &g, CapacityMap& capacity,
+  void readDimacsSp(std::istream& is, Digraph &g, CapacityMap& capacity,
                   typename Digraph::Node &s) {
-    readDimacs(is, g, capacity, s, s);
+    typename Digraph::Node t;
+    readDimacsMax(is, g, capacity, s, t);
   }
 
   /// DIMACS capacitated digraph reader function.
@@ -192,9 +193,9 @@ namespace lemon {
   /// DIMACS format. At the beginning \c g is cleared by \c g.clear()
   /// and the arc capacities are written to \c capacity.
   template<typename Digraph, typename CapacityMap>
-  void readDimacs(std::istream& is, Digraph &g, CapacityMap& capacity) {
-    typename Digraph::Node u;
-    readDimacs(is, g, capacity, u, u);
+  void readDimacsMax(std::istream& is, Digraph &g, CapacityMap& capacity) {
+    typename Digraph::Node u,v;
+    readDimacsMax(is, g, capacity, u, v);
   }
 
   /// DIMACS plain digraph reader function.
@@ -207,10 +208,10 @@ namespace lemon {
   /// \endcode
   /// At the beginning \c g is cleared by \c g.clear().
   template<typename Digraph>
-  void readDimacs(std::istream& is, Digraph &g) {
-    typename Digraph::Node u;
+  void readDimacsMat(std::istream& is, Digraph &g) {
+    typename Digraph::Node u,v;
     NullMap<typename Digraph::Arc, int> n;
-    readDimacs(is, g, n, u, u);
+    readDimacsMax(is, g, n, u, v);
   }
 
   /// DIMACS plain digraph writer function.
@@ -222,7 +223,7 @@ namespace lemon {
   ///   p mat
   /// \endcode
   template<typename Digraph>
-  void writeDimacs(std::ostream& os, const Digraph &g) {
+  void writeDimacsMat(std::ostream& os, const Digraph &g) {
     typedef typename Digraph::NodeIt NodeIt;
     typedef typename Digraph::ArcIt ArcIt;
 

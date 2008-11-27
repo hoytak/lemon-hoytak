@@ -123,7 +123,7 @@ int main(int argc, const char *argv[]) {
     Digraph digraph;
     DoubleArcMap lower(digraph), capacity(digraph), cost(digraph);
     DoubleNodeMap supply(digraph);
-    readDimacs(is, digraph, lower, capacity, cost, supply);
+    readDimacsMin(is, digraph, lower, capacity, cost, supply);
     DigraphWriter<Digraph>(digraph, os).
       nodeMap("supply", supply).
       arcMap("lower", lower).
@@ -134,7 +134,7 @@ int main(int argc, const char *argv[]) {
     Digraph digraph;
     Node s, t;
     DoubleArcMap capacity(digraph);
-    readDimacs(is, digraph, capacity, s, t);
+    readDimacsMax(is, digraph, capacity, s, t);
     DigraphWriter<Digraph>(digraph, os).
       arcMap("capacity", capacity).
       node("source", s).
@@ -144,7 +144,7 @@ int main(int argc, const char *argv[]) {
     Digraph digraph;
     Node s;
     DoubleArcMap capacity(digraph);
-    readDimacs(is, digraph, capacity, s);
+    readDimacsSp(is, digraph, capacity, s);
     DigraphWriter<Digraph>(digraph, os).
       arcMap("capacity", capacity).
       node("source", s).
@@ -152,13 +152,13 @@ int main(int argc, const char *argv[]) {
   } else if (capacitated) {
     Digraph digraph;
     DoubleArcMap capacity(digraph);
-    readDimacs(is, digraph, capacity);
+    readDimacsMax(is, digraph, capacity);
     DigraphWriter<Digraph>(digraph, os).
       arcMap("capacity", capacity).
       run();
   } else if (plain) {
     Digraph digraph;
-    readDimacs(is, digraph);
+    readDimacsMat(is, digraph);
     DigraphWriter<Digraph>(digraph, os).run();
   } else {
     cerr << "Invalid type error" << endl;
