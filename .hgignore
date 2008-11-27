@@ -36,6 +36,7 @@ syntax: regexp
 ^build-aux/.*
 ^objs.*/.*
 ^test/[a-z_]*$
+^tools/[a-z-_]*$
 ^demo/.*_demo$
 ^build/.*
 ^doc/gen-images/.*
