@@ -482,9 +482,18 @@ graph exporting tools.
 */
 
 /**
+@defgroup dimacs_group DIMACS format
+@ingroup io_group
+\brief Read and write files in DIMACS format
+
+Tools to read a digraph from or write it to a file in DIMACS format data.
+*/
+
+/**
 @defgroup nauty_group NAUTY Format
 @ingroup io_group
 \brief Read \e Nauty format
+
 Tool to read graphs from \e Nauty format data.
 */
 
