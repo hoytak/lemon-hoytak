@@ -39,6 +39,7 @@
 #include <lemon/lgf_writer.h>
 
 #include <lemon/arg_parser.h>
+#include <lemon/error.h>
 
 using namespace std;
 using namespace lemon;
@@ -56,113 +57,93 @@ int main(int argc, const char *argv[]) {
 
   std::string inputName;
   std::string outputName;
-  std::string typeName;
-
-  bool mincostflow;
-  bool maxflow;
-  bool shortestpath;
-  bool capacitated;
-  bool plain;
-
-  bool version;
 
   ArgParser ap(argc, argv);
-  ap.refOption("-input",
-               "use FILE as input instead of standard input",
-               inputName).synonym("i", "-input")
-    .refOption("-output",
-               "use FILE as output instead of standard output",
-               outputName).synonym("o", "-output")
-    .refOption("-mincostflow",
-               "set the type of the digraph to \"mincostflow\" digraph",
-               mincostflow)
-    .optionGroup("type", "-mincostflow").synonym("mcf", "-mincostflow")
-    .refOption("-maxflow",
-               "set the type of the digraph to \"maxflow\" digraph",
-               maxflow)
-    .optionGroup("type", "-maxflow").synonym("mf", "-maxflow")
-    .refOption("-shortestpath",
-               "set the type of the digraph to \"shortestpath\" digraph",
-               shortestpath)
-    .optionGroup("type", "-shortestpath").synonym("sp", "-shortestpath")
-    .refOption("-capacitated",
-               "set the type of the digraph to \"capacitated\" digraph",
-               capacitated)
-    .optionGroup("type", "-capacitated").synonym("cap", "-capacitated")
-    .refOption("-plain",
-               "set the type of the digraph to \"plain\" digraph",
-               plain)
-    .optionGroup("type", "-plain").synonym("pl", "-plain")
-    .onlyOneGroup("type")
-    .mandatoryGroup("type")
-    .refOption("-version", "show version information", version)
-    .synonym("v", "-version")
+  ap.other("[INFILE [OUTFILE]]",
+           "If either the INFILE or OUTFILE file is missing the standard\n"
+           "     input/output will be used instead.")
     .run();
 
   ifstream input;
-  if (!inputName.empty()) {
-    input.open(inputName.c_str());
-    if (!input) {
-      cerr << "File open error" << endl;
-      return -1;
-    }
-  }
-  istream& is = (inputName.empty() ? cin : input);
-
   ofstream output;
-  if (!outputName.empty()) {
-    output.open(outputName.c_str());
-    if (!output) {
-      cerr << "File open error" << endl;
-      return -1;
-    }
-  }
-  ostream& os = (outputName.empty() ? cout : output);
 
-  if (mincostflow) {
-    Digraph digraph;
-    DoubleArcMap lower(digraph), capacity(digraph), cost(digraph);
-    DoubleNodeMap supply(digraph);
-    readDimacsMin(is, digraph, lower, capacity, cost, supply);
-    DigraphWriter<Digraph>(digraph, os).
-      nodeMap("supply", supply).
-      arcMap("lower", lower).
-      arcMap("capacity", capacity).
-      arcMap("cost", cost).
-      run();
-  } else if (maxflow) {
-    Digraph digraph;
-    Node s, t;
-    DoubleArcMap capacity(digraph);
-    readDimacsMax(is, digraph, capacity, s, t);
-    DigraphWriter<Digraph>(digraph, os).
-      arcMap("capacity", capacity).
-      node("source", s).
-      node("target", t).
-      run();
-  } else if (shortestpath) {
-    Digraph digraph;
-    Node s;
-    DoubleArcMap capacity(digraph);
-    readDimacsSp(is, digraph, capacity, s);
-    DigraphWriter<Digraph>(digraph, os).
-      arcMap("capacity", capacity).
-      node("source", s).
-      run();
-  } else if (capacitated) {
-    Digraph digraph;
-    DoubleArcMap capacity(digraph);
-    readDimacsMax(is, digraph, capacity);
-    DigraphWriter<Digraph>(digraph, os).
-      arcMap("capacity", capacity).
-      run();
-  } else if (plain) {
-    Digraph digraph;
-    readDimacsMat(is, digraph);
-    DigraphWriter<Digraph>(digraph, os).run();
-  } else {
-    cerr << "Invalid type error" << endl;
-    return -1;
+  switch(ap.files().size())
+    {
+    case 2:
+      output.open(ap.files()[1].c_str());
+      if (!output) {
+        throw IoError("Cannot open the file for writing", ap.files()[1]);
+      }
+    case 1:
+      input.open(ap.files()[0].c_str());
+      if (!input) {
+        throw IoError("File cannot be found", ap.files()[0]);
+      }
+    case 0:
+      break;
+    default:
+      cerr << ap.commandName() << ": too many arguments\n";
+      return 1;
   }
+  istream& is = (ap.files().size()<1 ? cin : input);
+  ostream& os = (ap.files().size()<2 ? cout : output);
+
+  DimacsDescriptor desc = dimacsType(is);
+  switch(desc.type)
+    {
+    case DimacsDescriptor::MIN:
+      {
+        Digraph digraph;
+        DoubleArcMap lower(digraph), capacity(digraph), cost(digraph);
+        DoubleNodeMap supply(digraph);
+        readDimacsMin(is, digraph, lower, capacity, cost, supply, desc);
+        DigraphWriter<Digraph>(digraph, os).
+          nodeMap("supply", supply).
+          arcMap("lower", lower).
+          arcMap("capacity", capacity).
+          arcMap("cost", cost).
+          attribute("problem","min").
+          run();
+      }
+      break;
+    case DimacsDescriptor::MAX:
+      {
+        Digraph digraph;
+        Node s, t;
+        DoubleArcMap capacity(digraph);
+        readDimacsMax(is, digraph, capacity, s, t, desc);
+        DigraphWriter<Digraph>(digraph, os).
+          arcMap("capacity", capacity).
+          node("source", s).
+          node("target", t).
+          attribute("problem","max").
+          run();
+      }
+      break;
+    case DimacsDescriptor::SP:
+      {
+        Digraph digraph;
+        Node s;
+        DoubleArcMap capacity(digraph);
+        readDimacsSp(is, digraph, capacity, s, desc);
+        DigraphWriter<Digraph>(digraph, os).
+          arcMap("capacity", capacity).
+          node("source", s).
+          attribute("problem","sp").
+          run();
+      }
+      break;
+    case DimacsDescriptor::MAT:
+      {
+        Digraph digraph;
+        readDimacsMat(is, digraph,desc);
+        DigraphWriter<Digraph>(digraph, os).
+          attribute("problem","mat").
+          run();
+      }
+      break;
+    default:
+      break;
+    }
   return 0;
 }

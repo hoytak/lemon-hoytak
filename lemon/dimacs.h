@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <lemon/maps.h>
+#include <lemon/error.h>
 
 /// \ingroup dimacs_group
 /// \file
@@ -40,6 +41,70 @@ namespace lemon {
   /// \addtogroup dimacs_group
   /// @{
 
+
+  /// DIMACS file type descriptor.
+  struct DimacsDescriptor
+  {
+    ///File type enum
+    enum Type
+      {
+        NONE, MIN, MAX, SP, MAT
+      };
+    ///The file type
+    Type type;
+    ///The number of nodes on the graph
+    int nodeNum;
+    ///The number of edges on the graph
+    int edgeNum;
+    int lineShift;
+    /// Constructor. Sets the type to NONE.
+    DimacsDescriptor() : type(NONE) {}
+  };
+
+  ///Discover the type of a DIMACS file
+
+  ///It starts seeking the begining of the file for the problem type
+  ///and size info. The found date is returned in a special struct
+  ///that can be evaluated and passed to the appropriate reader
+  ///function.
+  DimacsDescriptor dimacsType(std::istream& is)
+  {
+    DimacsDescriptor r;
+    std::string problem,str;
+    char c;
+    r.lineShift=0;
+    while (is >> c)
+      switch(c)
+        {
+        case 'p':
+          if(is >> problem >> r.nodeNum >> r.edgeNum)
+            {
+              getline(is, str);
+              r.lineShift++;
+              if(problem=="min") r.type=DimacsDescriptor::MIN;
+              else if(problem=="max") r.type=DimacsDescriptor::MAX;
+              else if(problem=="sp") r.type=DimacsDescriptor::SP;
+              else if(problem=="mat") r.type=DimacsDescriptor::MAT;
+              else throw FormatError("Unknown problem type");
+              return r;
+            }
+          else
+            {
+              throw FormatError("Missing or wrong problem type declaration.");
+            }
+          break;
+        case 'c':
+          getline(is, str);
+          r.lineShift++;
+          break;
+        default:
+          throw FormatError("Unknown DIMACS declaration.");
+        }
+    throw FormatError("Missing problem type declaration.");
+  }
+
+
+
   /// DIMACS min cost flow reader function.
   ///
   /// This function reads a min cost flow instance from DIMACS format,
@@ -47,27 +112,40 @@ namespace lemon {
   /// \code
   ///   p min
   /// \endcode
-  /// At the beginning \c g is cleared by \c g.clear(). The supply
+  /// At the beginning, \c g is cleared by \c g.clear(). The supply
   /// amount of the nodes are written to \c supply (signed). The
   /// lower bounds, capacities and costs of the arcs are written to
   /// \c lower, \c capacity and \c cost.
+  ///
+  /// If the file type was previously evaluated by dimacsType(), then
+  /// the descriptor struct should be given by the \c dest parameter.
   template <typename Digraph, typename LowerMap,
-    typename CapacityMap, typename CostMap,
-    typename SupplyMap>
-  void readDimacsMin( std::istream& is,
-                   Digraph &g,
-                   LowerMap& lower,
-                   CapacityMap& capacity,
-                   CostMap& cost,
-                   SupplyMap& supply )
+            typename CapacityMap, typename CostMap,
+            typename SupplyMap>
+  void readDimacsMin(std::istream& is,
+                     Digraph &g,
+                     LowerMap& lower,
+                     CapacityMap& capacity,
+                     CostMap& cost,
+                     SupplyMap& supply,
+                     DimacsDescriptor desc=DimacsDescriptor())
   {
     g.clear();
     std::vector<typename Digraph::Node> nodes;
     typename Digraph::Arc e;
     std::string problem, str;
     char c;
-    int n, m;
     int i, j;
+    if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
+    if(desc.type!=DimacsDescriptor::MIN)
+      throw FormatError("Problem type mismatch");
+
+    nodes.resize(desc.nodeNum + 1);
+    for (int k = 1; k <= desc.nodeNum; ++k) {
+      nodes[k] = g.addNode();
+      supply.set(nodes[k], 0);
+    }
+
     typename SupplyMap::Value sup;
     typename CapacityMap::Value low;
     typename CapacityMap::Value cap;
@@ -76,16 +154,6 @@ namespace lemon {
       switch (c) {
       case 'c': // comment line
         getline(is, str);
-        break;
-      case 'p': // problem definition line
-        is >> problem >> n >> m;
-        getline(is, str);
-        if (problem != "min") return;
-        nodes.resize(n + 1);
-        for (int k = 1; k <= n; ++k) {
-          nodes[k] = g.addNode();
-          supply.set(nodes[k], 0);
-        }
         break;
       case 'n': // node definition line
         is >> i >> sup;
@@ -107,47 +175,38 @@ namespace lemon {
     }
   }
 
-  /// DIMACS max flow reader function.
-  ///
-  /// This function reads a max flow instance from DIMACS format,
-  /// i.e. from DIMACS files having a line starting with
-  /// \code
-  ///   p max
-  /// \endcode
-  /// At the beginning \c g is cleared by \c g.clear(). The arc
-  /// capacities are written to \c capacity and \c s and \c t are
-  /// set to the source and the target nodes.
   template<typename Digraph, typename CapacityMap>
-  void readDimacsMax(std::istream& is, Digraph &g, CapacityMap& capacity,
-                  typename Digraph::Node &s, typename Digraph::Node &t) {
+  void _readDimacs(std::istream& is,
+                   Digraph &g,
+                   CapacityMap& capacity,
+                   typename Digraph::Node &s,
+                   typename Digraph::Node &t,
+                   DimacsDescriptor desc=DimacsDescriptor()) {
     g.clear();
+    s=t=INVALID;
     std::vector<typename Digraph::Node> nodes;
     typename Digraph::Arc e;
-    std::string problem;
     char c, d;
-    int n, m;
     int i, j;
     typename CapacityMap::Value _cap;
     std::string str;
+    nodes.resize(desc.nodeNum + 1);
+    for (int k = 1; k <= desc.nodeNum; ++k) {
+      nodes[k] = g.addNode();
+    }
+
     while (is >> c) {
       switch (c) {
       case 'c': // comment line
         getline(is, str);
         break;
-      case 'p': // problem definition line
-        is >> problem >> n >> m;
-        getline(is, str);
-        nodes.resize(n + 1);
-        for (int k = 1; k <= n; ++k)
-          nodes[k] = g.addNode();
-        break;
       case 'n': // node definition line
-        if (problem == "sp") { // shortest path problem
+        if (desc.type==DimacsDescriptor::SP) { // shortest path problem
           is >> i;
           getline(is, str);
           s = nodes[i];
         }
-        if (problem == "max") { // max flow problem
+        if (desc.type==DimacsDescriptor::MAX) { // max flow problem
           is >> i >> d;
           getline(is, str);
           if (d == 's') s = nodes[i];
@@ -155,7 +214,8 @@ namespace lemon {
         }
         break;
       case 'a': // arc (arc) definition line
-        if (problem == "max" || problem == "sp") {
+        if (desc.type==DimacsDescriptor::SP ||
+            desc.type==DimacsDescriptor::MAX) {
           is >> i >> j >> _cap;
           getline(is, str);
           e = g.addArc(nodes[i], nodes[j]);
@@ -170,6 +230,32 @@ namespace lemon {
     }
   }
 
+  /// DIMACS max flow reader function.
+  ///
+  /// This function reads a max flow instance from DIMACS format,
+  /// i.e. from DIMACS files having a line starting with
+  /// \code
+  ///   p max
+  /// \endcode
+  /// At the beginning, \c g is cleared by \c g.clear(). The arc
+  /// capacities are written to \c capacity and \c s and \c t are
+  /// set to the source and the target nodes.
+  ///
+  /// If the file type was previously evaluated by dimacsType(), then
+  /// the descriptor struct should be given by the \c dest parameter.
+  template<typename Digraph, typename CapacityMap>
+  void readDimacsMax(std::istream& is,
+                     Digraph &g,
+                     CapacityMap& capacity,
+                     typename Digraph::Node &s,
+                     typename Digraph::Node &t,
+                     DimacsDescriptor desc=DimacsDescriptor()) {
+    if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
+    if(desc.type!=DimacsDescriptor::MAX)
+      throw FormatError("Problem type mismatch");
+    _readDimacs(is,g,capacity,s,t,desc);
+  }
+
   /// DIMACS shortest path reader function.
   ///
   /// This function reads a shortest path instance from DIMACS format,
@@ -177,25 +263,44 @@ namespace lemon {
   /// \code
   ///   p sp
   /// \endcode
-  /// At the beginning \c g is cleared by \c g.clear(). The arc
-  /// capacities are written to \c capacity and \c s is set to the
+  /// At the beginning, \c g is cleared by \c g.clear(). The arc
+  /// lengths are written to \c lenght and \c s is set to the
   /// source node.
-  template<typename Digraph, typename CapacityMap>
-  void readDimacsSp(std::istream& is, Digraph &g, CapacityMap& capacity,
-                  typename Digraph::Node &s) {
+  ///
+  /// If the file type was previously evaluated by dimacsType(), then
+  /// the descriptor struct should be given by the \c dest parameter.
+  template<typename Digraph, typename LengthMap>
+  void readDimacsSp(std::istream& is,
+                    Digraph &g,
+                    LengthMap& length,
+                    typename Digraph::Node &s,
+                    DimacsDescriptor desc=DimacsDescriptor()) {
     typename Digraph::Node t;
-    readDimacsMax(is, g, capacity, s, t);
+    if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
+    if(desc.type!=DimacsDescriptor::SP)
+      throw FormatError("Problem type mismatch");
+    _readDimacs(is, g, length, s, t,desc);
   }
 
   /// DIMACS capacitated digraph reader function.
   ///
   /// This function reads an arc capacitated digraph instance from
-  /// DIMACS format. At the beginning \c g is cleared by \c g.clear()
-  /// and the arc capacities are written to \c capacity.
+  /// DIMACS 'mat' or 'sp' format.
+  /// At the beginning, \c g is cleared by \c g.clear()
+  /// and the arc capacities/lengths are written to \c capacity.
+  ///
+  /// If the file type was previously evaluated by dimacsType(), then
+  /// the descriptor struct should be given by the \c dest parameter.
   template<typename Digraph, typename CapacityMap>
-  void readDimacsMax(std::istream& is, Digraph &g, CapacityMap& capacity) {
+  void readDimacsCap(std::istream& is,
+                     Digraph &g,
+                     CapacityMap& capacity,
+                     DimacsDescriptor desc=DimacsDescriptor()) {
     typename Digraph::Node u,v;
-    readDimacsMax(is, g, capacity, u, v);
+    if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
+    if(desc.type!=DimacsDescriptor::MAX || desc.type!=DimacsDescriptor::SP)
+      throw FormatError("Problem type mismatch");
+    _readDimacs(is, g, capacity, u, v, desc);
   }
 
   /// DIMACS plain digraph reader function.
@@ -206,12 +311,19 @@ namespace lemon {
   /// \code
   ///   p mat
   /// \endcode
-  /// At the beginning \c g is cleared by \c g.clear().
+  /// At the beginning, \c g is cleared by \c g.clear().
+  ///
+  /// If the file type was previously evaluated by dimacsType(), then
+  /// the descriptor struct should be given by the \c dest parameter.
   template<typename Digraph>
-  void readDimacsMat(std::istream& is, Digraph &g) {
+  void readDimacsMat(std::istream& is, Digraph &g,
+                     DimacsDescriptor desc=DimacsDescriptor()) {
     typename Digraph::Node u,v;
     NullMap<typename Digraph::Arc, int> n;
-    readDimacsMax(is, g, n, u, v);
+    if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
+    if(desc.type!=DimacsDescriptor::MAT)
+      throw FormatError("Problem type mismatch");
+    _readDimacs(is, g, n, u, v, desc);
   }
 
   /// DIMACS plain digraph writer function.
@@ -222,12 +334,16 @@ namespace lemon {
   /// \code
   ///   p mat
   /// \endcode
+  /// If \c comment is not empty, then it will be printed in the first line
+  /// prefixed by 'c'.
   template<typename Digraph>
-  void writeDimacsMat(std::ostream& os, const Digraph &g) {
+  void writeDimacsMat(std::ostream& os, const Digraph &g,
+                      std::string comment="") {
     typedef typename Digraph::NodeIt NodeIt;
     typedef typename Digraph::ArcIt ArcIt;
 
-    os << "c matching problem" << std::endl;
+    if(!comment.empty()) 
+      os << "c " << comment << std::endl;
     os << "p mat " << g.nodeNum() << " " << g.arcNum() << std::endl;
 
     typename Digraph::template NodeMap<int> nodes(g);
