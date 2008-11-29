@@ -55,7 +55,7 @@ void checkPreflow()
   preflow_test.target(n);
 
   preflow_test.init();
-  preflow_test.flowInit(cap);
+  preflow_test.init(cap);
   preflow_test.startFirstPhase();
   preflow_test.startSecondPhase();
   preflow_test.run();
@@ -153,7 +153,7 @@ int main() {
   int flow_value=preflow_test.flowValue();
 
   for(ArcIt e(g); e!=INVALID; ++e) cap[e]=2*cap[e];
-  preflow_test.flowInit(flow);
+  preflow_test.init(flow);
   preflow_test.startFirstPhase();
 
   CutMap min_cut1(g);

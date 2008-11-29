@@ -445,7 +445,7 @@ namespace lemon {
     /// outgoing flow.
     /// \return %False when the given \c flowMap is not a preflow.
     template <typename FlowMap>
-    bool flowInit(const FlowMap& flowMap) {
+    bool init(const FlowMap& flowMap) {
       createStructures();
 
       for (ArcIt e(_graph); e != INVALID; ++e) {
