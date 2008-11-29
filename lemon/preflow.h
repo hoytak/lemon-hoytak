@@ -31,13 +31,13 @@ namespace lemon {
   /// \brief Default traits class of Preflow class.
   ///
   /// Default traits class of Preflow class.
-  /// \param _Graph Digraph type.
-  /// \param _CapacityMap Type of capacity map.
-  template <typename _Graph, typename _CapacityMap>
+  /// \tparam _Digraph Digraph type.
+  /// \tparam _CapacityMap Capacity map type.
+  template <typename _Digraph, typename _CapacityMap>
   struct PreflowDefaultTraits {
 
-    /// \brief The digraph type the algorithm runs on.
-    typedef _Graph Digraph;
+    /// \brief The type of the digraph the algorithm runs on.
+    typedef _Digraph Digraph;
 
     /// \brief The type of the map that stores the arc capacities.
     ///
@@ -45,12 +45,12 @@ namespace lemon {
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
     typedef _CapacityMap CapacityMap;
 
-    /// \brief The type of the length of the arcs.
+    /// \brief The type of the flow values.
     typedef typename CapacityMap::Value Value;
 
-    /// \brief The map type that stores the flow values.
+    /// \brief The type of the map that stores the flow values.
     ///
-    /// The map type that stores the flow values.
+    /// The type of the map that stores the flow values.
     /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template ArcMap<Value> FlowMap;
 
@@ -63,7 +63,7 @@ namespace lemon {
       return new FlowMap(digraph);
     }
 
-    /// \brief The eleavator type used by Preflow algorithm.
+    /// \brief The elevator type used by Preflow algorithm.
     ///
     /// The elevator type used by Preflow algorithm.
     ///
@@ -73,7 +73,7 @@ namespace lemon {
 
     /// \brief Instantiates an Elevator.
     ///
-    /// This function instantiates a \ref Elevator.
+    /// This function instantiates an \ref Elevator.
     /// \param digraph The digraph, to which we would like to define
     /// the elevator.
     /// \param max_level The maximum level of the elevator.
@@ -91,44 +91,46 @@ namespace lemon {
 
   /// \ingroup max_flow
   ///
-  /// \brief %Preflow algorithms class.
+  /// \brief %Preflow algorithm class.
   ///
-  /// This class provides an implementation of the Goldberg's \e
-  /// preflow \e algorithm producing a flow of maximum value in a
-  /// digraph. The preflow algorithms are the fastest known max
+  /// This class provides an implementation of Goldberg-Tarjan's \e preflow
+  /// \e push-relabel algorithm producing a flow of maximum value in a
+  /// digraph. The preflow algorithms are the fastest known maximum
   /// flow algorithms. The current implementation use a mixture of the
   /// \e "highest label" and the \e "bound decrease" heuristics.
   /// The worst case time complexity of the algorithm is \f$O(n^2\sqrt{e})\f$.
   ///
-  /// The algorithm consists from two phases. After the first phase
-  /// the maximal flow value and the minimum cut can be obtained. The
-  /// second phase constructs the feasible maximum flow on each arc.
+  /// The algorithm consists of two phases. After the first phase
+  /// the maximum flow value and the minimum cut is obtained. The
+  /// second phase constructs a feasible maximum flow on each arc.
   ///
-  /// \param _Graph The digraph type the algorithm runs on.
-  /// \param _CapacityMap The flow map type.
-  /// \param _Traits Traits class to set various data types used by
-  /// the algorithm.  The default traits class is \ref
-  /// PreflowDefaultTraits.  See \ref PreflowDefaultTraits for the
-  /// documentation of a %Preflow traits class.
-  ///
-  ///\author Jacint Szabo and Balazs Dezso
+  /// \tparam _Digraph The type of the digraph the algorithm runs on.
+  /// \tparam _CapacityMap The type of the capacity map. The default map
+  /// type is \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
 #ifdef DOXYGEN
-  template <typename _Graph, typename _CapacityMap, typename _Traits>
+  template <typename _Digraph, typename _CapacityMap, typename _Traits>
 #else
-  template <typename _Graph,
-            typename _CapacityMap = typename _Graph::template ArcMap<int>,
-            typename _Traits = PreflowDefaultTraits<_Graph, _CapacityMap> >
+  template <typename _Digraph,
+            typename _CapacityMap = typename _Digraph::template ArcMap<int>,
+            typename _Traits = PreflowDefaultTraits<_Digraph, _CapacityMap> >
 #endif
   class Preflow {
   public:
 
+    ///The \ref PreflowDefaultTraits "traits class" of the algorithm.
     typedef _Traits Traits;
+    ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
+    ///The type of the capacity map.
     typedef typename Traits::CapacityMap CapacityMap;
+    ///The type of the flow values.
     typedef typename Traits::Value Value;
 
+    ///The type of the flow map.
     typedef typename Traits::FlowMap FlowMap;
+    ///The type of the elevator.
     typedef typename Traits::Elevator Elevator;
+    ///The type of the tolerance.
     typedef typename Traits::Tolerance Tolerance;
 
   private:
@@ -188,7 +190,7 @@ namespace lemon {
 
     typedef Preflow Create;
 
-    ///\name Named template parameters
+    ///\name Named Template Parameters
 
     ///@{
 
@@ -205,7 +207,7 @@ namespace lemon {
     /// FlowMap type
     ///
     /// \ref named-templ-param "Named parameter" for setting FlowMap
-    /// type
+    /// type.
     template <typename _FlowMap>
     struct SetFlowMap
       : public Preflow<Digraph, CapacityMap, SetFlowMapTraits<_FlowMap> > {
@@ -226,7 +228,11 @@ namespace lemon {
     /// Elevator type
     ///
     /// \ref named-templ-param "Named parameter" for setting Elevator
-    /// type
+    /// type. If this named parameter is used, then an external
+    /// elevator object must be passed to the algorithm using the
+    /// \ref elevator(Elevator&) "elevator()" function before calling
+    /// \ref run() or \ref init().
+    /// \sa SetStandardElevator
     template <typename _Elevator>
     struct SetElevator
       : public Preflow<Digraph, CapacityMap, SetElevatorTraits<_Elevator> > {
@@ -243,11 +249,17 @@ namespace lemon {
     };
 
     /// \brief \ref named-templ-param "Named parameter" for setting
-    /// Elevator type
+    /// Elevator type with automatic allocation
     ///
     /// \ref named-templ-param "Named parameter" for setting Elevator
-    /// type. The Elevator should be standard constructor interface, ie.
-    /// the digraph and the maximum level should be passed to it.
+    /// type with automatic allocation.
+    /// The Elevator should have standard constructor interface to be
+    /// able to automatically created by the algorithm (i.e. the
+    /// digraph and the maximum level should be passed to it).
+    /// However an external elevator object could also be passed to the
+    /// algorithm with the \ref elevator(Elevator&) "elevator()" function
+    /// before calling \ref run() or \ref init().
+    /// \sa SetElevator
     template <typename _Elevator>
     struct SetStandardElevator
       : public Preflow<Digraph, CapacityMap,
@@ -273,14 +285,14 @@ namespace lemon {
     /// \param source The source node.
     /// \param target The target node.
     Preflow(const Digraph& digraph, const CapacityMap& capacity,
-               Node source, Node target)
+            Node source, Node target)
       : _graph(digraph), _capacity(&capacity),
         _node_num(0), _source(source), _target(target),
         _flow(0), _local_flow(false),
         _level(0), _local_level(false),
         _excess(0), _tolerance(), _phase() {}
 
-    /// \brief Destrcutor.
+    /// \brief Destructor.
     ///
     /// Destructor.
     ~Preflow() {
@@ -290,7 +302,7 @@ namespace lemon {
     /// \brief Sets the capacity map.
     ///
     /// Sets the capacity map.
-    /// \return \c (*this)
+    /// \return <tt>(*this)</tt>
     Preflow& capacityMap(const CapacityMap& map) {
       _capacity = &map;
       return *this;
@@ -299,7 +311,11 @@ namespace lemon {
     /// \brief Sets the flow map.
     ///
     /// Sets the flow map.
-    /// \return \c (*this)
+    /// If you don't use this function before calling \ref run() or
+    /// \ref init(), an instance will be allocated automatically.
+    /// The destructor deallocates this automatically allocated map,
+    /// of course.
+    /// \return <tt>(*this)</tt>
     Preflow& flowMap(FlowMap& map) {
       if (_local_flow) {
         delete _flow;
@@ -309,17 +325,32 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Returns the flow map.
+    /// \brief Sets the source node.
     ///
-    /// \return The flow map.
-    const FlowMap& flowMap() {
-      return *_flow;
+    /// Sets the source node.
+    /// \return <tt>(*this)</tt>
+    Preflow& source(const Node& node) {
+      _source = node;
+      return *this;
     }
 
-    /// \brief Sets the elevator.
+    /// \brief Sets the target node.
     ///
-    /// Sets the elevator.
-    /// \return \c (*this)
+    /// Sets the target node.
+    /// \return <tt>(*this)</tt>
+    Preflow& target(const Node& node) {
+      _target = node;
+      return *this;
+    }
+
+    /// \brief Sets the elevator used by algorithm.
+    ///
+    /// Sets the elevator used by algorithm.
+    /// If you don't use this function before calling \ref run() or
+    /// \ref init(), an instance will be allocated automatically.
+    /// The destructor deallocates this automatically allocated elevator,
+    /// of course.
+    /// \return <tt>(*this)</tt>
     Preflow& elevator(Elevator& elevator) {
       if (_local_level) {
         delete _level;
@@ -329,29 +360,14 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Returns the elevator.
+    /// \brief Returns a const reference to the elevator.
     ///
-    /// \return The elevator.
+    /// Returns a const reference to the elevator.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
     const Elevator& elevator() {
       return *_level;
-    }
-
-    /// \brief Sets the source node.
-    ///
-    /// Sets the source node.
-    /// \return \c (*this)
-    Preflow& source(const Node& node) {
-      _source = node;
-      return *this;
-    }
-
-    /// \brief Sets the target node.
-    ///
-    /// Sets the target node.
-    /// \return \c (*this)
-    Preflow& target(const Node& node) {
-      _target = node;
-      return *this;
     }
 
     /// \brief Sets the tolerance used by algorithm.
@@ -362,27 +378,26 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Returns the tolerance used by algorithm.
+    /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns the tolerance used by algorithm.
+    /// Returns a const reference to the tolerance.
     const Tolerance& tolerance() const {
       return tolerance;
     }
 
-    /// \name Execution control The simplest way to execute the
-    /// algorithm is to use one of the member functions called \c
-    /// run().
-    /// \n
-    /// If you need more control on initial solution or
-    /// execution then you have to call one \ref init() function and then
-    /// the startFirstPhase() and if you need the startSecondPhase().
+    /// \name Execution Control
+    /// The simplest way to execute the preflow algorithm is to use
+    /// \ref run() or \ref runMinCut().\n
+    /// If you need more control on the initial solution or the execution,
+    /// first you have to call one of the \ref init() functions, then
+    /// \ref startFirstPhase() and if you need it \ref startSecondPhase().
 
     ///@{
 
     /// \brief Initializes the internal data structures.
     ///
-    /// Initializes the internal data structures.
-    ///
+    /// Initializes the internal data structures and sets the initial
+    /// flow to zero on each arc.
     void init() {
       createStructures();
 
@@ -436,14 +451,15 @@ namespace lemon {
       }
     }
 
-    /// \brief Initializes the internal data structures.
+    /// \brief Initializes the internal data structures using the
+    /// given flow map.
     ///
     /// Initializes the internal data structures and sets the initial
     /// flow to the given \c flowMap. The \c flowMap should contain a
-    /// flow or at least a preflow, ie. in each node excluding the
-    /// target the incoming flow should greater or equal to the
+    /// flow or at least a preflow, i.e. at each node excluding the
+    /// source node the incoming flow should greater or equal to the
     /// outgoing flow.
-    /// \return %False when the given \c flowMap is not a preflow.
+    /// \return \c false if the given \c flowMap is not a preflow.
     template <typename FlowMap>
     bool init(const FlowMap& flowMap) {
       createStructures();
@@ -536,7 +552,8 @@ namespace lemon {
     /// maximum flow is not yet obtained. So after calling this method
     /// \ref flowValue() returns the value of a maximum flow and \ref
     /// minCut() returns a minimum cut.
-    /// \pre One of the \ref init() functions should be called.
+    /// \pre One of the \ref init() functions must be called before
+    /// using this function.
     void startFirstPhase() {
       _phase = true;
 
@@ -702,12 +719,12 @@ namespace lemon {
     /// \brief Starts the second phase of the preflow algorithm.
     ///
     /// The preflow algorithm consists of two phases, this method runs
-    /// the second phase. After calling \ref init() and \ref
-    /// startFirstPhase() and then \ref startSecondPhase(), \ref
-    /// flowMap() return a maximum flow, \ref flowValue() returns the
+    /// the second phase. After calling one of the \ref init() functions
+    /// and \ref startFirstPhase() and then \ref startSecondPhase(),
+    /// \ref flowMap() returns a maximum flow, \ref flowValue() returns the
     /// value of a maximum flow, \ref minCut() returns a minimum cut
-    /// \pre The \ref init() and startFirstPhase() functions should be
-    /// called before.
+    /// \pre One of the \ref init() functions and \ref startFirstPhase()
+    /// must be called before using this function.
     void startSecondPhase() {
       _phase = false;
 
@@ -863,51 +880,81 @@ namespace lemon {
     /// @}
 
     /// \name Query Functions
-    /// The result of the %Preflow algorithm can be obtained using these
+    /// The results of the preflow algorithm can be obtained using these
     /// functions.\n
-    /// Before the use of these functions,
-    /// either run() or start() must be called.
+    /// Either one of the \ref run() "run*()" functions or one of the
+    /// \ref startFirstPhase() "start*()" functions should be called
+    /// before using them.
 
     ///@{
 
     /// \brief Returns the value of the maximum flow.
     ///
     /// Returns the value of the maximum flow by returning the excess
-    /// of the target node \c t. This value equals to the value of
-    /// the maximum flow already after the first phase.
+    /// of the target node. This value equals to the value of
+    /// the maximum flow already after the first phase of the algorithm.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
     Value flowValue() const {
       return (*_excess)[_target];
     }
 
-    /// \brief Returns true when the node is on the source side of minimum cut.
+    /// \brief Returns the flow on the given arc.
     ///
-    /// Returns true when the node is on the source side of minimum
-    /// cut. This method can be called both after running \ref
+    /// Returns the flow on the given arc. This method can
+    /// be called after the second phase of the algorithm.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
+    Value flow(const Arc& arc) const {
+      return (*_flow)[arc];
+    }
+
+    /// \brief Returns a const reference to the flow map.
+    ///
+    /// Returns a const reference to the arc map storing the found flow.
+    /// This method can be called after the second phase of the algorithm.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
+    const FlowMap& flowMap() {
+      return *_flow;
+    }
+
+    /// \brief Returns \c true when the node is on the source side of the
+    /// minimum cut.
+    ///
+    /// Returns true when the node is on the source side of the found
+    /// minimum cut. This method can be called both after running \ref
     /// startFirstPhase() and \ref startSecondPhase().
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
     bool minCut(const Node& node) const {
       return ((*_level)[node] == _level->maxLevel()) == _phase;
     }
 
-    /// \brief Returns a minimum value cut.
+    /// \brief Gives back a minimum value cut.
     ///
-    /// Sets the \c cutMap to the characteristic vector of a minimum value
-    /// cut. This method can be called both after running \ref
-    /// startFirstPhase() and \ref startSecondPhase(). The result after second
-    /// phase could be changed slightly if inexact computation is used.
-    /// \pre The \c cutMap should be a bool-valued node-map.
+    /// Sets \c cutMap to the characteristic vector of a minimum value
+    /// cut. \c cutMap should be a \ref concepts::WriteMap "writable"
+    /// node map with \c bool (or convertible) value type.
+    ///
+    /// This method can be called both after running \ref startFirstPhase()
+    /// and \ref startSecondPhase(). The result after the second phase
+    /// could be slightly different if inexact computation is used.
+    ///
+    /// \note This function calls \ref minCut() for each node, so it runs in
+    /// \f$O(n)\f$ time.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
     template <typename CutMap>
     void minCutMap(CutMap& cutMap) const {
       for (NodeIt n(_graph); n != INVALID; ++n) {
         cutMap.set(n, minCut(n));
       }
-    }
-
-    /// \brief Returns the flow on the arc.
-    ///
-    /// Sets the \c flowMap to the flow on the arcs. This method can
-    /// be called after the second phase of algorithm.
-    Value flow(const Arc& arc) const {
-      return (*_flow)[arc];
     }
 
     /// @}
