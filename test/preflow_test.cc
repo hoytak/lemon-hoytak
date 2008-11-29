@@ -25,10 +25,11 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/concepts/maps.h>
 #include <lemon/lgf_reader.h>
+#include <lemon/elevator.h>
 
 using namespace lemon;
 
-void checkPreflow()
+void checkPreflowCompile()
 {
   typedef int VType;
   typedef concepts::Digraph Digraph;
@@ -39,6 +40,9 @@ void checkPreflow()
   typedef concepts::ReadWriteMap<Arc,VType> FlowMap;
   typedef concepts::WriteMap<Node,bool> CutMap;
 
+  typedef Elevator<Digraph, Digraph::Node> Elev;
+  typedef LinkedElevator<Digraph, Digraph::Node> LinkedElev;
+
   Digraph g;
   Node n;
   Arc e;
@@ -46,7 +50,11 @@ void checkPreflow()
   FlowMap flow;
   CutMap cut;
 
-  Preflow<Digraph, CapMap>::SetFlowMap<FlowMap>::Create preflow_test(g,cap,n,n);
+  Preflow<Digraph, CapMap>
+    ::SetFlowMap<FlowMap>
+    ::SetElevator<Elev>
+    ::SetStandardElevator<LinkedElev>
+    ::Create preflow_test(g,cap,n,n);
 
   preflow_test.capacityMap(cap);
   flow = preflow_test.flowMap();
