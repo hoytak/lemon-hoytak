@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -24,15 +24,8 @@
 
 #include <lemon/bits/default_map.h>
 
-
-///\ingroup digraphbits
-///\file
-///\brief Extenders for the digraph adaptor types
 namespace lemon {
 
-  /// \ingroup digraphbits
-  ///
-  /// \brief Extender for the DigraphAdaptors
   template <typename _Digraph>
   class DigraphAdaptorExtender : public _Digraph {
   public:
@@ -64,14 +57,14 @@ namespace lemon {
 
     Node oppositeNode(const Node &n, const Arc &e) const {
       if (n == Parent::source(e))
-	return Parent::target(e);
+        return Parent::target(e);
       else if(n==Parent::target(e))
-	return Parent::source(e);
+        return Parent::source(e);
       else
-	return INVALID;
+        return INVALID;
     }
 
-    class NodeIt : public Node { 
+    class NodeIt : public Node {
       const Adaptor* _adaptor;
     public:
 
@@ -80,21 +73,21 @@ namespace lemon {
       NodeIt(Invalid i) : Node(i) { }
 
       explicit NodeIt(const Adaptor& adaptor) : _adaptor(&adaptor) {
-	_adaptor->first(static_cast<Node&>(*this));
+        _adaptor->first(static_cast<Node&>(*this));
       }
 
-      NodeIt(const Adaptor& adaptor, const Node& node) 
-	: Node(node), _adaptor(&adaptor) {}
+      NodeIt(const Adaptor& adaptor, const Node& node)
+        : Node(node), _adaptor(&adaptor) {}
 
-      NodeIt& operator++() { 
-	_adaptor->next(*this);
-	return *this; 
+      NodeIt& operator++() {
+        _adaptor->next(*this);
+        return *this;
       }
 
     };
 
 
-    class ArcIt : public Arc { 
+    class ArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -103,21 +96,21 @@ namespace lemon {
       ArcIt(Invalid i) : Arc(i) { }
 
       explicit ArcIt(const Adaptor& adaptor) : _adaptor(&adaptor) {
-	_adaptor->first(static_cast<Arc&>(*this));
+        _adaptor->first(static_cast<Arc&>(*this));
       }
 
-      ArcIt(const Adaptor& adaptor, const Arc& e) : 
-	Arc(e), _adaptor(&adaptor) { }
+      ArcIt(const Adaptor& adaptor, const Arc& e) :
+        Arc(e), _adaptor(&adaptor) { }
 
-      ArcIt& operator++() { 
-	_adaptor->next(*this);
-	return *this; 
+      ArcIt& operator++() {
+        _adaptor->next(*this);
+        return *this;
       }
 
     };
 
 
-    class OutArcIt : public Arc { 
+    class OutArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -125,23 +118,23 @@ namespace lemon {
 
       OutArcIt(Invalid i) : Arc(i) { }
 
-      OutArcIt(const Adaptor& adaptor, const Node& node) 
-	: _adaptor(&adaptor) {
-	_adaptor->firstOut(*this, node);
+      OutArcIt(const Adaptor& adaptor, const Node& node)
+        : _adaptor(&adaptor) {
+        _adaptor->firstOut(*this, node);
       }
 
-      OutArcIt(const Adaptor& adaptor, const Arc& arc) 
-	: Arc(arc), _adaptor(&adaptor) {}
+      OutArcIt(const Adaptor& adaptor, const Arc& arc)
+        : Arc(arc), _adaptor(&adaptor) {}
 
-      OutArcIt& operator++() { 
-	_adaptor->nextOut(*this);
-	return *this; 
+      OutArcIt& operator++() {
+        _adaptor->nextOut(*this);
+        return *this;
       }
 
     };
 
 
-    class InArcIt : public Arc { 
+    class InArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -149,45 +142,31 @@ namespace lemon {
 
       InArcIt(Invalid i) : Arc(i) { }
 
-      InArcIt(const Adaptor& adaptor, const Node& node) 
-	: _adaptor(&adaptor) {
-	_adaptor->firstIn(*this, node);
+      InArcIt(const Adaptor& adaptor, const Node& node)
+        : _adaptor(&adaptor) {
+        _adaptor->firstIn(*this, node);
       }
 
-      InArcIt(const Adaptor& adaptor, const Arc& arc) : 
-	Arc(arc), _adaptor(&adaptor) {}
+      InArcIt(const Adaptor& adaptor, const Arc& arc) :
+        Arc(arc), _adaptor(&adaptor) {}
 
-      InArcIt& operator++() { 
-	_adaptor->nextIn(*this);
-	return *this; 
+      InArcIt& operator++() {
+        _adaptor->nextIn(*this);
+        return *this;
       }
 
     };
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the source in this case) of the iterator
     Node baseNode(const OutArcIt &e) const {
       return Parent::source(e);
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the target in this case) of the
-    /// iterator
     Node runningNode(const OutArcIt &e) const {
       return Parent::target(e);
     }
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the target in this case) of the iterator
     Node baseNode(const InArcIt &e) const {
       return Parent::target(e);
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the source in this case) of the
-    /// iterator
     Node runningNode(const InArcIt &e) const {
       return Parent::source(e);
     }
@@ -198,10 +177,10 @@ namespace lemon {
   /// \ingroup digraphbits
   ///
   /// \brief Extender for the GraphAdaptors
-  template <typename _Graph> 
+  template <typename _Graph>
   class GraphAdaptorExtender : public _Graph {
   public:
-    
+
     typedef _Graph Parent;
     typedef _Graph Graph;
     typedef GraphAdaptorExtender Adaptor;
@@ -210,7 +189,7 @@ namespace lemon {
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
 
-    // Graph extension    
+    // Graph extension
 
     int maxId(Node) const {
       return Parent::maxNodeId();
@@ -238,11 +217,11 @@ namespace lemon {
 
     Node oppositeNode(const Node &n, const Edge &e) const {
       if( n == Parent::u(e))
-	return Parent::v(e);
+        return Parent::v(e);
       else if( n == Parent::v(e))
-	return Parent::u(e);
+        return Parent::u(e);
       else
-	return INVALID;
+        return INVALID;
     }
 
     Arc oppositeArc(const Arc &a) const {
@@ -255,7 +234,7 @@ namespace lemon {
     }
 
 
-    class NodeIt : public Node { 
+    class NodeIt : public Node {
       const Adaptor* _adaptor;
     public:
 
@@ -264,21 +243,21 @@ namespace lemon {
       NodeIt(Invalid i) : Node(i) { }
 
       explicit NodeIt(const Adaptor& adaptor) : _adaptor(&adaptor) {
-	_adaptor->first(static_cast<Node&>(*this));
+        _adaptor->first(static_cast<Node&>(*this));
       }
 
-      NodeIt(const Adaptor& adaptor, const Node& node) 
-	: Node(node), _adaptor(&adaptor) {}
+      NodeIt(const Adaptor& adaptor, const Node& node)
+        : Node(node), _adaptor(&adaptor) {}
 
-      NodeIt& operator++() { 
-	_adaptor->next(*this);
-	return *this; 
+      NodeIt& operator++() {
+        _adaptor->next(*this);
+        return *this;
       }
 
     };
 
 
-    class ArcIt : public Arc { 
+    class ArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -287,21 +266,21 @@ namespace lemon {
       ArcIt(Invalid i) : Arc(i) { }
 
       explicit ArcIt(const Adaptor& adaptor) : _adaptor(&adaptor) {
-	_adaptor->first(static_cast<Arc&>(*this));
+        _adaptor->first(static_cast<Arc&>(*this));
       }
 
-      ArcIt(const Adaptor& adaptor, const Arc& e) : 
-	Arc(e), _adaptor(&adaptor) { }
+      ArcIt(const Adaptor& adaptor, const Arc& e) :
+        Arc(e), _adaptor(&adaptor) { }
 
-      ArcIt& operator++() { 
-	_adaptor->next(*this);
-	return *this; 
+      ArcIt& operator++() {
+        _adaptor->next(*this);
+        return *this;
       }
 
     };
 
 
-    class OutArcIt : public Arc { 
+    class OutArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -309,23 +288,23 @@ namespace lemon {
 
       OutArcIt(Invalid i) : Arc(i) { }
 
-      OutArcIt(const Adaptor& adaptor, const Node& node) 
-	: _adaptor(&adaptor) {
-	_adaptor->firstOut(*this, node);
+      OutArcIt(const Adaptor& adaptor, const Node& node)
+        : _adaptor(&adaptor) {
+        _adaptor->firstOut(*this, node);
       }
 
-      OutArcIt(const Adaptor& adaptor, const Arc& arc) 
-	: Arc(arc), _adaptor(&adaptor) {}
+      OutArcIt(const Adaptor& adaptor, const Arc& arc)
+        : Arc(arc), _adaptor(&adaptor) {}
 
-      OutArcIt& operator++() { 
-	_adaptor->nextOut(*this);
-	return *this; 
+      OutArcIt& operator++() {
+        _adaptor->nextOut(*this);
+        return *this;
       }
 
     };
 
 
-    class InArcIt : public Arc { 
+    class InArcIt : public Arc {
       const Adaptor* _adaptor;
     public:
 
@@ -333,22 +312,22 @@ namespace lemon {
 
       InArcIt(Invalid i) : Arc(i) { }
 
-      InArcIt(const Adaptor& adaptor, const Node& node) 
-	: _adaptor(&adaptor) {
-	_adaptor->firstIn(*this, node);
+      InArcIt(const Adaptor& adaptor, const Node& node)
+        : _adaptor(&adaptor) {
+        _adaptor->firstIn(*this, node);
       }
 
-      InArcIt(const Adaptor& adaptor, const Arc& arc) : 
-	Arc(arc), _adaptor(&adaptor) {}
+      InArcIt(const Adaptor& adaptor, const Arc& arc) :
+        Arc(arc), _adaptor(&adaptor) {}
 
-      InArcIt& operator++() { 
-	_adaptor->nextIn(*this);
-	return *this; 
+      InArcIt& operator++() {
+        _adaptor->nextIn(*this);
+        return *this;
       }
 
     };
 
-    class EdgeIt : public Parent::Edge { 
+    class EdgeIt : public Parent::Edge {
       const Adaptor* _adaptor;
     public:
 
@@ -357,20 +336,20 @@ namespace lemon {
       EdgeIt(Invalid i) : Edge(i) { }
 
       explicit EdgeIt(const Adaptor& adaptor) : _adaptor(&adaptor) {
-	_adaptor->first(static_cast<Edge&>(*this));
+        _adaptor->first(static_cast<Edge&>(*this));
       }
 
-      EdgeIt(const Adaptor& adaptor, const Edge& e) : 
-	Edge(e), _adaptor(&adaptor) { }
+      EdgeIt(const Adaptor& adaptor, const Edge& e) :
+        Edge(e), _adaptor(&adaptor) { }
 
-      EdgeIt& operator++() { 
-	_adaptor->next(*this);
-	return *this; 
+      EdgeIt& operator++() {
+        _adaptor->next(*this);
+        return *this;
       }
 
     };
 
-    class IncEdgeIt : public Edge { 
+    class IncEdgeIt : public Edge {
       friend class GraphAdaptorExtender;
       const Adaptor* _adaptor;
       bool direction;
@@ -381,57 +360,37 @@ namespace lemon {
       IncEdgeIt(Invalid i) : Edge(i), direction(false) { }
 
       IncEdgeIt(const Adaptor& adaptor, const Node &n) : _adaptor(&adaptor) {
-	_adaptor->firstInc(static_cast<Edge&>(*this), direction, n);
+        _adaptor->firstInc(static_cast<Edge&>(*this), direction, n);
       }
 
       IncEdgeIt(const Adaptor& adaptor, const Edge &e, const Node &n)
-	: _adaptor(&adaptor), Edge(e) {
-	direction = (_adaptor->u(e) == n);
+        : _adaptor(&adaptor), Edge(e) {
+        direction = (_adaptor->u(e) == n);
       }
 
       IncEdgeIt& operator++() {
-	_adaptor->nextInc(*this, direction);
-	return *this; 
+        _adaptor->nextInc(*this, direction);
+        return *this;
       }
     };
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the source in this case) of the iterator
     Node baseNode(const OutArcIt &a) const {
       return Parent::source(a);
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the target in this case) of the
-    /// iterator
     Node runningNode(const OutArcIt &a) const {
       return Parent::target(a);
     }
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the target in this case) of the iterator
     Node baseNode(const InArcIt &a) const {
       return Parent::target(a);
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the source in this case) of the
-    /// iterator
     Node runningNode(const InArcIt &a) const {
       return Parent::source(a);
     }
 
-    /// Base node of the iterator
-    ///
-    /// Returns the base node of the iterator
     Node baseNode(const IncEdgeIt &e) const {
       return e.direction ? Parent::u(e) : Parent::v(e);
     }
-    /// Running node of the iterator
-    ///
-    /// Returns the running node of the iterator
     Node runningNode(const IncEdgeIt &e) const {
       return e.direction ? Parent::v(e) : Parent::u(e);
     }

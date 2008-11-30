@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -27,7 +27,7 @@
 namespace lemon {
 
   namespace _variant_bits {
-  
+
     template <int left, int right>
     struct CTMax {
       static const int value = left < right ? right : left;
@@ -86,9 +86,9 @@ namespace lemon {
     BiVariant(const BiVariant& bivariant) {
       flag = bivariant.flag;
       if (flag) {
-        new(reinterpret_cast<First*>(data)) First(bivariant.first());      
+        new(reinterpret_cast<First*>(data)) First(bivariant.first());
       } else {
-        new(reinterpret_cast<Second*>(data)) Second(bivariant.second());      
+        new(reinterpret_cast<Second*>(data)) Second(bivariant.second());
       }
     }
 
@@ -106,7 +106,7 @@ namespace lemon {
     BiVariant& setFirst() {
       destroy();
       flag = true;
-      new(reinterpret_cast<First*>(data)) First();   
+      new(reinterpret_cast<First*>(data)) First();
       return *this;
     }
 
@@ -117,7 +117,7 @@ namespace lemon {
     BiVariant& setFirst(const First& f) {
       destroy();
       flag = true;
-      new(reinterpret_cast<First*>(data)) First(f);   
+      new(reinterpret_cast<First*>(data)) First(f);
       return *this;
     }
 
@@ -128,7 +128,7 @@ namespace lemon {
     BiVariant& setSecond() {
       destroy();
       flag = false;
-      new(reinterpret_cast<Second*>(data)) Second();   
+      new(reinterpret_cast<Second*>(data)) Second();
       return *this;
     }
 
@@ -139,7 +139,7 @@ namespace lemon {
     BiVariant& setSecond(const Second& s) {
       destroy();
       flag = false;
-      new(reinterpret_cast<Second*>(data)) Second(s);   
+      new(reinterpret_cast<Second*>(data)) Second(s);
       return *this;
     }
 
@@ -159,9 +159,9 @@ namespace lemon {
       destroy();
       flag = bivariant.flag;
       if (flag) {
-        new(reinterpret_cast<First*>(data)) First(bivariant.first());      
+        new(reinterpret_cast<First*>(data)) First(bivariant.first());
       } else {
-        new(reinterpret_cast<Second*>(data)) Second(bivariant.second());      
+        new(reinterpret_cast<Second*>(data)) Second(bivariant.second());
       }
       return *this;
     }
@@ -231,13 +231,13 @@ namespace lemon {
         reinterpret_cast<Second*>(data)->~Second();
       }
     }
-    
+
     char data[_variant_bits::CTMax<sizeof(First), sizeof(Second)>::value];
     bool flag;
   };
 
   namespace _variant_bits {
-    
+
     template <int _idx, typename _TypeMap>
     struct Memory {
 
@@ -276,14 +276,14 @@ namespace lemon {
 
     template <int _idx, typename _TypeMap>
     struct Size {
-      static const int value = 
-      CTMax<sizeof(typename _TypeMap::template Map<_idx>::Type), 
+      static const int value =
+      CTMax<sizeof(typename _TypeMap::template Map<_idx>::Type),
             Size<_idx - 1, _TypeMap>::value>::value;
     };
 
     template <typename _TypeMap>
     struct Size<0, _TypeMap> {
-      static const int value = 
+      static const int value =
       sizeof(typename _TypeMap::template Map<0>::Type);
     };
 
@@ -301,7 +301,7 @@ namespace lemon {
   /// \param _num The number of the types which can be stored in the
   /// variant type.
   /// \param _TypeMap This class describes the types of the Variant. The
-  /// _TypeMap::Map<index>::Type should be a valid type for each index 
+  /// _TypeMap::Map<index>::Type should be a valid type for each index
   /// in the range {0, 1, ..., _num - 1}. The \c VariantTypeMap is helper
   /// class to define such type mappings up to 10 types.
   ///
@@ -337,7 +337,7 @@ namespace lemon {
     /// with 0 index.
     Variant() {
       flag = 0;
-      new(reinterpret_cast<typename TypeMap::template Map<0>::Type*>(data)) 
+      new(reinterpret_cast<typename TypeMap::template Map<0>::Type*>(data))
         typename TypeMap::template Map<0>::Type();
     }
 
@@ -378,7 +378,7 @@ namespace lemon {
     Variant& set() {
       _variant_bits::Memory<num - 1, TypeMap>::destroy(flag, data);
       flag = _idx;
-      new(reinterpret_cast<typename TypeMap::template Map<_idx>::Type*>(data)) 
+      new(reinterpret_cast<typename TypeMap::template Map<_idx>::Type*>(data))
         typename TypeMap::template Map<_idx>::Type();
       return *this;
     }
@@ -391,7 +391,7 @@ namespace lemon {
     Variant& set(const typename _TypeMap::template Map<_idx>::Type& init) {
       _variant_bits::Memory<num - 1, TypeMap>::destroy(flag, data);
       flag = _idx;
-      new(reinterpret_cast<typename TypeMap::template Map<_idx>::Type*>(data)) 
+      new(reinterpret_cast<typename TypeMap::template Map<_idx>::Type*>(data))
         typename TypeMap::template Map<_idx>::Type(init);
       return *this;
     }
@@ -403,7 +403,7 @@ namespace lemon {
     const typename TypeMap::template Map<_idx>::Type& get() const {
       LEMON_DEBUG(_idx == flag, "Variant wrong index");
       return *reinterpret_cast<const typename TypeMap::
-        template Map<_idx>::Type*>(data); 
+        template Map<_idx>::Type*>(data);
     }
 
     /// \brief Gets the current value of the type with \c _idx index.
@@ -413,7 +413,7 @@ namespace lemon {
     typename _TypeMap::template Map<_idx>::Type& get() {
       LEMON_DEBUG(_idx == flag, "Variant wrong index");
       return *reinterpret_cast<typename TypeMap::template Map<_idx>::Type*>
-        (data); 
+        (data);
     }
 
     /// \brief Returns the current state of the variant.
@@ -424,7 +424,7 @@ namespace lemon {
     }
 
   private:
-    
+
     char data[_variant_bits::Size<num - 1, TypeMap>::value];
     int flag;
   };
@@ -442,14 +442,14 @@ namespace lemon {
     };
 
     struct List {};
-    
+
     template <typename _Type, typename _List>
     struct Insert {
       typedef _List Next;
       typedef _Type Type;
     };
 
-    template <int _idx, typename _T0, typename _T1, typename _T2, 
+    template <int _idx, typename _T0, typename _T1, typename _T2,
               typename _T3, typename _T5, typename _T4, typename _T6,
               typename _T7, typename _T8, typename _T9>
     struct Mapper {
@@ -466,7 +466,7 @@ namespace lemon {
       typedef Insert<_T0, L1> L0;
       typedef typename Get<_idx, L0>::Type Type;
     };
-    
+
   }
 
   /// \brief Helper class for Variant
@@ -475,7 +475,7 @@ namespace lemon {
   /// converts the template parameters to be mappable by integer.
   /// \see Variant
   template <
-    typename _T0, 
+    typename _T0,
     typename _T1 = void, typename _T2 = void, typename _T3 = void,
     typename _T5 = void, typename _T4 = void, typename _T6 = void,
     typename _T7 = void, typename _T8 = void, typename _T9 = void>
@@ -487,7 +487,7 @@ namespace lemon {
       Type;
     };
   };
-  
+
 }
 
 

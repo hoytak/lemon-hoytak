@@ -60,6 +60,79 @@ with any graph structure.
 */
 
 /**
+@defgroup graph_adaptors Adaptor Classes for graphs
+@ingroup graphs
+\brief This group contains several adaptor classes for digraphs and graphs
+
+The main parts of LEMON are the different graph structures, generic
+graph algorithms, graph concepts which couple these, and graph
+adaptors. While the previous notions are more or less clear, the
+latter one needs further explanation. Graph adaptors are graph classes
+which serve for considering graph structures in different ways.
+
+A short example makes this much clearer.  Suppose that we have an
+instance \c g of a directed graph type say ListDigraph and an algorithm
+\code
+template <typename Digraph>
+int algorithm(const Digraph&);
+\endcode
+is needed to run on the reverse oriented graph.  It may be expensive
+(in time or in memory usage) to copy \c g with the reversed
+arcs.  In this case, an adaptor class is used, which (according
+to LEMON digraph concepts) works as a digraph.  The adaptor uses the
+original digraph structure and digraph operations when methods of the
+reversed oriented graph are called.  This means that the adaptor have
+minor memory usage, and do not perform sophisticated algorithmic
+actions.  The purpose of it is to give a tool for the cases when a
+graph have to be used in a specific alteration.  If this alteration is
+obtained by a usual construction like filtering the arc-set or
+considering a new orientation, then an adaptor is worthwhile to use.
+To come back to the reverse oriented graph, in this situation
+\code
+template<typename Digraph> class ReverseDigraph;
+\endcode
+template class can be used. The code looks as follows
+\code
+ListDigraph g;
+ReverseDigraph<ListGraph> rg(g);
+int result = algorithm(rg);
+\endcode
+After running the algorithm, the original graph \c g is untouched.
+This techniques gives rise to an elegant code, and based on stable
+graph adaptors, complex algorithms can be implemented easily.
+
+In flow, circulation and bipartite matching problems, the residual
+graph is of particular importance. Combining an adaptor implementing
+this, shortest path algorithms and minimum mean cycle algorithms,
+a range of weighted and cardinality optimization algorithms can be
+obtained. For other examples, the interested user is referred to the
+detailed documentation of particular adaptors.
+
+The behavior of graph adaptors can be very different. Some of them keep
+capabilities of the original graph while in other cases this would be
+meaningless. This means that the concepts that they are models of depend
+on the graph adaptor, and the wrapped graph(s).
+If an arc of \c rg is deleted, this is carried out by deleting the
+corresponding arc of \c g, thus the adaptor modifies the original graph.
+
+But for a residual graph, this operation has no sense.
+Let us stand one more example here to simplify your work.
+RevGraphAdaptor has constructor
+\code
+ReverseDigraph(Digraph& digraph);
+\endcode
+This means that in a situation, when a <tt>const ListDigraph&</tt>
+reference to a graph is given, then it have to be instantiated with
+<tt>Digraph=const ListDigraph</tt>.
+\code
+int algorithm1(const ListDigraph& g) {
+  RevGraphAdaptor<const ListDigraph> rg(g);
+  return algorithm2(rg);
+}
+\endcode
+*/
+
+/**
 @defgroup semi_adaptors Semi-Adaptor Classes for Graphs
 @ingroup graphs
 \brief Graph types between real graphs and graph adaptors.

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -25,8 +25,7 @@
 #include<lemon/concepts/digraph.h>
 #include<lemon/concepts/graph.h>
 
-#include<lemon/digraph_adaptor.h>
-#include<lemon/graph_adaptor.h>
+#include<lemon/adaptors.h>
 
 #include <limits>
 #include <lemon/bfs.h>
@@ -37,11 +36,11 @@
 
 using namespace lemon;
 
-void checkRevDigraphAdaptor() {
-  checkConcept<concepts::Digraph, RevDigraphAdaptor<concepts::Digraph> >();
+void checkReverseDigraph() {
+  checkConcept<concepts::Digraph, ReverseDigraph<concepts::Digraph> >();
 
   typedef ListDigraph Digraph;
-  typedef RevDigraphAdaptor<Digraph> Adaptor;
+  typedef ReverseDigraph<Digraph> Adaptor;
 
   Digraph digraph;
   Adaptor adaptor(digraph);
@@ -53,7 +52,7 @@ void checkRevDigraphAdaptor() {
   Digraph::Arc a1 = digraph.addArc(n1, n2);
   Digraph::Arc a2 = digraph.addArc(n1, n3);
   Digraph::Arc a3 = digraph.addArc(n2, n3);
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 3);
   checkGraphConArcList(adaptor, 3);
@@ -78,16 +77,16 @@ void checkRevDigraphAdaptor() {
   }
 }
 
-void checkSubDigraphAdaptor() {
-  checkConcept<concepts::Digraph, 
-    SubDigraphAdaptor<concepts::Digraph, 
+void checkSubDigraph() {
+  checkConcept<concepts::Digraph,
+    SubDigraph<concepts::Digraph,
     concepts::Digraph::NodeMap<bool>,
     concepts::Digraph::ArcMap<bool> > >();
 
   typedef ListDigraph Digraph;
   typedef Digraph::NodeMap<bool> NodeFilter;
   typedef Digraph::ArcMap<bool> ArcFilter;
-  typedef SubDigraphAdaptor<Digraph, NodeFilter, ArcFilter> Adaptor;
+  typedef SubDigraph<Digraph, NodeFilter, ArcFilter> Adaptor;
 
   Digraph digraph;
   NodeFilter node_filter(digraph);
@@ -123,7 +122,7 @@ void checkSubDigraphAdaptor() {
   checkGraphNodeMap(adaptor);
   checkGraphArcMap(adaptor);
 
-  arc_filter[a2] = false; 
+  arc_filter[a2] = false;
 
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 2);
@@ -143,7 +142,7 @@ void checkSubDigraphAdaptor() {
   checkGraphNodeMap(adaptor);
   checkGraphArcMap(adaptor);
 
-  node_filter[n1] = false; 
+  node_filter[n1] = false;
 
   checkGraphNodeList(adaptor, 2);
   checkGraphArcList(adaptor, 1);
@@ -175,14 +174,14 @@ void checkSubDigraphAdaptor() {
   checkGraphArcMap(adaptor);
 }
 
-void checkNodeSubDigraphAdaptor() {
-  checkConcept<concepts::Digraph, 
-    NodeSubDigraphAdaptor<concepts::Digraph, 
+void checkFilterNodes1() {
+  checkConcept<concepts::Digraph,
+    FilterNodes<concepts::Digraph,
       concepts::Digraph::NodeMap<bool> > >();
 
   typedef ListDigraph Digraph;
   typedef Digraph::NodeMap<bool> NodeFilter;
-  typedef NodeSubDigraphAdaptor<Digraph, NodeFilter> Adaptor;
+  typedef FilterNodes<Digraph, NodeFilter> Adaptor;
 
   Digraph digraph;
   NodeFilter node_filter(digraph);
@@ -216,7 +215,7 @@ void checkNodeSubDigraphAdaptor() {
   checkGraphNodeMap(adaptor);
   checkGraphArcMap(adaptor);
 
-  node_filter[n1] = false; 
+  node_filter[n1] = false;
 
   checkGraphNodeList(adaptor, 2);
   checkGraphArcList(adaptor, 1);
@@ -247,14 +246,14 @@ void checkNodeSubDigraphAdaptor() {
   checkGraphArcMap(adaptor);
 }
 
-void checkArcSubDigraphAdaptor() {
-  checkConcept<concepts::Digraph, 
-    ArcSubDigraphAdaptor<concepts::Digraph, 
+void checkFilterArcs() {
+  checkConcept<concepts::Digraph,
+    FilterArcs<concepts::Digraph,
     concepts::Digraph::ArcMap<bool> > >();
 
   typedef ListDigraph Digraph;
   typedef Digraph::ArcMap<bool> ArcFilter;
-  typedef ArcSubDigraphAdaptor<Digraph, ArcFilter> Adaptor;
+  typedef FilterArcs<Digraph, ArcFilter> Adaptor;
 
   Digraph digraph;
   ArcFilter arc_filter(digraph);
@@ -288,7 +287,7 @@ void checkArcSubDigraphAdaptor() {
   checkGraphNodeMap(adaptor);
   checkGraphArcMap(adaptor);
 
-  arc_filter[a2] = false; 
+  arc_filter[a2] = false;
 
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 2);
@@ -321,11 +320,11 @@ void checkArcSubDigraphAdaptor() {
   checkGraphArcMap(adaptor);
 }
 
-void checkUndirDigraphAdaptor() {
-  checkConcept<concepts::Graph, UndirDigraphAdaptor<concepts::Digraph> >();
+void checkUndirector() {
+  checkConcept<concepts::Graph, Undirector<concepts::Digraph> >();
 
   typedef ListDigraph Digraph;
-  typedef UndirDigraphAdaptor<Digraph> Adaptor;
+  typedef Undirector<Digraph> Adaptor;
 
   Digraph digraph;
   Adaptor adaptor(digraph);
@@ -337,7 +336,7 @@ void checkUndirDigraphAdaptor() {
   Digraph::Arc a1 = digraph.addArc(n1, n2);
   Digraph::Arc a2 = digraph.addArc(n1, n3);
   Digraph::Arc a3 = digraph.addArc(n2, n3);
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 6);
   checkGraphEdgeList(adaptor, 3);
@@ -371,15 +370,15 @@ void checkUndirDigraphAdaptor() {
 
 }
 
-void checkResDigraphAdaptor() {
-  checkConcept<concepts::Digraph, 
-    ResDigraphAdaptor<concepts::Digraph, 
-    concepts::Digraph::ArcMap<int>, 
+void checkResidual() {
+  checkConcept<concepts::Digraph,
+    Residual<concepts::Digraph,
+    concepts::Digraph::ArcMap<int>,
     concepts::Digraph::ArcMap<int> > >();
 
   typedef ListDigraph Digraph;
   typedef Digraph::ArcMap<int> IntArcMap;
-  typedef ResDigraphAdaptor<Digraph, IntArcMap> Adaptor;
+  typedef Residual<Digraph, IntArcMap> Adaptor;
 
   Digraph digraph;
   IntArcMap capacity(digraph), flow(digraph);
@@ -407,7 +406,7 @@ void checkResDigraphAdaptor() {
   for (Adaptor::ArcIt a(adaptor); a != INVALID; ++a) {
     flow[a] = 0;
   }
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 6);
   checkGraphConArcList(adaptor, 6);
@@ -425,7 +424,7 @@ void checkResDigraphAdaptor() {
   for (Adaptor::ArcIt a(adaptor); a != INVALID; ++a) {
     flow[a] = capacity[a] / 2;
   }
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 12);
   checkGraphConArcList(adaptor, 12);
@@ -449,7 +448,7 @@ void checkResDigraphAdaptor() {
   for (Adaptor::ArcIt a(adaptor); a != INVALID; ++a) {
     flow[a] = capacity[a];
   }
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 6);
   checkGraphConArcList(adaptor, 6);
@@ -470,17 +469,18 @@ void checkResDigraphAdaptor() {
 
   int flow_value = 0;
   while (true) {
-    
+
     Bfs<Adaptor> bfs(adaptor);
     bfs.run(n1, n4);
-    
+
     if (!bfs.reached(n4)) break;
 
     Path<Adaptor> p = bfs.path(n4);
-    
+
     int min = std::numeric_limits<int>::max();
     for (Path<Adaptor>::ArcIt a(p); a != INVALID; ++a) {
-      if (adaptor.rescap(a) < min) min = adaptor.rescap(a);
+      if (adaptor.residualCapacity(a) < min)
+        min = adaptor.residualCapacity(a);
     }
 
     for (Path<Adaptor>::ArcIt a(p); a != INVALID; ++a) {
@@ -493,11 +493,11 @@ void checkResDigraphAdaptor() {
 
 }
 
-void checkSplitDigraphAdaptor() {
-  checkConcept<concepts::Digraph, SplitDigraphAdaptor<concepts::Digraph> >();
+void checkSplitNodes() {
+  checkConcept<concepts::Digraph, SplitNodes<concepts::Digraph> >();
 
   typedef ListDigraph Digraph;
-  typedef SplitDigraphAdaptor<Digraph> Adaptor;
+  typedef SplitNodes<Digraph> Adaptor;
 
   Digraph digraph;
   Adaptor adaptor(digraph);
@@ -509,7 +509,7 @@ void checkSplitDigraphAdaptor() {
   Digraph::Arc a1 = digraph.addArc(n1, n2);
   Digraph::Arc a2 = digraph.addArc(n1, n3);
   Digraph::Arc a3 = digraph.addArc(n2, n3);
-  
+
   checkGraphNodeList(adaptor, 6);
   checkGraphArcList(adaptor, 6);
   checkGraphConArcList(adaptor, 6);
@@ -530,17 +530,17 @@ void checkSplitDigraphAdaptor() {
 
   checkNodeIds(adaptor);
   checkArcIds(adaptor);
-  
+
   checkGraphNodeMap(adaptor);
   checkGraphArcMap(adaptor);
 
   for (Adaptor::ArcIt a(adaptor); a != INVALID; ++a) {
     if (adaptor.origArc(a)) {
       Digraph::Arc oa = a;
-      check(adaptor.source(a) == adaptor.outNode(digraph.source(oa)), 
-	    "Wrong split");
-      check(adaptor.target(a) == adaptor.inNode(digraph.target(oa)), 
-	    "Wrong split"); 
+      check(adaptor.source(a) == adaptor.outNode(digraph.source(oa)),
+            "Wrong split");
+      check(adaptor.target(a) == adaptor.inNode(digraph.target(oa)),
+            "Wrong split");
     } else {
       Digraph::Node on = a;
       check(adaptor.source(a) == adaptor.inNode(on), "Wrong split");
@@ -549,16 +549,16 @@ void checkSplitDigraphAdaptor() {
   }
 }
 
-void checkSubGraphAdaptor() {
-  checkConcept<concepts::Graph, 
-    SubGraphAdaptor<concepts::Graph, 
+void checkSubGraph() {
+  checkConcept<concepts::Graph,
+    SubGraph<concepts::Graph,
     concepts::Graph::NodeMap<bool>,
     concepts::Graph::EdgeMap<bool> > >();
 
   typedef ListGraph Graph;
   typedef Graph::NodeMap<bool> NodeFilter;
   typedef Graph::EdgeMap<bool> EdgeFilter;
-  typedef SubGraphAdaptor<Graph, NodeFilter, EdgeFilter> Adaptor;
+  typedef SubGraph<Graph, NodeFilter, EdgeFilter> Adaptor;
 
   Graph graph;
   NodeFilter node_filter(graph);
@@ -607,7 +607,7 @@ void checkSubGraphAdaptor() {
   checkGraphArcMap(adaptor);
   checkGraphEdgeMap(adaptor);
 
-  edge_filter[e2] = false; 
+  edge_filter[e2] = false;
 
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 6);
@@ -638,7 +638,7 @@ void checkSubGraphAdaptor() {
   checkGraphArcMap(adaptor);
   checkGraphEdgeMap(adaptor);
 
-  node_filter[n1] = false; 
+  node_filter[n1] = false;
 
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 4);
@@ -684,14 +684,14 @@ void checkSubGraphAdaptor() {
   checkGraphEdgeMap(adaptor);
 }
 
-void checkNodeSubGraphAdaptor() {
-  checkConcept<concepts::Graph, 
-    NodeSubGraphAdaptor<concepts::Graph, 
+void checkFilterNodes2() {
+  checkConcept<concepts::Graph,
+    FilterNodes<concepts::Graph,
       concepts::Graph::NodeMap<bool> > >();
 
   typedef ListGraph Graph;
   typedef Graph::NodeMap<bool> NodeFilter;
-  typedef NodeSubGraphAdaptor<Graph, NodeFilter> Adaptor;
+  typedef FilterNodes<Graph, NodeFilter> Adaptor;
 
   Graph graph;
   NodeFilter node_filter(graph);
@@ -738,7 +738,7 @@ void checkNodeSubGraphAdaptor() {
   checkGraphArcMap(adaptor);
   checkGraphEdgeMap(adaptor);
 
-  node_filter[n1] = false; 
+  node_filter[n1] = false;
 
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 4);
@@ -783,14 +783,14 @@ void checkNodeSubGraphAdaptor() {
   checkGraphEdgeMap(adaptor);
 }
 
-void checkEdgeSubGraphAdaptor() {
-  checkConcept<concepts::Graph, 
-    EdgeSubGraphAdaptor<concepts::Graph, 
+void checkFilterEdges() {
+  checkConcept<concepts::Graph,
+    FilterEdges<concepts::Graph,
     concepts::Graph::EdgeMap<bool> > >();
 
   typedef ListGraph Graph;
   typedef Graph::EdgeMap<bool> EdgeFilter;
-  typedef EdgeSubGraphAdaptor<Graph, EdgeFilter> Adaptor;
+  typedef FilterEdges<Graph, EdgeFilter> Adaptor;
 
   Graph graph;
   EdgeFilter edge_filter(graph);
@@ -837,7 +837,7 @@ void checkEdgeSubGraphAdaptor() {
   checkGraphArcMap(adaptor);
   checkGraphEdgeMap(adaptor);
 
-  edge_filter[e2] = false; 
+  edge_filter[e2] = false;
 
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 6);
@@ -885,13 +885,13 @@ void checkEdgeSubGraphAdaptor() {
   checkGraphEdgeMap(adaptor);
 }
 
-void checkDirGraphAdaptor() {
-  checkConcept<concepts::Digraph, 
-    DirGraphAdaptor<concepts::Graph, concepts::Graph::EdgeMap<bool> > >();
+void checkOrienter() {
+  checkConcept<concepts::Digraph,
+    Orienter<concepts::Graph, concepts::Graph::EdgeMap<bool> > >();
 
   typedef ListGraph Graph;
   typedef ListGraph::EdgeMap<bool> DirMap;
-  typedef DirGraphAdaptor<Graph> Adaptor;
+  typedef Orienter<Graph> Adaptor;
 
   Graph graph;
   DirMap dir(graph, true);
@@ -904,16 +904,16 @@ void checkDirGraphAdaptor() {
   Graph::Edge e1 = graph.addEdge(n1, n2);
   Graph::Edge e2 = graph.addEdge(n1, n3);
   Graph::Edge e3 = graph.addEdge(n2, n3);
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 3);
   checkGraphConArcList(adaptor, 3);
-  
+
   {
     dir[e1] = true;
     Adaptor::Node u = adaptor.source(e1);
     Adaptor::Node v = adaptor.target(e1);
-    
+
     dir[e1] = false;
     check (u == adaptor.target(e1), "Wrong dir");
     check (v == adaptor.source(e1), "Wrong dir");
@@ -926,7 +926,7 @@ void checkDirGraphAdaptor() {
     dir[e2] = true;
     Adaptor::Node u = adaptor.source(e2);
     Adaptor::Node v = adaptor.target(e2);
-    
+
     dir[e2] = false;
     check (u == adaptor.target(e2), "Wrong dir");
     check (v == adaptor.source(e2), "Wrong dir");
@@ -939,7 +939,7 @@ void checkDirGraphAdaptor() {
     dir[e3] = true;
     Adaptor::Node u = adaptor.source(e3);
     Adaptor::Node v = adaptor.target(e3);
-    
+
     dir[e3] = false;
     check (u == adaptor.target(e3), "Wrong dir");
     check (v == adaptor.source(e3), "Wrong dir");
@@ -967,18 +967,18 @@ void checkDirGraphAdaptor() {
 
 int main(int, const char **) {
 
-  checkRevDigraphAdaptor();
-  checkSubDigraphAdaptor();
-  checkNodeSubDigraphAdaptor();
-  checkArcSubDigraphAdaptor();
-  checkUndirDigraphAdaptor();
-  checkResDigraphAdaptor();
-  checkSplitDigraphAdaptor();
+  checkReverseDigraph();
+  checkSubDigraph();
+  checkFilterNodes1();
+  checkFilterArcs();
+  checkUndirector();
+  checkResidual();
+  checkSplitNodes();
 
-  checkSubGraphAdaptor();
-  checkNodeSubGraphAdaptor();
-  checkEdgeSubGraphAdaptor();
-  checkDirGraphAdaptor();
+  checkSubGraph();
+  checkFilterNodes2();
+  checkFilterEdges();
+  checkOrienter();
 
   return 0;
 }
