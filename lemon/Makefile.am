@@ -27,6 +27,7 @@ lemon_HEADERS += \
         lemon/dfs.h \
         lemon/dijkstra.h \
         lemon/dim2.h \
+        lemon/dimacs.h \
 	lemon/elevator.h \
 	lemon/error.h \
 	lemon/full_graph.h \
