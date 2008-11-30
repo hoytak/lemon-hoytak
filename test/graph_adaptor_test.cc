@@ -37,42 +37,6 @@
 
 using namespace lemon;
 
-void checkDigraphAdaptor() {
-  checkConcept<concepts::Digraph, DigraphAdaptor<concepts::Digraph> >();
-
-  typedef ListDigraph Digraph;
-  typedef DigraphAdaptor<Digraph> Adaptor;
-
-  Digraph digraph;
-  Adaptor adaptor(digraph);
-
-  Digraph::Node n1 = digraph.addNode();
-  Digraph::Node n2 = digraph.addNode();
-  Digraph::Node n3 = digraph.addNode();
-
-  Digraph::Arc a1 = digraph.addArc(n1, n2);
-  Digraph::Arc a2 = digraph.addArc(n1, n3);
-  Digraph::Arc a3 = digraph.addArc(n2, n3);
-  
-  checkGraphNodeList(adaptor, 3);
-  checkGraphArcList(adaptor, 3);
-  checkGraphConArcList(adaptor, 3);
-
-  checkGraphOutArcList(adaptor, n1, 2);
-  checkGraphOutArcList(adaptor, n2, 1);
-  checkGraphOutArcList(adaptor, n3, 0);
-
-  checkGraphInArcList(adaptor, n1, 0);
-  checkGraphInArcList(adaptor, n2, 1);
-  checkGraphInArcList(adaptor, n3, 2);
-
-  checkNodeIds(adaptor);
-  checkArcIds(adaptor);
-
-  checkGraphNodeMap(adaptor);
-  checkGraphArcMap(adaptor);
-}
-
 void checkRevDigraphAdaptor() {
   checkConcept<concepts::Digraph, RevDigraphAdaptor<concepts::Digraph> >();
 
@@ -585,56 +549,6 @@ void checkSplitDigraphAdaptor() {
   }
 }
 
-void checkGraphAdaptor() {
-  checkConcept<concepts::Graph, GraphAdaptor<concepts::Graph> >();
-
-  typedef ListGraph Graph;
-  typedef GraphAdaptor<Graph> Adaptor;
-
-  Graph graph;
-  Adaptor adaptor(graph);
-
-  Graph::Node n1 = graph.addNode();
-  Graph::Node n2 = graph.addNode();
-  Graph::Node n3 = graph.addNode();
-  Graph::Node n4 = graph.addNode();
-
-  Graph::Edge a1 = graph.addEdge(n1, n2);
-  Graph::Edge a2 = graph.addEdge(n1, n3);
-  Graph::Edge a3 = graph.addEdge(n2, n3);
-  Graph::Edge a4 = graph.addEdge(n3, n4);
-  
-  checkGraphNodeList(adaptor, 4);
-  checkGraphArcList(adaptor, 8);
-  checkGraphEdgeList(adaptor, 4);
-  checkGraphConArcList(adaptor, 8);
-  checkGraphConEdgeList(adaptor, 4);
-
-  checkGraphOutArcList(adaptor, n1, 2);
-  checkGraphOutArcList(adaptor, n2, 2);
-  checkGraphOutArcList(adaptor, n3, 3);
-  checkGraphOutArcList(adaptor, n4, 1);
-
-  checkGraphInArcList(adaptor, n1, 2);
-  checkGraphInArcList(adaptor, n2, 2);
-  checkGraphInArcList(adaptor, n3, 3);
-  checkGraphInArcList(adaptor, n4, 1);
-
-  checkGraphIncEdgeList(adaptor, n1, 2);
-  checkGraphIncEdgeList(adaptor, n2, 2);
-  checkGraphIncEdgeList(adaptor, n3, 3);
-  checkGraphIncEdgeList(adaptor, n4, 1);
-
-
-  checkNodeIds(adaptor);
-  checkArcIds(adaptor);
-  checkEdgeIds(adaptor);
-
-  checkGraphNodeMap(adaptor);
-  checkGraphArcMap(adaptor);
-  checkGraphEdgeMap(adaptor);
-}
-
 void checkSubGraphAdaptor() {
   checkConcept<concepts::Graph, 
     SubGraphAdaptor<concepts::Graph, 
@@ -1053,7 +967,6 @@ void checkDirGraphAdaptor() {
 
 int main(int, const char **) {
 
-  checkDigraphAdaptor();
   checkRevDigraphAdaptor();
   checkSubDigraphAdaptor();
   checkNodeSubDigraphAdaptor();
@@ -1062,7 +975,6 @@ int main(int, const char **) {
   checkResDigraphAdaptor();
   checkSplitDigraphAdaptor();
 
-  checkGraphAdaptor();
   checkSubGraphAdaptor();
   checkNodeSubGraphAdaptor();
   checkEdgeSubGraphAdaptor();

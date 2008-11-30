@@ -23,7 +23,7 @@
 ///\file
 ///\brief Several digraph adaptors.
 ///
-///This file contains several useful digraph adaptor functions.
+///This file contains several useful digraph adaptor classes.
 
 #include <lemon/core.h>
 #include <lemon/maps.h>
@@ -38,17 +38,6 @@
 
 namespace lemon {
 
-  ///\brief Base type for the Digraph Adaptors
-  ///
-  ///Base type for the Digraph Adaptors
-  ///
-  ///This is the base type for most of LEMON digraph adaptors. This
-  ///class implements a trivial digraph adaptor i.e. it only wraps the
-  ///functions and types of the digraph. The purpose of this class is
-  ///to make easier implementing digraph adaptors. E.g. if an adaptor
-  ///is considered which differs from the wrapped digraph only in some
-  ///of its functions or types, then it can be derived from
-  ///DigraphAdaptor, and only the differences should be implemented.
   template<typename _Digraph>
   class DigraphAdaptorBase {
   public:
@@ -166,35 +155,6 @@ namespace lemon {
 
   };
 
-  ///\ingroup graph_adaptors
-  ///
-  ///\brief Trivial Digraph Adaptor
-  /// 
-  /// This class is an adaptor which does not change the adapted
-  /// digraph.  It can be used only to test the digraph adaptors.
-  template <typename _Digraph>
-  class DigraphAdaptor :
-    public DigraphAdaptorExtender<DigraphAdaptorBase<_Digraph> > { 
-  public:
-    typedef _Digraph Digraph;
-    typedef DigraphAdaptorExtender<DigraphAdaptorBase<_Digraph> > Parent;
-  protected:
-    DigraphAdaptor() : Parent() { }
-
-  public:
-    explicit DigraphAdaptor(Digraph& digraph) { setDigraph(digraph); }
-  };
-
-  /// \brief Just gives back a digraph adaptor
-  ///
-  /// Just gives back a digraph adaptor which 
-  /// should be provide original digraph
-  template<typename Digraph>
-  DigraphAdaptor<const Digraph>
-  digraphAdaptor(const Digraph& digraph) {
-    return DigraphAdaptor<const Digraph>(digraph);
-  }
-
 
   template <typename _Digraph>
   class RevDigraphAdaptorBase : public DigraphAdaptorBase<_Digraph> {
@@ -231,27 +191,25 @@ namespace lemon {
   ///
   /// If \c g is defined as
   ///\code
-  /// ListDigraph g;
+  /// ListDigraph dg;
   ///\endcode
   /// then
   ///\code
-  /// RevDigraphAdaptor<ListDigraph> ga(g);
+  /// RevDigraphAdaptor<ListDigraph> dga(dg);
   ///\endcode
-  /// implements the digraph obtained from \c g by 
+  /// implements the digraph obtained from \c dg by 
   /// reversing the orientation of its arcs.
   ///
-  /// A good example of using RevDigraphAdaptor is to decide that the
-  /// directed graph is wheter strongly connected or not. If from one
-  /// node each node is reachable and from each node is reachable this
-  /// node then and just then the digraph is strongly
-  /// connected. Instead of this condition we use a little bit
-  /// different. From one node each node ahould be reachable in the
-  /// digraph and in the reversed digraph. Now this condition can be
-  /// checked with the Dfs algorithm class and the RevDigraphAdaptor
-  /// algorithm class.
+  /// A good example of using RevDigraphAdaptor is to decide whether
+  /// the directed graph is strongly connected or not. The digraph is
+  /// strongly connected iff each node is reachable from one node and
+  /// this node is reachable from the others. Instead of this
+  /// condition we use a slightly different, from one node each node
+  /// is reachable both in the digraph and the reversed digraph. Now
+  /// this condition can be checked with the Dfs algorithm and the
+  /// RevDigraphAdaptor class.
   ///
-  /// And look at the code:
-  ///
+  /// The implementation:
   ///\code
   /// bool stronglyConnected(const Digraph& digraph) {
   ///   if (NodeIt(digraph) == INVALID) return true;
@@ -284,6 +242,10 @@ namespace lemon {
   protected:
     RevDigraphAdaptor() { }
   public:
+
+    /// \brief Constructor
+    ///
+    /// Creates a reverse graph adaptor for the given digraph
     explicit RevDigraphAdaptor(Digraph& digraph) { 
       Parent::setDigraph(digraph); 
     }
@@ -374,44 +336,13 @@ namespace lemon {
 	     || !(*_node_filter)[Parent::target(i)])) Parent::nextOut(i); 
     }
 
-    ///\e
-
-    /// This function hides \c n in the digraph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c n  
-    /// to be false in the corresponding node-map.
     void hide(const Node& n) const { _node_filter->set(n, false); }
-
-    ///\e
-
-    /// This function hides \c a in the digraph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c a
-    /// to be false in the corresponding arc-map.
     void hide(const Arc& a) const { _arc_filter->set(a, false); }
 
-    ///\e
-
-    /// The value of \c n is set to be true in the node-map which stores 
-    /// hide information. If \c n was hidden previuosly, then it is shown 
-    /// again
-     void unHide(const Node& n) const { _node_filter->set(n, true); }
-
-    ///\e
-
-    /// The value of \c a is set to be true in the arc-map which stores 
-    /// hide information. If \c a was hidden previuosly, then it is shown 
-    /// again
+    void unHide(const Node& n) const { _node_filter->set(n, true); }
     void unHide(const Arc& a) const { _arc_filter->set(a, true); }
 
-    /// Returns true if \c n is hidden.
-    
-    ///\e
-    ///
     bool hidden(const Node& n) const { return !(*_node_filter)[n]; }
-
-    /// Returns true if \c a is hidden.
-    
-    ///\e
-    ///
     bool hidden(const Arc& a) const { return !(*_arc_filter)[a]; }
 
     typedef False NodeNumTag;
@@ -548,44 +479,13 @@ namespace lemon {
       while (i!=INVALID && !(*_arc_filter)[i]) Parent::nextOut(i); 
     }
 
-    ///\e
-
-    /// This function hides \c n in the digraph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c n  
-    /// to be false in the corresponding node-map.
     void hide(const Node& n) const { _node_filter->set(n, false); }
-
-    ///\e
-
-    /// This function hides \c e in the digraph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c e  
-    /// to be false in the corresponding arc-map.
     void hide(const Arc& e) const { _arc_filter->set(e, false); }
 
-    ///\e
-
-    /// The value of \c n is set to be true in the node-map which stores 
-    /// hide information. If \c n was hidden previuosly, then it is shown 
-    /// again
-     void unHide(const Node& n) const { _node_filter->set(n, true); }
-
-    ///\e
-
-    /// The value of \c e is set to be true in the arc-map which stores 
-    /// hide information. If \c e was hidden previuosly, then it is shown 
-    /// again
+    void unHide(const Node& n) const { _node_filter->set(n, true); }
     void unHide(const Arc& e) const { _arc_filter->set(e, true); }
 
-    /// Returns true if \c n is hidden.
-    
-    ///\e
-    ///
     bool hidden(const Node& n) const { return !(*_node_filter)[n]; }
-
-    /// Returns true if \c n is hidden.
-    
-    ///\e
-    ///
     bool hidden(const Arc& e) const { return !(*_arc_filter)[e]; }
 
     typedef False NodeNumTag;
@@ -661,26 +561,14 @@ namespace lemon {
   /// \brief A digraph adaptor for hiding nodes and arcs from a digraph.
   /// 
   /// SubDigraphAdaptor shows the digraph with filtered node-set and 
-  /// arc-set. If the \c checked parameter is true then it filters the arcset
-  /// to do not get invalid arcs without source or target.
-  /// Let \f$ G=(V, A) \f$ be a directed digraph
-  /// and suppose that the digraph instance \c g of type ListDigraph
-  /// implements \f$ G \f$.
-  /// Let moreover \f$ b_V \f$ and \f$ b_A \f$ be bool-valued functions resp.
-  /// on the node-set and arc-set.
-  /// SubDigraphAdaptor<...>::NodeIt iterates 
-  /// on the node-set \f$ \{v\in V : b_V(v)=true\} \f$ and 
-  /// SubDigraphAdaptor<...>::ArcIt iterates 
-  /// on the arc-set \f$ \{e\in A : b_A(e)=true\} \f$. Similarly, 
-  /// SubDigraphAdaptor<...>::OutArcIt and
-  /// SubDigraphAdaptor<...>::InArcIt iterates 
-  /// only on arcs leaving and entering a specific node which have true value.
+  /// arc-set. If the \c checked parameter is true then it filters the arc-set
+  /// respect to the source and target.
   /// 
-  /// If the \c checked template parameter is false then we have to
-  /// note that the node-iterator cares only the filter on the
-  /// node-set, and the arc-iterator cares only the filter on the
-  /// arc-set.  This way the arc-map should filter all arcs which's
-  /// source or target is filtered by the node-filter.
+  /// If the \c checked template parameter is false then the
+  /// node-iterator cares only the filter on the node-set, and the
+  /// arc-iterator cares only the filter on the arc-set.  Therefore
+  /// the arc-map have to filter all arcs which's source or target is
+  /// filtered by the node-filter.
   ///\code
   /// typedef ListDigraph Digraph;
   /// DIGRAPH_TYPEDEFS(Digraph);
@@ -693,21 +581,19 @@ namespace lemon {
   /// nm.set(u, false);
   /// BoolArcMap am(g, true);
   /// am.set(a, false);
-  /// typedef SubDigraphAdaptor<Digraph, BoolNodeMap, BoolArcMap> SubGA;
-  /// SubGA ga(g, nm, am);
-  /// for (SubGA::NodeIt n(ga); n!=INVALID; ++n)
+  /// typedef SubDigraphAdaptor<Digraph, BoolNodeMap, BoolArcMap> SubDGA;
+  /// SubDGA ga(g, nm, am);
+  /// for (SubDGA::NodeIt n(ga); n!=INVALID; ++n)
   ///   std::cout << g.id(n) << std::endl;
-  /// std::cout << ":-)" << std::endl;
-  /// for (SubGA::ArcIt a(ga); a!=INVALID; ++a) 
+  /// for (SubDGA::ArcIt a(ga); a!=INVALID; ++a) 
   ///   std::cout << g.id(a) << std::endl;
   ///\endcode
   /// The output of the above code is the following.
   ///\code
   /// 1
-  /// :-)
   /// 1
   ///\endcode
-  /// Note that \c n is of type \c SubGA::NodeIt, but it can be converted to
+  /// Note that \c n is of type \c SubDGA::NodeIt, but it can be converted to
   /// \c Digraph::Node that is why \c g.id(n) can be applied.
   /// 
   /// For other examples see also the documentation of
@@ -728,10 +614,17 @@ namespace lemon {
       SubDigraphAdaptorBase<Digraph, NodeFilterMap, ArcFilterMap, checked> >
     Parent;
 
+    typedef typename Parent::Node Node;
+    typedef typename Parent::Arc Arc;
+
   protected:
     SubDigraphAdaptor() { }
   public:
 
+    /// \brief Constructor
+    ///
+    /// Creates a sub-digraph-adaptor for the given digraph with
+    /// given node and arc map filters.
     SubDigraphAdaptor(Digraph& digraph, NodeFilterMap& node_filter, 
 		      ArcFilterMap& arc_filter) { 
       setDigraph(digraph);
@@ -739,11 +632,51 @@ namespace lemon {
       setArcFilterMap(arc_filter);
     }
 
+    /// \brief Hides the node of the graph
+    ///
+    /// This function hides \c n in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c n  
+    /// to be false in the corresponding node-map.
+    void hide(const Node& n) const { Parent::hide(n); }
+
+    /// \brief Hides the arc of the graph
+    ///
+    /// This function hides \c a in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c a
+    /// to be false in the corresponding arc-map.
+    void hide(const Arc& a) const { Parent::hide(a); }
+
+    /// \brief Unhides the node of the graph
+    ///
+    /// The value of \c n is set to be true in the node-map which stores 
+    /// hide information. If \c n was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Node& n) const { Parent::unHide(n); }
+
+    /// \brief Unhides the arc of the graph
+    ///
+    /// The value of \c a is set to be true in the arc-map which stores 
+    /// hide information. If \c a was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Arc& a) const { Parent::unHide(a); }
+
+    /// \brief Returns true if \c n is hidden.
+    ///
+    /// Returns true if \c n is hidden.
+    ///
+    bool hidden(const Node& n) const { return Parent::hidden(n); }
+
+    /// \brief Returns true if \c a is hidden.
+    ///
+    /// Returns true if \c a is hidden.
+    ///
+    bool hidden(const Arc& a) const { return Parent::hidden(a); }
+
   };
 
-  /// \brief Just gives back a sub digraph adaptor
+  /// \brief Just gives back a sub-digraph-adaptor
   ///
-  /// Just gives back a sub digraph adaptor
+  /// Just gives back a sub-digraph-adaptor
   template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
   SubDigraphAdaptor<const Digraph, NodeFilterMap, ArcFilterMap>
   subDigraphAdaptor(const Digraph& digraph, 
@@ -774,6 +707,7 @@ namespace lemon {
                    NodeFilterMap& nfm, ArcFilterMap& afm) {
     return SubDigraphAdaptor<const Digraph, const NodeFilterMap, 
       const ArcFilterMap>(digraph, nfm, afm);
+
   }
 
 
@@ -802,6 +736,8 @@ namespace lemon {
 			      ConstMap<typename Digraph::Arc, bool>, checked> 
     Parent;
 
+    typedef typename Parent::Node Node;
+
   protected:
     ConstMap<typename Digraph::Arc, bool> const_true_map;
 
@@ -811,6 +747,10 @@ namespace lemon {
 
   public:
 
+    /// \brief Constructor
+    ///
+    /// Creates a node-sub-digraph-adaptor for the given digraph with
+    /// given node map filter.
     NodeSubDigraphAdaptor(Digraph& _digraph, NodeFilterMap& node_filter) : 
       Parent(), const_true_map(true) { 
       Parent::setDigraph(_digraph);
@@ -818,12 +758,32 @@ namespace lemon {
       Parent::setArcFilterMap(const_true_map);
     }
 
+    /// \brief Hides the node of the graph
+    ///
+    /// This function hides \c n in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c n  
+    /// to be false in the corresponding node-map.
+    void hide(const Node& n) const { Parent::hide(n); }
+
+    /// \brief Unhides the node of the graph
+    ///
+    /// The value of \c n is set to be true in the node-map which stores 
+    /// hide information. If \c n was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Node& n) const { Parent::unHide(n); }
+
+    /// \brief Returns true if \c n is hidden.
+    ///
+    /// Returns true if \c n is hidden.
+    ///
+    bool hidden(const Node& n) const { return Parent::hidden(n); }
+
   };
 
 
-  /// \brief Just gives back a \c NodeSubDigraphAdaptor
+  /// \brief Just gives back a  node-sub-digraph adaptor
   ///
-  /// Just gives back a \c NodeSubDigraphAdaptor
+  /// Just gives back a node-sub-digraph adaptor
   template<typename Digraph, typename NodeFilterMap>
   NodeSubDigraphAdaptor<const Digraph, NodeFilterMap>
   nodeSubDigraphAdaptor(const Digraph& digraph, NodeFilterMap& nfm) {
@@ -846,9 +806,10 @@ namespace lemon {
   ///can be filtered. The usefulness of this adaptor is demonstrated
   ///in the problem of searching a maximum number of arc-disjoint
   ///shortest paths between two nodes \c s and \c t. Shortest here
-  ///means being shortest w.r.t.  non-negative arc-lengths. Note that
-  ///the comprehension of the presented solution need's some
-  ///elementary knowlarc from combinatorial optimization.
+  ///means being shortest with respect to non-negative
+  ///arc-lengths. Note that the comprehension of the presented
+  ///solution need's some elementary knowledge from combinatorial
+  ///optimization.
   ///
   ///If a single shortest path is to be searched between \c s and \c
   ///t, then this can be done easily by applying the Dijkstra
@@ -868,7 +829,7 @@ namespace lemon {
   ///generated by the demo program \ref dim_to_dot.cc.
   ///
   ///\dot
-  ///didigraph lemon_dot_example {
+  ///digraph lemon_dot_example {
   ///node [ shape=ellipse, fontname=Helvetica, fontsize=10 ];
   ///n0 [ label="0 (s)" ];
   ///n1 [ label="1" ];
@@ -974,6 +935,9 @@ namespace lemon {
 
     typedef SubDigraphAdaptor<Digraph, ConstMap<typename Digraph::Node, bool>, 
 			      ArcFilterMap, false> Parent;
+
+    typedef typename Parent::Arc Arc;
+
   protected:
     ConstMap<typename Digraph::Node, bool> const_true_map;
 
@@ -983,6 +947,10 @@ namespace lemon {
 
   public:
 
+    /// \brief Constructor
+    ///
+    /// Creates a arc-sub-digraph-adaptor for the given digraph with
+    /// given arc map filter.
     ArcSubDigraphAdaptor(Digraph& digraph, ArcFilterMap& arc_filter) 
       : Parent(), const_true_map(true) { 
       Parent::setDigraph(digraph);
@@ -990,11 +958,31 @@ namespace lemon {
       Parent::setArcFilterMap(arc_filter);
     }
 
+    /// \brief Hides the arc of the graph
+    ///
+    /// This function hides \c a in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c a
+    /// to be false in the corresponding arc-map.
+    void hide(const Arc& a) const { Parent::hide(a); }
+
+    /// \brief Unhides the arc of the graph
+    ///
+    /// The value of \c a is set to be true in the arc-map which stores 
+    /// hide information. If \c a was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Arc& a) const { Parent::unHide(a); }
+
+    /// \brief Returns true if \c a is hidden.
+    ///
+    /// Returns true if \c a is hidden.
+    ///
+    bool hidden(const Arc& a) const { return Parent::hidden(a); }
+
   };
 
-  /// \brief Just gives back an arc sub digraph adaptor
+  /// \brief Just gives back an arc-sub-digraph adaptor
   ///
-  /// Just gives back an arc sub digraph adaptor
+  /// Just gives back an arc-sub-digraph adaptor
   template<typename Digraph, typename ArcFilterMap>
   ArcSubDigraphAdaptor<const Digraph, ArcFilterMap>
   arcSubDigraphAdaptor(const Digraph& digraph, ArcFilterMap& afm) {
@@ -1393,12 +1381,12 @@ namespace lemon {
 
   ///\ingroup graph_adaptors
   ///
-  /// \brief An graph is made from a directed digraph by an adaptor
+  /// \brief A graph is made from a directed digraph by an adaptor
   ///
   /// This adaptor makes an undirected graph from a directed
-  /// digraph. All arc of the underlying will be showed in the adaptor
-  /// as an edge. Let's see an informal example about using
-  /// this adaptor:
+  /// graph. All arc of the underlying digraph will be showed in the
+  /// adaptor as an edge. Let's see an informal example about using
+  /// this adaptor.
   ///
   /// There is a network of the streets of a town. Of course there are
   /// some one-way street in the town hence the network is a directed
@@ -1802,12 +1790,6 @@ namespace lemon {
 
   };
 
-  /// \brief Base class for split digraph adaptor
-  ///
-  /// Base class of split digraph adaptor. In most case you do not need to
-  /// use it directly but the documented member functions of this class can 
-  /// be used with the SplitDigraphAdaptor class.
-  /// \sa SplitDigraphAdaptor
   template <typename _Digraph>
   class SplitDigraphAdaptorBase {
   public:
@@ -2022,58 +2004,34 @@ namespace lemon {
                       (_digraph->maxArcId() << 1) | 1);
     }
 
-    /// \brief Returns true when the node is in-node.
-    ///
-    /// Returns true when the node is in-node.
     static bool inNode(const Node& n) {
       return n._in;
     }
 
-    /// \brief Returns true when the node is out-node.
-    ///
-    /// Returns true when the node is out-node.
     static bool outNode(const Node& n) {
       return !n._in;
     }
 
-    /// \brief Returns true when the arc is arc in the original digraph.
-    ///
-    /// Returns true when the arc is arc in the original digraph.
     static bool origArc(const Arc& e) {
       return e._item.firstState();
     }
 
-    /// \brief Returns true when the arc binds an in-node and an out-node.
-    ///
-    /// Returns true when the arc binds an in-node and an out-node.
     static bool bindArc(const Arc& e) {
       return e._item.secondState();
     }
 
-    /// \brief Gives back the in-node created from the \c node.
-    ///
-    /// Gives back the in-node created from the \c node.
     static Node inNode(const DigraphNode& n) {
       return Node(n, true);
     }
 
-    /// \brief Gives back the out-node created from the \c node.
-    ///
-    /// Gives back the out-node created from the \c node.
     static Node outNode(const DigraphNode& n) {
       return Node(n, false);
     }
 
-    /// \brief Gives back the arc binds the two part of the node.
-    /// 
-    /// Gives back the arc binds the two part of the node.
     static Arc arc(const DigraphNode& n) {
       return Arc(n);
     }
 
-    /// \brief Gives back the arc of the original arc.
-    /// 
-    /// Gives back the arc of the original arc.
     static Arc arc(const DigraphArc& e) {
       return Arc(e);
     }
@@ -2275,7 +2233,7 @@ namespace lemon {
   /// a \c SplitDigraphAdaptor and set the node cost of the digraph to the
   /// bind arc in the adapted digraph.
   /// 
-  /// By example a maximum flow algoritm can compute how many arc
+  /// For example a maximum flow algorithm can compute how many arc
   /// disjoint paths are in the digraph. But we would like to know how
   /// many node disjoint paths are in the digraph. First we have to
   /// adapt the digraph with the \c SplitDigraphAdaptor. Then run the flow
@@ -2330,6 +2288,9 @@ namespace lemon {
     typedef _Digraph Digraph;
     typedef DigraphAdaptorExtender<SplitDigraphAdaptorBase<Digraph> > Parent;
 
+    typedef typename Digraph::Node DigraphNode;
+    typedef typename Digraph::Arc DigraphArc;
+
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
 
@@ -2338,6 +2299,62 @@ namespace lemon {
     /// Constructor of the adaptor.
     SplitDigraphAdaptor(Digraph& g) {
       Parent::setDigraph(g);
+    }
+
+    /// \brief Returns true when the node is in-node.
+    ///
+    /// Returns true when the node is in-node.
+    static bool inNode(const Node& n) {
+      return Parent::inNode(n);
+    }
+
+    /// \brief Returns true when the node is out-node.
+    ///
+    /// Returns true when the node is out-node.
+    static bool outNode(const Node& n) {
+      return Parent::outNode(n);
+    }
+
+    /// \brief Returns true when the arc is arc in the original digraph.
+    ///
+    /// Returns true when the arc is arc in the original digraph.
+    static bool origArc(const Arc& a) {
+      return Parent::origArc(a);
+    }
+
+    /// \brief Returns true when the arc binds an in-node and an out-node.
+    ///
+    /// Returns true when the arc binds an in-node and an out-node.
+    static bool bindArc(const Arc& a) {
+      return Parent::bindArc(a);
+    }
+
+    /// \brief Gives back the in-node created from the \c node.
+    ///
+    /// Gives back the in-node created from the \c node.
+    static Node inNode(const DigraphNode& n) {
+      return Parent::inNode(n);
+    }
+
+    /// \brief Gives back the out-node created from the \c node.
+    ///
+    /// Gives back the out-node created from the \c node.
+    static Node outNode(const DigraphNode& n) {
+      return Parent::outNode(n);
+    }
+
+    /// \brief Gives back the arc binds the two part of the node.
+    /// 
+    /// Gives back the arc binds the two part of the node.
+    static Arc arc(const DigraphNode& n) {
+      return Parent::arc(n);
+    }
+
+    /// \brief Gives back the arc of the original arc.
+    /// 
+    /// Gives back the arc of the original arc.
+    static Arc arc(const DigraphArc& a) {
+      return Parent::arc(a);
     }
 
     /// \brief NodeMap combined from two original NodeMap

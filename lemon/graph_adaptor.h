@@ -31,15 +31,6 @@
 
 namespace lemon {
 
-  /// \brief Base type for the Graph Adaptors
-  ///
-  /// This is the base type for most of LEMON graph adaptors. 
-  /// This class implements a trivial graph adaptor i.e. it only wraps the 
-  /// functions and types of the graph. The purpose of this class is to 
-  /// make easier implementing graph adaptors. E.g. if an adaptor is 
-  /// considered which differs from the wrapped graph only in some of its 
-  /// functions or types, then it can be derived from GraphAdaptor, and only 
-  /// the differences should be implemented.
   template<typename _Graph>
   class GraphAdaptorBase {
   public:
@@ -195,25 +186,6 @@ namespace lemon {
 
   };
 
-  /// \ingroup graph_adaptors
-  ///
-  /// \brief Trivial graph adaptor
-  ///
-  /// This class is an adaptor which does not change the adapted undirected
-  /// graph. It can be used only to test the graph adaptors.
-  template <typename _Graph>
-  class GraphAdaptor 
-    : public GraphAdaptorExtender< GraphAdaptorBase<_Graph> > { 
-  public:
-    typedef _Graph Graph;
-    typedef GraphAdaptorExtender<GraphAdaptorBase<_Graph> > Parent;
-  protected:
-    GraphAdaptor() : Parent() {}
-
-  public:
-    explicit GraphAdaptor(Graph& graph) { setGraph(graph); }
-  };
-
   template <typename _Graph, typename NodeFilterMap, 
 	    typename EdgeFilterMap, bool checked = true>
   class SubGraphAdaptorBase : public GraphAdaptorBase<_Graph> {
@@ -318,42 +290,13 @@ namespace lemon {
             || !(*_node_filter_map)[Parent::v(i)])) Parent::nextInc(i, d); 
     }
 
-    /// \brief Hide the given node in the graph.
-    ///
-    /// This function hides \c n in the graph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c n  
-    /// to be false in the corresponding node-map.
     void hide(const Node& n) const { _node_filter_map->set(n, false); }
-
-    /// \brief Hide the given edge in the graph.
-    ///
-    /// This function hides \c e in the graph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c e  
-    /// to be false in the corresponding edge-map.
     void hide(const Edge& e) const { _edge_filter_map->set(e, false); }
 
-    /// \brief Unhide the given node in the graph.
-    ///
-    /// The value of \c n is set to be true in the node-map which stores 
-    /// hide information. If \c n was hidden previuosly, then it is shown 
-    /// again
-     void unHide(const Node& n) const { _node_filter_map->set(n, true); }
-
-    /// \brief Hide the given edge in the graph.
-    ///
-    /// The value of \c e is set to be true in the edge-map which stores 
-    /// hide information. If \c e was hidden previuosly, then it is shown 
-    /// again
+    void unHide(const Node& n) const { _node_filter_map->set(n, true); }
     void unHide(const Edge& e) const { _edge_filter_map->set(e, true); }
 
-    /// \brief Returns true if \c n is hidden.
-    ///
-    /// Returns true if \c n is hidden.
     bool hidden(const Node& n) const { return !(*_node_filter_map)[n]; }
-
-    /// \brief Returns true if \c e is hidden.
-    ///
-    /// Returns true if \c e is hidden.
     bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
@@ -543,42 +486,13 @@ namespace lemon {
       while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextInc(i, d); 
     }
 
-    /// \brief Hide the given node in the graph.
-    ///
-    /// This function hides \c n in the graph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c n  
-    /// to be false in the corresponding node-map.
     void hide(const Node& n) const { _node_filter_map->set(n, false); }
-
-    /// \brief Hide the given edge in the graph.
-    ///
-    /// This function hides \c e in the graph, i.e. the iteration 
-    /// jumps over it. This is done by simply setting the value of \c e  
-    /// to be false in the corresponding edge-map.
     void hide(const Edge& e) const { _edge_filter_map->set(e, false); }
 
-    /// \brief Unhide the given node in the graph.
-    ///
-    /// The value of \c n is set to be true in the node-map which stores 
-    /// hide information. If \c n was hidden previuosly, then it is shown 
-    /// again
-     void unHide(const Node& n) const { _node_filter_map->set(n, true); }
-
-    /// \brief Hide the given edge in the graph.
-    ///
-    /// The value of \c e is set to be true in the edge-map which stores 
-    /// hide information. If \c e was hidden previuosly, then it is shown 
-    /// again
+    void unHide(const Node& n) const { _node_filter_map->set(n, true); }
     void unHide(const Edge& e) const { _edge_filter_map->set(e, true); }
 
-    /// \brief Returns true if \c n is hidden.
-    ///
-    /// Returns true if \c n is hidden.
     bool hidden(const Node& n) const { return !(*_node_filter_map)[n]; }
-
-    /// \brief Returns true if \c e is hidden.
-    ///
-    /// Returns true if \c e is hidden.
     bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
@@ -682,7 +596,7 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief A graph adaptor for hiding nodes and arcs from an
+  /// \brief A graph adaptor for hiding nodes and edges from an
   /// undirected graph.
   /// 
   /// SubGraphAdaptor shows the graph with filtered node-set and
@@ -704,17 +618,69 @@ namespace lemon {
     typedef _Graph Graph;
     typedef GraphAdaptorExtender<
       SubGraphAdaptorBase<_Graph, NodeFilterMap, EdgeFilterMap> > Parent;
+
+    typedef typename Parent::Node Node;
+    typedef typename Parent::Edge Edge;
+
   protected:
     SubGraphAdaptor() { }
   public:
+    
+    /// \brief Constructor
+    ///
+    /// Creates a sub-graph-adaptor for the given graph with
+    /// given node and edge map filters.
     SubGraphAdaptor(Graph& _graph, NodeFilterMap& node_filter_map, 
 		    EdgeFilterMap& edge_filter_map) { 
       setGraph(_graph);
       setNodeFilterMap(node_filter_map);
       setEdgeFilterMap(edge_filter_map);
     }
+
+    /// \brief Hides the node of the graph
+    ///
+    /// This function hides \c n in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c n  
+    /// to be false in the corresponding node-map.
+    void hide(const Node& n) const { Parent::hide(n); }
+
+    /// \brief Hides the edge of the graph
+    ///
+    /// This function hides \c e in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c e
+    /// to be false in the corresponding edge-map.
+    void hide(const Edge& e) const { Parent::hide(e); }
+
+    /// \brief Unhides the node of the graph
+    ///
+    /// The value of \c n is set to be true in the node-map which stores 
+    /// hide information. If \c n was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Node& n) const { Parent::unHide(n); }
+
+    /// \brief Unhides the edge of the graph
+    ///
+    /// The value of \c e is set to be true in the edge-map which stores 
+    /// hide information. If \c e was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Edge& e) const { Parent::unHide(e); }
+
+    /// \brief Returns true if \c n is hidden.
+    ///
+    /// Returns true if \c n is hidden.
+    ///
+    bool hidden(const Node& n) const { return Parent::hidden(n); }
+
+    /// \brief Returns true if \c e is hidden.
+    ///
+    /// Returns true if \c e is hidden.
+    ///
+    bool hidden(const Edge& e) const { return Parent::hidden(e); }
   };
 
+  /// \brief Just gives back a sub-graph adaptor
+  ///
+  /// Just gives back a sub-graph adaptor
   template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
   SubGraphAdaptor<const Graph, NodeFilterMap, ArcFilterMap>
   subGraphAdaptor(const Graph& graph, 
@@ -765,6 +731,8 @@ namespace lemon {
     typedef _NodeFilterMap NodeFilterMap;
     typedef SubGraphAdaptor<Graph, NodeFilterMap, 
 			    ConstMap<typename Graph::Edge, bool> > Parent;
+
+    typedef typename Parent::Node Node;
   protected:
     ConstMap<typename Graph::Edge, bool> const_true_map;
 
@@ -773,14 +741,43 @@ namespace lemon {
     }
 
   public:
+
+    /// \brief Constructor
+    ///
+    /// Creates a node-sub-graph-adaptor for the given graph with
+    /// given node map filters.
     NodeSubGraphAdaptor(Graph& _graph, NodeFilterMap& node_filter_map) : 
       Parent(), const_true_map(true) { 
       Parent::setGraph(_graph);
       Parent::setNodeFilterMap(node_filter_map);
       Parent::setEdgeFilterMap(const_true_map);
     }
+
+    /// \brief Hides the node of the graph
+    ///
+    /// This function hides \c n in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c n  
+    /// to be false in the corresponding node-map.
+    void hide(const Node& n) const { Parent::hide(n); }
+
+    /// \brief Unhides the node of the graph
+    ///
+    /// The value of \c n is set to be true in the node-map which stores 
+    /// hide information. If \c n was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Node& n) const { Parent::unHide(n); }
+
+    /// \brief Returns true if \c n is hidden.
+    ///
+    /// Returns true if \c n is hidden.
+    ///
+    bool hidden(const Node& n) const { return Parent::hidden(n); }
+
   };
 
+  /// \brief Just gives back a node-sub-graph adaptor
+  ///
+  /// Just gives back a node-sub-graph adaptor
   template<typename Graph, typename NodeFilterMap>
   NodeSubGraphAdaptor<const Graph, NodeFilterMap>
   nodeSubGraphAdaptor(const Graph& graph, NodeFilterMap& nfm) {
@@ -813,6 +810,7 @@ namespace lemon {
     typedef _EdgeFilterMap EdgeFilterMap;
     typedef SubGraphAdaptor<Graph, ConstMap<typename Graph::Node,bool>, 
 			    EdgeFilterMap, false> Parent;
+    typedef typename Parent::Edge Edge;
   protected:
     ConstMap<typename Graph::Node, bool> const_true_map;
 
@@ -822,6 +820,10 @@ namespace lemon {
 
   public:
 
+    /// \brief Constructor
+    ///
+    /// Creates a edge-sub-graph-adaptor for the given graph with
+    /// given node map filters.
     EdgeSubGraphAdaptor(Graph& _graph, EdgeFilterMap& edge_filter_map) : 
       Parent(), const_true_map(true) { 
       Parent::setGraph(_graph);
@@ -829,8 +831,31 @@ namespace lemon {
       Parent::setEdgeFilterMap(edge_filter_map);
     }
 
+    /// \brief Hides the edge of the graph
+    ///
+    /// This function hides \c e in the digraph, i.e. the iteration 
+    /// jumps over it. This is done by simply setting the value of \c e
+    /// to be false in the corresponding edge-map.
+    void hide(const Edge& e) const { Parent::hide(e); }
+
+    /// \brief Unhides the edge of the graph
+    ///
+    /// The value of \c e is set to be true in the edge-map which stores 
+    /// hide information. If \c e was hidden previuosly, then it is shown 
+    /// again
+    void unHide(const Edge& e) const { Parent::unHide(e); }
+
+    /// \brief Returns true if \c e is hidden.
+    ///
+    /// Returns true if \c e is hidden.
+    ///
+    bool hidden(const Edge& e) const { return Parent::hidden(e); }
+
   };
 
+  /// \brief Just gives back an edge-sub-graph adaptor
+  ///
+  /// Just gives back an edge-sub-graph adaptor
   template<typename Graph, typename EdgeFilterMap>
   EdgeSubGraphAdaptor<const Graph, EdgeFilterMap>
   edgeSubGraphAdaptor(const Graph& graph, EdgeFilterMap& efm) {
@@ -843,11 +868,6 @@ namespace lemon {
     return EdgeSubGraphAdaptor<const Graph, const EdgeFilterMap>(graph, efm);
   }
 
-  /// \brief Base of direct graph adaptor
-  ///
-  /// Base class of the direct graph adaptor. All public member
-  /// of this class can be used with the DirGraphAdaptor too.
-  /// \sa DirGraphAdaptor
   template <typename _Graph, typename _DirectionMap>
   class DirGraphAdaptorBase {
   public:
@@ -1103,6 +1123,7 @@ namespace lemon {
     typedef _Graph Graph;
     typedef DigraphAdaptorExtender<
       DirGraphAdaptorBase<_Graph, DirectionMap> > Parent;
+    typedef typename Parent::Arc Arc;
   protected:
     DirGraphAdaptor() { }
   public:
@@ -1113,6 +1134,13 @@ namespace lemon {
     DirGraphAdaptor(Graph& graph, DirectionMap& direction) { 
       setGraph(graph);
       setDirectionMap(direction);
+    }
+
+    /// \brief Reverse arc
+    /// 
+    /// It reverse the given arc. It simply negate the direction in the map.
+    void reverseArc(const Arc& a) {
+      Parent::reverseArc(a);
     }
   };
 
