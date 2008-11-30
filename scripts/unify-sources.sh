@@ -130,14 +130,11 @@ function check_done() {
     echo $FAILED_FILES out of $TOTAL_FILES files has been failed.
     echo $WARNED_FILES out of $TOTAL_FILES files triggered warnings.
 
-    if [ $FAILED_FILES -gt 0 ]
-    then
-	return 1
-    elif [ $WARNED_FILES -gt 0 ]
+    if [ $WARNED_FILES -gt 0 -o $FAILED_FILES -gt 0 ]
     then
 	if [ "$WARNING" == 'INTERACTIVE' ]
 	then
-	    echo -n "Are the files with warnings acceptable? (yes/no) "
+	    echo -n "Are the files with errors/warnings acceptable? (yes/no) "
 	    while read answer
 	    do
 		if [ "$answer" == 'yes' ]
@@ -147,7 +144,7 @@ function check_done() {
 		then
 		    return 1
 		fi
-		echo -n "Are the files with warnings acceptable? (yes/no) "
+		echo -n "Are the files with errors/warnings acceptable? (yes/no) "
 	    done
 	elif [ "$WARNING" == 'WERROR' ]
 	then
