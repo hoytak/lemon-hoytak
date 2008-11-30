@@ -19,28 +19,28 @@
 #ifndef LEMON_CIRCULATION_H
 #define LEMON_CIRCULATION_H
 
-#include <iostream>
-#include <queue>
 #include <lemon/tolerance.h>
 #include <lemon/elevator.h>
 
 ///\ingroup max_flow
 ///\file
-///\brief Push-prelabel algorithm for finding a feasible circulation.
+///\brief Push-relabel algorithm for finding a feasible circulation.
 ///
 namespace lemon {
 
   /// \brief Default traits class of Circulation class.
   ///
   /// Default traits class of Circulation class.
-  /// \param _Graph Digraph type.
-  /// \param _CapacityMap Type of capacity map.
-  template <typename _Graph, typename _LCapMap,
+  /// \tparam _Diraph Digraph type.
+  /// \tparam _LCapMap Lower bound capacity map type.
+  /// \tparam _UCapMap Upper bound capacity map type.
+  /// \tparam _DeltaMap Delta map type.
+  template <typename _Diraph, typename _LCapMap,
             typename _UCapMap, typename _DeltaMap>
   struct CirculationDefaultTraits {
 
-    /// \brief The digraph type the algorithm runs on.
-    typedef _Graph Digraph;
+    /// \brief The type of the digraph the algorithm runs on.
+    typedef _Diraph Digraph;
 
     /// \brief The type of the map that stores the circulation lower
     /// bound.
@@ -56,20 +56,20 @@ namespace lemon {
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
     typedef _UCapMap UCapMap;
 
-    /// \brief The type of the map that stores the upper bound of
-    /// node excess.
+    /// \brief The type of the map that stores the lower bound for
+    /// the supply of the nodes.
     ///
-    /// The type of the map that stores the lower bound of node
-    /// excess. It must meet the \ref concepts::ReadMap "ReadMap"
+    /// The type of the map that stores the lower bound for the supply
+    /// of the nodes. It must meet the \ref concepts::ReadMap "ReadMap"
     /// concept.
     typedef _DeltaMap DeltaMap;
 
-    /// \brief The type of the length of the arcs.
+    /// \brief The type of the flow values.
     typedef typename DeltaMap::Value Value;
 
-    /// \brief The map type that stores the flow values.
+    /// \brief The type of the map that stores the flow values.
     ///
-    /// The map type that stores the flow values.
+    /// The type of the map that stores the flow values.
     /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template ArcMap<Value> FlowMap;
 
@@ -82,9 +82,9 @@ namespace lemon {
       return new FlowMap(digraph);
     }
 
-    /// \brief The eleavator type used by Circulation algorithm.
+    /// \brief The elevator type used by the algorithm.
     ///
-    /// The elevator type used by Circulation algorithm.
+    /// The elevator type used by the algorithm.
     ///
     /// \sa Elevator
     /// \sa LinkedElevator
@@ -92,7 +92,7 @@ namespace lemon {
 
     /// \brief Instantiates an Elevator.
     ///
-    /// This function instantiates a \ref Elevator.
+    /// This function instantiates an \ref Elevator.
     /// \param digraph The digraph, to which we would like to define
     /// the elevator.
     /// \param max_level The maximum level of the elevator.
@@ -107,40 +107,88 @@ namespace lemon {
 
   };
 
-  ///Push-relabel algorithm for the Network Circulation Problem.
-
   /**
+     \brief Push-relabel algorithm for the network circulation problem.
+
      \ingroup max_flow
-     This class implements a push-relabel algorithm
-     or the Network Circulation Problem.
+     This class implements a push-relabel algorithm for the network
+     circulation problem.
+     It is to find a feasible circulation when lower and upper bounds
+     are given for the flow values on the arcs and lower bounds
+     are given for the supply values of the nodes.
+
      The exact formulation of this problem is the following.
-     \f[\sum_{e\in\rho(v)}x(e)-\sum_{e\in\delta(v)}x(e)\leq
-     -delta(v)\quad \forall v\in V \f]
-     \f[ lo(e)\leq x(e) \leq up(e) \quad \forall e\in E \f]
+     Let \f$G=(V,A)\f$ be a digraph,
+     \f$lower, upper: A\rightarrow\mathbf{R}^+_0\f$,
+     \f$delta: V\rightarrow\mathbf{R}\f$. Find a feasible circulation
+     \f$f: A\rightarrow\mathbf{R}^+_0\f$ so that
+     \f[ \sum_{a\in\delta_{out}(v)} f(a) - \sum_{a\in\delta_{in}(v)} f(a)
+     \geq delta(v) \quad \forall v\in V, \f]
+     \f[ lower(a)\leq f(a) \leq upper(a) \quad \forall a\in A. \f]
+     \note \f$delta(v)\f$ specifies a lower bound for the supply of node
+     \f$v\f$. It can be either positive or negative, however note that
+     \f$\sum_{v\in V}delta(v)\f$ should be zero or negative in order to
+     have a feasible solution.
+
+     \note A special case of this problem is when
+     \f$\sum_{v\in V}delta(v) = 0\f$. Then the supply of each node \f$v\f$
+     will be \e equal \e to \f$delta(v)\f$, if a circulation can be found.
+     Thus a feasible solution for the
+     \ref min_cost_flow "minimum cost flow" problem can be calculated
+     in this way.
+
+     \tparam _Digraph The type of the digraph the algorithm runs on.
+     \tparam _LCapMap The type of the lower bound capacity map. The default
+     map type is \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
+     \tparam _UCapMap The type of the upper bound capacity map. The default
+     map type is \c _LCapMap.
+     \tparam _DeltaMap The type of the map that stores the lower bound
+     for the supply of the nodes. The default map type is
+     \c _Digraph::ArcMap<_UCapMap::Value>.
   */
-  template<class _Graph,
-           class _LCapMap=typename _Graph::template ArcMap<int>,
-           class _UCapMap=_LCapMap,
-           class _DeltaMap=typename _Graph::template NodeMap<
-             typename _UCapMap::Value>,
-           class _Traits=CirculationDefaultTraits<_Graph, _LCapMap,
-                                                  _UCapMap, _DeltaMap> >
+#ifdef DOXYGEN
+template< typename _Digraph,
+          typename _LCapMap,
+          typename _UCapMap,
+          typename _DeltaMap,
+          typename _Traits >
+#else
+template< typename _Digraph,
+          typename _LCapMap = typename _Digraph::template ArcMap<int>,
+          typename _UCapMap = _LCapMap,
+          typename _DeltaMap = typename _Digraph::
+                               template NodeMap<typename _UCapMap::Value>,
+          typename _Traits=CirculationDefaultTraits<_Digraph, _LCapMap,
+                                                    _UCapMap, _DeltaMap> >
+#endif
   class Circulation {
+  public:
 
+    ///The \ref CirculationDefaultTraits "traits class" of the algorithm.
     typedef _Traits Traits;
+    ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
-
+    ///The type of the flow values.
     typedef typename Traits::Value Value;
 
+    /// The type of the lower bound capacity map.
     typedef typename Traits::LCapMap LCapMap;
+    /// The type of the upper bound capacity map.
     typedef typename Traits::UCapMap UCapMap;
+    /// \brief The type of the map that stores the lower bound for
+    /// the supply of the nodes.
     typedef typename Traits::DeltaMap DeltaMap;
+    ///The type of the flow map.
     typedef typename Traits::FlowMap FlowMap;
+
+    ///The type of the elevator.
     typedef typename Traits::Elevator Elevator;
+    ///The type of the tolerance.
     typedef typename Traits::Tolerance Tolerance;
 
-    typedef typename Digraph::template NodeMap<Value> ExcessMap;
+  private:
+
+    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
     const Digraph &_g;
     int _node_num;
@@ -155,6 +203,7 @@ namespace lemon {
     Elevator* _level;
     bool _local_level;
 
+    typedef typename Digraph::template NodeMap<Value> ExcessMap;
     ExcessMap* _excess;
 
     Tolerance _tol;
@@ -164,7 +213,7 @@ namespace lemon {
 
     typedef Circulation Create;
 
-    ///\name Named template parameters
+    ///\name Named Template Parameters
 
     ///@{
 
@@ -181,7 +230,7 @@ namespace lemon {
     /// FlowMap type
     ///
     /// \ref named-templ-param "Named parameter" for setting FlowMap
-    /// type
+    /// type.
     template <typename _FlowMap>
     struct SetFlowMap
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
@@ -203,7 +252,11 @@ namespace lemon {
     /// Elevator type
     ///
     /// \ref named-templ-param "Named parameter" for setting Elevator
-    /// type
+    /// type. If this named parameter is used, then an external
+    /// elevator object must be passed to the algorithm using the
+    /// \ref elevator(Elevator&) "elevator()" function before calling
+    /// \ref run() or \ref init().
+    /// \sa SetStandardElevator
     template <typename _Elevator>
     struct SetElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
@@ -221,11 +274,17 @@ namespace lemon {
     };
 
     /// \brief \ref named-templ-param "Named parameter" for setting
-    /// Elevator type
+    /// Elevator type with automatic allocation
     ///
     /// \ref named-templ-param "Named parameter" for setting Elevator
-    /// type. The Elevator should be standard constructor interface, ie.
-    /// the digraph and the maximum level should be passed to it.
+    /// type with automatic allocation.
+    /// The Elevator should have standard constructor interface to be
+    /// able to automatically created by the algorithm (i.e. the
+    /// digraph and the maximum level should be passed to it).
+    /// However an external elevator object could also be passed to the
+    /// algorithm with the \ref elevator(Elevator&) "elevator()" function
+    /// before calling \ref run() or \ref init().
+    /// \sa SetElevator
     template <typename _Elevator>
     struct SetStandardElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
@@ -248,17 +307,18 @@ namespace lemon {
     /// \param g The digraph the algorithm runs on.
     /// \param lo The lower bound capacity of the arcs.
     /// \param up The upper bound capacity of the arcs.
-    /// \param delta The lower bound on node excess.
+    /// \param delta The lower bound for the supply of the nodes.
     Circulation(const Digraph &g,const LCapMap &lo,
                 const UCapMap &up,const DeltaMap &delta)
       : _g(g), _node_num(),
         _lo(&lo),_up(&up),_delta(&delta),_flow(0),_local_flow(false),
         _level(0), _local_level(false), _excess(0), _el() {}
 
-    /// Destrcutor.
+    /// Destructor.
     ~Circulation() {
       destroyStructures();
     }
+
 
   private:
 
@@ -295,7 +355,7 @@ namespace lemon {
     /// Sets the lower bound capacity map.
 
     /// Sets the lower bound capacity map.
-    /// \return \c (*this)
+    /// \return <tt>(*this)</tt>
     Circulation& lowerCapMap(const LCapMap& map) {
       _lo = &map;
       return *this;
@@ -304,25 +364,29 @@ namespace lemon {
     /// Sets the upper bound capacity map.
 
     /// Sets the upper bound capacity map.
-    /// \return \c (*this)
+    /// \return <tt>(*this)</tt>
     Circulation& upperCapMap(const LCapMap& map) {
       _up = &map;
       return *this;
     }
 
-    /// Sets the lower bound map on excess.
+    /// Sets the lower bound map for the supply of the nodes.
 
-    /// Sets the lower bound map on excess.
-    /// \return \c (*this)
+    /// Sets the lower bound map for the supply of the nodes.
+    /// \return <tt>(*this)</tt>
     Circulation& deltaMap(const DeltaMap& map) {
       _delta = &map;
       return *this;
     }
 
+    /// \brief Sets the flow map.
+    ///
     /// Sets the flow map.
-
-    /// Sets the flow map.
-    /// \return \c (*this)
+    /// If you don't use this function before calling \ref run() or
+    /// \ref init(), an instance will be allocated automatically.
+    /// The destructor deallocates this automatically allocated map,
+    /// of course.
+    /// \return <tt>(*this)</tt>
     Circulation& flowMap(FlowMap& map) {
       if (_local_flow) {
         delete _flow;
@@ -332,18 +396,14 @@ namespace lemon {
       return *this;
     }
 
-    /// Returns the flow map.
-
-    /// \return The flow map.
+    /// \brief Sets the elevator used by algorithm.
     ///
-    const FlowMap& flowMap() {
-      return *_flow;
-    }
-
-    /// Sets the elevator.
-
-    /// Sets the elevator.
-    /// \return \c (*this)
+    /// Sets the elevator used by algorithm.
+    /// If you don't use this function before calling \ref run() or
+    /// \ref init(), an instance will be allocated automatically.
+    /// The destructor deallocates this automatically allocated elevator,
+    /// of course.
+    /// \return <tt>(*this)</tt>
     Circulation& elevator(Elevator& elevator) {
       if (_local_level) {
         delete _level;
@@ -353,47 +413,43 @@ namespace lemon {
       return *this;
     }
 
-    /// Returns the elevator.
-
-    /// \return The elevator.
+    /// \brief Returns a const reference to the elevator.
     ///
+    /// Returns a const reference to the elevator.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
     const Elevator& elevator() {
       return *_level;
     }
 
-    /// Sets the tolerance used by algorithm.
-
-    /// Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by algorithm.
     ///
+    /// Sets the tolerance used by algorithm.
     Circulation& tolerance(const Tolerance& tolerance) const {
       _tol = tolerance;
       return *this;
     }
 
-    /// Returns the tolerance used by algorithm.
-
-    /// Returns the tolerance used by algorithm.
+    /// \brief Returns a const reference to the tolerance.
     ///
+    /// Returns a const reference to the tolerance.
     const Tolerance& tolerance() const {
       return tolerance;
     }
 
-    /// \name Execution control
-    /// The simplest way to execute the algorithm is to use one of the
-    /// member functions called \c run().
-    /// \n
-    /// If you need more control on initial solution or execution then
-    /// you have to call one \ref init() function and then the start()
-    /// function.
+    /// \name Execution Control
+    /// The simplest way to execute the algorithm is to call \ref run().\n
+    /// If you need more control on the initial solution or the execution,
+    /// first you have to call one of the \ref init() functions, then
+    /// the \ref start() function.
 
     ///@{
 
     /// Initializes the internal data structures.
 
-    /// Initializes the internal data structures. This function sets
-    /// all flow values to the lower bound.
-    /// \return This function returns false if the initialization
-    /// process found a barrier.
+    /// Initializes the internal data structures and sets all flow values
+    /// to the lower bound.
     void init()
     {
       createStructures();
@@ -419,10 +475,10 @@ namespace lemon {
           _level->activate(n);
     }
 
-    /// Initializes the internal data structures.
+    /// Initializes the internal data structures using a greedy approach.
 
-    /// Initializes the internal data structures. This functions uses
-    /// greedy approach to construct the initial solution.
+    /// Initializes the internal data structures using a greedy approach
+    /// to construct the initial solution.
     void greedyInit()
     {
       createStructures();
@@ -457,12 +513,14 @@ namespace lemon {
           _level->activate(n);
     }
 
-    ///Starts the algorithm
+    ///Executes the algorithm
 
-    ///This function starts the algorithm.
-    ///\return This function returns true if it found a feasible circulation.
+    ///This function executes the algorithm.
+    ///
+    ///\return \c true if a feasible circulation is found.
     ///
     ///\sa barrier()
+    ///\sa barrierMap()
     bool start()
     {
 
@@ -543,13 +601,17 @@ namespace lemon {
       return true;
     }
 
-    /// Runs the circulation algorithm.
+    /// Runs the algorithm.
 
-    /// Runs the circulation algorithm.
-    /// \note fc.run() is just a shortcut of the following code.
+    /// This function runs the algorithm.
+    ///
+    /// \return \c true if a feasible circulation is found.
+    ///
+    /// \note Apart from the return value, c.run() is just a shortcut of
+    /// the following code.
     /// \code
-    ///   fc.greedyInit();
-    ///   return fc.start();
+    ///   c.greedyInit();
+    ///   c.start();
     /// \endcode
     bool run() {
       greedyInit();
@@ -559,61 +621,97 @@ namespace lemon {
     /// @}
 
     /// \name Query Functions
-    /// The result of the %Circulation algorithm can be obtained using
-    /// these functions.
-    /// \n
-    /// Before the use of these functions,
-    /// either run() or start() must be called.
+    /// The results of the circulation algorithm can be obtained using
+    /// these functions.\n
+    /// Either \ref run() or \ref start() should be called before
+    /// using them.
 
     ///@{
 
-    /**
-       \brief Returns a barrier
-       
-       Barrier is a set \e B of nodes for which
-       \f[ \sum_{v\in B}-delta(v)<
-       \sum_{e\in\rho(B)}lo(e)-\sum_{e\in\delta(B)}up(e) \f]
-       holds. The existence of a set with this property prooves that a feasible
-       flow cannot exists.
-       \sa checkBarrier()
-       \sa run()
-    */
-    template<class GT>
-    void barrierMap(GT &bar)
-    {
-      for(NodeIt n(_g);n!=INVALID;++n)
-        bar.set(n, (*_level)[n] >= _el);
+    /// \brief Returns the flow on the given arc.
+    ///
+    /// Returns the flow on the given arc.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
+    Value flow(const Arc& arc) const {
+      return (*_flow)[arc];
     }
 
-    ///Returns true if the node is in the barrier
+    /// \brief Returns a const reference to the flow map.
+    ///
+    /// Returns a const reference to the arc map storing the found flow.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
+    const FlowMap& flowMap() {
+      return *_flow;
+    }
 
-    ///Returns true if the node is in the barrier
-    ///\sa barrierMap()
+    /**
+       \brief Returns \c true if the given node is in a barrier.
+
+       Barrier is a set \e B of nodes for which
+
+       \f[ \sum_{a\in\delta_{out}(B)} upper(a) -
+           \sum_{a\in\delta_{in}(B)} lower(a) < \sum_{v\in B}delta(v) \f]
+
+       holds. The existence of a set with this property prooves that a
+       feasible circualtion cannot exist.
+
+       This function returns \c true if the given node is in the found
+       barrier. If a feasible circulation is found, the function
+       gives back \c false for every node.
+
+       \pre Either \ref run() or \ref init() must be called before
+       using this function.
+
+       \sa barrierMap()
+       \sa checkBarrier()
+    */
     bool barrier(const Node& node)
     {
       return (*_level)[node] >= _el;
     }
 
-    /// \brief Returns the flow on the arc.
+    /// \brief Gives back a barrier.
     ///
-    /// Sets the \c flowMap to the flow on the arcs. This method can
-    /// be called after the second phase of algorithm.
-    Value flow(const Arc& arc) const {
-      return (*_flow)[arc];
+    /// This function sets \c bar to the characteristic vector of the
+    /// found barrier. \c bar should be a \ref concepts::WriteMap "writable"
+    /// node map with \c bool (or convertible) value type.
+    ///
+    /// If a feasible circulation is found, the function gives back an
+    /// empty set, so \c bar[v] will be \c false for all nodes \c v.
+    ///
+    /// \note This function calls \ref barrier() for each node,
+    /// so it runs in \f$O(n)\f$ time.
+    ///
+    /// \pre Either \ref run() or \ref init() must be called before
+    /// using this function.
+    ///
+    /// \sa barrier()
+    /// \sa checkBarrier()
+    template<class BarrierMap>
+    void barrierMap(BarrierMap &bar)
+    {
+      for(NodeIt n(_g);n!=INVALID;++n)
+        bar.set(n, (*_level)[n] >= _el);
     }
 
     /// @}
 
     /// \name Checker Functions
-    /// The feasibility  of the results can be checked using
-    /// these functions.
-    /// \n
-    /// Before the use of these functions,
-    /// either run() or start() must be called.
+    /// The feasibility of the results can be checked using
+    /// these functions.\n
+    /// Either \ref run() or \ref start() should be called before
+    /// using them.
 
     ///@{
 
-    ///Check if the  \c flow is a feasible circulation
+    ///Check if the found flow is a feasible circulation
+
+    ///Check if the found flow is a feasible circulation,
+    ///
     bool checkFlow() {
       for(ArcIt e(_g);e!=INVALID;++e)
         if((*_flow)[e]<(*_lo)[e]||(*_flow)[e]>(*_up)[e]) return false;
@@ -629,8 +727,9 @@ namespace lemon {
 
     ///Check whether or not the last execution provides a barrier
 
-    ///Check whether or not the last execution provides a barrier
+    ///Check whether or not the last execution provides a barrier.
     ///\sa barrier()
+    ///\sa barrierMap()
     bool checkBarrier()
     {
       Value delta=0;
