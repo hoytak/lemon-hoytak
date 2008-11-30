@@ -119,13 +119,7 @@ namespace lemon {
   ///used easier.
   ///
   ///\tparam GR The type of the digraph the algorithm runs on.
-  ///The default value is \ref ListDigraph. The value of GR is not used
-  ///directly by \ref Dfs, it is only passed to \ref DfsDefaultTraits.
-  ///\tparam TR Traits class to set various data types used by the algorithm.
-  ///The default traits class is
-  ///\ref DfsDefaultTraits "DfsDefaultTraits<GR>".
-  ///See \ref DfsDefaultTraits for the documentation of
-  ///a Dfs traits class.
+  ///The default type is \ref ListDigraph.
 #ifdef DOXYGEN
   template <typename GR,
             typename TR>
@@ -151,7 +145,7 @@ namespace lemon {
     ///The type of the paths.
     typedef PredMapPath<Digraph, PredMap> Path;
 
-    ///The traits class.
+    ///The \ref DfsDefaultTraits "traits class" of the algorithm.
     typedef TR Traits;
 
   private:
@@ -230,6 +224,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///PredMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetPredMap : public Dfs<Digraph, SetPredMapTraits<T> > {
       typedef Dfs<Digraph, SetPredMapTraits<T> > Create;
@@ -249,6 +244,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///DistMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetDistMap : public Dfs< Digraph, SetDistMapTraits<T> > {
       typedef Dfs<Digraph, SetDistMapTraits<T> > Create;
@@ -268,6 +264,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///ReachedMap type.
+    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     template <class T>
     struct SetReachedMap : public Dfs< Digraph, SetReachedMapTraits<T> > {
       typedef Dfs< Digraph, SetReachedMapTraits<T> > Create;
@@ -287,6 +284,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///ProcessedMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetProcessedMap : public Dfs< Digraph, SetProcessedMapTraits<T> > {
       typedef Dfs< Digraph, SetProcessedMapTraits<T> > Create;
@@ -338,9 +336,10 @@ namespace lemon {
     ///Sets the map that stores the predecessor arcs.
 
     ///Sets the map that stores the predecessor arcs.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dfs &predMap(PredMap &m)
     {
@@ -355,9 +354,10 @@ namespace lemon {
     ///Sets the map that indicates which nodes are reached.
 
     ///Sets the map that indicates which nodes are reached.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dfs &reachedMap(ReachedMap &m)
     {
@@ -372,9 +372,10 @@ namespace lemon {
     ///Sets the map that indicates which nodes are processed.
 
     ///Sets the map that indicates which nodes are processed.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dfs &processedMap(ProcessedMap &m)
     {
@@ -390,9 +391,10 @@ namespace lemon {
 
     ///Sets the map that stores the distances of the nodes calculated by
     ///the algorithm.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dfs &distMap(DistMap &m)
     {
@@ -406,22 +408,20 @@ namespace lemon {
 
   public:
 
-    ///\name Execution control
-    ///The simplest way to execute the algorithm is to use
-    ///one of the member functions called \ref lemon::Dfs::run() "run()".
-    ///\n
-    ///If you need more control on the execution, first you must call
-    ///\ref lemon::Dfs::init() "init()", then you can add a source node
-    ///with \ref lemon::Dfs::addSource() "addSource()".
-    ///Finally \ref lemon::Dfs::start() "start()" will perform the
-    ///actual path computation.
+    ///\name Execution Control
+    ///The simplest way to execute the DFS algorithm is to use one of the
+    ///member functions called \ref run(Node) "run()".\n
+    ///If you need more control on the execution, first you have to call
+    ///\ref init(), then you can add a source node with \ref addSource()
+    ///and perform the actual computation with \ref start().
+    ///This procedure can be repeated if there are nodes that have not
+    ///been reached.
 
     ///@{
 
-    ///Initializes the internal data structures.
-
-    ///Initializes the internal data structures.
+    ///\brief Initializes the internal data structures.
     ///
+    ///Initializes the internal data structures.
     void init()
     {
       create_maps();
@@ -438,11 +438,10 @@ namespace lemon {
 
     ///Adds a new source node to the set of nodes to be processed.
     ///
-    ///\pre The stack must be empty. (Otherwise the algorithm gives
-    ///false results.)
-    ///
-    ///\warning Distances will be wrong (or at least strange) in case of
-    ///multiple sources.
+    ///\pre The stack must be empty. Otherwise the algorithm gives
+    ///wrong results. (One of the outgoing arcs of all the source nodes
+    ///except for the last one will not be visited and distances will
+    ///also be wrong.)
     void addSource(Node s)
     {
       LEMON_DEBUG(emptyQueue(), "The stack is not empty.");
@@ -506,16 +505,16 @@ namespace lemon {
       return _stack_head>=0?_stack[_stack_head]:INVALID;
     }
 
-    ///\brief Returns \c false if there are nodes
-    ///to be processed.
-    ///
-    ///Returns \c false if there are nodes
-    ///to be processed in the queue (stack).
+    ///Returns \c false if there are nodes to be processed.
+
+    ///Returns \c false if there are nodes to be processed
+    ///in the queue (stack).
     bool emptyQueue() const { return _stack_head<0; }
 
     ///Returns the number of the nodes to be processed.
 
-    ///Returns the number of the nodes to be processed in the queue (stack).
+    ///Returns the number of the nodes to be processed
+    ///in the queue (stack).
     int queueSize() const { return _stack_head+1; }
 
     ///Executes the algorithm.
@@ -637,8 +636,8 @@ namespace lemon {
     ///%DFS path to each node.
     ///
     ///The algorithm computes
-    ///- the %DFS tree,
-    ///- the distance of each node from the root in the %DFS tree.
+    ///- the %DFS tree (forest),
+    ///- the distance of each node from the root(s) in the %DFS tree.
     ///
     ///\note <tt>d.run()</tt> is just a shortcut of the following code.
     ///\code
@@ -663,10 +662,10 @@ namespace lemon {
     ///@}
 
     ///\name Query Functions
-    ///The result of the %DFS algorithm can be obtained using these
+    ///The results of the DFS algorithm can be obtained using these
     ///functions.\n
-    ///Either \ref lemon::Dfs::run() "run()" or \ref lemon::Dfs::start()
-    ///"start()" must be called before using them.
+    ///Either \ref run(Node) "run()" or \ref start() should be called
+    ///before using them.
 
     ///@{
 
@@ -674,49 +673,49 @@ namespace lemon {
 
     ///Returns the DFS path to a node.
     ///
-    ///\warning \c t should be reachable from the root.
+    ///\warning \c t should be reached from the root(s).
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Path path(Node t) const { return Path(*G, *_pred, t); }
 
-    ///The distance of a node from the root.
+    ///The distance of a node from the root(s).
 
-    ///Returns the distance of a node from the root.
+    ///Returns the distance of a node from the root(s).
     ///
-    ///\warning If node \c v is not reachable from the root, then
+    ///\warning If node \c v is not reached from the root(s), then
     ///the return value of this function is undefined.
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     int dist(Node v) const { return (*_dist)[v]; }
 
     ///Returns the 'previous arc' of the %DFS tree for a node.
 
     ///This function returns the 'previous arc' of the %DFS tree for the
-    ///node \c v, i.e. it returns the last arc of a %DFS path from the
-    ///root to \c v. It is \c INVALID
-    ///if \c v is not reachable from the root(s) or if \c v is a root.
+    ///node \c v, i.e. it returns the last arc of a %DFS path from a
+    ///root to \c v. It is \c INVALID if \c v is not reached from the
+    ///root(s) or if \c v is a root.
     ///
     ///The %DFS tree used here is equal to the %DFS tree used in
     ///\ref predNode().
     ///
-    ///\pre Either \ref run() or \ref start() must be called before using
-    ///this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Arc predArc(Node v) const { return (*_pred)[v];}
 
     ///Returns the 'previous node' of the %DFS tree.
 
     ///This function returns the 'previous node' of the %DFS
     ///tree for the node \c v, i.e. it returns the last but one node
-    ///from a %DFS path from the root to \c v. It is \c INVALID
-    ///if \c v is not reachable from the root(s) or if \c v is a root.
+    ///from a %DFS path from a root to \c v. It is \c INVALID
+    ///if \c v is not reached from the root(s) or if \c v is a root.
     ///
     ///The %DFS tree used here is equal to the %DFS tree used in
     ///\ref predArc().
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Node predNode(Node v) const { return (*_pred)[v]==INVALID ? INVALID:
                                   G->source((*_pred)[v]); }
 
@@ -726,7 +725,7 @@ namespace lemon {
     ///Returns a const reference to the node map that stores the
     ///distances of the nodes calculated by the algorithm.
     ///
-    ///\pre Either \ref run() or \ref init()
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const DistMap &distMap() const { return *_dist;}
 
@@ -736,14 +735,15 @@ namespace lemon {
     ///Returns a const reference to the node map that stores the predecessor
     ///arcs, which form the DFS tree.
     ///
-    ///\pre Either \ref run() or \ref init()
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
 
-    ///Checks if a node is reachable from the root(s).
+    ///Checks if a node is reached from the root(s).
 
-    ///Returns \c true if \c v is reachable from the root(s).
-    ///\pre Either \ref run() or \ref start()
+    ///Returns \c true if \c v is reached from the root(s).
+    ///
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     bool reached(Node v) const { return (*_reached)[v]; }
 
@@ -889,8 +889,8 @@ namespace lemon {
 
   /// This auxiliary class is created to implement the
   /// \ref dfs() "function-type interface" of \ref Dfs algorithm.
-  /// It does not have own \ref run() method, it uses the functions
-  /// and features of the plain \ref Dfs.
+  /// It does not have own \ref run(Node) "run()" method, it uses the
+  /// functions and features of the plain \ref Dfs.
   ///
   /// This class should only be used through the \ref dfs() function,
   /// which makes it easier to use the algorithm.
@@ -1110,8 +1110,7 @@ namespace lemon {
   ///  // Compute the DFS path from s to t
   ///  bool reached = dfs(g).path(p).dist(d).run(s,t);
   ///\endcode
-
-  ///\warning Don't forget to put the \ref DfsWizard::run() "run()"
+  ///\warning Don't forget to put the \ref DfsWizard::run(Node) "run()"
   ///to the end of the parameter list.
   ///\sa DfsWizard
   ///\sa Dfs
@@ -1309,7 +1308,7 @@ namespace lemon {
 
     typedef DfsVisit Create;
 
-    /// \name Named template parameters
+    /// \name Named Template Parameters
 
     ///@{
     template <class T>
@@ -1351,9 +1350,10 @@ namespace lemon {
     /// \brief Sets the map that indicates which nodes are reached.
     ///
     /// Sets the map that indicates which nodes are reached.
-    /// If you don't use this function before calling \ref run(),
-    /// it will allocate one. The destructor deallocates this
-    /// automatically allocated map, of course.
+    /// If you don't use this function before calling \ref run(Node) "run()"
+    /// or \ref init(), an instance will be allocated automatically.
+    /// The destructor deallocates this automatically allocated map,
+    /// of course.
     /// \return <tt> (*this) </tt>
     DfsVisit &reachedMap(ReachedMap &m) {
       if(local_reached) {
@@ -1366,16 +1366,14 @@ namespace lemon {
 
   public:
 
-    /// \name Execution control
-    /// The simplest way to execute the algorithm is to use
-    /// one of the member functions called \ref lemon::DfsVisit::run()
-    /// "run()".
-    /// \n
-    /// If you need more control on the execution, first you must call
-    /// \ref lemon::DfsVisit::init() "init()", then you can add several
-    /// source nodes with \ref lemon::DfsVisit::addSource() "addSource()".
-    /// Finally \ref lemon::DfsVisit::start() "start()" will perform the
-    /// actual path computation.
+    /// \name Execution Control
+    /// The simplest way to execute the DFS algorithm is to use one of the
+    /// member functions called \ref run(Node) "run()".\n
+    /// If you need more control on the execution, first you have to call
+    /// \ref init(), then you can add a source node with \ref addSource()
+    /// and perform the actual computation with \ref start().
+    /// This procedure can be repeated if there are nodes that have not
+    /// been reached.
 
     /// @{
 
@@ -1391,15 +1389,14 @@ namespace lemon {
       }
     }
 
-    ///Adds a new source node.
-
-    ///Adds a new source node to the set of nodes to be processed.
+    /// \brief Adds a new source node.
     ///
-    ///\pre The stack must be empty. (Otherwise the algorithm gives
-    ///false results.)
+    /// Adds a new source node to the set of nodes to be processed.
     ///
-    ///\warning Distances will be wrong (or at least strange) in case of
-    ///multiple sources.
+    /// \pre The stack must be empty. Otherwise the algorithm gives
+    /// wrong results. (One of the outgoing arcs of all the source nodes
+    /// except for the last one will not be visited and distances will
+    /// also be wrong.)
     void addSource(Node s)
     {
       LEMON_DEBUG(emptyQueue(), "The stack is not empty.");
@@ -1589,8 +1586,8 @@ namespace lemon {
     /// compute the %DFS path to each node.
     ///
     /// The algorithm computes
-    /// - the %DFS tree,
-    /// - the distance of each node from the root in the %DFS tree.
+    /// - the %DFS tree (forest),
+    /// - the distance of each node from the root(s) in the %DFS tree.
     ///
     /// \note <tt>d.run()</tt> is just a shortcut of the following code.
     ///\code
@@ -1615,17 +1612,18 @@ namespace lemon {
     ///@}
 
     /// \name Query Functions
-    /// The result of the %DFS algorithm can be obtained using these
+    /// The results of the DFS algorithm can be obtained using these
     /// functions.\n
-    /// Either \ref lemon::DfsVisit::run() "run()" or
-    /// \ref lemon::DfsVisit::start() "start()" must be called before
-    /// using them.
+    /// Either \ref run(Node) "run()" or \ref start() should be called
+    /// before using them.
+
     ///@{
 
-    /// \brief Checks if a node is reachable from the root(s).
+    /// \brief Checks if a node is reached from the root(s).
     ///
-    /// Returns \c true if \c v is reachable from the root(s).
-    /// \pre Either \ref run() or \ref start()
+    /// Returns \c true if \c v is reached from the root(s).
+    ///
+    /// \pre Either \ref run(Node) "run()" or \ref init()
     /// must be called before using this function.
     bool reached(Node v) { return (*_reached)[v]; }
 

@@ -202,20 +202,13 @@ namespace lemon {
   ///it can be used easier.
   ///
   ///\tparam GR The type of the digraph the algorithm runs on.
-  ///The default value is \ref ListDigraph.
-  ///The value of GR is not used directly by \ref Dijkstra, it is only
-  ///passed to \ref DijkstraDefaultTraits.
-  ///\tparam LM A readable arc map that determines the lengths of the
-  ///arcs. It is read once for each arc, so the map may involve in
+  ///The default type is \ref ListDigraph.
+  ///\tparam LM A \ref concepts::ReadMap "readable" arc map that specifies
+  ///the lengths of the arcs.
+  ///It is read once for each arc, so the map may involve in
   ///relatively time consuming process to compute the arc lengths if
   ///it is necessary. The default map type is \ref
-  ///concepts::Digraph::ArcMap "Digraph::ArcMap<int>".
-  ///The value of LM is not used directly by \ref Dijkstra, it is only
-  ///passed to \ref DijkstraDefaultTraits.
-  ///\tparam TR Traits class to set various data types used by the algorithm.
-  ///The default traits class is \ref DijkstraDefaultTraits
-  ///"DijkstraDefaultTraits<GR,LM>". See \ref DijkstraDefaultTraits
-  ///for the documentation of a Dijkstra traits class.
+  ///concepts::Digraph::ArcMap "GR::ArcMap<int>".
 #ifdef DOXYGEN
   template <typename GR, typename LM, typename TR>
 #else
@@ -249,7 +242,7 @@ namespace lemon {
     ///The operation traits class.
     typedef typename TR::OperationTraits OperationTraits;
 
-    ///The traits class.
+    ///The \ref DijkstraDefaultTraits "traits class" of the algorithm.
     typedef TR Traits;
 
   private:
@@ -331,6 +324,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///PredMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetPredMap
       : public Dijkstra< Digraph, LengthMap, SetPredMapTraits<T> > {
@@ -351,6 +345,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///DistMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetDistMap
       : public Dijkstra< Digraph, LengthMap, SetDistMapTraits<T> > {
@@ -371,6 +366,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///ProcessedMap type.
+    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetProcessedMap
       : public Dijkstra< Digraph, LengthMap, SetProcessedMapTraits<T> > {
@@ -411,10 +407,14 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///heap and cross reference type
+    ///heap and cross reference types
     ///
     ///\ref named-templ-param "Named parameter" for setting heap and cross
-    ///reference type.
+    ///reference types. If this named parameter is used, then external
+    ///heap and cross reference objects must be passed to the algorithm
+    ///using the \ref heap() function before calling \ref run(Node) "run()"
+    ///or \ref init().
+    ///\sa SetStandardHeap
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct SetHeap
       : public Dijkstra< Digraph, LengthMap, SetHeapTraits<H, CR> > {
@@ -434,12 +434,18 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///heap and cross reference type with automatic allocation
+    ///heap and cross reference types with automatic allocation
     ///
     ///\ref named-templ-param "Named parameter" for setting heap and cross
-    ///reference type. It can allocate the heap and the cross reference
-    ///object if the cross reference's constructor waits for the digraph as
-    ///parameter and the heap's constructor waits for the cross reference.
+    ///reference types with automatic allocation.
+    ///They should have standard constructor interfaces to be able to
+    ///automatically created by the algorithm (i.e. the digraph should be
+    ///passed to the constructor of the cross reference and the cross
+    ///reference should be passed to the constructor of the heap).
+    ///However external heap and cross reference objects could also be
+    ///passed to the algorithm using the \ref heap() function before
+    ///calling \ref run(Node) "run()" or \ref init().
+    ///\sa SetHeap
     template <class H, class CR = typename Digraph::template NodeMap<int> >
     struct SetStandardHeap
       : public Dijkstra< Digraph, LengthMap, SetStandardHeapTraits<H, CR> > {
@@ -509,9 +515,10 @@ namespace lemon {
     ///Sets the map that stores the predecessor arcs.
 
     ///Sets the map that stores the predecessor arcs.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dijkstra &predMap(PredMap &m)
     {
@@ -526,9 +533,10 @@ namespace lemon {
     ///Sets the map that indicates which nodes are processed.
 
     ///Sets the map that indicates which nodes are processed.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dijkstra &processedMap(ProcessedMap &m)
     {
@@ -544,9 +552,10 @@ namespace lemon {
 
     ///Sets the map that stores the distances of the nodes calculated by the
     ///algorithm.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated map, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), an instance will be allocated automatically.
+    ///The destructor deallocates this automatically allocated map,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dijkstra &distMap(DistMap &m)
     {
@@ -561,9 +570,11 @@ namespace lemon {
     ///Sets the heap and the cross reference used by algorithm.
 
     ///Sets the heap and the cross reference used by algorithm.
-    ///If you don't use this function before calling \ref run(),
-    ///it will allocate one. The destructor deallocates this
-    ///automatically allocated heap and cross reference, of course.
+    ///If you don't use this function before calling \ref run(Node) "run()"
+    ///or \ref init(), heap and cross reference instances will be
+    ///allocated automatically.
+    ///The destructor deallocates these automatically allocated objects,
+    ///of course.
     ///\return <tt> (*this) </tt>
     Dijkstra &heap(Heap& hp, HeapCrossRef &cr)
     {
@@ -590,22 +601,19 @@ namespace lemon {
 
   public:
 
-    ///\name Execution control
-    ///The simplest way to execute the algorithm is to use one of the
-    ///member functions called \ref lemon::Dijkstra::run() "run()".
-    ///\n
-    ///If you need more control on the execution, first you must call
-    ///\ref lemon::Dijkstra::init() "init()", then you can add several
-    ///source nodes with \ref lemon::Dijkstra::addSource() "addSource()".
-    ///Finally \ref lemon::Dijkstra::start() "start()" will perform the
-    ///actual path computation.
+    ///\name Execution Control
+    ///The simplest way to execute the %Dijkstra algorithm is to use
+    ///one of the member functions called \ref run(Node) "run()".\n
+    ///If you need more control on the execution, first you have to call
+    ///\ref init(), then you can add several source nodes with
+    ///\ref addSource(). Finally the actual path computation can be
+    ///performed with one of the \ref start() functions.
 
     ///@{
 
-    ///Initializes the internal data structures.
-
-    ///Initializes the internal data structures.
+    ///\brief Initializes the internal data structures.
     ///
+    ///Initializes the internal data structures.
     void init()
     {
       create_maps();
@@ -681,17 +689,16 @@ namespace lemon {
       return !_heap->empty()?_heap->top():INVALID;
     }
 
-    ///\brief Returns \c false if there are nodes
-    ///to be processed.
-    ///
-    ///Returns \c false if there are nodes
-    ///to be processed in the priority heap.
+    ///Returns \c false if there are nodes to be processed.
+
+    ///Returns \c false if there are nodes to be processed
+    ///in the priority heap.
     bool emptyQueue() const { return _heap->empty(); }
 
-    ///Returns the number of the nodes to be processed in the priority heap
+    ///Returns the number of the nodes to be processed.
 
-    ///Returns the number of the nodes to be processed in the priority heap.
-    ///
+    ///Returns the number of the nodes to be processed
+    ///in the priority heap.
     int queueSize() const { return _heap->size(); }
 
     ///Executes the algorithm.
@@ -812,11 +819,10 @@ namespace lemon {
     ///@}
 
     ///\name Query Functions
-    ///The result of the %Dijkstra algorithm can be obtained using these
+    ///The results of the %Dijkstra algorithm can be obtained using these
     ///functions.\n
-    ///Either \ref lemon::Dijkstra::run() "run()" or
-    ///\ref lemon::Dijkstra::start() "start()" must be called before
-    ///using them.
+    ///Either \ref run(Node) "run()" or \ref start() should be called
+    ///before using them.
 
     ///@{
 
@@ -824,49 +830,49 @@ namespace lemon {
 
     ///Returns the shortest path to a node.
     ///
-    ///\warning \c t should be reachable from the root(s).
+    ///\warning \c t should be reached from the root(s).
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Path path(Node t) const { return Path(*G, *_pred, t); }
 
     ///The distance of a node from the root(s).
 
     ///Returns the distance of a node from the root(s).
     ///
-    ///\warning If node \c v is not reachable from the root(s), then
+    ///\warning If node \c v is not reached from the root(s), then
     ///the return value of this function is undefined.
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Value dist(Node v) const { return (*_dist)[v]; }
 
     ///Returns the 'previous arc' of the shortest path tree for a node.
 
     ///This function returns the 'previous arc' of the shortest path
     ///tree for the node \c v, i.e. it returns the last arc of a
-    ///shortest path from the root(s) to \c v. It is \c INVALID if \c v
-    ///is not reachable from the root(s) or if \c v is a root.
+    ///shortest path from a root to \c v. It is \c INVALID if \c v
+    ///is not reached from the root(s) or if \c v is a root.
     ///
     ///The shortest path tree used here is equal to the shortest path
     ///tree used in \ref predNode().
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Arc predArc(Node v) const { return (*_pred)[v]; }
 
     ///Returns the 'previous node' of the shortest path tree for a node.
 
     ///This function returns the 'previous node' of the shortest path
     ///tree for the node \c v, i.e. it returns the last but one node
-    ///from a shortest path from the root(s) to \c v. It is \c INVALID
-    ///if \c v is not reachable from the root(s) or if \c v is a root.
+    ///from a shortest path from a root to \c v. It is \c INVALID
+    ///if \c v is not reached from the root(s) or if \c v is a root.
     ///
     ///The shortest path tree used here is equal to the shortest path
     ///tree used in \ref predArc().
     ///
-    ///\pre Either \ref run() or \ref start() must be called before
-    ///using this function.
+    ///\pre Either \ref run(Node) "run()" or \ref init()
+    ///must be called before using this function.
     Node predNode(Node v) const { return (*_pred)[v]==INVALID ? INVALID:
                                   G->source((*_pred)[v]); }
 
@@ -876,7 +882,7 @@ namespace lemon {
     ///Returns a const reference to the node map that stores the distances
     ///of the nodes calculated by the algorithm.
     ///
-    ///\pre Either \ref run() or \ref init()
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const DistMap &distMap() const { return *_dist;}
 
@@ -886,14 +892,15 @@ namespace lemon {
     ///Returns a const reference to the node map that stores the predecessor
     ///arcs, which form the shortest path tree.
     ///
-    ///\pre Either \ref run() or \ref init()
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
 
-    ///Checks if a node is reachable from the root(s).
+    ///Checks if a node is reached from the root(s).
 
-    ///Returns \c true if \c v is reachable from the root(s).
-    ///\pre Either \ref run() or \ref start()
+    ///Returns \c true if \c v is reached from the root(s).
+    ///
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     bool reached(Node v) const { return (*_heap_cross_ref)[v] !=
                                         Heap::PRE_HEAP; }
@@ -902,7 +909,8 @@ namespace lemon {
 
     ///Returns \c true if \c v is processed, i.e. the shortest
     ///path to \c v has already found.
-    ///\pre Either \ref run() or \ref init()
+    ///
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     bool processed(Node v) const { return (*_heap_cross_ref)[v] ==
                                           Heap::POST_HEAP; }
@@ -911,7 +919,8 @@ namespace lemon {
 
     ///Returns the current distance of a node from the root(s).
     ///It may be decreased in the following processes.
-    ///\pre Either \ref run() or \ref init()
+    ///
+    ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function and
     ///node \c v must be reached but not necessarily processed.
     Value currentDist(Node v) const {
@@ -1094,8 +1103,8 @@ namespace lemon {
 
   /// This auxiliary class is created to implement the
   /// \ref dijkstra() "function-type interface" of \ref Dijkstra algorithm.
-  /// It does not have own \ref run() method, it uses the functions
-  /// and features of the plain \ref Dijkstra.
+  /// It does not have own \ref run(Node) "run()" method, it uses the
+  /// functions and features of the plain \ref Dijkstra.
   ///
   /// This class should only be used through the \ref dijkstra() function,
   /// which makes it easier to use the algorithm.
@@ -1290,7 +1299,7 @@ namespace lemon {
   ///  // Compute shortest path from s to t
   ///  bool reached = dijkstra(g,length).path(p).dist(d).run(s,t);
   ///\endcode
-  ///\warning Don't forget to put the \ref DijkstraWizard::run() "run()"
+  ///\warning Don't forget to put the \ref DijkstraWizard::run(Node) "run()"
   ///to the end of the parameter list.
   ///\sa DijkstraWizard
   ///\sa Dijkstra
