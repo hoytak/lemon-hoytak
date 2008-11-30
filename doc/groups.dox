@@ -16,6 +16,8 @@
  *
  */
 
+namespace lemon {
+
 /**
 @defgroup datas Data Structures
 This group describes the several data structures implemented in LEMON.
@@ -88,7 +90,10 @@ new maps from existing ones.
 \brief Special graph-related maps.
 
 This group describes maps that are specifically designed to assign
-values to the nodes and arcs of graphs.
+values to the nodes and arcs/edges of graphs.
+
+If you are looking for the standard graph maps (\c NodeMap, \c ArcMap,
+\c EdgeMap), see the \ref graph_concepts "Graph Structure Concepts".
 */
 
 /**
@@ -99,7 +104,7 @@ values to the nodes and arcs of graphs.
 This group describes map adaptors that are used to create "implicit"
 maps from other maps.
 
-Most of them are \ref lemon::concepts::ReadMap "read-only maps".
+Most of them are \ref concepts::ReadMap "read-only maps".
 They can make arithmetic and logical operations between one or two maps
 (negation, shifting, addition, multiplication, logical 'and', 'or',
 'not' etc.) or e.g. convert a map to another one of different Value type.
@@ -201,8 +206,8 @@ implemented in LEMON.
 @ingroup algs
 \brief Common graph search algorithms.
 
-This group describes the common graph search algorithms like
-Breadth-First Search (BFS) and Depth-First Search (DFS).
+This group describes the common graph search algorithms, namely
+\e breadth-first \e search (BFS) and \e depth-first \e search (DFS).
 */
 
 /**
@@ -210,7 +215,20 @@ Breadth-First Search (BFS) and Depth-First Search (DFS).
 @ingroup algs
 \brief Algorithms for finding shortest paths.
 
-This group describes the algorithms for finding shortest paths in graphs.
+This group describes the algorithms for finding shortest paths in digraphs.
+
+ - \ref Dijkstra algorithm for finding shortest paths from a source node
+   when all arc lengths are non-negative.
+ - \ref BellmanFord "Bellman-Ford" algorithm for finding shortest paths
+   from a source node when arc lenghts can be either positive or negative,
+   but the digraph should not contain directed cycles with negative total
+   length.
+ - \ref FloydWarshall "Floyd-Warshall" and \ref Johnson "Johnson" algorithms
+   for solving the \e all-pairs \e shortest \e paths \e problem when arc
+   lenghts can be either positive or negative, but the digraph should
+   not contain directed cycles with negative total length.
+ - \ref Suurballe A successive shortest path algorithm for finding
+   arc-disjoint paths between two nodes having minimum total length.
 */
 
 /**
@@ -221,27 +239,28 @@ This group describes the algorithms for finding shortest paths in graphs.
 This group describes the algorithms for finding maximum flows and
 feasible circulations.
 
-The maximum flow problem is to find a flow between a single source and
-a single target that is maximum. Formally, there is a \f$G=(V,A)\f$
-directed graph, an \f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity
-function and given \f$s, t \in V\f$ source and target node. The
-maximum flow is the \f$f_a\f$ solution of the next optimization problem:
+The \e maximum \e flow \e problem is to find a flow of maximum value between
+a single source and a single target. Formally, there is a \f$G=(V,A)\f$
+digraph, a \f$cap:A\rightarrow\mathbf{R}^+_0\f$ capacity function and
+\f$s, t \in V\f$ source and target nodes.
+A maximum flow is an \f$f:A\rightarrow\mathbf{R}^+_0\f$ solution of the
+following optimization problem.
 
-\f[ 0 \le f_a \le c_a \f]
-\f[ \sum_{v\in\delta^{-}(u)}f_{vu}=\sum_{v\in\delta^{+}(u)}f_{uv}
-\qquad \forall u \in V \setminus \{s,t\}\f]
-\f[ \max \sum_{v\in\delta^{+}(s)}f_{uv} - \sum_{v\in\delta^{-}(s)}f_{vu}\f]
+\f[ \max\sum_{a\in\delta_{out}(s)}f(a) - \sum_{a\in\delta_{in}(s)}f(a) \f]
+\f[ \sum_{a\in\delta_{out}(v)} f(a) = \sum_{a\in\delta_{in}(v)} f(a)
+    \qquad \forall v\in V\setminus\{s,t\} \f]
+\f[ 0 \leq f(a) \leq cap(a) \qquad \forall a\in A \f]
 
 LEMON contains several algorithms for solving maximum flow problems:
-- \ref lemon::EdmondsKarp "Edmonds-Karp"
-- \ref lemon::Preflow "Goldberg's Preflow algorithm"
-- \ref lemon::DinitzSleatorTarjan "Dinitz's blocking flow algorithm with dynamic trees"
-- \ref lemon::GoldbergTarjan "Preflow algorithm with dynamic trees"
+- \ref EdmondsKarp Edmonds-Karp algorithm.
+- \ref Preflow Goldberg-Tarjan's preflow push-relabel algorithm.
+- \ref DinitzSleatorTarjan Dinitz's blocking flow algorithm with dynamic trees.
+- \ref GoldbergTarjan Preflow push-relabel algorithm with dynamic trees.
 
-In most cases the \ref lemon::Preflow "Preflow" algorithm provides the
-fastest method to compute the maximum flow. All impelementations
-provides functions to query the minimum cut, which is the dual linear
-programming problem of the maximum flow.
+In most cases the \ref Preflow "Preflow" algorithm provides the
+fastest method for computing a maximum flow. All implementations
+provides functions to also query the minimum cut, which is the dual
+problem of the maximum flow.
 */
 
 /**
@@ -252,6 +271,33 @@ programming problem of the maximum flow.
 
 This group describes the algorithms for finding minimum cost flows and
 circulations.
+
+The \e minimum \e cost \e flow \e problem is to find a feasible flow of
+minimum total cost from a set of supply nodes to a set of demand nodes
+in a network with capacity constraints and arc costs.
+Formally, let \f$G=(V,A)\f$ be a digraph,
+\f$lower, upper: A\rightarrow\mathbf{Z}^+_0\f$ denote the lower and
+upper bounds for the flow values on the arcs,
+\f$cost: A\rightarrow\mathbf{Z}^+_0\f$ denotes the cost per unit flow
+on the arcs, and
+\f$supply: V\rightarrow\mathbf{Z}\f$ denotes the supply/demand values
+of the nodes.
+A minimum cost flow is an \f$f:A\rightarrow\mathbf{R}^+_0\f$ solution of
+the following optimization problem.
+
+\f[ \min\sum_{a\in A} f(a) cost(a) \f]
+\f[ \sum_{a\in\delta_{out}(v)} f(a) - \sum_{a\in\delta_{in}(v)} f(a) =
+    supply(v) \qquad \forall v\in V \f]
+\f[ lower(a) \leq f(a) \leq upper(a) \qquad \forall a\in A \f]
+
+LEMON contains several algorithms for solving minimum cost flow problems:
+ - \ref CycleCanceling Cycle-canceling algorithms.
+ - \ref CapacityScaling Successive shortest path algorithm with optional
+   capacity scaling.
+ - \ref CostScaling Push-relabel and augment-relabel algorithms based on
+   cost scaling.
+ - \ref NetworkSimplex Primal network simplex algorithm with various
+   pivot strategies.
 */
 
 /**
@@ -262,26 +308,26 @@ circulations.
 
 This group describes the algorithms for finding minimum cut in graphs.
 
-The minimum cut problem is to find a non-empty and non-complete
-\f$X\f$ subset of the vertices with minimum overall capacity on
-outgoing arcs. Formally, there is \f$G=(V,A)\f$ directed graph, an
-\f$c_a:A\rightarrow\mathbf{R}^+_0\f$ capacity function. The minimum
+The \e minimum \e cut \e problem is to find a non-empty and non-complete
+\f$X\f$ subset of the nodes with minimum overall capacity on
+outgoing arcs. Formally, there is a \f$G=(V,A)\f$ digraph, a
+\f$cap: A\rightarrow\mathbf{R}^+_0\f$ capacity function. The minimum
 cut is the \f$X\f$ solution of the next optimization problem:
 
 \f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}
-\sum_{uv\in A, u\in X, v\not\in X}c_{uv}\f]
+    \sum_{uv\in A, u\in X, v\not\in X}cap(uv) \f]
 
 LEMON contains several algorithms related to minimum cut problems:
 
-- \ref lemon::HaoOrlin "Hao-Orlin algorithm" to calculate minimum cut
-  in directed graphs
-- \ref lemon::NagamochiIbaraki "Nagamochi-Ibaraki algorithm" to
-  calculate minimum cut in undirected graphs
-- \ref lemon::GomoryHuTree "Gomory-Hu tree computation" to calculate all
-  pairs minimum cut in undirected graphs
+- \ref HaoOrlin "Hao-Orlin algorithm" for calculating minimum cut
+  in directed graphs.
+- \ref NagamochiIbaraki "Nagamochi-Ibaraki algorithm" for
+  calculating minimum cut in undirected graphs.
+- \ref GomoryHuTree "Gomory-Hu tree computation" for calculating
+  all-pairs minimum cut in undirected graphs.
 
 If you want to find minimum cut just between two distinict nodes,
-please see the \ref max_flow "Maximum Flow page".
+see the \ref max_flow "maximum flow problem".
 */
 
 /**
@@ -320,30 +366,28 @@ finding a subset of the arcs which does not shares common endpoints.
 There are several different algorithms for calculate matchings in
 graphs.  The matching problems in bipartite graphs are generally
 easier than in general graphs. The goal of the matching optimization
-can be the finding maximum cardinality, maximum weight or minimum cost
+can be finding maximum cardinality, maximum weight or minimum cost
 matching. The search can be constrained to find perfect or
 maximum cardinality matching.
 
-LEMON contains the next algorithms:
-- \ref lemon::MaxBipartiteMatching "MaxBipartiteMatching" Hopcroft-Karp
-  augmenting path algorithm for calculate maximum cardinality matching in
-  bipartite graphs
-- \ref lemon::PrBipartiteMatching "PrBipartiteMatching" Push-Relabel
-  algorithm for calculate maximum cardinality matching in bipartite graphs
-- \ref lemon::MaxWeightedBipartiteMatching "MaxWeightedBipartiteMatching"
-  Successive shortest path algorithm for calculate maximum weighted matching
-  and maximum weighted bipartite matching in bipartite graph
-- \ref lemon::MinCostMaxBipartiteMatching "MinCostMaxBipartiteMatching"
-  Successive shortest path algorithm for calculate minimum cost maximum
-  matching in bipartite graph
-- \ref lemon::MaxMatching "MaxMatching" Edmond's blossom shrinking algorithm
-  for calculate maximum cardinality matching in general graph
-- \ref lemon::MaxWeightedMatching "MaxWeightedMatching" Edmond's blossom
-  shrinking algorithm for calculate maximum weighted matching in general
-  graph
-- \ref lemon::MaxWeightedPerfectMatching "MaxWeightedPerfectMatching"
-  Edmond's blossom shrinking algorithm for calculate maximum weighted
-  perfect matching in general graph
+The matching algorithms implemented in LEMON:
+- \ref MaxBipartiteMatching Hopcroft-Karp augmenting path algorithm
+  for calculating maximum cardinality matching in bipartite graphs.
+- \ref PrBipartiteMatching Push-relabel algorithm
+  for calculating maximum cardinality matching in bipartite graphs.
+- \ref MaxWeightedBipartiteMatching
+  Successive shortest path algorithm for calculating maximum weighted
+  matching and maximum weighted bipartite matching in bipartite graphs.
+- \ref MinCostMaxBipartiteMatching
+  Successive shortest path algorithm for calculating minimum cost maximum
+  matching in bipartite graphs.
+- \ref MaxMatching Edmond's blossom shrinking algorithm for calculating
+  maximum cardinality matching in general graphs.
+- \ref MaxWeightedMatching Edmond's blossom shrinking algorithm for calculating
+  maximum weighted matching in general graphs.
+- \ref MaxWeightedPerfectMatching
+  Edmond's blossom shrinking algorithm for calculating maximum weighted
+  perfect matching in general graphs.
 
 \image html bipartite_matching.png
 \image latex bipartite_matching.eps "Bipartite Matching" width=\textwidth
@@ -355,7 +399,7 @@ LEMON contains the next algorithms:
 \brief Algorithms for finding a minimum cost spanning tree in a graph.
 
 This group describes the algorithms for finding a minimum cost spanning
-tree in a graph
+tree in a graph.
 */
 
 /**
@@ -546,7 +590,7 @@ This group describes the skeletons and concept checking classes of maps.
 /**
 \anchor demoprograms
 
-@defgroup demos Demo programs
+@defgroup demos Demo Programs
 
 Some demo programs are listed here. Their full source codes can be found in
 the \c demo subdirectory of the source tree.
@@ -556,7 +600,7 @@ build the library.
 */
 
 /**
-@defgroup tools Standalone utility applications
+@defgroup tools Standalone Utility Applications
 
 Some utility applications are listed here.
 
@@ -564,3 +608,4 @@ The standard compilation procedure (<tt>./configure;make</tt>) will compile
 them, as well.
 */
 
+}
