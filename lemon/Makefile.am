@@ -36,6 +36,7 @@ lemon_HEADERS += \
         lemon/grid_graph.h \
 	lemon/hypercube_graph.h \
 	lemon/kruskal.h \
+	lemon/hao_orlin.h \
 	lemon/lgf_reader.h \
 	lemon/lgf_writer.h \
 	lemon/list_graph.h \
