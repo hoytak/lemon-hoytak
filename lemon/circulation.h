@@ -169,7 +169,7 @@ namespace lemon {
     ///@{
 
     template <typename _FlowMap>
-    struct DefFlowMapTraits : public Traits {
+    struct SetFlowMapTraits : public Traits {
       typedef _FlowMap FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
         LEMON_ASSERT(false, "FlowMap is not initialized");
@@ -183,15 +183,15 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter" for setting FlowMap
     /// type
     template <typename _FlowMap>
-    struct DefFlowMap
+    struct SetFlowMap
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           DefFlowMapTraits<_FlowMap> > {
+                           SetFlowMapTraits<_FlowMap> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          DefFlowMapTraits<_FlowMap> > Create;
+                          SetFlowMapTraits<_FlowMap> > Create;
     };
 
     template <typename _Elevator>
-    struct DefElevatorTraits : public Traits {
+    struct SetElevatorTraits : public Traits {
       typedef _Elevator Elevator;
       static Elevator *createElevator(const Digraph&, int) {
         LEMON_ASSERT(false, "Elevator is not initialized");
@@ -205,15 +205,15 @@ namespace lemon {
     /// \ref named-templ-param "Named parameter" for setting Elevator
     /// type
     template <typename _Elevator>
-    struct DefElevator
+    struct SetElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           DefElevatorTraits<_Elevator> > {
+                           SetElevatorTraits<_Elevator> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          DefElevatorTraits<_Elevator> > Create;
+                          SetElevatorTraits<_Elevator> > Create;
     };
 
     template <typename _Elevator>
-    struct DefStandardElevatorTraits : public Traits {
+    struct SetStandardElevatorTraits : public Traits {
       typedef _Elevator Elevator;
       static Elevator *createElevator(const Digraph& digraph, int max_level) {
         return new Elevator(digraph, max_level);
@@ -227,11 +227,11 @@ namespace lemon {
     /// type. The Elevator should be standard constructor interface, ie.
     /// the digraph and the maximum level should be passed to it.
     template <typename _Elevator>
-    struct DefStandardElevator
+    struct SetStandardElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                       DefStandardElevatorTraits<_Elevator> > {
+                       SetStandardElevatorTraits<_Elevator> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                      DefStandardElevatorTraits<_Elevator> > Create;
+                      SetStandardElevatorTraits<_Elevator> > Create;
     };
 
     /// @}
