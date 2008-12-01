@@ -89,7 +89,7 @@ void checkDijkstraCompile()
       ::SetDistMap<concepts::ReadWriteMap<Node,VType> >
       ::SetProcessedMap<concepts::WriteMap<Node,bool> >
       ::SetStandardProcessedMap
-      ::SetOperationTraits<DijkstraWidestPathOperationTraits<VType> >
+      ::SetOperationTraits<DijkstraDefaultOperationTraits<VType> >
       ::SetHeap<BinHeap<VType, concepts::ReadWriteMap<Node,int> > >
       ::SetStandardHeap<BinHeap<VType, concepts::ReadWriteMap<Node,int> > >
       ::Create dijkstra_test(G,length);
