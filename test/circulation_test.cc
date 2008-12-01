@@ -16,103 +16,141 @@
  *
  */
 
-///\ingroup demos
-///\file
-///\brief Demonstrating the usage of LEMON's General Flow algorithm
-///
-/// This demo program reads a general network circulation problem from the
-/// file 'circulation-input.lgf', runs the preflow based algorithm for
-/// finding a feasible solution and writes the output
-/// to 'circulation-input.lgf'
-///
-/// \include circulation_demo.cc
-
 #include <iostream>
 
 #include "test_tools.h"
 #include <lemon/list_graph.h>
 #include <lemon/circulation.h>
 #include <lemon/lgf_reader.h>
+#include <lemon/concepts/digraph.h>
+#include <lemon/concepts/maps.h>
 
 using namespace lemon;
 
 char test_lgf[] =
   "@nodes\n"
-  "label delta\n"
-  "0     0\n"
-  "1     13\n"
-  "2     0\n"
-  "3     0\n"
-  "4     0\n"
-  "5     0\n"
-  "6     0\n"
-  "7     0\n"
-  "8     -13\n"
-  "9     0\n"
-  "@edges\n"
-  "    label lo_cap up_cap\n"
-  "0 1 0     0      20\n"
-  "0 2 1     0      0\n"
-  "1 1 2     0      3\n"
-  "1 2 3     0      8\n"
-  "1 3 4     0      8\n"
-  "2 5 5     0      5\n"
-  "3 2 6     0      5\n"
-  "3 5 7     0      5\n"
-  "3 6 8     0      5\n"
-  "4 3 9     0      3\n"
-  "5 7 10    0      3\n"
-  "5 6 11    0      10\n"
-  "5 8 12    0      10\n"
-  "6 8 13    0      8\n"
-  "8 9 14    0      20\n"
-  "8 1 15    0      5\n"
-  "9 5 16    0      5\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "@arcs\n"
+  "     lcap  ucap\n"
+  "0 1  2  10\n"
+  "0 2  2  6\n"
+  "1 3  4  7\n"
+  "1 4  0  5\n"
+  "2 4  1  3\n"
+  "3 5  3  8\n"
+  "4 5  3  7\n"
   "@attributes\n"
-  "source 1\n"
-  "sink   8\n";
+  "source 0\n"
+  "sink   5\n";
+
+void checkCirculationCompile()
+{
+  typedef int VType;
+  typedef concepts::Digraph Digraph;
+
+  typedef Digraph::Node Node;
+  typedef Digraph::Arc Arc;
+  typedef concepts::ReadMap<Arc,VType> CapMap;
+  typedef concepts::ReadMap<Node,VType> DeltaMap;
+  typedef concepts::ReadWriteMap<Arc,VType> FlowMap;
+  typedef concepts::WriteMap<Node,bool> BarrierMap;
+
+  typedef Elevator<Digraph, Digraph::Node> Elev;
+  typedef LinkedElevator<Digraph, Digraph::Node> LinkedElev;
+
+  Digraph g;
+  Node n;
+  Arc a;
+  CapMap lcap, ucap;
+  DeltaMap delta;
+  FlowMap flow;
+  BarrierMap bar;
+
+  Circulation<Digraph, CapMap, CapMap, DeltaMap>
+    ::SetFlowMap<FlowMap>
+    ::SetElevator<Elev>
+    ::SetStandardElevator<LinkedElev>
+    ::Create circ_test(g,lcap,ucap,delta);
+
+  circ_test.lowerCapMap(lcap);
+  circ_test.upperCapMap(ucap);
+  circ_test.deltaMap(delta);
+  flow = circ_test.flowMap();
+  circ_test.flowMap(flow);
+
+  circ_test.init();
+  circ_test.greedyInit();
+  circ_test.start();
+  circ_test.run();
+
+  circ_test.barrier(n);
+  circ_test.barrierMap(bar);
+  circ_test.flow(a);
+}
+
+template <class G, class LM, class UM, class DM>
+void checkCirculation(const G& g, const LM& lm, const UM& um,
+                      const DM& dm, bool find)
+{
+  Circulation<G, LM, UM, DM> circ(g, lm, um, dm);
+  bool ret = circ.run();
+  if (find) {
+    check(ret, "A feasible solution should have been found.");
+    check(circ.checkFlow(), "The found flow is corrupt.");
+    check(!circ.checkBarrier(), "A barrier should not have been found.");
+  } else {
+    check(!ret, "A feasible solution should not have been found.");
+    check(circ.checkBarrier(), "The found barrier is corrupt.");
+  }
+}
 
 int main (int, char*[])
 {
+  typedef ListDigraph Digraph;
+  DIGRAPH_TYPEDEFS(Digraph);
 
-    typedef ListDigraph Digraph;
-    typedef Digraph::Node Node;
-    typedef Digraph::NodeIt NodeIt;
-    typedef Digraph::Arc Arc;
-    typedef Digraph::ArcIt ArcIt;
-    typedef Digraph::ArcMap<int> ArcMap;
-    typedef Digraph::NodeMap<int> NodeMap;
-    typedef Digraph::NodeMap<double> DNodeMap;
+  Digraph g;
+  IntArcMap lo(g), up(g);
+  IntNodeMap delta(g, 0);
+  Node s, t;
 
-    Digraph g;
-    ArcMap lo(g);
-    ArcMap up(g);
-    NodeMap delta(g);
-    NodeMap nid(g);
-    ArcMap eid(g);
-    Node source, sink;
-    
-    std::istringstream input(test_lgf);
-    DigraphReader<Digraph>(g,input).
-      arcMap("lo_cap", lo).
-      arcMap("up_cap", up).
-      nodeMap("delta", delta).
-      arcMap("label", eid).
-      nodeMap("label", nid).
-      node("source",source).
-      node("sink",sink).
-      run();
+  std::istringstream input(test_lgf);
+  DigraphReader<Digraph>(g,input).
+    arcMap("lcap", lo).
+    arcMap("ucap", up).
+    node("source",s).
+    node("sink",t).
+    run();
 
-    Circulation<Digraph> gen(g,lo,up,delta);
-    bool ret=gen.run();
-    check(ret,"A feasible solution should have been found.");
-    check(gen.checkFlow(), "The found flow is corrupt.");
-    
-    delta[source]=14;
-    delta[sink]=-14;
-    
-    bool ret2=gen.run();
-    check(!ret2,"A feasible solution should not have been found.");
-    check(gen.checkBarrier(), "The found barrier is corrupt.");
+  delta[s] = 7; delta[t] = -7;
+  checkCirculation(g, lo, up, delta, true);
 
+  delta[s] = 13; delta[t] = -13;
+  checkCirculation(g, lo, up, delta, true);
+
+  delta[s] = 6; delta[t] = -6;
+  checkCirculation(g, lo, up, delta, false);
+
+  delta[s] = 14; delta[t] = -14;
+  checkCirculation(g, lo, up, delta, false);
+
+  delta[s] = 7; delta[t] = -13;
+  checkCirculation(g, lo, up, delta, true);
+
+  delta[s] = 5; delta[t] = -15;
+  checkCirculation(g, lo, up, delta, true);
+
+  delta[s] = 10; delta[t] = -11;
+  checkCirculation(g, lo, up, delta, true);
+
+  delta[s] = 11; delta[t] = -10;
+  checkCirculation(g, lo, up, delta, false);
+
+  return 0;
 }
