@@ -9,6 +9,7 @@ noinst_HEADERS += \
 
 check_PROGRAMS += \
 	test/bfs_test \
+        test/circulation_test \
         test/counter_test \
 	test/dfs_test \
 	test/digraph_test \
@@ -35,6 +36,7 @@ TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
 test_bfs_test_SOURCES = test/bfs_test.cc
+test_circulation_test_SOURCES = test/circulation_test.cc
 test_counter_test_SOURCES = test/counter_test.cc
 test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc

@@ -20,6 +20,7 @@ lemon_HEADERS += \
 	lemon/assert.h \
         lemon/bfs.h \
         lemon/bin_heap.h \
+        lemon/circulation.h \
         lemon/color.h \
 	lemon/concept_check.h \
         lemon/counter.h \
