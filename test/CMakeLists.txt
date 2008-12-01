@@ -13,6 +13,7 @@ SET(TESTS
   graph_copy_test
   graph_test
   graph_utils_test
+  hao_orlin_test
   heap_test
   kruskal_test
   maps_test
