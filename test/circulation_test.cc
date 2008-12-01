@@ -29,13 +29,48 @@
 
 #include <iostream>
 
+#include "test_tools.h"
 #include <lemon/list_graph.h>
 #include <lemon/circulation.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/lgf_writer.h>
 
 using namespace lemon;
 
+char test_lgf[] =
+  "@nodes\n"
+  "label delta\n"
+  "0     0\n"
+  "1     13\n"
+  "2     0\n"
+  "3     0\n"
+  "4     0\n"
+  "5     0\n"
+  "6     0\n"
+  "7     0\n"
+  "8     -13\n"
+  "9     0\n"
+  "@edges\n"
+  "    label lo_cap up_cap\n"
+  "0 1 0     0      20\n"
+  "0 2 1     0      0\n"
+  "1 1 2     0      3\n"
+  "1 2 3     0      8\n"
+  "1 3 4     0      8\n"
+  "2 5 5     0      5\n"
+  "3 2 6     0      5\n"
+  "3 5 7     0      5\n"
+  "3 6 8     0      5\n"
+  "4 3 9     0      3\n"
+  "5 7 10    0      3\n"
+  "5 6 11    0      10\n"
+  "5 8 12    0      10\n"
+  "6 8 13    0      8\n"
+  "8 9 14    0      20\n"
+  "8 1 15    0      5\n"
+  "9 5 16    0      5\n"
+  "@attributes\n"
+  "source 1\n"
+  "sink   8\n";
 
 int main (int, char*[])
 {
@@ -55,53 +90,29 @@ int main (int, char*[])
     NodeMap delta(g);
     NodeMap nid(g);
     ArcMap eid(g);
-    DNodeMap cx(g);
-    DNodeMap cy(g);
-
-    DigraphReader<Digraph>(g,"circulation-input.lgf").
+    Node source, sink;
+    
+    std::istringstream input(test_lgf);
+    DigraphReader<Digraph>(g,input).
       arcMap("lo_cap", lo).
       arcMap("up_cap", up).
       nodeMap("delta", delta).
       arcMap("label", eid).
       nodeMap("label", nid).
-      nodeMap("coordinates_x", cx).
-      nodeMap("coordinates_y", cy).
+      node("source",source).
+      node("sink",sink).
       run();
 
     Circulation<Digraph> gen(g,lo,up,delta);
     bool ret=gen.run();
-    if(ret)
-      {
-        std::cout << "\nA feasible flow has been found.\n";
-        if(!gen.checkFlow()) std::cerr << "Oops!!!\n";
-        DigraphWriter<Digraph>(g, "circulation-output.lgf").
-          arcMap("lo_cap", lo).
-          arcMap("up_cap", up).
-          arcMap("flow", gen.flowMap()).
-          nodeMap("delta", delta).
-          arcMap("label", eid).
-          nodeMap("label", nid).
-          nodeMap("coordinates_x", cx).
-          nodeMap("coordinates_y", cy).
-          run();
-      }
-    else {
-      std::cout << "\nThere is no such a flow\n";
-      Digraph::NodeMap<int> bar(g);
-      gen.barrierMap(bar);
-      if(!gen.checkBarrier()) std::cerr << "Dual Oops!!!\n";
-
-      DigraphWriter<Digraph>(g, "circulation-output.lgf").
-        arcMap("lo_cap", lo).
-        arcMap("up_cap", up).
-        nodeMap("barrier", bar).
-        nodeMap("delta", delta).
-        arcMap("label", eid).
-        nodeMap("label", nid).
-        nodeMap("coordinates_x", cx).
-        nodeMap("coordinates_y", cy).
-        run();
-    }
-  std::cout << "The output is written to file 'circulation-output.lgf'\n\n";
+    check(ret,"A feasible solution should have been found.");
+    check(gen.checkFlow(), "The found flow is corrupt.");
+    
+    delta[source]=14;
+    delta[sink]=-14;
+    
+    bool ret2=gen.run();
+    check(!ret2,"A feasible solution should not have been found.");
+    check(gen.checkBarrier(), "The found barrier is corrupt.");
 
 }
