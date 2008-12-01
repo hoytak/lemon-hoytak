@@ -54,29 +54,6 @@ namespace lemon {
     }
   };
 
-  /// \brief Widest path operation traits for the Dijkstra algorithm class.
-  ///
-  /// This operation traits class defines all computational operations and
-  /// constants which are used in the Dijkstra algorithm for widest path
-  /// computation.
-  ///
-  /// \see DijkstraDefaultOperationTraits
-  template <typename Value>
-  struct DijkstraWidestPathOperationTraits {
-    /// \brief Gives back the maximum value of the type.
-    static Value zero() {
-      return std::numeric_limits<Value>::max();
-    }
-    /// \brief Gives back the minimum of the given two elements.
-    static Value plus(const Value& left, const Value& right) {
-      return std::min(left, right);
-    }
-    /// \brief Gives back true only if the first value is less than the second.
-    static bool less(const Value& left, const Value& right) {
-      return left < right;
-    }
-  };
-
   ///Default traits class of Dijkstra class.
 
   ///Default traits class of Dijkstra class.
