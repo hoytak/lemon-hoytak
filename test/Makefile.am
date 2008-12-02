@@ -25,6 +25,7 @@ check_PROGRAMS += \
 	test/hao_orlin_test \
         test/maps_test \
 	test/max_matching_test \
+	test/min_cost_arborescence_test \
         test/random_test \
         test/path_test \
         test/preflow_test \
@@ -54,6 +55,7 @@ test_kruskal_test_SOURCES = test/kruskal_test.cc
 test_hao_orlin_test_SOURCES = test/hao_orlin_test.cc
 test_maps_test_SOURCES = test/maps_test.cc
 test_max_matching_test_SOURCES = test/max_matching_test.cc
+test_min_cost_arborescence_test_SOURCES = test/min_cost_arborescence_test.cc
 test_path_test_SOURCES = test/path_test.cc
 test_preflow_test_SOURCES = test/preflow_test.cc
 test_suurballe_test_SOURCES = test/suurballe_test.cc

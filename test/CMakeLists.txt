@@ -18,6 +18,7 @@ SET(TESTS
   kruskal_test
   maps_test
   max_matching_test
+  min_cost_arborescence_test
   random_test
   path_test
   time_measure_test
