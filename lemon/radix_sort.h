@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -37,93 +37,93 @@ namespace lemon {
     template <typename Value>
     struct Identity {
       const Value& operator()(const Value& val) {
-	return val;
+        return val;
       }
     };
 
 
     template <typename Value, typename Iterator, typename Functor>
-    Iterator radixSortPartition(Iterator first, Iterator last, 
-				Functor functor, Value mask) {
+    Iterator radixSortPartition(Iterator first, Iterator last,
+                                Functor functor, Value mask) {
       while (first != last && !(functor(*first) & mask)) {
-	++first;
+        ++first;
       }
       if (first == last) {
-	return first;
+        return first;
       }
       --last;
       while (first != last && (functor(*last) & mask)) {
-	--last;
+        --last;
       }
       if (first == last) {
-	return first;
+        return first;
       }
       std::iter_swap(first, last);
       ++first;
       if (!(first < last)) {
-	return first;
+        return first;
       }
       while (true) {
-	while (!(functor(*first) & mask)) {
-	  ++first;
-	}
-	--last;
-	while (functor(*last) & mask) {
-	  --last;
-	}
-	if (!(first < last)) {
-	  return first;
-	}
-	std::iter_swap(first, last);
-	++first;
+        while (!(functor(*first) & mask)) {
+          ++first;
+        }
+        --last;
+        while (functor(*last) & mask) {
+          --last;
+        }
+        if (!(first < last)) {
+          return first;
+        }
+        std::iter_swap(first, last);
+        ++first;
       }
     }
 
     template <typename Iterator, typename Functor>
-    Iterator radixSortSignPartition(Iterator first, Iterator last, 
-				    Functor functor) {
+    Iterator radixSortSignPartition(Iterator first, Iterator last,
+                                    Functor functor) {
       while (first != last && functor(*first) < 0) {
-	++first;
+        ++first;
       }
       if (first == last) {
-	return first;
+        return first;
       }
       --last;
       while (first != last && functor(*last) >= 0) {
-	--last;
+        --last;
       }
       if (first == last) {
-	return first;
+        return first;
       }
       std::iter_swap(first, last);
       ++first;
       if (!(first < last)) {
-	return first;
+        return first;
       }
       while (true) {
-	while (functor(*first) < 0) {
-	  ++first;
-	}
-	--last;
-	while (functor(*last) >= 0) {
-	  --last;
-	}
-	if (!(first < last)) {
-	  return first;
-	}
-	std::iter_swap(first, last);
-	++first;
+        while (functor(*first) < 0) {
+          ++first;
+        }
+        --last;
+        while (functor(*last) >= 0) {
+          --last;
+        }
+        if (!(first < last)) {
+          return first;
+        }
+        std::iter_swap(first, last);
+        ++first;
       }
     }
 
     template <typename Value, typename Iterator, typename Functor>
-    void radixIntroSort(Iterator first, Iterator last, 
-			Functor functor, Value mask) {
+    void radixIntroSort(Iterator first, Iterator last,
+                        Functor functor, Value mask) {
       while (mask != 0 && last - first > 1) {
-	Iterator cut = radixSortPartition(first, last, functor, mask);
-	mask >>= 1;
-	radixIntroSort(first, cut, functor, mask);
-	first = cut;
+        Iterator cut = radixSortPartition(first, last, functor, mask);
+        mask >>= 1;
+        radixIntroSort(first, cut, functor, mask);
+        first = cut;
       }
     }
 
@@ -138,19 +138,19 @@ namespace lemon {
 
       mask = ~0; max_digit = 0;
       for (it = first; it != cut; ++it) {
-	while ((mask & functor(*it)) != mask) {
-	  ++max_digit;
-	  mask <<= 1;
-	}
+        while ((mask & functor(*it)) != mask) {
+          ++max_digit;
+          mask <<= 1;
+        }
       }
       radixIntroSort(first, cut, functor, 1 << max_digit);
 
       mask = 0; max_digit = 0;
       for (it = cut; it != last; ++it) {
-	while ((mask | functor(*it)) != mask) {
-	  ++max_digit;
-	  mask <<= 1; mask |= 1;
-	}
+        while ((mask | functor(*it)) != mask) {
+          ++max_digit;
+          mask <<= 1; mask |= 1;
+        }
       }
       radixIntroSort(cut, last, functor, 1 << max_digit);
     }
@@ -163,21 +163,21 @@ namespace lemon {
 
       Iterator it;
       for (it = first; it != last; ++it) {
-	while ((mask | functor(*it)) != mask) {
-	  ++max_digit;
-	  mask <<= 1; mask |= 1;
-	}
+        while ((mask | functor(*it)) != mask) {
+          ++max_digit;
+          mask <<= 1; mask |= 1;
+        }
       }
       radixIntroSort(first, last, functor, 1 << max_digit);
     }
 
 
-    template <typename Value, 
-	      bool sign = std::numeric_limits<Value>::is_signed >
+    template <typename Value,
+              bool sign = std::numeric_limits<Value>::is_signed >
     struct RadixSortSelector {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-	radixSignedSort<Value>(first, last, functor);
+        radixSignedSort<Value>(first, last, functor);
       }
     };
 
@@ -185,7 +185,7 @@ namespace lemon {
     struct RadixSortSelector<Value, false> {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-	radixUnsignedSort<Value>(first, last, functor);
+        radixUnsignedSort<Value>(first, last, functor);
       }
     };
 
@@ -195,26 +195,29 @@ namespace lemon {
   ///
   /// \brief Sorts the STL compatible range into ascending order.
   ///
-  /// The \c radixSort sorts the STL compatible range into ascending
-  /// order.  The radix sort algorithm can sort the items which mapped
-  /// to an integer with an adaptable unary function \c functor and the
-  /// order will be ascending by these mapped values. As function
-  /// specialization it is possible to use a normal function instead
-  /// of the functor object or if the functor is not given it will use
-  /// an identity function instead.
+  /// The \c radixSort sorts an STL compatible range into ascending
+  /// order.  The radix sort algorithm can sort items which are mapped
+  /// to integers with an adaptable unary function \c functor and the
+  /// order will be ascending according to these mapped values.
   ///
-  /// This implemented radix sort is a special quick sort which pivot
-  /// value is choosen to partite the items on the next
-  /// bit. Therefore, let be \c c the maximal capacity and \c n the
-  /// number of the items in the container, the time complexity of the
-  /// algorithm is \f$ O(\log(c)n) \f$ and the additional space
-  /// complexity is \f$ O(\log(c)) \f$.
+  /// It is also possible to use a normal function instead
+  /// of the functor object. If the functor is not given it will use
+  /// the identity function instead.
+  ///
+  /// This is a special quick sort algorithm where the pivot
+  /// values to split the items are choosen to be \f$ 2^k \f$ for each \c k.
+  /// Therefore, the time complexity of the
+  /// algorithm is \f$ O(\log(c)n) \f$ and it uses \f$ O(\log(c)) \f$,
+  /// additional space, where \c c is the maximal value and \c n is the
+  /// number of the items in the container.
   ///
   /// \param first The begin of the given range.
   /// \param last The end of the given range.
   /// \param functor An adaptible unary function or a normal function
   /// which maps the items to any integer type which can be either
   /// signed or unsigned.
+  ///
+  /// \sa counterSort()
   template <typename Iterator, typename Functor>
   void radixSort(Iterator first, Iterator last, Functor functor) {
     using namespace _radix_sort_bits;
@@ -261,63 +264,63 @@ namespace lemon {
     }
 
     template <typename Functor, typename Key>
-    void counterIntroSort(Key *first, Key *last, Key *target, 
-			  int byte, Functor functor) {
-      const int size = 
-	unsigned(std::numeric_limits<unsigned char>::max()) + 1;
+    void counterIntroSort(Key *first, Key *last, Key *target,
+                          int byte, Functor functor) {
+      const int size =
+        unsigned(std::numeric_limits<unsigned char>::max()) + 1;
       std::vector<int> counter(size);
       for (int i = 0; i < size; ++i) {
-	counter[i] = 0;
+        counter[i] = 0;
       }
       Key *it = first;
       while (first != last) {
-	++counter[valueByte(functor(*first), byte)]; 
-	++first;
+        ++counter[valueByte(functor(*first), byte)];
+        ++first;
       }
       int prev, num = 0;
       for (int i = 0; i < size; ++i) {
-	prev = num;
-	num += counter[i];
-	counter[i] = prev;
+        prev = num;
+        num += counter[i];
+        counter[i] = prev;
       }
       while (it != last) {
-	target[counter[valueByte(functor(*it), byte)]++] = *it;
-	++it;
+        target[counter[valueByte(functor(*it), byte)]++] = *it;
+        ++it;
       }
     }
 
     template <typename Functor, typename Key>
-    void signedCounterIntroSort(Key *first, Key *last, Key *target, 
-				int byte, Functor functor) {
-      const int size = 
-	unsigned(std::numeric_limits<unsigned char>::max()) + 1;
+    void signedCounterIntroSort(Key *first, Key *last, Key *target,
+                                int byte, Functor functor) {
+      const int size =
+        unsigned(std::numeric_limits<unsigned char>::max()) + 1;
       std::vector<int> counter(size);
       for (int i = 0; i < size; ++i) {
-	counter[i] = 0;
+        counter[i] = 0;
       }
       Key *it = first;
       while (first != last) {
-	counter[valueByte(functor(*first), byte)]++;
-	++first;
+        counter[valueByte(functor(*first), byte)]++;
+        ++first;
       }
       int prev, num = 0;
       for (int i = size / 2; i < size; ++i) {
-	prev = num;
-	num += counter[i];
-	counter[i] = prev;
+        prev = num;
+        num += counter[i];
+        counter[i] = prev;
       }
       for (int i = 0; i < size / 2; ++i) {
-	prev = num;
-	num += counter[i];
-	counter[i] = prev;
+        prev = num;
+        num += counter[i];
+        counter[i] = prev;
       }
       while (it != last) {
-	target[counter[valueByte(functor(*it), byte)]++] = *it;
-	++it;
+        target[counter[valueByte(functor(*it), byte)]++] = *it;
+        ++it;
       }
     }
 
-  
+
     template <typename Value, typename Iterator, typename Functor>
     void counterSignedSort(Iterator first, Iterator last, Functor functor) {
       if (first == last) return;
@@ -328,30 +331,30 @@ namespace lemon {
       int length = std::distance(first, last);
       Key* buffer = allocator.allocate(2 * length);
       try {
-	bool dir = true;
-	std::copy(first, last, buffer);
-	for (int i = 0; i < int(sizeof(Value)) - 1; ++i) {
-	  if (dir) {
-	    counterIntroSort(buffer, buffer + length, buffer + length, 
-			     i, functor);
-	  } else {
-	    counterIntroSort(buffer + length, buffer + 2 * length, buffer, 
-			     i, functor);
-	  }
-	  dir = !dir;
-	}
-	if (dir) {
-	  signedCounterIntroSort(buffer, buffer + length, buffer + length, 
-				 sizeof(Value) - 1, functor);
-	  std::copy(buffer + length, buffer + 2 * length, first);
-	}	else {
-	  signedCounterIntroSort(buffer + length, buffer + 2 * length, buffer, 
-				 sizeof(Value) - 1, functor);
-	  std::copy(buffer, buffer + length, first);
-	}
+        bool dir = true;
+        std::copy(first, last, buffer);
+        for (int i = 0; i < int(sizeof(Value)) - 1; ++i) {
+          if (dir) {
+            counterIntroSort(buffer, buffer + length, buffer + length,
+                             i, functor);
+          } else {
+            counterIntroSort(buffer + length, buffer + 2 * length, buffer,
+                             i, functor);
+          }
+          dir = !dir;
+        }
+        if (dir) {
+          signedCounterIntroSort(buffer, buffer + length, buffer + length,
+                                 sizeof(Value) - 1, functor);
+          std::copy(buffer + length, buffer + 2 * length, first);
+        }        else {
+          signedCounterIntroSort(buffer + length, buffer + 2 * length, buffer,
+                                 sizeof(Value) - 1, functor);
+          std::copy(buffer, buffer + length, first);
+        }
       } catch (...) {
-	allocator.deallocate(buffer, 2 * length);
-	throw;
+        allocator.deallocate(buffer, 2 * length);
+        throw;
       }
       allocator.deallocate(buffer, 2 * length);
     }
@@ -366,38 +369,38 @@ namespace lemon {
       int length = std::distance(first, last);
       Key *buffer = allocator.allocate(2 * length);
       try {
-	bool dir = true;
-	std::copy(first, last, buffer);
-	for (int i = 0; i < int(sizeof(Value)); ++i) {
-	  if (dir) {
-	    counterIntroSort(buffer, buffer + length, 
-			     buffer + length, i, functor);
-	  } else {
-	    counterIntroSort(buffer + length, buffer + 2 * length, 
-			     buffer, i, functor);
-	  }
-	  dir = !dir;
-	}
-	if (dir) {
-	  std::copy(buffer, buffer + length, first);
-	}	else {
-	  std::copy(buffer + length, buffer + 2 * length, first);
-	}
+        bool dir = true;
+        std::copy(first, last, buffer);
+        for (int i = 0; i < int(sizeof(Value)); ++i) {
+          if (dir) {
+            counterIntroSort(buffer, buffer + length,
+                             buffer + length, i, functor);
+          } else {
+            counterIntroSort(buffer + length, buffer + 2 * length,
+                             buffer, i, functor);
+          }
+          dir = !dir;
+        }
+        if (dir) {
+          std::copy(buffer, buffer + length, first);
+        }        else {
+          std::copy(buffer + length, buffer + 2 * length, first);
+        }
       } catch (...) {
-	allocator.deallocate(buffer, 2 * length);
-	throw;
+        allocator.deallocate(buffer, 2 * length);
+        throw;
       }
       allocator.deallocate(buffer, 2 * length);
     }
 
 
 
-    template <typename Value, 
-	      bool sign = std::numeric_limits<Value>::is_signed >
+    template <typename Value,
+              bool sign = std::numeric_limits<Value>::is_signed >
     struct CounterSortSelector {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-	counterSignedSort<Value>(first, last, functor);
+        counterSignedSort<Value>(first, last, functor);
       }
     };
 
@@ -405,7 +408,7 @@ namespace lemon {
     struct CounterSortSelector<Value, false> {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-	counterUnsignedSort<Value>(first, last, functor);
+        counterUnsignedSort<Value>(first, last, functor);
       }
     };
 
@@ -413,34 +416,33 @@ namespace lemon {
 
   /// \ingroup auxalg
   ///
-  /// \brief Sorts stable the STL compatible range into ascending order.
+  /// \brief Sorts the STL compatible range into ascending order in a stable
+  /// way.
   ///
-  /// The \c counterSort sorts the STL compatible range into ascending
-  /// order.  The counter sort algorithm can sort the items which
-  /// mapped to an integer with an adaptable unary function \c functor
-  /// and the order will be ascending by these mapped values. As
-  /// function specialization it is possible to use a normal function
-  /// instead of the functor object or if the functor is not given it
-  /// will use an identity function instead.
+  /// This function sorts an STL compatible range into ascending
+  /// order according to an integer mapping in the same as radixSort() does.
   ///
-  /// The implemented counter sort use a radix forward sort on the
+  /// This sorting algorithm is stable, i.e. the order of two equal
+  /// element remains the same after the sorting.
+  ///
+  /// This sort algorithm  use a radix forward sort on the
   /// bytes of the integer number. The algorithm sorts the items
-  /// byte-by-byte, first it counts how many times occurs a byte value
-  /// in the containerm, and with the occurence number the container
-  /// can be copied to an other in asceding order in \c O(n) time.
-  /// Let be \c c the maximal capacity of the integer type and \c n
-  /// the number of the items in the container, the time complexity of
-  /// the algorithm is \f$ O(\log(c)n) \f$ and the additional space
-  /// complexity is \f$ O(n) \f$.
+  /// byte-by-byte. First, it counts how many times a byte value occurs
+  /// in the container, then it copies the corresponding items to
+  /// another container in asceding order in \c O(n) time.
   ///
-  /// The sorting algorithm is stable, i.e. the order of two equal
-  /// element remains the same.
+  /// The time complexity of the algorithm is \f$ O(\log(c)n) \f$ and
+  /// it uses \f$ O(n) \f$, additional space, where \c c is the
+  /// maximal value and \c n is the number of the items in the
+  /// container.
   ///
+
   /// \param first The begin of the given range.
   /// \param last The end of the given range.
   /// \param functor An adaptible unary function or a normal function
   /// which maps the items to any integer type which can be either
   /// signed or unsigned.
+  /// \sa radixSort()
   template <typename Iterator, typename Functor>
   void counterSort(Iterator first, Iterator last, Functor functor) {
     using namespace _radix_sort_bits;

@@ -1,6 +1,6 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
  * Copyright (C) 2003-2008
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
@@ -81,8 +81,8 @@ void checkRadixSort() {
       check(data1[i] == data2[n - 1 - i], "Test failed");
     }
 
-  } 
-  
+  }
+
   {
     std::vector<unsigned char> data1(n);
     generateCharSequence(n, data1);
@@ -121,7 +121,7 @@ void checkCounterSort() {
     for (int i = 0; i < n; ++i) {
       check(data1[i] == data2[n - 1 - i], "Test failed");
     }
-  } 
+  }
 
   {
     std::vector<unsigned char> data1(n);
@@ -140,7 +140,7 @@ void checkCounterSort() {
 
 int main() {
 
-  checkRadixSort();  
+  checkRadixSort();
   checkCounterSort();
 
   return 0;
