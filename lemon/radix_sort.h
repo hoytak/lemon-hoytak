@@ -217,7 +217,7 @@ namespace lemon {
   /// which maps the items to any integer type which can be either
   /// signed or unsigned.
   ///
-  /// \sa counterSort()
+  /// \sa stableRadixSort()
   template <typename Iterator, typename Functor>
   void radixSort(Iterator first, Iterator last, Functor functor) {
     using namespace _radix_sort_bits;
@@ -264,8 +264,8 @@ namespace lemon {
     }
 
     template <typename Functor, typename Key>
-    void counterIntroSort(Key *first, Key *last, Key *target,
-                          int byte, Functor functor) {
+    void stableRadixIntroSort(Key *first, Key *last, Key *target,
+                              int byte, Functor functor) {
       const int size =
         unsigned(std::numeric_limits<unsigned char>::max()) + 1;
       std::vector<int> counter(size);
@@ -290,8 +290,8 @@ namespace lemon {
     }
 
     template <typename Functor, typename Key>
-    void signedCounterIntroSort(Key *first, Key *last, Key *target,
-                                int byte, Functor functor) {
+    void signedStableRadixIntroSort(Key *first, Key *last, Key *target,
+                                    int byte, Functor functor) {
       const int size =
         unsigned(std::numeric_limits<unsigned char>::max()) + 1;
       std::vector<int> counter(size);
@@ -322,7 +322,7 @@ namespace lemon {
 
 
     template <typename Value, typename Iterator, typename Functor>
-    void counterSignedSort(Iterator first, Iterator last, Functor functor) {
+    void stableRadixSignedSort(Iterator first, Iterator last, Functor functor) {
       if (first == last) return;
       typedef typename std::iterator_traits<Iterator>::value_type Key;
       typedef std::allocator<Key> Allocator;
@@ -335,21 +335,21 @@ namespace lemon {
         std::copy(first, last, buffer);
         for (int i = 0; i < int(sizeof(Value)) - 1; ++i) {
           if (dir) {
-            counterIntroSort(buffer, buffer + length, buffer + length,
-                             i, functor);
+            stableRadixIntroSort(buffer, buffer + length, buffer + length,
+                                 i, functor);
           } else {
-            counterIntroSort(buffer + length, buffer + 2 * length, buffer,
-                             i, functor);
+            stableRadixIntroSort(buffer + length, buffer + 2 * length, buffer,
+                                 i, functor);
           }
           dir = !dir;
         }
         if (dir) {
-          signedCounterIntroSort(buffer, buffer + length, buffer + length,
-                                 sizeof(Value) - 1, functor);
+          signedStableRadixIntroSort(buffer, buffer + length, buffer + length,
+                                     sizeof(Value) - 1, functor);
           std::copy(buffer + length, buffer + 2 * length, first);
         }        else {
-          signedCounterIntroSort(buffer + length, buffer + 2 * length, buffer,
-                                 sizeof(Value) - 1, functor);
+          signedStableRadixIntroSort(buffer + length, buffer + 2 * length, 
+                                     buffer, sizeof(Value) - 1, functor);
           std::copy(buffer, buffer + length, first);
         }
       } catch (...) {
@@ -360,7 +360,8 @@ namespace lemon {
     }
 
     template <typename Value, typename Iterator, typename Functor>
-    void counterUnsignedSort(Iterator first, Iterator last, Functor functor) {
+    void stableRadixUnsignedSort(Iterator first, Iterator last, 
+                                 Functor functor) {
       if (first == last) return;
       typedef typename std::iterator_traits<Iterator>::value_type Key;
       typedef std::allocator<Key> Allocator;
@@ -373,11 +374,11 @@ namespace lemon {
         std::copy(first, last, buffer);
         for (int i = 0; i < int(sizeof(Value)); ++i) {
           if (dir) {
-            counterIntroSort(buffer, buffer + length,
-                             buffer + length, i, functor);
+            stableRadixIntroSort(buffer, buffer + length,
+                                 buffer + length, i, functor);
           } else {
-            counterIntroSort(buffer + length, buffer + 2 * length,
-                             buffer, i, functor);
+            stableRadixIntroSort(buffer + length, buffer + 2 * length,
+                                 buffer, i, functor);
           }
           dir = !dir;
         }
@@ -397,18 +398,18 @@ namespace lemon {
 
     template <typename Value,
               bool sign = std::numeric_limits<Value>::is_signed >
-    struct CounterSortSelector {
+    struct StableRadixSortSelector {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-        counterSignedSort<Value>(first, last, functor);
+        stableRadixSignedSort<Value>(first, last, functor);
       }
     };
 
     template <typename Value>
-    struct CounterSortSelector<Value, false> {
+    struct StableRadixSortSelector<Value, false> {
       template <typename Iterator, typename Functor>
       static void sort(Iterator first, Iterator last, Functor functor) {
-        counterUnsignedSort<Value>(first, last, functor);
+        stableRadixUnsignedSort<Value>(first, last, functor);
       }
     };
 
@@ -423,7 +424,7 @@ namespace lemon {
   /// order according to an integer mapping in the same as radixSort() does.
   ///
   /// This sorting algorithm is stable, i.e. the order of two equal
-  /// element remains the same after the sorting.
+  /// elements remains the same after the sorting.
   ///
   /// This sort algorithm  use a radix forward sort on the
   /// bytes of the integer number. The algorithm sorts the items
@@ -444,41 +445,41 @@ namespace lemon {
   /// signed or unsigned.
   /// \sa radixSort()
   template <typename Iterator, typename Functor>
-  void counterSort(Iterator first, Iterator last, Functor functor) {
+  void stableRadixSort(Iterator first, Iterator last, Functor functor) {
     using namespace _radix_sort_bits;
     typedef typename Functor::result_type Value;
-    CounterSortSelector<Value>::sort(first, last, functor);
+    StableRadixSortSelector<Value>::sort(first, last, functor);
   }
 
   template <typename Iterator, typename Value, typename Key>
-  void counterSort(Iterator first, Iterator last, Value (*functor)(Key)) {
+  void stableRadixSort(Iterator first, Iterator last, Value (*functor)(Key)) {
     using namespace _radix_sort_bits;
-    CounterSortSelector<Value>::sort(first, last, functor);
+    StableRadixSortSelector<Value>::sort(first, last, functor);
   }
 
   template <typename Iterator, typename Value, typename Key>
-  void counterSort(Iterator first, Iterator last, Value& (*functor)(Key)) {
+  void stableRadixSort(Iterator first, Iterator last, Value& (*functor)(Key)) {
     using namespace _radix_sort_bits;
-    CounterSortSelector<Value>::sort(first, last, functor);
+    StableRadixSortSelector<Value>::sort(first, last, functor);
   }
 
   template <typename Iterator, typename Value, typename Key>
-  void counterSort(Iterator first, Iterator last, Value (*functor)(Key&)) {
+  void stableRadixSort(Iterator first, Iterator last, Value (*functor)(Key&)) {
     using namespace _radix_sort_bits;
-    CounterSortSelector<Value>::sort(first, last, functor);
+    StableRadixSortSelector<Value>::sort(first, last, functor);
   }
 
   template <typename Iterator, typename Value, typename Key>
-  void counterSort(Iterator first, Iterator last, Value& (*functor)(Key&)) {
+  void stableRadixSort(Iterator first, Iterator last, Value& (*functor)(Key&)) {
     using namespace _radix_sort_bits;
-    CounterSortSelector<Value>::sort(first, last, functor);
+    StableRadixSortSelector<Value>::sort(first, last, functor);
   }
 
   template <typename Iterator>
-  void counterSort(Iterator first, Iterator last) {
+  void stableRadixSort(Iterator first, Iterator last) {
     using namespace _radix_sort_bits;
     typedef typename std::iterator_traits<Iterator>::value_type Value;
-    CounterSortSelector<Value>::sort(first, last, Identity<Value>());
+    StableRadixSortSelector<Value>::sort(first, last, Identity<Value>());
   }
 
 }

@@ -99,7 +99,7 @@ void checkRadixSort() {
 }
 
 
-void checkCounterSort() {
+void checkStableRadixSort() {
   {
     std::vector<int> data1;
     generateIntSequence(n, data1);
@@ -107,17 +107,17 @@ void checkCounterSort() {
     std::vector<int> data2(data1);
     std::sort(data1.begin(), data1.end());
 
-    counterSort(data2.begin(), data2.end());
+    stableRadixSort(data2.begin(), data2.end());
     for (int i = 0; i < n; ++i) {
       check(data1[i] == data2[i], "Test failed");
     }
 
-    counterSort(data2.begin(), data2.end(), Negate());
+    stableRadixSort(data2.begin(), data2.end(), Negate());
     for (int i = 0; i < n; ++i) {
       check(data1[i] == data2[n - 1 - i], "Test failed");
     }
 
-    counterSort(data2.begin(), data2.end(), negate);
+    stableRadixSort(data2.begin(), data2.end(), negate);
     for (int i = 0; i < n; ++i) {
       check(data1[i] == data2[n - 1 - i], "Test failed");
     }
@@ -141,7 +141,7 @@ void checkCounterSort() {
 int main() {
 
   checkRadixSort();
-  checkCounterSort();
+  checkStableRadixSort();
 
   return 0;
 }
