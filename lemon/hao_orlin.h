@@ -225,57 +225,47 @@ namespace lemon {
         _flow->set(a, 0);
       }
 
-      int bucket_num = 1;
+      int bucket_num = 0;
+      std::vector<Node> queue(_node_num);
+      int qfirst = 0, qlast = 0, qsep = 0;
 
       {
         typename Digraph::template NodeMap<bool> reached(_graph, false);
 
         reached.set(_source, true);
-
         bool first_set = true;
 
         for (NodeIt t(_graph); t != INVALID; ++t) {
           if (reached[t]) continue;
           _sets.push_front(std::list<int>());
-          _sets.front().push_front(bucket_num);
-          _dormant[bucket_num] = !first_set;
-
-          _bucket->set(t, bucket_num);
-          _first[bucket_num] = _last[bucket_num] = t;
-          _next->set(t, INVALID);
-          _prev->set(t, INVALID);
-
-          ++bucket_num;
-
-          std::vector<Node> queue;
-          queue.push_back(t);
+          
+          queue[qlast++] = t;
           reached.set(t, true);
 
-          while (!queue.empty()) {
-            _sets.front().push_front(bucket_num);
-            _dormant[bucket_num] = !first_set;
-            _first[bucket_num] = _last[bucket_num] = INVALID;
+          while (qfirst != qlast) {
+            if (qsep == qfirst) {
+              ++bucket_num;
+              _sets.front().push_front(bucket_num);
+              _dormant[bucket_num] = !first_set;
+              _first[bucket_num] = _last[bucket_num] = INVALID;
+              qsep = qlast;
+            }
 
-            std::vector<Node> nqueue;
-            for (int i = 0; i < int(queue.size()); ++i) {
-              Node n = queue[i];
-              for (InArcIt a(_graph, n); a != INVALID; ++a) {
-                Node u = _graph.source(a);
-                if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
-                  reached.set(u, true);
-                  addItem(u, bucket_num);
-                  nqueue.push_back(u);
-                }
+            Node n = queue[qfirst++];
+            addItem(n, bucket_num);
+
+            for (InArcIt a(_graph, n); a != INVALID; ++a) {
+              Node u = _graph.source(a);
+              if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
+                reached.set(u, true);
+                queue[qlast++] = u;
               }
             }
-            queue.swap(nqueue);
-            ++bucket_num;
           }
-          _sets.front().pop_front();
-          --bucket_num;
           first_set = false;
         }
 
+        ++bucket_num;
         _bucket->set(_source, 0);
         _dormant[0] = true;
       }
@@ -534,7 +524,9 @@ namespace lemon {
         _flow->set(a, 0);
       }
 
-      int bucket_num = 1;
+      int bucket_num = 0;
+      std::vector<Node> queue(_node_num);
+      int qfirst = 0, qlast = 0, qsep = 0;
 
       {
         typename Digraph::template NodeMap<bool> reached(_graph, false);
@@ -546,45 +538,34 @@ namespace lemon {
         for (NodeIt t(_graph); t != INVALID; ++t) {
           if (reached[t]) continue;
           _sets.push_front(std::list<int>());
-          _sets.front().push_front(bucket_num);
-          _dormant[bucket_num] = !first_set;
-
-          _bucket->set(t, bucket_num);
-          _first[bucket_num] = _last[bucket_num] = t;
-          _next->set(t, INVALID);
-          _prev->set(t, INVALID);
-
-          ++bucket_num;
-
-          std::vector<Node> queue;
-          queue.push_back(t);
+          
+          queue[qlast++] = t;
           reached.set(t, true);
 
-          while (!queue.empty()) {
-            _sets.front().push_front(bucket_num);
-            _dormant[bucket_num] = !first_set;
-            _first[bucket_num] = _last[bucket_num] = INVALID;
+          while (qfirst != qlast) {
+            if (qsep == qfirst) {
+              ++bucket_num;
+              _sets.front().push_front(bucket_num);
+              _dormant[bucket_num] = !first_set;
+              _first[bucket_num] = _last[bucket_num] = INVALID;
+              qsep = qlast;
+            }
 
-            std::vector<Node> nqueue;
-            for (int i = 0; i < int(queue.size()); ++i) {
-              Node n = queue[i];
-              for (OutArcIt a(_graph, n); a != INVALID; ++a) {
-                Node u = _graph.target(a);
-                if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
-                  reached.set(u, true);
-                  addItem(u, bucket_num);
-                  nqueue.push_back(u);
-                }
+            Node n = queue[qfirst++];
+            addItem(n, bucket_num);
+
+            for (OutArcIt a(_graph, n); a != INVALID; ++a) {
+              Node u = _graph.target(a);
+              if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
+                reached.set(u, true);
+                queue[qlast++] = u;
               }
             }
-            queue.swap(nqueue);
-            ++bucket_num;
           }
-          _sets.front().pop_front();
-          --bucket_num;
           first_set = false;
         }
 
+        ++bucket_num;
         _bucket->set(_source, 0);
         _dormant[0] = true;
       }
@@ -864,10 +845,10 @@ namespace lemon {
 
       _node_num = countNodes(_graph);
 
-      _first.resize(_node_num + 1);
-      _last.resize(_node_num + 1);
+      _first.resize(_node_num);
+      _last.resize(_node_num);
 
-      _dormant.resize(_node_num + 1);
+      _dormant.resize(_node_num);
 
       if (!_flow) {
         _flow = new FlowMap(_graph);
