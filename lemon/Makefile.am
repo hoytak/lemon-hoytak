@@ -16,6 +16,7 @@ lemon_libemon_la_SOURCES = \
 #lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
 
 lemon_HEADERS += \
+	lemon/adaptors.h \
         lemon/arg_parser.h \
 	lemon/assert.h \
         lemon/bfs.h \
@@ -60,10 +61,12 @@ bits_HEADERS += \
         lemon/bits/bezier.h \
 	lemon/bits/default_map.h \
         lemon/bits/enable_if.h \
+	lemon/bits/graph_adaptor_extender.h \
 	lemon/bits/graph_extender.h \
 	lemon/bits/map_extender.h \
 	lemon/bits/path_dump.h \
 	lemon/bits/traits.h \
+	lemon/bits/variant.h \
 	lemon/bits/vector_map.h
 
 concept_HEADERS += \
