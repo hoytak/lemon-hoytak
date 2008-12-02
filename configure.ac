@@ -50,9 +50,9 @@ fi
 AC_SUBST([WARNINGCXXFLAGS])
 
 dnl Checks for libraries.
-#LX_CHECK_GLPK
-#LX_CHECK_CPLEX
-#LX_CHECK_SOPLEX
+LX_CHECK_GLPK
+LX_CHECK_CPLEX
+LX_CHECK_SOPLEX
 
 AM_CONDITIONAL([HAVE_LP], [test x"$lx_lp_found" = x"yes"])
 AM_CONDITIONAL([HAVE_MIP], [test x"$lx_mip_found" = x"yes"])
@@ -117,10 +117,10 @@ echo
 echo C++ compiler.................. : $CXX
 echo C++ compiles flags............ : $WARNINGCXXFLAGS $CXXFLAGS
 echo
-#echo GLPK support.................. : $lx_glpk_found
-#echo CPLEX support................. : $lx_cplex_found
-#echo SOPLEX support................ : $lx_soplex_found
-#echo
+echo GLPK support.................. : $lx_glpk_found
+echo CPLEX support................. : $lx_cplex_found
+echo SOPLEX support................ : $lx_soplex_found
+echo
 echo Build demo programs........... : $enable_demo
 echo Build additional tools........ : $enable_tools
 echo

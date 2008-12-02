@@ -33,6 +33,13 @@ check_PROGRAMS += \
 	test/time_measure_test \
 	test/unionfind_test
 
+if HAVE_LP
+check_PROGRAMS += test/lp_test
+endif HAVE_LP
+if HAVE_MIP
+check_PROGRAMS += test/mip_test
+endif HAVE_MIP
+
 TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
@@ -51,7 +58,9 @@ test_graph_utils_test_SOURCES = test/graph_utils_test.cc
 test_heap_test_SOURCES = test/heap_test.cc
 test_kruskal_test_SOURCES = test/kruskal_test.cc
 test_hao_orlin_test_SOURCES = test/hao_orlin_test.cc
+test_lp_test_SOURCES = test/lp_test.cc
 test_maps_test_SOURCES = test/maps_test.cc
+test_mip_test_SOURCES = test/mip_test.cc
 test_max_matching_test_SOURCES = test/max_matching_test.cc
 test_path_test_SOURCES = test/path_test.cc
 test_preflow_test_SOURCES = test/preflow_test.cc

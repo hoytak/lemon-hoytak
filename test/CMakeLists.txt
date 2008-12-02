@@ -18,6 +18,8 @@ SET(TESTS
   hao_orlin_test
   heap_test
   kruskal_test
+  lp_test
+  mip_test
   maps_test
   max_matching_test
   radix_sort_test

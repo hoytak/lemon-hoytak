@@ -4,6 +4,9 @@ ADD_LIBRARY(lemon
   arg_parser.cc
   base.cc
   color.cc
+  lp_base.cc
+  lp_skeleton.cc
+  lp_utils.cc
   random.cc)
 
 INSTALL(

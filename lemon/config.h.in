@@ -9,3 +9,6 @@
 
 /* Define to 1 if you have GLPK. */
 #undef HAVE_GLPK
+
+/* Define to 1 if you have SOPLEX */
+#undef HAVE_SOPLEX

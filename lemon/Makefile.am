@@ -10,10 +10,32 @@ lemon_libemon_la_SOURCES = \
 	lemon/arg_parser.cc \
 	lemon/base.cc \
 	lemon/color.cc \
+	lemon/lp_base.cc \
+	lemon/lp_skeleton.cc \
 	lemon/random.cc
 
-#lemon_libemon_la_CXXFLAGS = $(GLPK_CFLAGS) $(CPLEX_CFLAGS) $(SOPLEX_CXXFLAGS) $(AM_CXXFLAGS)
-#lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
+
+lemon_libemon_la_CXXFLAGS = \
+	$(GLPK_CFLAGS) \
+	$(CPLEX_CFLAGS) \
+	$(SOPLEX_CXXFLAGS)
+
+lemon_libemon_la_LDFLAGS = \
+	$(GLPK_LIBS) \
+	$(CPLEX_LIBS) \
+	$(SOPLEX_LIBS)
+
+if HAVE_GLPK
+lemon_libemon_la_SOURCES += lemon/lp_glpk.cc lemon/mip_glpk.cc
+endif
+
+if HAVE_CPLEX
+lemon_libemon_la_SOURCES += lemon/lp_cplex.cc lemon/mip_cplex.cc
+endif
+
+if HAVE_SOPLEX
+lemon_libemon_la_SOURCES += lemon/lp_soplex.cc
+endif
 
 lemon_HEADERS += \
 	lemon/adaptors.h \
@@ -41,6 +63,14 @@ lemon_HEADERS += \
 	lemon/lgf_reader.h \
 	lemon/lgf_writer.h \
 	lemon/list_graph.h \
+	lemon/lp.h \
+	lemon/lp_base.h \
+	lemon/lp_cplex.h \
+	lemon/lp_glpk.h \
+	lemon/lp_skeleton.h \
+	lemon/lp_soplex.h \
+	lemon/mip_cplex.h \
+	lemon/mip_glpk.h \
 	lemon/maps.h \
 	lemon/math.h \
 	lemon/max_matching.h \
@@ -64,6 +94,7 @@ bits_HEADERS += \
 	lemon/bits/enable_if.h \
 	lemon/bits/graph_adaptor_extender.h \
 	lemon/bits/graph_extender.h \
+	lemon/bits/lp_id.h \
 	lemon/bits/map_extender.h \
 	lemon/bits/path_dump.h \
 	lemon/bits/traits.h \
