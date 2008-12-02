@@ -821,7 +821,7 @@ namespace lemon {
     /// \n
     /// If you need more control on the execution,
     /// first you must call \ref init(), then the \ref calculateIn() or
-    /// \ref calculateIn() functions.
+    /// \ref calculateOut() functions.
 
     /// @{
 
@@ -883,8 +883,8 @@ namespace lemon {
     /// source-side.
     ///
     /// Calculates a minimum cut with \f$ source \f$ on the
-    /// source-side (i.e. a set \f$ X\subsetneq V \f$ with \f$ source
-    /// \in X \f$ and minimal out-degree).
+    /// source-side (i.e. a set \f$ X\subsetneq V \f$ with
+    /// \f$ source \in X \f$ and minimal out-degree).
     void calculateOut() {
       findMinCutOut();
     }
@@ -893,8 +893,8 @@ namespace lemon {
     /// target-side.
     ///
     /// Calculates a minimum cut with \f$ source \f$ on the
-    /// target-side (i.e. a set \f$ X\subsetneq V \f$ with \f$ source
-    /// \in X \f$ and minimal out-degree).
+    /// target-side (i.e. a set \f$ X\subsetneq V \f$ with
+    /// \f$ source \in X \f$ and minimal out-degree).
     void calculateIn() {
       findMinCutIn();
     }
