@@ -35,88 +35,137 @@ typedef struct { double _prob; } glp_prob;
 namespace lemon {
 
 
-  /// \brief Interface for the GLPK LP solver
+  /// \brief Base interface for the GLPK LP and MIP solver
   ///
-  /// This class implements an interface for the GLPK LP solver.
-  ///\ingroup lp_group
-  class LpGlpk : virtual public LpSolverBase {
+  /// This class implements the common interface of the GLPK LP and MIP solver.
+  /// \ingroup lp_group
+  class GlpkBase : virtual public LpBase {
   protected:
 
     typedef glp_prob LPX;
     glp_prob* lp;
-    bool solved;
 
-  public:
-
-    typedef LpSolverBase Parent;
-
-    LpGlpk();
-    LpGlpk(const LpGlpk &);
-    ~LpGlpk();
+    GlpkBase();
+    GlpkBase(const GlpkBase&);
+    virtual ~GlpkBase();
 
   protected:
-    virtual LpSolverBase* _newLp();
-    virtual LpSolverBase* _copyLp();
 
     virtual int _addCol();
     virtual int _addRow();
+
     virtual void _eraseCol(int i);
     virtual void _eraseRow(int i);
-    virtual void _getColName(int col, std::string & name) const;
-    virtual void _setColName(int col, const std::string & name);
+
+    virtual void _eraseColId(int i);
+    virtual void _eraseRowId(int i);
+
+    virtual void _getColName(int col, std::string& name) const;
+    virtual void _setColName(int col, const std::string& name);
     virtual int _colByName(const std::string& name) const;
-    virtual void _setRowCoeffs(int i, ConstRowIterator b, ConstRowIterator e);
-    virtual void _getRowCoeffs(int i, RowIterator b) const;
-    virtual void _setColCoeffs(int i, ConstColIterator b, ConstColIterator e);
-    virtual void _getColCoeffs(int i, ColIterator b) const;
+
+    virtual void _getRowName(int row, std::string& name) const;
+    virtual void _setRowName(int row, const std::string& name);
+    virtual int _rowByName(const std::string& name) const;
+
+    virtual void _setRowCoeffs(int i, ExprIterator b, ExprIterator e);
+    virtual void _getRowCoeffs(int i, InsertIterator b) const;
+
+    virtual void _setColCoeffs(int i, ExprIterator b, ExprIterator e);
+    virtual void _getColCoeffs(int i, InsertIterator b) const;
+
     virtual void _setCoeff(int row, int col, Value value);
     virtual Value _getCoeff(int row, int col) const;
 
     virtual void _setColLowerBound(int i, Value value);
     virtual Value _getColLowerBound(int i) const;
+
     virtual void _setColUpperBound(int i, Value value);
     virtual Value _getColUpperBound(int i) const;
 
-    virtual void _setRowBounds(int i, Value lower, Value upper);
-    virtual void _getRowBounds(int i, Value &lb, Value &ub) const;
+    virtual void _setRowLowerBound(int i, Value value);
+    virtual Value _getRowLowerBound(int i) const;
+
+    virtual void _setRowUpperBound(int i, Value value);
+    virtual Value _getRowUpperBound(int i) const;
+
+    virtual void _setObjCoeffs(ExprIterator b, ExprIterator e);
+    virtual void _getObjCoeffs(InsertIterator b) const;
+
     virtual void _setObjCoeff(int i, Value obj_coef);
     virtual Value _getObjCoeff(int i) const;
-    virtual void _clearObj();
+
+    virtual void _setSense(Sense);
+    virtual Sense _getSense() const;
+
+    virtual void _clear();
+
+  public:
+
+    ///Pointer to the underlying GLPK data structure.
+    LPX *lpx() {return lp;}
+    ///Const pointer to the underlying GLPK data structure.
+    const LPX *lpx() const {return lp;}
+
+    ///Returns the constraint identifier understood by GLPK.
+    int lpxRow(Row r) const { return rows(id(r)); }
+
+    ///Returns the variable identifier understood by GLPK.
+    int lpxCol(Col c) const { return cols(id(c)); }
+
+  };
+
+  /// \brief Interface for the GLPK LP solver
+  ///
+  /// This class implements an interface for the GLPK LP solver.
+  ///\ingroup lp_group
+  class LpGlpk : public GlpkBase, public LpSolver {
+  public:
 
     ///\e
+    LpGlpk();
+    ///\e
+    LpGlpk(const LpGlpk&);
 
-    ///\todo It should be clarified
-    ///
+  private:
+
+    mutable std::vector<double> _primal_ray;
+    mutable std::vector<double> _dual_ray;
+
+    void _clear_temporals();
+
+  protected:
+
+    virtual LpGlpk* _cloneSolver() const;
+    virtual LpGlpk* _newSolver() const;
+
+    virtual const char* _solverName() const;
+
     virtual SolveExitStatus _solve();
     virtual Value _getPrimal(int i) const;
     virtual Value _getDual(int i) const;
+
     virtual Value _getPrimalValue() const;
-    virtual bool _isBasicCol(int i) const;
-    ///\e
+
+    virtual VarStatus _getColStatus(int i) const;
+    virtual VarStatus _getRowStatus(int i) const;
+
+    virtual Value _getPrimalRay(int i) const;
+    virtual Value _getDualRay(int i) const;
 
     ///\todo It should be clarified
     ///
-    virtual SolutionStatus _getPrimalStatus() const;
-    virtual SolutionStatus _getDualStatus() const;
-    virtual ProblemTypes _getProblemType() const;
-
-    virtual void _setMax();
-    virtual void _setMin();
-
-    virtual bool _isMax() const;
+    virtual ProblemType _getPrimalType() const;
+    virtual ProblemType _getDualType() const;
 
   public:
-    ///Set the verbosity of the messages
 
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    ///The possible values are:
-    ///- 0 --- no output (default value)
-    ///- 1 --- error messages only
-    ///- 2 --- normal output
-    ///- 3 --- full output (includes informational messages)
-    void messageLevel(int m);
+    ///Solve with primal simplex
+    SolveExitStatus solvePrimal();
+
+    ///Solve with dual simplex
+    SolveExitStatus solveDual();
+
     ///Turns on or off the presolver
 
     ///Turns on (\c b is \c true) or off (\c b is \c false) the presolver
@@ -124,15 +173,86 @@ namespace lemon {
     ///The presolver is off by default.
     void presolver(bool b);
 
-    ///Pointer to the underlying GLPK data structure.
-    LPX *lpx() {return lp;}
+    ///Enum for \c messageLevel() parameter
+    enum MessageLevel {
+      /// no output (default value)
+      MESSAGE_NO_OUTPUT = 0,
+      /// error messages only
+      MESSAGE_ERROR_MESSAGE = 1,
+      /// normal output
+      MESSAGE_NORMAL_OUTPUT = 2,
+      /// full output (includes informational messages)
+      MESSAGE_FULL_OUTPUT = 3
+    };
 
-    ///Returns the constraint identifier understood by GLPK.
-    int lpxRow(Row r) { return _lpId(r); }
+  private:
 
-    ///Returns the variable identifier understood by GLPK.
-    int lpxCol(Col c) { return _lpId(c); }
+    MessageLevel _message_level;
+
+  public:
+
+    ///Set the verbosity of the messages
+
+    ///Set the verbosity of the messages
+    ///
+    ///\param m is the level of the messages output by the solver routines.
+    void messageLevel(MessageLevel m);
   };
+
+  /// \brief Interface for the GLPK MIP solver
+  ///
+  /// This class implements an interface for the GLPK MIP solver.
+  ///\ingroup lp_group
+  class MipGlpk : public GlpkBase, public MipSolver {
+  public:
+
+    ///\e
+    MipGlpk();
+    ///\e
+    MipGlpk(const MipGlpk&);
+
+  protected:
+
+    virtual MipGlpk* _cloneSolver() const;
+    virtual MipGlpk* _newSolver() const;
+
+    virtual const char* _solverName() const;
+
+    virtual ColTypes _getColType(int col) const;
+    virtual void _setColType(int col, ColTypes col_type);
+
+    virtual SolveExitStatus _solve();
+    virtual ProblemType _getType() const;
+    virtual Value _getSol(int i) const;
+    virtual Value _getSolValue() const;
+
+    ///Enum for \c messageLevel() parameter
+    enum MessageLevel {
+      /// no output (default value)
+      MESSAGE_NO_OUTPUT = 0,
+      /// error messages only
+      MESSAGE_ERROR_MESSAGE = 1,
+      /// normal output
+      MESSAGE_NORMAL_OUTPUT = 2,
+      /// full output (includes informational messages)
+      MESSAGE_FULL_OUTPUT = 3
+    };
+
+  private:
+
+    MessageLevel _message_level;
+
+  public:
+
+    ///Set the verbosity of the messages
+
+    ///Set the verbosity of the messages
+    ///
+    ///\param m is the level of the messages output by the solver routines.
+    void messageLevel(MessageLevel m);
+  };
+
+
 } //END OF NAMESPACE LEMON
 
 #endif //LEMON_LP_GLPK_H

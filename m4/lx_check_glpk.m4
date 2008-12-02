@@ -42,6 +42,11 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
       #include <glpk.h>
       }
 
+      #if (GLP_MAJOR_VERSION < 4) \
+         || (GLP_MAJOR_VERSION == 4 && GLP_MINOR_VERSION < 33)
+      #error Supported GLPK versions: 4.33 or above
+      #endif
+
       int main(int argc, char** argv)
       {
         LPX *lp;

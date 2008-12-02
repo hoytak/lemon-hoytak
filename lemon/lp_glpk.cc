@@ -17,628 +17,936 @@
  */
 
 ///\file
-///\brief Implementation of the LEMON-GLPK lp solver interface.
+///\brief Implementation of the LEMON GLPK LP and MIP solver interface.
 
 #include <lemon/lp_glpk.h>
-//#include <iostream>
-
-extern "C" {
 #include <glpk.h>
-}
 
-#if GLP_MAJOR_VERSION > 4 || (GLP_MAJOR_VERSION == 4 && GLP_MINOR_VERSION > 15)
-#define LEMON_glp(func) (glp_##func)
-#define LEMON_lpx(func) (lpx_##func)
-
-#define LEMON_GLP(def) (GLP_##def)
-#define LEMON_LPX(def) (LPX_##def)
-
-#else
-
-#define LEMON_glp(func) (lpx_##func)
-#define LEMON_lpx(func) (lpx_##func)
-
-#define LEMON_GLP(def) (LPX_##def)
-#define LEMON_LPX(def) (LPX_##def)
-
-#endif
+#include <lemon/assert.h>
 
 namespace lemon {
 
-  LpGlpk::LpGlpk() : Parent() {
-    solved = false;
-    rows = _lp_bits::LpId(1);
-    cols = _lp_bits::LpId(1);
-    lp = LEMON_glp(create_prob)();
-    LEMON_glp(create_index)(lp);
-    messageLevel(0);
+  // GlpkBase members
+
+  GlpkBase::GlpkBase() : LpBase() {
+    lp = glp_create_prob();
+    glp_create_index(lp);
   }
 
-  LpGlpk::LpGlpk(const LpGlpk &glp) : Parent() {
-    solved = false;
-    rows = _lp_bits::LpId(1);
-    cols = _lp_bits::LpId(1);
-    lp = LEMON_glp(create_prob)();
-    LEMON_glp(create_index)(lp);
-    messageLevel(0);
-    //Coefficient matrix, row bounds
-    LEMON_glp(add_rows)(lp, LEMON_glp(get_num_rows)(glp.lp));
-    LEMON_glp(add_cols)(lp, LEMON_glp(get_num_cols)(glp.lp));
-    int len;
-    std::vector<int> ind(1+LEMON_glp(get_num_cols)(glp.lp));
-    std::vector<Value> val(1+LEMON_glp(get_num_cols)(glp.lp));
-    for (int i=1;i<=LEMON_glp(get_num_rows)(glp.lp);++i)
-      {
-        len=LEMON_glp(get_mat_row)(glp.lp,i,&*ind.begin(),&*val.begin());
-        LEMON_glp(set_mat_row)(lp, i,len,&*ind.begin(),&*val.begin());
-        LEMON_glp(set_row_bnds)(lp,i,
-                                LEMON_glp(get_row_type)(glp.lp,i),
-                                LEMON_glp(get_row_lb)(glp.lp,i),
-                                LEMON_glp(get_row_ub)(glp.lp,i));
-      }
-
-    //Objective function, coloumn bounds
-    LEMON_glp(set_obj_dir)(lp, LEMON_glp(get_obj_dir)(glp.lp));
-    //Objectif function's constant term treated separately
-    LEMON_glp(set_obj_coef)(lp,0,LEMON_glp(get_obj_coef)(glp.lp,0));
-    for (int i=1;i<=LEMON_glp(get_num_cols)(glp.lp);++i)
-      {
-        LEMON_glp(set_obj_coef)(lp,i,
-                                LEMON_glp(get_obj_coef)(glp.lp,i));
-        LEMON_glp(set_col_bnds)(lp,i,
-                                LEMON_glp(get_col_type)(glp.lp,i),
-                                LEMON_glp(get_col_lb)(glp.lp,i),
-                                LEMON_glp(get_col_ub)(glp.lp,i));
-      }
-    rows = glp.rows;
-    cols = glp.cols;
+  GlpkBase::GlpkBase(const GlpkBase &other) : LpBase() {
+    lp = glp_create_prob();
+    glp_copy_prob(lp, other.lp, GLP_ON);
+    glp_create_index(lp);
+    rows = other.rows;
+    cols = other.cols;
   }
 
-  LpGlpk::~LpGlpk() {
-    LEMON_glp(delete_prob)(lp);
+  GlpkBase::~GlpkBase() {
+    glp_delete_prob(lp);
   }
 
-  int LpGlpk::_addCol() {
-    int i=LEMON_glp(add_cols)(lp, 1);
-    LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(FR), 0.0, 0.0);
-    solved = false;
+  int GlpkBase::_addCol() {
+    int i = glp_add_cols(lp, 1);
+    glp_set_col_bnds(lp, i, GLP_FR, 0.0, 0.0);
     return i;
   }
 
-  ///\e
-
-
-  LpSolverBase* LpGlpk::_newLp()
-  {
-    LpGlpk* newlp = new LpGlpk;
-    return newlp;
-  }
-
-  ///\e
-
-  LpSolverBase* LpGlpk::_copyLp()
-  {
-    LpGlpk *newlp = new LpGlpk(*this);
-    return newlp;
-  }
-
-  int LpGlpk::_addRow() {
-    int i=LEMON_glp(add_rows)(lp, 1);
-    solved = false;
+  int GlpkBase::_addRow() {
+    int i = glp_add_rows(lp, 1);
+    glp_set_row_bnds(lp, i, GLP_FR, 0.0, 0.0);
     return i;
   }
 
-
-  void LpGlpk::_eraseCol(int i) {
+  void GlpkBase::_eraseCol(int i) {
     int ca[2];
-    ca[1]=i;
-    LEMON_glp(del_cols)(lp, 1, ca);
-    solved = false;
+    ca[1] = i;
+    glp_del_cols(lp, 1, ca);
   }
 
-  void LpGlpk::_eraseRow(int i) {
+  void GlpkBase::_eraseRow(int i) {
     int ra[2];
-    ra[1]=i;
-    LEMON_glp(del_rows)(lp, 1, ra);
-    solved = false;
+    ra[1] = i;
+    glp_del_rows(lp, 1, ra);
   }
 
-  void LpGlpk::_getColName(int c, std::string & name) const
-  {
-
-    const char *n = LEMON_glp(get_col_name)(lp,c);
-    name = n?n:"";
+  void GlpkBase::_eraseColId(int i) {
+    cols.eraseIndex(i);
+    cols.shiftIndices(i);
   }
 
+  void GlpkBase::_eraseRowId(int i) {
+    rows.eraseIndex(i);
+    rows.shiftIndices(i);
+  }
 
-  void LpGlpk::_setColName(int c, const std::string & name)
-  {
-    LEMON_glp(set_col_name)(lp,c,const_cast<char*>(name.c_str()));
+  void GlpkBase::_getColName(int c, std::string& name) const {
+    const char *str = glp_get_col_name(lp, c);
+    if (str) name = str;
+    else name.clear();
+  }
+
+  void GlpkBase::_setColName(int c, const std::string & name) {
+    glp_set_col_name(lp, c, const_cast<char*>(name.c_str()));
 
   }
 
-  int LpGlpk::_colByName(const std::string& name) const
-  {
-    int k = LEMON_glp(find_col)(lp, const_cast<char*>(name.c_str()));
+  int GlpkBase::_colByName(const std::string& name) const {
+    int k = glp_find_col(lp, const_cast<char*>(name.c_str()));
     return k > 0 ? k : -1;
   }
 
+  void GlpkBase::_getRowName(int r, std::string& name) const {
+    const char *str = glp_get_row_name(lp, r);
+    if (str) name = str;
+    else name.clear();
+  }
 
-  void LpGlpk::_setRowCoeffs(int i, ConstRowIterator b, ConstRowIterator e)
-  {
-    std::vector<int> indices;
+  void GlpkBase::_setRowName(int r, const std::string & name) {
+    glp_set_row_name(lp, r, const_cast<char*>(name.c_str()));
+
+  }
+
+  int GlpkBase::_rowByName(const std::string& name) const {
+    int k = glp_find_row(lp, const_cast<char*>(name.c_str()));
+    return k > 0 ? k : -1;
+  }
+
+  void GlpkBase::_setRowCoeffs(int i, ExprIterator b, ExprIterator e) {
+    std::vector<int> indexes;
     std::vector<Value> values;
 
-    indices.push_back(0);
+    indexes.push_back(0);
     values.push_back(0);
 
-    for(ConstRowIterator it=b; it!=e; ++it) {
-      indices.push_back(it->first);
+    for(ExprIterator it = b; it != e; ++it) {
+      indexes.push_back(it->first);
       values.push_back(it->second);
     }
 
-    LEMON_glp(set_mat_row)(lp, i, values.size() - 1,
-                                &indices[0], &values[0]);
-
-    solved = false;
+    glp_set_mat_row(lp, i, values.size() - 1,
+                    &indexes.front(), &values.front());
   }
 
-  void LpGlpk::_getRowCoeffs(int ix, RowIterator b) const
-  {
-    int length = LEMON_glp(get_mat_row)(lp, ix, 0, 0);
+  void GlpkBase::_getRowCoeffs(int ix, InsertIterator b) const {
+    int length = glp_get_mat_row(lp, ix, 0, 0);
 
-    std::vector<int> indices(length + 1);
+    std::vector<int> indexes(length + 1);
     std::vector<Value> values(length + 1);
 
-    LEMON_glp(get_mat_row)(lp, ix, &indices[0], &values[0]);
+    glp_get_mat_row(lp, ix, &indexes.front(), &values.front());
 
     for (int i = 1; i <= length; ++i) {
-      *b = std::make_pair(indices[i], values[i]);
+      *b = std::make_pair(indexes[i], values[i]);
       ++b;
     }
   }
 
-  void LpGlpk::_setColCoeffs(int ix, ConstColIterator b, ConstColIterator e) {
+  void GlpkBase::_setColCoeffs(int ix, ExprIterator b,
+                                     ExprIterator e) {
 
-    std::vector<int> indices;
+    std::vector<int> indexes;
     std::vector<Value> values;
 
-    indices.push_back(0);
+    indexes.push_back(0);
     values.push_back(0);
 
-    for(ConstColIterator it=b; it!=e; ++it) {
-      indices.push_back(it->first);
+    for(ExprIterator it = b; it != e; ++it) {
+      indexes.push_back(it->first);
       values.push_back(it->second);
     }
 
-    LEMON_glp(set_mat_col)(lp, ix, values.size() - 1,
-                                &indices[0], &values[0]);
-
-    solved = false;
+    glp_set_mat_col(lp, ix, values.size() - 1,
+                    &indexes.front(), &values.front());
   }
 
-  void LpGlpk::_getColCoeffs(int ix, ColIterator b) const
-  {
-    int length = LEMON_glp(get_mat_col)(lp, ix, 0, 0);
+  void GlpkBase::_getColCoeffs(int ix, InsertIterator b) const {
+    int length = glp_get_mat_col(lp, ix, 0, 0);
 
-    std::vector<int> indices(length + 1);
+    std::vector<int> indexes(length + 1);
     std::vector<Value> values(length + 1);
 
-    LEMON_glp(get_mat_col)(lp, ix, &indices[0], &values[0]);
+    glp_get_mat_col(lp, ix, &indexes.front(), &values.front());
 
-    for (int i = 1; i <= length; ++i) {
-      *b = std::make_pair(indices[i], values[i]);
+    for (int i = 1; i  <= length; ++i) {
+      *b = std::make_pair(indexes[i], values[i]);
       ++b;
     }
   }
 
-  void LpGlpk::_setCoeff(int ix, int jx, Value value)
-  {
+  void GlpkBase::_setCoeff(int ix, int jx, Value value) {
 
-    if (LEMON_glp(get_num_cols)(lp) < LEMON_glp(get_num_rows)(lp)) {
+    if (glp_get_num_cols(lp) < glp_get_num_rows(lp)) {
 
-      int length=LEMON_glp(get_mat_row)(lp, ix, 0, 0);
+      int length = glp_get_mat_row(lp, ix, 0, 0);
 
-      std::vector<int> indices(length + 2);
+      std::vector<int> indexes(length + 2);
       std::vector<Value> values(length + 2);
 
-      LEMON_glp(get_mat_row)(lp, ix, &indices[0], &values[0]);
+      glp_get_mat_row(lp, ix, &indexes.front(), &values.front());
 
       //The following code does not suppose that the elements of the
-      //array indices are sorted
-      bool found=false;
-      for (int i = 1; i <= length; ++i) {
-        if (indices[i]==jx){
-          found=true;
-          values[i]=value;
+      //array indexes are sorted
+      bool found = false;
+      for (int i = 1; i  <= length; ++i) {
+        if (indexes[i] == jx) {
+          found = true;
+          values[i] = value;
           break;
         }
       }
-      if (!found){
+      if (!found) {
         ++length;
-        indices[length]=jx;
-        values[length]=value;
+        indexes[length] = jx;
+        values[length] = value;
       }
 
-      LEMON_glp(set_mat_row)(lp, ix, length, &indices[0], &values[0]);
+      glp_set_mat_row(lp, ix, length, &indexes.front(), &values.front());
 
     } else {
 
-      int length=LEMON_glp(get_mat_col)(lp, jx, 0, 0);
+      int length = glp_get_mat_col(lp, jx, 0, 0);
 
-      std::vector<int> indices(length + 2);
+      std::vector<int> indexes(length + 2);
       std::vector<Value> values(length + 2);
 
-      LEMON_glp(get_mat_col)(lp, jx, &indices[0], &values[0]);
+      glp_get_mat_col(lp, jx, &indexes.front(), &values.front());
 
       //The following code does not suppose that the elements of the
-      //array indices are sorted
-      bool found=false;
+      //array indexes are sorted
+      bool found = false;
       for (int i = 1; i <= length; ++i) {
-        if (indices[i]==ix){
-          found=true;
-          values[i]=value;
+        if (indexes[i] == ix) {
+          found = true;
+          values[i] = value;
           break;
         }
       }
-      if (!found){
+      if (!found) {
         ++length;
-        indices[length]=ix;
-        values[length]=value;
+        indexes[length] = ix;
+        values[length] = value;
       }
 
-      LEMON_glp(set_mat_col)(lp, jx, length, &indices[0], &values[0]);
+      glp_set_mat_col(lp, jx, length, &indexes.front(), &values.front());
     }
 
-    solved = false;
   }
 
-  LpGlpk::Value LpGlpk::_getCoeff(int ix, int jx) const
-  {
+  GlpkBase::Value GlpkBase::_getCoeff(int ix, int jx) const {
 
-    int length=LEMON_glp(get_mat_row)(lp, ix, 0, 0);
+    int length = glp_get_mat_row(lp, ix, 0, 0);
 
-    std::vector<int> indices(length + 1);
+    std::vector<int> indexes(length + 1);
     std::vector<Value> values(length + 1);
 
-    LEMON_glp(get_mat_row)(lp, ix, &indices[0], &values[0]);
+    glp_get_mat_row(lp, ix, &indexes.front(), &values.front());
 
-    //The following code does not suppose that the elements of the
-    //array indices are sorted
-    for (int i = 1; i <= length; ++i) {
-      if (indices[i]==jx){
+    for (int i = 1; i  <= length; ++i) {
+      if (indexes[i] == jx) {
         return values[i];
       }
     }
+
     return 0;
-
   }
 
+  void GlpkBase::_setColLowerBound(int i, Value lo) {
+    LEMON_ASSERT(lo != INF, "Invalid bound");
 
-  void LpGlpk::_setColLowerBound(int i, Value lo)
-  {
-    if (lo==INF) {
-      //FIXME error
-    }
-    int b=LEMON_glp(get_col_type)(lp, i);
-    double up=LEMON_glp(get_col_ub)(lp, i);
-    if (lo==-INF) {
+    int b = glp_get_col_type(lp, i);
+    double up = glp_get_col_ub(lp, i);
+    if (lo == -INF) {
       switch (b) {
-      case LEMON_GLP(FR):
-      case LEMON_GLP(LO):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(FR), lo, up);
+      case GLP_FR:
+      case GLP_LO:
+        glp_set_col_bnds(lp, i, GLP_FR, lo, up);
         break;
-      case LEMON_GLP(UP):
+      case GLP_UP:
         break;
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(UP), lo, up);
+      case GLP_DB:
+      case GLP_FX:
+        glp_set_col_bnds(lp, i, GLP_UP, lo, up);
         break;
-      default: ;
-        //FIXME error
+      default:
+        break;
       }
     } else {
       switch (b) {
-      case LEMON_GLP(FR):
-      case LEMON_GLP(LO):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(LO), lo, up);
+      case GLP_FR:
+      case GLP_LO:
+        glp_set_col_bnds(lp, i, GLP_LO, lo, up);
         break;
-      case LEMON_GLP(UP):
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        if (lo==up)
-          LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(FX), lo, up);
+      case GLP_UP:
+      case GLP_DB:
+      case GLP_FX:
+        if (lo == up)
+          glp_set_col_bnds(lp, i, GLP_FX, lo, up);
         else
-          LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(DB), lo, up);
+          glp_set_col_bnds(lp, i, GLP_DB, lo, up);
         break;
-      default: ;
-        //FIXME error
+      default:
+        break;
       }
     }
-
-    solved = false;
   }
 
-  LpGlpk::Value LpGlpk::_getColLowerBound(int i) const
-  {
-    int b=LEMON_glp(get_col_type)(lp, i);
-      switch (b) {
-      case LEMON_GLP(LO):
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        return LEMON_glp(get_col_lb)(lp, i);
-      default: ;
-        return -INF;
-      }
-  }
-
-  void LpGlpk::_setColUpperBound(int i, Value up)
-  {
-    if (up==-INF) {
-      //FIXME error
+  GlpkBase::Value GlpkBase::_getColLowerBound(int i) const {
+    int b = glp_get_col_type(lp, i);
+    switch (b) {
+    case GLP_LO:
+    case GLP_DB:
+    case GLP_FX:
+      return glp_get_col_lb(lp, i);
+    default:
+      return -INF;
     }
-    int b=LEMON_glp(get_col_type)(lp, i);
-    double lo=LEMON_glp(get_col_lb)(lp, i);
-    if (up==INF) {
+  }
+
+  void GlpkBase::_setColUpperBound(int i, Value up) {
+    LEMON_ASSERT(up != -INF, "Invalid bound");
+
+    int b = glp_get_col_type(lp, i);
+    double lo = glp_get_col_lb(lp, i);
+    if (up == INF) {
       switch (b) {
-      case LEMON_GLP(FR):
-      case LEMON_GLP(LO):
+      case GLP_FR:
+      case GLP_LO:
         break;
-      case LEMON_GLP(UP):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(FR), lo, up);
+      case GLP_UP:
+        glp_set_col_bnds(lp, i, GLP_FR, lo, up);
         break;
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(LO), lo, up);
+      case GLP_DB:
+      case GLP_FX:
+        glp_set_col_bnds(lp, i, GLP_LO, lo, up);
         break;
-      default: ;
-        //FIXME error
+      default:
+        break;
       }
     } else {
       switch (b) {
-      case LEMON_GLP(FR):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(UP), lo, up);
+      case GLP_FR:
+        glp_set_col_bnds(lp, i, GLP_UP, lo, up);
         break;
-      case LEMON_GLP(UP):
-        LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(UP), lo, up);
+      case GLP_UP:
+        glp_set_col_bnds(lp, i, GLP_UP, lo, up);
         break;
-      case LEMON_GLP(LO):
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        if (lo==up)
-          LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(FX), lo, up);
+      case GLP_LO:
+      case GLP_DB:
+      case GLP_FX:
+        if (lo == up)
+          glp_set_col_bnds(lp, i, GLP_FX, lo, up);
         else
-          LEMON_glp(set_col_bnds)(lp, i, LEMON_GLP(DB), lo, up);
+          glp_set_col_bnds(lp, i, GLP_DB, lo, up);
         break;
-      default: ;
-        //FIXME error
+      default:
+        break;
       }
     }
 
-    solved = false;
   }
 
-  LpGlpk::Value LpGlpk::_getColUpperBound(int i) const
-  {
-    int b=LEMON_glp(get_col_type)(lp, i);
+  GlpkBase::Value GlpkBase::_getColUpperBound(int i) const {
+    int b = glp_get_col_type(lp, i);
       switch (b) {
-      case LEMON_GLP(UP):
-      case LEMON_GLP(DB):
-      case LEMON_GLP(FX):
-        return LEMON_glp(get_col_ub)(lp, i);
-      default: ;
+      case GLP_UP:
+      case GLP_DB:
+      case GLP_FX:
+        return glp_get_col_ub(lp, i);
+      default:
         return INF;
       }
   }
 
-  void LpGlpk::_setRowBounds(int i, Value lb, Value ub)
-  {
-    //Bad parameter
-    if (lb==INF || ub==-INF) {
-      //FIXME error
-    }
+  void GlpkBase::_setRowLowerBound(int i, Value lo) {
+    LEMON_ASSERT(lo != INF, "Invalid bound");
 
-    if (lb == -INF){
-      if (ub == INF){
-        LEMON_glp(set_row_bnds)(lp, i, LEMON_GLP(FR), lb, ub);
-      }
-      else{
-        LEMON_glp(set_row_bnds)(lp, i, LEMON_GLP(UP), lb, ub);
-      }
-    }
-    else{
-      if (ub==INF){
-        LEMON_glp(set_row_bnds)(lp, i, LEMON_GLP(LO), lb, ub);
-
-      }
-      else{
-        if (lb == ub){
-          LEMON_glp(set_row_bnds)(lp, i, LEMON_GLP(FX), lb, ub);
-        }
-        else{
-          LEMON_glp(set_row_bnds)(lp, i, LEMON_GLP(DB), lb, ub);
-        }
-      }
-    }
-
-    solved = false;
-  }
-
-  void LpGlpk::_getRowBounds(int i, Value &lb, Value &ub) const
-  {
-
-    int b=LEMON_glp(get_row_type)(lp, i);
-    switch (b) {
-    case LEMON_GLP(FR):
-    case LEMON_GLP(UP):
-      lb = -INF;
+    int b = glp_get_row_type(lp, i);
+    double up = glp_get_row_ub(lp, i);
+    if (lo == -INF) {
+      switch (b) {
+      case GLP_FR:
+      case GLP_LO:
+        glp_set_row_bnds(lp, i, GLP_FR, lo, up);
         break;
-    default:
-      lb=LEMON_glp(get_row_lb)(lp, i);
-    }
-
-    switch (b) {
-    case LEMON_GLP(FR):
-    case LEMON_GLP(LO):
-      ub = INF;
+      case GLP_UP:
         break;
+      case GLP_DB:
+      case GLP_FX:
+        glp_set_row_bnds(lp, i, GLP_UP, lo, up);
+        break;
+      default:
+        break;
+      }
+    } else {
+      switch (b) {
+      case GLP_FR:
+      case GLP_LO:
+        glp_set_row_bnds(lp, i, GLP_LO, lo, up);
+        break;
+      case GLP_UP:
+      case GLP_DB:
+      case GLP_FX:
+        if (lo == up)
+          glp_set_row_bnds(lp, i, GLP_FX, lo, up);
+        else
+          glp_set_row_bnds(lp, i, GLP_DB, lo, up);
+        break;
+      default:
+        break;
+      }
+    }
+
+  }
+
+  GlpkBase::Value GlpkBase::_getRowLowerBound(int i) const {
+    int b = glp_get_row_type(lp, i);
+    switch (b) {
+    case GLP_LO:
+    case GLP_DB:
+    case GLP_FX:
+      return glp_get_row_lb(lp, i);
     default:
-      ub=LEMON_glp(get_row_ub)(lp, i);
+      return -INF;
     }
-
   }
 
-  void LpGlpk::_setObjCoeff(int i, Value obj_coef)
-  {
-    //i=0 means the constant term (shift)
-    LEMON_glp(set_obj_coef)(lp, i, obj_coef);
+  void GlpkBase::_setRowUpperBound(int i, Value up) {
+    LEMON_ASSERT(up != -INF, "Invalid bound");
 
-    solved = false;
-  }
-
-  LpGlpk::Value LpGlpk::_getObjCoeff(int i) const {
-    //i=0 means the constant term (shift)
-    return LEMON_glp(get_obj_coef)(lp, i);
-  }
-
-  void LpGlpk::_clearObj()
-  {
-    for (int i=0;i<=LEMON_glp(get_num_cols)(lp);++i){
-      LEMON_glp(set_obj_coef)(lp, i, 0);
+    int b = glp_get_row_type(lp, i);
+    double lo = glp_get_row_lb(lp, i);
+    if (up == INF) {
+      switch (b) {
+      case GLP_FR:
+      case GLP_LO:
+        break;
+      case GLP_UP:
+        glp_set_row_bnds(lp, i, GLP_FR, lo, up);
+        break;
+      case GLP_DB:
+      case GLP_FX:
+        glp_set_row_bnds(lp, i, GLP_LO, lo, up);
+        break;
+      default:
+        break;
+      }
+    } else {
+      switch (b) {
+      case GLP_FR:
+        glp_set_row_bnds(lp, i, GLP_UP, lo, up);
+        break;
+      case GLP_UP:
+        glp_set_row_bnds(lp, i, GLP_UP, lo, up);
+        break;
+      case GLP_LO:
+      case GLP_DB:
+      case GLP_FX:
+        if (lo == up)
+          glp_set_row_bnds(lp, i, GLP_FX, lo, up);
+        else
+          glp_set_row_bnds(lp, i, GLP_DB, lo, up);
+        break;
+      default:
+        break;
+      }
     }
-
-    solved = false;
   }
 
-  LpGlpk::SolveExitStatus LpGlpk::_solve()
-  {
-    // A way to check the problem to be solved
-    //LEMON_glp(write_cpxlp(lp,"naittvan.cpx");
-
-    LEMON_lpx(std_basis)(lp);
-    int i =  LEMON_lpx(simplex)(lp);
-
-    switch (i) {
-    case LEMON_LPX(E_OK):
-      solved = true;
-      return SOLVED;
+  GlpkBase::Value GlpkBase::_getRowUpperBound(int i) const {
+    int b = glp_get_row_type(lp, i);
+    switch (b) {
+    case GLP_UP:
+    case GLP_DB:
+    case GLP_FX:
+      return glp_get_row_ub(lp, i);
     default:
-      return UNSOLVED;
+      return INF;
     }
   }
 
-  LpGlpk::Value LpGlpk::_getPrimal(int i) const
-  {
-    return LEMON_glp(get_col_prim)(lp,i);
+  void GlpkBase::_setObjCoeffs(ExprIterator b, ExprIterator e) {
+    for (int i = 1; i <= glp_get_num_cols(lp); ++i) {
+      glp_set_obj_coef(lp, i, 0.0);
+    }
+    for (ExprIterator it = b; it != e; ++it) {
+      glp_set_obj_coef(lp, it->first, it->second);
+    }
   }
 
-  LpGlpk::Value LpGlpk::_getDual(int i) const
-  {
-    return LEMON_glp(get_row_dual)(lp,i);
+  void GlpkBase::_getObjCoeffs(InsertIterator b) const {
+    for (int i = 1; i <= glp_get_num_cols(lp); ++i) {
+      Value val = glp_get_obj_coef(lp, i);
+      if (val != 0.0) {
+        *b = std::make_pair(i, val);
+        ++b;
+      }
+    }
   }
 
-  LpGlpk::Value LpGlpk::_getPrimalValue() const
-  {
-    return LEMON_glp(get_obj_val)(lp);
-  }
-  bool LpGlpk::_isBasicCol(int i) const
-  {
-    return (LEMON_glp(get_col_stat)(lp, i)==LEMON_GLP(BS));
+  void GlpkBase::_setObjCoeff(int i, Value obj_coef) {
+    //i = 0 means the constant term (shift)
+    glp_set_obj_coef(lp, i, obj_coef);
   }
 
+  GlpkBase::Value GlpkBase::_getObjCoeff(int i) const {
+    //i = 0 means the constant term (shift)
+    return glp_get_obj_coef(lp, i);
+  }
 
-  LpGlpk::SolutionStatus LpGlpk::_getPrimalStatus() const
-  {
-    if (!solved) return UNDEFINED;
-    int stat=  LEMON_lpx(get_status)(lp);
-    switch (stat) {
-    case LEMON_LPX(UNDEF)://Undefined (no solve has been run yet)
-      return UNDEFINED;
-    case LEMON_LPX(NOFEAS)://There is no feasible solution (primal, I guess)
-    case LEMON_LPX(INFEAS)://Infeasible
-      return INFEASIBLE;
-    case LEMON_LPX(UNBND)://Unbounded
-      return INFINITE;
-    case LEMON_LPX(FEAS)://Feasible
-      return FEASIBLE;
-    case LEMON_LPX(OPT)://Feasible
+  void GlpkBase::_setSense(GlpkBase::Sense sense) {
+    switch (sense) {
+    case MIN:
+      glp_set_obj_dir(lp, GLP_MIN);
+      break;
+    case MAX:
+      glp_set_obj_dir(lp, GLP_MAX);
+      break;
+    }
+  }
+
+  GlpkBase::Sense GlpkBase::_getSense() const {
+    switch(glp_get_obj_dir(lp)) {
+    case GLP_MIN:
+      return MIN;
+    case GLP_MAX:
+      return MAX;
+    default:
+      LEMON_ASSERT(false, "Wrong sense");
+      return GlpkBase::Sense();
+    }
+  }
+
+  void GlpkBase::_clear() {
+    glp_erase_prob(lp);
+    rows.clear();
+    cols.clear();
+  }
+
+  // LpGlpk members
+
+  LpGlpk::LpGlpk()
+    : LpBase(), GlpkBase(), LpSolver() {
+    messageLevel(MESSAGE_NO_OUTPUT);
+  }
+
+  LpGlpk::LpGlpk(const LpGlpk& other)
+    : LpBase(other), GlpkBase(other), LpSolver(other) {
+    messageLevel(MESSAGE_NO_OUTPUT);
+  }
+
+  LpGlpk* LpGlpk::_newSolver() const { return new LpGlpk; }
+  LpGlpk* LpGlpk::_cloneSolver() const { return new LpGlpk(*this); }
+
+  const char* LpGlpk::_solverName() const { return "LpGlpk"; }
+
+  void LpGlpk::_clear_temporals() {
+    _primal_ray.clear();
+    _dual_ray.clear();
+  }
+
+  LpGlpk::SolveExitStatus LpGlpk::_solve() {
+    return solvePrimal();
+  }
+
+  LpGlpk::SolveExitStatus LpGlpk::solvePrimal() {
+    _clear_temporals();
+
+    glp_smcp smcp;
+    glp_init_smcp(&smcp);
+
+    switch (_message_level) {
+    case MESSAGE_NO_OUTPUT:
+      smcp.msg_lev = GLP_MSG_OFF;
+      break;
+    case MESSAGE_ERROR_MESSAGE:
+      smcp.msg_lev = GLP_MSG_ERR;
+      break;
+    case MESSAGE_NORMAL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ON;
+      break;
+    case MESSAGE_FULL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ALL;
+      break;
+    }
+
+    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    return SOLVED;
+  }
+
+  LpGlpk::SolveExitStatus LpGlpk::solveDual() {
+    _clear_temporals();
+
+    glp_smcp smcp;
+    glp_init_smcp(&smcp);
+
+    switch (_message_level) {
+    case MESSAGE_NO_OUTPUT:
+      smcp.msg_lev = GLP_MSG_OFF;
+      break;
+    case MESSAGE_ERROR_MESSAGE:
+      smcp.msg_lev = GLP_MSG_ERR;
+      break;
+    case MESSAGE_NORMAL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ON;
+      break;
+    case MESSAGE_FULL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ALL;
+      break;
+    }
+    smcp.meth = GLP_DUAL;
+
+    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    return SOLVED;
+  }
+
+  LpGlpk::Value LpGlpk::_getPrimal(int i) const {
+    return glp_get_col_prim(lp, i);
+  }
+
+  LpGlpk::Value LpGlpk::_getDual(int i) const {
+    return glp_get_row_dual(lp, i);
+  }
+
+  LpGlpk::Value LpGlpk::_getPrimalValue() const {
+    return glp_get_obj_val(lp);
+  }
+
+  LpGlpk::VarStatus LpGlpk::_getColStatus(int i) const {
+    switch (glp_get_col_stat(lp, i)) {
+    case GLP_BS:
+      return BASIC;
+    case GLP_UP:
+      return UPPER;
+    case GLP_LO:
+      return LOWER;
+    case GLP_NF:
+      return FREE;
+    case GLP_NS:
+      return FIXED;
+    default:
+      LEMON_ASSERT(false, "Wrong column status");
+      return LpGlpk::VarStatus();
+    }
+  }
+
+  LpGlpk::VarStatus LpGlpk::_getRowStatus(int i) const {
+    switch (glp_get_row_stat(lp, i)) {
+    case GLP_BS:
+      return BASIC;
+    case GLP_UP:
+      return UPPER;
+    case GLP_LO:
+      return LOWER;
+    case GLP_NF:
+      return FREE;
+    case GLP_NS:
+      return FIXED;
+    default:
+      LEMON_ASSERT(false, "Wrong row status");
+      return LpGlpk::VarStatus();
+    }
+  }
+
+  LpGlpk::Value LpGlpk::_getPrimalRay(int i) const {
+    if (_primal_ray.empty()) {
+      int row_num = glp_get_num_rows(lp);
+      int col_num = glp_get_num_cols(lp);
+
+      _primal_ray.resize(col_num + 1, 0.0);
+
+      int index = glp_get_unbnd_ray(lp);
+      if (index != 0) {
+        // The primal ray is found in primal simplex second phase
+        LEMON_ASSERT((index <= row_num ? glp_get_row_stat(lp, index) :
+                      glp_get_col_stat(lp, index - row_num)) != GLP_BS,
+                     "Wrong primal ray");
+
+        bool negate = glp_get_obj_dir(lp) == GLP_MAX;
+
+        if (index > row_num) {
+          _primal_ray[index - row_num] = 1.0;
+          if (glp_get_col_dual(lp, index - row_num) > 0) {
+            negate = !negate;
+          }
+        } else {
+          if (glp_get_row_dual(lp, index) > 0) {
+            negate = !negate;
+          }
+        }
+
+        std::vector<int> ray_indexes(row_num + 1);
+        std::vector<Value> ray_values(row_num + 1);
+        int ray_length = glp_eval_tab_col(lp, index, &ray_indexes.front(),
+                                          &ray_values.front());
+
+        for (int i = 1; i <= ray_length; ++i) {
+          if (ray_indexes[i] > row_num) {
+            _primal_ray[ray_indexes[i] - row_num] = ray_values[i];
+          }
+        }
+
+        if (negate) {
+          for (int i = 1; i <= col_num; ++i) {
+            _primal_ray[i] = - _primal_ray[i];
+          }
+        }
+      } else {
+        for (int i = 1; i <= col_num; ++i) {
+          _primal_ray[i] = glp_get_col_prim(lp, i);
+        }
+      }
+    }
+    return _primal_ray[i];
+  }
+
+  LpGlpk::Value LpGlpk::_getDualRay(int i) const {
+    if (_dual_ray.empty()) {
+      int row_num = glp_get_num_rows(lp);
+
+      _dual_ray.resize(row_num + 1, 0.0);
+
+      int index = glp_get_unbnd_ray(lp);
+      if (index != 0) {
+        // The dual ray is found in dual simplex second phase
+        LEMON_ASSERT((index <= row_num ? glp_get_row_stat(lp, index) :
+                      glp_get_col_stat(lp, index - row_num)) == GLP_BS,
+
+                     "Wrong dual ray");
+
+        int idx;
+        bool negate = false;
+
+        if (index > row_num) {
+          idx = glp_get_col_bind(lp, index - row_num);
+          if (glp_get_col_prim(lp, index - row_num) >
+              glp_get_col_ub(lp, index - row_num)) {
+            negate = true;
+          }
+        } else {
+          idx = glp_get_row_bind(lp, index);
+          if (glp_get_row_prim(lp, index) > glp_get_row_ub(lp, index)) {
+            negate = true;
+          }
+        }
+
+        _dual_ray[idx] = negate ?  - 1.0 : 1.0;
+
+        glp_btran(lp, &_dual_ray.front());
+      } else {
+        double eps = 1e-7;
+        // The dual ray is found in primal simplex first phase
+        // We assume that the glpk minimizes the slack to get feasible solution
+        for (int i = 1; i <= row_num; ++i) {
+          int index = glp_get_bhead(lp, i);
+          if (index <= row_num) {
+            double res = glp_get_row_prim(lp, index);
+            if (res > glp_get_row_ub(lp, index) + eps) {
+              _dual_ray[i] = -1;
+            } else if (res < glp_get_row_lb(lp, index) - eps) {
+              _dual_ray[i] = 1;
+            } else {
+              _dual_ray[i] = 0;
+            }
+            _dual_ray[i] *= glp_get_rii(lp, index);
+          } else {
+            double res = glp_get_col_prim(lp, index - row_num);
+            if (res > glp_get_col_ub(lp, index - row_num) + eps) {
+              _dual_ray[i] = -1;
+            } else if (res < glp_get_col_lb(lp, index - row_num) - eps) {
+              _dual_ray[i] = 1;
+            } else {
+              _dual_ray[i] = 0;
+            }
+            _dual_ray[i] /= glp_get_sjj(lp, index - row_num);
+          }
+        }
+
+        glp_btran(lp, &_dual_ray.front());
+
+        for (int i = 1; i <= row_num; ++i) {
+          _dual_ray[i] /= glp_get_rii(lp, i);
+        }
+      }
+    }
+    return _dual_ray[i];
+  }
+
+  LpGlpk::ProblemType LpGlpk::_getPrimalType() const {
+    if (glp_get_status(lp) == GLP_OPT)
       return OPTIMAL;
+    switch (glp_get_prim_stat(lp)) {
+    case GLP_UNDEF:
+      return UNDEFINED;
+    case GLP_FEAS:
+    case GLP_INFEAS:
+      if (glp_get_dual_stat(lp) == GLP_NOFEAS) {
+        return UNBOUNDED;
+      } else {
+        return UNDEFINED;
+      }
+    case GLP_NOFEAS:
+      return INFEASIBLE;
     default:
-      return UNDEFINED; //to avoid gcc warning
-      //FIXME error
+      LEMON_ASSERT(false, "Wrong primal type");
+      return  LpGlpk::ProblemType();
     }
   }
 
-  LpGlpk::SolutionStatus LpGlpk::_getDualStatus() const
-  {
-    if (!solved) return UNDEFINED;
-    switch (LEMON_lpx(get_dual_stat)(lp)) {
-    case LEMON_LPX(D_UNDEF)://Undefined (no solve has been run yet)
+  LpGlpk::ProblemType LpGlpk::_getDualType() const {
+    if (glp_get_status(lp) == GLP_OPT)
+      return OPTIMAL;
+    switch (glp_get_dual_stat(lp)) {
+    case GLP_UNDEF:
       return UNDEFINED;
-    case LEMON_LPX(D_NOFEAS)://There is no dual feasible solution
-//    case LEMON_LPX(D_INFEAS://Infeasible
+    case GLP_FEAS:
+    case GLP_INFEAS:
+      if (glp_get_prim_stat(lp) == GLP_NOFEAS) {
+        return UNBOUNDED;
+      } else {
+        return UNDEFINED;
+      }
+    case GLP_NOFEAS:
       return INFEASIBLE;
-    case LEMON_LPX(D_FEAS)://Feasible
-      switch (LEMON_lpx(get_status)(lp)) {
-      case LEMON_LPX(NOFEAS):
-        return INFINITE;
-      case LEMON_LPX(OPT):
+    default:
+      LEMON_ASSERT(false, "Wrong primal type");
+      return  LpGlpk::ProblemType();
+    }
+  }
+
+  void LpGlpk::presolver(bool b) {
+    lpx_set_int_parm(lp, LPX_K_PRESOL, b ? 1 : 0);
+  }
+
+  void LpGlpk::messageLevel(MessageLevel m) {
+    _message_level = m;
+  }
+
+  // MipGlpk members
+
+  MipGlpk::MipGlpk()
+    : LpBase(), GlpkBase(), MipSolver() {
+    messageLevel(MESSAGE_NO_OUTPUT);
+  }
+
+  MipGlpk::MipGlpk(const MipGlpk& other)
+    : LpBase(), GlpkBase(other), MipSolver() {
+    messageLevel(MESSAGE_NO_OUTPUT);
+  }
+
+  void MipGlpk::_setColType(int i, MipGlpk::ColTypes col_type) {
+    switch (col_type) {
+    case INTEGER:
+      glp_set_col_kind(lp, i, GLP_IV);
+      break;
+    case REAL:
+      glp_set_col_kind(lp, i, GLP_CV);
+      break;
+    }
+  }
+
+  MipGlpk::ColTypes MipGlpk::_getColType(int i) const {
+    switch (glp_get_col_kind(lp, i)) {
+    case GLP_IV:
+    case GLP_BV:
+      return INTEGER;
+    default:
+      return REAL;
+    }
+
+  }
+
+  MipGlpk::SolveExitStatus MipGlpk::_solve() {
+    glp_smcp smcp;
+    glp_init_smcp(&smcp);
+
+    switch (_message_level) {
+    case MESSAGE_NO_OUTPUT:
+      smcp.msg_lev = GLP_MSG_OFF;
+      break;
+    case MESSAGE_ERROR_MESSAGE:
+      smcp.msg_lev = GLP_MSG_ERR;
+      break;
+    case MESSAGE_NORMAL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ON;
+      break;
+    case MESSAGE_FULL_OUTPUT:
+      smcp.msg_lev = GLP_MSG_ALL;
+      break;
+    }
+    smcp.meth = GLP_DUAL;
+
+    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    if (glp_get_status(lp) != GLP_OPT) return SOLVED;
+
+    glp_iocp iocp;
+    glp_init_iocp(&iocp);
+
+    switch (_message_level) {
+    case MESSAGE_NO_OUTPUT:
+      iocp.msg_lev = GLP_MSG_OFF;
+      break;
+    case MESSAGE_ERROR_MESSAGE:
+      iocp.msg_lev = GLP_MSG_ERR;
+      break;
+    case MESSAGE_NORMAL_OUTPUT:
+      iocp.msg_lev = GLP_MSG_ON;
+      break;
+    case MESSAGE_FULL_OUTPUT:
+      iocp.msg_lev = GLP_MSG_ALL;
+      break;
+    }
+
+    if (glp_intopt(lp, &iocp) != 0) return UNSOLVED;
+    return SOLVED;
+  }
+
+
+  MipGlpk::ProblemType MipGlpk::_getType() const {
+    switch (glp_get_status(lp)) {
+    case GLP_OPT:
+      switch (glp_mip_status(lp)) {
+      case GLP_UNDEF:
+        return UNDEFINED;
+      case GLP_NOFEAS:
+        return INFEASIBLE;
+      case GLP_FEAS:
+        return FEASIBLE;
+      case GLP_OPT:
         return OPTIMAL;
       default:
-        return FEASIBLE;
+        LEMON_ASSERT(false, "Wrong problem type.");
+        return MipGlpk::ProblemType();
+      }
+    case GLP_NOFEAS:
+      return INFEASIBLE;
+    case GLP_INFEAS:
+    case GLP_FEAS:
+      if (glp_get_dual_stat(lp) == GLP_NOFEAS) {
+        return UNBOUNDED;
+      } else {
+        return UNDEFINED;
       }
     default:
-      return UNDEFINED; //to avoid gcc warning
-      //FIXME error
+      LEMON_ASSERT(false, "Wrong problem type.");
+      return MipGlpk::ProblemType();
     }
   }
 
-  LpGlpk::ProblemTypes LpGlpk::_getProblemType() const
-  {
-    if (!solved) return UNKNOWN;
-      //int stat=  LEMON_glp(get_status(lp);
-    int statp=  LEMON_lpx(get_prim_stat)(lp);
-    int statd=  LEMON_lpx(get_dual_stat)(lp);
-    if (statp==LEMON_LPX(P_FEAS) && statd==LEMON_LPX(D_FEAS))
-        return PRIMAL_DUAL_FEASIBLE;
-    if (statp==LEMON_LPX(P_FEAS) && statd==LEMON_LPX(D_NOFEAS))
-        return PRIMAL_FEASIBLE_DUAL_INFEASIBLE;
-    if (statp==LEMON_LPX(P_NOFEAS) && statd==LEMON_LPX(D_FEAS))
-        return PRIMAL_INFEASIBLE_DUAL_FEASIBLE;
-    if (statp==LEMON_LPX(P_NOFEAS) && statd==LEMON_LPX(D_NOFEAS))
-        return PRIMAL_DUAL_INFEASIBLE;
-    //In all other cases
-    return UNKNOWN;
+  MipGlpk::Value MipGlpk::_getSol(int i) const {
+    return glp_mip_col_val(lp, i);
   }
 
-  void LpGlpk::_setMax()
-  {
-    solved = false;
-    LEMON_glp(set_obj_dir)(lp, LEMON_GLP(MAX));
+  MipGlpk::Value MipGlpk::_getSolValue() const {
+    return glp_mip_obj_val(lp);
   }
 
-  void LpGlpk::_setMin()
-  {
-    solved = false;
-    LEMON_glp(set_obj_dir)(lp, LEMON_GLP(MIN));
+  MipGlpk* MipGlpk::_newSolver() const { return new MipGlpk; }
+  MipGlpk* MipGlpk::_cloneSolver() const {return new MipGlpk(*this); }
+
+  const char* MipGlpk::_solverName() const { return "MipGlpk"; }
+
+  void MipGlpk::messageLevel(MessageLevel m) {
+    _message_level = m;
   }
-
-  bool LpGlpk::_isMax() const
-  {
-    return (LEMON_glp(get_obj_dir)(lp)==LEMON_GLP(MAX));
-  }
-
-
-
-  void LpGlpk::messageLevel(int m)
-  {
-    LEMON_lpx(set_int_parm)(lp, LEMON_LPX(K_MSGLEV), m);
-  }
-
-  void LpGlpk::presolver(bool b)
-  {
-    LEMON_lpx(set_int_parm)(lp, LEMON_LPX(K_PRESOL), b);
-  }
-
 
 } //END OF NAMESPACE LEMON

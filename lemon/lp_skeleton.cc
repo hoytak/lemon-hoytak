@@ -22,166 +22,113 @@
 ///\brief A skeleton file to implement LP solver interfaces
 namespace lemon {
 
-  LpSolverBase* LpSkeleton::_newLp()
-  {
-    LpSolverBase *tmp=0;
-    return tmp;
-  }
-
-  LpSolverBase* LpSkeleton::_copyLp()
-  {
-    LpSolverBase *tmp=0;
-    return tmp;
-  }
-
-  int LpSkeleton::_addCol()
+  int SkeletonSolverBase::_addCol()
   {
     return ++col_num;
   }
 
-  int LpSkeleton::_addRow()
+  int SkeletonSolverBase::_addRow()
   {
     return ++row_num;
   }
 
-  void LpSkeleton::_eraseCol(int ) {
+  void SkeletonSolverBase::_eraseCol(int) {}
+  void SkeletonSolverBase::_eraseRow(int) {}
+
+  void SkeletonSolverBase::_getColName(int, std::string &) const {}
+  void SkeletonSolverBase::_setColName(int, const std::string &) {}
+  int SkeletonSolverBase::_colByName(const std::string&) const { return -1; }
+
+  void SkeletonSolverBase::_getRowName(int, std::string &) const {}
+  void SkeletonSolverBase::_setRowName(int, const std::string &) {}
+  int SkeletonSolverBase::_rowByName(const std::string&) const { return -1; }
+
+  void SkeletonSolverBase::_setRowCoeffs(int, ExprIterator, ExprIterator) {}
+  void SkeletonSolverBase::_getRowCoeffs(int, InsertIterator) const {}
+
+  void SkeletonSolverBase::_setColCoeffs(int, ExprIterator, ExprIterator) {}
+  void SkeletonSolverBase::_getColCoeffs(int, InsertIterator) const {}
+
+  void SkeletonSolverBase::_setCoeff(int, int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getCoeff(int, int) const
+  { return 0; }
+
+  void SkeletonSolverBase::_setColLowerBound(int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getColLowerBound(int) const
+  {  return 0; }
+
+  void SkeletonSolverBase::_setColUpperBound(int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getColUpperBound(int) const
+  {  return 0; }
+
+  void SkeletonSolverBase::_setRowLowerBound(int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getRowLowerBound(int) const
+  {  return 0; }
+
+  void SkeletonSolverBase::_setRowUpperBound(int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getRowUpperBound(int) const
+  {  return 0; }
+
+  void SkeletonSolverBase::_setObjCoeffs(ExprIterator, ExprIterator) {}
+  void SkeletonSolverBase::_getObjCoeffs(InsertIterator) const {};
+
+  void SkeletonSolverBase::_setObjCoeff(int, Value) {}
+  SkeletonSolverBase::Value SkeletonSolverBase::_getObjCoeff(int) const
+  {  return 0; }
+
+  void SkeletonSolverBase::_setSense(Sense) {}
+  SkeletonSolverBase::Sense SkeletonSolverBase::_getSense() const
+  { return MIN; }
+
+  void SkeletonSolverBase::_clear() {
+    row_num = col_num = 0;
   }
 
-  void LpSkeleton::_eraseRow(int) {
-  }
+  LpSkeleton::SolveExitStatus LpSkeleton::_solve() { return SOLVED; }
 
-  void LpSkeleton::_getColName(int, std::string &) const {
-  }
+  LpSkeleton::Value LpSkeleton::_getPrimal(int) const { return 0; }
+  LpSkeleton::Value LpSkeleton::_getDual(int) const { return 0; }
+  LpSkeleton::Value LpSkeleton::_getPrimalValue() const { return 0; }
 
+  LpSkeleton::Value LpSkeleton::_getPrimalRay(int) const { return 0; }
+  LpSkeleton::Value LpSkeleton::_getDualRay(int) const { return 0; }
 
-  void LpSkeleton::_setColName(int, const std::string &) {
-  }
+  LpSkeleton::ProblemType LpSkeleton::_getPrimalType() const
+  { return UNDEFINED; }
 
-  int LpSkeleton::_colByName(const std::string&) const { return -1; }
+  LpSkeleton::ProblemType LpSkeleton::_getDualType() const
+  { return UNDEFINED; }
 
+  LpSkeleton::VarStatus LpSkeleton::_getColStatus(int) const
+  { return BASIC; }
 
-  void LpSkeleton::_setRowCoeffs(int, ConstRowIterator, ConstRowIterator) {
-  }
+  LpSkeleton::VarStatus LpSkeleton::_getRowStatus(int) const
+  { return BASIC; }
 
-  void LpSkeleton::_getRowCoeffs(int, RowIterator) const {
-  }
+  LpSkeleton* LpSkeleton::_newSolver() const
+  { return static_cast<LpSkeleton*>(0); }
 
-  void LpSkeleton::_setColCoeffs(int, ConstColIterator, ConstColIterator) {
-  }
+  LpSkeleton* LpSkeleton::_cloneSolver() const
+  { return static_cast<LpSkeleton*>(0); }
 
-  void LpSkeleton::_getColCoeffs(int, ColIterator) const {
-  }
+  const char* LpSkeleton::_solverName() const { return "LpSkeleton"; }
 
-  void LpSkeleton::_setCoeff(int, int, Value )
-  {
-  }
+  MipSkeleton::SolveExitStatus MipSkeleton::_solve()
+  { return SOLVED; }
 
-  LpSkeleton::Value LpSkeleton::_getCoeff(int, int) const
-  {
-    return 0;
-  }
+  MipSkeleton::Value MipSkeleton::_getSol(int) const { return 0; }
+  MipSkeleton::Value MipSkeleton::_getSolValue() const { return 0; }
 
+  MipSkeleton::ProblemType MipSkeleton::_getType() const
+  { return UNDEFINED; }
 
-  void LpSkeleton::_setColLowerBound(int, Value)
-  {
-  }
+  MipSkeleton* MipSkeleton::_newSolver() const
+  { return static_cast<MipSkeleton*>(0); }
 
-  LpSkeleton::Value LpSkeleton::_getColLowerBound(int) const
-  {
-    return 0;
-  }
+  MipSkeleton* MipSkeleton::_cloneSolver() const
+  { return static_cast<MipSkeleton*>(0); }
 
-  void LpSkeleton::_setColUpperBound(int, Value)
-  {
-  }
-
-  LpSkeleton::Value LpSkeleton::_getColUpperBound(int) const
-  {
-    return 0;
-  }
-
-//   void LpSkeleton::_setRowLowerBound(int, Value)
-//   {
-//   }
-
-//   void LpSkeleton::_setRowUpperBound(int, Value)
-//   {
-//   }
-
-  void LpSkeleton::_setRowBounds(int, Value, Value)
-  {
-  }
-
-  void LpSkeleton::_getRowBounds(int, Value&, Value&) const
-  {
-  }
-
-  void LpSkeleton::_setObjCoeff(int, Value)
-  {
-  }
-
-  LpSkeleton::Value LpSkeleton::_getObjCoeff(int) const
-  {
-    return 0;
-  }
-
-  void LpSkeleton::_setMax()
-  {
-  }
-
-  void LpSkeleton::_setMin()
-  {
-  }
-
-  bool LpSkeleton::_isMax() const
-  {
-    return true;
-  }
-
-
-  void LpSkeleton::_clearObj()
-  {
-  }
-
-  LpSkeleton::SolveExitStatus LpSkeleton::_solve()
-  {
-    return SOLVED;
-  }
-
-  LpSkeleton::Value LpSkeleton::_getPrimal(int) const
-  {
-    return 0;
-  }
-
-  LpSkeleton::Value LpSkeleton::_getDual(int) const
-  {
-    return 0;
-  }
-
-  LpSkeleton::Value LpSkeleton::_getPrimalValue() const
-  {
-    return 0;
-  }
-
-  LpSkeleton::SolutionStatus LpSkeleton::_getPrimalStatus() const
-  {
-    return UNDEFINED;
-  }
-
-  LpSkeleton::SolutionStatus LpSkeleton::_getDualStatus() const
-  {
-    return UNDEFINED;
-  }
-
-  LpSkeleton::ProblemTypes LpSkeleton::_getProblemType() const
-  {
-    return UNKNOWN;
-  }
-
-  bool LpSkeleton::_isBasicCol(int) const
-  {
-    return true;
-  }
+  const char* MipSkeleton::_solverName() const { return "MipSkeleton"; }
 
 } //namespace lemon
 

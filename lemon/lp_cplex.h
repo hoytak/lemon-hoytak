@@ -29,84 +29,227 @@ struct cpxlp;
 
 namespace lemon {
 
-
-  /// \brief Interface for the CPLEX solver
+  /// \brief Reference counted wrapper around cpxenv pointer
   ///
-  /// This class implements an interface for the CPLEX LP solver.
-  class LpCplex :virtual public LpSolverBase {
+  /// The cplex uses environment object which is responsible for
+  /// checking the proper license usage. This class provides a simple
+  /// interface for share the environment object between different
+  /// problems.
+  class CplexEnv {
+    friend class CplexBase;
+  private:
+    cpxenv* _env;
+    mutable int* _cnt;
 
   public:
 
-    typedef LpSolverBase Parent;
+    /// \brief This exception is thrown when the license check is not
+    /// sufficient
+    class LicenseError : public Exception {
+      friend class CplexEnv;
+    private:
 
-    /// \e
-    int status;
-    cpxenv* env;
-    cpxlp* lp;
+      LicenseError(int status);
+      char _message[510];
 
+    public:
 
-    /// \e
-    LpCplex();
-    /// \e
-    LpCplex(const LpCplex&);
-    /// \e
-    ~LpCplex();
+      /// The short error message
+      virtual const char* what() const throw() {
+        return _message;
+      }
+    };
+
+    /// Constructor
+    CplexEnv();
+    /// Shallow copy constructor
+    CplexEnv(const CplexEnv&);
+    /// Shallow assignement
+    CplexEnv& operator=(const CplexEnv&);
+    /// Destructor
+    virtual ~CplexEnv();
 
   protected:
-    virtual LpSolverBase* _newLp();
-    virtual LpSolverBase* _copyLp();
 
+    cpxenv* cplexEnv() { return _env; }
+    const cpxenv* cplexEnv() const { return _env; }
+  };
+
+  /// \brief Base interface for the CPLEX LP and MIP solver
+  ///
+  /// This class implements the common interface of the CPLEX LP and
+  /// MIP solvers.  
+  /// \ingroup lp_group
+  class CplexBase : virtual public LpBase {
+  protected:
+
+    CplexEnv _env;
+    cpxlp* _prob;
+
+    CplexBase();
+    CplexBase(const CplexEnv&);
+    CplexBase(const CplexBase &);
+    virtual ~CplexBase();
 
     virtual int _addCol();
     virtual int _addRow();
+
     virtual void _eraseCol(int i);
     virtual void _eraseRow(int i);
-    virtual void _getColName(int col, std::string & name) const;
-    virtual void _setColName(int col, const std::string & name);
+
+    virtual void _eraseColId(int i);
+    virtual void _eraseRowId(int i);
+
+    virtual void _getColName(int col, std::string& name) const;
+    virtual void _setColName(int col, const std::string& name);
     virtual int _colByName(const std::string& name) const;
-    virtual void _setRowCoeffs(int i, ConstRowIterator b, ConstRowIterator e);
-    virtual void _getRowCoeffs(int i, RowIterator b) const;
-    virtual void _setColCoeffs(int i, ConstColIterator b, ConstColIterator e);
-    virtual void _getColCoeffs(int i, ColIterator b) const;
+
+    virtual void _getRowName(int row, std::string& name) const;
+    virtual void _setRowName(int row, const std::string& name);
+    virtual int _rowByName(const std::string& name) const;
+
+    virtual void _setRowCoeffs(int i, ExprIterator b, ExprIterator e);
+    virtual void _getRowCoeffs(int i, InsertIterator b) const;
+
+    virtual void _setColCoeffs(int i, ExprIterator b, ExprIterator e);
+    virtual void _getColCoeffs(int i, InsertIterator b) const;
+
     virtual void _setCoeff(int row, int col, Value value);
     virtual Value _getCoeff(int row, int col) const;
 
     virtual void _setColLowerBound(int i, Value value);
     virtual Value _getColLowerBound(int i) const;
+
     virtual void _setColUpperBound(int i, Value value);
     virtual Value _getColUpperBound(int i) const;
 
-//     virtual void _setRowLowerBound(int i, Value value);
-//     virtual void _setRowUpperBound(int i, Value value);
-    virtual void _setRowBounds(int i, Value lower, Value upper);
-    virtual void _getRowBounds(int i, Value &lb, Value &ub) const;
+  private:
+    void _set_row_bounds(int i, Value lb, Value ub);
+  protected:
+
+    virtual void _setRowLowerBound(int i, Value value);
+    virtual Value _getRowLowerBound(int i) const;
+
+    virtual void _setRowUpperBound(int i, Value value);
+    virtual Value _getRowUpperBound(int i) const;
+
+    virtual void _setObjCoeffs(ExprIterator b, ExprIterator e);
+    virtual void _getObjCoeffs(InsertIterator b) const;
+
     virtual void _setObjCoeff(int i, Value obj_coef);
     virtual Value _getObjCoeff(int i) const;
-    virtual void _clearObj();
 
+    virtual void _setSense(Sense sense);
+    virtual Sense _getSense() const;
+
+    virtual void _clear();
+
+  public:
+
+    /// Returns the used \c CplexEnv instance
+    const CplexEnv& env() const { return _env; }
+    ///
+    const cpxenv* cplexEnv() const { return _env.cplexEnv(); }
+
+    cpxlp* cplexLp() { return _prob; }
+    const cpxlp* cplexLp() const { return _prob; }
+
+  };
+
+  /// \brief Interface for the CPLEX LP solver
+  ///
+  /// This class implements an interface for the CPLEX LP solver.
+  ///\ingroup lp_group
+  class LpCplex : public CplexBase, public LpSolver {
+  public:
+    /// \e
+    LpCplex();
+    /// \e
+    LpCplex(const CplexEnv&);
+    /// \e
+    LpCplex(const LpCplex&);
+    /// \e
+    virtual ~LpCplex();
+
+  private:
+
+    // these values cannot retrieved element by element
+    mutable std::vector<int> _col_status;
+    mutable std::vector<int> _row_status;
+
+    mutable std::vector<Value> _primal_ray;
+    mutable std::vector<Value> _dual_ray;
+
+    void _clear_temporals();
+
+    SolveExitStatus convertStatus(int status);
+
+  protected:
+
+    virtual LpCplex* _cloneSolver() const;
+    virtual LpCplex* _newSolver() const;
+
+    virtual const char* _solverName() const;
 
     virtual SolveExitStatus _solve();
     virtual Value _getPrimal(int i) const;
     virtual Value _getDual(int i) const;
     virtual Value _getPrimalValue() const;
-    virtual bool _isBasicCol(int i) const;
 
-    virtual SolutionStatus _getPrimalStatus() const;
-    virtual SolutionStatus _getDualStatus() const;
-    virtual ProblemTypes _getProblemType() const;
+    virtual VarStatus _getColStatus(int i) const;
+    virtual VarStatus _getRowStatus(int i) const;
 
+    virtual Value _getPrimalRay(int i) const;
+    virtual Value _getDualRay(int i) const;
 
-    virtual void _setMax();
-    virtual void _setMin();
-
-    virtual bool _isMax() const;
+    virtual ProblemType _getPrimalType() const;
+    virtual ProblemType _getDualType() const;
 
   public:
 
-    cpxenv* cplexEnv() { return env; }
-    cpxlp* cplexLp() { return lp; }
+    /// Solve with primal simplex method
+    SolveExitStatus solvePrimal();
+
+    /// Solve with dual simplex method
+    SolveExitStatus solveDual();
+
+    /// Solve with barrier method
+    SolveExitStatus solveBarrier();
 
   };
+
+  /// \brief Interface for the CPLEX MIP solver
+  ///
+  /// This class implements an interface for the CPLEX MIP solver.
+  ///\ingroup lp_group
+  class MipCplex : public CplexBase, public MipSolver {
+  public:
+    /// \e
+    MipCplex();
+    /// \e
+    MipCplex(const CplexEnv&);
+    /// \e
+    MipCplex(const MipCplex&);
+    /// \e
+    virtual ~MipCplex();
+
+  protected:
+
+    virtual MipCplex* _cloneSolver() const;
+    virtual MipCplex* _newSolver() const;
+
+    virtual const char* _solverName() const;
+
+    virtual ColTypes _getColType(int col) const;
+    virtual void _setColType(int col, ColTypes col_type);
+
+    virtual SolveExitStatus _solve();
+    virtual ProblemType _getType() const;
+    virtual Value _getSol(int i) const;
+    virtual Value _getSolValue() const;
+
+  };
+
 } //END OF NAMESPACE LEMON
 
 #endif //LEMON_LP_CPLEX_H

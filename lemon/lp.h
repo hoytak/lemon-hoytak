@@ -24,12 +24,12 @@
 
 #ifdef HAVE_GLPK
 #include <lemon/lp_glpk.h>
-#include <lemon/mip_glpk.h>
 #elif HAVE_CPLEX
 #include <lemon/lp_cplex.h>
-#include <lemon/mip_cplex.h>
 #elif HAVE_SOPLEX
 #include <lemon/lp_soplex.h>
+#elif HAVE_CLP
+#include <lemon/lp_clp.h>
 #endif
 
 ///\file
@@ -43,45 +43,48 @@ namespace lemon {
   ///The default LP solver identifier.
   ///\ingroup lp_group
   ///
-  ///Currently, the possible values are \c GLPK or \c CPLEX
-#define DEFAULT_LP SOLVER
+  ///Currently, the possible values are \c LP_GLPK, \c LP_CPLEX, \c
+  ///LP_SOPLEX or \c LP_CLP
+#define LEMON_DEFAULT_LP SOLVER
   ///The default LP solver
 
   ///The default LP solver.
   ///\ingroup lp_group
   ///
-  ///Currently, it is either \c LpGlpk or \c LpCplex
+  ///Currently, it is either \c LpGlpk, \c LpCplex, \c LpSoplex or \c LpClp
   typedef LpGlpk Lp;
-  ///The default LP solver identifier string
 
-  ///The default LP solver identifier string.
+  ///The default MIP solver identifier
+
+  ///The default MIP solver identifier.
   ///\ingroup lp_group
   ///
-  ///Currently, the possible values are "GLPK" or "CPLEX"
-  const char default_solver_name[]="SOLVER";
+  ///Currently, the possible values are \c MIP_GLPK or \c MIP_CPLEX
+#define LEMON_DEFAULT_MIP SOLVER
+  ///The default MIP solver.
 
-  ///The default ILP solver.
-
-  ///The default ILP solver.
+  ///The default MIP solver.
   ///\ingroup lp_group
   ///
-  ///Currently, it is either \c LpGlpk or \c LpCplex
+  ///Currently, it is either \c MipGlpk or \c MipCplex
   typedef MipGlpk Mip;
 #else
 #ifdef HAVE_GLPK
-#define DEFAULT_LP GLPK
+# define LEMON_DEFAULT_LP LP_GLPK
   typedef LpGlpk Lp;
+# define LEMON_DEFAULT_MIP MIP_GLPK
   typedef MipGlpk Mip;
-  const char default_solver_name[]="GLPK";
 #elif HAVE_CPLEX
-#define DEFAULT_LP CPLEX
+# define LEMON_DEFAULT_LP LP_CPLEX
   typedef LpCplex Lp;
+# define LEMON_DEFAULT_MIP MIP_CPLEX
   typedef MipCplex Mip;
-  const char default_solver_name[]="CPLEX";
 #elif HAVE_SOPLEX
-#define DEFAULT_LP SOPLEX
+# define DEFAULT_LP LP_SOPLEX
   typedef LpSoplex Lp;
-  const char default_solver_name[]="SOPLEX";
+#elif HAVE_CLP
+# define DEFAULT_LP LP_CLP
+  typedef LpClp Lp;  
 #endif
 #endif
 

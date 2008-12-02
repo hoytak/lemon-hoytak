@@ -12,3 +12,6 @@
 
 /* Define to 1 if you have SOPLEX */
 #undef HAVE_SOPLEX
+
+/* Define to 1 if you have CLP */
+#undef HAVE_CLP

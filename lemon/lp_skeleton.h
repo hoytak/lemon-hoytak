@@ -26,15 +26,14 @@
 namespace lemon {
 
   ///A skeleton class to implement LP solver interfaces
-  class LpSkeleton :public LpSolverBase {
+  class SkeletonSolverBase : public virtual LpBase {
     int col_num,row_num;
 
   protected:
 
-    ///\e
-    virtual LpSolverBase* _newLp();
-    ///\e
-    virtual LpSolverBase* _copyLp();
+    SkeletonSolverBase()
+      : col_num(-1), row_num(-1) {}
+
     /// \e
     virtual int _addCol();
     /// \e
@@ -43,21 +42,29 @@ namespace lemon {
     virtual void _eraseCol(int i);
     /// \e
     virtual void _eraseRow(int i);
+
     /// \e
-    virtual void _getColName(int col, std::string & name) const;
+    virtual void _getColName(int col, std::string& name) const;
     /// \e
-    virtual void _setColName(int col, const std::string & name);
+    virtual void _setColName(int col, const std::string& name);
     /// \e
     virtual int _colByName(const std::string& name) const;
 
     /// \e
-    virtual void _setRowCoeffs(int i, ConstRowIterator b, ConstRowIterator e);
+    virtual void _getRowName(int row, std::string& name) const;
     /// \e
-    virtual void _getRowCoeffs(int i, RowIterator b) const;
+    virtual void _setRowName(int row, const std::string& name);
     /// \e
-    virtual void _setColCoeffs(int i, ConstColIterator b, ConstColIterator e);
+    virtual int _rowByName(const std::string& name) const;
+
     /// \e
-    virtual void _getColCoeffs(int i, ColIterator b) const;
+    virtual void _setRowCoeffs(int i, ExprIterator b, ExprIterator e);
+    /// \e
+    virtual void _getRowCoeffs(int i, InsertIterator b) const;
+    /// \e
+    virtual void _setColCoeffs(int i, ExprIterator b, ExprIterator e);
+    /// \e
+    virtual void _getColCoeffs(int i, InsertIterator b) const;
 
     /// Set one element of the coefficient matrix
     virtual void _setCoeff(int row, int col, Value value);
@@ -87,41 +94,102 @@ namespace lemon {
     /// Value or \ref INF.
     virtual Value _getColUpperBound(int i) const;
 
-//     /// The lower bound of a linear expression (row) have to be given by an
-//     /// extended number of type Value, i.e. a finite number of type
-//     /// Value or -\ref INF.
-//     virtual void _setRowLowerBound(int i, Value value);
-//     /// \e
-
-//     /// The upper bound of a linear expression (row) have to be given by an
-//     /// extended number of type Value, i.e. a finite number of type
-//     /// Value or \ref INF.
-//     virtual void _setRowUpperBound(int i, Value value);
-
-    /// The lower and upper bound of a linear expression (row) have to be
-    /// given by an
+    /// The lower bound of a constraint (row) have to be given by an
     /// extended number of type Value, i.e. a finite number of type
-    /// Value or +/-\ref INF.
-    virtual void _setRowBounds(int i, Value lb, Value ub);
+    /// Value or -\ref INF.
+    virtual void _setRowLowerBound(int i, Value value);
     /// \e
 
+    /// The lower bound of a constraint (row) is an
+    /// extended number of type Value, i.e. a finite number of type
+    /// Value or -\ref INF.
+    virtual Value _getRowLowerBound(int i) const;
 
-    /// The lower and the upper bound of
-    /// a constraint (row) are
-    /// extended numbers of type Value, i.e.  finite numbers of type
-    /// Value, -\ref INF or \ref INF.
-    virtual void _getRowBounds(int i, Value &lb, Value &ub) const;
+    /// The upper bound of a constraint (row) have to be given by an
+    /// extended number of type Value, i.e. a finite number of type
+    /// Value or \ref INF.
+    virtual void _setRowUpperBound(int i, Value value);
     /// \e
 
+    /// The upper bound of a constraint (row) is an
+    /// extended number of type Value, i.e. a finite number of type
+    /// Value or \ref INF.
+    virtual Value _getRowUpperBound(int i) const;
 
     /// \e
-    virtual void _clearObj();
+    virtual void _setObjCoeffs(ExprIterator b, ExprIterator e);
+    /// \e
+    virtual void _getObjCoeffs(InsertIterator b) const;
+
     /// \e
     virtual void _setObjCoeff(int i, Value obj_coef);
-
     /// \e
     virtual Value _getObjCoeff(int i) const;
 
+    ///\e
+    virtual void _setSense(Sense);
+    ///\e
+    virtual Sense _getSense() const;
+
+    ///\e
+    virtual void _clear();
+
+  };
+
+  /// \brief Interface for a skeleton LP solver
+  ///
+  /// This class implements an interface for a skeleton LP solver.
+  ///\ingroup lp_group
+  class LpSkeleton : public SkeletonSolverBase, public LpSolver {
+  public:
+    LpSkeleton() : SkeletonSolverBase(), LpSolver() {}
+
+  protected:
+
+    ///\e
+    virtual SolveExitStatus _solve();
+
+    ///\e
+    virtual Value _getPrimal(int i) const;
+    ///\e
+    virtual Value _getDual(int i) const;
+
+    ///\e
+    virtual Value _getPrimalValue() const;
+
+    ///\e
+    virtual Value _getPrimalRay(int i) const;
+    ///\e
+    virtual Value _getDualRay(int i) const;
+
+    ///\e
+    virtual ProblemType _getPrimalType() const;
+    ///\e
+    virtual ProblemType _getDualType() const;
+
+    ///\e
+    virtual VarStatus _getColStatus(int i) const;
+    ///\e
+    virtual VarStatus _getRowStatus(int i) const;
+
+    ///\e
+    virtual LpSkeleton* _newSolver() const;
+    ///\e
+    virtual LpSkeleton* _cloneSolver() const;
+    ///\e
+    virtual const char* _solverName() const;
+
+  };
+
+  /// \brief Interface for a skeleton MIP solver
+  ///
+  /// This class implements an interface for a skeleton MIP solver.
+  ///\ingroup lp_group
+  class MipSkeleton : public SkeletonSolverBase, public MipSolver {
+  public:
+    MipSkeleton() : SkeletonSolverBase(), MipSolver() {}
+
+  protected:
     ///\e
 
     ///\bug Wrong interface
@@ -132,50 +200,28 @@ namespace lemon {
 
     ///\bug Wrong interface
     ///
-    virtual Value _getPrimal(int i) const;
+    virtual Value _getSol(int i) const;
 
     ///\e
 
     ///\bug Wrong interface
     ///
-    virtual Value _getDual(int i) const;
+    virtual Value _getSolValue() const;
 
     ///\e
 
     ///\bug Wrong interface
     ///
-    virtual Value _getPrimalValue() const;
+    virtual ProblemType _getType() const;
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
-    virtual SolutionStatus _getPrimalStatus() const;
-
-    ////e
-    virtual SolutionStatus _getDualStatus() const;
-
+    virtual MipSkeleton* _newSolver() const;
 
     ///\e
-    virtual ProblemTypes _getProblemType() const;
-
+    virtual MipSkeleton* _cloneSolver() const;
     ///\e
-    virtual void _setMax();
-    ///\e
-    virtual void _setMin();
+    virtual const char* _solverName() const;
 
-    ///\e
-    virtual bool _isMax() const;
-
-
-
-    ///\e
-    virtual bool _isBasicCol(int i) const;
-
-
-
-  public:
-    LpSkeleton() : LpSolverBase(), col_num(0), row_num(0) {}
   };
 
 } //namespace lemon

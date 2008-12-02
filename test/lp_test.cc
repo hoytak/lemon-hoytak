@@ -37,14 +37,16 @@
 #include <lemon/lp_soplex.h>
 #endif
 
+#ifdef HAVE_CLP
+#include <lemon/lp_clp.h>
+#endif
+
 using namespace lemon;
 
-void lpTest(LpSolverBase & lp)
+void lpTest(LpSolver& lp)
 {
 
-
-
-  typedef LpSolverBase LP;
+  typedef LpSolver LP;
 
   std::vector<LP::Col> x(10);
   //  for(int i=0;i<10;i++) x.push_back(lp.addCol());
@@ -52,7 +54,6 @@ void lpTest(LpSolverBase & lp)
   lp.colLowerBound(x,1);
   lp.colUpperBound(x,1);
   lp.colBounds(x,1,2);
-#ifndef GYORSITAS
 
   std::vector<LP::Col> y(10);
   lp.addColSet(y);
@@ -86,11 +87,11 @@ void lpTest(LpSolverBase & lp)
     p5=lp.addCol();
 
     e[p1]=2;
-    e.constComp()=12;
+    *e=12;
     e[p1]+=2;
-    e.constComp()+=12;
+    *e+=12;
     e[p1]-=2;
-    e.constComp()-=12;
+    *e-=12;
 
     e=2;
     e=2.2;
@@ -170,32 +171,17 @@ void lpTest(LpSolverBase & lp)
     e[x[3]]=2;
     e[x[3]]=4;
     e[x[3]]=1;
-    e.constComp()=12;
+    *e=12;
 
-    lp.addRow(LP::INF,e,23);
-    lp.addRow(LP::INF,3.0*(x[1]+x[2]/2)-x[3],23);
-    lp.addRow(LP::INF,3.0*(x[1]+x[2]*2-5*x[3]+12-x[4]/3)+2*x[4]-4,23);
+    lp.addRow(-LP::INF,e,23);
+    lp.addRow(-LP::INF,3.0*(x[1]+x[2]/2)-x[3],23);
+    lp.addRow(-LP::INF,3.0*(x[1]+x[2]*2-5*x[3]+12-x[4]/3)+2*x[4]-4,23);
 
     lp.addRow(x[1]+x[3]<=x[5]-3);
     lp.addRow(-7<=x[1]+x[3]-12<=3);
     lp.addRow(x[1]<=x[5]);
 
     std::ostringstream buf;
-
-
-    //Checking the simplify function
-
-//     //How to check the simplify function? A map gives no information
-//     //on the question whether a given key is or is not stored in it, or
-//     //it does?
-//   Yes, it does, using the find() function.
-    e=((p1+p2)+(p1-p2));
-    e.simplify();
-    buf << "Coeff. of p2 should be 0";
-    //    std::cout<<e[p1]<<e[p2]<<e[p3]<<std::endl;
-    check(e.find(p2)==e.end(), buf.str());
-
-
 
 
     e=((p1+p2)+(p1-0.99*p2));
@@ -209,7 +195,7 @@ void lpTest(LpSolverBase & lp)
     tolerance=0.02;
     e.simplify(tolerance);
     buf << "Coeff. of p2 should be 0";
-    check(e.find(p2)==e.end(), buf.str());
+    check(const_cast<const LpSolver::Expr&>(e)[p2]==0, buf.str());
 
 
   }
@@ -247,36 +233,33 @@ void lpTest(LpSolverBase & lp)
        );
   }
 
-#endif
 }
 
-void solveAndCheck(LpSolverBase& lp, LpSolverBase::SolutionStatus stat,
+void solveAndCheck(LpSolver& lp, LpSolver::ProblemType stat,
                    double exp_opt) {
   using std::string;
   lp.solve();
-  //int decimal,sign;
+
   std::ostringstream buf;
-  buf << "Primalstatus should be: " << int(stat);
+  buf << "PrimalType should be: " << int(stat) << int(lp.primalType());
 
-  //  itoa(stat,buf1, 10);
-  check(lp.primalStatus()==stat, buf.str());
+  check(lp.primalType()==stat, buf.str());
 
-  if (stat ==  LpSolverBase::OPTIMAL) {
+  if (stat ==  LpSolver::OPTIMAL) {
     std::ostringstream sbuf;
     sbuf << "Wrong optimal value: the right optimum is " << exp_opt;
-    check(std::abs(lp.primalValue()-exp_opt) < 1e-3, sbuf.str());
-    //+ecvt(exp_opt,2)
+    check(std::abs(lp.primal()-exp_opt) < 1e-3, sbuf.str());
   }
 }
 
-void aTest(LpSolverBase & lp)
+void aTest(LpSolver & lp)
 {
-  typedef LpSolverBase LP;
+  typedef LpSolver LP;
 
  //The following example is very simple
 
-  typedef LpSolverBase::Row Row;
-  typedef LpSolverBase::Col Col;
+  typedef LpSolver::Row Row;
+  typedef LpSolver::Col Col;
 
 
   Col x1 = lp.addCol();
@@ -284,7 +267,7 @@ void aTest(LpSolverBase & lp)
 
 
   //Constraints
-  Row upright=lp.addRow(x1+x2 <=1);
+  Row upright=lp.addRow(x1+2*x2 <=1);
   lp.addRow(x1+x2 >=-1);
   lp.addRow(x1-x2 <=1);
   lp.addRow(x1-x2 >=-1);
@@ -294,107 +277,83 @@ void aTest(LpSolverBase & lp)
   //Objective function
   lp.obj(x1+x2);
 
-  lp.max();
+  lp.sense(lp.MAX);
 
   //Testing the problem retrieving routines
   check(lp.objCoeff(x1)==1,"First term should be 1 in the obj function!");
-  check(lp.isMax(),"This is a maximization!");
+  check(lp.sense() == lp.MAX,"This is a maximization!");
   check(lp.coeff(upright,x1)==1,"The coefficient in question is 1!");
-  //  std::cout<<lp.colLowerBound(x1)<<std::endl;
-  check(  lp.colLowerBound(x1)==0,
-          "The lower bound for variable x1 should be 0.");
-  check(  lp.colUpperBound(x1)==LpSolverBase::INF,
-          "The upper bound for variable x1 should be infty.");
-  LpSolverBase::Value lb,ub;
-  lp.getRowBounds(upright,lb,ub);
-  check(  lb==-LpSolverBase::INF,
-          "The lower bound for the first row should be -infty.");
-  check(  ub==1,"The upper bound for the first row should be 1.");
-  LpSolverBase::Expr e = lp.row(upright);
-  check(  e.size() == 2, "The row retrieval gives back wrong expression.");
-  check(  e[x1] == 1, "The first coefficient should 1.");
-  check(  e[x2] == 1, "The second coefficient should 1.");
+  check(lp.colLowerBound(x1)==0,
+        "The lower bound for variable x1 should be 0.");
+  check(lp.colUpperBound(x1)==LpSolver::INF,
+        "The upper bound for variable x1 should be infty.");
+  check(lp.rowLowerBound(upright) == -LpSolver::INF,
+        "The lower bound for the first row should be -infty.");
+  check(lp.rowUpperBound(upright)==1,
+        "The upper bound for the first row should be 1.");
+  LpSolver::Expr e = lp.row(upright);
+  check(e[x1] == 1, "The first coefficient should 1.");
+  check(e[x2] == 2, "The second coefficient should 1.");
 
-  LpSolverBase::DualExpr de = lp.col(x1);
-  check(  de.size() == 4, "The col retrieval gives back wrong expression.");
+  lp.row(upright, x1+x2 <=1);
+  e = lp.row(upright);
+  check(e[x1] == 1, "The first coefficient should 1.");
+  check(e[x2] == 1, "The second coefficient should 1.");
+
+  LpSolver::DualExpr de = lp.col(x1);
   check(  de[upright] == 1, "The first coefficient should 1.");
 
-  LpSolverBase* clp = lp.copyLp();
+  LpSolver* clp = lp.cloneSolver();
 
   //Testing the problem retrieving routines
   check(clp->objCoeff(x1)==1,"First term should be 1 in the obj function!");
-  check(clp->isMax(),"This is a maximization!");
+  check(clp->sense() == clp->MAX,"This is a maximization!");
   check(clp->coeff(upright,x1)==1,"The coefficient in question is 1!");
   //  std::cout<<lp.colLowerBound(x1)<<std::endl;
-  check(  clp->colLowerBound(x1)==0,
-          "The lower bound for variable x1 should be 0.");
-  check(  clp->colUpperBound(x1)==LpSolverBase::INF,
-          "The upper bound for variable x1 should be infty.");
+  check(clp->colLowerBound(x1)==0,
+        "The lower bound for variable x1 should be 0.");
+  check(clp->colUpperBound(x1)==LpSolver::INF,
+        "The upper bound for variable x1 should be infty.");
 
-  clp->getRowBounds(upright,lb,ub);
-  check(  lb==-LpSolverBase::INF,
-          "The lower bound for the first row should be -infty.");
-  check(  ub==1,"The upper bound for the first row should be 1.");
+  check(lp.rowLowerBound(upright)==-LpSolver::INF,
+        "The lower bound for the first row should be -infty.");
+  check(lp.rowUpperBound(upright)==1,
+        "The upper bound for the first row should be 1.");
   e = clp->row(upright);
-  check(  e.size() == 2, "The row retrieval gives back wrong expression.");
-  check(  e[x1] == 1, "The first coefficient should 1.");
-  check(  e[x2] == 1, "The second coefficient should 1.");
+  check(e[x1] == 1, "The first coefficient should 1.");
+  check(e[x2] == 1, "The second coefficient should 1.");
 
   de = clp->col(x1);
-  check(  de.size() == 4, "The col retrieval gives back wrong expression.");
-  check(  de[upright] == 1, "The first coefficient should 1.");
+  check(de[upright] == 1, "The first coefficient should 1.");
 
   delete clp;
 
   //Maximization of x1+x2
   //over the triangle with vertices (0,0) (0,1) (1,0)
   double expected_opt=1;
-  solveAndCheck(lp, LpSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(lp, LpSolver::OPTIMAL, expected_opt);
 
   //Minimization
-  lp.min();
+  lp.sense(lp.MIN);
   expected_opt=0;
-  solveAndCheck(lp, LpSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(lp, LpSolver::OPTIMAL, expected_opt);
 
   //Vertex (-1,0) instead of (0,0)
-  lp.colLowerBound(x1, -LpSolverBase::INF);
+  lp.colLowerBound(x1, -LpSolver::INF);
   expected_opt=-1;
-  solveAndCheck(lp, LpSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(lp, LpSolver::OPTIMAL, expected_opt);
 
   //Erase one constraint and return to maximization
-  lp.eraseRow(upright);
-  lp.max();
-  expected_opt=LpSolverBase::INF;
-  solveAndCheck(lp, LpSolverBase::INFINITE, expected_opt);
+  lp.erase(upright);
+  lp.sense(lp.MAX);
+  expected_opt=LpSolver::INF;
+  solveAndCheck(lp, LpSolver::UNBOUNDED, expected_opt);
 
   //Infeasibilty
   lp.addRow(x1+x2 <=-2);
-  solveAndCheck(lp, LpSolverBase::INFEASIBLE, expected_opt);
-
-  //Change problem and forget to solve
-  lp.min();
-  check(lp.primalStatus()==LpSolverBase::UNDEFINED,
-        "Primalstatus should be UNDEFINED");
-
-
-//   lp.solve();
-//   if (lp.primalStatus()==LpSolverBase::OPTIMAL){
-//     std::cout<< "Z = "<<lp.primalValue()
-//              << " (error = " << lp.primalValue()-expected_opt
-//              << "); x1 = "<<lp.primal(x1)
-//              << "; x2 = "<<lp.primal(x2)
-//              <<std::endl;
-
-//   }
-//   else{
-//     std::cout<<lp.primalStatus()<<std::endl;
-//     std::cout<<"Optimal solution not found!"<<std::endl;
-//   }
-
-
+  solveAndCheck(lp, LpSolver::INFEASIBLE, expected_opt);
 
 }
-
 
 int main()
 {
@@ -402,21 +361,42 @@ int main()
   lpTest(lp_skel);
 
 #ifdef HAVE_GLPK
-  LpGlpk lp_glpk1,lp_glpk2;
-  lpTest(lp_glpk1);
-  aTest(lp_glpk2);
+  {
+    LpGlpk lp_glpk1,lp_glpk2;
+    lpTest(lp_glpk1);
+    aTest(lp_glpk2);
+  }
 #endif
 
 #ifdef HAVE_CPLEX
-  LpCplex lp_cplex1,lp_cplex2;
-  lpTest(lp_cplex1);
-  aTest(lp_cplex2);
+  try {
+    LpCplex lp_cplex1,lp_cplex2;
+    lpTest(lp_cplex1);
+    aTest(lp_cplex2);
+  } catch (CplexEnv::LicenseError& error) {
+#ifdef LEMON_FORCE_CPLEX_CHECK
+    check(false, error.what());
+#else
+    std::cerr << error.what() << std::endl;
+    std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
+#endif
+  }
 #endif
 
 #ifdef HAVE_SOPLEX
-  LpSoplex lp_soplex1,lp_soplex2;
-  lpTest(lp_soplex1);
-  aTest(lp_soplex2);
+  {
+    LpSoplex lp_soplex1,lp_soplex2;
+    lpTest(lp_soplex1);
+    aTest(lp_soplex2);
+  }
+#endif
+
+#ifdef HAVE_CLP
+  {
+    LpClp lp_clp1,lp_clp2;
+    lpTest(lp_clp1);
+    aTest(lp_clp2);
+  }
 #endif
 
   return 0;

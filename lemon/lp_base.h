@@ -25,41 +25,28 @@
 #include<limits>
 #include<lemon/math.h>
 
+#include<lemon/error.h>
+#include<lemon/assert.h>
+
 #include<lemon/core.h>
-#include<lemon/bits/lp_id.h>
+#include<lemon/bits/solver_bits.h>
 
 ///\file
 ///\brief The interface of the LP solver interface.
 ///\ingroup lp_group
 namespace lemon {
 
-  /// Function to decide whether a floating point value is finite or not.
+  ///Common base class for LP and MIP solvers
 
-  /// Retruns true if the argument is not infinity, minus infinity or NaN.
-  /// It does the same as the isfinite() function defined by C99.
-  template <typename T>
-  bool isFinite(T value)
-  {
-    typedef std::numeric_limits<T> Lim;
-    if ((Lim::has_infinity && (value == Lim::infinity() || value ==
-                               -Lim::infinity())) ||
-        ((Lim::has_quiet_NaN || Lim::has_signaling_NaN) && value != value))
-    {
-      return false;
-    }
-    return true;
-  }
-
-  ///Common base class for LP solvers
-
-  ///\todo Much more docs
+  ///Usually this class is not used directly, please use one of the concrete
+  ///implementations of the solver interface.
   ///\ingroup lp_group
-  class LpSolverBase {
+  class LpBase {
 
   protected:
 
-    _lp_bits::LpId rows;
-    _lp_bits::LpId cols;
+    _solver_bits::VarIndex rows;
+    _solver_bits::VarIndex cols;
 
   public:
 
@@ -74,38 +61,12 @@ namespace lemon {
       UNSOLVED = 1
     };
 
-      ///\e
-    enum SolutionStatus {
-      ///Feasible solution hasn't been found (but may exist).
-
-      ///\todo NOTFOUND might be a better name.
-      ///
-      UNDEFINED = 0,
-      ///The problem has no feasible solution
-      INFEASIBLE = 1,
-      ///Feasible solution found
-      FEASIBLE = 2,
-      ///Optimal solution exists and found
-      OPTIMAL = 3,
-      ///The cost function is unbounded
-
-      ///\todo Give a feasible solution and an infinite ray (and the
-      ///corresponding bases)
-      INFINITE = 4
-    };
-
-    ///\e The type of the investigated LP problem
-    enum ProblemTypes {
-      ///Primal-dual feasible
-      PRIMAL_DUAL_FEASIBLE = 0,
-      ///Primal feasible dual infeasible
-      PRIMAL_FEASIBLE_DUAL_INFEASIBLE = 1,
-      ///Primal infeasible dual feasible
-      PRIMAL_INFEASIBLE_DUAL_FEASIBLE = 2,
-      ///Primal-dual infeasible
-      PRIMAL_DUAL_INFEASIBLE = 3,
-      ///Could not determine so far
-      UNKNOWN = 4
+    ///Direction of the optimization
+    enum Sense {
+      /// Minimization
+      MIN,
+      /// Maximization
+      MAX
     };
 
     ///The floating point type used by the solver
@@ -115,11 +76,10 @@ namespace lemon {
     ///The not a number constant
     static const Value NaN;
 
-    static inline bool isNaN(const Value& v) { return v!=v; }
-
     friend class Col;
     friend class ColIt;
     friend class Row;
+    friend class RowIt;
 
     ///Refer to a column of the LP.
 
@@ -128,43 +88,93 @@ namespace lemon {
     ///Its value remains valid and correct even after the addition or erase of
     ///other columns.
     ///
-    ///\todo Document what can one do with a Col (INVALID, comparing,
-    ///it is similar to Node/Edge)
+    ///\note This class is similar to other Item types in LEMON, like
+    ///Node and Arc types in digraph.
     class Col {
+      friend class LpBase;
     protected:
-      int id;
-      friend class LpSolverBase;
-      friend class MipSolverBase;
-      explicit Col(int _id) : id(_id) {}
+      int _id;
+      explicit Col(int id) : _id(id) {}
     public:
       typedef Value ExprValue;
-      typedef True LpSolverCol;
+      typedef True LpCol;
+      /// Default constructor
+      
+      /// \warning The default constructor sets the Col to an
+      /// undefined value.
       Col() {}
-      Col(const Invalid&) : id(-1) {}
-      bool operator< (Col c) const  {return id< c.id;}
-      bool operator> (Col c) const  {return id> c.id;}
-      bool operator==(Col c) const  {return id==c.id;}
-      bool operator!=(Col c) const  {return id!=c.id;}
+      /// Invalid constructor \& conversion.
+      
+      /// This constructor initializes the Col to be invalid.
+      /// \sa Invalid for more details.      
+      Col(const Invalid&) : _id(-1) {}
+      /// Equality operator
+
+      /// Two \ref Col "Col"s are equal if and only if they point to
+      /// the same LP column or both are invalid.
+      bool operator==(Col c) const  {return _id == c._id;}
+      /// Inequality operator
+
+      /// \sa operator==(Col c)
+      ///
+      bool operator!=(Col c) const  {return _id != c._id;}
+      /// Artificial ordering operator.
+
+      /// To allow the use of this object in std::map or similar
+      /// associative container we require this.
+      ///
+      /// \note This operator only have to define some strict ordering of
+      /// the items; this order has nothing to do with the iteration
+      /// ordering of the items.
+      bool operator<(Col c) const  {return _id < c._id;}
     };
 
+    ///Iterator for iterate over the columns of an LP problem
+
+    /// Its usage is quite simple, for example you can count the number
+    /// of columns in an LP \c lp:
+    ///\code
+    /// int count=0;
+    /// for (LpBase::ColIt c(lp); c!=INVALID; ++c) ++count;
+    ///\endcode
     class ColIt : public Col {
-      const LpSolverBase *_lp;
+      const LpBase *_solver;
     public:
+      /// Default constructor
+      
+      /// \warning The default constructor sets the iterator
+      /// to an undefined value.
       ColIt() {}
-      ColIt(const LpSolverBase &lp) : _lp(&lp)
+      /// Sets the iterator to the first Col
+      
+      /// Sets the iterator to the first Col.
+      ///
+      ColIt(const LpBase &solver) : _solver(&solver)
       {
-        _lp->cols.firstFix(id);
+        _solver->cols.firstItem(_id);
       }
+      /// Invalid constructor \& conversion
+      
+      /// Initialize the iterator to be invalid.
+      /// \sa Invalid for more details.
       ColIt(const Invalid&) : Col(INVALID) {}
+      /// Next column
+      
+      /// Assign the iterator to the next column.
+      ///
       ColIt &operator++()
       {
-        _lp->cols.nextFix(id);
+        _solver->cols.nextItem(_id);
         return *this;
       }
     };
 
-    static int id(const Col& col) { return col.id; }
-
+    /// \brief Returns the ID of the column.
+    static int id(const Col& col) { return col._id; }
+    /// \brief Returns the column with the given ID.
+    ///
+    /// \pre The argument should be a valid column ID in the LP problem.
+    static Col colFromId(int id) { return Col(id); }
 
     ///Refer to a row of the LP.
 
@@ -173,61 +183,93 @@ namespace lemon {
     ///Its value remains valid and correct even after the addition or erase of
     ///other rows.
     ///
-    ///\todo Document what can one do with a Row (INVALID, comparing,
-    ///it is similar to Node/Edge)
+    ///\note This class is similar to other Item types in LEMON, like
+    ///Node and Arc types in digraph.
     class Row {
+      friend class LpBase;
     protected:
-      int id;
-      friend class LpSolverBase;
-      explicit Row(int _id) : id(_id) {}
+      int _id;
+      explicit Row(int id) : _id(id) {}
     public:
       typedef Value ExprValue;
-      typedef True LpSolverRow;
+      typedef True LpRow;
+      /// Default constructor
+      
+      /// \warning The default constructor sets the Row to an
+      /// undefined value.
       Row() {}
-      Row(const Invalid&) : id(-1) {}
+      /// Invalid constructor \& conversion.
+      
+      /// This constructor initializes the Row to be invalid.
+      /// \sa Invalid for more details.      
+      Row(const Invalid&) : _id(-1) {}
+      /// Equality operator
 
-      bool operator< (Row c) const  {return id< c.id;}
-      bool operator> (Row c) const  {return id> c.id;}
-      bool operator==(Row c) const  {return id==c.id;}
-      bool operator!=(Row c) const  {return id!=c.id;}
+      /// Two \ref Row "Row"s are equal if and only if they point to
+      /// the same LP row or both are invalid.
+      bool operator==(Row r) const  {return _id == r._id;}
+      /// Inequality operator
+      
+      /// \sa operator==(Row r)
+      ///
+      bool operator!=(Row r) const  {return _id != r._id;}
+      /// Artificial ordering operator.
+
+      /// To allow the use of this object in std::map or similar
+      /// associative container we require this.
+      ///
+      /// \note This operator only have to define some strict ordering of
+      /// the items; this order has nothing to do with the iteration
+      /// ordering of the items.
+      bool operator<(Row r) const  {return _id < r._id;}
     };
 
+    ///Iterator for iterate over the rows of an LP problem
+
+    /// Its usage is quite simple, for example you can count the number
+    /// of rows in an LP \c lp:
+    ///\code
+    /// int count=0;
+    /// for (LpBase::RowIt c(lp); c!=INVALID; ++c) ++count;
+    ///\endcode
     class RowIt : public Row {
-      const LpSolverBase *_lp;
+      const LpBase *_solver;
     public:
+      /// Default constructor
+      
+      /// \warning The default constructor sets the iterator
+      /// to an undefined value.
       RowIt() {}
-      RowIt(const LpSolverBase &lp) : _lp(&lp)
+      /// Sets the iterator to the first Row
+      
+      /// Sets the iterator to the first Row.
+      ///
+      RowIt(const LpBase &solver) : _solver(&solver)
       {
-        _lp->rows.firstFix(id);
+        _solver->rows.firstItem(_id);
       }
+      /// Invalid constructor \& conversion
+      
+      /// Initialize the iterator to be invalid.
+      /// \sa Invalid for more details.
       RowIt(const Invalid&) : Row(INVALID) {}
+      /// Next row
+      
+      /// Assign the iterator to the next row.
+      ///
       RowIt &operator++()
       {
-        _lp->rows.nextFix(id);
+        _solver->rows.nextItem(_id);
         return *this;
       }
     };
 
-    static int id(const Row& row) { return row.id; }
-
-  protected:
-
-    int _lpId(const Col& c) const {
-      return cols.floatingId(id(c));
-    }
-
-    int _lpId(const Row& r) const {
-      return rows.floatingId(id(r));
-    }
-
-    Col _item(int i, Col) const {
-      return Col(cols.fixId(i));
-    }
-
-    Row _item(int i, Row) const {
-      return Row(rows.fixId(i));
-    }
-
+    /// \brief Returns the ID of the row.
+    static int id(const Row& row) { return row._id; }
+    /// \brief Returns the row with the given ID.
+    ///
+    /// \pre The argument should be a valid row ID in the LP problem.
+    static Row rowFromId(int id) { return Row(id); }
 
   public:
 
@@ -238,10 +280,6 @@ namespace lemon {
     ///
     ///There are several ways to access and modify the contents of this
     ///container.
-    ///- Its it fully compatible with \c std::map<Col,double>, so for expamle
-    ///if \c e is an Expr and \c v and \c w are of type \ref Col, then you can
-    ///read and modify the coefficients like
-    ///these.
     ///\code
     ///e[v]=5;
     ///e[v]+=12;
@@ -250,10 +288,10 @@ namespace lemon {
     ///or you can also iterate through its elements.
     ///\code
     ///double s=0;
-    ///for(LpSolverBase::Expr::iterator i=e.begin();i!=e.end();++i)
-    ///  s+=i->second;
+    ///for(LpBase::Expr::ConstCoeffIt i(e);i!=INVALID;++i)
+    ///  s+=*i * primal(i);
     ///\endcode
-    ///(This code computes the sum of all coefficients).
+    ///(This code computes the primal value of the expression).
     ///- Numbers (<tt>double</tt>'s)
     ///and variables (\ref Col "Col"s) directly convert to an
     ///\ref Expr and the usual linear operations are defined, so
@@ -262,7 +300,7 @@ namespace lemon {
     ///2*v-3.12*(v-w/2)+2
     ///v*2.1+(3*v+(v*12+w+6)*3)/2
     ///\endcode
-    ///are valid \ref Expr "Expr"essions.
+    ///are valid expressions.
     ///The usual assignment operations are also defined.
     ///\code
     ///e=v+w;
@@ -270,104 +308,217 @@ namespace lemon {
     ///e*=3.4;
     ///e/=5;
     ///\endcode
-    ///- The constant member can be set and read by \ref constComp()
+    ///- The constant member can be set and read by dereference
+    ///  operator (unary *)
+    ///
     ///\code
-    ///e.constComp()=12;
-    ///double c=e.constComp();
+    ///*e=12;
+    ///double c=*e;
     ///\endcode
     ///
-    ///\note \ref clear() not only sets all coefficients to 0 but also
-    ///clears the constant components.
-    ///
     ///\sa Constr
-    ///
-    class Expr : public std::map<Col,Value>
-    {
+    class Expr {
+      friend class LpBase;
     public:
-      typedef LpSolverBase::Col Key;
-      typedef LpSolverBase::Value Value;
+      /// The key type of the expression
+      typedef LpBase::Col Key;
+      /// The value type of the expression
+      typedef LpBase::Value Value;
 
     protected:
-      typedef std::map<Col,Value> Base;
-
       Value const_comp;
+      std::map<int, Value> comps;
+
     public:
-      typedef True IsLinExpression;
-      ///\e
-      Expr() : Base(), const_comp(0) { }
-      ///\e
-      Expr(const Key &v) : const_comp(0) {
-        Base::insert(std::make_pair(v, 1));
+      typedef True SolverExpr;
+      /// Default constructor
+      
+      /// Construct an empty expression, the coefficients and
+      /// the constant component are initialized to zero.
+      Expr() : const_comp(0) {}
+      /// Construct an expression from a column
+
+      /// Construct an expression, which has a term with \c c variable
+      /// and 1.0 coefficient.
+      Expr(const Col &c) : const_comp(0) {
+        typedef std::map<int, Value>::value_type pair_type;
+        comps.insert(pair_type(id(c), 1));
       }
-      ///\e
+      /// Construct an expression from a constant
+
+      /// Construct an expression, which's constant component is \c v.
+      ///
       Expr(const Value &v) : const_comp(v) {}
-      ///\e
-      void set(const Key &v,const Value &c) {
-        Base::insert(std::make_pair(v, c));
-      }
-      ///\e
-      Value &constComp() { return const_comp; }
-      ///\e
-      const Value &constComp() const { return const_comp; }
-
-      ///Removes the components with zero coefficient.
-      void simplify() {
-        for (Base::iterator i=Base::begin(); i!=Base::end();) {
-          Base::iterator j=i;
-          ++j;
-          if ((*i).second==0) Base::erase(i);
-          i=j;
+      /// Returns the coefficient of the column
+      Value operator[](const Col& c) const {
+        std::map<int, Value>::const_iterator it=comps.find(id(c));
+        if (it != comps.end()) {
+          return it->second;
+        } else {
+          return 0;
         }
       }
-
-      void simplify() const {
-        const_cast<Expr*>(this)->simplify();
+      /// Returns the coefficient of the column
+      Value& operator[](const Col& c) {
+        return comps[id(c)];
+      }
+      /// Sets the coefficient of the column
+      void set(const Col &c, const Value &v) {
+        if (v != 0.0) {
+          typedef std::map<int, Value>::value_type pair_type;
+          comps.insert(pair_type(id(c), v));
+        } else {
+          comps.erase(id(c));
+        }
+      }
+      /// Returns the constant component of the expression
+      Value& operator*() { return const_comp; }
+      /// Returns the constant component of the expression
+      const Value& operator*() const { return const_comp; }
+      /// \brief Removes the coefficients which's absolute value does
+      /// not exceed \c epsilon. It also sets to zero the constant
+      /// component, if it does not exceed epsilon in absolute value.
+      void simplify(Value epsilon = 0.0) {
+        std::map<int, Value>::iterator it=comps.begin();
+        while (it != comps.end()) {
+          std::map<int, Value>::iterator jt=it;
+          ++jt;
+          if (std::fabs((*it).second) <= epsilon) comps.erase(it);
+          it=jt;
+        }
+        if (std::fabs(const_comp) <= epsilon) const_comp = 0;
       }
 
-      ///Removes the coefficients closer to zero than \c tolerance.
-      void simplify(double &tolerance) {
-        for (Base::iterator i=Base::begin(); i!=Base::end();) {
-          Base::iterator j=i;
-          ++j;
-          if (std::fabs((*i).second)<tolerance) Base::erase(i);
-          i=j;
-        }
+      void simplify(Value epsilon = 0.0) const {
+        const_cast<Expr*>(this)->simplify(epsilon);
       }
 
       ///Sets all coefficients and the constant component to 0.
       void clear() {
-        Base::clear();
+        comps.clear();
         const_comp=0;
       }
 
-      ///\e
+      ///Compound assignment
       Expr &operator+=(const Expr &e) {
-        for (Base::const_iterator j=e.begin(); j!=e.end(); ++j)
-          (*this)[j->first]+=j->second;
+        for (std::map<int, Value>::const_iterator it=e.comps.begin();
+             it!=e.comps.end(); ++it)
+          comps[it->first]+=it->second;
         const_comp+=e.const_comp;
         return *this;
       }
-      ///\e
+      ///Compound assignment
       Expr &operator-=(const Expr &e) {
-        for (Base::const_iterator j=e.begin(); j!=e.end(); ++j)
-          (*this)[j->first]-=j->second;
+        for (std::map<int, Value>::const_iterator it=e.comps.begin();
+             it!=e.comps.end(); ++it)
+          comps[it->first]-=it->second;
         const_comp-=e.const_comp;
         return *this;
       }
-      ///\e
-      Expr &operator*=(const Value &c) {
-        for (Base::iterator j=Base::begin(); j!=Base::end(); ++j)
-          j->second*=c;
-        const_comp*=c;
+      ///Multiply with a constant
+      Expr &operator*=(const Value &v) {
+        for (std::map<int, Value>::iterator it=comps.begin();
+             it!=comps.end(); ++it)
+          it->second*=v;
+        const_comp*=v;
         return *this;
       }
-      ///\e
+      ///Division with a constant
       Expr &operator/=(const Value &c) {
-        for (Base::iterator j=Base::begin(); j!=Base::end(); ++j)
-          j->second/=c;
+        for (std::map<int, Value>::iterator it=comps.begin();
+             it!=comps.end(); ++it)
+          it->second/=c;
         const_comp/=c;
         return *this;
       }
+
+      ///Iterator over the expression
+      
+      ///The iterator iterates over the terms of the expression. 
+      /// 
+      ///\code
+      ///double s=0;
+      ///for(LpBase::Expr::CoeffIt i(e);i!=INVALID;++i)
+      ///  s+= *i * primal(i);
+      ///\endcode
+      class CoeffIt {
+      private:
+
+        std::map<int, Value>::iterator _it, _end;
+
+      public:
+
+        /// Sets the iterator to the first term
+        
+        /// Sets the iterator to the first term of the expression.
+        ///
+        CoeffIt(Expr& e)
+          : _it(e.comps.begin()), _end(e.comps.end()){}
+
+        /// Convert the iterator to the column of the term
+        operator Col() const {
+          return colFromId(_it->first);
+        }
+
+        /// Returns the coefficient of the term
+        Value& operator*() { return _it->second; }
+
+        /// Returns the coefficient of the term
+        const Value& operator*() const { return _it->second; }
+        /// Next term
+        
+        /// Assign the iterator to the next term.
+        ///
+        CoeffIt& operator++() { ++_it; return *this; }
+
+        /// Equality operator
+        bool operator==(Invalid) const { return _it == _end; }
+        /// Inequality operator
+        bool operator!=(Invalid) const { return _it != _end; }
+      };
+
+      /// Const iterator over the expression
+      
+      ///The iterator iterates over the terms of the expression. 
+      /// 
+      ///\code
+      ///double s=0;
+      ///for(LpBase::Expr::ConstCoeffIt i(e);i!=INVALID;++i)
+      ///  s+=*i * primal(i);
+      ///\endcode
+      class ConstCoeffIt {
+      private:
+
+        std::map<int, Value>::const_iterator _it, _end;
+
+      public:
+
+        /// Sets the iterator to the first term
+        
+        /// Sets the iterator to the first term of the expression.
+        ///
+        ConstCoeffIt(const Expr& e)
+          : _it(e.comps.begin()), _end(e.comps.end()){}
+
+        /// Convert the iterator to the column of the term
+        operator Col() const {
+          return colFromId(_it->first);
+        }
+
+        /// Returns the coefficient of the term
+        const Value& operator*() const { return _it->second; }
+
+        /// Next term
+        
+        /// Assign the iterator to the next term.
+        ///
+        ConstCoeffIt& operator++() { ++_it; return *this; }
+
+        /// Equality operator
+        bool operator==(Invalid) const { return _it == _end; }
+        /// Inequality operator
+        bool operator!=(Invalid) const { return _it != _end; }
+      };
 
     };
 
@@ -394,13 +545,13 @@ namespace lemon {
     ///  s<=e<=t
     ///  e>=t
     ///\endcode
-    ///\warning The validity of a constraint is checked only at run time, so
-    ///e.g. \ref addRow(<tt>x[1]\<=x[2]<=5</tt>) will compile, but will throw 
-    ///an assertion.
+    ///\warning The validity of a constraint is checked only at run
+    ///time, so e.g. \ref addRow(<tt>x[1]\<=x[2]<=5</tt>) will
+    ///compile, but will fail an assertion.
     class Constr
     {
     public:
-      typedef LpSolverBase::Expr Expr;
+      typedef LpBase::Expr Expr;
       typedef Expr::Key Key;
       typedef Expr::Value Value;
 
@@ -411,15 +562,8 @@ namespace lemon {
       ///\e
       Constr() : _expr(), _lb(NaN), _ub(NaN) {}
       ///\e
-      Constr(Value lb,const Expr &e,Value ub) :
+      Constr(Value lb, const Expr &e, Value ub) :
         _expr(e), _lb(lb), _ub(ub) {}
-      ///\e
-      Constr(const Expr &e,Value ub) :
-        _expr(e), _lb(NaN), _ub(ub) {}
-      ///\e
-      Constr(Value lb,const Expr &e) :
-        _expr(e), _lb(lb), _ub(NaN) {}
-      ///\e
       Constr(const Expr &e) :
         _expr(e), _lb(NaN), _ub(NaN) {}
       ///\e
@@ -453,11 +597,11 @@ namespace lemon {
       const Value &upperBound() const { return _ub; }
       ///Is the constraint lower bounded?
       bool lowerBounded() const {
-        return isFinite(_lb);
+        return _lb != -INF && !std::isnan(_lb);
       }
       ///Is the constraint upper bounded?
       bool upperBounded() const {
-        return isFinite(_ub);
+        return _ub != INF && !std::isnan(_ub);
       }
 
     };
@@ -470,11 +614,6 @@ namespace lemon {
     ///
     ///There are several ways to access and modify the contents of this
     ///container.
-    ///- Its it fully compatible with \c std::map<Row,double>, so for expamle
-    ///if \c e is an DualExpr and \c v
-    ///and \c w are of type \ref Row, then you can
-    ///read and modify the coefficients like
-    ///these.
     ///\code
     ///e[v]=5;
     ///e[v]+=12;
@@ -483,8 +622,8 @@ namespace lemon {
     ///or you can also iterate through its elements.
     ///\code
     ///double s=0;
-    ///for(LpSolverBase::DualExpr::iterator i=e.begin();i!=e.end();++i)
-    ///  s+=i->second;
+    ///for(LpBase::DualExpr::ConstCoeffIt i(e);i!=INVALID;++i)
+    ///  s+=*i;
     ///\endcode
     ///(This code computes the sum of all coefficients).
     ///- Numbers (<tt>double</tt>'s)
@@ -495,7 +634,7 @@ namespace lemon {
     ///2*v-3.12*(v-w/2)
     ///v*2.1+(3*v+(v*12+w)*3)/2
     ///\endcode
-    ///are valid \ref DualExpr "DualExpr"essions.
+    ///are valid \ref DualExpr dual expressions.
     ///The usual assignment operations are also defined.
     ///\code
     ///e=v+w;
@@ -505,92 +644,203 @@ namespace lemon {
     ///\endcode
     ///
     ///\sa Expr
-    ///
-    class DualExpr : public std::map<Row,Value>
-    {
+    class DualExpr {
+      friend class LpBase;
     public:
-      typedef LpSolverBase::Row Key;
-      typedef LpSolverBase::Value Value;
+      /// The key type of the expression
+      typedef LpBase::Row Key;
+      /// The value type of the expression
+      typedef LpBase::Value Value;
 
     protected:
-      typedef std::map<Row,Value> Base;
+      std::map<int, Value> comps;
 
     public:
-      typedef True IsLinExpression;
-      ///\e
-      DualExpr() : Base() { }
-      ///\e
-      DualExpr(const Key &v) {
-        Base::insert(std::make_pair(v, 1));
-      }
-      ///\e
-      void set(const Key &v,const Value &c) {
-        Base::insert(std::make_pair(v, c));
-      }
+      typedef True SolverExpr;
+      /// Default constructor
+      
+      /// Construct an empty expression, the coefficients are
+      /// initialized to zero.
+      DualExpr() {}
+      /// Construct an expression from a row
 
-      ///Removes the components with zero coefficient.
-      void simplify() {
-        for (Base::iterator i=Base::begin(); i!=Base::end();) {
-          Base::iterator j=i;
-          ++j;
-          if ((*i).second==0) Base::erase(i);
-          i=j;
+      /// Construct an expression, which has a term with \c r dual
+      /// variable and 1.0 coefficient.
+      DualExpr(const Row &r) {
+        typedef std::map<int, Value>::value_type pair_type;
+        comps.insert(pair_type(id(r), 1));
+      }
+      /// Returns the coefficient of the row
+      Value operator[](const Row& r) const {
+        std::map<int, Value>::const_iterator it = comps.find(id(r));
+        if (it != comps.end()) {
+          return it->second;
+        } else {
+          return 0;
+        }
+      }
+      /// Returns the coefficient of the row
+      Value& operator[](const Row& r) {
+        return comps[id(r)];
+      }
+      /// Sets the coefficient of the row
+      void set(const Row &r, const Value &v) {
+        if (v != 0.0) {
+          typedef std::map<int, Value>::value_type pair_type;
+          comps.insert(pair_type(id(r), v));
+        } else {
+          comps.erase(id(r));
+        }
+      }
+      /// \brief Removes the coefficients which's absolute value does
+      /// not exceed \c epsilon. 
+      void simplify(Value epsilon = 0.0) {
+        std::map<int, Value>::iterator it=comps.begin();
+        while (it != comps.end()) {
+          std::map<int, Value>::iterator jt=it;
+          ++jt;
+          if (std::fabs((*it).second) <= epsilon) comps.erase(it);
+          it=jt;
         }
       }
 
-      void simplify() const {
-        const_cast<DualExpr*>(this)->simplify();
-      }
-
-      ///Removes the coefficients closer to zero than \c tolerance.
-      void simplify(double &tolerance) {
-        for (Base::iterator i=Base::begin(); i!=Base::end();) {
-          Base::iterator j=i;
-          ++j;
-          if (std::fabs((*i).second)<tolerance) Base::erase(i);
-          i=j;
-        }
+      void simplify(Value epsilon = 0.0) const {
+        const_cast<DualExpr*>(this)->simplify(epsilon);
       }
 
       ///Sets all coefficients to 0.
       void clear() {
-        Base::clear();
+        comps.clear();
+      }
+      ///Compound assignment
+      DualExpr &operator+=(const DualExpr &e) {
+        for (std::map<int, Value>::const_iterator it=e.comps.begin();
+             it!=e.comps.end(); ++it)
+          comps[it->first]+=it->second;
+        return *this;
+      }
+      ///Compound assignment
+      DualExpr &operator-=(const DualExpr &e) {
+        for (std::map<int, Value>::const_iterator it=e.comps.begin();
+             it!=e.comps.end(); ++it)
+          comps[it->first]-=it->second;
+        return *this;
+      }
+      ///Multiply with a constant
+      DualExpr &operator*=(const Value &v) {
+        for (std::map<int, Value>::iterator it=comps.begin();
+             it!=comps.end(); ++it)
+          it->second*=v;
+        return *this;
+      }
+      ///Division with a constant
+      DualExpr &operator/=(const Value &v) {
+        for (std::map<int, Value>::iterator it=comps.begin();
+             it!=comps.end(); ++it)
+          it->second/=v;
+        return *this;
       }
 
-      ///\e
-      DualExpr &operator+=(const DualExpr &e) {
-        for (Base::const_iterator j=e.begin(); j!=e.end(); ++j)
-          (*this)[j->first]+=j->second;
-        return *this;
-      }
-      ///\e
-      DualExpr &operator-=(const DualExpr &e) {
-        for (Base::const_iterator j=e.begin(); j!=e.end(); ++j)
-          (*this)[j->first]-=j->second;
-        return *this;
-      }
-      ///\e
-      DualExpr &operator*=(const Value &c) {
-        for (Base::iterator j=Base::begin(); j!=Base::end(); ++j)
-          j->second*=c;
-        return *this;
-      }
-      ///\e
-      DualExpr &operator/=(const Value &c) {
-        for (Base::iterator j=Base::begin(); j!=Base::end(); ++j)
-          j->second/=c;
-        return *this;
-      }
+      ///Iterator over the expression
+      
+      ///The iterator iterates over the terms of the expression. 
+      /// 
+      ///\code
+      ///double s=0;
+      ///for(LpBase::DualExpr::CoeffIt i(e);i!=INVALID;++i)
+      ///  s+= *i * dual(i);
+      ///\endcode
+      class CoeffIt {
+      private:
+
+        std::map<int, Value>::iterator _it, _end;
+
+      public:
+
+        /// Sets the iterator to the first term
+        
+        /// Sets the iterator to the first term of the expression.
+        ///
+        CoeffIt(DualExpr& e)
+          : _it(e.comps.begin()), _end(e.comps.end()){}
+
+        /// Convert the iterator to the row of the term
+        operator Row() const {
+          return rowFromId(_it->first);
+        }
+
+        /// Returns the coefficient of the term
+        Value& operator*() { return _it->second; }
+
+        /// Returns the coefficient of the term
+        const Value& operator*() const { return _it->second; }
+
+        /// Next term
+        
+        /// Assign the iterator to the next term.
+        ///
+        CoeffIt& operator++() { ++_it; return *this; }
+
+        /// Equality operator
+        bool operator==(Invalid) const { return _it == _end; }
+        /// Inequality operator
+        bool operator!=(Invalid) const { return _it != _end; }
+      };
+
+      ///Iterator over the expression
+      
+      ///The iterator iterates over the terms of the expression. 
+      /// 
+      ///\code
+      ///double s=0;
+      ///for(LpBase::DualExpr::ConstCoeffIt i(e);i!=INVALID;++i)
+      ///  s+= *i * dual(i);
+      ///\endcode
+      class ConstCoeffIt {
+      private:
+
+        std::map<int, Value>::const_iterator _it, _end;
+
+      public:
+
+        /// Sets the iterator to the first term
+        
+        /// Sets the iterator to the first term of the expression.
+        ///
+        ConstCoeffIt(const DualExpr& e)
+          : _it(e.comps.begin()), _end(e.comps.end()){}
+
+        /// Convert the iterator to the row of the term
+        operator Row() const {
+          return rowFromId(_it->first);
+        }
+
+        /// Returns the coefficient of the term
+        const Value& operator*() const { return _it->second; }
+
+        /// Next term
+        
+        /// Assign the iterator to the next term.
+        ///
+        ConstCoeffIt& operator++() { ++_it; return *this; }
+
+        /// Equality operator
+        bool operator==(Invalid) const { return _it == _end; }
+        /// Inequality operator
+        bool operator!=(Invalid) const { return _it != _end; }
+      };
     };
 
 
-  private:
+  protected:
 
-    template <typename _Expr>
-    class MappedOutputIterator {
+    class InsertIterator {
+    private:
+
+      std::map<int, Value>& _host;
+      const _solver_bits::VarIndex& _index;
+
     public:
-
-      typedef std::insert_iterator<_Expr> Base;
 
       typedef std::output_iterator_tag iterator_category;
       typedef void difference_type;
@@ -598,53 +848,33 @@ namespace lemon {
       typedef void reference;
       typedef void pointer;
 
-      MappedOutputIterator(const Base& _base, const LpSolverBase& _lp)
-        : base(_base), lp(_lp) {}
+      InsertIterator(std::map<int, Value>& host,
+                   const _solver_bits::VarIndex& index)
+        : _host(host), _index(index) {}
 
-      MappedOutputIterator& operator*() {
+      InsertIterator& operator=(const std::pair<int, Value>& value) {
+        typedef std::map<int, Value>::value_type pair_type;
+        _host.insert(pair_type(_index[value.first], value.second));
         return *this;
       }
 
-      MappedOutputIterator& operator=(const std::pair<int, Value>& value) {
-        *base = std::make_pair(lp._item(value.first, typename _Expr::Key()),
-                               value.second);
-        return *this;
-      }
+      InsertIterator& operator*() { return *this; }
+      InsertIterator& operator++() { return *this; }
+      InsertIterator operator++(int) { return *this; }
 
-      MappedOutputIterator& operator++() {
-        ++base;
-        return *this;
-      }
-
-      MappedOutputIterator operator++(int) {
-        MappedOutputIterator tmp(*this);
-        ++base;
-        return tmp;
-      }
-
-      bool operator==(const MappedOutputIterator& it) const {
-        return base == it.base;
-      }
-
-      bool operator!=(const MappedOutputIterator& it) const {
-        return base != it.base;
-      }
-
-    private:
-      Base base;
-      const LpSolverBase& lp;
     };
 
-    template <typename Expr>
-    class MappedInputIterator {
+    class ExprIterator {
+    private:
+      std::map<int, Value>::const_iterator _host_it;
+      const _solver_bits::VarIndex& _index;
     public:
 
-      typedef typename Expr::const_iterator Base;
-
-      typedef typename Base::iterator_category iterator_category;
-      typedef typename Base::difference_type difference_type;
+      typedef std::bidirectional_iterator_tag iterator_category;
+      typedef std::ptrdiff_t difference_type;
       typedef const std::pair<int, Value> value_type;
       typedef value_type reference;
+
       class pointer {
       public:
         pointer(value_type& _value) : value(_value) {}
@@ -653,82 +883,49 @@ namespace lemon {
         value_type value;
       };
 
-      MappedInputIterator(const Base& _base, const LpSolverBase& _lp)
-        : base(_base), lp(_lp) {}
+      ExprIterator(const std::map<int, Value>::const_iterator& host_it,
+                   const _solver_bits::VarIndex& index)
+        : _host_it(host_it), _index(index) {}
 
       reference operator*() {
-        return std::make_pair(lp._lpId(base->first), base->second);
+        return std::make_pair(_index(_host_it->first), _host_it->second);
       }
 
       pointer operator->() {
         return pointer(operator*());
       }
 
-      MappedInputIterator& operator++() {
-        ++base;
-        return *this;
+      ExprIterator& operator++() { ++_host_it; return *this; }
+      ExprIterator operator++(int) {
+        ExprIterator tmp(*this); ++_host_it; return tmp;
       }
 
-      MappedInputIterator operator++(int) {
-        MappedInputIterator tmp(*this);
-        ++base;
-        return tmp;
+      ExprIterator& operator--() { --_host_it; return *this; }
+      ExprIterator operator--(int) {
+        ExprIterator tmp(*this); --_host_it; return tmp;
       }
 
-      bool operator==(const MappedInputIterator& it) const {
-        return base == it.base;
+      bool operator==(const ExprIterator& it) const {
+        return _host_it == it._host_it;
       }
 
-      bool operator!=(const MappedInputIterator& it) const {
-        return base != it.base;
+      bool operator!=(const ExprIterator& it) const {
+        return _host_it != it._host_it;
       }
 
-    private:
-      Base base;
-      const LpSolverBase& lp;
     };
 
   protected:
 
-    /// STL compatible iterator for lp col
-    typedef MappedInputIterator<Expr> ConstRowIterator;
-    /// STL compatible iterator for lp row
-    typedef MappedInputIterator<DualExpr> ConstColIterator;
-
-    /// STL compatible iterator for lp col
-    typedef MappedOutputIterator<Expr> RowIterator;
-    /// STL compatible iterator for lp row
-    typedef MappedOutputIterator<DualExpr> ColIterator;
-
     //Abstract virtual functions
-    virtual LpSolverBase* _newLp() = 0;
-    virtual LpSolverBase* _copyLp(){
-      LpSolverBase* newlp = _newLp();
+    virtual LpBase* _newSolver() const = 0;
+    virtual LpBase* _cloneSolver() const = 0;
 
-      std::map<Col, Col> ref;
-      for (LpSolverBase::ColIt it(*this); it != INVALID; ++it) {
-        Col ccol = newlp->addCol();
-        ref[it] = ccol;
-        newlp->colName(ccol, colName(it));
-        newlp->colLowerBound(ccol, colLowerBound(it));
-        newlp->colUpperBound(ccol, colUpperBound(it));
-      }
+    virtual int _addColId(int col) { return cols.addIndex(col); }
+    virtual int _addRowId(int row) { return rows.addIndex(row); }
 
-      for (LpSolverBase::RowIt it(*this); it != INVALID; ++it) {
-        Expr e = row(it), ce;
-        for (Expr::iterator jt = e.begin(); jt != e.end(); ++jt) {
-          ce[ref[jt->first]] = jt->second;
-        }
-        ce += e.constComp();
-        Row r = newlp->addRow(ce);
-
-        double lower, upper;
-        getRowBounds(it, lower, upper);
-        newlp->rowBounds(r, lower, upper);
-      }
-
-      return newlp;
-    };
+    virtual void _eraseColId(int col) { cols.eraseIndex(col); }
+    virtual void _eraseRowId(int row) { rows.eraseIndex(row); }
 
     virtual int _addCol() = 0;
     virtual int _addRow() = 0;
@@ -736,93 +933,95 @@ namespace lemon {
     virtual void _eraseCol(int col) = 0;
     virtual void _eraseRow(int row) = 0;
 
-    virtual void _getColName(int col, std::string & name) const = 0;
-    virtual void _setColName(int col, const std::string & name) = 0;
+    virtual void _getColName(int col, std::string& name) const = 0;
+    virtual void _setColName(int col, const std::string& name) = 0;
     virtual int _colByName(const std::string& name) const = 0;
 
-    virtual void _setRowCoeffs(int i, ConstRowIterator b,
-                               ConstRowIterator e) = 0;
-    virtual void _getRowCoeffs(int i, RowIterator b) const = 0;
-    virtual void _setColCoeffs(int i, ConstColIterator b,
-                               ConstColIterator e) = 0;
-    virtual void _getColCoeffs(int i, ColIterator b) const = 0;
+    virtual void _getRowName(int row, std::string& name) const = 0;
+    virtual void _setRowName(int row, const std::string& name) = 0;
+    virtual int _rowByName(const std::string& name) const = 0;
+
+    virtual void _setRowCoeffs(int i, ExprIterator b, ExprIterator e) = 0;
+    virtual void _getRowCoeffs(int i, InsertIterator b) const = 0;
+
+    virtual void _setColCoeffs(int i, ExprIterator b, ExprIterator e) = 0;
+    virtual void _getColCoeffs(int i, InsertIterator b) const = 0;
+
     virtual void _setCoeff(int row, int col, Value value) = 0;
     virtual Value _getCoeff(int row, int col) const = 0;
+
     virtual void _setColLowerBound(int i, Value value) = 0;
     virtual Value _getColLowerBound(int i) const = 0;
+
     virtual void _setColUpperBound(int i, Value value) = 0;
     virtual Value _getColUpperBound(int i) const = 0;
-    virtual void _setRowBounds(int i, Value lower, Value upper) = 0;
-    virtual void _getRowBounds(int i, Value &lower, Value &upper) const = 0;
+
+    virtual void _setRowLowerBound(int i, Value value) = 0;
+    virtual Value _getRowLowerBound(int i) const = 0;
+
+    virtual void _setRowUpperBound(int i, Value value) = 0;
+    virtual Value _getRowUpperBound(int i) const = 0;
+
+    virtual void _setObjCoeffs(ExprIterator b, ExprIterator e) = 0;
+    virtual void _getObjCoeffs(InsertIterator b) const = 0;
 
     virtual void _setObjCoeff(int i, Value obj_coef) = 0;
     virtual Value _getObjCoeff(int i) const = 0;
-    virtual void _clearObj()=0;
 
-    virtual SolveExitStatus _solve() = 0;
-    virtual Value _getPrimal(int i) const = 0;
-    virtual Value _getDual(int i) const = 0;
-    virtual Value _getPrimalValue() const = 0;
-    virtual bool _isBasicCol(int i) const = 0;
-    virtual SolutionStatus _getPrimalStatus() const = 0;
-    virtual SolutionStatus _getDualStatus() const = 0;
-    virtual ProblemTypes _getProblemType() const = 0;
+    virtual void _setSense(Sense) = 0;
+    virtual Sense _getSense() const = 0;
 
-    virtual void _setMax() = 0;
-    virtual void _setMin() = 0;
+    virtual void _clear() = 0;
 
-
-    virtual bool _isMax() const = 0;
+    virtual const char* _solverName() const = 0;
 
     //Own protected stuff
 
     //Constant component of the objective function
     Value obj_const_comp;
 
+    LpBase() : rows(), cols(), obj_const_comp(0) {}
+
   public:
 
-    ///\e
-    LpSolverBase() : obj_const_comp(0) {}
-
-    ///\e
-    virtual ~LpSolverBase() {}
+    /// Virtual destructor
+    virtual ~LpBase() {}
 
     ///Creates a new LP problem
-    LpSolverBase* newLp() {return _newLp();}
+    LpBase* newSolver() {return _newSolver();}
     ///Makes a copy of the LP problem
-    LpSolverBase* copyLp() {return _copyLp();}
+    LpBase* cloneSolver() {return _cloneSolver();}
+
+    ///Gives back the name of the solver.
+    const char* solverName() const {return _solverName();}
 
     ///\name Build up and modify the LP
 
     ///@{
 
     ///Add a new empty column (i.e a new variable) to the LP
-    Col addCol() { Col c; _addCol(); c.id = cols.addId(); return c;}
+    Col addCol() { Col c; c._id = _addColId(_addCol()); return c;}
 
-    ///\brief Adds several new columns
-    ///(i.e a variables) at once
+    ///\brief Adds several new columns (i.e variables) at once
     ///
-    ///This magic function takes a container as its argument
-    ///and fills its elements
-    ///with new columns (i.e. variables)
+    ///This magic function takes a container as its argument and fills
+    ///its elements with new columns (i.e. variables)
     ///\param t can be
     ///- a standard STL compatible iterable container with
-    ///\ref Col as its \c values_type
-    ///like
+    ///\ref Col as its \c values_type like
     ///\code
-    ///std::vector<LpSolverBase::Col>
-    ///std::list<LpSolverBase::Col>
+    ///std::vector<LpBase::Col>
+    ///std::list<LpBase::Col>
     ///\endcode
     ///- a standard STL compatible iterable container with
-    ///\ref Col as its \c mapped_type
-    ///like
+    ///\ref Col as its \c mapped_type like
     ///\code
-    ///std::map<AnyType,LpSolverBase::Col>
+    ///std::map<AnyType,LpBase::Col>
     ///\endcode
     ///- an iterable lemon \ref concepts::WriteMap "write map" like
     ///\code
-    ///ListGraph::NodeMap<LpSolverBase::Col>
-    ///ListGraph::EdgeMap<LpSolverBase::Col>
+    ///ListGraph::NodeMap<LpBase::Col>
+    ///ListGraph::ArcMap<LpBase::Col>
     ///\endcode
     ///\return The number of the created column.
 #ifdef DOXYGEN
@@ -830,14 +1029,14 @@ namespace lemon {
     int addColSet(T &t) { return 0;}
 #else
     template<class T>
-    typename enable_if<typename T::value_type::LpSolverCol,int>::type
+    typename enable_if<typename T::value_type::LpCol,int>::type
     addColSet(T &t,dummy<0> = 0) {
       int s=0;
       for(typename T::iterator i=t.begin();i!=t.end();++i) {*i=addCol();s++;}
       return s;
     }
     template<class T>
-    typename enable_if<typename T::value_type::second_type::LpSolverCol,
+    typename enable_if<typename T::value_type::second_type::LpCol,
                        int>::type
     addColSet(T &t,dummy<1> = 1) {
       int s=0;
@@ -848,7 +1047,7 @@ namespace lemon {
       return s;
     }
     template<class T>
-    typename enable_if<typename T::MapIt::Value::LpSolverCol,
+    typename enable_if<typename T::MapIt::Value::LpCol,
                        int>::type
     addColSet(T &t,dummy<2> = 2) {
       int s=0;
@@ -866,26 +1065,26 @@ namespace lemon {
     ///\param c is the column to be modified
     ///\param e is a dual linear expression (see \ref DualExpr)
     ///a better one.
-    void col(Col c,const DualExpr &e) {
+    void col(Col c, const DualExpr &e) {
       e.simplify();
-      _setColCoeffs(_lpId(c), ConstColIterator(e.begin(), *this),
-                    ConstColIterator(e.end(), *this));
+      _setColCoeffs(cols(id(c)), ExprIterator(e.comps.begin(), cols),
+                    ExprIterator(e.comps.end(), cols));
     }
 
     ///Get a column (i.e a dual constraint) of the LP
 
-    ///\param r is the column to get
+    ///\param c is the column to get
     ///\return the dual expression associated to the column
     DualExpr col(Col c) const {
       DualExpr e;
-      _getColCoeffs(_lpId(c), ColIterator(std::inserter(e, e.end()), *this));
+      _getColCoeffs(cols(id(c)), InsertIterator(e.comps, rows));
       return e;
     }
 
     ///Add a new column to the LP
 
     ///\param e is a dual linear expression (see \ref DualExpr)
-    ///\param obj is the corresponding component of the objective
+    ///\param o is the corresponding component of the objective
     ///function. It is 0 by default.
     ///\return The created column.
     Col addCol(const DualExpr &e, Value o = 0) {
@@ -899,32 +1098,28 @@ namespace lemon {
 
     ///This function adds a new empty row (i.e a new constraint) to the LP.
     ///\return The created row
-    Row addRow() { Row r; _addRow(); r.id = rows.addId(); return r;}
+    Row addRow() { Row r; r._id = _addRowId(_addRow()); return r;}
 
-    ///\brief Add several new rows
-    ///(i.e a constraints) at once
+    ///\brief Add several new rows (i.e constraints) at once
     ///
-    ///This magic function takes a container as its argument
-    ///and fills its elements
-    ///with new row (i.e. variables)
+    ///This magic function takes a container as its argument and fills
+    ///its elements with new row (i.e. variables)
     ///\param t can be
     ///- a standard STL compatible iterable container with
-    ///\ref Row as its \c values_type
-    ///like
+    ///\ref Row as its \c values_type like
     ///\code
-    ///std::vector<LpSolverBase::Row>
-    ///std::list<LpSolverBase::Row>
+    ///std::vector<LpBase::Row>
+    ///std::list<LpBase::Row>
     ///\endcode
     ///- a standard STL compatible iterable container with
-    ///\ref Row as its \c mapped_type
-    ///like
+    ///\ref Row as its \c mapped_type like
     ///\code
-    ///std::map<AnyType,LpSolverBase::Row>
+    ///std::map<AnyType,LpBase::Row>
     ///\endcode
     ///- an iterable lemon \ref concepts::WriteMap "write map" like
     ///\code
-    ///ListGraph::NodeMap<LpSolverBase::Row>
-    ///ListGraph::EdgeMap<LpSolverBase::Row>
+    ///ListGraph::NodeMap<LpBase::Row>
+    ///ListGraph::ArcMap<LpBase::Row>
     ///\endcode
     ///\return The number of rows created.
 #ifdef DOXYGEN
@@ -932,16 +1127,15 @@ namespace lemon {
     int addRowSet(T &t) { return 0;}
 #else
     template<class T>
-    typename enable_if<typename T::value_type::LpSolverRow,int>::type
-    addRowSet(T &t,dummy<0> = 0) {
+    typename enable_if<typename T::value_type::LpRow,int>::type
+    addRowSet(T &t, dummy<0> = 0) {
       int s=0;
       for(typename T::iterator i=t.begin();i!=t.end();++i) {*i=addRow();s++;}
       return s;
     }
     template<class T>
-    typename enable_if<typename T::value_type::second_type::LpSolverRow,
-                       int>::type
-    addRowSet(T &t,dummy<1> = 1) {
+    typename enable_if<typename T::value_type::second_type::LpRow, int>::type
+    addRowSet(T &t, dummy<1> = 1) {
       int s=0;
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
         i->second=addRow();
@@ -950,9 +1144,8 @@ namespace lemon {
       return s;
     }
     template<class T>
-    typename enable_if<typename T::MapIt::Value::LpSolverRow,
-                       int>::type
-    addRowSet(T &t,dummy<2> = 2) {
+    typename enable_if<typename T::MapIt::Value::LpRow, int>::type
+    addRowSet(T &t, dummy<2> = 2) {
       int s=0;
       for(typename T::MapIt i(t); i!=INVALID; ++i)
         {
@@ -969,15 +1162,12 @@ namespace lemon {
     ///\param l is lower bound (-\ref INF means no bound)
     ///\param e is a linear expression (see \ref Expr)
     ///\param u is the upper bound (\ref INF means no bound)
-    ///\bug This is a temporary function. The interface will change to
-    ///a better one.
-    ///\todo Option to control whether a constraint with a single variable is
-    ///added or not.
     void row(Row r, Value l, const Expr &e, Value u) {
       e.simplify();
-      _setRowCoeffs(_lpId(r), ConstRowIterator(e.begin(), *this),
-                    ConstRowIterator(e.end(), *this));
-      _setRowBounds(_lpId(r),l-e.constComp(),u-e.constComp());
+      _setRowCoeffs(rows(id(r)), ExprIterator(e.comps.begin(), cols),
+                    ExprIterator(e.comps.end(), cols));
+      _setRowLowerBound(rows(id(r)),l - *e);
+      _setRowUpperBound(rows(id(r)),u - *e);
     }
 
     ///Set a row (i.e a constraint) of the LP
@@ -996,7 +1186,7 @@ namespace lemon {
     ///\return the expression associated to the row
     Expr row(Row r) const {
       Expr e;
-      _getRowCoeffs(_lpId(r), RowIterator(std::inserter(e, e.end()), *this));
+      _getRowCoeffs(rows(id(r)), InsertIterator(e.comps, cols));
       return e;
     }
 
@@ -1006,8 +1196,6 @@ namespace lemon {
     ///\param e is a linear expression (see \ref Expr)
     ///\param u is the upper bound (\ref INF means no bound)
     ///\return The created row.
-    ///\bug This is a temporary function. The interface will change to
-    ///a better one.
     Row addRow(Value l,const Expr &e, Value u) {
       Row r=addRow();
       row(r,l,e,u);
@@ -1023,39 +1211,37 @@ namespace lemon {
       row(r,c);
       return r;
     }
-    ///Erase a coloumn (i.e a variable) from the LP
+    ///Erase a column (i.e a variable) from the LP
 
-    ///\param c is the coloumn to be deleted
-    ///\todo Please check this
-    void eraseCol(Col c) {
-      _eraseCol(_lpId(c));
-      cols.eraseId(c.id);
+    ///\param c is the column to be deleted
+    void erase(Col c) {
+      _eraseCol(cols(id(c)));
+      _eraseColId(cols(id(c)));
     }
-    ///Erase a  row (i.e a constraint) from the LP
+    ///Erase a row (i.e a constraint) from the LP
 
     ///\param r is the row to be deleted
-    ///\todo Please check this
-    void eraseRow(Row r) {
-      _eraseRow(_lpId(r));
-      rows.eraseId(r.id);
+    void erase(Row r) {
+      _eraseRow(rows(id(r)));
+      _eraseRowId(rows(id(r)));
     }
 
     /// Get the name of a column
 
-    ///\param c is the coresponding coloumn
+    ///\param c is the coresponding column
     ///\return The name of the colunm
     std::string colName(Col c) const {
       std::string name;
-      _getColName(_lpId(c), name);
+      _getColName(cols(id(c)), name);
       return name;
     }
 
     /// Set the name of a column
 
-    ///\param c is the coresponding coloumn
+    ///\param c is the coresponding column
     ///\param name The name to be given
     void colName(Col c, const std::string& name) {
-      _setColName(_lpId(c), name);
+      _setColName(cols(id(c)), name);
     }
 
     /// Get the column by its name
@@ -1064,27 +1250,52 @@ namespace lemon {
     ///\return the proper column or \c INVALID
     Col colByName(const std::string& name) const {
       int k = _colByName(name);
-      return k != -1 ? Col(cols.fixId(k)) : Col(INVALID);
+      return k != -1 ? Col(cols[k]) : Col(INVALID);
+    }
+
+    /// Get the name of a row
+
+    ///\param r is the coresponding row
+    ///\return The name of the row
+    std::string rowName(Row r) const {
+      std::string name;
+      _getRowName(rows(id(r)), name);
+      return name;
+    }
+
+    /// Set the name of a row
+
+    ///\param r is the coresponding row
+    ///\param name The name to be given
+    void rowName(Row r, const std::string& name) {
+      _setRowName(rows(id(r)), name);
+    }
+
+    /// Get the row by its name
+
+    ///\param name The name of the row
+    ///\return the proper row or \c INVALID
+    Row rowByName(const std::string& name) const {
+      int k = _rowByName(name);
+      return k != -1 ? Row(rows[k]) : Row(INVALID);
     }
 
     /// Set an element of the coefficient matrix of the LP
 
     ///\param r is the row of the element to be modified
-    ///\param c is the coloumn of the element to be modified
+    ///\param c is the column of the element to be modified
     ///\param val is the new value of the coefficient
-
     void coeff(Row r, Col c, Value val) {
-      _setCoeff(_lpId(r),_lpId(c), val);
+      _setCoeff(rows(id(r)),cols(id(c)), val);
     }
 
     /// Get an element of the coefficient matrix of the LP
 
-    ///\param r is the row of the element in question
-    ///\param c is the coloumn of the element in question
+    ///\param r is the row of the element
+    ///\param c is the column of the element
     ///\return the corresponding coefficient
-
     Value coeff(Row r, Col c) const {
-      return _getCoeff(_lpId(r),_lpId(c));
+      return _getCoeff(rows(id(r)),cols(id(c)));
     }
 
     /// Set the lower bound of a column (i.e a variable)
@@ -1093,39 +1304,39 @@ namespace lemon {
     /// extended number of type Value, i.e. a finite number of type
     /// Value or -\ref INF.
     void colLowerBound(Col c, Value value) {
-      _setColLowerBound(_lpId(c),value);
+      _setColLowerBound(cols(id(c)),value);
     }
 
     /// Get the lower bound of a column (i.e a variable)
 
-    /// This function returns the lower bound for column (variable) \t c
+    /// This function returns the lower bound for column (variable) \c c
     /// (this might be -\ref INF as well).
-    ///\return The lower bound for coloumn \t c
+    ///\return The lower bound for column \c c
     Value colLowerBound(Col c) const {
-      return _getColLowerBound(_lpId(c));
+      return _getColLowerBound(cols(id(c)));
     }
 
     ///\brief Set the lower bound of  several columns
-    ///(i.e a variables) at once
+    ///(i.e variables) at once
     ///
     ///This magic function takes a container as its argument
     ///and applies the function on all of its elements.
-    /// The lower bound of a variable (column) has to be given by an
-    /// extended number of type Value, i.e. a finite number of type
-    /// Value or -\ref INF.
+    ///The lower bound of a variable (column) has to be given by an
+    ///extended number of type Value, i.e. a finite number of type
+    ///Value or -\ref INF.
 #ifdef DOXYGEN
     template<class T>
     void colLowerBound(T &t, Value value) { return 0;}
 #else
     template<class T>
-    typename enable_if<typename T::value_type::LpSolverCol,void>::type
+    typename enable_if<typename T::value_type::LpCol,void>::type
     colLowerBound(T &t, Value value,dummy<0> = 0) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
         colLowerBound(*i, value);
       }
     }
     template<class T>
-    typename enable_if<typename T::value_type::second_type::LpSolverCol,
+    typename enable_if<typename T::value_type::second_type::LpCol,
                        void>::type
     colLowerBound(T &t, Value value,dummy<1> = 1) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
@@ -1133,7 +1344,7 @@ namespace lemon {
       }
     }
     template<class T>
-    typename enable_if<typename T::MapIt::Value::LpSolverCol,
+    typename enable_if<typename T::MapIt::Value::LpCol,
                        void>::type
     colLowerBound(T &t, Value value,dummy<2> = 2) {
       for(typename T::MapIt i(t); i!=INVALID; ++i){
@@ -1148,39 +1359,39 @@ namespace lemon {
     /// extended number of type Value, i.e. a finite number of type
     /// Value or \ref INF.
     void colUpperBound(Col c, Value value) {
-      _setColUpperBound(_lpId(c),value);
+      _setColUpperBound(cols(id(c)),value);
     };
 
     /// Get the upper bound of a column (i.e a variable)
 
-    /// This function returns the upper bound for column (variable) \t c
+    /// This function returns the upper bound for column (variable) \c c
     /// (this might be \ref INF as well).
-    ///\return The upper bound for coloumn \t c
+    /// \return The upper bound for column \c c
     Value colUpperBound(Col c) const {
-      return _getColUpperBound(_lpId(c));
+      return _getColUpperBound(cols(id(c)));
     }
 
     ///\brief Set the upper bound of  several columns
-    ///(i.e a variables) at once
+    ///(i.e variables) at once
     ///
     ///This magic function takes a container as its argument
     ///and applies the function on all of its elements.
-    /// The upper bound of a variable (column) has to be given by an
-    /// extended number of type Value, i.e. a finite number of type
-    /// Value or \ref INF.
+    ///The upper bound of a variable (column) has to be given by an
+    ///extended number of type Value, i.e. a finite number of type
+    ///Value or \ref INF.
 #ifdef DOXYGEN
     template<class T>
     void colUpperBound(T &t, Value value) { return 0;}
 #else
     template<class T>
-    typename enable_if<typename T::value_type::LpSolverCol,void>::type
+    typename enable_if<typename T::value_type::LpCol,void>::type
     colUpperBound(T &t, Value value,dummy<0> = 0) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
         colUpperBound(*i, value);
       }
     }
     template<class T>
-    typename enable_if<typename T::value_type::second_type::LpSolverCol,
+    typename enable_if<typename T::value_type::second_type::LpCol,
                        void>::type
     colUpperBound(T &t, Value value,dummy<1> = 1) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
@@ -1188,7 +1399,7 @@ namespace lemon {
       }
     }
     template<class T>
-    typename enable_if<typename T::MapIt::Value::LpSolverCol,
+    typename enable_if<typename T::MapIt::Value::LpCol,
                        void>::type
     colUpperBound(T &t, Value value,dummy<2> = 2) {
       for(typename T::MapIt i(t); i!=INVALID; ++i){
@@ -1204,12 +1415,12 @@ namespace lemon {
     /// extended number of type Value, i.e. a finite number of type
     /// Value, -\ref INF or \ref INF.
     void colBounds(Col c, Value lower, Value upper) {
-      _setColLowerBound(_lpId(c),lower);
-      _setColUpperBound(_lpId(c),upper);
+      _setColLowerBound(cols(id(c)),lower);
+      _setColUpperBound(cols(id(c)),upper);
     }
 
     ///\brief Set the lower and the upper bound of several columns
-    ///(i.e a variables) at once
+    ///(i.e variables) at once
     ///
     ///This magic function takes a container as its argument
     ///and applies the function on all of its elements.
@@ -1222,23 +1433,21 @@ namespace lemon {
     void colBounds(T &t, Value lower, Value upper) { return 0;}
 #else
     template<class T>
-    typename enable_if<typename T::value_type::LpSolverCol,void>::type
+    typename enable_if<typename T::value_type::LpCol,void>::type
     colBounds(T &t, Value lower, Value upper,dummy<0> = 0) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
         colBounds(*i, lower, upper);
       }
     }
     template<class T>
-    typename enable_if<typename T::value_type::second_type::LpSolverCol,
-                       void>::type
+    typename enable_if<typename T::value_type::second_type::LpCol, void>::type
     colBounds(T &t, Value lower, Value upper,dummy<1> = 1) {
       for(typename T::iterator i=t.begin();i!=t.end();++i) {
         colBounds(i->second, lower, upper);
       }
     }
     template<class T>
-    typename enable_if<typename T::MapIt::Value::LpSolverCol,
-                       void>::type
+    typename enable_if<typename T::MapIt::Value::LpCol, void>::type
     colBounds(T &t, Value lower, Value upper,dummy<2> = 2) {
       for(typename T::MapIt i(t); i!=INVALID; ++i){
         colBounds(*i, lower, upper);
@@ -1246,76 +1455,371 @@ namespace lemon {
     }
 #endif
 
+    /// Set the lower bound of a row (i.e a constraint)
 
-    /// Set the lower and the upper bounds of a row (i.e a constraint)
-
-    /// The lower and the upper bound of a constraint (row) have to be
-    /// given by an extended number of type Value, i.e. a finite
-    /// number of type Value, -\ref INF or \ref INF. There is no
-    /// separate function for the lower and the upper bound because
-    /// that would have been hard to implement for CPLEX.
-    void rowBounds(Row c, Value lower, Value upper) {
-      _setRowBounds(_lpId(c),lower, upper);
+    /// The lower bound of a constraint (row) has to be given by an
+    /// extended number of type Value, i.e. a finite number of type
+    /// Value or -\ref INF.
+    void rowLowerBound(Row r, Value value) {
+      _setRowLowerBound(rows(id(r)),value);
     }
 
-    /// Get the lower and the upper bounds of a row (i.e a constraint)
+    /// Get the lower bound of a row (i.e a constraint)
 
-    /// The lower and the upper bound of
-    /// a constraint (row) are
-    /// extended numbers of type Value, i.e.  finite numbers of type
-    /// Value, -\ref INF or \ref INF.
-    /// \todo There is no separate function for the
-    /// lower and the upper bound because we had problems with the
-    /// implementation of the setting functions for CPLEX:
-    /// check out whether this can be done for these functions.
-    void getRowBounds(Row c, Value &lower, Value &upper) const {
-      _getRowBounds(_lpId(c),lower, upper);
+    /// This function returns the lower bound for row (constraint) \c c
+    /// (this might be -\ref INF as well).
+    ///\return The lower bound for row \c r
+    Value rowLowerBound(Row r) const {
+      return _getRowLowerBound(rows(id(r)));
+    }
+
+    /// Set the upper bound of a row (i.e a constraint)
+
+    /// The upper bound of a constraint (row) has to be given by an
+    /// extended number of type Value, i.e. a finite number of type
+    /// Value or -\ref INF.
+    void rowUpperBound(Row r, Value value) {
+      _setRowUpperBound(rows(id(r)),value);
+    }
+
+    /// Get the upper bound of a row (i.e a constraint)
+
+    /// This function returns the upper bound for row (constraint) \c c
+    /// (this might be -\ref INF as well).
+    ///\return The upper bound for row \c r
+    Value rowUpperBound(Row r) const {
+      return _getRowUpperBound(rows(id(r)));
     }
 
     ///Set an element of the objective function
-    void objCoeff(Col c, Value v) {_setObjCoeff(_lpId(c),v); };
+    void objCoeff(Col c, Value v) {_setObjCoeff(cols(id(c)),v); };
 
     ///Get an element of the objective function
-    Value objCoeff(Col c) const { return _getObjCoeff(_lpId(c)); };
+    Value objCoeff(Col c) const { return _getObjCoeff(cols(id(c))); };
 
     ///Set the objective function
 
     ///\param e is a linear expression of type \ref Expr.
-    void obj(Expr e) {
-      _clearObj();
-      for (Expr::iterator i=e.begin(); i!=e.end(); ++i)
-        objCoeff((*i).first,(*i).second);
-      obj_const_comp=e.constComp();
+    ///
+    void obj(const Expr& e) {
+      _setObjCoeffs(ExprIterator(e.comps.begin(), cols),
+                    ExprIterator(e.comps.end(), cols));
+      obj_const_comp = *e;
     }
 
     ///Get the objective function
 
-    ///\return the objective function as a linear expression of type \ref Expr.
+    ///\return the objective function as a linear expression of type
+    ///Expr.
     Expr obj() const {
       Expr e;
-      for (ColIt it(*this); it != INVALID; ++it) {
-        double c = objCoeff(it);
-        if (c != 0.0) {
-          e.insert(std::make_pair(it, c));
-        }
-      }
+      _getObjCoeffs(InsertIterator(e.comps, cols));
+      *e = obj_const_comp;
       return e;
     }
 
 
-    ///Maximize
-    void max() { _setMax(); }
-    ///Minimize
-    void min() { _setMin(); }
+    ///Set the direction of optimization
+    void sense(Sense sense) { _setSense(sense); }
 
-    ///Query function: is this a maximization problem?
-    bool isMax() const {return _isMax(); }
+    ///Query the direction of the optimization
+    Sense sense() const {return _getSense(); }
 
-    ///Query function: is this a minimization problem?
-    bool isMin() const {return !isMax(); }
+    ///Set the sense to maximization
+    void max() { _setSense(MAX); }
+
+    ///Set the sense to maximization
+    void min() { _setSense(MIN); }
+
+    ///Clears the problem
+    void clear() { _clear(); }
 
     ///@}
 
+  };
+
+  /// Addition
+
+  ///\relates LpBase::Expr
+  ///
+  inline LpBase::Expr operator+(const LpBase::Expr &a, const LpBase::Expr &b) {
+    LpBase::Expr tmp(a);
+    tmp+=b;
+    return tmp;
+  }
+  ///Substraction
+
+  ///\relates LpBase::Expr
+  ///
+  inline LpBase::Expr operator-(const LpBase::Expr &a, const LpBase::Expr &b) {
+    LpBase::Expr tmp(a);
+    tmp-=b;
+    return tmp;
+  }
+  ///Multiply with constant
+
+  ///\relates LpBase::Expr
+  ///
+  inline LpBase::Expr operator*(const LpBase::Expr &a, const LpBase::Value &b) {
+    LpBase::Expr tmp(a);
+    tmp*=b;
+    return tmp;
+  }
+
+  ///Multiply with constant
+
+  ///\relates LpBase::Expr
+  ///
+  inline LpBase::Expr operator*(const LpBase::Value &a, const LpBase::Expr &b) {
+    LpBase::Expr tmp(b);
+    tmp*=a;
+    return tmp;
+  }
+  ///Divide with constant
+
+  ///\relates LpBase::Expr
+  ///
+  inline LpBase::Expr operator/(const LpBase::Expr &a, const LpBase::Value &b) {
+    LpBase::Expr tmp(a);
+    tmp/=b;
+    return tmp;
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator<=(const LpBase::Expr &e,
+                                   const LpBase::Expr &f) {
+    return LpBase::Constr(0, f - e, LpBase::INF);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator<=(const LpBase::Value &e,
+                                   const LpBase::Expr &f) {
+    return LpBase::Constr(e, f, LpBase::NaN);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator<=(const LpBase::Expr &e,
+                                   const LpBase::Value &f) {
+    return LpBase::Constr(- LpBase::INF, e, f);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator>=(const LpBase::Expr &e,
+                                   const LpBase::Expr &f) {
+    return LpBase::Constr(0, e - f, LpBase::INF);
+  }
+
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator>=(const LpBase::Value &e,
+                                   const LpBase::Expr &f) {
+    return LpBase::Constr(LpBase::NaN, f, e);
+  }
+
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator>=(const LpBase::Expr &e,
+                                   const LpBase::Value &f) {
+    return LpBase::Constr(f, e, LpBase::INF);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator==(const LpBase::Expr &e,
+                                   const LpBase::Value &f) {
+    return LpBase::Constr(f, e, f);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator==(const LpBase::Expr &e,
+                                   const LpBase::Expr &f) {
+    return LpBase::Constr(0, f - e, 0);
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator<=(const LpBase::Value &n,
+                                   const LpBase::Constr &c) {
+    LpBase::Constr tmp(c);
+    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    tmp.lowerBound()=n;
+    return tmp;
+  }
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator<=(const LpBase::Constr &c,
+                                   const LpBase::Value &n)
+  {
+    LpBase::Constr tmp(c);
+    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    tmp.upperBound()=n;
+    return tmp;
+  }
+
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator>=(const LpBase::Value &n,
+                                   const LpBase::Constr &c) {
+    LpBase::Constr tmp(c);
+    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    tmp.upperBound()=n;
+    return tmp;
+  }
+  ///Create constraint
+
+  ///\relates LpBase::Constr
+  ///
+  inline LpBase::Constr operator>=(const LpBase::Constr &c,
+                                   const LpBase::Value &n)
+  {
+    LpBase::Constr tmp(c);
+    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    tmp.lowerBound()=n;
+    return tmp;
+  }
+
+  ///Addition
+
+  ///\relates LpBase::DualExpr
+  ///
+  inline LpBase::DualExpr operator+(const LpBase::DualExpr &a,
+                                    const LpBase::DualExpr &b) {
+    LpBase::DualExpr tmp(a);
+    tmp+=b;
+    return tmp;
+  }
+  ///Substraction
+
+  ///\relates LpBase::DualExpr
+  ///
+  inline LpBase::DualExpr operator-(const LpBase::DualExpr &a,
+                                    const LpBase::DualExpr &b) {
+    LpBase::DualExpr tmp(a);
+    tmp-=b;
+    return tmp;
+  }
+  ///Multiply with constant
+
+  ///\relates LpBase::DualExpr
+  ///
+  inline LpBase::DualExpr operator*(const LpBase::DualExpr &a,
+                                    const LpBase::Value &b) {
+    LpBase::DualExpr tmp(a);
+    tmp*=b;
+    return tmp;
+  }
+
+  ///Multiply with constant
+
+  ///\relates LpBase::DualExpr
+  ///
+  inline LpBase::DualExpr operator*(const LpBase::Value &a,
+                                    const LpBase::DualExpr &b) {
+    LpBase::DualExpr tmp(b);
+    tmp*=a;
+    return tmp;
+  }
+  ///Divide with constant
+
+  ///\relates LpBase::DualExpr
+  ///
+  inline LpBase::DualExpr operator/(const LpBase::DualExpr &a,
+                                    const LpBase::Value &b) {
+    LpBase::DualExpr tmp(a);
+    tmp/=b;
+    return tmp;
+  }
+
+  /// \ingroup lp_group
+  ///
+  /// \brief Common base class for LP solvers
+  ///
+  /// This class is an abstract base class for LP solvers. This class
+  /// provides a full interface for set and modify an LP problem,
+  /// solve it and retrieve the solution. You can use one of the
+  /// descendants as a concrete implementation, or the \c Lp
+  /// default LP solver. However, if you would like to handle LP
+  /// solvers as reference or pointer in a generic way, you can use
+  /// this class directly.
+  class LpSolver : virtual public LpBase {
+  public:
+
+    /// The problem types for primal and dual problems
+    enum ProblemType {
+      ///Feasible solution hasn't been found (but may exist).
+      UNDEFINED = 0,
+      ///The problem has no feasible solution
+      INFEASIBLE = 1,
+      ///Feasible solution found
+      FEASIBLE = 2,
+      ///Optimal solution exists and found
+      OPTIMAL = 3,
+      ///The cost function is unbounded
+      UNBOUNDED = 4
+    };
+
+    ///The basis status of variables
+    enum VarStatus {
+      /// The variable is in the basis
+      BASIC, 
+      /// The variable is free, but not basic
+      FREE,
+      /// The variable has active lower bound 
+      LOWER,
+      /// The variable has active upper bound
+      UPPER,
+      /// The variable is non-basic and fixed
+      FIXED
+    };
+
+  protected:
+
+    virtual SolveExitStatus _solve() = 0;
+
+    virtual Value _getPrimal(int i) const = 0;
+    virtual Value _getDual(int i) const = 0;
+
+    virtual Value _getPrimalRay(int i) const = 0;
+    virtual Value _getDualRay(int i) const = 0;
+
+    virtual Value _getPrimalValue() const = 0;
+
+    virtual VarStatus _getColStatus(int i) const = 0;
+    virtual VarStatus _getRowStatus(int i) const = 0;
+
+    virtual ProblemType _getPrimalType() const = 0;
+    virtual ProblemType _getDualType() const = 0;
+
+  public:
 
     ///\name Solve the LP
 
@@ -1326,8 +1830,6 @@ namespace lemon {
     ///\return The result of the optimization procedure. Possible
     ///values and their meanings can be found in the documentation of
     ///\ref SolveExitStatus.
-    ///
-    ///\todo Which method is used to solve the problem
     SolveExitStatus solve() { return _solve(); }
 
     ///@}
@@ -1336,368 +1838,241 @@ namespace lemon {
 
     ///@{
 
-    /// The status of the primal problem (the original LP problem)
-    SolutionStatus primalStatus() const {
-      return _getPrimalStatus();
+    /// The type of the primal problem
+    ProblemType primalType() const {
+      return _getPrimalType();
     }
 
-    /// The status of the dual (of the original LP) problem
-    SolutionStatus dualStatus() const {
-      return _getDualStatus();
+    /// The type of the dual problem
+    ProblemType dualType() const {
+      return _getDualType();
     }
 
-    ///The type of the original LP problem
-    ProblemTypes problemType() const {
-      return _getProblemType();
-    }
+    /// Return the primal value of the column
 
-    ///\e
-    Value primal(Col c) const { return _getPrimal(_lpId(c)); }
-    ///\e
+    /// Return the primal value of the column.
+    /// \pre The problem is solved.
+    Value primal(Col c) const { return _getPrimal(cols(id(c))); }
+
+    /// Return the primal value of the expression
+
+    /// Return the primal value of the expression, i.e. the dot
+    /// product of the primal solution and the expression.
+    /// \pre The problem is solved.
     Value primal(const Expr& e) const {
-      double res = e.constComp();
-      for (std::map<Col, double>::const_iterator it = e.begin();
-           it != e.end(); ++it) {
-        res += _getPrimal(_lpId(it->first)) * it->second;
+      double res = *e;
+      for (Expr::ConstCoeffIt c(e); c != INVALID; ++c) {
+        res += *c * primal(c);
       }
       return res;
     }
+    /// Returns a component of the primal ray
+    
+    /// The primal ray is solution of the modified primal problem,
+    /// where we change each finite bound to 0, and we looking for a
+    /// negative objective value in case of minimization, and positive
+    /// objective value for maximization. If there is such solution,
+    /// that proofs the unsolvability of the dual problem, and if a
+    /// feasible primal solution exists, then the unboundness of
+    /// primal problem.
+    ///
+    /// \pre The problem is solved and the dual problem is infeasible.
+    /// \note Some solvers does not provide primal ray calculation
+    /// functions.
+    Value primalRay(Col c) const { return _getPrimalRay(cols(id(c))); }
 
-    ///\e
-    Value dual(Row r) const { return _getDual(_lpId(r)); }
-    ///\e
+    /// Return the dual value of the row
+
+    /// Return the dual value of the row.
+    /// \pre The problem is solved.
+    Value dual(Row r) const { return _getDual(rows(id(r))); }
+
+    /// Return the dual value of the dual expression
+
+    /// Return the dual value of the dual expression, i.e. the dot
+    /// product of the dual solution and the dual expression.
+    /// \pre The problem is solved.
     Value dual(const DualExpr& e) const {
       double res = 0.0;
-      for (std::map<Row, double>::const_iterator it = e.begin();
-           it != e.end(); ++it) {
-        res += _getPrimal(_lpId(it->first)) * it->second;
+      for (DualExpr::ConstCoeffIt r(e); r != INVALID; ++r) {
+        res += *r * dual(r);
       }
       return res;
     }
 
-    ///\e
-    bool isBasicCol(Col c) const { return _isBasicCol(_lpId(c)); }
+    /// Returns a component of the dual ray
+    
+    /// The dual ray is solution of the modified primal problem, where
+    /// we change each finite bound to 0 (i.e. the objective function
+    /// coefficients in the primal problem), and we looking for a
+    /// ositive objective value. If there is such solution, that
+    /// proofs the unsolvability of the primal problem, and if a
+    /// feasible dual solution exists, then the unboundness of
+    /// dual problem.
+    ///
+    /// \pre The problem is solved and the primal problem is infeasible.
+    /// \note Some solvers does not provide dual ray calculation
+    /// functions.
+    Value dualRay(Row r) const { return _getDualRay(rows(id(r))); }
 
-    ///\e
+    /// Return the basis status of the column
+
+    /// \see VarStatus
+    VarStatus colStatus(Col c) const { return _getColStatus(cols(id(c))); }
+
+    /// Return the basis status of the row
+
+    /// \see VarStatus
+    VarStatus rowStatus(Row r) const { return _getRowStatus(rows(id(r))); }
+
+    ///The value of the objective function
 
     ///\return
     ///- \ref INF or -\ref INF means either infeasibility or unboundedness
     /// of the primal problem, depending on whether we minimize or maximize.
     ///- \ref NaN if no primal solution is found.
     ///- The (finite) objective value if an optimal solution is found.
-    Value primalValue() const { return _getPrimalValue()+obj_const_comp;}
+    Value primal() const { return _getPrimalValue()+obj_const_comp;}
     ///@}
 
+    LpSolver* newSolver() {return _newSolver();}
+    LpSolver* cloneSolver() {return _cloneSolver();}
+
+  protected:
+
+    virtual LpSolver* _newSolver() const = 0;
+    virtual LpSolver* _cloneSolver() const = 0;
   };
 
 
   /// \ingroup lp_group
   ///
   /// \brief Common base class for MIP solvers
-  /// \todo Much more docs
-  class MipSolverBase : virtual public LpSolverBase{
+  ///
+  /// This class is an abstract base class for MIP solvers. This class
+  /// provides a full interface for set and modify an MIP problem,
+  /// solve it and retrieve the solution. You can use one of the
+  /// descendants as a concrete implementation, or the \c Lp
+  /// default MIP solver. However, if you would like to handle MIP
+  /// solvers as reference or pointer in a generic way, you can use
+  /// this class directly.
+  class MipSolver : virtual public LpBase {
   public:
 
-    ///Possible variable (coloumn) types (e.g. real, integer, binary etc.)
-    enum ColTypes {
-      ///Continuous variable
-      REAL = 0,
-      ///Integer variable
-
-      ///Unfortunately, cplex 7.5 somewhere writes something like
-      ///#define INTEGER 'I'
-      INT = 1
-      ///\todo No support for other types yet.
+    /// The problem types for MIP problems
+    enum ProblemType {
+      ///Feasible solution hasn't been found (but may exist).
+      UNDEFINED = 0,
+      ///The problem has no feasible solution
+      INFEASIBLE = 1,
+      ///Feasible solution found
+      FEASIBLE = 2,
+      ///Optimal solution exists and found
+      OPTIMAL = 3,
+      ///The cost function is unbounded
+      ///
+      ///The Mip or at least the relaxed problem is unbounded
+      UNBOUNDED = 4
     };
 
-    ///Sets the type of the given coloumn to the given type
+    ///\name Solve the MIP
+
+    ///@{
+
+    /// Solve the MIP problem at hand
     ///
-    ///Sets the type of the given coloumn to the given type.
+    ///\return The result of the optimization procedure. Possible
+    ///values and their meanings can be found in the documentation of
+    ///\ref SolveExitStatus.
+    SolveExitStatus solve() { return _solve(); }
+
+    ///@}
+
+    ///\name Setting column type
+    ///@{
+
+    ///Possible variable (column) types (e.g. real, integer, binary etc.)
+    enum ColTypes {
+      ///Continuous variable (default)
+      REAL = 0,
+      ///Integer variable
+      INTEGER = 1
+    };
+
+    ///Sets the type of the given column to the given type
+
+    ///Sets the type of the given column to the given type.
+    ///
     void colType(Col c, ColTypes col_type) {
-      _colType(_lpId(c),col_type);
+      _setColType(cols(id(c)),col_type);
     }
 
     ///Gives back the type of the column.
-    ///
+
     ///Gives back the type of the column.
+    ///
     ColTypes colType(Col c) const {
-      return _colType(_lpId(c));
+      return _getColType(cols(id(c)));
+    }
+    ///@}
+
+    ///\name Obtain the solution
+
+    ///@{
+
+    /// The type of the MIP problem
+    ProblemType type() const {
+      return _getType();
     }
 
-    ///Sets the type of the given Col to integer or remove that property.
-    ///
-    ///Sets the type of the given Col to integer or remove that property.
-    void integer(Col c, bool enable) {
-      if (enable)
-        colType(c,INT);
-      else
-        colType(c,REAL);
-    }
+    /// Return the value of the row in the solution
 
-    ///Gives back whether the type of the column is integer or not.
-    ///
-    ///Gives back the type of the column.
-    ///\return true if the column has integer type and false if not.
-    bool integer(Col c) const {
-      return (colType(c)==INT);
-    }
+    ///  Return the value of the row in the solution.
+    /// \pre The problem is solved.
+    Value sol(Col c) const { return _getSol(cols(id(c))); }
 
-    /// The status of the MIP problem
-    SolutionStatus mipStatus() const {
-      return _getMipStatus();
+    /// Return the value of the expression in the solution
+
+    /// Return the value of the expression in the solution, i.e. the
+    /// dot product of the solution and the expression.
+    /// \pre The problem is solved.
+    Value sol(const Expr& e) const {
+      double res = *e;
+      for (Expr::ConstCoeffIt c(e); c != INVALID; ++c) {
+        res += *c * sol(c);
+      }
+      return res;
     }
+    ///The value of the objective function
+    
+    ///\return
+    ///- \ref INF or -\ref INF means either infeasibility or unboundedness
+    /// of the problem, depending on whether we minimize or maximize.
+    ///- \ref NaN if no primal solution is found.
+    ///- The (finite) objective value if an optimal solution is found.
+    Value solValue() const { return _getSolValue()+obj_const_comp;}
+    ///@}
 
   protected:
 
-    virtual ColTypes _colType(int col) const = 0;
-    virtual void _colType(int col, ColTypes col_type) = 0;
-    virtual SolutionStatus _getMipStatus() const = 0;
+    virtual SolveExitStatus _solve() = 0;
+    virtual ColTypes _getColType(int col) const = 0;
+    virtual void _setColType(int col, ColTypes col_type) = 0;
+    virtual ProblemType _getType() const = 0;
+    virtual Value _getSol(int i) const = 0;
+    virtual Value _getSolValue() const = 0;
 
+  public:
+
+    MipSolver* newSolver() {return _newSolver();}
+    MipSolver* cloneSolver() {return _cloneSolver();}
+
+  protected:
+
+    virtual MipSolver* _newSolver() const = 0;
+    virtual MipSolver* _cloneSolver() const = 0;
   };
 
-  ///\relates LpSolverBase::Expr
-  ///
-  inline LpSolverBase::Expr operator+(const LpSolverBase::Expr &a,
-                                      const LpSolverBase::Expr &b)
-  {
-    LpSolverBase::Expr tmp(a);
-    tmp+=b;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::Expr
-  ///
-  inline LpSolverBase::Expr operator-(const LpSolverBase::Expr &a,
-                                      const LpSolverBase::Expr &b)
-  {
-    LpSolverBase::Expr tmp(a);
-    tmp-=b;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::Expr
-  ///
-  inline LpSolverBase::Expr operator*(const LpSolverBase::Expr &a,
-                                      const LpSolverBase::Value &b)
-  {
-    LpSolverBase::Expr tmp(a);
-    tmp*=b;
-    return tmp;
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Expr
-  ///
-  inline LpSolverBase::Expr operator*(const LpSolverBase::Value &a,
-                                      const LpSolverBase::Expr &b)
-  {
-    LpSolverBase::Expr tmp(b);
-    tmp*=a;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::Expr
-  ///
-  inline LpSolverBase::Expr operator/(const LpSolverBase::Expr &a,
-                                      const LpSolverBase::Value &b)
-  {
-    LpSolverBase::Expr tmp(a);
-    tmp/=b;
-    return tmp;
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator<=(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Expr &f)
-  {
-    return LpSolverBase::Constr(-LpSolverBase::INF,e-f,0);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator<=(const LpSolverBase::Value &e,
-                                         const LpSolverBase::Expr &f)
-  {
-    return LpSolverBase::Constr(e,f);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator<=(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Value &f)
-  {
-    return LpSolverBase::Constr(-LpSolverBase::INF,e,f);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator>=(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Expr &f)
-  {
-    return LpSolverBase::Constr(-LpSolverBase::INF,f-e,0);
-  }
-
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator>=(const LpSolverBase::Value &e,
-                                         const LpSolverBase::Expr &f)
-  {
-    return LpSolverBase::Constr(f,e);
-  }
-
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator>=(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Value &f)
-  {
-    return LpSolverBase::Constr(f,e,LpSolverBase::INF);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator==(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Value &f)
-  {
-    return LpSolverBase::Constr(f,e,f);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator==(const LpSolverBase::Expr &e,
-                                         const LpSolverBase::Expr &f)
-  {
-    return LpSolverBase::Constr(0,e-f,0);
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator<=(const LpSolverBase::Value &n,
-                                         const LpSolverBase::Constr&c)
-  {
-    LpSolverBase::Constr tmp(c);
-    LEMON_ASSERT(LpSolverBase::isNaN(tmp.lowerBound()), "Wrong LP constraint");
-    tmp.lowerBound()=n;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator<=(const LpSolverBase::Constr& c,
-                                         const LpSolverBase::Value &n)
-  {
-    LpSolverBase::Constr tmp(c);
-    LEMON_ASSERT(LpSolverBase::isNaN(tmp.upperBound()), "Wrong LP constraint");
-    tmp.upperBound()=n;
-    return tmp;
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator>=(const LpSolverBase::Value &n,
-                                         const LpSolverBase::Constr&c)
-  {
-    LpSolverBase::Constr tmp(c);
-    LEMON_ASSERT(LpSolverBase::isNaN(tmp.upperBound()), "Wrong LP constraint");
-    tmp.upperBound()=n;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::Constr
-  ///
-  inline LpSolverBase::Constr operator>=(const LpSolverBase::Constr& c,
-                                         const LpSolverBase::Value &n)
-  {
-    LpSolverBase::Constr tmp(c);
-    LEMON_ASSERT(LpSolverBase::isNaN(tmp.lowerBound()), "Wrong LP constraint");
-    tmp.lowerBound()=n;
-    return tmp;
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::DualExpr
-  ///
-  inline LpSolverBase::DualExpr operator+(const LpSolverBase::DualExpr &a,
-                                          const LpSolverBase::DualExpr &b)
-  {
-    LpSolverBase::DualExpr tmp(a);
-    tmp+=b;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::DualExpr
-  ///
-  inline LpSolverBase::DualExpr operator-(const LpSolverBase::DualExpr &a,
-                                          const LpSolverBase::DualExpr &b)
-  {
-    LpSolverBase::DualExpr tmp(a);
-    tmp-=b;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::DualExpr
-  ///
-  inline LpSolverBase::DualExpr operator*(const LpSolverBase::DualExpr &a,
-                                          const LpSolverBase::Value &b)
-  {
-    LpSolverBase::DualExpr tmp(a);
-    tmp*=b;
-    return tmp;
-  }
-
-  ///\e
-
-  ///\relates LpSolverBase::DualExpr
-  ///
-  inline LpSolverBase::DualExpr operator*(const LpSolverBase::Value &a,
-                                          const LpSolverBase::DualExpr &b)
-  {
-    LpSolverBase::DualExpr tmp(b);
-    tmp*=a;
-    return tmp;
-  }
-  ///\e
-
-  ///\relates LpSolverBase::DualExpr
-  ///
-  inline LpSolverBase::DualExpr operator/(const LpSolverBase::DualExpr &a,
-                                          const LpSolverBase::Value &b)
-  {
-    LpSolverBase::DualExpr tmp(a);
-    tmp/=b;
-    return tmp;
-  }
 
 
 } //namespace lemon

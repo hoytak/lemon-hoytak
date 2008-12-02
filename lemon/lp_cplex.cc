@@ -18,6 +18,8 @@
 
 #include <iostream>
 #include <vector>
+#include <cstring>
+
 #include <lemon/lp_cplex.h>
 
 extern "C" {
@@ -29,167 +31,226 @@ extern "C" {
 ///\brief Implementation of the LEMON-CPLEX lp solver interface.
 namespace lemon {
 
-  LpCplex::LpCplex() {
-    //    env = CPXopenCPLEXdevelop(&status);
-    env = CPXopenCPLEX(&status);
-    lp = CPXcreateprob(env, &status, "LP problem");
+  CplexEnv::LicenseError::LicenseError(int status) {
+    if (!CPXgeterrorstring(0, status, _message)) {
+      std::strcpy(_message, "Cplex unknown error");
+    }
   }
 
-  LpCplex::LpCplex(const LpCplex& cplex) : LpSolverBase() {
-    env = CPXopenCPLEX(&status);
-    lp = CPXcloneprob(env, cplex.lp, &status);
+  CplexEnv::CplexEnv() {
+    int status;
+    _cnt = new int;
+    _env = CPXopenCPLEX(&status);
+    if (_env == 0) {
+      delete _cnt;
+      _cnt = 0;
+      throw LicenseError(status);
+    }
+  }
+
+  CplexEnv::CplexEnv(const CplexEnv& other) {
+    _env = other._env;
+    _cnt = other._cnt;
+    ++(*_cnt);
+  }
+
+  CplexEnv& CplexEnv::operator=(const CplexEnv& other) {
+    _env = other._env;
+    _cnt = other._cnt;
+    ++(*_cnt);
+    return *this;
+  }
+
+  CplexEnv::~CplexEnv() {
+    --(*_cnt);
+    if (*_cnt == 0) {
+      delete _cnt;
+      CPXcloseCPLEX(&_env);
+    }
+  }
+
+  CplexBase::CplexBase() : LpBase() {
+    int status;
+    _prob = CPXcreateprob(cplexEnv(), &status, "Cplex problem");
+  }
+
+  CplexBase::CplexBase(const CplexEnv& env)
+    : LpBase(), _env(env) {
+    int status;
+    _prob = CPXcreateprob(cplexEnv(), &status, "Cplex problem");
+  }
+
+  CplexBase::CplexBase(const CplexBase& cplex)
+    : LpBase() {
+    int status;
+    _prob = CPXcloneprob(cplexEnv(), cplex._prob, &status);
     rows = cplex.rows;
     cols = cplex.cols;
   }
 
-  LpCplex::~LpCplex() {
-    CPXfreeprob(env,&lp);
-    CPXcloseCPLEX(&env);
+  CplexBase::~CplexBase() {
+    CPXfreeprob(cplexEnv(),&_prob);
   }
 
-  LpSolverBase* LpCplex::_newLp()
-  {
-    //The first approach opens a new environment
-    return new LpCplex();
-  }
-
-  LpSolverBase* LpCplex::_copyLp() {
-    return new LpCplex(*this);
-  }
-
-  int LpCplex::_addCol()
-  {
-    int i = CPXgetnumcols(env, lp);
-    Value lb[1],ub[1];
-    lb[0]=-INF;
-    ub[0]=INF;
-    status = CPXnewcols(env, lp, 1, NULL, lb, ub, NULL, NULL);
+  int CplexBase::_addCol() {
+    int i = CPXgetnumcols(cplexEnv(), _prob);
+    double lb = -INF, ub = INF;
+    CPXnewcols(cplexEnv(), _prob, 1, 0, &lb, &ub, 0, 0);
     return i;
   }
 
 
-  int LpCplex::_addRow()
-  {
-    //We want a row that is not constrained
-    char sense[1];
-    sense[0]='L';//<= constraint
-    Value rhs[1];
-    rhs[0]=INF;
-    int i = CPXgetnumrows(env, lp);
-    status = CPXnewrows(env, lp, 1, rhs, sense, NULL, NULL);
+  int CplexBase::_addRow() {
+    int i = CPXgetnumrows(cplexEnv(), _prob);
+    const double ub = INF;
+    const char s = 'L';
+    CPXnewrows(cplexEnv(), _prob, 1, &ub, &s, 0, 0);
     return i;
   }
 
 
-  void LpCplex::_eraseCol(int i) {
-    CPXdelcols(env, lp, i, i);
+  void CplexBase::_eraseCol(int i) {
+    CPXdelcols(cplexEnv(), _prob, i, i);
   }
 
-  void LpCplex::_eraseRow(int i) {
-    CPXdelrows(env, lp, i, i);
+  void CplexBase::_eraseRow(int i) {
+    CPXdelrows(cplexEnv(), _prob, i, i);
   }
 
-  void LpCplex::_getColName(int col, std::string &name) const
-  {
-    ///\bug Untested
-    int storespace;
-    CPXgetcolname(env, lp, 0, 0, 0, &storespace, col, col);
-    if (storespace == 0) {
+  void CplexBase::_eraseColId(int i) {
+    cols.eraseIndex(i);
+    cols.shiftIndices(i);
+  }
+  void CplexBase::_eraseRowId(int i) {
+    rows.eraseIndex(i);
+    rows.shiftIndices(i);
+  }
+
+  void CplexBase::_getColName(int col, std::string &name) const {
+    int size;
+    CPXgetcolname(cplexEnv(), _prob, 0, 0, 0, &size, col, col);
+    if (size == 0) {
       name.clear();
       return;
     }
 
-    storespace *= -1;
-    std::vector<char> buf(storespace);
-    char *names[1];
-    int dontcare;
-    ///\bug return code unchecked for error
-    CPXgetcolname(env, lp, names, &*buf.begin(), storespace,
-                  &dontcare, col, col);
-    name = names[0];
+    size *= -1;
+    std::vector<char> buf(size);
+    char *cname;
+    int tmp;
+    CPXgetcolname(cplexEnv(), _prob, &cname, &buf.front(), size,
+                  &tmp, col, col);
+    name = cname;
   }
 
-  void LpCplex::_setColName(int col, const std::string &name)
-  {
-    ///\bug Untested
-    char *names[1];
-    names[0] = const_cast<char*>(name.c_str());
-    ///\bug return code unchecked for error
-    CPXchgcolname(env, lp, 1, &col, names);
+  void CplexBase::_setColName(int col, const std::string &name) {
+    char *cname;
+    cname = const_cast<char*>(name.c_str());
+    CPXchgcolname(cplexEnv(), _prob, 1, &col, &cname);
   }
 
-  int LpCplex::_colByName(const std::string& name) const
-  {
+  int CplexBase::_colByName(const std::string& name) const {
     int index;
-    if (CPXgetcolindex(env, lp,
+    if (CPXgetcolindex(cplexEnv(), _prob,
                        const_cast<char*>(name.c_str()), &index) == 0) {
       return index;
     }
     return -1;
   }
 
-  ///\warning Data at index 0 is ignored in the arrays.
-  void LpCplex::_setRowCoeffs(int i, ConstRowIterator b, ConstRowIterator e)
+  void CplexBase::_getRowName(int row, std::string &name) const {
+    int size;
+    CPXgetrowname(cplexEnv(), _prob, 0, 0, 0, &size, row, row);
+    if (size == 0) {
+      name.clear();
+      return;
+    }
+
+    size *= -1;
+    std::vector<char> buf(size);
+    char *cname;
+    int tmp;
+    CPXgetrowname(cplexEnv(), _prob, &cname, &buf.front(), size,
+                  &tmp, row, row);
+    name = cname;
+  }
+
+  void CplexBase::_setRowName(int row, const std::string &name) {
+    char *cname;
+    cname = const_cast<char*>(name.c_str());
+    CPXchgrowname(cplexEnv(), _prob, 1, &row, &cname);
+  }
+
+  int CplexBase::_rowByName(const std::string& name) const {
+    int index;
+    if (CPXgetrowindex(cplexEnv(), _prob,
+                       const_cast<char*>(name.c_str()), &index) == 0) {
+      return index;
+    }
+    return -1;
+  }
+
+  void CplexBase::_setRowCoeffs(int i, ExprIterator b,
+                                      ExprIterator e)
   {
     std::vector<int> indices;
     std::vector<int> rowlist;
     std::vector<Value> values;
 
-    for(ConstRowIterator it=b; it!=e; ++it) {
+    for(ExprIterator it=b; it!=e; ++it) {
       indices.push_back(it->first);
       values.push_back(it->second);
       rowlist.push_back(i);
     }
 
-    status = CPXchgcoeflist(env, lp, values.size(),
-                            &rowlist[0], &indices[0], &values[0]);
+    CPXchgcoeflist(cplexEnv(), _prob, values.size(),
+                   &rowlist.front(), &indices.front(), &values.front());
   }
 
-  void LpCplex::_getRowCoeffs(int i, RowIterator b) const {
+  void CplexBase::_getRowCoeffs(int i, InsertIterator b) const {
     int tmp1, tmp2, tmp3, length;
-    CPXgetrows(env, lp, &tmp1, &tmp2, 0, 0, 0, &length, i, i);
+    CPXgetrows(cplexEnv(), _prob, &tmp1, &tmp2, 0, 0, 0, &length, i, i);
 
     length = -length;
     std::vector<int> indices(length);
     std::vector<double> values(length);
 
-    CPXgetrows(env, lp, &tmp1, &tmp2, &indices[0], &values[0],
+    CPXgetrows(cplexEnv(), _prob, &tmp1, &tmp2,
+               &indices.front(), &values.front(),
                length, &tmp3, i, i);
 
     for (int i = 0; i < length; ++i) {
       *b = std::make_pair(indices[i], values[i]);
       ++b;
     }
-
-    /// \todo implement
   }
 
-  void LpCplex::_setColCoeffs(int i, ConstColIterator b, ConstColIterator e)
-  {
+  void CplexBase::_setColCoeffs(int i, ExprIterator b, ExprIterator e) {
     std::vector<int> indices;
     std::vector<int> collist;
     std::vector<Value> values;
 
-    for(ConstColIterator it=b; it!=e; ++it) {
+    for(ExprIterator it=b; it!=e; ++it) {
       indices.push_back(it->first);
       values.push_back(it->second);
       collist.push_back(i);
     }
 
-    status = CPXchgcoeflist(env, lp, values.size(),
-                            &indices[0], &collist[0], &values[0]);
+    CPXchgcoeflist(cplexEnv(), _prob, values.size(),
+                   &indices.front(), &collist.front(), &values.front());
   }
 
-  void LpCplex::_getColCoeffs(int i, ColIterator b) const {
+  void CplexBase::_getColCoeffs(int i, InsertIterator b) const {
 
     int tmp1, tmp2, tmp3, length;
-    CPXgetcols(env, lp, &tmp1, &tmp2, 0, 0, 0, &length, i, i);
+    CPXgetcols(cplexEnv(), _prob, &tmp1, &tmp2, 0, 0, 0, &length, i, i);
 
     length = -length;
     std::vector<int> indices(length);
     std::vector<double> values(length);
 
-    CPXgetcols(env, lp, &tmp1, &tmp2, &indices[0], &values[0],
+    CPXgetcols(cplexEnv(), _prob, &tmp1, &tmp2,
+               &indices.front(), &values.front(),
                length, &tmp3, i, i);
 
     for (int i = 0; i < length; ++i) {
@@ -199,175 +260,209 @@ namespace lemon {
 
   }
 
-  void LpCplex::_setCoeff(int row, int col, Value value)
-  {
-    CPXchgcoef(env, lp, row, col, value);
+  void CplexBase::_setCoeff(int row, int col, Value value) {
+    CPXchgcoef(cplexEnv(), _prob, row, col, value);
   }
 
-  LpCplex::Value LpCplex::_getCoeff(int row, int col) const
-  {
-    LpCplex::Value value;
-    CPXgetcoef(env, lp, row, col, &value);
+  CplexBase::Value CplexBase::_getCoeff(int row, int col) const {
+    CplexBase::Value value;
+    CPXgetcoef(cplexEnv(), _prob, row, col, &value);
     return value;
   }
 
-  void LpCplex::_setColLowerBound(int i, Value value)
-  {
-    int indices[1];
-    indices[0]=i;
-    char lu[1];
-    lu[0]='L';
-    Value bd[1];
-    bd[0]=value;
-    status = CPXchgbds(env, lp, 1, indices, lu, bd);
-
+  void CplexBase::_setColLowerBound(int i, Value value) {
+    const char s = 'L';
+    CPXchgbds(cplexEnv(), _prob, 1, &i, &s, &value);
   }
 
-  LpCplex::Value LpCplex::_getColLowerBound(int i) const
-  {
-    LpCplex::Value x;
-    CPXgetlb (env, lp, &x, i, i);
-    if (x <= -CPX_INFBOUND) x = -INF;
-    return x;
+  CplexBase::Value CplexBase::_getColLowerBound(int i) const {
+    CplexBase::Value res;
+    CPXgetlb(cplexEnv(), _prob, &res, i, i);
+    return res <= -CPX_INFBOUND ? -INF : res;
   }
 
-  void LpCplex::_setColUpperBound(int i, Value value)
+  void CplexBase::_setColUpperBound(int i, Value value)
   {
-    int indices[1];
-    indices[0]=i;
-    char lu[1];
-    lu[0]='U';
-    Value bd[1];
-    bd[0]=value;
-    status = CPXchgbds(env, lp, 1, indices, lu, bd);
+    const char s = 'U';
+    CPXchgbds(cplexEnv(), _prob, 1, &i, &s, &value);
   }
 
-  LpCplex::Value LpCplex::_getColUpperBound(int i) const
-  {
-    LpCplex::Value x;
-    CPXgetub (env, lp, &x, i, i);
-    if (x >= CPX_INFBOUND) x = INF;
-    return x;
+  CplexBase::Value CplexBase::_getColUpperBound(int i) const {
+    CplexBase::Value res;
+    CPXgetub(cplexEnv(), _prob, &res, i, i);
+    return res >= CPX_INFBOUND ? INF : res;
   }
 
-  //This will be easier to implement
-  void LpCplex::_setRowBounds(int i, Value lb, Value ub)
-  {
-    //Bad parameter
-    if (lb==INF || ub==-INF) {
-      //FIXME error
-    }
+  CplexBase::Value CplexBase::_getRowLowerBound(int i) const {
+    char s;
+    CPXgetsense(cplexEnv(), _prob, &s, i, i);
+    CplexBase::Value res;
 
-    int cnt=1;
-    int indices[1];
-    indices[0]=i;
-    char sense[1];
-
-    if (lb==-INF){
-      sense[0]='L';
-      CPXchgsense(env, lp, cnt, indices, sense);
-      CPXchgcoef(env, lp, i, -1, ub);
-
-    }
-    else{
-      if (ub==INF){
-        sense[0]='G';
-        CPXchgsense(env, lp, cnt, indices, sense);
-        CPXchgcoef(env, lp, i, -1, lb);
-      }
-      else{
-        if (lb == ub){
-          sense[0]='E';
-          CPXchgsense(env, lp, cnt, indices, sense);
-          CPXchgcoef(env, lp, i, -1, lb);
-        }
-        else{
-          sense[0]='R';
-          CPXchgsense(env, lp, cnt, indices, sense);
-          CPXchgcoef(env, lp, i, -1, lb);
-          CPXchgcoef(env, lp, i, -2, ub-lb);
-        }
-      }
+    switch (s) {
+    case 'G':
+    case 'R':
+    case 'E':
+      CPXgetrhs(cplexEnv(), _prob, &res, i, i);
+      return res <= -CPX_INFBOUND ? -INF : res;
+    default:
+      return -INF;
     }
   }
 
-//   void LpCplex::_setRowLowerBound(int i, Value value)
-//   {
-//     //Not implemented, obsolete
-//   }
+  CplexBase::Value CplexBase::_getRowUpperBound(int i) const {
+    char s;
+    CPXgetsense(cplexEnv(), _prob, &s, i, i);
+    CplexBase::Value res;
 
-//   void LpCplex::_setRowUpperBound(int i, Value value)
-//   {
-//     //Not implemented, obsolete
-// //     //TODO Ezt kell meg megirni
-// //     //type of the problem
-// //     char sense[1];
-// //     status = CPXgetsense(env, lp, sense, i, i);
-// //     Value rhs[1];
-// //     status = CPXgetrhs(env, lp, rhs, i, i);
-
-// //     switch (sense[0]) {
-// //     case 'L'://<= constraint
-// //       break;
-// //     case 'E'://= constraint
-// //       break;
-// //     case 'G'://>= constraint
-// //       break;
-// //     case 'R'://ranged constraint
-// //       break;
-// //     default: ;
-// //       //FIXME error
-// //     }
-
-// //     status = CPXchgcoef(env, lp, i, -2, value_rng);
-//   }
-
-  void LpCplex::_getRowBounds(int i, Value &lb, Value &ub) const
-  {
-    char sense;
-    CPXgetsense(env, lp, &sense,i,i);
-    lb=-INF;
-    ub=INF;
-    switch (sense)
+    switch (s) {
+    case 'L':
+    case 'E':
+      CPXgetrhs(cplexEnv(), _prob, &res, i, i);
+      return res >= CPX_INFBOUND ? INF : res;
+    case 'R':
+      CPXgetrhs(cplexEnv(), _prob, &res, i, i);
       {
-      case 'L':
-        CPXgetcoef(env, lp, i, -1, &ub);
-        break;
-      case 'G':
-        CPXgetcoef(env, lp, i, -1, &lb);
-        break;
-      case 'E':
-        CPXgetcoef(env, lp, i, -1, &lb);
-        ub=lb;
-        break;
-      case 'R':
-        CPXgetcoef(env, lp, i, -1, &lb);
-        Value x;
-        CPXgetcoef(env, lp, i, -2, &x);
-        ub=lb+x;
-        break;
+        double rng;
+        CPXgetrngval(cplexEnv(), _prob, &rng, i, i);
+        res += rng;
       }
+      return res >= CPX_INFBOUND ? INF : res;
+    default:
+      return INF;
+    }
   }
 
-  void LpCplex::_setObjCoeff(int i, Value obj_coef)
+  //This is easier to implement
+  void CplexBase::_set_row_bounds(int i, Value lb, Value ub) {
+    if (lb == -INF) {
+      const char s = 'L';
+      CPXchgsense(cplexEnv(), _prob, 1, &i, &s);
+      CPXchgrhs(cplexEnv(), _prob, 1, &i, &ub);
+    } else if (ub == INF) {
+      const char s = 'G';
+      CPXchgsense(cplexEnv(), _prob, 1, &i, &s);
+      CPXchgrhs(cplexEnv(), _prob, 1, &i, &lb);
+    } else if (lb == ub){
+      const char s = 'E';
+      CPXchgsense(cplexEnv(), _prob, 1, &i, &s);
+      CPXchgrhs(cplexEnv(), _prob, 1, &i, &lb);
+    } else {
+      const char s = 'R';
+      CPXchgsense(cplexEnv(), _prob, 1, &i, &s);
+      CPXchgrhs(cplexEnv(), _prob, 1, &i, &lb);
+      double len = ub - lb;
+      CPXchgrngval(cplexEnv(), _prob, 1, &i, &len);
+    }
+  }
+
+  void CplexBase::_setRowLowerBound(int i, Value lb)
   {
-    CPXchgcoef(env, lp, -1, i, obj_coef);
+    LEMON_ASSERT(lb != INF, "Invalid bound");
+    _set_row_bounds(i, lb, CplexBase::_getRowUpperBound(i));
   }
 
-  LpCplex::Value LpCplex::_getObjCoeff(int i) const
+  void CplexBase::_setRowUpperBound(int i, Value ub)
+  {
+
+    LEMON_ASSERT(ub != -INF, "Invalid bound");
+    _set_row_bounds(i, CplexBase::_getRowLowerBound(i), ub);
+  }
+
+  void CplexBase::_setObjCoeffs(ExprIterator b, ExprIterator e)
+  {
+    std::vector<int> indices;
+    std::vector<Value> values;
+    for(ExprIterator it=b; it!=e; ++it) {
+      indices.push_back(it->first);
+      values.push_back(it->second);
+    }
+    CPXchgobj(cplexEnv(), _prob, values.size(),
+              &indices.front(), &values.front());
+
+  }
+
+  void CplexBase::_getObjCoeffs(InsertIterator b) const
+  {
+    int num = CPXgetnumcols(cplexEnv(), _prob);
+    std::vector<Value> x(num);
+
+    CPXgetobj(cplexEnv(), _prob, &x.front(), 0, num - 1);
+    for (int i = 0; i < num; ++i) {
+      if (x[i] != 0.0) {
+        *b = std::make_pair(i, x[i]);
+        ++b;
+      }
+    }
+  }
+
+  void CplexBase::_setObjCoeff(int i, Value obj_coef)
+  {
+    CPXchgobj(cplexEnv(), _prob, 1, &i, &obj_coef);
+  }
+
+  CplexBase::Value CplexBase::_getObjCoeff(int i) const
   {
     Value x;
-    CPXgetcoef(env, lp, -1, i, &x);
+    CPXgetobj(cplexEnv(), _prob, &x, i, i);
     return x;
   }
 
-  void LpCplex::_clearObj()
-  {
-    for (int i=0;i< CPXgetnumcols(env, lp);++i){
-      CPXchgcoef(env, lp, -1, i, 0);
+  void CplexBase::_setSense(CplexBase::Sense sense) {
+    switch (sense) {
+    case MIN:
+      CPXchgobjsen(cplexEnv(), _prob, CPX_MIN);
+      break;
+    case MAX:
+      CPXchgobjsen(cplexEnv(), _prob, CPX_MAX);
+      break;
     }
-
   }
+
+  CplexBase::Sense CplexBase::_getSense() const {
+    switch (CPXgetobjsen(cplexEnv(), _prob)) {
+    case CPX_MIN:
+      return MIN;
+    case CPX_MAX:
+      return MAX;
+    default:
+      LEMON_ASSERT(false, "Invalid sense");
+      return CplexBase::Sense();
+    }
+  }
+
+  void CplexBase::_clear() {
+    CPXfreeprob(cplexEnv(),&_prob);
+    int status;
+    _prob = CPXcreateprob(cplexEnv(), &status, "Cplex problem");
+    rows.clear();
+    cols.clear();
+  }
+
+  // LpCplex members
+
+  LpCplex::LpCplex()
+    : LpBase(), CplexBase(), LpSolver() {}
+
+  LpCplex::LpCplex(const CplexEnv& env)
+    : LpBase(), CplexBase(env), LpSolver() {}
+
+  LpCplex::LpCplex(const LpCplex& other)
+    : LpBase(), CplexBase(other), LpSolver() {}
+
+  LpCplex::~LpCplex() {}
+
+  LpCplex* LpCplex::_newSolver() const { return new LpCplex; }
+  LpCplex* LpCplex::_cloneSolver() const {return new LpCplex(*this); }
+
+  const char* LpCplex::_solverName() const { return "LpCplex"; }
+
+  void LpCplex::_clear_temporals() {
+    _col_status.clear();
+    _row_status.clear();
+    _primal_ray.clear();
+    _dual_ray.clear();
+  }
+
   // The routine returns zero unless an error occurred during the
   // optimization. Examples of errors include exhausting available
   // memory (CPXERR_NO_MEMORY) or encountering invalid data in the
@@ -377,32 +472,24 @@ namespace lemon {
   // value does not necessarily mean that a solution exists. Use query
   // routines CPXsolninfo, CPXgetstat, and CPXsolution to obtain
   // further information about the status of the optimization.
-  LpCplex::SolveExitStatus LpCplex::_solve()
-  {
-    //CPX_PARAM_LPMETHOD
-    status = CPXlpopt(env, lp);
-    //status = CPXprimopt(env, lp);
+  LpCplex::SolveExitStatus LpCplex::convertStatus(int status) {
 #if CPX_VERSION >= 800
-    if (status)
-    {
+    if (status == 0) {
+      switch (CPXgetstat(cplexEnv(), _prob)) {
+      case CPX_STAT_OPTIMAL:
+      case CPX_STAT_INFEASIBLE:
+      case CPX_STAT_UNBOUNDED:
+        return SOLVED;
+      default:
+        return UNSOLVED;
+      }
+    } else {
       return UNSOLVED;
     }
-    else
-    {
-      switch (CPXgetstat(env, lp))
-      {
-        case CPX_STAT_OPTIMAL:
-        case CPX_STAT_INFEASIBLE:
-        case CPX_STAT_UNBOUNDED:
-          return SOLVED;
-        default:
-          return UNSOLVED;
-      }
-    }
 #else
-    if (status == 0){
+    if (status == 0) {
       //We want to exclude some cases
-      switch (CPXgetstat(env, lp)){
+      switch (CPXgetstat(cplexEnv(), _prob)) {
       case CPX_OBJ_LIM:
       case CPX_IT_LIM_FEAS:
       case CPX_IT_LIM_INFEAS:
@@ -412,115 +499,179 @@ namespace lemon {
       default:
         return SOLVED;
       }
-    }
-    else{
+    } else {
       return UNSOLVED;
     }
 #endif
   }
 
-  LpCplex::Value LpCplex::_getPrimal(int i) const
-  {
+  LpCplex::SolveExitStatus LpCplex::_solve() {
+    _clear_temporals();
+    return convertStatus(CPXlpopt(cplexEnv(), _prob));
+  }
+
+  LpCplex::SolveExitStatus LpCplex::solvePrimal() {
+    _clear_temporals();
+    return convertStatus(CPXprimopt(cplexEnv(), _prob));
+  }
+
+  LpCplex::SolveExitStatus LpCplex::solveDual() {
+    _clear_temporals();
+    return convertStatus(CPXdualopt(cplexEnv(), _prob));
+  }
+
+  LpCplex::SolveExitStatus LpCplex::solveBarrier() {
+    _clear_temporals();
+    return convertStatus(CPXbaropt(cplexEnv(), _prob));
+  }
+
+  LpCplex::Value LpCplex::_getPrimal(int i) const {
     Value x;
-    CPXgetx(env, lp, &x, i, i);
+    CPXgetx(cplexEnv(), _prob, &x, i, i);
     return x;
   }
 
-  LpCplex::Value LpCplex::_getDual(int i) const
-  {
+  LpCplex::Value LpCplex::_getDual(int i) const {
     Value y;
-    CPXgetpi(env, lp, &y, i, i);
+    CPXgetpi(cplexEnv(), _prob, &y, i, i);
     return y;
   }
 
-  LpCplex::Value LpCplex::_getPrimalValue() const
-  {
+  LpCplex::Value LpCplex::_getPrimalValue() const {
     Value objval;
-    //method = CPXgetmethod (env, lp);
-    //printf("CPXgetprobtype %d \n",CPXgetprobtype(env,lp));
-    CPXgetobjval(env, lp, &objval);
-    //printf("Objective value: %g \n",objval);
+    CPXgetobjval(cplexEnv(), _prob, &objval);
     return objval;
   }
-  bool LpCplex::_isBasicCol(int i) const
-  {
-    std::vector<int> cstat(CPXgetnumcols(env, lp));
-    CPXgetbase(env, lp, &*cstat.begin(), NULL);
-    return (cstat[i]==CPX_BASIC);
+
+  LpCplex::VarStatus LpCplex::_getColStatus(int i) const {
+    if (_col_status.empty()) {
+      _col_status.resize(CPXgetnumcols(cplexEnv(), _prob));
+      CPXgetbase(cplexEnv(), _prob, &_col_status.front(), 0);
+    }
+    switch (_col_status[i]) {
+    case CPX_BASIC:
+      return BASIC;
+    case CPX_FREE_SUPER:
+      return FREE;
+    case CPX_AT_LOWER:
+      return LOWER;
+    case CPX_AT_UPPER:
+      return UPPER;
+    default:
+      LEMON_ASSERT(false, "Wrong column status");
+      return LpCplex::VarStatus();
+    }
   }
 
-//7.5-os cplex statusai (Vigyazat: a 9.0-asei masok!)
-// This table lists the statuses, returned by the CPXgetstat()
-// routine, for solutions to LP problems or mixed integer problems. If
-// no solution exists, the return value is zero.
+  LpCplex::VarStatus LpCplex::_getRowStatus(int i) const {
+    if (_row_status.empty()) {
+      _row_status.resize(CPXgetnumrows(cplexEnv(), _prob));
+      CPXgetbase(cplexEnv(), _prob, 0, &_row_status.front());
+    }
+    switch (_row_status[i]) {
+    case CPX_BASIC:
+      return BASIC;
+    case CPX_AT_LOWER:
+      {
+        char s;
+        CPXgetsense(cplexEnv(), _prob, &s, i, i);
+        return s != 'L' ? LOWER : UPPER;
+      }
+    case CPX_AT_UPPER:
+      return UPPER;
+    default:
+      LEMON_ASSERT(false, "Wrong row status");
+      return LpCplex::VarStatus();
+    }
+  }
 
-// For Simplex, Barrier
-// 1          CPX_OPTIMAL
-//          Optimal solution found
-// 2          CPX_INFEASIBLE
-//          Problem infeasible
-// 3    CPX_UNBOUNDED
-//          Problem unbounded
-// 4          CPX_OBJ_LIM
-//          Objective limit exceeded in Phase II
-// 5          CPX_IT_LIM_FEAS
-//          Iteration limit exceeded in Phase II
-// 6          CPX_IT_LIM_INFEAS
-//          Iteration limit exceeded in Phase I
-// 7          CPX_TIME_LIM_FEAS
-//          Time limit exceeded in Phase II
-// 8          CPX_TIME_LIM_INFEAS
-//          Time limit exceeded in Phase I
-// 9          CPX_NUM_BEST_FEAS
-//          Problem non-optimal, singularities in Phase II
-// 10         CPX_NUM_BEST_INFEAS
-//          Problem non-optimal, singularities in Phase I
-// 11         CPX_OPTIMAL_INFEAS
-//          Optimal solution found, unscaled infeasibilities
-// 12         CPX_ABORT_FEAS
-//          Aborted in Phase II
-// 13         CPX_ABORT_INFEAS
-//          Aborted in Phase I
-// 14          CPX_ABORT_DUAL_INFEAS
-//          Aborted in barrier, dual infeasible
-// 15          CPX_ABORT_PRIM_INFEAS
-//          Aborted in barrier, primal infeasible
-// 16          CPX_ABORT_PRIM_DUAL_INFEAS
-//          Aborted in barrier, primal and dual infeasible
-// 17          CPX_ABORT_PRIM_DUAL_FEAS
-//          Aborted in barrier, primal and dual feasible
-// 18          CPX_ABORT_CROSSOVER
-//          Aborted in crossover
-// 19          CPX_INForUNBD
-//          Infeasible or unbounded
-// 20   CPX_PIVOT
-//       User pivot used
-//
-//     Ezeket hova tegyem:
-// ??case CPX_ABORT_DUAL_INFEAS
-// ??case CPX_ABORT_CROSSOVER
-// ??case CPX_INForUNBD
-// ??case CPX_PIVOT
+  LpCplex::Value LpCplex::_getPrimalRay(int i) const {
+    if (_primal_ray.empty()) {
+      _primal_ray.resize(CPXgetnumcols(cplexEnv(), _prob));
+      CPXgetray(cplexEnv(), _prob, &_primal_ray.front());
+    }
+    return _primal_ray[i];
+  }
 
-//Some more interesting stuff:
+  LpCplex::Value LpCplex::_getDualRay(int i) const {
+    if (_dual_ray.empty()) {
 
-// CPX_PARAM_LPMETHOD  1062  int  LPMETHOD
-// 0 Automatic
-// 1 Primal Simplex
-// 2 Dual Simplex
-// 3 Network Simplex
-// 4 Standard Barrier
-// Default: 0
-// Description: Method for linear optimization.
-// Determines which algorithm is used when CPXlpopt() (or "optimize"
-// in the Interactive Optimizer) is called. Currently the behavior of
-// the "Automatic" setting is that CPLEX simply invokes the dual
-// simplex method, but this capability may be expanded in the future
-// so that CPLEX chooses the method based on problem characteristics
+    }
+    return _dual_ray[i];
+  }
+
+  //7.5-os cplex statusai (Vigyazat: a 9.0-asei masok!)
+  // This table lists the statuses, returned by the CPXgetstat()
+  // routine, for solutions to LP problems or mixed integer problems. If
+  // no solution exists, the return value is zero.
+
+  // For Simplex, Barrier
+  // 1          CPX_OPTIMAL
+  //          Optimal solution found
+  // 2          CPX_INFEASIBLE
+  //          Problem infeasible
+  // 3    CPX_UNBOUNDED
+  //          Problem unbounded
+  // 4          CPX_OBJ_LIM
+  //          Objective limit exceeded in Phase II
+  // 5          CPX_IT_LIM_FEAS
+  //          Iteration limit exceeded in Phase II
+  // 6          CPX_IT_LIM_INFEAS
+  //          Iteration limit exceeded in Phase I
+  // 7          CPX_TIME_LIM_FEAS
+  //          Time limit exceeded in Phase II
+  // 8          CPX_TIME_LIM_INFEAS
+  //          Time limit exceeded in Phase I
+  // 9          CPX_NUM_BEST_FEAS
+  //          Problem non-optimal, singularities in Phase II
+  // 10         CPX_NUM_BEST_INFEAS
+  //          Problem non-optimal, singularities in Phase I
+  // 11         CPX_OPTIMAL_INFEAS
+  //          Optimal solution found, unscaled infeasibilities
+  // 12         CPX_ABORT_FEAS
+  //          Aborted in Phase II
+  // 13         CPX_ABORT_INFEAS
+  //          Aborted in Phase I
+  // 14          CPX_ABORT_DUAL_INFEAS
+  //          Aborted in barrier, dual infeasible
+  // 15          CPX_ABORT_PRIM_INFEAS
+  //          Aborted in barrier, primal infeasible
+  // 16          CPX_ABORT_PRIM_DUAL_INFEAS
+  //          Aborted in barrier, primal and dual infeasible
+  // 17          CPX_ABORT_PRIM_DUAL_FEAS
+  //          Aborted in barrier, primal and dual feasible
+  // 18          CPX_ABORT_CROSSOVER
+  //          Aborted in crossover
+  // 19          CPX_INForUNBD
+  //          Infeasible or unbounded
+  // 20   CPX_PIVOT
+  //       User pivot used
+  //
+  //     Ezeket hova tegyem:
+  // ??case CPX_ABORT_DUAL_INFEAS
+  // ??case CPX_ABORT_CROSSOVER
+  // ??case CPX_INForUNBD
+  // ??case CPX_PIVOT
+
+  //Some more interesting stuff:
+
+  // CPX_PARAM_PROBMETHOD  1062  int  LPMETHOD
+  // 0 Automatic
+  // 1 Primal Simplex
+  // 2 Dual Simplex
+  // 3 Network Simplex
+  // 4 Standard Barrier
+  // Default: 0
+  // Description: Method for linear optimization.
+  // Determines which algorithm is used when CPXlpopt() (or "optimize"
+  // in the Interactive Optimizer) is called. Currently the behavior of
+  // the "Automatic" setting is that CPLEX simply invokes the dual
+  // simplex method, but this capability may be expanded in the future
+  // so that CPLEX chooses the method based on problem characteristics
 #if CPX_VERSION < 900
-  void statusSwitch(CPXENVptr env,int& stat){
+  void statusSwitch(CPXENVptr cplexEnv(),int& stat){
     int lpmethod;
-    CPXgetintparam (env,CPX_PARAM_LPMETHOD,&lpmethod);
+    CPXgetintparam (cplexEnv(),CPX_PARAM_PROBMETHOD,&lpmethod);
     if (lpmethod==2){
       if (stat==CPX_UNBOUNDED){
         stat=CPX_INFEASIBLE;
@@ -535,9 +686,8 @@ namespace lemon {
   void statusSwitch(CPXENVptr,int&){}
 #endif
 
-  LpCplex::SolutionStatus LpCplex::_getPrimalStatus() const
-  {
-    //Unboundedness not treated well: the following is from cplex 9.0 doc
+  LpCplex::ProblemType LpCplex::_getPrimalType() const {
+    // Unboundedness not treated well: the following is from cplex 9.0 doc
     // About Unboundedness
 
     // The treatment of models that are unbounded involves a few
@@ -552,22 +702,22 @@ namespace lemon {
     // to determine whether ILOG CPLEX has also concluded that the model
     // has a feasible solution.
 
-    int stat = CPXgetstat(env, lp);
+    int stat = CPXgetstat(cplexEnv(), _prob);
 #if CPX_VERSION >= 800
     switch (stat)
-    {
+      {
       case CPX_STAT_OPTIMAL:
         return OPTIMAL;
       case CPX_STAT_UNBOUNDED:
-        return INFINITE;
+        return UNBOUNDED;
       case CPX_STAT_INFEASIBLE:
         return INFEASIBLE;
       default:
         return UNDEFINED;
-    }
+      }
 #else
-    statusSwitch(env,stat);
-    //CPXgetstat(env, lp);
+    statusSwitch(cplexEnv(),stat);
+    //CPXgetstat(cplexEnv(), _prob);
     //printf("A primal status: %d, CPX_OPTIMAL=%d \n",stat,CPX_OPTIMAL);
     switch (stat) {
     case 0:
@@ -576,24 +726,24 @@ namespace lemon {
       return OPTIMAL;
     case CPX_UNBOUNDED://Unbounded
       return INFEASIBLE;//In case of dual simplex
-      //return INFINITE;
+      //return UNBOUNDED;
     case CPX_INFEASIBLE://Infeasible
- //    case CPX_IT_LIM_INFEAS:
-//     case CPX_TIME_LIM_INFEAS:
-//     case CPX_NUM_BEST_INFEAS:
-//     case CPX_OPTIMAL_INFEAS:
-//     case CPX_ABORT_INFEAS:
-//     case CPX_ABORT_PRIM_INFEAS:
-//     case CPX_ABORT_PRIM_DUAL_INFEAS:
-      return INFINITE;//In case of dual simplex
+      //    case CPX_IT_LIM_INFEAS:
+      //     case CPX_TIME_LIM_INFEAS:
+      //     case CPX_NUM_BEST_INFEAS:
+      //     case CPX_OPTIMAL_INFEAS:
+      //     case CPX_ABORT_INFEAS:
+      //     case CPX_ABORT_PRIM_INFEAS:
+      //     case CPX_ABORT_PRIM_DUAL_INFEAS:
+      return UNBOUNDED;//In case of dual simplex
       //return INFEASIBLE;
-//     case CPX_OBJ_LIM:
-//     case CPX_IT_LIM_FEAS:
-//     case CPX_TIME_LIM_FEAS:
-//     case CPX_NUM_BEST_FEAS:
-//     case CPX_ABORT_FEAS:
-//     case CPX_ABORT_PRIM_DUAL_FEAS:
-//       return FEASIBLE;
+      //     case CPX_OBJ_LIM:
+      //     case CPX_IT_LIM_FEAS:
+      //     case CPX_TIME_LIM_FEAS:
+      //     case CPX_NUM_BEST_FEAS:
+      //     case CPX_ABORT_FEAS:
+      //     case CPX_ABORT_PRIM_DUAL_FEAS:
+      //       return FEASIBLE;
     default:
       return UNDEFINED; //Everything else comes here
       //FIXME error
@@ -601,45 +751,43 @@ namespace lemon {
 #endif
   }
 
-//9.0-as cplex verzio statusai
-// CPX_STAT_ABORT_DUAL_OBJ_LIM
-// CPX_STAT_ABORT_IT_LIM
-// CPX_STAT_ABORT_OBJ_LIM
-// CPX_STAT_ABORT_PRIM_OBJ_LIM
-// CPX_STAT_ABORT_TIME_LIM
-// CPX_STAT_ABORT_USER
-// CPX_STAT_FEASIBLE_RELAXED
-// CPX_STAT_INFEASIBLE
-// CPX_STAT_INForUNBD
-// CPX_STAT_NUM_BEST
-// CPX_STAT_OPTIMAL
-// CPX_STAT_OPTIMAL_FACE_UNBOUNDED
-// CPX_STAT_OPTIMAL_INFEAS
-// CPX_STAT_OPTIMAL_RELAXED
-// CPX_STAT_UNBOUNDED
+  //9.0-as cplex verzio statusai
+  // CPX_STAT_ABORT_DUAL_OBJ_LIM
+  // CPX_STAT_ABORT_IT_LIM
+  // CPX_STAT_ABORT_OBJ_LIM
+  // CPX_STAT_ABORT_PRIM_OBJ_LIM
+  // CPX_STAT_ABORT_TIME_LIM
+  // CPX_STAT_ABORT_USER
+  // CPX_STAT_FEASIBLE_RELAXED
+  // CPX_STAT_INFEASIBLE
+  // CPX_STAT_INForUNBD
+  // CPX_STAT_NUM_BEST
+  // CPX_STAT_OPTIMAL
+  // CPX_STAT_OPTIMAL_FACE_UNBOUNDED
+  // CPX_STAT_OPTIMAL_INFEAS
+  // CPX_STAT_OPTIMAL_RELAXED
+  // CPX_STAT_UNBOUNDED
 
-  LpCplex::SolutionStatus LpCplex::_getDualStatus() const
-  {
-    int stat = CPXgetstat(env, lp);
+  LpCplex::ProblemType LpCplex::_getDualType() const {
+    int stat = CPXgetstat(cplexEnv(), _prob);
 #if CPX_VERSION >= 800
-    switch (stat)
-    {
-      case CPX_STAT_OPTIMAL:
-        return OPTIMAL;
-      case CPX_STAT_UNBOUNDED:
-        return INFEASIBLE;
-      default:
-        return UNDEFINED;
+    switch (stat) {
+    case CPX_STAT_OPTIMAL:
+      return OPTIMAL;
+    case CPX_STAT_UNBOUNDED:
+      return INFEASIBLE;
+    default:
+      return UNDEFINED;
     }
 #else
-    statusSwitch(env,stat);
+    statusSwitch(cplexEnv(),stat);
     switch (stat) {
     case 0:
       return UNDEFINED; //Undefined
     case CPX_OPTIMAL://Optimal
       return OPTIMAL;
     case CPX_UNBOUNDED:
-     return INFEASIBLE;
+      return INFEASIBLE;
     default:
       return UNDEFINED; //Everything else comes here
       //FIXME error
@@ -647,52 +795,130 @@ namespace lemon {
 #endif
   }
 
-  LpCplex::ProblemTypes LpCplex::_getProblemType() const
-  {
-    int stat = CPXgetstat(env, lp);
-#if CPX_VERSION >= 800
-    switch (stat)
-    {
-      case CPX_STAT_OPTIMAL:
-        return PRIMAL_DUAL_FEASIBLE;
-      case CPX_STAT_UNBOUNDED:
-         return PRIMAL_FEASIBLE_DUAL_INFEASIBLE;
-      default:
-        return UNKNOWN;
-    }
-#else
-    switch (stat) {
-    case CPX_OPTIMAL://Optimal
-        return PRIMAL_DUAL_FEASIBLE;
-    case CPX_UNBOUNDED:
-         return PRIMAL_FEASIBLE_DUAL_INFEASIBLE;
-//         return PRIMAL_INFEASIBLE_DUAL_FEASIBLE;
-//         return PRIMAL_DUAL_INFEASIBLE;
+  // MipCplex members
 
-//Seems to be that this is all we can say for sure
-    default:
-        //In all other cases
-        return UNKNOWN;
-      //FIXME error
-    }
+  MipCplex::MipCplex()
+    : LpBase(), CplexBase(), MipSolver() {
+
+#if CPX_VERSION < 800
+    CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MIP);
+#else
+    CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MILP);
 #endif
   }
 
-  void LpCplex::_setMax()
-  {
-    CPXchgobjsen(env, lp, CPX_MAX);
-   }
-  void LpCplex::_setMin()
-  {
-    CPXchgobjsen(env, lp, CPX_MIN);
-   }
+  MipCplex::MipCplex(const CplexEnv& env)
+    : LpBase(), CplexBase(env), MipSolver() {
 
-  bool LpCplex::_isMax() const
-  {
-    if (CPXgetobjsen(env, lp)==CPX_MAX)
-      return true;
+#if CPX_VERSION < 800
+    CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MIP);
+#else
+    CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MILP);
+#endif
+
+  }
+
+  MipCplex::MipCplex(const MipCplex& other)
+    : LpBase(), CplexBase(other), MipSolver() {}
+
+  MipCplex::~MipCplex() {}
+
+  MipCplex* MipCplex::_newSolver() const { return new MipCplex; }
+  MipCplex* MipCplex::_cloneSolver() const {return new MipCplex(*this); }
+
+  const char* MipCplex::_solverName() const { return "MipCplex"; }
+
+  void MipCplex::_setColType(int i, MipCplex::ColTypes col_type) {
+
+    // Note If a variable is to be changed to binary, a call to CPXchgbds
+    // should also be made to change the bounds to 0 and 1.
+
+    switch (col_type){
+    case INTEGER: {
+      const char t = 'I';
+      CPXchgctype (cplexEnv(), _prob, 1, &i, &t);
+    } break;
+    case REAL: {
+      const char t = 'C';
+      CPXchgctype (cplexEnv(), _prob, 1, &i, &t);
+    } break;
+    default:
+      break;
+    }
+  }
+
+  MipCplex::ColTypes MipCplex::_getColType(int i) const {
+    char t;
+    CPXgetctype (cplexEnv(), _prob, &t, i, i);
+    switch (t) {
+    case 'I':
+      return INTEGER;
+    case 'C':
+      return REAL;
+    default:
+      LEMON_ASSERT(false, "Invalid column type");
+      return ColTypes();
+    }
+
+  }
+
+  MipCplex::SolveExitStatus MipCplex::_solve() {
+    int status;
+    status = CPXmipopt (cplexEnv(), _prob);
+    if (status==0)
+      return SOLVED;
     else
-      return false;
+      return UNSOLVED;
+
+  }
+
+
+  MipCplex::ProblemType MipCplex::_getType() const {
+
+    int stat = CPXgetstat(cplexEnv(), _prob);
+
+    //Fortunately, MIP statuses did not change for cplex 8.0
+    switch (stat) {
+    case CPXMIP_OPTIMAL:
+      // Optimal integer solution has been found.
+    case CPXMIP_OPTIMAL_TOL:
+      // Optimal soluton with the tolerance defined by epgap or epagap has
+      // been found.
+      return OPTIMAL;
+      //This also exists in later issues
+      //    case CPXMIP_UNBOUNDED:
+      //return UNBOUNDED;
+      case CPXMIP_INFEASIBLE:
+        return INFEASIBLE;
+    default:
+      return UNDEFINED;
+    }
+    //Unboundedness not treated well: the following is from cplex 9.0 doc
+    // About Unboundedness
+
+    // The treatment of models that are unbounded involves a few
+    // subtleties. Specifically, a declaration of unboundedness means that
+    // ILOG CPLEX has determined that the model has an unbounded
+    // ray. Given any feasible solution x with objective z, a multiple of
+    // the unbounded ray can be added to x to give a feasible solution
+    // with objective z-1 (or z+1 for maximization models). Thus, if a
+    // feasible solution exists, then the optimal objective is
+    // unbounded. Note that ILOG CPLEX has not necessarily concluded that
+    // a feasible solution exists. Users can call the routine CPXsolninfo
+    // to determine whether ILOG CPLEX has also concluded that the model
+    // has a feasible solution.
+  }
+
+  MipCplex::Value MipCplex::_getSol(int i) const {
+    Value x;
+    CPXgetmipx(cplexEnv(), _prob, &x, i, i);
+    return x;
+  }
+
+  MipCplex::Value MipCplex::_getSolValue() const {
+    Value objval;
+    CPXgetmipobjval(cplexEnv(), _prob, &objval);
+    return objval;
   }
 
 } //namespace lemon

@@ -24,45 +24,44 @@
 #endif
 
 #ifdef HAVE_CPLEX
-#include <lemon/mip_cplex.h>
+#include <lemon/lp_cplex.h>
 #endif
 
 #ifdef HAVE_GLPK
-#include <lemon/mip_glpk.h>
+#include <lemon/lp_glpk.h>
 #endif
 
 
 using namespace lemon;
 
-void solveAndCheck(MipSolverBase& lp, MipSolverBase::SolutionStatus stat,
+void solveAndCheck(MipSolver& mip, MipSolver::ProblemType stat,
                    double exp_opt) {
   using std::string;
 
-  lp.solve();
+  mip.solve();
   //int decimal,sign;
   std::ostringstream buf;
-  buf << "Primalstatus should be: " << int(stat)
-      <<" and it is "<<int(lp.mipStatus());
+  buf << "Type should be: " << int(stat)<<" and it is "<<int(mip.type());
 
 
   //  itoa(stat,buf1, 10);
-  check(lp.mipStatus()==stat, buf.str());
+  check(mip.type()==stat, buf.str());
 
-  if (stat ==  MipSolverBase::OPTIMAL) {
+  if (stat ==  MipSolver::OPTIMAL) {
     std::ostringstream sbuf;
     buf << "Wrong optimal value: the right optimum is " << exp_opt;
-    check(std::abs(lp.primalValue()-exp_opt) < 1e-3, sbuf.str());
+    check(std::abs(mip.solValue()-exp_opt) < 1e-3, sbuf.str());
     //+ecvt(exp_opt,2)
   }
 }
 
-void aTest(MipSolverBase& mip)
+void aTest(MipSolver& mip)
 {
  //The following example is very simple
 
 
-  typedef MipSolverBase::Row Row;
-  typedef MipSolverBase::Col Col;
+  typedef MipSolver::Row Row;
+  typedef MipSolver::Col Col;
 
 
 
@@ -90,18 +89,18 @@ void aTest(MipSolverBase& mip)
   //Maximization of x1
   //over the triangle with vertices (0,0),(4/5,2/5),(0,2)
   double expected_opt=4.0/5.0;
-  solveAndCheck(mip, MipSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
   //Restrict x2 to integer
-  mip.colType(x2,MipSolverBase::INT);
+  mip.colType(x2,MipSolver::INTEGER);
   expected_opt=1.0/2.0;
-  solveAndCheck(mip, MipSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
 
   //Restrict both to integer
-  mip.colType(x1,MipSolverBase::INT);
+  mip.colType(x1,MipSolver::INTEGER);
   expected_opt=0;
-  solveAndCheck(mip, MipSolverBase::OPTIMAL, expected_opt);
+  solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
 
 
@@ -112,13 +111,24 @@ int main()
 {
 
 #ifdef HAVE_GLPK
-  MipGlpk mip1;
-  aTest(mip1);
+  {
+    MipGlpk mip1;
+    aTest(mip1);
+  }
 #endif
 
 #ifdef HAVE_CPLEX
-  MipCplex mip2;
-  aTest(mip2);
+  try {
+    MipCplex mip2;
+    aTest(mip2);
+  } catch (CplexEnv::LicenseError& error) {
+#ifdef LEMON_FORCE_CPLEX_CHECK
+    check(false, error.what());
+#else
+    std::cerr << error.what() << std::endl;
+    std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
+#endif
+  }
 #endif
 
   return 0;

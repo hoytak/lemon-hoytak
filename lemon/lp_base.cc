@@ -22,14 +22,7 @@
 #include <lemon/lp_base.h>
 namespace lemon {
 
-  const LpSolverBase::Value
-  LpSolverBase::INF = std::numeric_limits<Value>::infinity();
-  const LpSolverBase::Value
-  LpSolverBase::NaN = std::numeric_limits<Value>::quiet_NaN();
-
-//   const LpSolverBase::Constr::Value
-//   LpSolverBase::Constr::INF = std::numeric_limits<Value>::infinity();
-//   const LpSolverBase::Constr::Value
-//   LpSolverBase::Constr::NaN = std::numeric_limits<Value>::quiet_NaN();
+  const LpBase::Value LpBase::INF = std::numeric_limits<Value>::infinity();
+  const LpBase::Value LpBase::NaN = std::numeric_limits<Value>::quiet_NaN();
 
 } //namespace lemon
