@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_TOPOLOGY_H
-#define LEMON_TOPOLOGY_H
+#ifndef LEMON_CONNECTIVITY_H
+#define LEMON_CONNECTIVITY_H
 
 #include <lemon/dfs.h>
 #include <lemon/bfs.h>
@@ -154,7 +154,7 @@ namespace lemon {
     return compNum;
   }
 
-  namespace _topology_bits {
+  namespace _connectivity_bits {
 
     template <typename Digraph, typename Iterator >
     struct LeaveOrderVisitor : public DfsVisitor<Digraph> {
@@ -188,19 +188,19 @@ namespace lemon {
     };
 
     template <typename Digraph, typename ArcMap>
-    struct StronglyConnectedCutEdgesVisitor : public DfsVisitor<Digraph> {
+    struct StronglyConnectedCutArcsVisitor : public DfsVisitor<Digraph> {
     public:
       typedef typename Digraph::Node Node;
       typedef typename Digraph::Arc Arc;
 
-      StronglyConnectedCutEdgesVisitor(const Digraph& digraph,
-                                       ArcMap& cutMap,
-                                       int& cutNum)
+      StronglyConnectedCutArcsVisitor(const Digraph& digraph,
+                                      ArcMap& cutMap,
+                                      int& cutNum)
         : _digraph(digraph), _cutMap(cutMap), _cutNum(cutNum),
-          _compMap(digraph), _num(0) {
+          _compMap(digraph, -1), _num(-1) {
       }
 
-      void stop(const Node&) {
+      void start(const Node&) {
         ++_num;
       }
 
@@ -248,7 +248,7 @@ namespace lemon {
     typename Digraph::Node source = NodeIt(digraph);
     if (source == INVALID) return true;
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef DfsVisitor<Digraph> Visitor;
     Visitor visitor;
@@ -265,6 +265,7 @@ namespace lemon {
     }
 
     typedef ReverseDigraph<const Digraph> RDigraph;
+    typedef typename RDigraph::NodeIt RNodeIt;
     RDigraph rdigraph(digraph);
 
     typedef DfsVisitor<Digraph> RVisitor;
@@ -275,7 +276,7 @@ namespace lemon {
     rdfs.addSource(source);
     rdfs.start();
 
-    for (NodeIt it(rdigraph); it != INVALID; ++it) {
+    for (RNodeIt it(rdigraph); it != INVALID; ++it) {
       if (!rdfs.reached(it)) {
         return false;
       }
@@ -302,7 +303,7 @@ namespace lemon {
   int countStronglyConnectedComponents(const Digraph& digraph) {
     checkConcept<concepts::Digraph, Digraph>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef typename Digraph::Node Node;
     typedef typename Digraph::Arc Arc;
@@ -374,7 +375,7 @@ namespace lemon {
     typedef typename Digraph::NodeIt NodeIt;
     checkConcept<concepts::WriteMap<Node, int>, NodeMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef std::vector<Node> Container;
     typedef typename Container::iterator Iterator;
@@ -438,7 +439,7 @@ namespace lemon {
     typedef typename Digraph::NodeIt NodeIt;
     checkConcept<concepts::WriteMap<Arc, bool>, ArcMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef std::vector<Node> Container;
     typedef typename Container::iterator Iterator;
@@ -463,7 +464,7 @@ namespace lemon {
 
     int cutNum = 0;
 
-    typedef StronglyConnectedCutEdgesVisitor<RDigraph, ArcMap> RVisitor;
+    typedef StronglyConnectedCutArcsVisitor<RDigraph, ArcMap> RVisitor;
     RVisitor rvisitor(rgraph, cutMap, cutNum);
 
     DfsVisit<RDigraph, RVisitor> rdfs(rgraph, rvisitor);
@@ -478,7 +479,7 @@ namespace lemon {
     return cutNum;
   }
 
-  namespace _topology_bits {
+  namespace _connectivity_bits {
 
     template <typename Digraph>
     class CountBiNodeConnectedComponentsVisitor : public DfsVisitor<Digraph> {
@@ -730,7 +731,7 @@ namespace lemon {
     checkConcept<concepts::Graph, Graph>();
     typedef typename Graph::NodeIt NodeIt;
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef CountBiNodeConnectedComponentsVisitor<Graph> Visitor;
 
@@ -773,7 +774,7 @@ namespace lemon {
     typedef typename Graph::Edge Edge;
     checkConcept<concepts::WriteMap<Edge, int>, EdgeMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef BiNodeConnectedComponentsVisitor<Graph, EdgeMap> Visitor;
 
@@ -813,7 +814,7 @@ namespace lemon {
     typedef typename Graph::NodeIt NodeIt;
     checkConcept<concepts::WriteMap<Node, bool>, NodeMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef BiNodeConnectedCutNodesVisitor<Graph, NodeMap> Visitor;
 
@@ -832,7 +833,7 @@ namespace lemon {
     return cutNum;
   }
 
-  namespace _topology_bits {
+  namespace _connectivity_bits {
 
     template <typename Digraph>
     class CountBiEdgeConnectedComponentsVisitor : public DfsVisitor<Digraph> {
@@ -1053,7 +1054,7 @@ namespace lemon {
     checkConcept<concepts::Graph, Graph>();
     typedef typename Graph::NodeIt NodeIt;
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef CountBiEdgeConnectedComponentsVisitor<Graph> Visitor;
 
@@ -1095,7 +1096,7 @@ namespace lemon {
     typedef typename Graph::Node Node;
     checkConcept<concepts::WriteMap<Node, int>, NodeMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef BiEdgeConnectedComponentsVisitor<Graph, NodeMap> Visitor;
 
@@ -1136,7 +1137,7 @@ namespace lemon {
     typedef typename Graph::Edge Edge;
     checkConcept<concepts::WriteMap<Edge, bool>, EdgeMap>();
 
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     typedef BiEdgeConnectedCutEdgesVisitor<Graph, EdgeMap> Visitor;
 
@@ -1156,7 +1157,7 @@ namespace lemon {
   }
 
 
-  namespace _topology_bits {
+  namespace _connectivity_bits {
 
     template <typename Digraph, typename IntNodeMap>
     class TopologicalSortVisitor : public DfsVisitor<Digraph> {
@@ -1193,7 +1194,7 @@ namespace lemon {
   /// \see dag
   template <typename Digraph, typename NodeMap>
   void topologicalSort(const Digraph& graph, NodeMap& order) {
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     checkConcept<concepts::Digraph, Digraph>();
     checkConcept<concepts::WriteMap<typename Digraph::Node, int>, NodeMap>();
@@ -1234,8 +1235,8 @@ namespace lemon {
   /// \see topologicalSort
   /// \see dag
   template <typename Digraph, typename NodeMap>
-  bool checkedTopologicalSort(const Digraph& graph, NodeMap& order) {
-    using namespace _topology_bits;
+  bool checkedTopologicalSort(const Digraph& digraph, NodeMap& order) {
+    using namespace _connectivity_bits;
 
     checkConcept<concepts::Digraph, Digraph>();
     checkConcept<concepts::ReadWriteMap<typename Digraph::Node, int>,
@@ -1245,21 +1246,23 @@ namespace lemon {
     typedef typename Digraph::NodeIt NodeIt;
     typedef typename Digraph::Arc Arc;
 
-    order = constMap<Node, int, -1>();
+    for (NodeIt it(digraph); it != INVALID; ++it) {
+      order.set(it, -1);
+    }
 
     TopologicalSortVisitor<Digraph, NodeMap>
-      visitor(order, countNodes(graph));
+      visitor(order, countNodes(digraph));
 
     DfsVisit<Digraph, TopologicalSortVisitor<Digraph, NodeMap> >
-      dfs(graph, visitor);
+      dfs(digraph, visitor);
 
     dfs.init();
-    for (NodeIt it(graph); it != INVALID; ++it) {
+    for (NodeIt it(digraph); it != INVALID; ++it) {
       if (!dfs.reached(it)) {
         dfs.addSource(it);
         while (!dfs.emptyQueue()) {
-           Arc edge = dfs.nextArc();
-           Node target = graph.target(edge);
+           Arc arc = dfs.nextArc();
+           Node target = digraph.target(arc);
            if (dfs.reached(target) && order[target] == -1) {
              return false;
            }
@@ -1279,7 +1282,7 @@ namespace lemon {
   /// \return %False when the graph is not DAG.
   /// \see acyclic
   template <typename Digraph>
-  bool dag(const Digraph& graph) {
+  bool dag(const Digraph& digraph) {
 
     checkConcept<concepts::Digraph, Digraph>();
 
@@ -1290,18 +1293,18 @@ namespace lemon {
     typedef typename Digraph::template NodeMap<bool> ProcessedMap;
 
     typename Dfs<Digraph>::template SetProcessedMap<ProcessedMap>::
-      Create dfs(graph);
+      Create dfs(digraph);
 
-    ProcessedMap processed(graph);
+    ProcessedMap processed(digraph);
     dfs.processedMap(processed);
 
     dfs.init();
-    for (NodeIt it(graph); it != INVALID; ++it) {
+    for (NodeIt it(digraph); it != INVALID; ++it) {
       if (!dfs.reached(it)) {
         dfs.addSource(it);
         while (!dfs.emptyQueue()) {
           Arc edge = dfs.nextArc();
-          Node target = graph.target(edge);
+          Node target = digraph.target(edge);
           if (dfs.reached(target) && !processed[target]) {
             return false;
           }
@@ -1380,7 +1383,7 @@ namespace lemon {
     return true;
   }
 
-  namespace _topology_bits {
+  namespace _connectivity_bits {
 
     template <typename Digraph>
     class BipartiteVisitor : public BfsVisitor<Digraph> {
@@ -1449,7 +1452,7 @@ namespace lemon {
   /// \sa bipartitePartitions
   template<typename Graph>
   inline bool bipartite(const Graph &graph){
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     checkConcept<concepts::Graph, Graph>();
 
@@ -1489,7 +1492,7 @@ namespace lemon {
   /// \return %True if \c graph is bipartite, %false otherwise.
   template<typename Graph, typename NodeMap>
   inline bool bipartitePartitions(const Graph &graph, NodeMap &partMap){
-    using namespace _topology_bits;
+    using namespace _connectivity_bits;
 
     checkConcept<concepts::Graph, Graph>();
 
@@ -1520,9 +1523,9 @@ namespace lemon {
   ///
   /// Returns true when there are not loop edges in the graph.
   template <typename Digraph>
-  bool loopFree(const Digraph& graph) {
-    for (typename Digraph::ArcIt it(graph); it != INVALID; ++it) {
-      if (graph.source(it) == graph.target(it)) return false;
+  bool loopFree(const Digraph& digraph) {
+    for (typename Digraph::ArcIt it(digraph); it != INVALID; ++it) {
+      if (digraph.source(it) == digraph.target(it)) return false;
     }
     return true;
   }
@@ -1531,15 +1534,15 @@ namespace lemon {
   ///
   /// Returns true when there are not parallel edges in the graph.
   template <typename Digraph>
-  bool parallelFree(const Digraph& graph) {
-    typename Digraph::template NodeMap<bool> reached(graph, false);
-    for (typename Digraph::NodeIt n(graph); n != INVALID; ++n) {
-      for (typename Digraph::OutArcIt e(graph, n); e != INVALID; ++e) {
-        if (reached[graph.target(e)]) return false;
-        reached.set(graph.target(e), true);
+  bool parallelFree(const Digraph& digraph) {
+    typename Digraph::template NodeMap<bool> reached(digraph, false);
+    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
+      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
+        if (reached[digraph.target(a)]) return false;
+        reached.set(digraph.target(a), true);
       }
-      for (typename Digraph::OutArcIt e(graph, n); e != INVALID; ++e) {
-        reached.set(graph.target(e), false);
+      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
+        reached.set(digraph.target(a), false);
       }
     }
     return true;
@@ -1551,16 +1554,16 @@ namespace lemon {
   /// Returns true when there are not loop edges and parallel edges in
   /// the graph.
   template <typename Digraph>
-  bool simpleDigraph(const Digraph& graph) {
-    typename Digraph::template NodeMap<bool> reached(graph, false);
-    for (typename Digraph::NodeIt n(graph); n != INVALID; ++n) {
+  bool simpleDigraph(const Digraph& digraph) {
+    typename Digraph::template NodeMap<bool> reached(digraph, false);
+    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
       reached.set(n, true);
-      for (typename Digraph::OutArcIt e(graph, n); e != INVALID; ++e) {
-        if (reached[graph.target(e)]) return false;
-        reached.set(graph.target(e), true);
+      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
+        if (reached[digraph.target(a)]) return false;
+        reached.set(digraph.target(a), true);
       }
-      for (typename Digraph::OutArcIt e(graph, n); e != INVALID; ++e) {
-        reached.set(graph.target(e), false);
+      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
+        reached.set(digraph.target(a), false);
       }
       reached.set(n, false);
     }
@@ -1569,4 +1572,4 @@ namespace lemon {
 
 } //namespace lemon
 
-#endif //LEMON_TOPOLOGY_H
+#endif //LEMON_CONNECTIVITY_H
