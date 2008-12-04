@@ -419,7 +419,7 @@ template< typename _Digraph,
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    const Elevator& elevator() {
+    const Elevator& elevator() const {
       return *_level;
     }
 
@@ -644,7 +644,7 @@ template< typename _Digraph,
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    const FlowMap& flowMap() {
+    const FlowMap& flowMap() const {
       return *_flow;
     }
 
@@ -669,7 +669,7 @@ template< typename _Digraph,
        \sa barrierMap()
        \sa checkBarrier()
     */
-    bool barrier(const Node& node)
+    bool barrier(const Node& node) const
     {
       return (*_level)[node] >= _el;
     }
@@ -692,7 +692,7 @@ template< typename _Digraph,
     /// \sa barrier()
     /// \sa checkBarrier()
     template<class BarrierMap>
-    void barrierMap(BarrierMap &bar)
+    void barrierMap(BarrierMap &bar) const
     {
       for(NodeIt n(_g);n!=INVALID;++n)
         bar.set(n, (*_level)[n] >= _el);
@@ -712,7 +712,7 @@ template< typename _Digraph,
 
     ///Check if the found flow is a feasible circulation,
     ///
-    bool checkFlow() {
+    bool checkFlow() const {
       for(ArcIt e(_g);e!=INVALID;++e)
         if((*_flow)[e]<(*_lo)[e]||(*_flow)[e]>(*_up)[e]) return false;
       for(NodeIt n(_g);n!=INVALID;++n)
@@ -730,7 +730,7 @@ template< typename _Digraph,
     ///Check whether or not the last execution provides a barrier.
     ///\sa barrier()
     ///\sa barrierMap()
-    bool checkBarrier()
+    bool checkBarrier() const
     {
       Value delta=0;
       for(NodeIt n(_g);n!=INVALID;++n)

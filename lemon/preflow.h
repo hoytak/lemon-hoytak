@@ -366,7 +366,7 @@ namespace lemon {
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    const Elevator& elevator() {
+    const Elevator& elevator() const {
       return *_level;
     }
 
@@ -918,7 +918,7 @@ namespace lemon {
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    const FlowMap& flowMap() {
+    const FlowMap& flowMap() const {
       return *_flow;
     }
 

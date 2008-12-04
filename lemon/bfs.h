@@ -1741,7 +1741,7 @@ namespace lemon {
     ///
     /// \pre Either \ref run(Node) "run()" or \ref init()
     /// must be called before using this function.
-    bool reached(Node v) { return (*_reached)[v]; }
+    bool reached(Node v) const { return (*_reached)[v]; }
 
     ///@}
 
