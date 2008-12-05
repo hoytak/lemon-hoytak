@@ -3,6 +3,9 @@
 import sys
 
 from mercurial import ui, hg
+from mercurial import util
+
+util.rcpath = lambda : []
 
 if len(sys.argv)>1 and sys.argv[1] in ["-h","--help"]:
     print """
