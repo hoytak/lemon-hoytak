@@ -1410,6 +1410,7 @@ namespace lemon {
             _stack[++_stack_head] = e;
           } else {
             _visitor->leave(s);
+            _visitor->stop(s);
           }
         }
     }
