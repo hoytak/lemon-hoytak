@@ -4,12 +4,14 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lemon)
 
 SET(TESTS
   bfs_test
+  circulation_test
   counter_test
   dfs_test
   digraph_test
   dijkstra_test
   dim_test
   error_test
+  graph_adaptor_test
   graph_copy_test
   graph_test
   graph_utils_test
@@ -18,8 +20,10 @@ SET(TESTS
   kruskal_test
   maps_test
   max_matching_test
-  random_test
   path_test
+  preflow_test
+  random_test
+  suurballe_test
   time_measure_test
   unionfind_test)
 

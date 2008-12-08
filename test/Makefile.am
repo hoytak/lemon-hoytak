@@ -18,14 +18,14 @@ check_PROGRAMS += \
 	test/graph_copy_test \
 	test/graph_test \
 	test/graph_utils_test \
+	test/hao_orlin_test \
 	test/heap_test \
 	test/kruskal_test \
-	test/hao_orlin_test \
         test/maps_test \
 	test/max_matching_test \
-        test/random_test \
         test/path_test \
         test/preflow_test \
+        test/random_test \
         test/suurballe_test \
         test/test_tools_fail \
         test/test_tools_pass \
