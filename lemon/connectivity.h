@@ -295,7 +295,7 @@ namespace lemon {
   /// the same class if they are connected with directed paths in both
   /// direction.
   ///
-  /// \param graph The graph.
+  /// \param digraph The graph.
   /// \return The number of components
   /// \note By definition, the empty graph has zero
   /// strongly connected components.
@@ -1225,7 +1225,7 @@ namespace lemon {
   /// Sort the nodes of a DAG into topolgical order. It also checks
   /// that the given graph is DAG.
   ///
-  /// \param graph The graph. It must be directed and acyclic.
+  /// \param digraph The graph. It must be directed and acyclic.
   /// \retval order A readable - writable node map. The values will be set
   /// from 0 to the number of the nodes in the graph minus one. Each values
   /// of the map will be set exactly once, the values will be set descending

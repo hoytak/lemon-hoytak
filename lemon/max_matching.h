@@ -416,7 +416,7 @@ namespace lemon {
     /// If you need better control on the execution, you must call
     /// \ref init(), \ref greedyInit() or \ref matchingInit()
     /// functions first, then you can start the algorithm with the \ref
-    /// startParse() or startDense() functions.
+    /// startSparse() or startDense() functions.
 
     ///@{
 

@@ -51,7 +51,7 @@ namespace lemon {
   /// \warning Length values should be \e non-negative \e integers.
   ///
   /// \note For finding node-disjoint paths this algorithm can be used
-  /// with \ref SplitDigraphAdaptor.
+  /// with \ref SplitNodes.
 #ifdef DOXYGEN
   template <typename Digraph, typename LengthMap>
 #else
