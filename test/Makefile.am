@@ -1,7 +1,5 @@
 EXTRA_DIST += \
-	test/CMakeLists.txt \
-        test/min_cost_flow_test.lgf \
-        test/preflow_graph.lgf
+	test/CMakeLists.txt
 
 noinst_HEADERS += \
 	test/graph_test.h \
