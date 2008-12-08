@@ -30,6 +30,7 @@ lemon_HEADERS += \
         lemon/dijkstra.h \
         lemon/dim2.h \
         lemon/dimacs.h \
+	lemon/edge_set.h \
 	lemon/elevator.h \
 	lemon/error.h \
 	lemon/full_graph.h \
@@ -60,6 +61,7 @@ bits_HEADERS += \
 	lemon/bits/base_extender.h \
         lemon/bits/bezier.h \
 	lemon/bits/default_map.h \
+	lemon/bits/edge_set_extender.h \
         lemon/bits/enable_if.h \
 	lemon/bits/graph_adaptor_extender.h \
 	lemon/bits/graph_extender.h \

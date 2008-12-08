@@ -15,6 +15,7 @@ check_PROGRAMS += \
 	test/digraph_test \
 	test/dijkstra_test \
         test/dim_test \
+	test/edge_set_test \
 	test/error_test \
 	test/graph_adaptor_test \
 	test/graph_copy_test \
@@ -44,6 +45,7 @@ test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc
 test_dijkstra_test_SOURCES = test/dijkstra_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
+test_edge_set_test_SOURCES = test/edge_set_test.cc
 test_error_test_SOURCES = test/error_test.cc
 test_graph_adaptor_test_SOURCES = test/graph_adaptor_test.cc
 test_graph_copy_test_SOURCES = test/graph_copy_test.cc
