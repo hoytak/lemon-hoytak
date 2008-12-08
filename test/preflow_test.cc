@@ -16,8 +16,7 @@
  *
  */
 
-#include <fstream>
-#include <string>
+#include <iostream>
 
 #include "test_tools.h"
 #include <lemon/smart_graph.h>
@@ -28,6 +27,42 @@
 #include <lemon/elevator.h>
 
 using namespace lemon;
+
+char test_lgf[] =
+  "@nodes\n"
+  "label\n"
+  "0\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "7\n"
+  "8\n"
+  "9\n"
+  "@arcs\n"
+  "    label capacity\n"
+  "0 1 0     20\n"
+  "0 2 1     0\n"
+  "1 1 2     3\n"
+  "1 2 3     8\n"
+  "1 3 4     8\n"
+  "2 5 5     5\n"
+  "3 2 6     5\n"
+  "3 5 7     5\n"
+  "3 6 8     5\n"
+  "4 3 9     3\n"
+  "5 7 10    3\n"
+  "5 6 11    10\n"
+  "5 8 12    10\n"
+  "6 8 13    8\n"
+  "8 9 14    20\n"
+  "8 1 15    5\n"
+  "9 5 16    5\n"
+  "@attributes\n"
+  "source 1\n"
+  "target 8\n";
 
 void checkPreflowCompile()
 {
@@ -123,20 +158,11 @@ int main() {
 
   typedef Preflow<Digraph, CapMap> PType;
 
-  std::string f_name;
-  if( getenv("srcdir") )
-    f_name = std::string(getenv("srcdir"));
-  else f_name = ".";
-  f_name += "/test/preflow_graph.lgf";
-
-  std::ifstream file(f_name.c_str());
-
-  check(file, "Input file '" << f_name << "' not found.");
-
   Digraph g;
   Node s, t;
   CapMap cap(g);
-  DigraphReader<Digraph>(g,file).
+  std::istringstream input(test_lgf);
+  DigraphReader<Digraph>(g,input).
     arcMap("capacity", cap).
     node("source",s).
     node("target",t).
