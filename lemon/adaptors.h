@@ -2205,12 +2205,12 @@ namespace lemon {
     void first(Node& i) const { _graph->first(i); }
     void first(Arc& i) const { _graph->first(i); }
     void firstIn(Arc& i, const Node& n) const {
-      bool d;
+      bool d = true;
       _graph->firstInc(i, d, n);
       while (i != INVALID && d == (*_direction)[i]) _graph->nextInc(i, d);
     }
     void firstOut(Arc& i, const Node& n ) const {
-      bool d;
+      bool d = true;
       _graph->firstInc(i, d, n);
       while (i != INVALID && d != (*_direction)[i]) _graph->nextInc(i, d);
     }
