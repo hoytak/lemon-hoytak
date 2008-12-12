@@ -70,10 +70,10 @@ namespace lemon {
     typedef NodeNumTagIndicator<Digraph> NodeNumTag;
     int nodeNum() const { return _digraph->nodeNum(); }
 
-    typedef EdgeNumTagIndicator<Digraph> EdgeNumTag;
+    typedef ArcNumTagIndicator<Digraph> ArcNumTag;
     int arcNum() const { return _digraph->arcNum(); }
 
-    typedef FindEdgeTagIndicator<Digraph> FindEdgeTag;
+    typedef FindArcTagIndicator<Digraph> FindArcTag;
     Arc findArc(const Node& u, const Node& v, const Arc& prev = INVALID) {
       return _digraph->findArc(u, v, prev);
     }
@@ -198,14 +198,18 @@ namespace lemon {
     typedef NodeNumTagIndicator<Graph> NodeNumTag;
     int nodeNum() const { return _graph->nodeNum(); }
 
-    typedef EdgeNumTagIndicator<Graph> EdgeNumTag;
+    typedef ArcNumTagIndicator<Graph> ArcNumTag;
     int arcNum() const { return _graph->arcNum(); }
+
+    typedef EdgeNumTagIndicator<Graph> EdgeNumTag;
     int edgeNum() const { return _graph->edgeNum(); }
 
-    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
+    typedef FindArcTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v, const Arc& prev = INVALID) {
       return _graph->findArc(u, v, prev);
     }
+
+    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
     Edge findEdge(const Node& u, const Node& v, const Edge& prev = INVALID) {
       return _graph->findEdge(u, v, prev);
     }
@@ -330,7 +334,7 @@ namespace lemon {
 
     Arc addArc(const Node& u, const Node& v) { return Parent::addArc(v, u); }
 
-    typedef FindEdgeTagIndicator<Digraph> FindEdgeTag;
+    typedef FindArcTagIndicator<Digraph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) {
       return Parent::findArc(v, u, prev);
@@ -467,9 +471,9 @@ namespace lemon {
     bool hidden(const Arc& a) const { return !(*_arc_filter)[a]; }
 
     typedef False NodeNumTag;
-    typedef False EdgeNumTag;
+    typedef False ArcNumTag;
 
-    typedef FindEdgeTagIndicator<Digraph> FindEdgeTag;
+    typedef FindArcTagIndicator<Digraph> FindArcTag;
     Arc findArc(const Node& source, const Node& target,
                 const Arc& prev = INVALID) {
       if (!(*_node_filter)[source] || !(*_node_filter)[target]) {
@@ -610,9 +614,9 @@ namespace lemon {
     bool hidden(const Arc& e) const { return !(*_arc_filter)[e]; }
 
     typedef False NodeNumTag;
-    typedef False EdgeNumTag;
+    typedef False ArcNumTag;
 
-    typedef FindEdgeTagIndicator<Digraph> FindEdgeTag;
+    typedef FindArcTagIndicator<Digraph> FindArcTag;
     Arc findArc(const Node& source, const Node& target,
                 const Arc& prev = INVALID) {
       if (!(*_node_filter)[source] || !(*_node_filter)[target]) {
@@ -935,9 +939,10 @@ namespace lemon {
     bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
+    typedef False ArcNumTag;
     typedef False EdgeNumTag;
 
-    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
+    typedef FindArcTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) {
       if (!(*_node_filter_map)[u] || !(*_node_filter_map)[v]) {
@@ -949,6 +954,8 @@ namespace lemon {
       }
       return arc;
     }
+
+    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
     Edge findEdge(const Node& u, const Node& v,
                   const Edge& prev = INVALID) {
       if (!(*_node_filter_map)[u] || !(*_node_filter_map)[v]) {
@@ -1131,9 +1138,10 @@ namespace lemon {
     bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
+    typedef False ArcNumTag;
     typedef False EdgeNumTag;
 
-    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
+    typedef FindArcTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) {
       Arc arc = Parent::findArc(u, v, prev);
@@ -1142,6 +1150,8 @@ namespace lemon {
       }
       return arc;
     }
+
+    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
     Edge findEdge(const Node& u, const Node& v,
                   const Edge& prev = INVALID) {
       Edge edge = Parent::findEdge(u, v, prev);
@@ -1846,11 +1856,14 @@ namespace lemon {
 
     typedef NodeNumTagIndicator<Digraph> NodeNumTag;
     int nodeNum() const { return 2 * _digraph->arcNum(); }
-    typedef EdgeNumTagIndicator<Digraph> EdgeNumTag;
+
+    typedef ArcNumTagIndicator<Digraph> ArcNumTag;
     int arcNum() const { return 2 * _digraph->arcNum(); }
+
+    typedef ArcNumTag EdgeNumTag;
     int edgeNum() const { return _digraph->arcNum(); }
 
-    typedef FindEdgeTagIndicator<Digraph> FindEdgeTag;
+    typedef FindArcTagIndicator<Digraph> FindArcTag;
     Arc findArc(Node s, Node t, Arc p = INVALID) const {
       if (p == INVALID) {
         Edge arc = _digraph->findArc(s, t);
@@ -1869,6 +1882,7 @@ namespace lemon {
       return INVALID;
     }
 
+    typedef FindArcTag FindEdgeTag;
     Edge findEdge(Node s, Node t, Edge p = INVALID) const {
       if (s != t) {
         if (p == INVALID) {
@@ -2224,10 +2238,10 @@ namespace lemon {
     typedef NodeNumTagIndicator<Graph> NodeNumTag;
     int nodeNum() const { return _graph->nodeNum(); }
 
-    typedef EdgeNumTagIndicator<Graph> EdgeNumTag;
+    typedef EdgeNumTagIndicator<Graph> ArcNumTag;
     int arcNum() const { return _graph->edgeNum(); }
 
-    typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
+    typedef FindEdgeTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) {
       Arc arc = prev;
@@ -2884,17 +2898,16 @@ namespace lemon {
     }
 
     typedef True NodeNumTag;
-
     int nodeNum() const {
       return  2 * countNodes(*_digraph);
     }
 
-    typedef True EdgeNumTag;
+    typedef True ArcNumTag;
     int arcNum() const {
       return countArcs(*_digraph) + countNodes(*_digraph);
     }
 
-    typedef True FindEdgeTag;
+    typedef True FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
       if (inNode(u)) {
