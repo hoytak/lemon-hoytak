@@ -450,7 +450,7 @@ namespace lemon {
     };
 
     template <int _idx, typename _T0, typename _T1, typename _T2,
-              typename _T3, typename _T5, typename _T4, typename _T6,
+              typename _T3, typename _T4, typename _T5, typename _T6,
               typename _T7, typename _T8, typename _T9>
     struct Mapper {
       typedef List L10;
@@ -477,7 +477,7 @@ namespace lemon {
   template <
     typename _T0,
     typename _T1 = void, typename _T2 = void, typename _T3 = void,
-    typename _T5 = void, typename _T4 = void, typename _T6 = void,
+    typename _T4 = void, typename _T5 = void, typename _T6 = void,
     typename _T7 = void, typename _T8 = void, typename _T9 = void>
   struct VariantTypeMap {
     template <int _idx>
