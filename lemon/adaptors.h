@@ -817,11 +817,14 @@ namespace lemon {
   }
 
 
-  template <typename _Graph, typename NodeFilterMap,
-            typename EdgeFilterMap, bool _checked = true>
+  template <typename _Graph, typename _NodeFilterMap,
+            typename _EdgeFilterMap, bool _checked = true>
   class SubGraphBase : public GraphAdaptorBase<_Graph> {
   public:
     typedef _Graph Graph;
+    typedef _NodeFilterMap NodeFilterMap;
+    typedef _EdgeFilterMap EdgeFilterMap;
+
     typedef SubGraphBase Adaptor;
     typedef GraphAdaptorBase<_Graph> Parent;
   protected:
@@ -1048,11 +1051,14 @@ namespace lemon {
 
   };
 
-  template <typename _Graph, typename NodeFilterMap, typename EdgeFilterMap>
-  class SubGraphBase<_Graph, NodeFilterMap, EdgeFilterMap, false>
+  template <typename _Graph, typename _NodeFilterMap, typename _EdgeFilterMap>
+  class SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, false>
     : public GraphAdaptorBase<_Graph> {
   public:
     typedef _Graph Graph;
+    typedef _NodeFilterMap NodeFilterMap;
+    typedef _EdgeFilterMap EdgeFilterMap;
+
     typedef SubGraphBase Adaptor;
     typedef GraphAdaptorBase<_Graph> Parent;
   protected:
@@ -1857,7 +1863,7 @@ namespace lemon {
     void clear() { _digraph->clear(); }
 
     typedef NodeNumTagIndicator<Digraph> NodeNumTag;
-    int nodeNum() const { return 2 * _digraph->arcNum(); }
+    int nodeNum() const { return _digraph->nodeNum(); }
 
     typedef ArcNumTagIndicator<Digraph> ArcNumTag;
     int arcNum() const { return 2 * _digraph->arcNum(); }
@@ -1892,7 +1898,7 @@ namespace lemon {
           if (arc != INVALID) return arc;
           arc = _digraph->findArc(t, s);
           if (arc != INVALID) return arc;
-        } else if (_digraph->s(p) == s) {
+        } else if (_digraph->source(p) == s) {
           Edge arc = _digraph->findArc(s, t, p);
           if (arc != INVALID) return arc;
           arc = _digraph->findArc(t, s);
@@ -1921,6 +1927,10 @@ namespace lemon {
 
       typedef _Value Value;
       typedef Arc Key;
+      typedef typename MapTraits<MapImpl>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<MapImpl>::ReturnValue ReturnValue;
+      typedef typename MapTraits<MapImpl>::ConstReturnValue ConstReference;
+      typedef typename MapTraits<MapImpl>::ReturnValue Reference;
 
       ArcMapBase(const Adaptor& adaptor) :
         _forward(*adaptor._digraph), _backward(*adaptor._digraph) {}
@@ -1936,8 +1946,7 @@ namespace lemon {
         }
       }
 
-      typename MapTraits<MapImpl>::ConstReturnValue
-      operator[](const Arc& a) const {
+      ConstReturnValue operator[](const Arc& a) const {
         if (direction(a)) {
           return _forward[a];
         } else {
@@ -1945,8 +1954,7 @@ namespace lemon {
         }
       }
 
-      typename MapTraits<MapImpl>::ReturnValue
-      operator[](const Arc& a) {
+      ReturnValue operator[](const Arc& a) {
         if (direction(a)) {
           return _forward[a];
         } else {
@@ -1996,7 +2004,7 @@ namespace lemon {
       typedef _Value Value;
       typedef SubMapExtender<Adaptor, ArcMapBase<Value> > Parent;
 
-      ArcMap(const Adaptor& adaptor)
+      explicit ArcMap(const Adaptor& adaptor)
         : Parent(adaptor) {}
 
       ArcMap(const Adaptor& adaptor, const Value& value)
@@ -2042,6 +2050,9 @@ namespace lemon {
 
     typedef typename ItemSetTraits<Digraph, Node>::ItemNotifier NodeNotifier;
     NodeNotifier& notifier(Node) const { return _digraph->notifier(Node()); }
+
+    typedef typename ItemSetTraits<Digraph, Edge>::ItemNotifier EdgeNotifier;
+    EdgeNotifier& notifier(Edge) const { return _digraph->notifier(Edge()); }
 
   protected:
 
@@ -2100,6 +2111,11 @@ namespace lemon {
       typedef typename ForwardMap::Value Value;
       typedef typename Parent::Arc Key;
 
+      typedef typename MapTraits<ForwardMap>::ReturnValue ReturnValue;
+      typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<ForwardMap>::ReturnValue Reference;
+      typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReference;
+
       /// \brief Constructor
       ///
       /// Constructor
@@ -2121,8 +2137,7 @@ namespace lemon {
       /// \brief Returns the value associated with a key.
       ///
       /// Returns the value associated with a key.
-      typename MapTraits<ForwardMap>::ConstReturnValue
-      operator[](const Key& e) const {
+      ConstReturnValue operator[](const Key& e) const {
         if (Parent::direction(e)) {
           return (*_forward)[e];
         } else {
@@ -2133,8 +2148,7 @@ namespace lemon {
       /// \brief Returns the value associated with a key.
       ///
       /// Returns the value associated with a key.
-      typename MapTraits<ForwardMap>::ReturnValue
-      operator[](const Key& e) {
+      ReturnValue operator[](const Key& e) {
         if (Parent::direction(e)) {
           return (*_forward)[e];
         } else {
@@ -2246,18 +2260,9 @@ namespace lemon {
     typedef FindEdgeTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
-      Arc arc = prev;
-      bool d = arc == INVALID ? true : (*_direction)[arc];
-      if (d) {
+      Arc arc = _graph->findEdge(u, v, prev);
+      while (arc != INVALID && source(arc) != u) {
         arc = _graph->findEdge(u, v, arc);
-        while (arc != INVALID && !(*_direction)[arc]) {
-          _graph->findEdge(u, v, arc);
-        }
-        if (arc != INVALID) return arc;
-      }
-      _graph->findEdge(v, u, arc);
-      while (arc != INVALID && (*_direction)[arc]) {
-        _graph->findEdge(u, v, arc);
       }
       return arc;
     }
@@ -2267,8 +2272,8 @@ namespace lemon {
     }
 
     Arc addArc(const Node& u, const Node& v) {
-      Arc arc = _graph->addArc(u, v);
-      _direction->set(arc, _graph->source(arc) == u);
+      Arc arc = _graph->addEdge(u, v);
+      _direction->set(arc, _graph->u(arc) == u);
       return arc;
     }
 
@@ -2912,17 +2917,14 @@ namespace lemon {
     typedef True FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
-      if (inNode(u)) {
-        if (outNode(v)) {
-          if (static_cast<const DigraphNode&>(u) ==
-              static_cast<const DigraphNode&>(v) && prev == INVALID) {
-            return Arc(u);
-          }
+      if (inNode(u) && outNode(v)) {
+        if (static_cast<const DigraphNode&>(u) ==
+            static_cast<const DigraphNode&>(v) && prev == INVALID) {
+          return Arc(u);
         }
-      } else {
-        if (inNode(v)) {
-          return Arc(::lemon::findArc(*_digraph, u, v, prev));
-        }
+      }
+      else if (outNode(u) && inNode(v)) {
+        return Arc(::lemon::findArc(*_digraph, u, v, prev));
       }
       return INVALID;
     }
@@ -2936,6 +2938,11 @@ namespace lemon {
     public:
       typedef Node Key;
       typedef _Value Value;
+      typedef typename MapTraits<NodeImpl>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<NodeImpl>::ReturnValue ReturnValue;
+      typedef typename MapTraits<NodeImpl>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<NodeImpl>::ReturnValue Reference;
+      typedef typename MapTraits<NodeImpl>::ConstReturnValue ConstReference;
 
       NodeMapBase(const Adaptor& adaptor)
         : _in_map(*adaptor._digraph), _out_map(*adaptor._digraph) {}
@@ -2948,14 +2955,12 @@ namespace lemon {
         else {_out_map.set(key, val); }
       }
 
-      typename MapTraits<NodeImpl>::ReturnValue
-      operator[](const Node& key) {
+      ReturnValue operator[](const Node& key) {
         if (Adaptor::inNode(key)) { return _in_map[key]; }
         else { return _out_map[key]; }
       }
 
-      typename MapTraits<NodeImpl>::ConstReturnValue
-      operator[](const Node& key) const {
+      ConstReturnValue operator[](const Node& key) const {
         if (Adaptor::inNode(key)) { return _in_map[key]; }
         else { return _out_map[key]; }
       }
@@ -2972,6 +2977,11 @@ namespace lemon {
     public:
       typedef Arc Key;
       typedef _Value Value;
+      typedef typename MapTraits<ArcImpl>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<ArcImpl>::ReturnValue ReturnValue;
+      typedef typename MapTraits<ArcImpl>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<ArcImpl>::ReturnValue Reference;
+      typedef typename MapTraits<ArcImpl>::ConstReturnValue ConstReference;
 
       ArcMapBase(const Adaptor& adaptor)
         : _arc_map(*adaptor._digraph), _node_map(*adaptor._digraph) {}
@@ -2987,8 +2997,7 @@ namespace lemon {
         }
       }
 
-      typename MapTraits<ArcImpl>::ReturnValue
-      operator[](const Arc& key) {
+      ReturnValue operator[](const Arc& key) {
         if (Adaptor::origArc(key)) {
           return _arc_map[key._item.first()];
         } else {
@@ -2996,8 +3005,7 @@ namespace lemon {
         }
       }
 
-      typename MapTraits<ArcImpl>::ConstReturnValue
-      operator[](const Arc& key) const {
+      ConstReturnValue operator[](const Arc& key) const {
         if (Adaptor::origArc(key)) {
           return _arc_map[key._item.first()];
         } else {
@@ -3184,6 +3192,12 @@ namespace lemon {
       typedef Node Key;
       typedef typename InNodeMap::Value Value;
 
+      typedef typename MapTraits<InNodeMap>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<InNodeMap>::ReturnValue ReturnValue;
+      typedef typename MapTraits<InNodeMap>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<InNodeMap>::ReturnValue Reference;
+      typedef typename MapTraits<InNodeMap>::ConstReturnValue ConstReference;
+
       /// \brief Constructor
       ///
       /// Constructor.
@@ -3269,6 +3283,17 @@ namespace lemon {
 
       typedef Arc Key;
       typedef typename DigraphArcMap::Value Value;
+
+      typedef typename MapTraits<DigraphArcMap>::ReferenceMapTag
+        ReferenceMapTag;
+      typedef typename MapTraits<DigraphArcMap>::ReturnValue
+        ReturnValue;
+      typedef typename MapTraits<DigraphArcMap>::ConstReturnValue
+        ConstReturnValue;
+      typedef typename MapTraits<DigraphArcMap>::ReturnValue
+        Reference;
+      typedef typename MapTraits<DigraphArcMap>::ConstReturnValue
+        ConstReference;
 
       /// \brief Constructor
       ///
