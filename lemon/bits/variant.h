@@ -21,8 +21,8 @@
 
 #include <lemon/assert.h>
 
-/// \file
-/// \brief Variant types
+// \file
+// \brief Variant types
 
 namespace lemon {
 
@@ -36,53 +36,53 @@ namespace lemon {
   }
 
 
-  /// \brief Simple Variant type for two types
-  ///
-  /// Simple Variant type for two types. The Variant type is a type
-  /// safe union. The C++ has strong limitations for using unions, by
-  /// example we can not store type with non default constructor or
-  /// destructor in an union. This class always knowns the current
-  /// state of the variant and it cares for the proper construction
-  /// and destruction.
+  // \brief Simple Variant type for two types
+  //
+  // Simple Variant type for two types. The Variant type is a type-safe
+  // union. C++ has strong limitations for using unions, for
+  // example you cannot store a type with non-default constructor or
+  // destructor in a union. This class always knowns the current
+  // state of the variant and it cares for the proper construction
+  // and destruction.
   template <typename _First, typename _Second>
   class BiVariant {
   public:
 
-    /// \brief The \c First type.
+    // \brief The \c First type.
     typedef _First First;
-    /// \brief The \c Second type.
+    // \brief The \c Second type.
     typedef _Second Second;
 
-    /// \brief Constructor
-    ///
-    /// This constructor initalizes to the default value of the \c First
-    /// type.
+    // \brief Constructor
+    //
+    // This constructor initalizes to the default value of the \c First
+    // type.
     BiVariant() {
       flag = true;
       new(reinterpret_cast<First*>(data)) First();
     }
 
-    /// \brief Constructor
-    ///
-    /// This constructor initalizes to the given value of the \c First
-    /// type.
+    // \brief Constructor
+    //
+    // This constructor initalizes to the given value of the \c First
+    // type.
     BiVariant(const First& f) {
       flag = true;
       new(reinterpret_cast<First*>(data)) First(f);
     }
 
-    /// \brief Constructor
-    ///
-    /// This constructor initalizes to the given value of the \c
-    /// Second type.
+    // \brief Constructor
+    //
+    // This constructor initalizes to the given value of the \c
+    // Second type.
     BiVariant(const Second& s) {
       flag = false;
       new(reinterpret_cast<Second*>(data)) Second(s);
     }
 
-    /// \brief Copy constructor
-    ///
-    /// Copy constructor
+    // \brief Copy constructor
+    //
+    // Copy constructor
     BiVariant(const BiVariant& bivariant) {
       flag = bivariant.flag;
       if (flag) {
@@ -92,17 +92,17 @@ namespace lemon {
       }
     }
 
-    /// \brief Destrcutor
-    ///
-    /// Destructor
+    // \brief Destrcutor
+    //
+    // Destructor
     ~BiVariant() {
       destroy();
     }
 
-    /// \brief Set to the default value of the \c First type.
-    ///
-    /// This function sets the variant to the default value of the \c
-    /// First type.
+    // \brief Set to the default value of the \c First type.
+    //
+    // This function sets the variant to the default value of the \c
+    // First type.
     BiVariant& setFirst() {
       destroy();
       flag = true;
@@ -110,10 +110,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Set to the given value of the \c First type.
-    ///
-    /// This function sets the variant to the given value of the \c
-    /// First type.
+    // \brief Set to the given value of the \c First type.
+    //
+    // This function sets the variant to the given value of the \c
+    // First type.
     BiVariant& setFirst(const First& f) {
       destroy();
       flag = true;
@@ -121,10 +121,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Set to the default value of the \c Second type.
-    ///
-    /// This function sets the variant to the default value of the \c
-    /// Second type.
+    // \brief Set to the default value of the \c Second type.
+    //
+    // This function sets the variant to the default value of the \c
+    // Second type.
     BiVariant& setSecond() {
       destroy();
       flag = false;
@@ -132,10 +132,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Set to the given value of the \c Second type.
-    ///
-    /// This function sets the variant to the given value of the \c
-    /// Second type.
+    // \brief Set to the given value of the \c Second type.
+    //
+    // This function sets the variant to the given value of the \c
+    // Second type.
     BiVariant& setSecond(const Second& s) {
       destroy();
       flag = false;
@@ -143,17 +143,17 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Operator form of the \c setFirst()
+    // \brief Operator form of the \c setFirst()
     BiVariant& operator=(const First& f) {
       return setFirst(f);
     }
 
-    /// \brief Operator form of the \c setSecond()
+    // \brief Operator form of the \c setSecond()
     BiVariant& operator=(const Second& s) {
       return setSecond(s);
     }
 
-    /// \brief Assign operator
+    // \brief Assign operator
     BiVariant& operator=(const BiVariant& bivariant) {
       if (this == &bivariant) return *this;
       destroy();
@@ -166,60 +166,60 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Reference to the value
-    ///
-    /// Reference to the value of the \c First type.
-    /// \pre The BiVariant should store value of \c First type.
+    // \brief Reference to the value
+    //
+    // Reference to the value of the \c First type.
+    // \pre The BiVariant should store value of \c First type.
     First& first() {
       LEMON_DEBUG(flag, "Variant wrong state");
-      return *reinterpret_cast<First*>(data); 
+      return *reinterpret_cast<First*>(data);
     }
 
-    /// \brief Const reference to the value
-    ///
-    /// Const reference to the value of the \c First type.
-    /// \pre The BiVariant should store value of \c First type.
-    const First& first() const { 
+    // \brief Const reference to the value
+    //
+    // Const reference to the value of the \c First type.
+    // \pre The BiVariant should store value of \c First type.
+    const First& first() const {
       LEMON_DEBUG(flag, "Variant wrong state");
-      return *reinterpret_cast<const First*>(data); 
+      return *reinterpret_cast<const First*>(data);
     }
 
-    /// \brief Operator form of the \c first()
+    // \brief Operator form of the \c first()
     operator First&() { return first(); }
-    /// \brief Operator form of the const \c first()
+    // \brief Operator form of the const \c first()
     operator const First&() const { return first(); }
 
-    /// \brief Reference to the value
-    ///
-    /// Reference to the value of the \c Second type.
-    /// \pre The BiVariant should store value of \c Second type.
-    Second& second() { 
+    // \brief Reference to the value
+    //
+    // Reference to the value of the \c Second type.
+    // \pre The BiVariant should store value of \c Second type.
+    Second& second() {
       LEMON_DEBUG(!flag, "Variant wrong state");
-      return *reinterpret_cast<Second*>(data); 
+      return *reinterpret_cast<Second*>(data);
     }
 
-    /// \brief Const reference to the value
-    ///
-    /// Const reference to the value of the \c Second type.
-    /// \pre The BiVariant should store value of \c Second type.
-    const Second& second() const { 
+    // \brief Const reference to the value
+    //
+    // Const reference to the value of the \c Second type.
+    // \pre The BiVariant should store value of \c Second type.
+    const Second& second() const {
       LEMON_DEBUG(!flag, "Variant wrong state");
-      return *reinterpret_cast<const Second*>(data); 
+      return *reinterpret_cast<const Second*>(data);
     }
 
-    /// \brief Operator form of the \c second()
+    // \brief Operator form of the \c second()
     operator Second&() { return second(); }
-    /// \brief Operator form of the const \c second()
+    // \brief Operator form of the const \c second()
     operator const Second&() const { return second(); }
 
-    /// \brief %True when the variant is in the first state
-    ///
-    /// %True when the variant stores value of the \c First type.
+    // \brief %True when the variant is in the first state
+    //
+    // %True when the variant stores value of the \c First type.
     bool firstState() const { return flag; }
 
-    /// \brief %True when the variant is in the second state
-    ///
-    /// %True when the variant stores value of the \c Second type.
+    // \brief %True when the variant is in the second state
+    //
+    // %True when the variant stores value of the \c Second type.
     bool secondState() const { return !flag; }
 
   private:
@@ -289,40 +289,40 @@ namespace lemon {
 
   }
 
-  /// \brief Variant type
-  ///
-  /// Simple Variant type. The Variant type is a type safe union. The
-  /// C++ has strong limitations for using unions, for example we
-  /// cannot store type with non default constructor or destructor in
-  /// a union. This class always knowns the current state of the
-  /// variant and it cares for the proper construction and
-  /// destruction.
-  ///
-  /// \param _num The number of the types which can be stored in the
-  /// variant type.
-  /// \param _TypeMap This class describes the types of the Variant. The
-  /// _TypeMap::Map<index>::Type should be a valid type for each index
-  /// in the range {0, 1, ..., _num - 1}. The \c VariantTypeMap is helper
-  /// class to define such type mappings up to 10 types.
-  ///
-  /// And the usage of the class:
-  ///\code
-  /// typedef Variant<3, VariantTypeMap<int, std::string, double> > MyVariant;
-  /// MyVariant var;
-  /// var.set<0>(12);
-  /// std::cout << var.get<0>() << std::endl;
-  /// var.set<1>("alpha");
-  /// std::cout << var.get<1>() << std::endl;
-  /// var.set<2>(0.75);
-  /// std::cout << var.get<2>() << std::endl;
-  ///\endcode
-  ///
-  /// The result of course:
-  ///\code
-  /// 12
-  /// alpha
-  /// 0.75
-  ///\endcode
+  // \brief Variant type
+  //
+  // Simple Variant type. The Variant type is a type-safe union.
+  // C++ has strong limitations for using unions, for example you
+  // cannot store type with non-default constructor or destructor in
+  // a union. This class always knowns the current state of the
+  // variant and it cares for the proper construction and
+  // destruction.
+  //
+  // \param _num The number of the types which can be stored in the
+  // variant type.
+  // \param _TypeMap This class describes the types of the Variant. The
+  // _TypeMap::Map<index>::Type should be a valid type for each index
+  // in the range {0, 1, ..., _num - 1}. The \c VariantTypeMap is helper
+  // class to define such type mappings up to 10 types.
+  //
+  // And the usage of the class:
+  //\code
+  // typedef Variant<3, VariantTypeMap<int, std::string, double> > MyVariant;
+  // MyVariant var;
+  // var.set<0>(12);
+  // std::cout << var.get<0>() << std::endl;
+  // var.set<1>("alpha");
+  // std::cout << var.get<1>() << std::endl;
+  // var.set<2>(0.75);
+  // std::cout << var.get<2>() << std::endl;
+  //\endcode
+  //
+  // The result of course:
+  //\code
+  // 12
+  // alpha
+  // 0.75
+  //\endcode
   template <int _num, typename _TypeMap>
   class Variant {
   public:
@@ -331,10 +331,10 @@ namespace lemon {
 
     typedef _TypeMap TypeMap;
 
-    /// \brief Constructor
-    ///
-    /// This constructor initalizes to the default value of the \c type
-    /// with 0 index.
+    // \brief Constructor
+    //
+    // This constructor initalizes to the default value of the \c type
+    // with 0 index.
     Variant() {
       flag = 0;
       new(reinterpret_cast<typename TypeMap::template Map<0>::Type*>(data))
@@ -342,17 +342,17 @@ namespace lemon {
     }
 
 
-    /// \brief Copy constructor
-    ///
-    /// Copy constructor
+    // \brief Copy constructor
+    //
+    // Copy constructor
     Variant(const Variant& variant) {
       flag = variant.flag;
       _variant_bits::Memory<num - 1, TypeMap>::copy(flag, data, variant.data);
     }
 
-    /// \brief Assign operator
-    ///
-    /// Assign operator
+    // \brief Assign operator
+    //
+    // Assign operator
     Variant& operator=(const Variant& variant) {
       if (this == &variant) return *this;
       _variant_bits::Memory<num - 1, TypeMap>::
@@ -363,17 +363,17 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Destrcutor
-    ///
-    /// Destructor
+    // \brief Destrcutor
+    //
+    // Destructor
     ~Variant() {
       _variant_bits::Memory<num - 1, TypeMap>::destroy(flag, data);
     }
 
-    /// \brief Set to the default value of the type with \c _idx index.
-    ///
-    /// This function sets the variant to the default value of the
-    /// type with \c _idx index.
+    // \brief Set to the default value of the type with \c _idx index.
+    //
+    // This function sets the variant to the default value of the
+    // type with \c _idx index.
     template <int _idx>
     Variant& set() {
       _variant_bits::Memory<num - 1, TypeMap>::destroy(flag, data);
@@ -383,10 +383,10 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Set to the given value of the type with \c _idx index.
-    ///
-    /// This function sets the variant to the given value of the type
-    /// with \c _idx index.
+    // \brief Set to the given value of the type with \c _idx index.
+    //
+    // This function sets the variant to the given value of the type
+    // with \c _idx index.
     template <int _idx>
     Variant& set(const typename _TypeMap::template Map<_idx>::Type& init) {
       _variant_bits::Memory<num - 1, TypeMap>::destroy(flag, data);
@@ -396,9 +396,9 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Gets the current value of the type with \c _idx index.
-    ///
-    /// Gets the current value of the type with \c _idx index.
+    // \brief Gets the current value of the type with \c _idx index.
+    //
+    // Gets the current value of the type with \c _idx index.
     template <int _idx>
     const typename TypeMap::template Map<_idx>::Type& get() const {
       LEMON_DEBUG(_idx == flag, "Variant wrong index");
@@ -406,9 +406,9 @@ namespace lemon {
         template Map<_idx>::Type*>(data);
     }
 
-    /// \brief Gets the current value of the type with \c _idx index.
-    ///
-    /// Gets the current value of the type with \c _idx index.
+    // \brief Gets the current value of the type with \c _idx index.
+    //
+    // Gets the current value of the type with \c _idx index.
     template <int _idx>
     typename _TypeMap::template Map<_idx>::Type& get() {
       LEMON_DEBUG(_idx == flag, "Variant wrong index");
@@ -416,9 +416,9 @@ namespace lemon {
         (data);
     }
 
-    /// \brief Returns the current state of the variant.
-    ///
-    /// Returns the current state of the variant.
+    // \brief Returns the current state of the variant.
+    //
+    // Returns the current state of the variant.
     int state() const {
       return flag;
     }
@@ -450,7 +450,7 @@ namespace lemon {
     };
 
     template <int _idx, typename _T0, typename _T1, typename _T2,
-              typename _T3, typename _T5, typename _T4, typename _T6,
+              typename _T3, typename _T4, typename _T5, typename _T6,
               typename _T7, typename _T8, typename _T9>
     struct Mapper {
       typedef List L10;
@@ -469,15 +469,15 @@ namespace lemon {
 
   }
 
-  /// \brief Helper class for Variant
-  ///
-  /// Helper class to define type mappings for Variant. This class
-  /// converts the template parameters to be mappable by integer.
-  /// \see Variant
+  // \brief Helper class for Variant
+  //
+  // Helper class to define type mappings for Variant. This class
+  // converts the template parameters to be mappable by integer.
+  // \see Variant
   template <
     typename _T0,
     typename _T1 = void, typename _T2 = void, typename _T3 = void,
-    typename _T5 = void, typename _T4 = void, typename _T6 = void,
+    typename _T4 = void, typename _T5 = void, typename _T6 = void,
     typename _T7 = void, typename _T8 = void, typename _T9 = void>
   struct VariantTypeMap {
     template <int _idx>
