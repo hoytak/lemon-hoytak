@@ -1170,8 +1170,8 @@ namespace lemon {
     ///
     /// Construct a new ConEdgeIt iterating on the edges that
     /// connects nodes \c u and \c v.
-    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g) {
-      Parent::operator=(findEdge(_graph, u, v));
+    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g), _u(u), _v(v) {
+      Parent::operator=(findEdge(_graph, _u, _v));
     }
 
     /// \brief Constructor.
@@ -1183,12 +1183,12 @@ namespace lemon {
     ///
     /// It increments the iterator and gives back the next edge.
     ConEdgeIt& operator++() {
-      Parent::operator=(findEdge(_graph, _graph.u(*this),
-                                 _graph.v(*this), *this));
+      Parent::operator=(findEdge(_graph, _u, _v, *this));
       return *this;
     }
   private:
     const Graph& _graph;
+    Node _u, _v;
   };
 
 
