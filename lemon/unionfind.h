@@ -1177,9 +1177,9 @@ namespace lemon {
             int pd = nodes[jd].parent;
             if (nodes[nodes[jd].next].size < cmax) {
               pushLeft(nodes[jd].next, nodes[jd].left);
-              if (less(nodes[jd].left, nodes[jd].next)) {
-                nodes[nodes[jd].next].prio = nodes[nodes[jd].left].prio;
-                nodes[nodes[jd].next].item = nodes[nodes[jd].left].item;
+              if (nodes[jd].item == nodes[pd].item) {
+                nodes[nodes[jd].next].prio = nodes[jd].prio;
+                nodes[nodes[jd].next].item = nodes[jd].item;
               }
               popLeft(pd);
               deleteNode(jd);
@@ -1188,9 +1188,10 @@ namespace lemon {
               int ld = nodes[nodes[jd].next].left;
               popLeft(nodes[jd].next);
               pushRight(jd, ld);
-              if (less(ld, nodes[jd].left)) {
+              if (less(ld, nodes[jd].left) || 
+                  nodes[ld].item == nodes[pd].item) {
                 nodes[jd].item = nodes[ld].item;
-                nodes[jd].prio = nodes[jd].prio;
+                nodes[jd].prio = nodes[ld].prio;
               }
               if (nodes[nodes[jd].next].item == nodes[ld].item) {
                 setPrio(nodes[jd].next);
@@ -1219,9 +1220,9 @@ namespace lemon {
             int pd = nodes[jd].parent;
             if (nodes[nodes[jd].prev].size < cmax) {
               pushRight(nodes[jd].prev, nodes[jd].right);
-              if (less(nodes[jd].right, nodes[jd].prev)) {
-                nodes[nodes[jd].prev].prio = nodes[nodes[jd].right].prio;
-                nodes[nodes[jd].prev].item = nodes[nodes[jd].right].item;
+              if (nodes[jd].item == nodes[pd].item) {
+                nodes[nodes[jd].prev].prio = nodes[jd].prio;
+                nodes[nodes[jd].prev].item = nodes[jd].item;
               }
               popRight(pd);
               deleteNode(jd);
@@ -1230,9 +1231,10 @@ namespace lemon {
               int ld = nodes[nodes[jd].prev].right;
               popRight(nodes[jd].prev);
               pushLeft(jd, ld);
-              if (less(ld, nodes[jd].right)) {
+              if (less(ld, nodes[jd].right) ||
+                  nodes[ld].item == nodes[pd].item) {
                 nodes[jd].item = nodes[ld].item;
-                nodes[jd].prio = nodes[jd].prio;
+                nodes[jd].prio = nodes[ld].prio;
               }
               if (nodes[nodes[jd].prev].item == nodes[ld].item) {
                 setPrio(nodes[jd].prev);
@@ -1400,7 +1402,14 @@ namespace lemon {
               }
               push(new_id, right_id);
               pushRight(new_id, ~(classes[r].parent));
-              setPrio(new_id);
+
+              if (less(~classes[r].parent, right_id)) {
+                nodes[new_id].item = nodes[~classes[r].parent].item;
+                nodes[new_id].prio = nodes[~classes[r].parent].prio;
+              } else {
+                nodes[new_id].item = nodes[right_id].item;
+                nodes[new_id].prio = nodes[right_id].prio;
+              }
 
               id = nodes[id].parent;
               classes[r].parent = ~new_id;
@@ -1440,7 +1449,14 @@ namespace lemon {
               }
               push(new_id, left_id);
               pushLeft(new_id, ~(classes[l].parent));
-              setPrio(new_id);
+
+              if (less(~classes[l].parent, left_id)) {
+                nodes[new_id].item = nodes[~classes[l].parent].item;
+                nodes[new_id].prio = nodes[~classes[l].parent].prio;
+              } else {
+                nodes[new_id].item = nodes[left_id].item;
+                nodes[new_id].prio = nodes[left_id].prio;
+              }
 
               id = nodes[id].parent;
               classes[l].parent = ~new_id;
