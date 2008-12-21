@@ -1177,7 +1177,8 @@ namespace lemon {
             int pd = nodes[jd].parent;
             if (nodes[nodes[jd].next].size < cmax) {
               pushLeft(nodes[jd].next, nodes[jd].left);
-              if (nodes[jd].item == nodes[pd].item) {
+              if (less(jd, nodes[jd].next) ||
+                  nodes[jd].item == nodes[pd].item) {
                 nodes[nodes[jd].next].prio = nodes[jd].prio;
                 nodes[nodes[jd].next].item = nodes[jd].item;
               }
@@ -1220,7 +1221,8 @@ namespace lemon {
             int pd = nodes[jd].parent;
             if (nodes[nodes[jd].prev].size < cmax) {
               pushRight(nodes[jd].prev, nodes[jd].right);
-              if (nodes[jd].item == nodes[pd].item) {
+              if (less(jd, nodes[jd].prev) ||
+                  nodes[jd].item == nodes[pd].item) {
                 nodes[nodes[jd].prev].prio = nodes[jd].prio;
                 nodes[nodes[jd].prev].item = nodes[jd].item;
               }
@@ -1252,11 +1254,6 @@ namespace lemon {
     bool less(int id, int jd) const {
       return comp(nodes[id].prio, nodes[jd].prio);
     }
-
-    bool equal(int id, int jd) const {
-      return !less(id, jd) && !less(jd, id);
-    }
-
 
   public:
 
