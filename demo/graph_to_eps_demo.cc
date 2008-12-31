@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -85,14 +85,14 @@ int main()
   graphToEps(g,"graph_to_eps_demo_out_1_pure.eps").
     coords(coords).
     title("Sample .eps figure").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     run();
 
   cout << "Create 'graph_to_eps_demo_out_2.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_2.eps").
     coords(coords).
     title("Sample .eps figure").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
     nodeScale(2).nodeSizes(sizes).
     nodeShapes(shapes).
@@ -105,7 +105,7 @@ int main()
   cout << "Create 'graph_to_eps_demo_out_3_arr.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_3_arr.eps").
     title("Sample .eps figure (with arrowheads)").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
     nodeColors(composeMap(palette,colors)).
     coords(coords).
@@ -132,7 +132,7 @@ int main()
   cout << "Create 'graph_to_eps_demo_out_4_par.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_4_par.eps").
     title("Sample .eps figure (parallel arcs)").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
     nodeShapes(shapes).
     coords(coords).
@@ -147,7 +147,7 @@ int main()
   cout << "Create 'graph_to_eps_demo_out_5_par_arr.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_5_par_arr.eps").
     title("Sample .eps figure (parallel arcs and arrowheads)").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     absoluteNodeSizes().absoluteArcWidths().
     nodeScale(2).nodeSizes(sizes).
     coords(coords).
@@ -163,7 +163,7 @@ int main()
   cout << "Create 'graph_to_eps_demo_out_6_par_arr_a4.eps'" << endl;
   graphToEps(g,"graph_to_eps_demo_out_6_par_arr_a4.eps").
     title("Sample .eps figure (fits to A4)").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     scaleToA4().
     absoluteNodeSizes().absoluteArcWidths().
     nodeScale(2).nodeSizes(sizes).
@@ -193,7 +193,7 @@ int main()
   graphToEps(h,"graph_to_eps_demo_out_7_colors.eps").
     scale(60).
     title("Sample .eps figure (Palette demo)").
-    copyright("(C) 2003-2008 LEMON Project").
+    copyright("(C) 2003-2009 LEMON Project").
     coords(hcoords).
     absoluteNodeSizes().absoluteArcWidths().
     nodeScale(.45).

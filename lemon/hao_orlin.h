@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -238,7 +238,7 @@ namespace lemon {
         for (NodeIt t(_graph); t != INVALID; ++t) {
           if (reached[t]) continue;
           _sets.push_front(std::list<int>());
-          
+
           queue[qlast++] = t;
           reached.set(t, true);
 
@@ -538,7 +538,7 @@ namespace lemon {
         for (NodeIt t(_graph); t != INVALID; ++t) {
           if (reached[t]) continue;
           _sets.push_front(std::list<int>());
-          
+
           queue[qlast++] = t;
           reached.set(t, true);
 

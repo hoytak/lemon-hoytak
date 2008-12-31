@@ -3,16 +3,16 @@ EXTRA_DIST += \
 
 noinst_HEADERS += \
 	test/graph_test.h \
-        test/test_tools.h
+	test/test_tools.h
 
 check_PROGRAMS += \
 	test/bfs_test \
-        test/circulation_test \
-        test/counter_test \
+	test/circulation_test \
+	test/counter_test \
 	test/dfs_test \
 	test/digraph_test \
 	test/dijkstra_test \
-        test/dim_test \
+	test/dim_test \
 	test/error_test \
 	test/graph_adaptor_test \
 	test/graph_copy_test \
@@ -21,15 +21,15 @@ check_PROGRAMS += \
 	test/hao_orlin_test \
 	test/heap_test \
 	test/kruskal_test \
-        test/maps_test \
+	test/maps_test \
 	test/max_matching_test \
-        test/path_test \
-        test/preflow_test \
-        test/random_test \
-        test/suurballe_test \
-        test/test_tools_fail \
-        test/test_tools_pass \
-        test/time_measure_test \
+	test/path_test \
+	test/preflow_test \
+	test/random_test \
+	test/suurballe_test \
+	test/test_tools_fail \
+	test/test_tools_pass \
+	test/time_measure_test \
 	test/unionfind_test
 
 TESTS += $(check_PROGRAMS)

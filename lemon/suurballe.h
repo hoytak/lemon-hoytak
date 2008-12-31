@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -76,7 +76,7 @@ namespace lemon {
     typedef SimplePath<Digraph> Path;
 
   private:
-  
+
     /// \brief Special implementation of the Dijkstra algorithm
     /// for finding shortest paths in the residual network.
     ///
@@ -106,7 +106,7 @@ namespace lemon {
       PredMap &_pred;
       // The processed (i.e. permanently labeled) nodes
       std::vector<Node> _proc_nodes;
-      
+
       Node _s;
       Node _t;
 
@@ -200,7 +200,7 @@ namespace lemon {
     const Digraph &_graph;
     // The length map
     const LengthMap &_length;
-    
+
     // Arc map of the current flow
     FlowMap *_flow;
     bool _local_flow;
@@ -268,7 +268,7 @@ namespace lemon {
     ///
     /// This function sets the potential map.
     ///
-    /// The potentials provide the dual solution of the underlying 
+    /// The potentials provide the dual solution of the underlying
     /// minimum cost flow problem.
     ///
     /// \return \c (*this)
@@ -330,7 +330,7 @@ namespace lemon {
       for (ArcIt e(_graph); e != INVALID; ++e) (*_flow)[e] = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) (*_potential)[n] = 0;
 
-      _dijkstra = new ResidualDijkstra( _graph, *_flow, _length, 
+      _dijkstra = new ResidualDijkstra( _graph, *_flow, _length,
                                         *_potential, _pred,
                                         _source, _target );
     }
@@ -370,7 +370,7 @@ namespace lemon {
       }
       return _path_num;
     }
-    
+
     /// \brief Compute the paths from the flow.
     ///
     /// This function computes the paths from the flow.

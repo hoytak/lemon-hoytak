@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -72,7 +72,7 @@ char test_lgf[] =
 
 // Check the feasibility of the flow
 template <typename Digraph, typename FlowMap>
-bool checkFlow( const Digraph& gr, const FlowMap& flow, 
+bool checkFlow( const Digraph& gr, const FlowMap& flow,
                 typename Digraph::Node s, typename Digraph::Node t,
                 int value )
 {
@@ -95,7 +95,7 @@ bool checkFlow( const Digraph& gr, const FlowMap& flow,
 }
 
 // Check the optimalitiy of the flow
-template < typename Digraph, typename CostMap, 
+template < typename Digraph, typename CostMap,
            typename FlowMap, typename PotentialMap >
 bool checkOptimality( const Digraph& gr, const CostMap& cost,
                       const FlowMap& flow, const PotentialMap& pi )
@@ -144,7 +144,7 @@ int main()
     node("source", source).
     node("target", target).
     run();
-  
+
   // Find 2 paths
   {
     Suurballe<ListDigraph> suurballe(digraph, length, source, target);
@@ -152,7 +152,7 @@ int main()
     check(checkFlow(digraph, suurballe.flowMap(), source, target, 2),
           "The flow is not feasible");
     check(suurballe.totalLength() == 510, "The flow is not optimal");
-    check(checkOptimality(digraph, length, suurballe.flowMap(), 
+    check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
@@ -167,7 +167,7 @@ int main()
     check(checkFlow(digraph, suurballe.flowMap(), source, target, 3),
           "The flow is not feasible");
     check(suurballe.totalLength() == 1040, "The flow is not optimal");
-    check(checkOptimality(digraph, length, suurballe.flowMap(), 
+    check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
@@ -182,7 +182,7 @@ int main()
     check(checkFlow(digraph, suurballe.flowMap(), source, target, 3),
           "The flow is not feasible");
     check(suurballe.totalLength() == 1040, "The flow is not optimal");
-    check(checkOptimality(digraph, length, suurballe.flowMap(), 
+    check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)

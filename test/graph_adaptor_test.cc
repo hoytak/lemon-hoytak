@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -103,7 +103,7 @@ void checkSubDigraph() {
 
   node_filter[n1] = node_filter[n2] = node_filter[n3] = true;
   arc_filter[a1] = arc_filter[a2] = arc_filter[a3] = true;
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 3);
   checkGraphConArcList(adaptor, 3);
@@ -196,7 +196,7 @@ void checkFilterNodes1() {
   Digraph::Arc a3 = digraph.addArc(n2, n3);
 
   node_filter[n1] = node_filter[n2] = node_filter[n3] = true;
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 3);
   checkGraphConArcList(adaptor, 3);
@@ -268,7 +268,7 @@ void checkFilterArcs() {
   Digraph::Arc a3 = digraph.addArc(n2, n3);
 
   arc_filter[a1] = arc_filter[a2] = arc_filter[a3] = true;
-  
+
   checkGraphNodeList(adaptor, 3);
   checkGraphArcList(adaptor, 3);
   checkGraphConArcList(adaptor, 3);
@@ -577,7 +577,7 @@ void checkSubGraph() {
 
   node_filter[n1] = node_filter[n2] = node_filter[n3] = node_filter[n4] = true;
   edge_filter[e1] = edge_filter[e2] = edge_filter[e3] = edge_filter[e4] = true;
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 8);
   checkGraphEdgeList(adaptor, 4);
@@ -708,7 +708,7 @@ void checkFilterNodes2() {
   Graph::Edge e4 = graph.addEdge(n3, n4);
 
   node_filter[n1] = node_filter[n2] = node_filter[n3] = node_filter[n4] = true;
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 8);
   checkGraphEdgeList(adaptor, 4);
@@ -807,7 +807,7 @@ void checkFilterEdges() {
   Graph::Edge e4 = graph.addEdge(n3, n4);
 
   edge_filter[e1] = edge_filter[e2] = edge_filter[e3] = edge_filter[e4] = true;
-  
+
   checkGraphNodeList(adaptor, 4);
   checkGraphArcList(adaptor, 8);
   checkGraphEdgeList(adaptor, 4);
