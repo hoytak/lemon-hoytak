@@ -25,6 +25,7 @@ check_PROGRAMS += \
 	test/max_matching_test \
 	test/path_test \
 	test/preflow_test \
+	test/radix_sort_test \
 	test/random_test \
 	test/suurballe_test \
 	test/test_tools_fail \
@@ -54,6 +55,7 @@ test_maps_test_SOURCES = test/maps_test.cc
 test_max_matching_test_SOURCES = test/max_matching_test.cc
 test_path_test_SOURCES = test/path_test.cc
 test_preflow_test_SOURCES = test/preflow_test.cc
+test_radix_sort_test_SOURCES = test/radix_sort_test.cc
 test_suurballe_test_SOURCES = test/suurballe_test.cc
 test_random_test_SOURCES = test/random_test.cc
 test_test_tools_fail_SOURCES = test/test_tools_fail.cc

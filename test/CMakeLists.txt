@@ -20,6 +20,7 @@ SET(TESTS
   kruskal_test
   maps_test
   max_matching_test
+  radix_sort_test
   path_test
   preflow_test
   random_test

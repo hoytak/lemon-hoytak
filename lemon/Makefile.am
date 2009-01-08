@@ -47,6 +47,7 @@ lemon_HEADERS += \
 	lemon/nauty_reader.h \
 	lemon/path.h \
 	lemon/preflow.h \
+	lemon/radix_sort.h \
 	lemon/random.h \
 	lemon/smart_graph.h \
 	lemon/suurballe.h \
