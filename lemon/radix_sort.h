@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -348,7 +348,7 @@ namespace lemon {
                                      sizeof(Value) - 1, functor);
           std::copy(buffer + length, buffer + 2 * length, first);
         }        else {
-          signedStableRadixIntroSort(buffer + length, buffer + 2 * length, 
+          signedStableRadixIntroSort(buffer + length, buffer + 2 * length,
                                      buffer, sizeof(Value) - 1, functor);
           std::copy(buffer, buffer + length, first);
         }
@@ -360,7 +360,7 @@ namespace lemon {
     }
 
     template <typename Value, typename Iterator, typename Functor>
-    void stableRadixUnsignedSort(Iterator first, Iterator last, 
+    void stableRadixUnsignedSort(Iterator first, Iterator last,
                                  Functor functor) {
       if (first == last) return;
       typedef typename std::iterator_traits<Iterator>::value_type Key;
