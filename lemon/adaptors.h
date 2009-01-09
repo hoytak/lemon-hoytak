@@ -21,7 +21,7 @@
 
 /// \ingroup graph_adaptors
 /// \file
-/// \brief Several graph adaptors
+/// \brief Adaptor classes for digraphs and graphs
 ///
 /// This file contains several useful adaptors for digraphs and graphs.
 
@@ -346,14 +346,22 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief A digraph adaptor which reverses the orientation of the arcs.
+  /// \brief Adaptor class for reversing the orientation of the arcs in
+  /// a digraph.
   ///
-  /// ReverseDigraph reverses the arcs in the adapted digraph. The
-  /// SubDigraph is conform to the \ref concepts::Digraph
-  /// "Digraph concept".
+  /// ReverseDigraph can be used for reversing the arcs in a digraph.
+  /// It conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
-  /// \tparam _Digraph It must be conform to the \ref concepts::Digraph
-  /// "Digraph concept". The type can be specified to be const.
+  /// The adapted digraph can also be modified through this adaptor
+  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It can also be specified to be \c const.
+  ///
+  /// \note The \c Node and \c Arc types of this adaptor and the adapted
+  /// digraph are convertible to each other.
   template<typename _Digraph>
   class ReverseDigraph :
     public DigraphAdaptorExtender<ReverseDigraphBase<_Digraph> > {
@@ -367,19 +375,22 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a reverse digraph adaptor for the given digraph
+    /// Creates a reverse digraph adaptor for the given digraph.
     explicit ReverseDigraph(Digraph& digraph) {
       Parent::setDigraph(digraph);
     }
   };
 
-  /// \brief Just gives back a reverse digraph adaptor
+  /// \brief Returns a read-only ReverseDigraph adaptor
   ///
-  /// Just gives back a reverse digraph adaptor
+  /// This function just returns a read-only \ref ReverseDigraph adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates ReverseDigraph
   template<typename Digraph>
   ReverseDigraph<const Digraph> reverseDigraph(const Digraph& digraph) {
     return ReverseDigraph<const Digraph>(digraph);
   }
+
 
   template <typename _Digraph, typename _NodeFilterMap,
             typename _ArcFilterMap, bool _checked = true>
@@ -685,41 +696,64 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief An adaptor for hiding nodes and arcs in a digraph
+  /// \brief Adaptor class for hiding nodes and arcs in a digraph
   ///
-  /// SubDigraph hides nodes and arcs in a digraph. A bool node map
-  /// and a bool arc map must be specified, which define the filters
-  /// for nodes and arcs. Just the nodes and arcs with true value are
-  /// shown in the subdigraph. The SubDigraph is conform to the \ref
-  /// concepts::Digraph "Digraph concept". If the \c _checked parameter
-  /// is true, then the arcs incident to filtered nodes are also
+  /// SubDigraph can be used for hiding nodes and arcs in a digraph.
+  /// A \c bool node map and a \c bool arc map must be specified, which
+  /// define the filters for nodes and arcs.
+  /// Only the nodes and arcs with \c true filter value are
+  /// shown in the subdigraph. This adaptor conforms to the \ref
+  /// concepts::Digraph "Digraph" concept. If the \c _checked parameter
+  /// is \c true, then the arcs incident to hidden nodes are also
   /// filtered out.
   ///
-  /// \tparam _Digraph It must be conform to the \ref
-  /// concepts::Digraph "Digraph concept". The type can be specified
-  /// to const.
-  /// \tparam _NodeFilterMap A bool valued node map of the the adapted digraph.
-  /// \tparam _ArcFilterMap A bool valued arc map of the the adapted digraph.
-  /// \tparam _checked If the parameter is false then the arc filtering
-  /// is not checked with respect to node filter. Otherwise, each arc
-  /// is automatically filtered, which is incident to a filtered node.
+  /// The adapted digraph can also be modified through this adaptor
+  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
+  /// adapted digraph. The default map type is
+  /// \ref concepts::Digraph::NodeMap "_Digraph::NodeMap<bool>".
+  /// \tparam _ArcFilterMap A \c bool (or convertible) arc map of the
+  /// adapted digraph. The default map type is
+  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<bool>".
+  /// \tparam _checked If this parameter is set to \c false, then the arc
+  /// filtering is not checked with respect to the node filter.
+  /// Otherwise, each arc that is incident to a hidden node is automatically
+  /// filtered out. This is the default option.
+  ///
+  /// \note The \c Node and \c Arc types of this adaptor and the adapted
+  /// digraph are convertible to each other.
   ///
   /// \see FilterNodes
   /// \see FilterArcs
+#ifdef DOXYGEN
+  template<typename _Digraph,
+           typename _NodeFilterMap,
+           typename _ArcFilterMap,
+           bool _checked>
+#else
   template<typename _Digraph,
            typename _NodeFilterMap = typename _Digraph::template NodeMap<bool>,
            typename _ArcFilterMap = typename _Digraph::template ArcMap<bool>,
            bool _checked = true>
+#endif
   class SubDigraph
     : public DigraphAdaptorExtender<
       SubDigraphBase<_Digraph, _NodeFilterMap, _ArcFilterMap, _checked> > {
   public:
+    /// The type of the adapted digraph.
     typedef _Digraph Digraph;
+    /// The type of the node filter map.
     typedef _NodeFilterMap NodeFilterMap;
+    /// The type of the arc filter map.
     typedef _ArcFilterMap ArcFilterMap;
 
     typedef DigraphAdaptorExtender<
-      SubDigraphBase<Digraph, NodeFilterMap, ArcFilterMap, _checked> >
+      SubDigraphBase<_Digraph, _NodeFilterMap, _ArcFilterMap, _checked> >
     Parent;
 
     typedef typename Parent::Node Node;
@@ -731,8 +765,8 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a subdigraph for the given digraph with
-    /// given node and arc map filters.
+    /// Creates a subdigraph for the given digraph with the
+    /// given node and arc filter maps.
     SubDigraph(Digraph& digraph, NodeFilterMap& node_filter,
                ArcFilterMap& arc_filter) {
       setDigraph(digraph);
@@ -740,51 +774,53 @@ namespace lemon {
       setArcFilterMap(arc_filter);
     }
 
-    /// \brief Hides the node of the graph
+    /// \brief Hides the given node
     ///
-    /// This function hides \c n in the digraph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c n
-    /// to be false in the corresponding node-map.
+    /// This function hides the given node in the subdigraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c false in the node filter map.
     void hide(const Node& n) const { Parent::hide(n); }
 
-    /// \brief Hides the arc of the graph
+    /// \brief Hides the given arc
     ///
-    /// This function hides \c a in the digraph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c a
-    /// to be false in the corresponding arc-map.
+    /// This function hides the given arc in the subdigraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c a
+    /// to be \c false in the arc filter map.
     void hide(const Arc& a) const { Parent::hide(a); }
 
-    /// \brief Unhides the node of the graph
+    /// \brief Shows the given node
     ///
-    /// The value of \c n is set to be true in the node-map which stores
-    /// hide information. If \c n was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given node in the subdigraph.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c true in the node filter map.
     void unHide(const Node& n) const { Parent::unHide(n); }
 
-    /// \brief Unhides the arc of the graph
+    /// \brief Shows the given arc
     ///
-    /// The value of \c a is set to be true in the arc-map which stores
-    /// hide information. If \c a was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given arc in the subdigraph.
+    /// It is done by simply setting the assigned value of \c a
+    /// to be \c true in the arc filter map.
     void unHide(const Arc& a) const { Parent::unHide(a); }
 
-    /// \brief Returns true if \c n is hidden.
+    /// \brief Returns \c true if the given node is hidden.
     ///
-    /// Returns true if \c n is hidden.
-    ///
+    /// This function returns \c true if the given node is hidden.
     bool hidden(const Node& n) const { return Parent::hidden(n); }
 
-    /// \brief Returns true if \c a is hidden.
+    /// \brief Returns \c true if the given arc is hidden.
     ///
-    /// Returns true if \c a is hidden.
-    ///
+    /// This function returns \c true if the given arc is hidden.
     bool hidden(const Arc& a) const { return Parent::hidden(a); }
 
   };
 
-  /// \brief Just gives back a subdigraph
+  /// \brief Returns a read-only SubDigraph adaptor
   ///
-  /// Just gives back a subdigraph
+  /// This function just returns a read-only \ref SubDigraph adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates SubDigraph
   template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
   SubDigraph<const Digraph, NodeFilterMap, ArcFilterMap>
   subDigraph(const Digraph& digraph, NodeFilterMap& nfm, ArcFilterMap& afm) {
@@ -1249,37 +1285,65 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief A graph adaptor for hiding nodes and edges in an
-  /// undirected graph.
+  /// \brief Adaptor class for hiding nodes and edges in an undirected
+  /// graph.
   ///
-  /// SubGraph hides nodes and edges in a graph. A bool node map and a
-  /// bool edge map must be specified, which define the filters for
-  /// nodes and edges. Just the nodes and edges with true value are
-  /// shown in the subgraph. The SubGraph is conform to the \ref
-  /// concepts::Graph "Graph concept". If the \c _checked parameter is
-  /// true, then the edges incident to filtered nodes are also
+  /// SubGraph can be used for hiding nodes and edges in a graph.
+  /// A \c bool node map and a \c bool edge map must be specified, which
+  /// define the filters for nodes and edges.
+  /// Only the nodes and edges with \c true filter value are
+  /// shown in the subgraph. This adaptor conforms to the \ref
+  /// concepts::Graph "Graph" concept. If the \c _checked parameter is
+  /// \c true, then the edges incident to hidden nodes are also
   /// filtered out.
   ///
-  /// \tparam _Graph It must be conform to the \ref
-  /// concepts::Graph "Graph concept". The type can be specified
-  /// to const.
-  /// \tparam _NodeFilterMap A bool valued node map of the the adapted graph.
-  /// \tparam _EdgeFilterMap A bool valued edge map of the the adapted graph.
-  /// \tparam _checked If the parameter is false then the edge filtering
-  /// is not checked with respect to node filter. Otherwise, each edge
-  /// is automatically filtered, which is incident to a filtered node.
+  /// The adapted graph can also be modified through this adaptor
+  /// by adding or removing nodes or edges, unless the \c _Graph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Graph The type of the adapted graph.
+  /// It must conform to the \ref concepts::Graph "Graph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
+  /// adapted graph. The default map type is
+  /// \ref concepts::Graph::NodeMap "_Graph::NodeMap<bool>".
+  /// \tparam _EdgeFilterMap A \c bool (or convertible) edge map of the
+  /// adapted graph. The default map type is
+  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
+  /// \tparam _checked If this parameter is set to \c false, then the edge
+  /// filtering is not checked with respect to the node filter.
+  /// Otherwise, each edge that is incident to a hidden node is automatically
+  /// filtered out. This is the default option.
+  ///
+  /// \note The \c Node, \c Edge and \c Arc types of this adaptor and the
+  /// adapted graph are convertible to each other.
   ///
   /// \see FilterNodes
   /// \see FilterEdges
-  template<typename _Graph, typename NodeFilterMap,
-           typename EdgeFilterMap, bool _checked = true>
+#ifdef DOXYGEN
+  template<typename _Graph,
+           typename _NodeFilterMap,
+           typename _EdgeFilterMap,
+           bool _checked>
+#else
+  template<typename _Graph,
+           typename _NodeFilterMap = typename _Graph::template NodeMap<bool>,
+           typename _EdgeFilterMap = typename _Graph::template EdgeMap<bool>,
+           bool _checked = true>
+#endif
   class SubGraph
     : public GraphAdaptorExtender<
-      SubGraphBase<_Graph, NodeFilterMap, EdgeFilterMap, _checked> > {
+      SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, _checked> > {
   public:
+    /// The type of the adapted graph.
     typedef _Graph Graph;
+    /// The type of the node filter map.
+    typedef _NodeFilterMap NodeFilterMap;
+    /// The type of the edge filter map.
+    typedef _EdgeFilterMap EdgeFilterMap;
+
     typedef GraphAdaptorExtender<
-      SubGraphBase<_Graph, NodeFilterMap, EdgeFilterMap> > Parent;
+      SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, _checked> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Edge Edge;
@@ -1290,59 +1354,61 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a subgraph for the given graph with given node and
-    /// edge map filters.
-    SubGraph(Graph& _graph, NodeFilterMap& node_filter_map,
+    /// Creates a subgraph for the given graph with the given node
+    /// and edge filter maps.
+    SubGraph(Graph& graph, NodeFilterMap& node_filter_map,
              EdgeFilterMap& edge_filter_map) {
-      setGraph(_graph);
+      setGraph(graph);
       setNodeFilterMap(node_filter_map);
       setEdgeFilterMap(edge_filter_map);
     }
 
-    /// \brief Hides the node of the graph
+    /// \brief Hides the given node
     ///
-    /// This function hides \c n in the graph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c n
-    /// to be false in the corresponding node-map.
+    /// This function hides the given node in the subgraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c false in the node filter map.
     void hide(const Node& n) const { Parent::hide(n); }
 
-    /// \brief Hides the edge of the graph
+    /// \brief Hides the given edge
     ///
-    /// This function hides \c e in the graph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c e
-    /// to be false in the corresponding edge-map.
+    /// This function hides the given edge in the subgraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c e
+    /// to be \c false in the edge filter map.
     void hide(const Edge& e) const { Parent::hide(e); }
 
-    /// \brief Unhides the node of the graph
+    /// \brief Shows the given node
     ///
-    /// The value of \c n is set to be true in the node-map which stores
-    /// hide information. If \c n was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given node in the subgraph.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c true in the node filter map.
     void unHide(const Node& n) const { Parent::unHide(n); }
 
-    /// \brief Unhides the edge of the graph
+    /// \brief Shows the given edge
     ///
-    /// The value of \c e is set to be true in the edge-map which stores
-    /// hide information. If \c e was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given edge in the subgraph.
+    /// It is done by simply setting the assigned value of \c e
+    /// to be \c true in the edge filter map.
     void unHide(const Edge& e) const { Parent::unHide(e); }
 
-    /// \brief Returns true if \c n is hidden.
+    /// \brief Returns \c true if the given node is hidden.
     ///
-    /// Returns true if \c n is hidden.
-    ///
+    /// This function returns \c true if the given node is hidden.
     bool hidden(const Node& n) const { return Parent::hidden(n); }
 
-    /// \brief Returns true if \c e is hidden.
+    /// \brief Returns \c true if the given edge is hidden.
     ///
-    /// Returns true if \c e is hidden.
-    ///
+    /// This function returns \c true if the given edge is hidden.
     bool hidden(const Edge& e) const { return Parent::hidden(e); }
   };
 
-  /// \brief Just gives back a subgraph
+  /// \brief Returns a read-only SubGraph adaptor
   ///
-  /// Just gives back a subgraph
+  /// This function just returns a read-only \ref SubGraph adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates SubGraph
   template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
   SubGraph<const Graph, NodeFilterMap, ArcFilterMap>
   subGraph(const Graph& graph, NodeFilterMap& nfm, ArcFilterMap& efm) {
@@ -1373,32 +1439,42 @@ namespace lemon {
       (graph, nfm, efm);
   }
 
+
   /// \ingroup graph_adaptors
   ///
-  /// \brief An adaptor for hiding nodes from a digraph or a graph.
+  /// \brief Adaptor class for hiding nodes in a digraph or a graph.
   ///
-  /// FilterNodes adaptor hides nodes in a graph or a digraph. A bool
-  /// node map must be specified, which defines the filters for
-  /// nodes. Just the unfiltered nodes and the arcs or edges incident
-  /// to unfiltered nodes are shown in the subdigraph or subgraph. The
-  /// FilterNodes is conform to the \ref concepts::Digraph
-  /// "Digraph concept" or \ref concepts::Graph "Graph concept" depending
-  /// on the \c _Digraph template parameter. If the \c _checked
-  /// parameter is true, then the arc or edges incident to filtered nodes
-  /// are also filtered out.
+  /// FilterNodes adaptor can be used for hiding nodes in a digraph or a
+  /// graph. A \c bool node map must be specified, which defines the filter
+  /// for the nodes. Only the nodes with \c true filter value and the
+  /// arcs/edges incident to nodes both with \c true filter value are shown
+  /// in the subgraph. This adaptor conforms to the \ref concepts::Digraph
+  /// "Digraph" concept or the \ref concepts::Graph "Graph" concept
+  /// depending on the \c _Graph template parameter.
   ///
-  /// \tparam _Digraph It must be conform to the \ref
-  /// concepts::Digraph "Digraph concept" or \ref concepts::Graph
-  /// "Graph concept". The type can be specified to be const.
-  /// \tparam _NodeFilterMap A bool valued node map of the the adapted graph.
-  /// \tparam _checked If the parameter is false then the arc or edge
-  /// filtering is not checked with respect to node filter. In this
-  /// case just isolated nodes can be filtered out from the
-  /// graph.
+  /// The adapted (di)graph can also be modified through this adaptor
+  /// by adding or removing nodes or arcs/edges, unless the \c _Graph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Graph The type of the adapted digraph or graph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept
+  /// or the \ref concepts::Graph "Graph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
+  /// adapted (di)graph. The default map type is
+  /// \ref concepts::Graph::NodeMap "_Graph::NodeMap<bool>".
+  /// \tparam _checked If this parameter is set to \c false then the arc/edge
+  /// filtering is not checked with respect to the node filter. In this
+  /// case only isolated nodes can be filtered out from the graph.
+  /// Otherwise, each arc/edge that is incident to a hidden node is
+  /// automatically filtered out. This is the default option.
+  ///
+  /// \note The \c Node and <tt>Arc/Edge</tt> types of this adaptor and the
+  /// adapted (di)graph are convertible to each other.
 #ifdef DOXYGEN
-  template<typename _Digraph,
-           typename _NodeFilterMap = typename _Digraph::template NodeMap<bool>,
-           bool _checked = true>
+  template<typename _Graph,
+           typename _NodeFilterMap,
+           bool _checked>
 #else
   template<typename _Digraph,
            typename _NodeFilterMap = typename _Digraph::template NodeMap<bool>,
@@ -1430,33 +1506,37 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates an adaptor for the given digraph or graph with
+    /// Creates a subgraph for the given digraph or graph with the
     /// given node filter map.
-    FilterNodes(Digraph& _digraph, NodeFilterMap& node_filter) :
+#ifdef DOXYGEN
+    FilterNodes(_Graph& graph, _NodeFilterMap& node_filter) :
+#else
+    FilterNodes(Digraph& graph, NodeFilterMap& node_filter) :
+#endif
       Parent(), const_true_map(true) {
-      Parent::setDigraph(_digraph);
+      Parent::setDigraph(graph);
       Parent::setNodeFilterMap(node_filter);
       Parent::setArcFilterMap(const_true_map);
     }
 
-    /// \brief Hides the node of the graph
+    /// \brief Hides the given node
     ///
-    /// This function hides \c n in the digraph or graph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c n
-    /// to be false in the corresponding node map.
+    /// This function hides the given node in the subgraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c false in the node filter map.
     void hide(const Node& n) const { Parent::hide(n); }
 
-    /// \brief Unhides the node of the graph
+    /// \brief Shows the given node
     ///
-    /// The value of \c n is set to be true in the node-map which stores
-    /// hide information. If \c n was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given node in the subgraph.
+    /// It is done by simply setting the assigned value of \c n
+    /// to be \c true in the node filter map.
     void unHide(const Node& n) const { Parent::unHide(n); }
 
-    /// \brief Returns true if \c n is hidden.
+    /// \brief Returns \c true if the given node is hidden.
     ///
-    /// Returns true if \c n is hidden.
-    ///
+    /// This function returns \c true if the given node is hidden.
     bool hidden(const Node& n) const { return Parent::hidden(n); }
 
   };
@@ -1496,9 +1576,11 @@ namespace lemon {
   };
 
 
-  /// \brief Just gives back a FilterNodes adaptor
+  /// \brief Returns a read-only FilterNodes adaptor
   ///
-  /// Just gives back a FilterNodes adaptor
+  /// This function just returns a read-only \ref FilterNodes adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates FilterNodes
   template<typename Digraph, typename NodeFilterMap>
   FilterNodes<const Digraph, NodeFilterMap>
   filterNodes(const Digraph& digraph, NodeFilterMap& nfm) {
@@ -1513,22 +1595,39 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief An adaptor for hiding arcs from a digraph.
+  /// \brief Adaptor class for hiding arcs in a digraph.
   ///
-  /// FilterArcs adaptor hides arcs in a digraph. A bool arc map must
-  /// be specified, which defines the filters for arcs. Just the
-  /// unfiltered arcs are shown in the subdigraph. The FilterArcs is
-  /// conform to the \ref concepts::Digraph "Digraph concept".
+  /// FilterArcs adaptor can be used for hiding arcs in a digraph.
+  /// A \c bool arc map must be specified, which defines the filter for
+  /// the arcs. Only the arcs with \c true filter value are shown in the
+  /// subdigraph. This adaptor conforms to the \ref concepts::Digraph
+  /// "Digraph" concept.
   ///
-  /// \tparam _Digraph It must be conform to the \ref concepts::Digraph
-  /// "Digraph concept". The type can be specified to be const.
-  /// \tparam _ArcFilterMap A bool valued arc map of the the adapted
-  /// graph.
-  template<typename _Digraph, typename _ArcFilterMap>
+  /// The adapted digraph can also be modified through this adaptor
+  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _ArcFilterMap A \c bool (or convertible) arc map of the
+  /// adapted digraph. The default map type is
+  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<bool>".
+  ///
+  /// \note The \c Node and \c Arc types of this adaptor and the adapted
+  /// digraph are convertible to each other.
+#ifdef DOXYGEN
+  template<typename _Digraph,
+           typename _ArcFilterMap>
+#else
+  template<typename _Digraph,
+           typename _ArcFilterMap = typename _Digraph::template ArcMap<bool> >
+#endif
   class FilterArcs :
     public SubDigraph<_Digraph, ConstMap<typename _Digraph::Node, bool>,
                       _ArcFilterMap, false> {
   public:
+
     typedef _Digraph Digraph;
     typedef _ArcFilterMap ArcFilterMap;
 
@@ -1548,8 +1647,8 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a FilterArcs adaptor for the given graph with
-    /// given arc map filter.
+    /// Creates a subdigraph for the given digraph with the given arc
+    /// filter map.
     FilterArcs(Digraph& digraph, ArcFilterMap& arc_filter)
       : Parent(), const_true_map(true) {
       Parent::setDigraph(digraph);
@@ -1557,31 +1656,33 @@ namespace lemon {
       Parent::setArcFilterMap(arc_filter);
     }
 
-    /// \brief Hides the arc of the graph
+    /// \brief Hides the given arc
     ///
-    /// This function hides \c a in the graph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c a
-    /// to be false in the corresponding arc map.
+    /// This function hides the given arc in the subdigraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c a
+    /// to be \c false in the arc filter map.
     void hide(const Arc& a) const { Parent::hide(a); }
 
-    /// \brief Unhides the arc of the graph
+    /// \brief Shows the given arc
     ///
-    /// The value of \c a is set to be true in the arc-map which stores
-    /// hide information. If \c a was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given arc in the subdigraph.
+    /// It is done by simply setting the assigned value of \c a
+    /// to be \c true in the arc filter map.
     void unHide(const Arc& a) const { Parent::unHide(a); }
 
-    /// \brief Returns true if \c a is hidden.
+    /// \brief Returns \c true if the given arc is hidden.
     ///
-    /// Returns true if \c a is hidden.
-    ///
+    /// This function returns \c true if the given arc is hidden.
     bool hidden(const Arc& a) const { return Parent::hidden(a); }
 
   };
 
-  /// \brief Just gives back an FilterArcs adaptor
+  /// \brief Returns a read-only FilterArcs adaptor
   ///
-  /// Just gives back an FilterArcs adaptor
+  /// This function just returns a read-only \ref FilterArcs adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates FilterArcs
   template<typename Digraph, typename ArcFilterMap>
   FilterArcs<const Digraph, ArcFilterMap>
   filterArcs(const Digraph& digraph, ArcFilterMap& afm) {
@@ -1596,18 +1697,34 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief An adaptor for hiding edges from a graph.
+  /// \brief Adaptor class for hiding edges in a graph.
   ///
-  /// FilterEdges adaptor hides edges in a digraph. A bool edge map must
-  /// be specified, which defines the filters for edges. Just the
-  /// unfiltered edges are shown in the subdigraph. The FilterEdges is
-  /// conform to the \ref concepts::Graph "Graph concept".
+  /// FilterEdges adaptor can be used for hiding edges in a graph.
+  /// A \c bool edge map must be specified, which defines the filter for
+  /// the edges. Only the edges with \c true filter value are shown in the
+  /// subgraph. This adaptor conforms to the \ref concepts::Graph
+  /// "Graph" concept.
   ///
-  /// \tparam _Graph It must be conform to the \ref concepts::Graph
-  /// "Graph concept". The type can be specified to be const.
-  /// \tparam _EdgeFilterMap A bool valued edge map of the the adapted
-  /// graph.
-  template<typename _Graph, typename _EdgeFilterMap>
+  /// The adapted graph can also be modified through this adaptor
+  /// by adding or removing nodes or edges, unless the \c _Graph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Graph The type of the adapted graph.
+  /// It must conform to the \ref concepts::Graph "Graph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _EdgeFilterMap A \c bool (or convertible) edge map of the
+  /// adapted graph. The default map type is
+  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
+  ///
+  /// \note The \c Node, \c Edge and \c Arc types of this adaptor and the
+  /// adapted graph are convertible to each other.
+#ifdef DOXYGEN
+  template<typename _Graph,
+           typename _EdgeFilterMap>
+#else
+  template<typename _Graph,
+           typename _EdgeFilterMap = typename _Graph::template EdgeMap<bool> >
+#endif
   class FilterEdges :
     public SubGraph<_Graph, ConstMap<typename _Graph::Node,bool>,
                     _EdgeFilterMap, false> {
@@ -1628,40 +1745,42 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a FilterEdges adaptor for the given graph with
-    /// given edge map filters.
-    FilterEdges(Graph& _graph, EdgeFilterMap& edge_filter_map) :
+    /// Creates a subgraph for the given graph with the given edge
+    /// filter map.
+    FilterEdges(Graph& graph, EdgeFilterMap& edge_filter_map) :
       Parent(), const_true_map(true) {
-      Parent::setGraph(_graph);
+      Parent::setGraph(graph);
       Parent::setNodeFilterMap(const_true_map);
       Parent::setEdgeFilterMap(edge_filter_map);
     }
 
-    /// \brief Hides the edge of the graph
+    /// \brief Hides the given edge
     ///
-    /// This function hides \c e in the graph, i.e. the iteration
-    /// jumps over it. This is done by simply setting the value of \c e
-    /// to be false in the corresponding edge-map.
+    /// This function hides the given edge in the subgraph,
+    /// i.e. the iteration jumps over it.
+    /// It is done by simply setting the assigned value of \c e
+    /// to be \c false in the edge filter map.
     void hide(const Edge& e) const { Parent::hide(e); }
 
-    /// \brief Unhides the edge of the graph
+    /// \brief Shows the given edge
     ///
-    /// The value of \c e is set to be true in the edge-map which stores
-    /// hide information. If \c e was hidden previuosly, then it is shown
-    /// again
+    /// This function shows the given edge in the subgraph.
+    /// It is done by simply setting the assigned value of \c e
+    /// to be \c true in the edge filter map.
     void unHide(const Edge& e) const { Parent::unHide(e); }
 
-    /// \brief Returns true if \c e is hidden.
+    /// \brief Returns \c true if the given edge is hidden.
     ///
-    /// Returns true if \c e is hidden.
-    ///
+    /// This function returns \c true if the given edge is hidden.
     bool hidden(const Edge& e) const { return Parent::hidden(e); }
 
   };
 
-  /// \brief Just gives back a FilterEdges adaptor
+  /// \brief Returns a read-only FilterEdges adaptor
   ///
-  /// Just gives back a FilterEdges adaptor
+  /// This function just returns a read-only \ref FilterEdges adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates FilterEdges
   template<typename Graph, typename EdgeFilterMap>
   FilterEdges<const Graph, EdgeFilterMap>
   filterEdges(const Graph& graph, EdgeFilterMap& efm) {
@@ -1673,6 +1792,7 @@ namespace lemon {
   filterEdges(const Graph& graph, const EdgeFilterMap& efm) {
     return FilterEdges<const Graph, const EdgeFilterMap>(graph, efm);
   }
+
 
   template <typename _Digraph>
   class UndirectorBase {
@@ -1712,8 +1832,6 @@ namespace lemon {
            static_cast<const Edge&>(*this) < static_cast<const Edge&>(other));
       }
     };
-
-
 
     void first(Node& n) const {
       _digraph->first(n);
@@ -2068,16 +2186,27 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief Undirect the graph
+  /// \brief Adaptor class for viewing a digraph as an undirected graph.
   ///
-  /// This adaptor makes an undirected graph from a directed
-  /// graph. All arcs of the underlying digraph will be showed in the
-  /// adaptor as an edge. The Orienter adaptor is conform to the \ref
-  /// concepts::Graph "Graph concept".
+  /// Undirector adaptor can be used for viewing a digraph as an undirected
+  /// graph. All arcs of the underlying digraph are showed in the
+  /// adaptor as an edge (and also as a pair of arcs, of course).
+  /// This adaptor conforms to the \ref concepts::Graph "Graph" concept.
   ///
-  /// \tparam _Digraph It must be conform to the \ref
-  /// concepts::Digraph "Digraph concept". The type can be specified
-  /// to const.
+  /// The adapted digraph can also be modified through this adaptor
+  /// by adding or removing nodes or edges, unless the \c _Digraph template
+  /// parameter is set to be \c const.
+  ///
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It can also be specified to be \c const.
+  ///
+  /// \note The \c Node type of this adaptor and the adapted digraph are
+  /// convertible to each other, moreover the \c Edge type of the adaptor
+  /// and the \c Arc type of the adapted digraph are also convertible to
+  /// each other.
+  /// (Thus the \c Arc type of the adaptor is convertible to the \c Arc type
+  /// of the adapted digraph.)
   template<typename _Digraph>
   class Undirector
     : public GraphAdaptorExtender<UndirectorBase<_Digraph> > {
@@ -2090,15 +2219,17 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Creates a undirected graph from the given digraph
+    /// Creates an undirected graph from the given digraph.
     Undirector(_Digraph& digraph) {
       setDigraph(digraph);
     }
 
-    /// \brief ArcMap combined from two original ArcMap
+    /// \brief Arc map combined from two original arc maps
     ///
-    /// This class adapts two original digraph ArcMap to
-    /// get an arc map on the undirected graph.
+    /// This map adaptor class adapts two arc maps of the underlying
+    /// digraph to get an arc map of the undirected graph.
+    /// Its value type is inherited from the first arc map type
+    /// (\c %ForwardMap).
     template <typename _ForwardMap, typename _BackwardMap>
     class CombinedArcMap {
     public:
@@ -2108,24 +2239,21 @@ namespace lemon {
 
       typedef typename MapTraits<ForwardMap>::ReferenceMapTag ReferenceMapTag;
 
-      typedef typename ForwardMap::Value Value;
+      /// The key type of the map
       typedef typename Parent::Arc Key;
+      /// The value type of the map
+      typedef typename ForwardMap::Value Value;
 
       typedef typename MapTraits<ForwardMap>::ReturnValue ReturnValue;
       typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReturnValue;
       typedef typename MapTraits<ForwardMap>::ReturnValue Reference;
       typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReference;
 
-      /// \brief Constructor
-      ///
       /// Constructor
       CombinedArcMap(ForwardMap& forward, BackwardMap& backward)
         : _forward(&forward), _backward(&backward) {}
 
-
-      /// \brief Sets the value associated with a key.
-      ///
-      /// Sets the value associated with a key.
+      /// Sets the value associated with the given key.
       void set(const Key& e, const Value& a) {
         if (Parent::direction(e)) {
           _forward->set(e, a);
@@ -2134,9 +2262,7 @@ namespace lemon {
         }
       }
 
-      /// \brief Returns the value associated with a key.
-      ///
-      /// Returns the value associated with a key.
+      /// Returns the value associated with the given key.
       ConstReturnValue operator[](const Key& e) const {
         if (Parent::direction(e)) {
           return (*_forward)[e];
@@ -2145,9 +2271,7 @@ namespace lemon {
         }
       }
 
-      /// \brief Returns the value associated with a key.
-      ///
-      /// Returns the value associated with a key.
+      /// Returns a reference to the value associated with the given key.
       ReturnValue operator[](const Key& e) {
         if (Parent::direction(e)) {
           return (*_forward)[e];
@@ -2163,9 +2287,9 @@ namespace lemon {
 
     };
 
-    /// \brief Just gives back a combined arc map
+    /// \brief Returns a combined arc map
     ///
-    /// Just gives back a combined arc map
+    /// This function just returns a combined arc map.
     template <typename ForwardMap, typename BackwardMap>
     static CombinedArcMap<ForwardMap, BackwardMap>
     combinedArcMap(ForwardMap& forward, BackwardMap& backward) {
@@ -2195,14 +2319,17 @@ namespace lemon {
 
   };
 
-  /// \brief Just gives back an undirected view of the given digraph
+  /// \brief Returns a read-only Undirector adaptor
   ///
-  /// Just gives back an undirected view of the given digraph
+  /// This function just returns a read-only \ref Undirector adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates Undirector
   template<typename Digraph>
   Undirector<const Digraph>
   undirector(const Digraph& digraph) {
     return Undirector<const Digraph>(digraph);
   }
+
 
   template <typename _Graph, typename _DirectionMap>
   class OrienterBase {
@@ -2364,52 +2491,76 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief Orients the edges of the graph to get a digraph
+  /// \brief Adaptor class for orienting the edges of a graph to get a digraph
   ///
-  /// This adaptor orients each edge in the undirected graph. The
-  /// direction of the arcs stored in an edge node map.  The arcs can
-  /// be easily reverted by the \c reverseArc() member function in the
-  /// adaptor. The Orienter adaptor is conform to the \ref
-  /// concepts::Digraph "Digraph concept".
+  /// Orienter adaptor can be used for orienting the edges of a graph to
+  /// get a digraph. A \c bool edge map of the underlying graph must be
+  /// specified, which define the direction of the arcs in the adaptor.
+  /// The arcs can be easily reversed by the \c reverseArc() member function
+  /// of the adaptor.
+  /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
-  /// \tparam _Graph It must be conform to the \ref concepts::Graph
-  /// "Graph concept". The type can be specified to be const.
-  /// \tparam _DirectionMap A bool valued edge map of the the adapted
-  /// graph.
+  /// The adapted graph can also be modified through this adaptor
+  /// by adding or removing nodes or arcs, unless the \c _Graph template
+  /// parameter is set to be \c const.
   ///
-  /// \sa orienter
+  /// \tparam _Graph The type of the adapted graph.
+  /// It must conform to the \ref concepts::Graph "Graph" concept.
+  /// It can also be specified to be \c const.
+  /// \tparam _DirectionMap A \c bool (or convertible) edge map of the
+  /// adapted graph. The default map type is
+  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
+  ///
+  /// \note The \c Node type of this adaptor and the adapted graph are
+  /// convertible to each other, moreover the \c Arc type of the adaptor
+  /// and the \c Edge type of the adapted graph are also convertible to
+  /// each other.
+#ifdef DOXYGEN
   template<typename _Graph,
-           typename DirectionMap = typename _Graph::template EdgeMap<bool> >
+           typename _DirectionMap>
+#else
+  template<typename _Graph,
+           typename _DirectionMap = typename _Graph::template EdgeMap<bool> >
+#endif
   class Orienter :
-    public DigraphAdaptorExtender<OrienterBase<_Graph, DirectionMap> > {
+    public DigraphAdaptorExtender<OrienterBase<_Graph, _DirectionMap> > {
   public:
+
+    /// The type of the adapted graph.
     typedef _Graph Graph;
+    /// The type of the direction edge map.
+    typedef _DirectionMap DirectionMap;
+
     typedef DigraphAdaptorExtender<
-      OrienterBase<_Graph, DirectionMap> > Parent;
+      OrienterBase<_Graph, _DirectionMap> > Parent;
     typedef typename Parent::Arc Arc;
   protected:
     Orienter() { }
   public:
 
-    /// \brief Constructor of the adaptor
+    /// \brief Constructor
     ///
-    /// Constructor of the adaptor
+    /// Constructor of the adaptor.
     Orienter(Graph& graph, DirectionMap& direction) {
       setGraph(graph);
       setDirectionMap(direction);
     }
 
-    /// \brief Reverse arc
+    /// \brief Reverses the given arc
     ///
-    /// It reverse the given arc. It simply negate the direction in the map.
+    /// This function reverses the given arc.
+    /// It is done by simply negate the assigned value of \c a
+    /// in the direction map.
     void reverseArc(const Arc& a) {
       Parent::reverseArc(a);
     }
   };
 
-  /// \brief Just gives back a Orienter
+  /// \brief Returns a read-only Orienter adaptor
   ///
-  /// Just gives back a Orienter
+  /// This function just returns a read-only \ref Orienter adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates Orienter
   template<typename Graph, typename DirectionMap>
   Orienter<const Graph, DirectionMap>
   orienter(const Graph& graph, DirectionMap& dm) {
@@ -2491,31 +2642,51 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief An adaptor for composing the residual graph for directed
+  /// \brief Adaptor class for composing the residual digraph for directed
   /// flow and circulation problems.
   ///
-  /// An adaptor for composing the residual graph for directed flow and
-  /// circulation problems.  Let \f$ G=(V, A) \f$ be a directed graph
-  /// and let \f$ F \f$ be a number type. Let moreover \f$ f,c:A\to F \f$,
-  /// be functions on the arc-set.
+  /// Residual can be used for composing the \e residual digraph for directed
+  /// flow and circulation problems. Let \f$ G=(V, A) \f$ be a directed graph
+  /// and let \f$ F \f$ be a number type. Let \f$ flow, cap: A\to F \f$ be
+  /// functions on the arcs.
+  /// This adaptor implements a digraph structure with node set \f$ V \f$
+  /// and arc set \f$ A_{forward}\cup A_{backward} \f$,
+  /// where \f$ A_{forward}=\{uv : uv\in A, flow(uv)<cap(uv)\} \f$ and
+  /// \f$ A_{backward}=\{vu : uv\in A, flow(uv)>0\} \f$, i.e. the so
+  /// called residual digraph.
+  /// When the union \f$ A_{forward}\cup A_{backward} \f$ is taken,
+  /// multiplicities are counted, i.e. the adaptor has exactly
+  /// \f$ |A_{forward}| + |A_{backward}|\f$ arcs (it may have parallel
+  /// arcs).
+  /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
-  /// Then Residual implements the digraph structure with
-  /// node-set \f$ V \f$ and arc-set \f$ A_{forward}\cup A_{backward} \f$,
-  /// where \f$ A_{forward}=\{uv : uv\in A, f(uv)<c(uv)\} \f$ and
-  /// \f$ A_{backward}=\{vu : uv\in A, f(uv)>0\} \f$, i.e. the so
-  /// called residual graph.  When we take the union
-  /// \f$ A_{forward}\cup A_{backward} \f$, multiplicities are counted,
-  /// i.e.  if an arc is in both \f$ A_{forward} \f$ and
-  /// \f$ A_{backward} \f$, then in the adaptor it appears in both
-  /// orientation.
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It is implicitly \c const.
+  /// \tparam _CapacityMap An arc map of some numerical type, which defines
+  /// the capacities in the flow problem. It is implicitly \c const.
+  /// The default map type is
+  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
+  /// \tparam _FlowMap An arc map of some numerical type, which defines
+  /// the flow values in the flow problem.
+  /// The default map type is \c _CapacityMap.
+  /// \tparam _Tolerance Tolerance type for handling inexact computation.
+  /// The default tolerance type depends on the value type of the
+  /// capacity map.
   ///
-  /// \tparam _Digraph It must be conform to the \ref concepts::Digraph
-  /// "Digraph concept". The type is implicitly const.
-  /// \tparam _CapacityMap An arc map of some numeric type, it defines
-  /// the capacities in the flow problem. The map is implicitly const.
-  /// \tparam _FlowMap An arc map of some numeric type, it defines
-  /// the capacities in the flow problem.
-  /// \tparam _Tolerance Handler for inexact computation.
+  /// \note This adaptor is implemented using Undirector and FilterArcs
+  /// adaptors.
+  ///
+  /// \note The \c Node type of this adaptor and the adapted digraph are
+  /// convertible to each other, moreover the \c Arc type of the adaptor
+  /// is convertible to the \c Arc type of the adapted digraph.
+#ifdef DOXYGEN
+  template<typename _Digraph,
+           typename _CapacityMap,
+           typename _FlowMap,
+           typename _Tolerance>
+  class Residual
+#else
   template<typename _Digraph,
            typename _CapacityMap = typename _Digraph::template ArcMap<int>,
            typename _FlowMap = _CapacityMap,
@@ -2528,11 +2699,15 @@ namespace lemon {
                                       _FlowMap, _Tolerance>,
       _adaptor_bits::ResBackwardFilter<const _Digraph, _CapacityMap,
                                        _FlowMap, _Tolerance> > >
+#endif
   {
   public:
 
+    /// The type of the underlying digraph.
     typedef _Digraph Digraph;
+    /// The type of the capacity map.
     typedef _CapacityMap CapacityMap;
+    /// The type of the flow map.
     typedef _FlowMap FlowMap;
     typedef _Tolerance Tolerance;
 
@@ -2564,10 +2739,10 @@ namespace lemon {
 
   public:
 
-    /// \brief Constructor of the residual digraph.
+    /// \brief Constructor
     ///
-    /// Constructor of the residual graph. The parameters are the digraph,
-    /// the flow map, the capacity map and a tolerance object.
+    /// Constructor of the residual digraph adaptor. The parameters are the
+    /// digraph, the capacity map, the flow map, and a tolerance object.
     Residual(const Digraph& digraph, const CapacityMap& capacity,
              FlowMap& flow, const Tolerance& tolerance = Tolerance())
       : Parent(), _capacity(&capacity), _flow(&flow), _graph(digraph),
@@ -2581,9 +2756,9 @@ namespace lemon {
 
     typedef typename Parent::Arc Arc;
 
-    /// \brief Gives back the residual capacity of the arc.
+    /// \brief Returns the residual capacity of the given arc.
     ///
-    /// Gives back the residual capacity of the arc.
+    /// Returns the residual capacity of the given arc.
     Value residualCapacity(const Arc& a) const {
       if (Undirected::direction(a)) {
         return (*_capacity)[a] - (*_flow)[a];
@@ -2592,11 +2767,11 @@ namespace lemon {
       }
     }
 
-    /// \brief Augment on the given arc in the residual graph.
+    /// \brief Augment on the given arc in the residual digraph.
     ///
-    /// Augment on the given arc in the residual graph. It increase
-    /// or decrease the flow on the original arc depend on the direction
-    /// of the residual arc.
+    /// Augment on the given arc in the residual digraph. It increases
+    /// or decreases the flow value on the original arc according to the
+    /// direction of the residual arc.
     void augment(const Arc& a, const Value& v) const {
       if (Undirected::direction(a)) {
         _flow->set(a, (*_flow)[a] + v);
@@ -2605,51 +2780,56 @@ namespace lemon {
       }
     }
 
-    /// \brief Returns the direction of the arc.
+    /// \brief Returns \c true if the given residual arc is a forward arc.
     ///
-    /// Returns true when the arc is same oriented as the original arc.
+    /// Returns \c true if the given residual arc has the same orientation
+    /// as the original arc, i.e. it is a so called forward arc.
     static bool forward(const Arc& a) {
       return Undirected::direction(a);
     }
 
-    /// \brief Returns the direction of the arc.
+    /// \brief Returns \c true if the given residual arc is a backward arc.
     ///
-    /// Returns true when the arc is opposite oriented as the original arc.
+    /// Returns \c true if the given residual arc has the opposite orientation
+    /// than the original arc, i.e. it is a so called backward arc.
     static bool backward(const Arc& a) {
       return !Undirected::direction(a);
     }
 
-    /// \brief Gives back the forward oriented residual arc.
+    /// \brief Returns the forward oriented residual arc.
     ///
-    /// Gives back the forward oriented residual arc.
+    /// Returns the forward oriented residual arc related to the given
+    /// arc of the underlying digraph.
     static Arc forward(const typename Digraph::Arc& a) {
       return Undirected::direct(a, true);
     }
 
-    /// \brief Gives back the backward oriented residual arc.
+    /// \brief Returns the backward oriented residual arc.
     ///
-    /// Gives back the backward oriented residual arc.
+    /// Returns the backward oriented residual arc related to the given
+    /// arc of the underlying digraph.
     static Arc backward(const typename Digraph::Arc& a) {
       return Undirected::direct(a, false);
     }
 
     /// \brief Residual capacity map.
     ///
-    /// In generic residual graph the residual capacity can be obtained
-    /// as a map.
+    /// This map adaptor class can be used for obtaining the residual
+    /// capacities as an arc map of the residual digraph.
+    /// Its value type is inherited from the capacity map.
     class ResidualCapacity {
     protected:
       const Adaptor* _adaptor;
     public:
-      /// The Key type
+      /// The key type of the map
       typedef Arc Key;
-      /// The Value type
+      /// The value type of the map
       typedef typename _CapacityMap::Value Value;
 
       /// Constructor
       ResidualCapacity(const Adaptor& adaptor) : _adaptor(&adaptor) {}
 
-      /// \e
+      /// Returns the value associated with the given residual arc
       Value operator[](const Arc& a) const {
         return _adaptor->residualCapacity(a);
       }
@@ -3108,25 +3288,31 @@ namespace lemon {
 
   /// \ingroup graph_adaptors
   ///
-  /// \brief Split the nodes of a directed graph
+  /// \brief Adaptor class for splitting the nodes of a digraph.
   ///
-  /// The SplitNodes adaptor splits each node into an in-node and an
-  /// out-node. Formaly, the adaptor replaces each \f$ u \f$ node in
-  /// the digraph with two nodes(namely node \f$ u_{in} \f$ and node
-  /// \f$ u_{out} \f$). If there is a \f$ (v, u) \f$ arc in the
-  /// original digraph the new target of the arc will be \f$ u_{in} \f$
-  /// and similarly the source of the original \f$ (u, v) \f$ arc
-  /// will be \f$ u_{out} \f$.  The adaptor will add for each node in
-  /// the original digraph an additional arc which connects
-  /// \f$ (u_{in}, u_{out}) \f$.
+  /// SplitNodes adaptor can be used for splitting each node into an
+  /// \e in-node and an \e out-node in a digraph. Formaly, the adaptor
+  /// replaces each node \f$ u \f$ in the digraph with two nodes,
+  /// namely node \f$ u_{in} \f$ and node \f$ u_{out} \f$.
+  /// If there is a \f$ (v, u) \f$ arc in the original digraph, then the
+  /// new target of the arc will be \f$ u_{in} \f$ and similarly the
+  /// source of each original \f$ (u, v) \f$ arc will be \f$ u_{out} \f$.
+  /// The adaptor adds an additional \e bind \e arc from \f$ u_{in} \f$
+  /// to \f$ u_{out} \f$ for each node \f$ u \f$ of the original digraph.
   ///
-  /// The aim of this class is to run algorithm with node costs if the
-  /// algorithm can use directly just arc costs. In this case we should use
-  /// a \c SplitNodes and set the node cost of the graph to the
-  /// bind arc in the adapted graph.
+  /// The aim of this class is running an algorithm with respect to node
+  /// costs or capacities if the algorithm considers only arc costs or
+  /// capacities directly.
+  /// In this case you can use \c SplitNodes adaptor, and set the node
+  /// costs/capacities of the original digraph to the \e bind \e arcs
+  /// in the adaptor.
   ///
-  /// \tparam _Digraph It must be conform to the \ref concepts::Digraph
-  /// "Digraph concept". The type can be specified to be const.
+  /// \tparam _Digraph The type of the adapted digraph.
+  /// It must conform to the \ref concepts::Digraph "Digraph" concept.
+  /// It is implicitly \c const.
+  ///
+  /// \note The \c Node type of this adaptor is converible to the \c Node
+  /// type of the adapted digraph.
   template <typename _Digraph>
   class SplitNodes
     : public DigraphAdaptorExtender<SplitNodesBase<const _Digraph> > {
@@ -3140,78 +3326,88 @@ namespace lemon {
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
 
-    /// \brief Constructor of the adaptor.
+    /// \brief Constructor
     ///
     /// Constructor of the adaptor.
     SplitNodes(const Digraph& g) {
       Parent::setDigraph(g);
     }
 
-    /// \brief Returns true when the node is in-node.
+    /// \brief Returns \c true if the given node is an in-node.
     ///
-    /// Returns true when the node is in-node.
+    /// Returns \c true if the given node is an in-node.
     static bool inNode(const Node& n) {
       return Parent::inNode(n);
     }
 
-    /// \brief Returns true when the node is out-node.
+    /// \brief Returns \c true if the given node is an out-node.
     ///
-    /// Returns true when the node is out-node.
+    /// Returns \c true if the given node is an out-node.
     static bool outNode(const Node& n) {
       return Parent::outNode(n);
     }
 
-    /// \brief Returns true when the arc is arc in the original digraph.
+    /// \brief Returns \c true if the given arc is an original arc.
     ///
-    /// Returns true when the arc is arc in the original digraph.
+    /// Returns \c true if the given arc is one of the arcs in the
+    /// original digraph.
     static bool origArc(const Arc& a) {
       return Parent::origArc(a);
     }
 
-    /// \brief Returns true when the arc binds an in-node and an out-node.
+    /// \brief Returns \c true if the given arc is a bind arc.
     ///
-    /// Returns true when the arc binds an in-node and an out-node.
+    /// Returns \c true if the given arc is a bind arc, i.e. it connects
+    /// an in-node and an out-node.
     static bool bindArc(const Arc& a) {
       return Parent::bindArc(a);
     }
 
-    /// \brief Gives back the in-node created from the \c node.
+    /// \brief Returns the in-node created from the given original node.
     ///
-    /// Gives back the in-node created from the \c node.
+    /// Returns the in-node created from the given original node.
     static Node inNode(const DigraphNode& n) {
       return Parent::inNode(n);
     }
 
-    /// \brief Gives back the out-node created from the \c node.
+    /// \brief Returns the out-node created from the given original node.
     ///
-    /// Gives back the out-node created from the \c node.
+    /// Returns the out-node created from the given original node.
     static Node outNode(const DigraphNode& n) {
       return Parent::outNode(n);
     }
 
-    /// \brief Gives back the arc binds the two part of the node.
+    /// \brief Returns the bind arc that corresponds to the given
+    /// original node.
     ///
-    /// Gives back the arc binds the two part of the node.
+    /// Returns the bind arc in the adaptor that corresponds to the given
+    /// original node, i.e. the arc connecting the in-node and out-node
+    /// of \c n.
     static Arc arc(const DigraphNode& n) {
       return Parent::arc(n);
     }
 
-    /// \brief Gives back the arc of the original arc.
+    /// \brief Returns the arc that corresponds to the given original arc.
     ///
-    /// Gives back the arc of the original arc.
+    /// Returns the arc in the adaptor that corresponds to the given
+    /// original arc.
     static Arc arc(const DigraphArc& a) {
       return Parent::arc(a);
     }
 
-    /// \brief NodeMap combined from two original NodeMap
+    /// \brief Node map combined from two original node maps
     ///
-    /// This class adapt two of the original digraph NodeMap to
-    /// get a node map on the adapted digraph.
+    /// This map adaptor class adapts two node maps of the original digraph
+    /// to get a node map of the split digraph.
+    /// Its value type is inherited from the first node map type
+    /// (\c InNodeMap).
     template <typename InNodeMap, typename OutNodeMap>
     class CombinedNodeMap {
     public:
 
+      /// The key type of the map
       typedef Node Key;
+      /// The value type of the map
       typedef typename InNodeMap::Value Value;
 
       typedef typename MapTraits<InNodeMap>::ReferenceMapTag ReferenceMapTag;
@@ -3220,26 +3416,11 @@ namespace lemon {
       typedef typename MapTraits<InNodeMap>::ReturnValue Reference;
       typedef typename MapTraits<InNodeMap>::ConstReturnValue ConstReference;
 
-      /// \brief Constructor
-      ///
-      /// Constructor.
+      /// Constructor
       CombinedNodeMap(InNodeMap& in_map, OutNodeMap& out_map)
         : _in_map(in_map), _out_map(out_map) {}
 
-      /// \brief The subscript operator.
-      ///
-      /// The subscript operator.
-      Value& operator[](const Key& key) {
-        if (Parent::inNode(key)) {
-          return _in_map[key];
-        } else {
-          return _out_map[key];
-        }
-      }
-
-      /// \brief The const subscript operator.
-      ///
-      /// The const subscript operator.
+      /// Returns the value associated with the given key.
       Value operator[](const Key& key) const {
         if (Parent::inNode(key)) {
           return _in_map[key];
@@ -3248,9 +3429,16 @@ namespace lemon {
         }
       }
 
-      /// \brief The setter function of the map.
-      ///
-      /// The setter function of the map.
+      /// Returns a reference to the value associated with the given key.
+      Value& operator[](const Key& key) {
+        if (Parent::inNode(key)) {
+          return _in_map[key];
+        } else {
+          return _out_map[key];
+        }
+      }
+
+      /// Sets the value associated with the given key.
       void set(const Key& key, const Value& value) {
         if (Parent::inNode(key)) {
           _in_map.set(key, value);
@@ -3267,9 +3455,9 @@ namespace lemon {
     };
 
 
-    /// \brief Just gives back a combined node map
+    /// \brief Returns a combined node map
     ///
-    /// Just gives back a combined node map
+    /// This function just returns a combined node map.
     template <typename InNodeMap, typename OutNodeMap>
     static CombinedNodeMap<InNodeMap, OutNodeMap>
     combinedNodeMap(InNodeMap& in_map, OutNodeMap& out_map) {
@@ -3295,15 +3483,20 @@ namespace lemon {
         const OutNodeMap>(in_map, out_map);
     }
 
-    /// \brief ArcMap combined from an original ArcMap and a NodeMap
+    /// \brief Arc map combined from an arc map and a node map of the
+    /// original digraph.
     ///
-    /// This class adapt an original ArcMap and a NodeMap to get an
-    /// arc map on the adapted digraph
+    /// This map adaptor class adapts an arc map and a node map of the
+    /// original digraph to get an arc map of the split digraph.
+    /// Its value type is inherited from the original arc map type
+    /// (\c DigraphArcMap).
     template <typename DigraphArcMap, typename DigraphNodeMap>
     class CombinedArcMap {
     public:
 
+      /// The key type of the map
       typedef Arc Key;
+      /// The value type of the map
       typedef typename DigraphArcMap::Value Value;
 
       typedef typename MapTraits<DigraphArcMap>::ReferenceMapTag
@@ -3317,26 +3510,11 @@ namespace lemon {
       typedef typename MapTraits<DigraphArcMap>::ConstReturnValue
         ConstReference;
 
-      /// \brief Constructor
-      ///
-      /// Constructor.
+      /// Constructor
       CombinedArcMap(DigraphArcMap& arc_map, DigraphNodeMap& node_map)
         : _arc_map(arc_map), _node_map(node_map) {}
 
-      /// \brief The subscript operator.
-      ///
-      /// The subscript operator.
-      void set(const Arc& arc, const Value& val) {
-        if (Parent::origArc(arc)) {
-          _arc_map.set(arc, val);
-        } else {
-          _node_map.set(arc, val);
-        }
-      }
-
-      /// \brief The const subscript operator.
-      ///
-      /// The const subscript operator.
+      /// Returns the value associated with the given key.
       Value operator[](const Key& arc) const {
         if (Parent::origArc(arc)) {
           return _arc_map[arc];
@@ -3345,9 +3523,7 @@ namespace lemon {
         }
       }
 
-      /// \brief The const subscript operator.
-      ///
-      /// The const subscript operator.
+      /// Returns a reference to the value associated with the given key.
       Value& operator[](const Key& arc) {
         if (Parent::origArc(arc)) {
           return _arc_map[arc];
@@ -3356,14 +3532,23 @@ namespace lemon {
         }
       }
 
+      /// Sets the value associated with the given key.
+      void set(const Arc& arc, const Value& val) {
+        if (Parent::origArc(arc)) {
+          _arc_map.set(arc, val);
+        } else {
+          _node_map.set(arc, val);
+        }
+      }
+
     private:
       DigraphArcMap& _arc_map;
       DigraphNodeMap& _node_map;
     };
 
-    /// \brief Just gives back a combined arc map
+    /// \brief Returns a combined arc map
     ///
-    /// Just gives back a combined arc map
+    /// This function just returns a combined arc map.
     template <typename DigraphArcMap, typename DigraphNodeMap>
     static CombinedArcMap<DigraphArcMap, DigraphNodeMap>
     combinedArcMap(DigraphArcMap& arc_map, DigraphNodeMap& node_map) {
@@ -3394,9 +3579,11 @@ namespace lemon {
 
   };
 
-  /// \brief Just gives back a node splitter
+  /// \brief Returns a (read-only) SplitNodes adaptor
   ///
-  /// Just gives back a node splitter
+  /// This function just returns a (read-only) \ref SplitNodes adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates SplitNodes
   template<typename Digraph>
   SplitNodes<Digraph>
   splitNodes(const Digraph& digraph) {
