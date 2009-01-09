@@ -474,14 +474,11 @@ namespace lemon {
         Parent::nextOut(i);
     }
 
-    void hide(const Node& n) const { _node_filter->set(n, false); }
-    void hide(const Arc& a) const { _arc_filter->set(a, false); }
+    void status(const Node& n, bool v) const { _node_filter->set(n, v); }
+    void status(const Arc& a, bool v) const { _arc_filter->set(a, v); }
 
-    void unHide(const Node& n) const { _node_filter->set(n, true); }
-    void unHide(const Arc& a) const { _arc_filter->set(a, true); }
-
-    bool hidden(const Node& n) const { return !(*_node_filter)[n]; }
-    bool hidden(const Arc& a) const { return !(*_arc_filter)[a]; }
+    bool status(const Node& n) const { return (*_node_filter)[n]; }
+    bool status(const Arc& a) const { return (*_arc_filter)[a]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -617,14 +614,11 @@ namespace lemon {
       while (i!=INVALID && !(*_arc_filter)[i]) Parent::nextOut(i);
     }
 
-    void hide(const Node& n) const { _node_filter->set(n, false); }
-    void hide(const Arc& e) const { _arc_filter->set(e, false); }
+    void status(const Node& n, bool v) const { _node_filter->set(n, v); }
+    void status(const Arc& a, bool v) const { _arc_filter->set(a, v); }
 
-    void unHide(const Node& n) const { _node_filter->set(n, true); }
-    void unHide(const Arc& e) const { _arc_filter->set(e, true); }
-
-    bool hidden(const Node& n) const { return !(*_node_filter)[n]; }
-    bool hidden(const Arc& e) const { return !(*_arc_filter)[e]; }
+    bool status(const Node& n) const { return (*_node_filter)[n]; }
+    bool status(const Arc& a) const { return (*_arc_filter)[a]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -774,45 +768,57 @@ namespace lemon {
       setArcFilterMap(arc_filter);
     }
 
-    /// \brief Hides the given node
+    /// \brief Sets the status of the given node
     ///
-    /// This function hides the given node in the subdigraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given node.
     /// It is done by simply setting the assigned value of \c n
-    /// to be \c false in the node filter map.
-    void hide(const Node& n) const { Parent::hide(n); }
+    /// to \c v in the node filter map.
+    void status(const Node& n, bool v) const { Parent::status(n, v); }
 
-    /// \brief Hides the given arc
+    /// \brief Sets the status of the given arc
     ///
-    /// This function hides the given arc in the subdigraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given arc.
     /// It is done by simply setting the assigned value of \c a
-    /// to be \c false in the arc filter map.
-    void hide(const Arc& a) const { Parent::hide(a); }
+    /// to \c v in the arc filter map.
+    void status(const Arc& a, bool v) const { Parent::status(a, v); }
 
-    /// \brief Shows the given node
+    /// \brief Returns the status of the given node
     ///
-    /// This function shows the given node in the subdigraph.
-    /// It is done by simply setting the assigned value of \c n
-    /// to be \c true in the node filter map.
-    void unHide(const Node& n) const { Parent::unHide(n); }
+    /// This function returns the status of the given node.
+    /// It is \c true if the given node is enabled (i.e. not hidden).
+    bool status(const Node& n) const { return Parent::status(n); }
 
-    /// \brief Shows the given arc
+    /// \brief Returns the status of the given arc
     ///
-    /// This function shows the given arc in the subdigraph.
-    /// It is done by simply setting the assigned value of \c a
-    /// to be \c true in the arc filter map.
-    void unHide(const Arc& a) const { Parent::unHide(a); }
+    /// This function returns the status of the given arc.
+    /// It is \c true if the given arc is enabled (i.e. not hidden).
+    bool status(const Arc& a) const { return Parent::status(a); }
 
-    /// \brief Returns \c true if the given node is hidden.
+    /// \brief Disables the given node
     ///
-    /// This function returns \c true if the given node is hidden.
-    bool hidden(const Node& n) const { return Parent::hidden(n); }
+    /// This function disables the given node in the subdigraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(n, false)".
+    void disable(const Node& n) const { Parent::status(n, false); }
 
-    /// \brief Returns \c true if the given arc is hidden.
+    /// \brief Disables the given arc
     ///
-    /// This function returns \c true if the given arc is hidden.
-    bool hidden(const Arc& a) const { return Parent::hidden(a); }
+    /// This function disables the given arc in the subdigraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(a, false)".
+    void disable(const Arc& a) const { Parent::status(a, false); }
+
+    /// \brief Enables the given node
+    ///
+    /// This function enables the given node in the subdigraph.
+    /// It is the same as \ref status() "status(n, true)".
+    void enable(const Node& n) const { Parent::status(n, true); }
+
+    /// \brief Enables the given arc
+    ///
+    /// This function enables the given arc in the subdigraph.
+    /// It is the same as \ref status() "status(a, true)".
+    void enable(const Arc& a) const { Parent::status(a, true); }
 
   };
 
@@ -970,14 +976,11 @@ namespace lemon {
         Parent::nextInc(i, d);
     }
 
-    void hide(const Node& n) const { _node_filter_map->set(n, false); }
-    void hide(const Edge& e) const { _edge_filter_map->set(e, false); }
+    void status(const Node& n, bool v) const { _node_filter_map->set(n, v); }
+    void status(const Edge& e, bool v) const { _edge_filter_map->set(e, v); }
 
-    void unHide(const Node& n) const { _node_filter_map->set(n, true); }
-    void unHide(const Edge& e) const { _edge_filter_map->set(e, true); }
-
-    bool hidden(const Node& n) const { return !(*_node_filter_map)[n]; }
-    bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
+    bool status(const Node& n) const { return (*_node_filter_map)[n]; }
+    bool status(const Edge& e) const { return (*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -1172,14 +1175,11 @@ namespace lemon {
       while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextInc(i, d);
     }
 
-    void hide(const Node& n) const { _node_filter_map->set(n, false); }
-    void hide(const Edge& e) const { _edge_filter_map->set(e, false); }
+    void status(const Node& n, bool v) const { _node_filter_map->set(n, v); }
+    void status(const Edge& e, bool v) const { _edge_filter_map->set(e, v); }
 
-    void unHide(const Node& n) const { _node_filter_map->set(n, true); }
-    void unHide(const Edge& e) const { _edge_filter_map->set(e, true); }
-
-    bool hidden(const Node& n) const { return !(*_node_filter_map)[n]; }
-    bool hidden(const Edge& e) const { return !(*_edge_filter_map)[e]; }
+    bool status(const Node& n) const { return (*_node_filter_map)[n]; }
+    bool status(const Edge& e) const { return (*_edge_filter_map)[e]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -1363,45 +1363,58 @@ namespace lemon {
       setEdgeFilterMap(edge_filter_map);
     }
 
-    /// \brief Hides the given node
+    /// \brief Sets the status of the given node
     ///
-    /// This function hides the given node in the subgraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given node.
     /// It is done by simply setting the assigned value of \c n
-    /// to be \c false in the node filter map.
-    void hide(const Node& n) const { Parent::hide(n); }
+    /// to \c v in the node filter map.
+    void status(const Node& n, bool v) const { Parent::status(n, v); }
 
-    /// \brief Hides the given edge
+    /// \brief Sets the status of the given edge
     ///
-    /// This function hides the given edge in the subgraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given edge.
     /// It is done by simply setting the assigned value of \c e
-    /// to be \c false in the edge filter map.
-    void hide(const Edge& e) const { Parent::hide(e); }
+    /// to \c v in the edge filter map.
+    void status(const Edge& e, bool v) const { Parent::status(e, v); }
 
-    /// \brief Shows the given node
+    /// \brief Returns the status of the given node
     ///
-    /// This function shows the given node in the subgraph.
-    /// It is done by simply setting the assigned value of \c n
-    /// to be \c true in the node filter map.
-    void unHide(const Node& n) const { Parent::unHide(n); }
+    /// This function returns the status of the given node.
+    /// It is \c true if the given node is enabled (i.e. not hidden).
+    bool status(const Node& n) const { return Parent::status(n); }
 
-    /// \brief Shows the given edge
+    /// \brief Returns the status of the given edge
     ///
-    /// This function shows the given edge in the subgraph.
-    /// It is done by simply setting the assigned value of \c e
-    /// to be \c true in the edge filter map.
-    void unHide(const Edge& e) const { Parent::unHide(e); }
+    /// This function returns the status of the given edge.
+    /// It is \c true if the given edge is enabled (i.e. not hidden).
+    bool status(const Edge& e) const { return Parent::status(e); }
 
-    /// \brief Returns \c true if the given node is hidden.
+    /// \brief Disables the given node
     ///
-    /// This function returns \c true if the given node is hidden.
-    bool hidden(const Node& n) const { return Parent::hidden(n); }
+    /// This function disables the given node in the subdigraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(n, false)".
+    void disable(const Node& n) const { Parent::status(n, false); }
 
-    /// \brief Returns \c true if the given edge is hidden.
+    /// \brief Disables the given edge
     ///
-    /// This function returns \c true if the given edge is hidden.
-    bool hidden(const Edge& e) const { return Parent::hidden(e); }
+    /// This function disables the given edge in the subgraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(e, false)".
+    void disable(const Edge& e) const { Parent::status(e, false); }
+
+    /// \brief Enables the given node
+    ///
+    /// This function enables the given node in the subdigraph.
+    /// It is the same as \ref status() "status(n, true)".
+    void enable(const Node& n) const { Parent::status(n, true); }
+
+    /// \brief Enables the given edge
+    ///
+    /// This function enables the given edge in the subgraph.
+    /// It is the same as \ref status() "status(e, true)".
+    void enable(const Edge& e) const { Parent::status(e, true); }
+
   };
 
   /// \brief Returns a read-only SubGraph adaptor
@@ -1519,25 +1532,31 @@ namespace lemon {
       Parent::setArcFilterMap(const_true_map);
     }
 
-    /// \brief Hides the given node
+    /// \brief Sets the status of the given node
     ///
-    /// This function hides the given node in the subgraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given node.
     /// It is done by simply setting the assigned value of \c n
-    /// to be \c false in the node filter map.
-    void hide(const Node& n) const { Parent::hide(n); }
+    /// to \c v in the node filter map.
+    void status(const Node& n, bool v) const { Parent::status(n, v); }
 
-    /// \brief Shows the given node
+    /// \brief Returns the status of the given node
     ///
-    /// This function shows the given node in the subgraph.
-    /// It is done by simply setting the assigned value of \c n
-    /// to be \c true in the node filter map.
-    void unHide(const Node& n) const { Parent::unHide(n); }
+    /// This function returns the status of the given node.
+    /// It is \c true if the given node is enabled (i.e. not hidden).
+    bool status(const Node& n) const { return Parent::status(n); }
 
-    /// \brief Returns \c true if the given node is hidden.
+    /// \brief Disables the given node
     ///
-    /// This function returns \c true if the given node is hidden.
-    bool hidden(const Node& n) const { return Parent::hidden(n); }
+    /// This function disables the given node, so the iteration
+    /// jumps over it.
+    /// It is the same as \ref status() "status(n, false)".
+    void disable(const Node& n) const { Parent::status(n, false); }
+
+    /// \brief Enables the given node
+    ///
+    /// This function enables the given node.
+    /// It is the same as \ref status() "status(n, true)".
+    void enable(const Node& n) const { Parent::status(n, true); }
 
   };
 
@@ -1569,9 +1588,10 @@ namespace lemon {
       Parent::setEdgeFilterMap(const_true_map);
     }
 
-    void hide(const Node& n) const { Parent::hide(n); }
-    void unHide(const Node& n) const { Parent::unHide(n); }
-    bool hidden(const Node& n) const { return Parent::hidden(n); }
+    void status(const Node& n, bool v) const { Parent::status(n, v); }
+    bool status(const Node& n) const { return Parent::status(n); }
+    void disable(const Node& n) const { Parent::status(n, false); }
+    void enable(const Node& n) const { Parent::status(n, true); }
 
   };
 
@@ -1656,25 +1676,31 @@ namespace lemon {
       Parent::setArcFilterMap(arc_filter);
     }
 
-    /// \brief Hides the given arc
+    /// \brief Sets the status of the given arc
     ///
-    /// This function hides the given arc in the subdigraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given arc.
     /// It is done by simply setting the assigned value of \c a
-    /// to be \c false in the arc filter map.
-    void hide(const Arc& a) const { Parent::hide(a); }
+    /// to \c v in the arc filter map.
+    void status(const Arc& a, bool v) const { Parent::status(a, v); }
 
-    /// \brief Shows the given arc
+    /// \brief Returns the status of the given arc
     ///
-    /// This function shows the given arc in the subdigraph.
-    /// It is done by simply setting the assigned value of \c a
-    /// to be \c true in the arc filter map.
-    void unHide(const Arc& a) const { Parent::unHide(a); }
+    /// This function returns the status of the given arc.
+    /// It is \c true if the given arc is enabled (i.e. not hidden).
+    bool status(const Arc& a) const { return Parent::status(a); }
 
-    /// \brief Returns \c true if the given arc is hidden.
+    /// \brief Disables the given arc
     ///
-    /// This function returns \c true if the given arc is hidden.
-    bool hidden(const Arc& a) const { return Parent::hidden(a); }
+    /// This function disables the given arc in the subdigraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(a, false)".
+    void disable(const Arc& a) const { Parent::status(a, false); }
+
+    /// \brief Enables the given arc
+    ///
+    /// This function enables the given arc in the subdigraph.
+    /// It is the same as \ref status() "status(a, true)".
+    void enable(const Arc& a) const { Parent::status(a, true); }
 
   };
 
@@ -1754,25 +1780,31 @@ namespace lemon {
       Parent::setEdgeFilterMap(edge_filter_map);
     }
 
-    /// \brief Hides the given edge
+    /// \brief Sets the status of the given edge
     ///
-    /// This function hides the given edge in the subgraph,
-    /// i.e. the iteration jumps over it.
+    /// This function sets the status of the given edge.
     /// It is done by simply setting the assigned value of \c e
-    /// to be \c false in the edge filter map.
-    void hide(const Edge& e) const { Parent::hide(e); }
+    /// to \c v in the edge filter map.
+    void status(const Edge& e, bool v) const { Parent::status(e, v); }
 
-    /// \brief Shows the given edge
+    /// \brief Returns the status of the given edge
     ///
-    /// This function shows the given edge in the subgraph.
-    /// It is done by simply setting the assigned value of \c e
-    /// to be \c true in the edge filter map.
-    void unHide(const Edge& e) const { Parent::unHide(e); }
+    /// This function returns the status of the given edge.
+    /// It is \c true if the given edge is enabled (i.e. not hidden).
+    bool status(const Edge& e) const { return Parent::status(e); }
 
-    /// \brief Returns \c true if the given edge is hidden.
+    /// \brief Disables the given edge
     ///
-    /// This function returns \c true if the given edge is hidden.
-    bool hidden(const Edge& e) const { return Parent::hidden(e); }
+    /// This function disables the given edge in the subgraph,
+    /// so the iteration jumps over it.
+    /// It is the same as \ref status() "status(e, false)".
+    void disable(const Edge& e) const { Parent::status(e, false); }
+
+    /// \brief Enables the given edge
+    ///
+    /// This function enables the given edge in the subgraph.
+    /// It is the same as \ref status() "status(e, true)".
+    void enable(const Edge& e) const { Parent::status(e, true); }
 
   };
 
@@ -2767,9 +2799,9 @@ namespace lemon {
       }
     }
 
-    /// \brief Augment on the given arc in the residual digraph.
+    /// \brief Augments on the given arc in the residual digraph.
     ///
-    /// Augment on the given arc in the residual digraph. It increases
+    /// Augments on the given arc in the residual digraph. It increases
     /// or decreases the flow value on the original arc according to the
     /// direction of the residual arc.
     void augment(const Arc& a, const Value& v) const {
