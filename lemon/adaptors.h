@@ -2656,7 +2656,29 @@ namespace lemon {
 
     };
 
+    /// \brief Returns a residual capacity map
+    ///
+    /// This function just returns a residual capacity map.
+    ResidualCapacity residualCapacity() const {
+      return ResidualCapacity(*this);
+    }
+
   };
+
+  /// \brief Returns a (read-only) Residual adaptor
+  ///
+  /// This function just returns a (read-only) \ref Residual adaptor.
+  /// \ingroup graph_adaptors
+  /// \relates Residual
+  template<typename Digraph, typename CapacityMap, typename FlowMap>
+  Residual<Digraph, CapacityMap, FlowMap>
+  residual(const Digraph& digraph,
+           const CapacityMap& capacity,
+           FlowMap& flow)
+  {
+    return Residual<Digraph, CapacityMap, FlowMap> (digraph, capacity, flow);
+  }
+
 
   template <typename _Digraph>
   class SplitNodesBase {
