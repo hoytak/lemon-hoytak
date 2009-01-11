@@ -173,10 +173,6 @@ namespace lemon {
 
   };
 
-
-  /// \ingroup digraphbits
-  ///
-  /// \brief Extender for the GraphAdaptors
   template <typename _Graph>
   class GraphAdaptorExtender : public _Graph {
   public:

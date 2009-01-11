@@ -353,22 +353,26 @@ namespace lemon {
   /// It conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
   /// The adapted digraph can also be modified through this adaptor
-  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
-  template<typename _Digraph>
+  template<typename GR>
+#ifdef DOXYGEN
+  class ReverseDigraph {
+#else
   class ReverseDigraph :
-    public DigraphAdaptorExtender<ReverseDigraphBase<_Digraph> > {
+    public DigraphAdaptorExtender<ReverseDigraphBase<GR> > {
+#endif
   public:
-    typedef _Digraph Digraph;
-    typedef DigraphAdaptorExtender<
-      ReverseDigraphBase<_Digraph> > Parent;
+    /// The type of the adapted digraph.
+    typedef GR Digraph;
+    typedef DigraphAdaptorExtender<ReverseDigraphBase<GR> > Parent;
   protected:
     ReverseDigraph() { }
   public:
@@ -386,9 +390,9 @@ namespace lemon {
   /// This function just returns a read-only \ref ReverseDigraph adaptor.
   /// \ingroup graph_adaptors
   /// \relates ReverseDigraph
-  template<typename Digraph>
-  ReverseDigraph<const Digraph> reverseDigraph(const Digraph& digraph) {
-    return ReverseDigraph<const Digraph>(digraph);
+  template<typename GR>
+  ReverseDigraph<const GR> reverseDigraph(const GR& digraph) {
+    return ReverseDigraph<const GR>(digraph);
   }
 
 
@@ -696,28 +700,25 @@ namespace lemon {
   /// A \c bool node map and a \c bool arc map must be specified, which
   /// define the filters for nodes and arcs.
   /// Only the nodes and arcs with \c true filter value are
-  /// shown in the subdigraph. This adaptor conforms to the \ref
-  /// concepts::Digraph "Digraph" concept. If the \c _checked parameter
-  /// is \c true, then the arcs incident to hidden nodes are also
-  /// filtered out.
+  /// shown in the subdigraph. The arcs that are incident to hidden
+  /// nodes are also filtered out.
+  /// This adaptor conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
   /// The adapted digraph can also be modified through this adaptor
-  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
-  /// adapted digraph. The default map type is
-  /// \ref concepts::Digraph::NodeMap "_Digraph::NodeMap<bool>".
-  /// \tparam _ArcFilterMap A \c bool (or convertible) arc map of the
-  /// adapted digraph. The default map type is
-  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<bool>".
-  /// \tparam _checked If this parameter is set to \c false, then the arc
-  /// filtering is not checked with respect to the node filter.
-  /// Otherwise, each arc that is incident to a hidden node is automatically
-  /// filtered out. This is the default option.
+  /// \tparam NF The type of the node filter map.
+  /// It must be a \c bool (or convertible) node map of the
+  /// adapted digraph. The default type is
+  /// \ref concepts::Digraph::NodeMap "GR::NodeMap<bool>".
+  /// \tparam AF The type of the arc filter map.
+  /// It must be \c bool (or convertible) arc map of the
+  /// adapted digraph. The default type is
+  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<bool>".
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
@@ -725,30 +726,25 @@ namespace lemon {
   /// \see FilterNodes
   /// \see FilterArcs
 #ifdef DOXYGEN
-  template<typename _Digraph,
-           typename _NodeFilterMap,
-           typename _ArcFilterMap,
-           bool _checked>
+  template<typename GR, typename NF, typename AF>
+  class SubDigraph {
 #else
-  template<typename _Digraph,
-           typename _NodeFilterMap = typename _Digraph::template NodeMap<bool>,
-           typename _ArcFilterMap = typename _Digraph::template ArcMap<bool>,
-           bool _checked = true>
+  template<typename GR,
+           typename NF = typename GR::template NodeMap<bool>,
+           typename AF = typename GR::template ArcMap<bool> >
+  class SubDigraph :
+    public DigraphAdaptorExtender<SubDigraphBase<GR, NF, AF, true> > {
 #endif
-  class SubDigraph
-    : public DigraphAdaptorExtender<
-      SubDigraphBase<_Digraph, _NodeFilterMap, _ArcFilterMap, _checked> > {
   public:
     /// The type of the adapted digraph.
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     /// The type of the node filter map.
-    typedef _NodeFilterMap NodeFilterMap;
+    typedef NF NodeFilterMap;
     /// The type of the arc filter map.
-    typedef _ArcFilterMap ArcFilterMap;
+    typedef AF ArcFilterMap;
 
-    typedef DigraphAdaptorExtender<
-      SubDigraphBase<_Digraph, _NodeFilterMap, _ArcFilterMap, _checked> >
-    Parent;
+    typedef DigraphAdaptorExtender<SubDigraphBase<GR, NF, AF, true> >
+      Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
@@ -827,35 +823,36 @@ namespace lemon {
   /// This function just returns a read-only \ref SubDigraph adaptor.
   /// \ingroup graph_adaptors
   /// \relates SubDigraph
-  template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
-  SubDigraph<const Digraph, NodeFilterMap, ArcFilterMap>
-  subDigraph(const Digraph& digraph, NodeFilterMap& nfm, ArcFilterMap& afm) {
-    return SubDigraph<const Digraph, NodeFilterMap, ArcFilterMap>
-      (digraph, nfm, afm);
+  template<typename GR, typename NF, typename AF>
+  SubDigraph<const GR, NF, AF>
+  subDigraph(const GR& digraph,
+             NF& node_filter_map, AF& arc_filter_map) {
+    return SubDigraph<const GR, NF, AF>
+      (digraph, node_filter_map, arc_filter_map);
   }
 
-  template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
-  SubDigraph<const Digraph, const NodeFilterMap, ArcFilterMap>
-  subDigraph(const Digraph& digraph,
-             const NodeFilterMap& nfm, ArcFilterMap& afm) {
-    return SubDigraph<const Digraph, const NodeFilterMap, ArcFilterMap>
-      (digraph, nfm, afm);
+  template<typename GR, typename NF, typename AF>
+  SubDigraph<const GR, const NF, AF>
+  subDigraph(const GR& digraph,
+             const NF& node_filter_map, AF& arc_filter_map) {
+    return SubDigraph<const GR, const NF, AF>
+      (digraph, node_filter_map, arc_filter_map);
   }
 
-  template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
-  SubDigraph<const Digraph, NodeFilterMap, const ArcFilterMap>
-  subDigraph(const Digraph& digraph,
-             NodeFilterMap& nfm, const ArcFilterMap& afm) {
-    return SubDigraph<const Digraph, NodeFilterMap, const ArcFilterMap>
-      (digraph, nfm, afm);
+  template<typename GR, typename NF, typename AF>
+  SubDigraph<const GR, NF, const AF>
+  subDigraph(const GR& digraph,
+             NF& node_filter_map, const AF& arc_filter_map) {
+    return SubDigraph<const GR, NF, const AF>
+      (digraph, node_filter_map, arc_filter_map);
   }
 
-  template<typename Digraph, typename NodeFilterMap, typename ArcFilterMap>
-  SubDigraph<const Digraph, const NodeFilterMap, const ArcFilterMap>
-  subDigraph(const Digraph& digraph,
-             const NodeFilterMap& nfm, const ArcFilterMap& afm) {
-    return SubDigraph<const Digraph, const NodeFilterMap,
-      const ArcFilterMap>(digraph, nfm, afm);
+  template<typename GR, typename NF, typename AF>
+  SubDigraph<const GR, const NF, const AF>
+  subDigraph(const GR& digraph,
+             const NF& node_filter_map, const AF& arc_filter_map) {
+    return SubDigraph<const GR, const NF, const AF>
+      (digraph, node_filter_map, arc_filter_map);
   }
 
 
@@ -1292,28 +1289,25 @@ namespace lemon {
   /// A \c bool node map and a \c bool edge map must be specified, which
   /// define the filters for nodes and edges.
   /// Only the nodes and edges with \c true filter value are
-  /// shown in the subgraph. This adaptor conforms to the \ref
-  /// concepts::Graph "Graph" concept. If the \c _checked parameter is
-  /// \c true, then the edges incident to hidden nodes are also
-  /// filtered out.
+  /// shown in the subgraph. The edges that are incident to hidden
+  /// nodes are also filtered out.
+  /// This adaptor conforms to the \ref concepts::Graph "Graph" concept.
   ///
   /// The adapted graph can also be modified through this adaptor
-  /// by adding or removing nodes or edges, unless the \c _Graph template
+  /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Graph The type of the adapted graph.
+  /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
-  /// adapted graph. The default map type is
-  /// \ref concepts::Graph::NodeMap "_Graph::NodeMap<bool>".
-  /// \tparam _EdgeFilterMap A \c bool (or convertible) edge map of the
-  /// adapted graph. The default map type is
-  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
-  /// \tparam _checked If this parameter is set to \c false, then the edge
-  /// filtering is not checked with respect to the node filter.
-  /// Otherwise, each edge that is incident to a hidden node is automatically
-  /// filtered out. This is the default option.
+  /// \tparam NF The type of the node filter map.
+  /// It must be a \c bool (or convertible) node map of the
+  /// adapted graph. The default type is
+  /// \ref concepts::Graph::NodeMap "GR::NodeMap<bool>".
+  /// \tparam EF The type of the edge filter map.
+  /// It must be a \c bool (or convertible) edge map of the
+  /// adapted graph. The default type is
+  /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<bool>".
   ///
   /// \note The \c Node, \c Edge and \c Arc types of this adaptor and the
   /// adapted graph are convertible to each other.
@@ -1321,29 +1315,25 @@ namespace lemon {
   /// \see FilterNodes
   /// \see FilterEdges
 #ifdef DOXYGEN
-  template<typename _Graph,
-           typename _NodeFilterMap,
-           typename _EdgeFilterMap,
-           bool _checked>
+  template<typename GR, typename NF, typename EF>
+  class SubGraph {
 #else
-  template<typename _Graph,
-           typename _NodeFilterMap = typename _Graph::template NodeMap<bool>,
-           typename _EdgeFilterMap = typename _Graph::template EdgeMap<bool>,
-           bool _checked = true>
+  template<typename GR,
+           typename NF = typename GR::template NodeMap<bool>,
+           typename EF = typename GR::template EdgeMap<bool> >
+  class SubGraph :
+    public GraphAdaptorExtender<SubGraphBase<GR, NF, EF, true> > {
 #endif
-  class SubGraph
-    : public GraphAdaptorExtender<
-      SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, _checked> > {
   public:
     /// The type of the adapted graph.
-    typedef _Graph Graph;
+    typedef GR Graph;
     /// The type of the node filter map.
-    typedef _NodeFilterMap NodeFilterMap;
+    typedef NF NodeFilterMap;
     /// The type of the edge filter map.
-    typedef _EdgeFilterMap EdgeFilterMap;
+    typedef EF EdgeFilterMap;
 
-    typedef GraphAdaptorExtender<
-      SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, _checked> > Parent;
+    typedef GraphAdaptorExtender< SubGraphBase<GR, NF, EF, true> >
+      Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Edge Edge;
@@ -1422,34 +1412,36 @@ namespace lemon {
   /// This function just returns a read-only \ref SubGraph adaptor.
   /// \ingroup graph_adaptors
   /// \relates SubGraph
-  template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
-  SubGraph<const Graph, NodeFilterMap, ArcFilterMap>
-  subGraph(const Graph& graph, NodeFilterMap& nfm, ArcFilterMap& efm) {
-    return SubGraph<const Graph, NodeFilterMap, ArcFilterMap>(graph, nfm, efm);
+  template<typename GR, typename NF, typename EF>
+  SubGraph<const GR, NF, EF>
+  subGraph(const GR& graph,
+           NF& node_filter_map, EF& edge_filter_map) {
+    return SubGraph<const GR, NF, EF>
+      (graph, node_filter_map, edge_filter_map);
   }
 
-  template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
-  SubGraph<const Graph, const NodeFilterMap, ArcFilterMap>
-  subGraph(const Graph& graph,
-           const NodeFilterMap& nfm, ArcFilterMap& efm) {
-    return SubGraph<const Graph, const NodeFilterMap, ArcFilterMap>
-      (graph, nfm, efm);
+  template<typename GR, typename NF, typename EF>
+  SubGraph<const GR, const NF, EF>
+  subGraph(const GR& graph,
+           const NF& node_filter_map, EF& edge_filter_map) {
+    return SubGraph<const GR, const NF, EF>
+      (graph, node_filter_map, edge_filter_map);
   }
 
-  template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
-  SubGraph<const Graph, NodeFilterMap, const ArcFilterMap>
-  subGraph(const Graph& graph,
-           NodeFilterMap& nfm, const ArcFilterMap& efm) {
-    return SubGraph<const Graph, NodeFilterMap, const ArcFilterMap>
-      (graph, nfm, efm);
+  template<typename GR, typename NF, typename EF>
+  SubGraph<const GR, NF, const EF>
+  subGraph(const GR& graph,
+           NF& node_filter_map, const EF& edge_filter_map) {
+    return SubGraph<const GR, NF, const EF>
+      (graph, node_filter_map, edge_filter_map);
   }
 
-  template<typename Graph, typename NodeFilterMap, typename ArcFilterMap>
-  SubGraph<const Graph, const NodeFilterMap, const ArcFilterMap>
-  subGraph(const Graph& graph,
-           const NodeFilterMap& nfm, const ArcFilterMap& efm) {
-    return SubGraph<const Graph, const NodeFilterMap, const ArcFilterMap>
-      (graph, nfm, efm);
+  template<typename GR, typename NF, typename EF>
+  SubGraph<const GR, const NF, const EF>
+  subGraph(const GR& graph,
+           const NF& node_filter_map, const EF& edge_filter_map) {
+    return SubGraph<const GR, const NF, const EF>
+      (graph, node_filter_map, edge_filter_map);
   }
 
 
@@ -1463,48 +1455,42 @@ namespace lemon {
   /// arcs/edges incident to nodes both with \c true filter value are shown
   /// in the subgraph. This adaptor conforms to the \ref concepts::Digraph
   /// "Digraph" concept or the \ref concepts::Graph "Graph" concept
-  /// depending on the \c _Graph template parameter.
+  /// depending on the \c GR template parameter.
   ///
   /// The adapted (di)graph can also be modified through this adaptor
-  /// by adding or removing nodes or arcs/edges, unless the \c _Graph template
+  /// by adding or removing nodes or arcs/edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Graph The type of the adapted digraph or graph.
+  /// \tparam GR The type of the adapted digraph or graph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept
   /// or the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _NodeFilterMap A \c bool (or convertible) node map of the
-  /// adapted (di)graph. The default map type is
-  /// \ref concepts::Graph::NodeMap "_Graph::NodeMap<bool>".
-  /// \tparam _checked If this parameter is set to \c false then the arc/edge
-  /// filtering is not checked with respect to the node filter. In this
-  /// case only isolated nodes can be filtered out from the graph.
-  /// Otherwise, each arc/edge that is incident to a hidden node is
-  /// automatically filtered out. This is the default option.
+  /// \tparam NF The type of the node filter map.
+  /// It must be a \c bool (or convertible) node map of the
+  /// adapted (di)graph. The default type is
+  /// \ref concepts::Graph::NodeMap "GR::NodeMap<bool>".
   ///
   /// \note The \c Node and <tt>Arc/Edge</tt> types of this adaptor and the
   /// adapted (di)graph are convertible to each other.
 #ifdef DOXYGEN
-  template<typename _Graph,
-           typename _NodeFilterMap,
-           bool _checked>
+  template<typename GR, typename NF>
+  class FilterNodes {
 #else
-  template<typename _Digraph,
-           typename _NodeFilterMap = typename _Digraph::template NodeMap<bool>,
-           bool _checked = true,
+  template<typename GR,
+           typename NF = typename GR::template NodeMap<bool>,
            typename Enable = void>
+  class FilterNodes :
+    public DigraphAdaptorExtender<
+      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, bool>, true> > {
 #endif
-  class FilterNodes
-    : public SubDigraph<_Digraph, _NodeFilterMap,
-                        ConstMap<typename _Digraph::Arc, bool>, _checked> {
   public:
 
-    typedef _Digraph Digraph;
-    typedef _NodeFilterMap NodeFilterMap;
+    typedef GR Digraph;
+    typedef NF NodeFilterMap;
 
-    typedef SubDigraph<Digraph, NodeFilterMap,
-                       ConstMap<typename Digraph::Arc, bool>, _checked>
-    Parent;
+    typedef DigraphAdaptorExtender<
+      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, bool>, true> >
+      Parent;
 
     typedef typename Parent::Node Node;
 
@@ -1521,12 +1507,9 @@ namespace lemon {
     ///
     /// Creates a subgraph for the given digraph or graph with the
     /// given node filter map.
-#ifdef DOXYGEN
-    FilterNodes(_Graph& graph, _NodeFilterMap& node_filter) :
-#else
-    FilterNodes(Digraph& graph, NodeFilterMap& node_filter) :
-#endif
-      Parent(), const_true_map(true) {
+    FilterNodes(GR& graph, NodeFilterMap& node_filter) :
+      Parent(), const_true_map(true)
+    {
       Parent::setDigraph(graph);
       Parent::setNodeFilterMap(node_filter);
       Parent::setArcFilterMap(const_true_map);
@@ -1560,16 +1543,18 @@ namespace lemon {
 
   };
 
-  template<typename _Graph, typename _NodeFilterMap, bool _checked>
-  class FilterNodes<_Graph, _NodeFilterMap, _checked,
-                    typename enable_if<UndirectedTagIndicator<_Graph> >::type>
-    : public SubGraph<_Graph, _NodeFilterMap,
-                      ConstMap<typename _Graph::Edge, bool>, _checked> {
+  template<typename GR, typename NF>
+  class FilterNodes<GR, NF,
+                    typename enable_if<UndirectedTagIndicator<GR> >::type> :
+    public GraphAdaptorExtender<
+      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, bool>, true> > {
+
   public:
-    typedef _Graph Graph;
-    typedef _NodeFilterMap NodeFilterMap;
-    typedef SubGraph<Graph, NodeFilterMap,
-                     ConstMap<typename Graph::Edge, bool> > Parent;
+    typedef GR Graph;
+    typedef NF NodeFilterMap;
+    typedef GraphAdaptorExtender<
+      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, bool>, true> >
+      Parent;
 
     typedef typename Parent::Node Node;
   protected:
@@ -1601,16 +1586,16 @@ namespace lemon {
   /// This function just returns a read-only \ref FilterNodes adaptor.
   /// \ingroup graph_adaptors
   /// \relates FilterNodes
-  template<typename Digraph, typename NodeFilterMap>
-  FilterNodes<const Digraph, NodeFilterMap>
-  filterNodes(const Digraph& digraph, NodeFilterMap& nfm) {
-    return FilterNodes<const Digraph, NodeFilterMap>(digraph, nfm);
+  template<typename GR, typename NF>
+  FilterNodes<const GR, NF>
+  filterNodes(const GR& graph, NF& node_filter_map) {
+    return FilterNodes<const GR, NF>(graph, node_filter_map);
   }
 
-  template<typename Digraph, typename NodeFilterMap>
-  FilterNodes<const Digraph, const NodeFilterMap>
-  filterNodes(const Digraph& digraph, const NodeFilterMap& nfm) {
-    return FilterNodes<const Digraph, const NodeFilterMap>(digraph, nfm);
+  template<typename GR, typename NF>
+  FilterNodes<const GR, const NF>
+  filterNodes(const GR& graph, const NF& node_filter_map) {
+    return FilterNodes<const GR, const NF>(graph, node_filter_map);
   }
 
   /// \ingroup graph_adaptors
@@ -1624,35 +1609,39 @@ namespace lemon {
   /// "Digraph" concept.
   ///
   /// The adapted digraph can also be modified through this adaptor
-  /// by adding or removing nodes or arcs, unless the \c _Digraph template
+  /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _ArcFilterMap A \c bool (or convertible) arc map of the
-  /// adapted digraph. The default map type is
-  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<bool>".
+  /// \tparam AF The type of the arc filter map.
+  /// It must be a \c bool (or convertible) arc map of the
+  /// adapted digraph. The default type is
+  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<bool>".
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
 #ifdef DOXYGEN
-  template<typename _Digraph,
-           typename _ArcFilterMap>
+  template<typename GR,
+           typename AF>
+  class FilterArcs {
 #else
-  template<typename _Digraph,
-           typename _ArcFilterMap = typename _Digraph::template ArcMap<bool> >
-#endif
+  template<typename GR,
+           typename AF = typename GR::template ArcMap<bool> >
   class FilterArcs :
-    public SubDigraph<_Digraph, ConstMap<typename _Digraph::Node, bool>,
-                      _ArcFilterMap, false> {
+    public DigraphAdaptorExtender<
+      SubDigraphBase<GR, ConstMap<typename GR::Node, bool>, AF, false> > {
+#endif
   public:
+    /// The type of the adapted digraph.
+    typedef GR Digraph;
+    /// The type of the arc filter map.
+    typedef AF ArcFilterMap;
 
-    typedef _Digraph Digraph;
-    typedef _ArcFilterMap ArcFilterMap;
-
-    typedef SubDigraph<Digraph, ConstMap<typename Digraph::Node, bool>,
-                       ArcFilterMap, false> Parent;
+    typedef DigraphAdaptorExtender<
+      SubDigraphBase<GR, ConstMap<typename GR::Node, bool>, AF, false> >
+      Parent;
 
     typedef typename Parent::Arc Arc;
 
@@ -1709,16 +1698,16 @@ namespace lemon {
   /// This function just returns a read-only \ref FilterArcs adaptor.
   /// \ingroup graph_adaptors
   /// \relates FilterArcs
-  template<typename Digraph, typename ArcFilterMap>
-  FilterArcs<const Digraph, ArcFilterMap>
-  filterArcs(const Digraph& digraph, ArcFilterMap& afm) {
-    return FilterArcs<const Digraph, ArcFilterMap>(digraph, afm);
+  template<typename GR, typename AF>
+  FilterArcs<const GR, AF>
+  filterArcs(const GR& digraph, AF& arc_filter_map) {
+    return FilterArcs<const GR, AF>(digraph, arc_filter_map);
   }
 
-  template<typename Digraph, typename ArcFilterMap>
-  FilterArcs<const Digraph, const ArcFilterMap>
-  filterArcs(const Digraph& digraph, const ArcFilterMap& afm) {
-    return FilterArcs<const Digraph, const ArcFilterMap>(digraph, afm);
+  template<typename GR, typename AF>
+  FilterArcs<const GR, const AF>
+  filterArcs(const GR& digraph, const AF& arc_filter_map) {
+    return FilterArcs<const GR, const AF>(digraph, arc_filter_map);
   }
 
   /// \ingroup graph_adaptors
@@ -1732,34 +1721,42 @@ namespace lemon {
   /// "Graph" concept.
   ///
   /// The adapted graph can also be modified through this adaptor
-  /// by adding or removing nodes or edges, unless the \c _Graph template
+  /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Graph The type of the adapted graph.
+  /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _EdgeFilterMap A \c bool (or convertible) edge map of the
-  /// adapted graph. The default map type is
-  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
+  /// \tparam EF The type of the edge filter map.
+  /// It must be a \c bool (or convertible) edge map of the
+  /// adapted graph. The default type is
+  /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<bool>".
   ///
   /// \note The \c Node, \c Edge and \c Arc types of this adaptor and the
   /// adapted graph are convertible to each other.
 #ifdef DOXYGEN
-  template<typename _Graph,
-           typename _EdgeFilterMap>
+  template<typename GR,
+           typename EF>
+  class FilterEdges {
 #else
-  template<typename _Graph,
-           typename _EdgeFilterMap = typename _Graph::template EdgeMap<bool> >
-#endif
+  template<typename GR,
+           typename EF = typename GR::template EdgeMap<bool> >
   class FilterEdges :
-    public SubGraph<_Graph, ConstMap<typename _Graph::Node,bool>,
-                    _EdgeFilterMap, false> {
+    public GraphAdaptorExtender<
+      SubGraphBase<GR, ConstMap<typename GR::Node,bool>, EF, false> > {
+#endif
   public:
-    typedef _Graph Graph;
-    typedef _EdgeFilterMap EdgeFilterMap;
-    typedef SubGraph<Graph, ConstMap<typename Graph::Node,bool>,
-                     EdgeFilterMap, false> Parent;
+    /// The type of the adapted graph.
+    typedef GR Graph;
+    /// The type of the edge filter map.
+    typedef EF EdgeFilterMap;
+
+    typedef GraphAdaptorExtender<
+      SubGraphBase<GR, ConstMap<typename GR::Node,bool>, EF, false> >
+      Parent;
+
     typedef typename Parent::Edge Edge;
+
   protected:
     ConstMap<typename Graph::Node, bool> const_true_map;
 
@@ -1813,16 +1810,16 @@ namespace lemon {
   /// This function just returns a read-only \ref FilterEdges adaptor.
   /// \ingroup graph_adaptors
   /// \relates FilterEdges
-  template<typename Graph, typename EdgeFilterMap>
-  FilterEdges<const Graph, EdgeFilterMap>
-  filterEdges(const Graph& graph, EdgeFilterMap& efm) {
-    return FilterEdges<const Graph, EdgeFilterMap>(graph, efm);
+  template<typename GR, typename EF>
+  FilterEdges<const GR, EF>
+  filterEdges(const GR& graph, EF& edge_filter_map) {
+    return FilterEdges<const GR, EF>(graph, edge_filter_map);
   }
 
-  template<typename Graph, typename EdgeFilterMap>
-  FilterEdges<const Graph, const EdgeFilterMap>
-  filterEdges(const Graph& graph, const EdgeFilterMap& efm) {
-    return FilterEdges<const Graph, const EdgeFilterMap>(graph, efm);
+  template<typename GR, typename EF>
+  FilterEdges<const GR, const EF>
+  filterEdges(const GR& graph, const EF& edge_filter_map) {
+    return FilterEdges<const GR, const EF>(graph, edge_filter_map);
   }
 
 
@@ -2226,10 +2223,10 @@ namespace lemon {
   /// This adaptor conforms to the \ref concepts::Graph "Graph" concept.
   ///
   /// The adapted digraph can also be modified through this adaptor
-  /// by adding or removing nodes or edges, unless the \c _Digraph template
+  /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   ///
@@ -2239,12 +2236,17 @@ namespace lemon {
   /// each other.
   /// (Thus the \c Arc type of the adaptor is convertible to the \c Arc type
   /// of the adapted digraph.)
-  template<typename _Digraph>
-  class Undirector
-    : public GraphAdaptorExtender<UndirectorBase<_Digraph> > {
+  template<typename GR>
+#ifdef DOXYGEN
+  class Undirector {
+#else
+  class Undirector :
+    public GraphAdaptorExtender<UndirectorBase<GR> > {
+#endif
   public:
-    typedef _Digraph Digraph;
-    typedef GraphAdaptorExtender<UndirectorBase<Digraph> > Parent;
+    /// The type of the adapted digraph.
+    typedef GR Digraph;
+    typedef GraphAdaptorExtender<UndirectorBase<GR> > Parent;
   protected:
     Undirector() { }
   public:
@@ -2252,7 +2254,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Creates an undirected graph from the given digraph.
-    Undirector(_Digraph& digraph) {
+    Undirector(Digraph& digraph) {
       setDigraph(digraph);
     }
 
@@ -2262,19 +2264,16 @@ namespace lemon {
     /// digraph to get an arc map of the undirected graph.
     /// Its value type is inherited from the first arc map type
     /// (\c %ForwardMap).
-    template <typename _ForwardMap, typename _BackwardMap>
+    template <typename ForwardMap, typename BackwardMap>
     class CombinedArcMap {
     public:
-
-      typedef _ForwardMap ForwardMap;
-      typedef _BackwardMap BackwardMap;
-
-      typedef typename MapTraits<ForwardMap>::ReferenceMapTag ReferenceMapTag;
 
       /// The key type of the map
       typedef typename Parent::Arc Key;
       /// The value type of the map
       typedef typename ForwardMap::Value Value;
+
+      typedef typename MapTraits<ForwardMap>::ReferenceMapTag ReferenceMapTag;
 
       typedef typename MapTraits<ForwardMap>::ReturnValue ReturnValue;
       typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReturnValue;
@@ -2356,10 +2355,9 @@ namespace lemon {
   /// This function just returns a read-only \ref Undirector adaptor.
   /// \ingroup graph_adaptors
   /// \relates Undirector
-  template<typename Digraph>
-  Undirector<const Digraph>
-  undirector(const Digraph& digraph) {
-    return Undirector<const Digraph>(digraph);
+  template<typename GR>
+  Undirector<const GR> undirector(const GR& digraph) {
+    return Undirector<const GR>(digraph);
   }
 
 
@@ -2533,38 +2531,39 @@ namespace lemon {
   /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
   /// The adapted graph can also be modified through this adaptor
-  /// by adding or removing nodes or arcs, unless the \c _Graph template
+  /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam _Graph The type of the adapted graph.
+  /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
-  /// \tparam _DirectionMap A \c bool (or convertible) edge map of the
-  /// adapted graph. The default map type is
-  /// \ref concepts::Graph::EdgeMap "_Graph::EdgeMap<bool>".
+  /// \tparam DM The type of the direction map.
+  /// It must be a \c bool (or convertible) edge map of the
+  /// adapted graph. The default type is
+  /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<bool>".
   ///
   /// \note The \c Node type of this adaptor and the adapted graph are
   /// convertible to each other, moreover the \c Arc type of the adaptor
   /// and the \c Edge type of the adapted graph are also convertible to
   /// each other.
 #ifdef DOXYGEN
-  template<typename _Graph,
-           typename _DirectionMap>
+  template<typename GR,
+           typename DM>
+  class Orienter {
 #else
-  template<typename _Graph,
-           typename _DirectionMap = typename _Graph::template EdgeMap<bool> >
-#endif
+  template<typename GR,
+           typename DM = typename GR::template EdgeMap<bool> >
   class Orienter :
-    public DigraphAdaptorExtender<OrienterBase<_Graph, _DirectionMap> > {
+    public DigraphAdaptorExtender<OrienterBase<GR, DM> > {
+#endif
   public:
 
     /// The type of the adapted graph.
-    typedef _Graph Graph;
+    typedef GR Graph;
     /// The type of the direction edge map.
-    typedef _DirectionMap DirectionMap;
+    typedef DM DirectionMap;
 
-    typedef DigraphAdaptorExtender<
-      OrienterBase<_Graph, _DirectionMap> > Parent;
+    typedef DigraphAdaptorExtender<OrienterBase<GR, DM> > Parent;
     typedef typename Parent::Arc Arc;
   protected:
     Orienter() { }
@@ -2593,31 +2592,26 @@ namespace lemon {
   /// This function just returns a read-only \ref Orienter adaptor.
   /// \ingroup graph_adaptors
   /// \relates Orienter
-  template<typename Graph, typename DirectionMap>
-  Orienter<const Graph, DirectionMap>
-  orienter(const Graph& graph, DirectionMap& dm) {
-    return Orienter<const Graph, DirectionMap>(graph, dm);
+  template<typename GR, typename DM>
+  Orienter<const GR, DM>
+  orienter(const GR& graph, DM& direction_map) {
+    return Orienter<const GR, DM>(graph, direction_map);
   }
 
-  template<typename Graph, typename DirectionMap>
-  Orienter<const Graph, const DirectionMap>
-  orienter(const Graph& graph, const DirectionMap& dm) {
-    return Orienter<const Graph, const DirectionMap>(graph, dm);
+  template<typename GR, typename DM>
+  Orienter<const GR, const DM>
+  orienter(const GR& graph, const DM& direction_map) {
+    return Orienter<const GR, const DM>(graph, direction_map);
   }
 
   namespace _adaptor_bits {
 
-    template<typename _Digraph,
-             typename _CapacityMap = typename _Digraph::template ArcMap<int>,
-             typename _FlowMap = _CapacityMap,
-             typename _Tolerance = Tolerance<typename _CapacityMap::Value> >
+    template<typename Digraph,
+             typename CapacityMap,
+             typename FlowMap,
+             typename Tolerance>
     class ResForwardFilter {
     public:
-
-      typedef _Digraph Digraph;
-      typedef _CapacityMap CapacityMap;
-      typedef _FlowMap FlowMap;
-      typedef _Tolerance Tolerance;
 
       typedef typename Digraph::Arc Key;
       typedef bool Value;
@@ -2638,17 +2632,12 @@ namespace lemon {
       }
     };
 
-    template<typename _Digraph,
-             typename _CapacityMap = typename _Digraph::template ArcMap<int>,
-             typename _FlowMap = _CapacityMap,
-             typename _Tolerance = Tolerance<typename _CapacityMap::Value> >
+    template<typename Digraph,
+             typename CapacityMap,
+             typename FlowMap,
+             typename Tolerance>
     class ResBackwardFilter {
     public:
-
-      typedef _Digraph Digraph;
-      typedef _CapacityMap CapacityMap;
-      typedef _FlowMap FlowMap;
-      typedef _Tolerance Tolerance;
 
       typedef typename Digraph::Arc Key;
       typedef bool Value;
@@ -2692,17 +2681,18 @@ namespace lemon {
   /// arcs).
   /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It is implicitly \c const.
-  /// \tparam _CapacityMap An arc map of some numerical type, which defines
+  /// \tparam CM The type of the capacity map.
+  /// It must be an arc map of some numerical type, which defines
   /// the capacities in the flow problem. It is implicitly \c const.
-  /// The default map type is
-  /// \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
-  /// \tparam _FlowMap An arc map of some numerical type, which defines
-  /// the flow values in the flow problem.
-  /// The default map type is \c _CapacityMap.
-  /// \tparam _Tolerance Tolerance type for handling inexact computation.
+  /// The default type is
+  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \tparam FM The type of the flow map.
+  /// It must be an arc map of some numerical type, which defines
+  /// the flow values in the flow problem. The default type is \c CM.
+  /// \tparam TL The tolerance type for handling inexact computation.
   /// The default tolerance type depends on the value type of the
   /// capacity map.
   ///
@@ -2713,35 +2703,31 @@ namespace lemon {
   /// convertible to each other, moreover the \c Arc type of the adaptor
   /// is convertible to the \c Arc type of the adapted digraph.
 #ifdef DOXYGEN
-  template<typename _Digraph,
-           typename _CapacityMap,
-           typename _FlowMap,
-           typename _Tolerance>
+  template<typename GR, typename CM, typename FM, typename TL>
   class Residual
 #else
-  template<typename _Digraph,
-           typename _CapacityMap = typename _Digraph::template ArcMap<int>,
-           typename _FlowMap = _CapacityMap,
-           typename _Tolerance = Tolerance<typename _CapacityMap::Value> >
+  template<typename GR,
+           typename CM = typename GR::template ArcMap<int>,
+           typename FM = CM,
+           typename TL = Tolerance<typename CM::Value> >
   class Residual :
     public FilterArcs<
-    Undirector<const _Digraph>,
-    typename Undirector<const _Digraph>::template CombinedArcMap<
-      _adaptor_bits::ResForwardFilter<const _Digraph, _CapacityMap,
-                                      _FlowMap, _Tolerance>,
-      _adaptor_bits::ResBackwardFilter<const _Digraph, _CapacityMap,
-                                       _FlowMap, _Tolerance> > >
+      Undirector<const GR>,
+      typename Undirector<const GR>::template CombinedArcMap<
+        _adaptor_bits::ResForwardFilter<const GR, CM, FM, TL>,
+        _adaptor_bits::ResBackwardFilter<const GR, CM, FM, TL> > >
 #endif
   {
   public:
 
     /// The type of the underlying digraph.
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     /// The type of the capacity map.
-    typedef _CapacityMap CapacityMap;
+    typedef CM CapacityMap;
     /// The type of the flow map.
-    typedef _FlowMap FlowMap;
-    typedef _Tolerance Tolerance;
+    typedef FM FlowMap;
+    /// The tolerance type.
+    typedef TL Tolerance;
 
     typedef typename CapacityMap::Value Value;
     typedef Residual Adaptor;
@@ -2757,7 +2743,7 @@ namespace lemon {
                                              FlowMap, Tolerance> BackwardFilter;
 
     typedef typename Undirected::
-    template CombinedArcMap<ForwardFilter, BackwardFilter> ArcFilter;
+      template CombinedArcMap<ForwardFilter, BackwardFilter> ArcFilter;
 
     typedef FilterArcs<Undirected, ArcFilter> Parent;
 
@@ -2856,7 +2842,7 @@ namespace lemon {
       /// The key type of the map
       typedef Arc Key;
       /// The value type of the map
-      typedef typename _CapacityMap::Value Value;
+      typedef typename CapacityMap::Value Value;
 
       /// Constructor
       ResidualCapacity(const Adaptor& adaptor) : _adaptor(&adaptor) {}
@@ -2882,13 +2868,11 @@ namespace lemon {
   /// This function just returns a (read-only) \ref Residual adaptor.
   /// \ingroup graph_adaptors
   /// \relates Residual
-  template<typename Digraph, typename CapacityMap, typename FlowMap>
-  Residual<Digraph, CapacityMap, FlowMap>
-  residual(const Digraph& digraph,
-           const CapacityMap& capacity,
-           FlowMap& flow)
-  {
-    return Residual<Digraph, CapacityMap, FlowMap> (digraph, capacity, flow);
+  template<typename GR, typename CM, typename FM>
+  Residual<GR, CM, FM> residual(const GR& digraph,
+                                const CM& capacity_map,
+                                FM& flow_map) {
+    return Residual<GR, CM, FM> (digraph, capacity_map, flow_map);
   }
 
 
@@ -3339,18 +3323,22 @@ namespace lemon {
   /// costs/capacities of the original digraph to the \e bind \e arcs
   /// in the adaptor.
   ///
-  /// \tparam _Digraph The type of the adapted digraph.
+  /// \tparam GR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It is implicitly \c const.
   ///
   /// \note The \c Node type of this adaptor is converible to the \c Node
   /// type of the adapted digraph.
-  template <typename _Digraph>
+  template <typename GR>
+#ifdef DOXYGEN
+  class SplitNodes {
+#else
   class SplitNodes
-    : public DigraphAdaptorExtender<SplitNodesBase<const _Digraph> > {
+    : public DigraphAdaptorExtender<SplitNodesBase<const GR> > {
+#endif
   public:
-    typedef _Digraph Digraph;
-    typedef DigraphAdaptorExtender<SplitNodesBase<const Digraph> > Parent;
+    typedef GR Digraph;
+    typedef DigraphAdaptorExtender<SplitNodesBase<const GR> > Parent;
 
     typedef typename Digraph::Node DigraphNode;
     typedef typename Digraph::Arc DigraphArc;
@@ -3521,29 +3509,24 @@ namespace lemon {
     /// This map adaptor class adapts an arc map and a node map of the
     /// original digraph to get an arc map of the split digraph.
     /// Its value type is inherited from the original arc map type
-    /// (\c DigraphArcMap).
-    template <typename DigraphArcMap, typename DigraphNodeMap>
+    /// (\c ArcMap).
+    template <typename ArcMap, typename NodeMap>
     class CombinedArcMap {
     public:
 
       /// The key type of the map
       typedef Arc Key;
       /// The value type of the map
-      typedef typename DigraphArcMap::Value Value;
+      typedef typename ArcMap::Value Value;
 
-      typedef typename MapTraits<DigraphArcMap>::ReferenceMapTag
-        ReferenceMapTag;
-      typedef typename MapTraits<DigraphArcMap>::ReturnValue
-        ReturnValue;
-      typedef typename MapTraits<DigraphArcMap>::ConstReturnValue
-        ConstReturnValue;
-      typedef typename MapTraits<DigraphArcMap>::ReturnValue
-        Reference;
-      typedef typename MapTraits<DigraphArcMap>::ConstReturnValue
-        ConstReference;
+      typedef typename MapTraits<ArcMap>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<ArcMap>::ReturnValue ReturnValue;
+      typedef typename MapTraits<ArcMap>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<ArcMap>::ReturnValue Reference;
+      typedef typename MapTraits<ArcMap>::ConstReturnValue ConstReference;
 
       /// Constructor
-      CombinedArcMap(DigraphArcMap& arc_map, DigraphNodeMap& node_map)
+      CombinedArcMap(ArcMap& arc_map, NodeMap& node_map)
         : _arc_map(arc_map), _node_map(node_map) {}
 
       /// Returns the value associated with the given key.
@@ -3574,39 +3557,35 @@ namespace lemon {
       }
 
     private:
-      DigraphArcMap& _arc_map;
-      DigraphNodeMap& _node_map;
+      ArcMap& _arc_map;
+      NodeMap& _node_map;
     };
 
     /// \brief Returns a combined arc map
     ///
     /// This function just returns a combined arc map.
-    template <typename DigraphArcMap, typename DigraphNodeMap>
-    static CombinedArcMap<DigraphArcMap, DigraphNodeMap>
-    combinedArcMap(DigraphArcMap& arc_map, DigraphNodeMap& node_map) {
-      return CombinedArcMap<DigraphArcMap, DigraphNodeMap>(arc_map, node_map);
+    template <typename ArcMap, typename NodeMap>
+    static CombinedArcMap<ArcMap, NodeMap>
+    combinedArcMap(ArcMap& arc_map, NodeMap& node_map) {
+      return CombinedArcMap<ArcMap, NodeMap>(arc_map, node_map);
     }
 
-    template <typename DigraphArcMap, typename DigraphNodeMap>
-    static CombinedArcMap<const DigraphArcMap, DigraphNodeMap>
-    combinedArcMap(const DigraphArcMap& arc_map, DigraphNodeMap& node_map) {
-      return CombinedArcMap<const DigraphArcMap,
-        DigraphNodeMap>(arc_map, node_map);
+    template <typename ArcMap, typename NodeMap>
+    static CombinedArcMap<const ArcMap, NodeMap>
+    combinedArcMap(const ArcMap& arc_map, NodeMap& node_map) {
+      return CombinedArcMap<const ArcMap, NodeMap>(arc_map, node_map);
     }
 
-    template <typename DigraphArcMap, typename DigraphNodeMap>
-    static CombinedArcMap<DigraphArcMap, const DigraphNodeMap>
-    combinedArcMap(DigraphArcMap& arc_map, const DigraphNodeMap& node_map) {
-      return CombinedArcMap<DigraphArcMap,
-        const DigraphNodeMap>(arc_map, node_map);
+    template <typename ArcMap, typename NodeMap>
+    static CombinedArcMap<ArcMap, const NodeMap>
+    combinedArcMap(ArcMap& arc_map, const NodeMap& node_map) {
+      return CombinedArcMap<ArcMap, const NodeMap>(arc_map, node_map);
     }
 
-    template <typename DigraphArcMap, typename DigraphNodeMap>
-    static CombinedArcMap<const DigraphArcMap, const DigraphNodeMap>
-    combinedArcMap(const DigraphArcMap& arc_map,
-                   const DigraphNodeMap& node_map) {
-      return CombinedArcMap<const DigraphArcMap,
-        const DigraphNodeMap>(arc_map, node_map);
+    template <typename ArcMap, typename NodeMap>
+    static CombinedArcMap<const ArcMap, const NodeMap>
+    combinedArcMap(const ArcMap& arc_map, const NodeMap& node_map) {
+      return CombinedArcMap<const ArcMap, const NodeMap>(arc_map, node_map);
     }
 
   };
@@ -3616,12 +3595,11 @@ namespace lemon {
   /// This function just returns a (read-only) \ref SplitNodes adaptor.
   /// \ingroup graph_adaptors
   /// \relates SplitNodes
-  template<typename Digraph>
-  SplitNodes<Digraph>
-  splitNodes(const Digraph& digraph) {
-    return SplitNodes<Digraph>(digraph);
+  template<typename GR>
+  SplitNodes<GR>
+  splitNodes(const GR& digraph) {
+    return SplitNodes<GR>(digraph);
   }
-
 
 } //namespace lemon
 
