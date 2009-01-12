@@ -581,15 +581,15 @@ void checkUndirector() {
   ea = a2;
 }
 
-void checkResidual() {
+void checkResidualDigraph() {
   // Check concepts
-  checkConcept<concepts::Digraph, Residual<concepts::Digraph> >();
-  checkConcept<concepts::Digraph, Residual<ListDigraph> >();
+  checkConcept<concepts::Digraph, ResidualDigraph<concepts::Digraph> >();
+  checkConcept<concepts::Digraph, ResidualDigraph<ListDigraph> >();
 
   // Create a digraph and an adaptor
   typedef ListDigraph Digraph;
   typedef Digraph::ArcMap<int> IntArcMap;
-  typedef Residual<Digraph, IntArcMap> Adaptor;
+  typedef ResidualDigraph<Digraph, IntArcMap> Adaptor;
 
   Digraph digraph;
   IntArcMap capacity(digraph), flow(digraph);
@@ -1470,7 +1470,7 @@ int main(int, const char **) {
   checkFilterNodes1();
   checkFilterArcs();
   checkUndirector();
-  checkResidual();
+  checkResidualDigraph();
   checkSplitNodes();
 
   // Check the graph adaptors (using ListGraph)

@@ -2666,10 +2666,10 @@ namespace lemon {
   /// \brief Adaptor class for composing the residual digraph for directed
   /// flow and circulation problems.
   ///
-  /// Residual can be used for composing the \e residual digraph for directed
-  /// flow and circulation problems. Let \f$ G=(V, A) \f$ be a directed graph
-  /// and let \f$ F \f$ be a number type. Let \f$ flow, cap: A\to F \f$ be
-  /// functions on the arcs.
+  /// ResidualDigraph can be used for composing the \e residual digraph
+  /// for directed flow and circulation problems. Let \f$ G=(V, A) \f$
+  /// be a directed graph and let \f$ F \f$ be a number type.
+  /// Let \f$ flow, cap: A\to F \f$ be functions on the arcs.
   /// This adaptor implements a digraph structure with node set \f$ V \f$
   /// and arc set \f$ A_{forward}\cup A_{backward} \f$,
   /// where \f$ A_{forward}=\{uv : uv\in A, flow(uv)<cap(uv)\} \f$ and
@@ -2704,13 +2704,13 @@ namespace lemon {
   /// is convertible to the \c Arc type of the adapted digraph.
 #ifdef DOXYGEN
   template<typename GR, typename CM, typename FM, typename TL>
-  class Residual
+  class ResidualDigraph
 #else
   template<typename GR,
            typename CM = typename GR::template ArcMap<int>,
            typename FM = CM,
            typename TL = Tolerance<typename CM::Value> >
-  class Residual :
+  class ResidualDigraph :
     public FilterArcs<
       Undirector<const GR>,
       typename Undirector<const GR>::template CombinedArcMap<
@@ -2730,7 +2730,7 @@ namespace lemon {
     typedef TL Tolerance;
 
     typedef typename CapacityMap::Value Value;
-    typedef Residual Adaptor;
+    typedef ResidualDigraph Adaptor;
 
   protected:
 
@@ -2761,8 +2761,8 @@ namespace lemon {
     ///
     /// Constructor of the residual digraph adaptor. The parameters are the
     /// digraph, the capacity map, the flow map, and a tolerance object.
-    Residual(const Digraph& digraph, const CapacityMap& capacity,
-             FlowMap& flow, const Tolerance& tolerance = Tolerance())
+    ResidualDigraph(const Digraph& digraph, const CapacityMap& capacity,
+                    FlowMap& flow, const Tolerance& tolerance = Tolerance())
       : Parent(), _capacity(&capacity), _flow(&flow), _graph(digraph),
         _forward_filter(capacity, flow, tolerance),
         _backward_filter(capacity, flow, tolerance),
@@ -2869,10 +2869,9 @@ namespace lemon {
   /// \ingroup graph_adaptors
   /// \relates Residual
   template<typename GR, typename CM, typename FM>
-  Residual<GR, CM, FM> residual(const GR& digraph,
-                                const CM& capacity_map,
-                                FM& flow_map) {
-    return Residual<GR, CM, FM> (digraph, capacity_map, flow_map);
+  ResidualDigraph<GR, CM, FM>
+  residualDigraph(const GR& digraph, const CM& capacity_map, FM& flow_map) {
+    return ResidualDigraph<GR, CM, FM> (digraph, capacity_map, flow_map);
   }
 
 
