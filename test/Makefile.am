@@ -6,6 +6,7 @@ noinst_HEADERS += \
 	test/test_tools.h
 
 check_PROGRAMS += \
+	test/adaptors_test \
 	test/bfs_test \
 	test/circulation_test \
 	test/counter_test \
@@ -14,7 +15,6 @@ check_PROGRAMS += \
 	test/dijkstra_test \
 	test/dim_test \
 	test/error_test \
-	test/graph_adaptor_test \
 	test/graph_copy_test \
 	test/graph_test \
 	test/graph_utils_test \
@@ -36,6 +36,7 @@ check_PROGRAMS += \
 TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
+test_adaptors_test_SOURCES = test/adaptors_test.cc
 test_bfs_test_SOURCES = test/bfs_test.cc
 test_circulation_test_SOURCES = test/circulation_test.cc
 test_counter_test_SOURCES = test/counter_test.cc
@@ -44,7 +45,6 @@ test_digraph_test_SOURCES = test/digraph_test.cc
 test_dijkstra_test_SOURCES = test/dijkstra_test.cc
 test_dim_test_SOURCES = test/dim_test.cc
 test_error_test_SOURCES = test/error_test.cc
-test_graph_adaptor_test_SOURCES = test/graph_adaptor_test.cc
 test_graph_copy_test_SOURCES = test/graph_copy_test.cc
 test_graph_test_SOURCES = test/graph_test.cc
 test_graph_utils_test_SOURCES = test/graph_utils_test.cc
