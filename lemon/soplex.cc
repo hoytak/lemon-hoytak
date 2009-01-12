@@ -17,7 +17,7 @@
  */
 
 #include <iostream>
-#include <lemon/lp_soplex.h>
+#include <lemon/soplex.h>
 
 #include <soplex/soplex.h>
 

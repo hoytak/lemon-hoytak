@@ -20,7 +20,7 @@
 #include <vector>
 #include <cstring>
 
-#include <lemon/lp_cplex.h>
+#include <lemon/cplex.h>
 
 extern "C" {
 #include <ilcplex/cplex.h>

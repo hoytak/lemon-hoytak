@@ -26,19 +26,19 @@
 #endif
 
 #ifdef HAVE_GLPK
-#include <lemon/lp_glpk.h>
+#include <lemon/glpk.h>
 #endif
 
 #ifdef HAVE_CPLEX
-#include <lemon/lp_cplex.h>
+#include <lemon/cplex.h>
 #endif
 
 #ifdef HAVE_SOPLEX
-#include <lemon/lp_soplex.h>
+#include <lemon/soplex.h>
 #endif
 
 #ifdef HAVE_CLP
-#include <lemon/lp_clp.h>
+#include <lemon/clp.h>
 #endif
 
 using namespace lemon;

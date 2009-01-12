@@ -24,11 +24,11 @@
 #endif
 
 #ifdef HAVE_CPLEX
-#include <lemon/lp_cplex.h>
+#include <lemon/cplex.h>
 #endif
 
 #ifdef HAVE_GLPK
-#include <lemon/lp_glpk.h>
+#include <lemon/glpk.h>
 #endif
 
 

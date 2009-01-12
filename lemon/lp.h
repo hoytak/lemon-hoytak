@@ -23,13 +23,13 @@
 
 
 #ifdef HAVE_GLPK
-#include <lemon/lp_glpk.h>
+#include <lemon/glpk.h>
 #elif HAVE_CPLEX
-#include <lemon/lp_cplex.h>
+#include <lemon/cplex.h>
 #elif HAVE_SOPLEX
-#include <lemon/lp_soplex.h>
+#include <lemon/soplex.h>
 #elif HAVE_CLP
-#include <lemon/lp_clp.h>
+#include <lemon/clp.h>
 #endif
 
 ///\file
@@ -43,8 +43,8 @@ namespace lemon {
   ///The default LP solver identifier.
   ///\ingroup lp_group
   ///
-  ///Currently, the possible values are \c LP_GLPK, \c LP_CPLEX, \c
-  ///LP_SOPLEX or \c LP_CLP
+  ///Currently, the possible values are \c GLPK, \c CPLEX,
+  ///\c SOPLEX or \c CLP
 #define LEMON_DEFAULT_LP SOLVER
   ///The default LP solver
 
@@ -59,7 +59,7 @@ namespace lemon {
   ///The default MIP solver identifier.
   ///\ingroup lp_group
   ///
-  ///Currently, the possible values are \c MIP_GLPK or \c MIP_CPLEX
+  ///Currently, the possible values are \c GLPK or \c CPLEX
 #define LEMON_DEFAULT_MIP SOLVER
   ///The default MIP solver.
 
@@ -70,20 +70,20 @@ namespace lemon {
   typedef MipGlpk Mip;
 #else
 #ifdef HAVE_GLPK
-# define LEMON_DEFAULT_LP LP_GLPK
+# define LEMON_DEFAULT_LP GLPK
   typedef LpGlpk Lp;
-# define LEMON_DEFAULT_MIP MIP_GLPK
+# define LEMON_DEFAULT_MIP GLPK
   typedef MipGlpk Mip;
 #elif HAVE_CPLEX
-# define LEMON_DEFAULT_LP LP_CPLEX
+# define LEMON_DEFAULT_LP CPLEX
   typedef LpCplex Lp;
-# define LEMON_DEFAULT_MIP MIP_CPLEX
+# define LEMON_DEFAULT_MIP CPLEX
   typedef MipCplex Mip;
 #elif HAVE_SOPLEX
-# define DEFAULT_LP LP_SOPLEX
+# define DEFAULT_LP SOPLEX
   typedef LpSoplex Lp;
 #elif HAVE_CLP
-# define DEFAULT_LP LP_CLP
+# define DEFAULT_LP CLP
   typedef LpClp Lp;  
 #endif
 #endif

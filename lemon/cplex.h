@@ -16,40 +16,80 @@
  *
  */
 
-#ifndef LEMON_LP_GLPK_H
-#define LEMON_LP_GLPK_H
+#ifndef LEMON_CPLEX_H
+#define LEMON_CPLEX_H
 
 ///\file
-///\brief Header of the LEMON-GLPK lp solver interface.
-///\ingroup lp_group
+///\brief Header of the LEMON-CPLEX lp solver interface.
 
 #include <lemon/lp_base.h>
 
-// forward declaration
-#ifndef _GLP_PROB
-#define _GLP_PROB
-typedef struct { double _prob; } glp_prob;
-/* LP/MIP problem object */
-#endif
+struct cpxenv;
+struct cpxlp;
 
 namespace lemon {
 
-
-  /// \brief Base interface for the GLPK LP and MIP solver
+  /// \brief Reference counted wrapper around cpxenv pointer
   ///
-  /// This class implements the common interface of the GLPK LP and MIP solver.
+  /// The cplex uses environment object which is responsible for
+  /// checking the proper license usage. This class provides a simple
+  /// interface for share the environment object between different
+  /// problems.
+  class CplexEnv {
+    friend class CplexBase;
+  private:
+    cpxenv* _env;
+    mutable int* _cnt;
+
+  public:
+
+    /// \brief This exception is thrown when the license check is not
+    /// sufficient
+    class LicenseError : public Exception {
+      friend class CplexEnv;
+    private:
+
+      LicenseError(int status);
+      char _message[510];
+
+    public:
+
+      /// The short error message
+      virtual const char* what() const throw() {
+        return _message;
+      }
+    };
+
+    /// Constructor
+    CplexEnv();
+    /// Shallow copy constructor
+    CplexEnv(const CplexEnv&);
+    /// Shallow assignement
+    CplexEnv& operator=(const CplexEnv&);
+    /// Destructor
+    virtual ~CplexEnv();
+
+  protected:
+
+    cpxenv* cplexEnv() { return _env; }
+    const cpxenv* cplexEnv() const { return _env; }
+  };
+
+  /// \brief Base interface for the CPLEX LP and MIP solver
+  ///
+  /// This class implements the common interface of the CPLEX LP and
+  /// MIP solvers.  
   /// \ingroup lp_group
-  class GlpkBase : virtual public LpBase {
+  class CplexBase : virtual public LpBase {
   protected:
 
-    typedef glp_prob LPX;
-    glp_prob* lp;
+    CplexEnv _env;
+    cpxlp* _prob;
 
-    GlpkBase();
-    GlpkBase(const GlpkBase&);
-    virtual ~GlpkBase();
-
-  protected:
+    CplexBase();
+    CplexBase(const CplexEnv&);
+    CplexBase(const CplexBase &);
+    virtual ~CplexBase();
 
     virtual int _addCol();
     virtual int _addRow();
@@ -83,6 +123,10 @@ namespace lemon {
     virtual void _setColUpperBound(int i, Value value);
     virtual Value _getColUpperBound(int i) const;
 
+  private:
+    void _set_row_bounds(int i, Value lb, Value ub);
+  protected:
+
     virtual void _setRowLowerBound(int i, Value value);
     virtual Value _getRowLowerBound(int i) const;
 
@@ -95,56 +139,61 @@ namespace lemon {
     virtual void _setObjCoeff(int i, Value obj_coef);
     virtual Value _getObjCoeff(int i) const;
 
-    virtual void _setSense(Sense);
+    virtual void _setSense(Sense sense);
     virtual Sense _getSense() const;
 
     virtual void _clear();
 
   public:
 
-    ///Pointer to the underlying GLPK data structure.
-    LPX *lpx() {return lp;}
-    ///Const pointer to the underlying GLPK data structure.
-    const LPX *lpx() const {return lp;}
+    /// Returns the used \c CplexEnv instance
+    const CplexEnv& env() const { return _env; }
+    ///
+    const cpxenv* cplexEnv() const { return _env.cplexEnv(); }
 
-    ///Returns the constraint identifier understood by GLPK.
-    int lpxRow(Row r) const { return rows(id(r)); }
-
-    ///Returns the variable identifier understood by GLPK.
-    int lpxCol(Col c) const { return cols(id(c)); }
+    cpxlp* cplexLp() { return _prob; }
+    const cpxlp* cplexLp() const { return _prob; }
 
   };
 
-  /// \brief Interface for the GLPK LP solver
+  /// \brief Interface for the CPLEX LP solver
   ///
-  /// This class implements an interface for the GLPK LP solver.
+  /// This class implements an interface for the CPLEX LP solver.
   ///\ingroup lp_group
-  class LpGlpk : public GlpkBase, public LpSolver {
+  class LpCplex : public CplexBase, public LpSolver {
   public:
-
-    ///\e
-    LpGlpk();
-    ///\e
-    LpGlpk(const LpGlpk&);
+    /// \e
+    LpCplex();
+    /// \e
+    LpCplex(const CplexEnv&);
+    /// \e
+    LpCplex(const LpCplex&);
+    /// \e
+    virtual ~LpCplex();
 
   private:
 
-    mutable std::vector<double> _primal_ray;
-    mutable std::vector<double> _dual_ray;
+    // these values cannot retrieved element by element
+    mutable std::vector<int> _col_status;
+    mutable std::vector<int> _row_status;
+
+    mutable std::vector<Value> _primal_ray;
+    mutable std::vector<Value> _dual_ray;
 
     void _clear_temporals();
 
+    SolveExitStatus convertStatus(int status);
+
   protected:
 
-    virtual LpGlpk* _cloneSolver() const;
-    virtual LpGlpk* _newSolver() const;
+    virtual LpCplex* _cloneSolver() const;
+    virtual LpCplex* _newSolver() const;
 
     virtual const char* _solverName() const;
 
     virtual SolveExitStatus _solve();
     virtual Value _getPrimal(int i) const;
     virtual Value _getDual(int i) const;
-
     virtual Value _getPrimalValue() const;
 
     virtual VarStatus _getColStatus(int i) const;
@@ -153,68 +202,41 @@ namespace lemon {
     virtual Value _getPrimalRay(int i) const;
     virtual Value _getDualRay(int i) const;
 
-    ///\todo It should be clarified
-    ///
     virtual ProblemType _getPrimalType() const;
     virtual ProblemType _getDualType() const;
 
   public:
 
-    ///Solve with primal simplex
+    /// Solve with primal simplex method
     SolveExitStatus solvePrimal();
 
-    ///Solve with dual simplex
+    /// Solve with dual simplex method
     SolveExitStatus solveDual();
 
-    ///Turns on or off the presolver
+    /// Solve with barrier method
+    SolveExitStatus solveBarrier();
 
-    ///Turns on (\c b is \c true) or off (\c b is \c false) the presolver
-    ///
-    ///The presolver is off by default.
-    void presolver(bool b);
-
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// error messages only
-      MESSAGE_ERROR_MESSAGE = 1,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 2,
-      /// full output (includes informational messages)
-      MESSAGE_FULL_OUTPUT = 3
-    };
-
-  private:
-
-    MessageLevel _message_level;
-
-  public:
-
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
   };
 
-  /// \brief Interface for the GLPK MIP solver
+  /// \brief Interface for the CPLEX MIP solver
   ///
-  /// This class implements an interface for the GLPK MIP solver.
+  /// This class implements an interface for the CPLEX MIP solver.
   ///\ingroup lp_group
-  class MipGlpk : public GlpkBase, public MipSolver {
+  class MipCplex : public CplexBase, public MipSolver {
   public:
-
-    ///\e
-    MipGlpk();
-    ///\e
-    MipGlpk(const MipGlpk&);
+    /// \e
+    MipCplex();
+    /// \e
+    MipCplex(const CplexEnv&);
+    /// \e
+    MipCplex(const MipCplex&);
+    /// \e
+    virtual ~MipCplex();
 
   protected:
 
-    virtual MipGlpk* _cloneSolver() const;
-    virtual MipGlpk* _newSolver() const;
+    virtual MipCplex* _cloneSolver() const;
+    virtual MipCplex* _newSolver() const;
 
     virtual const char* _solverName() const;
 
@@ -226,34 +248,9 @@ namespace lemon {
     virtual Value _getSol(int i) const;
     virtual Value _getSolValue() const;
 
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// error messages only
-      MESSAGE_ERROR_MESSAGE = 1,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 2,
-      /// full output (includes informational messages)
-      MESSAGE_FULL_OUTPUT = 3
-    };
-
-  private:
-
-    MessageLevel _message_level;
-
-  public:
-
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
   };
-
 
 } //END OF NAMESPACE LEMON
 
-#endif //LEMON_LP_GLPK_H
+#endif //LEMON_CPLEX_H
 

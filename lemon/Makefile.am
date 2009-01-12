@@ -28,19 +28,19 @@ lemon_libemon_la_LDFLAGS = \
 	$(CLP_LIBS)
 
 if HAVE_GLPK
-lemon_libemon_la_SOURCES += lemon/lp_glpk.cc
+lemon_libemon_la_SOURCES += lemon/glpk.cc
 endif
 
 if HAVE_CPLEX
-lemon_libemon_la_SOURCES += lemon/lp_cplex.cc
+lemon_libemon_la_SOURCES += lemon/cplex.cc
 endif
 
 if HAVE_SOPLEX
-lemon_libemon_la_SOURCES += lemon/lp_soplex.cc
+lemon_libemon_la_SOURCES += lemon/soplex.cc
 endif
 
 if HAVE_CLP
-lemon_libemon_la_SOURCES += lemon/lp_clp.cc
+lemon_libemon_la_SOURCES += lemon/clp.cc
 endif
 
 lemon_HEADERS += \
@@ -50,10 +50,12 @@ lemon_HEADERS += \
 	lemon/bfs.h \
 	lemon/bin_heap.h \
 	lemon/circulation.h \
+	lemon/clp.h \
 	lemon/color.h \
 	lemon/concept_check.h \
 	lemon/counter.h \
 	lemon/core.h \
+	lemon/cplex.h \
 	lemon/dfs.h \
 	lemon/dijkstra.h \
 	lemon/dim2.h \
@@ -61,6 +63,7 @@ lemon_HEADERS += \
 	lemon/elevator.h \
 	lemon/error.h \
 	lemon/full_graph.h \
+	lemon/glpk.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
 	lemon/hypercube_graph.h \
@@ -71,11 +74,7 @@ lemon_HEADERS += \
 	lemon/list_graph.h \
 	lemon/lp.h \
 	lemon/lp_base.h \
-	lemon/lp_clp.h \
-	lemon/lp_cplex.h \
-	lemon/lp_glpk.h \
 	lemon/lp_skeleton.h \
-	lemon/lp_soplex.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
@@ -86,6 +85,7 @@ lemon_HEADERS += \
 	lemon/radix_sort.h \
 	lemon/random.h \
 	lemon/smart_graph.h \
+	lemon/soplex.h \
 	lemon/suurballe.h \
 	lemon/time_measure.h \
 	lemon/tolerance.h \

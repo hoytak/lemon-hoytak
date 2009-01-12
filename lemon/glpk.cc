@@ -19,7 +19,7 @@
 ///\file
 ///\brief Implementation of the LEMON GLPK LP and MIP solver interface.
 
-#include <lemon/lp_glpk.h>
+#include <lemon/glpk.h>
 #include <glpk.h>
 
 #include <lemon/assert.h>

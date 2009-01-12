@@ -16,68 +16,58 @@
  *
  */
 
-#ifndef LEMON_LP_SOPLEX_H
-#define LEMON_LP_SOPLEX_H
+#ifndef LEMON_CLP_H
+#define LEMON_CLP_H
 
 ///\file
-///\brief Header of the LEMON-SOPLEX lp solver interface.
+///\brief Header of the LEMON-CLP lp solver interface.
 
 #include <vector>
 #include <string>
 
 #include <lemon/lp_base.h>
 
-// Forward declaration
-namespace soplex {
-  class SoPlex;
-}
+class ClpSimplex;
 
 namespace lemon {
 
   /// \ingroup lp_group
   ///
-  /// \brief Interface for the SOPLEX solver
+  /// \brief Interface for the CLP solver
   ///
-  /// This class implements an interface for the SoPlex LP solver.
-  /// The SoPlex library is an object oriented lp solver library
-  /// developed at the Konrad-Zuse-Zentrum für Informationstechnik
-  /// Berlin (ZIB). You can find detailed information about it at the
-  /// <tt>http://soplex.zib.de</tt> address.
-  class LpSoplex : public LpSolver {
-  private:
+  /// This class implements an interface for the Clp LP solver.  The
+  /// Clp library is an object oriented lp solver library developed at
+  /// the IBM. The CLP is part of the COIN-OR package and it can be
+  /// used with Common Public License.
+  class LpClp : public LpSolver {
+  protected:
 
-    soplex::SoPlex* soplex;
+    ClpSimplex* _prob;
 
-    std::vector<std::string> _col_names;
     std::map<std::string, int> _col_names_ref;
-
-    std::vector<std::string> _row_names;
     std::map<std::string, int> _row_names_ref;
-
-  private:
-
-    // these values cannot be retrieved element by element
-    mutable std::vector<Value> _primal_values;
-    mutable std::vector<Value> _dual_values;
-
-    mutable std::vector<Value> _primal_ray;
-    mutable std::vector<Value> _dual_ray;
-
-    void _clear_temporals();
 
   public:
 
     /// \e
-    LpSoplex();
+    LpClp();
     /// \e
-    LpSoplex(const LpSoplex&);
+    LpClp(const LpClp&);
     /// \e
-    ~LpSoplex();
+    ~LpClp();
 
   protected:
 
-    virtual LpSoplex* _newSolver() const;
-    virtual LpSoplex* _cloneSolver() const;
+    mutable double* _primal_ray;
+    mutable double* _dual_ray;
+
+    void _init_temporals();
+    void _clear_temporals();
+
+  protected:
+
+    virtual LpClp* _newSolver() const;
+    virtual LpClp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 
@@ -117,8 +107,8 @@ namespace lemon {
     virtual void _setRowUpperBound(int i, Value value);
     virtual Value _getRowUpperBound(int i) const;
 
-    virtual void _setObjCoeffs(ExprIterator b, ExprIterator e);
-    virtual void _getObjCoeffs(InsertIterator b) const;
+    virtual void _setObjCoeffs(ExprIterator, ExprIterator);
+    virtual void _getObjCoeffs(InsertIterator) const;
 
     virtual void _setObjCoeff(int i, Value obj_coef);
     virtual Value _getObjCoeff(int i) const;
@@ -127,6 +117,7 @@ namespace lemon {
     virtual Sense _getSense() const;
 
     virtual SolveExitStatus _solve();
+
     virtual Value _getPrimal(int i) const;
     virtual Value _getDual(int i) const;
 
@@ -143,9 +134,46 @@ namespace lemon {
 
     virtual void _clear();
 
+  public:
+
+    ///Solves LP with primal simplex method.
+    SolveExitStatus solvePrimal();
+
+    ///Solves LP with dual simplex method.
+    SolveExitStatus solveDual();
+
+    ///Solves LP with barrier method.
+    SolveExitStatus solveBarrier();
+
+    ///Returns the constraint identifier understood by CLP.
+    int clpRow(Row r) const { return rows(id(r)); }
+
+    ///Returns the variable identifier understood by CLP.
+    int clpCol(Col c) const { return cols(id(c)); }
+
+    ///Enum for \c messageLevel() parameter
+    enum MessageLevel {
+      /// no output (default value)
+      MESSAGE_NO_OUTPUT = 0,
+      /// print final solution
+      MESSAGE_FINAL_SOLUTION = 1,
+      /// print factorization
+      MESSAGE_FACTORIZATION = 2,
+      /// normal output
+      MESSAGE_NORMAL_OUTPUT = 3,
+      /// verbose output
+      MESSAGE_VERBOSE_OUTPUT = 4
+    };
+    ///Set the verbosity of the messages
+
+    ///Set the verbosity of the messages
+    ///
+    ///\param m is the level of the messages output by the solver routines.
+    void messageLevel(MessageLevel m);
+
   };
 
 } //END OF NAMESPACE LEMON
 
-#endif //LEMON_LP_SOPLEX_H
+#endif //LEMON_CLP_H
 
