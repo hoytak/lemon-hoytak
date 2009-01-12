@@ -26,15 +26,15 @@
 ///\brief Implementation of the LEMON-SOPLEX lp solver interface.
 namespace lemon {
 
-  LpSoplex::LpSoplex() {
+  SoplexLp::SoplexLp() {
     soplex = new soplex::SoPlex;
   }
 
-  LpSoplex::~LpSoplex() {
+  SoplexLp::~SoplexLp() {
     delete soplex;
   }
 
-  LpSoplex::LpSoplex(const LpSoplex& lp) {
+  SoplexLp::SoplexLp(const SoplexLp& lp) {
     rows = lp.rows;
     cols = lp.cols;
 
@@ -49,24 +49,24 @@ namespace lemon {
 
   }
 
-  void LpSoplex::_clear_temporals() {
+  void SoplexLp::_clear_temporals() {
     _primal_values.clear();
     _dual_values.clear();
   }
 
-  LpSoplex* LpSoplex::_newSolver() const {
-    LpSoplex* newlp = new LpSoplex();
+  SoplexLp* SoplexLp::_newSolver() const {
+    SoplexLp* newlp = new SoplexLp();
     return newlp;
   }
 
-  LpSoplex* LpSoplex::_cloneSolver() const {
-    LpSoplex* newlp = new LpSoplex(*this);
+  SoplexLp* SoplexLp::_cloneSolver() const {
+    SoplexLp* newlp = new SoplexLp(*this);
     return newlp;
   }
 
-  const char* LpSoplex::_solverName() const { return "LpSoplex"; }
+  const char* SoplexLp::_solverName() const { return "SoplexLp"; }
 
-  int LpSoplex::_addCol() {
+  int SoplexLp::_addCol() {
     soplex::LPCol c;
     c.setLower(-soplex::infinity);
     c.setUpper(soplex::infinity);
@@ -77,7 +77,7 @@ namespace lemon {
     return soplex->nCols() - 1;
   }
 
-  int LpSoplex::_addRow() {
+  int SoplexLp::_addRow() {
     soplex::LPRow r;
     r.setLhs(-soplex::infinity);
     r.setRhs(soplex::infinity);
@@ -89,7 +89,7 @@ namespace lemon {
   }
 
 
-  void LpSoplex::_eraseCol(int i) {
+  void SoplexLp::_eraseCol(int i) {
     soplex->removeCol(i);
     _col_names_ref.erase(_col_names[i]);
     _col_names[i] = _col_names.back();
@@ -97,7 +97,7 @@ namespace lemon {
     _col_names.pop_back();
   }
 
-  void LpSoplex::_eraseRow(int i) {
+  void SoplexLp::_eraseRow(int i) {
     soplex->removeRow(i);
     _row_names_ref.erase(_row_names[i]);
     _row_names[i] = _row_names.back();
@@ -105,20 +105,20 @@ namespace lemon {
     _row_names.pop_back();
   }
 
-  void LpSoplex::_eraseColId(int i) {
+  void SoplexLp::_eraseColId(int i) {
     cols.eraseIndex(i);
     cols.relocateIndex(i, cols.maxIndex());
   }
-  void LpSoplex::_eraseRowId(int i) {
+  void SoplexLp::_eraseRowId(int i) {
     rows.eraseIndex(i);
     rows.relocateIndex(i, rows.maxIndex());
   }
 
-  void LpSoplex::_getColName(int c, std::string &name) const {
+  void SoplexLp::_getColName(int c, std::string &name) const {
     name = _col_names[c];
   }
 
-  void LpSoplex::_setColName(int c, const std::string &name) {
+  void SoplexLp::_setColName(int c, const std::string &name) {
     _col_names_ref.erase(_col_names[c]);
     _col_names[c] = name;
     if (!name.empty()) {
@@ -126,7 +126,7 @@ namespace lemon {
     }
   }
 
-  int LpSoplex::_colByName(const std::string& name) const {
+  int SoplexLp::_colByName(const std::string& name) const {
     std::map<std::string, int>::const_iterator it =
       _col_names_ref.find(name);
     if (it != _col_names_ref.end()) {
@@ -136,11 +136,11 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_getRowName(int r, std::string &name) const {
+  void SoplexLp::_getRowName(int r, std::string &name) const {
     name = _row_names[r];
   }
 
-  void LpSoplex::_setRowName(int r, const std::string &name) {
+  void SoplexLp::_setRowName(int r, const std::string &name) {
     _row_names_ref.erase(_row_names[r]);
     _row_names[r] = name;
     if (!name.empty()) {
@@ -148,7 +148,7 @@ namespace lemon {
     }
   }
 
-  int LpSoplex::_rowByName(const std::string& name) const {
+  int SoplexLp::_rowByName(const std::string& name) const {
     std::map<std::string, int>::const_iterator it =
       _row_names_ref.find(name);
     if (it != _row_names_ref.end()) {
@@ -159,7 +159,7 @@ namespace lemon {
   }
 
 
-  void LpSoplex::_setRowCoeffs(int i, ExprIterator b, ExprIterator e) {
+  void SoplexLp::_setRowCoeffs(int i, ExprIterator b, ExprIterator e) {
     for (int j = 0; j < soplex->nCols(); ++j) {
       soplex->changeElement(i, j, 0.0);
     }
@@ -168,7 +168,7 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_getRowCoeffs(int i, InsertIterator b) const {
+  void SoplexLp::_getRowCoeffs(int i, InsertIterator b) const {
     const soplex::SVector& vec = soplex->rowVector(i);
     for (int k = 0; k < vec.size(); ++k) {
       *b = std::make_pair(vec.index(k), vec.value(k));
@@ -176,7 +176,7 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_setColCoeffs(int j, ExprIterator b, ExprIterator e) {
+  void SoplexLp::_setColCoeffs(int j, ExprIterator b, ExprIterator e) {
     for (int i = 0; i < soplex->nRows(); ++i) {
       soplex->changeElement(i, j, 0.0);
     }
@@ -185,7 +185,7 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_getColCoeffs(int i, InsertIterator b) const {
+  void SoplexLp::_getColCoeffs(int i, InsertIterator b) const {
     const soplex::SVector& vec = soplex->colVector(i);
     for (int k = 0; k < vec.size(); ++k) {
       *b = std::make_pair(vec.index(k), vec.value(k));
@@ -193,55 +193,55 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_setCoeff(int i, int j, Value value) {
+  void SoplexLp::_setCoeff(int i, int j, Value value) {
     soplex->changeElement(i, j, value);
   }
 
-  LpSoplex::Value LpSoplex::_getCoeff(int i, int j) const {
+  SoplexLp::Value SoplexLp::_getCoeff(int i, int j) const {
     return soplex->rowVector(i)[j];
   }
 
-  void LpSoplex::_setColLowerBound(int i, Value value) {
+  void SoplexLp::_setColLowerBound(int i, Value value) {
     LEMON_ASSERT(value != INF, "Invalid bound");
     soplex->changeLower(i, value != -INF ? value : -soplex::infinity);
   }
 
-  LpSoplex::Value LpSoplex::_getColLowerBound(int i) const {
+  SoplexLp::Value SoplexLp::_getColLowerBound(int i) const {
     double value = soplex->lower(i);
     return value != -soplex::infinity ? value : -INF;
   }
 
-  void LpSoplex::_setColUpperBound(int i, Value value) {
+  void SoplexLp::_setColUpperBound(int i, Value value) {
     LEMON_ASSERT(value != -INF, "Invalid bound");
     soplex->changeUpper(i, value != INF ? value : soplex::infinity);
   }
 
-  LpSoplex::Value LpSoplex::_getColUpperBound(int i) const {
+  SoplexLp::Value SoplexLp::_getColUpperBound(int i) const {
     double value = soplex->upper(i);
     return value != soplex::infinity ? value : INF;
   }
 
-  void LpSoplex::_setRowLowerBound(int i, Value lb) {
+  void SoplexLp::_setRowLowerBound(int i, Value lb) {
     LEMON_ASSERT(lb != INF, "Invalid bound");
     soplex->changeRange(i, lb != -INF ? lb : -soplex::infinity, soplex->rhs(i));
   }
 
-  LpSoplex::Value LpSoplex::_getRowLowerBound(int i) const {
+  SoplexLp::Value SoplexLp::_getRowLowerBound(int i) const {
     double res = soplex->lhs(i);
     return res == -soplex::infinity ? -INF : res;
   }
 
-  void LpSoplex::_setRowUpperBound(int i, Value ub) {
+  void SoplexLp::_setRowUpperBound(int i, Value ub) {
     LEMON_ASSERT(ub != -INF, "Invalid bound");
     soplex->changeRange(i, soplex->lhs(i), ub != INF ? ub : soplex::infinity);
   }
 
-  LpSoplex::Value LpSoplex::_getRowUpperBound(int i) const {
+  SoplexLp::Value SoplexLp::_getRowUpperBound(int i) const {
     double res = soplex->rhs(i);
     return res == soplex::infinity ? INF : res;
   }
 
-  void LpSoplex::_setObjCoeffs(ExprIterator b, ExprIterator e) {
+  void SoplexLp::_setObjCoeffs(ExprIterator b, ExprIterator e) {
     for (int j = 0; j < soplex->nCols(); ++j) {
       soplex->changeObj(j, 0.0);
     }
@@ -250,7 +250,7 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_getObjCoeffs(InsertIterator b) const {
+  void SoplexLp::_getObjCoeffs(InsertIterator b) const {
     for (int j = 0; j < soplex->nCols(); ++j) {
       Value coef = soplex->obj(j);
       if (coef != 0.0) {
@@ -260,15 +260,15 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_setObjCoeff(int i, Value obj_coef) {
+  void SoplexLp::_setObjCoeff(int i, Value obj_coef) {
     soplex->changeObj(i, obj_coef);
   }
 
-  LpSoplex::Value LpSoplex::_getObjCoeff(int i) const {
+  SoplexLp::Value SoplexLp::_getObjCoeff(int i) const {
     return soplex->obj(i);
   }
 
-  LpSoplex::SolveExitStatus LpSoplex::_solve() {
+  SoplexLp::SolveExitStatus SoplexLp::_solve() {
 
     _clear_temporals();
 
@@ -284,7 +284,7 @@ namespace lemon {
     }
   }
 
-  LpSoplex::Value LpSoplex::_getPrimal(int i) const {
+  SoplexLp::Value SoplexLp::_getPrimal(int i) const {
     if (_primal_values.empty()) {
       _primal_values.resize(soplex->nCols());
       soplex::Vector pv(_primal_values.size(), &_primal_values.front());
@@ -293,7 +293,7 @@ namespace lemon {
     return _primal_values[i];
   }
 
-  LpSoplex::Value LpSoplex::_getDual(int i) const {
+  SoplexLp::Value SoplexLp::_getDual(int i) const {
     if (_dual_values.empty()) {
       _dual_values.resize(soplex->nRows());
       soplex::Vector dv(_dual_values.size(), &_dual_values.front());
@@ -302,11 +302,11 @@ namespace lemon {
     return _dual_values[i];
   }
 
-  LpSoplex::Value LpSoplex::_getPrimalValue() const {
+  SoplexLp::Value SoplexLp::_getPrimalValue() const {
     return soplex->objValue();
   }
 
-  LpSoplex::VarStatus LpSoplex::_getColStatus(int i) const {
+  SoplexLp::VarStatus SoplexLp::_getColStatus(int i) const {
     switch (soplex->getBasisColStatus(i)) {
     case soplex::SPxSolver::BASIC:
       return BASIC;
@@ -324,7 +324,7 @@ namespace lemon {
     }
   }
 
-  LpSoplex::VarStatus LpSoplex::_getRowStatus(int i) const {
+  SoplexLp::VarStatus SoplexLp::_getRowStatus(int i) const {
     switch (soplex->getBasisRowStatus(i)) {
     case soplex::SPxSolver::BASIC:
       return BASIC;
@@ -342,7 +342,7 @@ namespace lemon {
     }
   }
 
-  LpSoplex::Value LpSoplex::_getPrimalRay(int i) const {
+  SoplexLp::Value SoplexLp::_getPrimalRay(int i) const {
     if (_primal_ray.empty()) {
       _primal_ray.resize(soplex->nCols());
       soplex::Vector pv(_primal_ray.size(), &_primal_ray.front());
@@ -351,7 +351,7 @@ namespace lemon {
     return _primal_ray[i];
   }
 
-  LpSoplex::Value LpSoplex::_getDualRay(int i) const {
+  SoplexLp::Value SoplexLp::_getDualRay(int i) const {
     if (_dual_ray.empty()) {
       _dual_ray.resize(soplex->nRows());
       soplex::Vector dv(_dual_ray.size(), &_dual_ray.front());
@@ -360,7 +360,7 @@ namespace lemon {
     return _dual_ray[i];
   }
 
-  LpSoplex::ProblemType LpSoplex::_getPrimalType() const {
+  SoplexLp::ProblemType SoplexLp::_getPrimalType() const {
     switch (soplex->status()) {
     case soplex::SPxSolver::OPTIMAL:
       return OPTIMAL;
@@ -373,7 +373,7 @@ namespace lemon {
     }
   }
 
-  LpSoplex::ProblemType LpSoplex::_getDualType() const {
+  SoplexLp::ProblemType SoplexLp::_getDualType() const {
     switch (soplex->status()) {
     case soplex::SPxSolver::OPTIMAL:
       return OPTIMAL;
@@ -386,7 +386,7 @@ namespace lemon {
     }
   }
 
-  void LpSoplex::_setSense(Sense sense) {
+  void SoplexLp::_setSense(Sense sense) {
     switch (sense) {
     case MIN:
       soplex->changeSense(soplex::SPxSolver::MINIMIZE);
@@ -396,7 +396,7 @@ namespace lemon {
     }
   }
 
-  LpSoplex::Sense LpSoplex::_getSense() const {
+  SoplexLp::Sense SoplexLp::_getSense() const {
     switch (soplex->spxSense()) {
     case soplex::SPxSolver::MAXIMIZE:
       return MAX;
@@ -404,11 +404,11 @@ namespace lemon {
       return MIN;
     default:
       LEMON_ASSERT(false, "Wrong sense.");
-      return LpSoplex::Sense();
+      return SoplexLp::Sense();
     }
   }
 
-  void LpSoplex::_clear() {
+  void SoplexLp::_clear() {
     soplex->clear();
     _col_names.clear();
     _col_names_ref.clear();

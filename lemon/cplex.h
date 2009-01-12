@@ -160,16 +160,16 @@ namespace lemon {
   ///
   /// This class implements an interface for the CPLEX LP solver.
   ///\ingroup lp_group
-  class LpCplex : public CplexBase, public LpSolver {
+  class CplexLp : public CplexBase, public LpSolver {
   public:
     /// \e
-    LpCplex();
+    CplexLp();
     /// \e
-    LpCplex(const CplexEnv&);
+    CplexLp(const CplexEnv&);
     /// \e
-    LpCplex(const LpCplex&);
+    CplexLp(const CplexLp&);
     /// \e
-    virtual ~LpCplex();
+    virtual ~CplexLp();
 
   private:
 
@@ -186,8 +186,8 @@ namespace lemon {
 
   protected:
 
-    virtual LpCplex* _cloneSolver() const;
-    virtual LpCplex* _newSolver() const;
+    virtual CplexLp* _cloneSolver() const;
+    virtual CplexLp* _newSolver() const;
 
     virtual const char* _solverName() const;
 
@@ -222,21 +222,21 @@ namespace lemon {
   ///
   /// This class implements an interface for the CPLEX MIP solver.
   ///\ingroup lp_group
-  class MipCplex : public CplexBase, public MipSolver {
+  class CplexMip : public CplexBase, public MipSolver {
   public:
     /// \e
-    MipCplex();
+    CplexMip();
     /// \e
-    MipCplex(const CplexEnv&);
+    CplexMip(const CplexEnv&);
     /// \e
-    MipCplex(const MipCplex&);
+    CplexMip(const CplexMip&);
     /// \e
-    virtual ~MipCplex();
+    virtual ~CplexMip();
 
   protected:
 
-    virtual MipCplex* _cloneSolver() const;
-    virtual MipCplex* _newSolver() const;
+    virtual CplexMip* _cloneSolver() const;
+    virtual CplexMip* _newSolver() const;
 
     virtual const char* _solverName() const;
 

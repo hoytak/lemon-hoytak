@@ -522,33 +522,33 @@ namespace lemon {
     cols.clear();
   }
 
-  // LpGlpk members
+  // GlpkLp members
 
-  LpGlpk::LpGlpk()
+  GlpkLp::GlpkLp()
     : LpBase(), GlpkBase(), LpSolver() {
     messageLevel(MESSAGE_NO_OUTPUT);
   }
 
-  LpGlpk::LpGlpk(const LpGlpk& other)
+  GlpkLp::GlpkLp(const GlpkLp& other)
     : LpBase(other), GlpkBase(other), LpSolver(other) {
     messageLevel(MESSAGE_NO_OUTPUT);
   }
 
-  LpGlpk* LpGlpk::_newSolver() const { return new LpGlpk; }
-  LpGlpk* LpGlpk::_cloneSolver() const { return new LpGlpk(*this); }
+  GlpkLp* GlpkLp::_newSolver() const { return new GlpkLp; }
+  GlpkLp* GlpkLp::_cloneSolver() const { return new GlpkLp(*this); }
 
-  const char* LpGlpk::_solverName() const { return "LpGlpk"; }
+  const char* GlpkLp::_solverName() const { return "GlpkLp"; }
 
-  void LpGlpk::_clear_temporals() {
+  void GlpkLp::_clear_temporals() {
     _primal_ray.clear();
     _dual_ray.clear();
   }
 
-  LpGlpk::SolveExitStatus LpGlpk::_solve() {
+  GlpkLp::SolveExitStatus GlpkLp::_solve() {
     return solvePrimal();
   }
 
-  LpGlpk::SolveExitStatus LpGlpk::solvePrimal() {
+  GlpkLp::SolveExitStatus GlpkLp::solvePrimal() {
     _clear_temporals();
 
     glp_smcp smcp;
@@ -573,7 +573,7 @@ namespace lemon {
     return SOLVED;
   }
 
-  LpGlpk::SolveExitStatus LpGlpk::solveDual() {
+  GlpkLp::SolveExitStatus GlpkLp::solveDual() {
     _clear_temporals();
 
     glp_smcp smcp;
@@ -599,19 +599,19 @@ namespace lemon {
     return SOLVED;
   }
 
-  LpGlpk::Value LpGlpk::_getPrimal(int i) const {
+  GlpkLp::Value GlpkLp::_getPrimal(int i) const {
     return glp_get_col_prim(lp, i);
   }
 
-  LpGlpk::Value LpGlpk::_getDual(int i) const {
+  GlpkLp::Value GlpkLp::_getDual(int i) const {
     return glp_get_row_dual(lp, i);
   }
 
-  LpGlpk::Value LpGlpk::_getPrimalValue() const {
+  GlpkLp::Value GlpkLp::_getPrimalValue() const {
     return glp_get_obj_val(lp);
   }
 
-  LpGlpk::VarStatus LpGlpk::_getColStatus(int i) const {
+  GlpkLp::VarStatus GlpkLp::_getColStatus(int i) const {
     switch (glp_get_col_stat(lp, i)) {
     case GLP_BS:
       return BASIC;
@@ -625,11 +625,11 @@ namespace lemon {
       return FIXED;
     default:
       LEMON_ASSERT(false, "Wrong column status");
-      return LpGlpk::VarStatus();
+      return GlpkLp::VarStatus();
     }
   }
 
-  LpGlpk::VarStatus LpGlpk::_getRowStatus(int i) const {
+  GlpkLp::VarStatus GlpkLp::_getRowStatus(int i) const {
     switch (glp_get_row_stat(lp, i)) {
     case GLP_BS:
       return BASIC;
@@ -643,11 +643,11 @@ namespace lemon {
       return FIXED;
     default:
       LEMON_ASSERT(false, "Wrong row status");
-      return LpGlpk::VarStatus();
+      return GlpkLp::VarStatus();
     }
   }
 
-  LpGlpk::Value LpGlpk::_getPrimalRay(int i) const {
+  GlpkLp::Value GlpkLp::_getPrimalRay(int i) const {
     if (_primal_ray.empty()) {
       int row_num = glp_get_num_rows(lp);
       int col_num = glp_get_num_cols(lp);
@@ -699,7 +699,7 @@ namespace lemon {
     return _primal_ray[i];
   }
 
-  LpGlpk::Value LpGlpk::_getDualRay(int i) const {
+  GlpkLp::Value GlpkLp::_getDualRay(int i) const {
     if (_dual_ray.empty()) {
       int row_num = glp_get_num_rows(lp);
 
@@ -771,7 +771,7 @@ namespace lemon {
     return _dual_ray[i];
   }
 
-  LpGlpk::ProblemType LpGlpk::_getPrimalType() const {
+  GlpkLp::ProblemType GlpkLp::_getPrimalType() const {
     if (glp_get_status(lp) == GLP_OPT)
       return OPTIMAL;
     switch (glp_get_prim_stat(lp)) {
@@ -788,11 +788,11 @@ namespace lemon {
       return INFEASIBLE;
     default:
       LEMON_ASSERT(false, "Wrong primal type");
-      return  LpGlpk::ProblemType();
+      return  GlpkLp::ProblemType();
     }
   }
 
-  LpGlpk::ProblemType LpGlpk::_getDualType() const {
+  GlpkLp::ProblemType GlpkLp::_getDualType() const {
     if (glp_get_status(lp) == GLP_OPT)
       return OPTIMAL;
     switch (glp_get_dual_stat(lp)) {
@@ -809,31 +809,31 @@ namespace lemon {
       return INFEASIBLE;
     default:
       LEMON_ASSERT(false, "Wrong primal type");
-      return  LpGlpk::ProblemType();
+      return  GlpkLp::ProblemType();
     }
   }
 
-  void LpGlpk::presolver(bool b) {
+  void GlpkLp::presolver(bool b) {
     lpx_set_int_parm(lp, LPX_K_PRESOL, b ? 1 : 0);
   }
 
-  void LpGlpk::messageLevel(MessageLevel m) {
+  void GlpkLp::messageLevel(MessageLevel m) {
     _message_level = m;
   }
 
-  // MipGlpk members
+  // GlpkMip members
 
-  MipGlpk::MipGlpk()
+  GlpkMip::GlpkMip()
     : LpBase(), GlpkBase(), MipSolver() {
     messageLevel(MESSAGE_NO_OUTPUT);
   }
 
-  MipGlpk::MipGlpk(const MipGlpk& other)
+  GlpkMip::GlpkMip(const GlpkMip& other)
     : LpBase(), GlpkBase(other), MipSolver() {
     messageLevel(MESSAGE_NO_OUTPUT);
   }
 
-  void MipGlpk::_setColType(int i, MipGlpk::ColTypes col_type) {
+  void GlpkMip::_setColType(int i, GlpkMip::ColTypes col_type) {
     switch (col_type) {
     case INTEGER:
       glp_set_col_kind(lp, i, GLP_IV);
@@ -844,7 +844,7 @@ namespace lemon {
     }
   }
 
-  MipGlpk::ColTypes MipGlpk::_getColType(int i) const {
+  GlpkMip::ColTypes GlpkMip::_getColType(int i) const {
     switch (glp_get_col_kind(lp, i)) {
     case GLP_IV:
     case GLP_BV:
@@ -855,7 +855,7 @@ namespace lemon {
 
   }
 
-  MipGlpk::SolveExitStatus MipGlpk::_solve() {
+  GlpkMip::SolveExitStatus GlpkMip::_solve() {
     glp_smcp smcp;
     glp_init_smcp(&smcp);
 
@@ -901,7 +901,7 @@ namespace lemon {
   }
 
 
-  MipGlpk::ProblemType MipGlpk::_getType() const {
+  GlpkMip::ProblemType GlpkMip::_getType() const {
     switch (glp_get_status(lp)) {
     case GLP_OPT:
       switch (glp_mip_status(lp)) {
@@ -915,7 +915,7 @@ namespace lemon {
         return OPTIMAL;
       default:
         LEMON_ASSERT(false, "Wrong problem type.");
-        return MipGlpk::ProblemType();
+        return GlpkMip::ProblemType();
       }
     case GLP_NOFEAS:
       return INFEASIBLE;
@@ -928,24 +928,24 @@ namespace lemon {
       }
     default:
       LEMON_ASSERT(false, "Wrong problem type.");
-      return MipGlpk::ProblemType();
+      return GlpkMip::ProblemType();
     }
   }
 
-  MipGlpk::Value MipGlpk::_getSol(int i) const {
+  GlpkMip::Value GlpkMip::_getSol(int i) const {
     return glp_mip_col_val(lp, i);
   }
 
-  MipGlpk::Value MipGlpk::_getSolValue() const {
+  GlpkMip::Value GlpkMip::_getSolValue() const {
     return glp_mip_obj_val(lp);
   }
 
-  MipGlpk* MipGlpk::_newSolver() const { return new MipGlpk; }
-  MipGlpk* MipGlpk::_cloneSolver() const {return new MipGlpk(*this); }
+  GlpkMip* GlpkMip::_newSolver() const { return new GlpkMip; }
+  GlpkMip* GlpkMip::_cloneSolver() const {return new GlpkMip(*this); }
 
-  const char* MipGlpk::_solverName() const { return "MipGlpk"; }
+  const char* GlpkMip::_solverName() const { return "GlpkMip"; }
 
-  void MipGlpk::messageLevel(MessageLevel m) {
+  void GlpkMip::messageLevel(MessageLevel m) {
     _message_level = m;
   }
 

@@ -39,7 +39,7 @@ namespace lemon {
   /// Clp library is an object oriented lp solver library developed at
   /// the IBM. The CLP is part of the COIN-OR package and it can be
   /// used with Common Public License.
-  class LpClp : public LpSolver {
+  class ClpLp : public LpSolver {
   protected:
 
     ClpSimplex* _prob;
@@ -50,11 +50,11 @@ namespace lemon {
   public:
 
     /// \e
-    LpClp();
+    ClpLp();
     /// \e
-    LpClp(const LpClp&);
+    ClpLp(const ClpLp&);
     /// \e
-    ~LpClp();
+    ~ClpLp();
 
   protected:
 
@@ -66,8 +66,8 @@ namespace lemon {
 
   protected:
 
-    virtual LpClp* _newSolver() const;
-    virtual LpClp* _cloneSolver() const;
+    virtual ClpLp* _newSolver() const;
+    virtual ClpLp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 

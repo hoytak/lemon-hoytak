@@ -119,13 +119,13 @@ namespace lemon {
   ///
   /// This class implements an interface for the GLPK LP solver.
   ///\ingroup lp_group
-  class LpGlpk : public GlpkBase, public LpSolver {
+  class GlpkLp : public GlpkBase, public LpSolver {
   public:
 
     ///\e
-    LpGlpk();
+    GlpkLp();
     ///\e
-    LpGlpk(const LpGlpk&);
+    GlpkLp(const GlpkLp&);
 
   private:
 
@@ -136,8 +136,8 @@ namespace lemon {
 
   protected:
 
-    virtual LpGlpk* _cloneSolver() const;
-    virtual LpGlpk* _newSolver() const;
+    virtual GlpkLp* _cloneSolver() const;
+    virtual GlpkLp* _newSolver() const;
 
     virtual const char* _solverName() const;
 
@@ -203,18 +203,18 @@ namespace lemon {
   ///
   /// This class implements an interface for the GLPK MIP solver.
   ///\ingroup lp_group
-  class MipGlpk : public GlpkBase, public MipSolver {
+  class GlpkMip : public GlpkBase, public MipSolver {
   public:
 
     ///\e
-    MipGlpk();
+    GlpkMip();
     ///\e
-    MipGlpk(const MipGlpk&);
+    GlpkMip(const GlpkMip&);
 
   protected:
 
-    virtual MipGlpk* _cloneSolver() const;
-    virtual MipGlpk* _newSolver() const;
+    virtual GlpkMip* _cloneSolver() const;
+    virtual GlpkMip* _newSolver() const;
 
     virtual const char* _solverName() const;
 

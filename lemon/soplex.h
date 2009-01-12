@@ -43,7 +43,7 @@ namespace lemon {
   /// developed at the Konrad-Zuse-Zentrum für Informationstechnik
   /// Berlin (ZIB). You can find detailed information about it at the
   /// <tt>http://soplex.zib.de</tt> address.
-  class LpSoplex : public LpSolver {
+  class SoplexLp : public LpSolver {
   private:
 
     soplex::SoPlex* soplex;
@@ -68,16 +68,16 @@ namespace lemon {
   public:
 
     /// \e
-    LpSoplex();
+    SoplexLp();
     /// \e
-    LpSoplex(const LpSoplex&);
+    SoplexLp(const SoplexLp&);
     /// \e
-    ~LpSoplex();
+    ~SoplexLp();
 
   protected:
 
-    virtual LpSoplex* _newSolver() const;
-    virtual LpSoplex* _cloneSolver() const;
+    virtual SoplexLp* _newSolver() const;
+    virtual SoplexLp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 

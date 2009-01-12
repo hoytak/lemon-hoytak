@@ -362,7 +362,7 @@ int main()
 
 #ifdef HAVE_GLPK
   {
-    LpGlpk lp_glpk1,lp_glpk2;
+    GlpkLp lp_glpk1,lp_glpk2;
     lpTest(lp_glpk1);
     aTest(lp_glpk2);
   }
@@ -370,7 +370,7 @@ int main()
 
 #ifdef HAVE_CPLEX
   try {
-    LpCplex lp_cplex1,lp_cplex2;
+    CplexLp lp_cplex1,lp_cplex2;
     lpTest(lp_cplex1);
     aTest(lp_cplex2);
   } catch (CplexEnv::LicenseError& error) {
@@ -385,7 +385,7 @@ int main()
 
 #ifdef HAVE_SOPLEX
   {
-    LpSoplex lp_soplex1,lp_soplex2;
+    SoplexLp lp_soplex1,lp_soplex2;
     lpTest(lp_soplex1);
     aTest(lp_soplex2);
   }
@@ -393,7 +393,7 @@ int main()
 
 #ifdef HAVE_CLP
   {
-    LpClp lp_clp1,lp_clp2;
+    ClpLp lp_clp1,lp_clp2;
     lpTest(lp_clp1);
     aTest(lp_clp2);
   }

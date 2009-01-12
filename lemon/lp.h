@@ -51,8 +51,8 @@ namespace lemon {
   ///The default LP solver.
   ///\ingroup lp_group
   ///
-  ///Currently, it is either \c LpGlpk, \c LpCplex, \c LpSoplex or \c LpClp
-  typedef LpGlpk Lp;
+  ///Currently, it is either \c GlpkLp, \c CplexLp, \c SoplexLp or \c ClpLp
+  typedef GlpkLp Lp;
 
   ///The default MIP solver identifier
 
@@ -66,25 +66,25 @@ namespace lemon {
   ///The default MIP solver.
   ///\ingroup lp_group
   ///
-  ///Currently, it is either \c MipGlpk or \c MipCplex
-  typedef MipGlpk Mip;
+  ///Currently, it is either \c GlpkMip or \c CplexMip
+  typedef GlpkMip Mip;
 #else
 #ifdef HAVE_GLPK
 # define LEMON_DEFAULT_LP GLPK
-  typedef LpGlpk Lp;
+  typedef GlpkLp Lp;
 # define LEMON_DEFAULT_MIP GLPK
-  typedef MipGlpk Mip;
+  typedef GlpkMip Mip;
 #elif HAVE_CPLEX
 # define LEMON_DEFAULT_LP CPLEX
-  typedef LpCplex Lp;
+  typedef CplexLp Lp;
 # define LEMON_DEFAULT_MIP CPLEX
-  typedef MipCplex Mip;
+  typedef CplexMip Mip;
 #elif HAVE_SOPLEX
 # define DEFAULT_LP SOPLEX
-  typedef LpSoplex Lp;
+  typedef SoplexLp Lp;
 #elif HAVE_CLP
 # define DEFAULT_LP CLP
-  typedef LpClp Lp;  
+  typedef ClpLp Lp;  
 #endif
 #endif
 

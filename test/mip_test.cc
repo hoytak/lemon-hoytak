@@ -112,14 +112,14 @@ int main()
 
 #ifdef HAVE_GLPK
   {
-    MipGlpk mip1;
+    GlpkMip mip1;
     aTest(mip1);
   }
 #endif
 
 #ifdef HAVE_CPLEX
   try {
-    MipCplex mip2;
+    CplexMip mip2;
     aTest(mip2);
   } catch (CplexEnv::LicenseError& error) {
 #ifdef LEMON_FORCE_CPLEX_CHECK
