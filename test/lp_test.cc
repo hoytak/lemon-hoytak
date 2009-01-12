@@ -162,11 +162,11 @@ void lpTest(LpSolver& lp)
     c = (2.2== p2 );
     c = (2  == p2 );
 
-    c = (2 <= e <= 3);
-    c = (2 <= p1<= 3);
+    c = ((2 <= e) <= 3);
+    c = ((2 <= p1) <= 3);
 
-    c = (2 >= e >= 3);
-    c = (2 >= p1>= 3);
+    c = ((2 >= e) >= 3);
+    c = ((2 >= p1) >= 3);
 
     e[x[3]]=2;
     e[x[3]]=4;
@@ -178,7 +178,7 @@ void lpTest(LpSolver& lp)
     lp.addRow(-LP::INF,3.0*(x[1]+x[2]*2-5*x[3]+12-x[4]/3)+2*x[4]-4,23);
 
     lp.addRow(x[1]+x[3]<=x[5]-3);
-    lp.addRow(-7<=x[1]+x[3]-12<=3);
+    lp.addRow((-7<=x[1]+x[3]-12)<=3);
     lp.addRow(x[1]<=x[5]);
 
     std::ostringstream buf;
