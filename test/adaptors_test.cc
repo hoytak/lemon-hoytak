@@ -1371,51 +1371,43 @@ void checkCombiningAdaptors() {
   GridGraph::Node n4 = graph(1,1);
 
   GridGraph::EdgeMap<bool> dir_map(graph);
-  dir_map[graph.right(n1)] = graph.u(graph.right(n1)) == n1;
-  dir_map[graph.up(n1)] = graph.u(graph.up(n1)) != n1;
-  dir_map[graph.left(n4)] = graph.u(graph.left(n4)) != n4;
-  dir_map[graph.down(n4)] = graph.u(graph.down(n4)) != n4;
+  dir_map[graph.right(n1)] = graph.u(graph.right(n1)) != n1;
+  dir_map[graph.up(n1)] = graph.u(graph.up(n1)) == n1;
+  dir_map[graph.left(n4)] = graph.u(graph.left(n4)) == n4;
+  dir_map[graph.down(n4)] = graph.u(graph.down(n4)) == n4;
 
   // Apply several adaptors on the grid graph
-  typedef SplitNodes< ReverseDigraph< const Orienter<
-            const GridGraph, GridGraph::EdgeMap<bool> > > >
-    RevSplitGridGraph;
-  typedef ReverseDigraph<const RevSplitGridGraph> SplitGridGraph;
+  typedef SplitNodes<Orienter< const GridGraph, GridGraph::EdgeMap<bool> > >
+    SplitGridGraph;
   typedef Undirector<const SplitGridGraph> USplitGridGraph;
-  typedef Undirector<const USplitGridGraph> UUSplitGridGraph;
-  checkConcept<concepts::Digraph, RevSplitGridGraph>();
   checkConcept<concepts::Digraph, SplitGridGraph>();
   checkConcept<concepts::Graph, USplitGridGraph>();
-  checkConcept<concepts::Graph, UUSplitGridGraph>();
 
-  RevSplitGridGraph rev_adaptor =
-    splitNodes(reverseDigraph(orienter(graph, dir_map)));
-  SplitGridGraph adaptor = reverseDigraph(rev_adaptor);
+  SplitGridGraph adaptor = splitNodes(orienter(graph, dir_map));
   USplitGridGraph uadaptor = undirector(adaptor);
-  UUSplitGridGraph uuadaptor = undirector(uadaptor);
 
   // Check adaptor
   checkGraphNodeList(adaptor, 8);
   checkGraphArcList(adaptor, 8);
   checkGraphConArcList(adaptor, 8);
 
-  checkGraphOutArcList(adaptor, rev_adaptor.inNode(n1), 1);
-  checkGraphOutArcList(adaptor, rev_adaptor.outNode(n1), 1);
-  checkGraphOutArcList(adaptor, rev_adaptor.inNode(n2), 2);
-  checkGraphOutArcList(adaptor, rev_adaptor.outNode(n2), 1);
-  checkGraphOutArcList(adaptor, rev_adaptor.inNode(n3), 1);
-  checkGraphOutArcList(adaptor, rev_adaptor.outNode(n3), 1);
-  checkGraphOutArcList(adaptor, rev_adaptor.inNode(n4), 0);
-  checkGraphOutArcList(adaptor, rev_adaptor.outNode(n4), 1);
+  checkGraphOutArcList(adaptor, adaptor.inNode(n1), 1);
+  checkGraphOutArcList(adaptor, adaptor.outNode(n1), 1);
+  checkGraphOutArcList(adaptor, adaptor.inNode(n2), 1);
+  checkGraphOutArcList(adaptor, adaptor.outNode(n2), 0);
+  checkGraphOutArcList(adaptor, adaptor.inNode(n3), 1);
+  checkGraphOutArcList(adaptor, adaptor.outNode(n3), 1);
+  checkGraphOutArcList(adaptor, adaptor.inNode(n4), 1);
+  checkGraphOutArcList(adaptor, adaptor.outNode(n4), 2);
 
-  checkGraphInArcList(adaptor, rev_adaptor.inNode(n1), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.outNode(n1), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.inNode(n2), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.outNode(n2), 0);
-  checkGraphInArcList(adaptor, rev_adaptor.inNode(n3), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.outNode(n3), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.inNode(n4), 1);
-  checkGraphInArcList(adaptor, rev_adaptor.outNode(n4), 2);
+  checkGraphInArcList(adaptor, adaptor.inNode(n1), 1);
+  checkGraphInArcList(adaptor, adaptor.outNode(n1), 1);
+  checkGraphInArcList(adaptor, adaptor.inNode(n2), 2);
+  checkGraphInArcList(adaptor, adaptor.outNode(n2), 1);
+  checkGraphInArcList(adaptor, adaptor.inNode(n3), 1);
+  checkGraphInArcList(adaptor, adaptor.outNode(n3), 1);
+  checkGraphInArcList(adaptor, adaptor.inNode(n4), 0);
+  checkGraphInArcList(adaptor, adaptor.outNode(n4), 1);
 
   checkNodeIds(adaptor);
   checkArcIds(adaptor);
@@ -1438,29 +1430,14 @@ void checkCombiningAdaptors() {
   checkGraphEdgeMap(uadaptor);
   checkGraphArcMap(uadaptor);
 
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.inNode(n1), 2);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.outNode(n1), 2);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.inNode(n2), 3);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.outNode(n2), 1);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.inNode(n3), 2);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.outNode(n3), 2);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.inNode(n4), 1);
-  checkGraphIncEdgeArcLists(uadaptor, rev_adaptor.outNode(n4), 3);
-
-  // Check uuadaptor
-  checkGraphNodeList(uuadaptor, 8);
-  checkGraphEdgeList(uuadaptor, 16);
-  checkGraphArcList(uuadaptor, 32);
-  checkGraphConEdgeList(uuadaptor, 16);
-  checkGraphConArcList(uuadaptor, 32);
-
-  checkNodeIds(uuadaptor);
-  checkEdgeIds(uuadaptor);
-  checkArcIds(uuadaptor);
-
-  checkGraphNodeMap(uuadaptor);
-  checkGraphEdgeMap(uuadaptor);
-  checkGraphArcMap(uuadaptor);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.inNode(n1), 2);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.outNode(n1), 2);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.inNode(n2), 3);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.outNode(n2), 1);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.inNode(n3), 2);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.outNode(n3), 2);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.inNode(n4), 1);
+  checkGraphIncEdgeArcLists(uadaptor, adaptor.outNode(n4), 3);
 }
 
 int main(int, const char **) {
