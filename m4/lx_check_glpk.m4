@@ -60,6 +60,10 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
 
     if test x"$lx_glpk_found" = x"yes"; then
       AC_DEFINE([HAVE_GLPK], [1], [Define to 1 if you have GLPK.])
+      lx_lp_found=yes
+      AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+      lx_mip_found=yes
+      AC_DEFINE([HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
       AC_MSG_RESULT([yes])
     else
       GLPK_CFLAGS=""

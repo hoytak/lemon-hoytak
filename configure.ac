@@ -54,6 +54,9 @@ dnl Checks for libraries.
 #LX_CHECK_CPLEX
 #LX_CHECK_SOPLEX
 
+AM_CONDITIONAL([HAVE_LP], [test x"$lx_lp_found" = x"yes"])
+AM_CONDITIONAL([HAVE_MIP], [test x"$lx_mip_found" = x"yes"])
+
 dnl Disable/enable building the demo programs.
 AC_ARG_ENABLE([demo],
 AS_HELP_STRING([--enable-demo], [build the demo programs])

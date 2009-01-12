@@ -1,3 +1,9 @@
+/* Define to 1 if you have any LP solver. */
+#undef HAVE_LP
+
+/* Define to 1 if you have any MIP solver. */
+#undef HAVE_MIP
+
 /* Define to 1 if you have CPLEX. */
 #undef HAVE_CPLEX
 

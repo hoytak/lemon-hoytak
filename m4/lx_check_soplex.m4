@@ -56,6 +56,8 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
 
     if test x"$lx_soplex_found" = x"yes"; then
       AC_DEFINE([HAVE_SOPLEX], [1], [Define to 1 if you have SOPLEX.])
+      lx_lp_found=yes
+      AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
       AC_MSG_RESULT([yes])
     else
       SOPLEX_CXXFLAGS=""
