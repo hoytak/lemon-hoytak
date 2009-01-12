@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lemon)
 
 SET(TESTS
+  adaptors_test
   bfs_test
   circulation_test
   counter_test
@@ -11,7 +12,6 @@ SET(TESTS
   dijkstra_test
   dim_test
   error_test
-  graph_adaptor_test
   graph_copy_test
   graph_test
   graph_utils_test
