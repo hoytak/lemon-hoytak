@@ -92,6 +92,30 @@ do
         -e "s/\<storeBoolMap\>/loggerBoolMap/g"\
         -e "s/\<BoundingBox\>/Box/g"\
         -e "s/\<readNauty\>/readNautyGraph/g"\
+        -e "s/\<RevDigraphAdaptor\>/ReverseDigraph/g"\
+        -e "s/\<revDigraphAdaptor\>/reverseDigraph/g"\
+        -e "s/\<SubDigraphAdaptor\>/SubDigraph/g"\
+        -e "s/\<subDigraphAdaptor\>/subDigraph/g"\
+        -e "s/\<SubGraphAdaptor\>/SubGraph/g"\
+        -e "s/\<subGraphAdaptor\>/subGraph/g"\
+        -e "s/\<NodeSubDigraphAdaptor\>/FilterNodes/g"\
+        -e "s/\<nodeSubDigraphAdaptor\>/filterNodes/g"\
+        -e "s/\<ArcSubDigraphAdaptor\>/FilterArcs/g"\
+        -e "s/\<arcSubDigraphAdaptor\>/filterArcs/g"\
+        -e "s/\<UndirDigraphAdaptor\>/Undirector/g"\
+        -e "s/\<undirDigraphAdaptor\>/undirector/g"\
+        -e "s/\<ResDigraphAdaptor\>/ResidualDigraph/g"\
+        -e "s/\<resDigraphAdaptor\>/residualDigraph/g"\
+        -e "s/\<SplitDigraphAdaptor\>/SplitNodes/g"\
+        -e "s/\<splitDigraphAdaptor\>/splitNodes/g"\
+        -e "s/\<SubGraphAdaptor\>/SubGraph/g"\
+        -e "s/\<subGraphAdaptor\>/subGraph/g"\
+        -e "s/\<NodeSubGraphAdaptor\>/FilterNodes/g"\
+        -e "s/\<nodeSubGraphAdaptor\>/filterNodes/g"\
+        -e "s/\<ArcSubGraphAdaptor\>/FilterEdges/g"\
+        -e "s/\<arcSubGraphAdaptor\>/filterEdges/g"\
+        -e "s/\<DirGraphAdaptor\>/Orienter/g"\
+        -e "s/\<dirGraphAdaptor\>/orienter/g"\
     <$i > $TMP
     mv $TMP $i
 done
