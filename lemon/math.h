@@ -55,6 +55,15 @@ namespace lemon {
   /// 1/sqrt(2)
   const long double SQRT1_2 = 0.7071067811865475244008443621048490L;
 
+  ///Check whether the parameter is NaN or not
+  
+  ///This function checks whether the parameter is NaN or not.
+  ///Is should be equivalent with std::isnan(), but it is not
+  ///provided by all compilers.
+  inline bool isnan(double v)
+    {
+      return v!=v;
+    }
 
   /// @}
 

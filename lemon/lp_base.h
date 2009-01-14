@@ -597,11 +597,11 @@ namespace lemon {
       const Value &upperBound() const { return _ub; }
       ///Is the constraint lower bounded?
       bool lowerBounded() const {
-        return _lb != -INF && !std::isnan(_lb);
+        return _lb != -INF && !isnan(_lb);
       }
       ///Is the constraint upper bounded?
       bool upperBounded() const {
-        return _ub != INF && !std::isnan(_ub);
+        return _ub != INF && !isnan(_ub);
       }
 
     };
@@ -1666,7 +1666,7 @@ namespace lemon {
   inline LpBase::Constr operator<=(const LpBase::Value &n,
                                    const LpBase::Constr &c) {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isnan(tmp.lowerBound()), "Wrong LP constraint");
     tmp.lowerBound()=n;
     return tmp;
   }
@@ -1678,7 +1678,7 @@ namespace lemon {
                                    const LpBase::Value &n)
   {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isnan(tmp.upperBound()), "Wrong LP constraint");
     tmp.upperBound()=n;
     return tmp;
   }
@@ -1690,7 +1690,7 @@ namespace lemon {
   inline LpBase::Constr operator>=(const LpBase::Value &n,
                                    const LpBase::Constr &c) {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isnan(tmp.upperBound()), "Wrong LP constraint");
     tmp.upperBound()=n;
     return tmp;
   }
@@ -1702,7 +1702,7 @@ namespace lemon {
                                    const LpBase::Value &n)
   {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isnan(tmp.lowerBound()), "Wrong LP constraint");
     tmp.lowerBound()=n;
     return tmp;
   }
