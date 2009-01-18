@@ -1067,8 +1067,8 @@ namespace lemon {
     ///a better one.
     void col(Col c, const DualExpr &e) {
       e.simplify();
-      _setColCoeffs(cols(id(c)), ExprIterator(e.comps.begin(), cols),
-                    ExprIterator(e.comps.end(), cols));
+      _setColCoeffs(cols(id(c)), ExprIterator(e.comps.begin(), rows),
+                    ExprIterator(e.comps.end(), rows));
     }
 
     ///Get a column (i.e a dual constraint) of the LP
