@@ -39,11 +39,11 @@ syntax: regexp
 ^doc/.*\.tag
 ^autom4te.cache/.*
 ^build-aux/.*
-^objs.*/.*
+^.*objs.*/.*
 ^test/[a-z_]*$
 ^tools/[a-z-_]*$
 ^demo/.*_demo$
-^build/.*
+^.*build.*/.*
 ^doc/gen-images/.*
 CMakeFiles
 DartTestfile.txt
