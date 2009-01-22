@@ -13,6 +13,15 @@ FIND_PACKAGE(GLPK 4.33)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
+IF(MSVC)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /wd4355 /wd4800 /wd4996")
+# Suppressed warnings:
+# C4250: 'class1' : inherits 'class2::member' via dominance
+# C4355: 'this' : used in base member initializer list
+# C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+# C4996: 'function': was declared deprecated
+ENDIF(MSVC)
+
 IF(GLPK_FOUND)
   SET(HAVE_LP TRUE)
   SET(HAVE_MIP TRUE)

@@ -10,7 +10,7 @@ ENDIF(HAVE_GLPK)
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lemon)
 
 SET(TESTS
-  adaptors_test
+#   adaptors_test
   bfs_test
   circulation_test
   counter_test
@@ -18,7 +18,7 @@ SET(TESTS
   digraph_test
   dijkstra_test
   dim_test
-  edge_set_test
+#   edge_set_test
   error_test
   graph_copy_test
   graph_test
