@@ -1,7 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(PROJECT_NAME "LEMON")
-SET(PROJECT_VERSION "hg-tip" CACHE STRING "The version string.")
+IF(EXISTS ${CMAKE_SOURCE_DIR}/cmake/version.cmake)
+  INCLUDE(${CMAKE_SOURCE_DIR}/cmake/version.cmake)
+ELSE(EXISTS ${CMAKE_SOURCE_DIR}/cmake/version.cmake)
+  SET(PROJECT_NAME "LEMON")
+  SET(PROJECT_VERSION "hg-tip" CACHE STRING "LEMON version string.")
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/cmake/version.cmake)
 
 PROJECT(${PROJECT_NAME})
 
