@@ -12,7 +12,12 @@ EXTRA_DIST = \
 	m4/lx_check_glpk.m4 \
 	m4/lx_check_soplex.m4 \
 	CMakeLists.txt \
-	cmake
+	cmake/FindGhostscript.cmake \
+	cmake/FindGLPK.cmake \
+	cmake/version.cmake.in \
+	cmake/version.cmake \
+	cmake/nsis/lemon.ico \
+	cmake/nsis/uninstall.ico
 
 pkgconfigdir = $(libdir)/pkgconfig
 lemondir = $(pkgincludedir)
