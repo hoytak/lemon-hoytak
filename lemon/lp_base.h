@@ -1383,26 +1383,26 @@ namespace lemon {
     template<class T>
     void colUpperBound(T &t, Value value) { return 0;}
 #else
-    template<class T>
-    typename enable_if<typename T::value_type::LpCol,void>::type
-    colUpperBound(T &t, Value value,dummy<0> = 0) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T1>
+    typename enable_if<typename T1::value_type::LpCol,void>::type
+    colUpperBound(T1 &t, Value value,dummy<0> = 0) {
+      for(typename T1::iterator i=t.begin();i!=t.end();++i) {
         colUpperBound(*i, value);
       }
     }
-    template<class T>
-    typename enable_if<typename T::value_type::second_type::LpCol,
+    template<class T1>
+    typename enable_if<typename T1::value_type::second_type::LpCol,
                        void>::type
-    colUpperBound(T &t, Value value,dummy<1> = 1) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    colUpperBound(T1 &t, Value value,dummy<1> = 1) {
+      for(typename T1::iterator i=t.begin();i!=t.end();++i) {
         colUpperBound(i->second, value);
       }
     }
-    template<class T>
-    typename enable_if<typename T::MapIt::Value::LpCol,
+    template<class T1>
+    typename enable_if<typename T1::MapIt::Value::LpCol,
                        void>::type
-    colUpperBound(T &t, Value value,dummy<2> = 2) {
-      for(typename T::MapIt i(t); i!=INVALID; ++i){
+    colUpperBound(T1 &t, Value value,dummy<2> = 2) {
+      for(typename T1::MapIt i(t); i!=INVALID; ++i){
         colUpperBound(*i, value);
       }
     }
@@ -1432,24 +1432,24 @@ namespace lemon {
     template<class T>
     void colBounds(T &t, Value lower, Value upper) { return 0;}
 #else
-    template<class T>
-    typename enable_if<typename T::value_type::LpCol,void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<0> = 0) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T2>
+    typename enable_if<typename T2::value_type::LpCol,void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<0> = 0) {
+      for(typename T2::iterator i=t.begin();i!=t.end();++i) {
         colBounds(*i, lower, upper);
       }
     }
-    template<class T>
-    typename enable_if<typename T::value_type::second_type::LpCol, void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<1> = 1) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T2>
+    typename enable_if<typename T2::value_type::second_type::LpCol, void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<1> = 1) {
+      for(typename T2::iterator i=t.begin();i!=t.end();++i) {
         colBounds(i->second, lower, upper);
       }
     }
-    template<class T>
-    typename enable_if<typename T::MapIt::Value::LpCol, void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<2> = 2) {
-      for(typename T::MapIt i(t); i!=INVALID; ++i){
+    template<class T2>
+    typename enable_if<typename T2::MapIt::Value::LpCol, void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<2> = 2) {
+      for(typename T2::MapIt i(t); i!=INVALID; ++i){
         colBounds(*i, lower, upper);
       }
     }
