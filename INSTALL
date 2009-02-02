@@ -5,6 +5,12 @@ Since you are reading this I assume you already obtained one of the release
 tarballs and successfully extracted it. The latest version of LEMON is
 available at our web page (http://lemon.cs.elte.hu/).
 
+LEMON provides two different build environments, one is based on "autotool",
+while the other is based on "cmake". This file contains instructions only for
+the former one, which is the recommended build environment on Linux, Mac OSX
+and other unices or if you use Cygwin on Windows. For cmake installation
+instructions visit http://lemon.cs.elte.hu.
+
 In order to install LEMON from the extracted source tarball you have to
 issue the following commands:
 
