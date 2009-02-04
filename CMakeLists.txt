@@ -78,7 +78,7 @@ IF(WIN32)
   SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\lemon.cs.elte.hu")
   SET(CPACK_NSIS_CONTACT "lemon-user@lemon.cs.elte.hu")
   SET(CPACK_NSIS_CREATE_ICONS_EXTRA "
-    CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Documentation.lnk\\\" \\\"$INSTDIR\\\\doc\\\\index.html\\\"
+    CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Documentation.lnk\\\" \\\"$INSTDIR\\\\share\\\\doc\\\\index.html\\\"
     ")
   SET(CPACK_NSIS_DELETE_ICONS_EXTRA "
     !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
