@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <cmath>
 #else
+#include <unistd.h>
 #include <sys/times.h>
 #include <sys/time.h>
 #endif
