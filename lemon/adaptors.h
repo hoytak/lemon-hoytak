@@ -36,23 +36,28 @@
 
 namespace lemon {
 
-  template<typename _Digraph>
+#ifdef _MSC_VER
+#define LEMON_SCOPE_FIX(OUTER, NESTED) OUTER::NESTED
+#else
+#define LEMON_SCOPE_FIX(OUTER, NESTED) typename OUTER::template NESTED
+#endif
+
+  template<typename DGR>
   class DigraphAdaptorBase {
   public:
-    typedef _Digraph Digraph;
+    typedef DGR Digraph;
     typedef DigraphAdaptorBase Adaptor;
-    typedef Digraph ParentDigraph;
 
   protected:
-    Digraph* _digraph;
+    DGR* _digraph;
     DigraphAdaptorBase() : _digraph(0) { }
-    void setDigraph(Digraph& digraph) { _digraph = &digraph; }
+    void initialize(DGR& digraph) { _digraph = &digraph; }
 
   public:
-    DigraphAdaptorBase(Digraph& digraph) : _digraph(&digraph) { }
+    DigraphAdaptorBase(DGR& digraph) : _digraph(&digraph) { }
 
-    typedef typename Digraph::Node Node;
-    typedef typename Digraph::Arc Arc;
+    typedef typename DGR::Node Node;
+    typedef typename DGR::Arc Arc;
 
     void first(Node& i) const { _digraph->first(i); }
     void first(Arc& i) const { _digraph->first(i); }
@@ -67,13 +72,13 @@ namespace lemon {
     Node source(const Arc& a) const { return _digraph->source(a); }
     Node target(const Arc& a) const { return _digraph->target(a); }
 
-    typedef NodeNumTagIndicator<Digraph> NodeNumTag;
+    typedef NodeNumTagIndicator<DGR> NodeNumTag;
     int nodeNum() const { return _digraph->nodeNum(); }
 
-    typedef ArcNumTagIndicator<Digraph> ArcNumTag;
+    typedef ArcNumTagIndicator<DGR> ArcNumTag;
     int arcNum() const { return _digraph->arcNum(); }
 
-    typedef FindArcTagIndicator<Digraph> FindArcTag;
+    typedef FindArcTagIndicator<DGR> FindArcTag;
     Arc findArc(const Node& u, const Node& v, const Arc& prev = INVALID) const {
       return _digraph->findArc(u, v, prev);
     }
@@ -95,22 +100,22 @@ namespace lemon {
     int maxNodeId() const { return _digraph->maxNodeId(); }
     int maxArcId() const { return _digraph->maxArcId(); }
 
-    typedef typename ItemSetTraits<Digraph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<DGR, Node>::ItemNotifier NodeNotifier;
     NodeNotifier& notifier(Node) const { return _digraph->notifier(Node()); }
 
-    typedef typename ItemSetTraits<Digraph, Arc>::ItemNotifier ArcNotifier;
+    typedef typename ItemSetTraits<DGR, Arc>::ItemNotifier ArcNotifier;
     ArcNotifier& notifier(Arc) const { return _digraph->notifier(Arc()); }
 
-    template <typename _Value>
-    class NodeMap : public Digraph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public DGR::template NodeMap<V> {
     public:
 
-      typedef typename Digraph::template NodeMap<_Value> Parent;
+      typedef typename DGR::template NodeMap<V> Parent;
 
       explicit NodeMap(const Adaptor& adaptor)
         : Parent(*adaptor._digraph) {}
 
-      NodeMap(const Adaptor& adaptor, const _Value& value)
+      NodeMap(const Adaptor& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) { }
 
     private:
@@ -126,16 +131,16 @@ namespace lemon {
 
     };
 
-    template <typename _Value>
-    class ArcMap : public Digraph::template ArcMap<_Value> {
+    template <typename V>
+    class ArcMap : public DGR::template ArcMap<V> {
     public:
 
-      typedef typename Digraph::template ArcMap<_Value> Parent;
+      typedef typename DGR::template ArcMap<V> Parent;
 
-      explicit ArcMap(const Adaptor& adaptor)
+      explicit ArcMap(const DigraphAdaptorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
 
-      ArcMap(const Adaptor& adaptor, const _Value& value)
+      ArcMap(const DigraphAdaptorBase<DGR>& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) {}
 
     private:
@@ -153,25 +158,24 @@ namespace lemon {
 
   };
 
-  template<typename _Graph>
+  template<typename GR>
   class GraphAdaptorBase {
   public:
-    typedef _Graph Graph;
-    typedef Graph ParentGraph;
+    typedef GR Graph;
 
   protected:
-    Graph* _graph;
+    GR* _graph;
 
     GraphAdaptorBase() : _graph(0) {}
 
-    void setGraph(Graph& graph) { _graph = &graph; }
+    void initialize(GR& graph) { _graph = &graph; }
 
   public:
-    GraphAdaptorBase(Graph& graph) : _graph(&graph) {}
+    GraphAdaptorBase(GR& graph) : _graph(&graph) {}
 
-    typedef typename Graph::Node Node;
-    typedef typename Graph::Arc Arc;
-    typedef typename Graph::Edge Edge;
+    typedef typename GR::Node Node;
+    typedef typename GR::Arc Arc;
+    typedef typename GR::Edge Edge;
 
     void first(Node& i) const { _graph->first(i); }
     void first(Arc& i) const { _graph->first(i); }
@@ -239,22 +243,22 @@ namespace lemon {
     int maxArcId() const { return _graph->maxArcId(); }
     int maxEdgeId() const { return _graph->maxEdgeId(); }
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
     NodeNotifier& notifier(Node) const { return _graph->notifier(Node()); }
 
-    typedef typename ItemSetTraits<Graph, Arc>::ItemNotifier ArcNotifier;
+    typedef typename ItemSetTraits<GR, Arc>::ItemNotifier ArcNotifier;
     ArcNotifier& notifier(Arc) const { return _graph->notifier(Arc()); }
 
-    typedef typename ItemSetTraits<Graph, Edge>::ItemNotifier EdgeNotifier;
+    typedef typename ItemSetTraits<GR, Edge>::ItemNotifier EdgeNotifier;
     EdgeNotifier& notifier(Edge) const { return _graph->notifier(Edge()); }
 
-    template <typename _Value>
-    class NodeMap : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
-      typedef typename Graph::template NodeMap<_Value> Parent;
-      explicit NodeMap(const GraphAdaptorBase<Graph>& adapter)
+      typedef typename GR::template NodeMap<V> Parent;
+      explicit NodeMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
-      NodeMap(const GraphAdaptorBase<Graph>& adapter, const _Value& value)
+      NodeMap(const GraphAdaptorBase<GR>& adapter, const V& value)
         : Parent(*adapter._graph, value) {}
 
     private:
@@ -270,13 +274,13 @@ namespace lemon {
 
     };
 
-    template <typename _Value>
-    class ArcMap : public Graph::template ArcMap<_Value> {
+    template <typename V>
+    class ArcMap : public GR::template ArcMap<V> {
     public:
-      typedef typename Graph::template ArcMap<_Value> Parent;
-      explicit ArcMap(const GraphAdaptorBase<Graph>& adapter)
+      typedef typename GR::template ArcMap<V> Parent;
+      explicit ArcMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
-      ArcMap(const GraphAdaptorBase<Graph>& adapter, const _Value& value)
+      ArcMap(const GraphAdaptorBase<GR>& adapter, const V& value)
         : Parent(*adapter._graph, value) {}
 
     private:
@@ -291,13 +295,13 @@ namespace lemon {
       }
     };
 
-    template <typename _Value>
-    class EdgeMap : public Graph::template EdgeMap<_Value> {
+    template <typename V>
+    class EdgeMap : public GR::template EdgeMap<V> {
     public:
-      typedef typename Graph::template EdgeMap<_Value> Parent;
-      explicit EdgeMap(const GraphAdaptorBase<Graph>& adapter)
+      typedef typename GR::template EdgeMap<V> Parent;
+      explicit EdgeMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
-      EdgeMap(const GraphAdaptorBase<Graph>& adapter, const _Value& value)
+      EdgeMap(const GraphAdaptorBase<GR>& adapter, const V& value)
         : Parent(*adapter._graph, value) {}
 
     private:
@@ -314,11 +318,11 @@ namespace lemon {
 
   };
 
-  template <typename _Digraph>
-  class ReverseDigraphBase : public DigraphAdaptorBase<_Digraph> {
+  template <typename DGR>
+  class ReverseDigraphBase : public DigraphAdaptorBase<DGR> {
   public:
-    typedef _Digraph Digraph;
-    typedef DigraphAdaptorBase<_Digraph> Parent;
+    typedef DGR Digraph;
+    typedef DigraphAdaptorBase<DGR> Parent;
   protected:
     ReverseDigraphBase() : Parent() { }
   public:
@@ -336,7 +340,7 @@ namespace lemon {
 
     Arc addArc(const Node& u, const Node& v) { return Parent::addArc(v, u); }
 
-    typedef FindArcTagIndicator<Digraph> FindArcTag;
+    typedef FindArcTagIndicator<DGR> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
       return Parent::findArc(v, u, prev);
@@ -356,23 +360,23 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
-  template<typename GR>
+  template<typename DGR>
 #ifdef DOXYGEN
   class ReverseDigraph {
 #else
   class ReverseDigraph :
-    public DigraphAdaptorExtender<ReverseDigraphBase<GR> > {
+    public DigraphAdaptorExtender<ReverseDigraphBase<DGR> > {
 #endif
   public:
     /// The type of the adapted digraph.
-    typedef GR Digraph;
-    typedef DigraphAdaptorExtender<ReverseDigraphBase<GR> > Parent;
+    typedef DGR Digraph;
+    typedef DigraphAdaptorExtender<ReverseDigraphBase<DGR> > Parent;
   protected:
     ReverseDigraph() { }
   public:
@@ -380,8 +384,8 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Creates a reverse digraph adaptor for the given digraph.
-    explicit ReverseDigraph(Digraph& digraph) {
-      Parent::setDigraph(digraph);
+    explicit ReverseDigraph(DGR& digraph) {
+      Parent::initialize(digraph);
     }
   };
 
@@ -390,33 +394,31 @@ namespace lemon {
   /// This function just returns a read-only \ref ReverseDigraph adaptor.
   /// \ingroup graph_adaptors
   /// \relates ReverseDigraph
-  template<typename GR>
-  ReverseDigraph<const GR> reverseDigraph(const GR& digraph) {
-    return ReverseDigraph<const GR>(digraph);
+  template<typename DGR>
+  ReverseDigraph<const DGR> reverseDigraph(const DGR& digraph) {
+    return ReverseDigraph<const DGR>(digraph);
   }
 
 
-  template <typename _Digraph, typename _NodeFilterMap,
-            typename _ArcFilterMap, bool _checked = true>
-  class SubDigraphBase : public DigraphAdaptorBase<_Digraph> {
+  template <typename DGR, typename NF, typename AF, bool ch = true>
+  class SubDigraphBase : public DigraphAdaptorBase<DGR> {
   public:
-    typedef _Digraph Digraph;
-    typedef _NodeFilterMap NodeFilterMap;
-    typedef _ArcFilterMap ArcFilterMap;
+    typedef DGR Digraph;
+    typedef NF NodeFilterMap;
+    typedef AF ArcFilterMap;
 
     typedef SubDigraphBase Adaptor;
-    typedef DigraphAdaptorBase<_Digraph> Parent;
+    typedef DigraphAdaptorBase<DGR> Parent;
   protected:
-    NodeFilterMap* _node_filter;
-    ArcFilterMap* _arc_filter;
+    NF* _node_filter;
+    AF* _arc_filter;
     SubDigraphBase()
       : Parent(), _node_filter(0), _arc_filter(0) { }
 
-    void setNodeFilterMap(NodeFilterMap& node_filter) {
+    void initialize(DGR& digraph, NF& node_filter, AF& arc_filter) {
+      Parent::initialize(digraph);
       _node_filter = &node_filter;
-    }
-    void setArcFilterMap(ArcFilterMap& arc_filter) {
-      _arc_filter = &arc_filter;
+      _arc_filter = &arc_filter;      
     }
 
   public:
@@ -487,7 +489,7 @@ namespace lemon {
     typedef False NodeNumTag;
     typedef False ArcNumTag;
 
-    typedef FindArcTagIndicator<Digraph> FindArcTag;
+    typedef FindArcTagIndicator<DGR> FindArcTag;
     Arc findArc(const Node& source, const Node& target,
                 const Arc& prev = INVALID) const {
       if (!(*_node_filter)[source] || !(*_node_filter)[target]) {
@@ -500,18 +502,21 @@ namespace lemon {
       return arc;
     }
 
-    template <typename _Value>
-    class NodeMap : public SubMapExtender<Adaptor,
-      typename Parent::template NodeMap<_Value> > {
-    public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template NodeMap<Value> > MapParent;
+  public:
 
-      NodeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      NodeMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+    template <typename V>
+    class NodeMap 
+      : public SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>, 
+	      LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> {
+    public:
+      typedef V Value;
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
+	    LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> Parent;
+
+      NodeMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor)
+        : Parent(adaptor) {}
+      NodeMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       NodeMap& operator=(const NodeMap& cmap) {
@@ -520,23 +525,24 @@ namespace lemon {
 
       template <typename CMap>
       NodeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class ArcMap : public SubMapExtender<Adaptor,
-      typename Parent::template ArcMap<_Value> > {
+    template <typename V>
+    class ArcMap 
+      : public SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
+	      LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template ArcMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
+        LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> Parent;
 
-      ArcMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      ArcMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      ArcMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor)
+        : Parent(adaptor) {}
+      ArcMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       ArcMap& operator=(const ArcMap& cmap) {
@@ -545,34 +551,33 @@ namespace lemon {
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
   };
 
-  template <typename _Digraph, typename _NodeFilterMap, typename _ArcFilterMap>
-  class SubDigraphBase<_Digraph, _NodeFilterMap, _ArcFilterMap, false>
-    : public DigraphAdaptorBase<_Digraph> {
+  template <typename DGR, typename NF, typename AF>
+  class SubDigraphBase<DGR, NF, AF, false>
+    : public DigraphAdaptorBase<DGR> {
   public:
-    typedef _Digraph Digraph;
-    typedef _NodeFilterMap NodeFilterMap;
-    typedef _ArcFilterMap ArcFilterMap;
+    typedef DGR Digraph;
+    typedef NF NodeFilterMap;
+    typedef AF ArcFilterMap;
 
     typedef SubDigraphBase Adaptor;
     typedef DigraphAdaptorBase<Digraph> Parent;
   protected:
-    NodeFilterMap* _node_filter;
-    ArcFilterMap* _arc_filter;
+    NF* _node_filter;
+    AF* _arc_filter;
     SubDigraphBase()
       : Parent(), _node_filter(0), _arc_filter(0) { }
 
-    void setNodeFilterMap(NodeFilterMap& node_filter) {
+    void initialize(DGR& digraph, NF& node_filter, AF& arc_filter) {
+      Parent::initialize(digraph);
       _node_filter = &node_filter;
-    }
-    void setArcFilterMap(ArcFilterMap& arc_filter) {
-      _arc_filter = &arc_filter;
+      _arc_filter = &arc_filter;      
     }
 
   public:
@@ -627,7 +632,7 @@ namespace lemon {
     typedef False NodeNumTag;
     typedef False ArcNumTag;
 
-    typedef FindArcTagIndicator<Digraph> FindArcTag;
+    typedef FindArcTagIndicator<DGR> FindArcTag;
     Arc findArc(const Node& source, const Node& target,
                 const Arc& prev = INVALID) const {
       if (!(*_node_filter)[source] || !(*_node_filter)[target]) {
@@ -640,18 +645,19 @@ namespace lemon {
       return arc;
     }
 
-    template <typename _Value>
-    class NodeMap : public SubMapExtender<Adaptor,
-      typename Parent::template NodeMap<_Value> > {
+    template <typename V>
+    class NodeMap 
+      : public SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
+          LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template NodeMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, false>, 
+        LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> Parent;
 
-      NodeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      NodeMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      NodeMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor)
+        : Parent(adaptor) {}
+      NodeMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       NodeMap& operator=(const NodeMap& cmap) {
@@ -660,23 +666,24 @@ namespace lemon {
 
       template <typename CMap>
       NodeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class ArcMap : public SubMapExtender<Adaptor,
-      typename Parent::template ArcMap<_Value> > {
+    template <typename V>
+    class ArcMap 
+      : public SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
+          LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template ArcMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
+          LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> Parent;
 
-      ArcMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      ArcMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      ArcMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor)
+        : Parent(adaptor) {}
+      ArcMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       ArcMap& operator=(const ArcMap& cmap) {
@@ -685,7 +692,7 @@ namespace lemon {
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
@@ -708,17 +715,17 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   /// \tparam NF The type of the node filter map.
   /// It must be a \c bool (or convertible) node map of the
   /// adapted digraph. The default type is
-  /// \ref concepts::Digraph::NodeMap "GR::NodeMap<bool>".
+  /// \ref concepts::Digraph::NodeMap "DGR::NodeMap<bool>".
   /// \tparam AF The type of the arc filter map.
   /// It must be \c bool (or convertible) arc map of the
   /// adapted digraph. The default type is
-  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<bool>".
+  /// \ref concepts::Digraph::ArcMap "DGR::ArcMap<bool>".
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
@@ -726,24 +733,24 @@ namespace lemon {
   /// \see FilterNodes
   /// \see FilterArcs
 #ifdef DOXYGEN
-  template<typename GR, typename NF, typename AF>
+  template<typename DGR, typename NF, typename AF>
   class SubDigraph {
 #else
-  template<typename GR,
-           typename NF = typename GR::template NodeMap<bool>,
-           typename AF = typename GR::template ArcMap<bool> >
+  template<typename DGR,
+           typename NF = typename DGR::template NodeMap<bool>,
+           typename AF = typename DGR::template ArcMap<bool> >
   class SubDigraph :
-    public DigraphAdaptorExtender<SubDigraphBase<GR, NF, AF, true> > {
+    public DigraphAdaptorExtender<SubDigraphBase<DGR, NF, AF, true> > {
 #endif
   public:
     /// The type of the adapted digraph.
-    typedef GR Digraph;
+    typedef DGR Digraph;
     /// The type of the node filter map.
     typedef NF NodeFilterMap;
     /// The type of the arc filter map.
     typedef AF ArcFilterMap;
 
-    typedef DigraphAdaptorExtender<SubDigraphBase<GR, NF, AF, true> >
+    typedef DigraphAdaptorExtender<SubDigraphBase<DGR, NF, AF, true> >
       Parent;
 
     typedef typename Parent::Node Node;
@@ -757,11 +764,8 @@ namespace lemon {
     ///
     /// Creates a subdigraph for the given digraph with the
     /// given node and arc filter maps.
-    SubDigraph(Digraph& digraph, NodeFilterMap& node_filter,
-               ArcFilterMap& arc_filter) {
-      setDigraph(digraph);
-      setNodeFilterMap(node_filter);
-      setArcFilterMap(arc_filter);
+    SubDigraph(DGR& digraph, NF& node_filter, AF& arc_filter) {
+      Parent::initialize(digraph, node_filter, arc_filter);
     }
 
     /// \brief Sets the status of the given node
@@ -823,62 +827,60 @@ namespace lemon {
   /// This function just returns a read-only \ref SubDigraph adaptor.
   /// \ingroup graph_adaptors
   /// \relates SubDigraph
-  template<typename GR, typename NF, typename AF>
-  SubDigraph<const GR, NF, AF>
-  subDigraph(const GR& digraph,
-             NF& node_filter_map, AF& arc_filter_map) {
-    return SubDigraph<const GR, NF, AF>
-      (digraph, node_filter_map, arc_filter_map);
+  template<typename DGR, typename NF, typename AF>
+  SubDigraph<const DGR, NF, AF>
+  subDigraph(const DGR& digraph,
+             NF& node_filter, AF& arc_filter) {
+    return SubDigraph<const DGR, NF, AF>
+      (digraph, node_filter, arc_filter);
   }
 
-  template<typename GR, typename NF, typename AF>
-  SubDigraph<const GR, const NF, AF>
-  subDigraph(const GR& digraph,
-             const NF& node_filter_map, AF& arc_filter_map) {
-    return SubDigraph<const GR, const NF, AF>
-      (digraph, node_filter_map, arc_filter_map);
+  template<typename DGR, typename NF, typename AF>
+  SubDigraph<const DGR, const NF, AF>
+  subDigraph(const DGR& digraph,
+             const NF& node_filter, AF& arc_filter) {
+    return SubDigraph<const DGR, const NF, AF>
+      (digraph, node_filter, arc_filter);
   }
 
-  template<typename GR, typename NF, typename AF>
-  SubDigraph<const GR, NF, const AF>
-  subDigraph(const GR& digraph,
-             NF& node_filter_map, const AF& arc_filter_map) {
-    return SubDigraph<const GR, NF, const AF>
-      (digraph, node_filter_map, arc_filter_map);
+  template<typename DGR, typename NF, typename AF>
+  SubDigraph<const DGR, NF, const AF>
+  subDigraph(const DGR& digraph,
+             NF& node_filter, const AF& arc_filter) {
+    return SubDigraph<const DGR, NF, const AF>
+      (digraph, node_filter, arc_filter);
   }
 
-  template<typename GR, typename NF, typename AF>
-  SubDigraph<const GR, const NF, const AF>
-  subDigraph(const GR& digraph,
-             const NF& node_filter_map, const AF& arc_filter_map) {
-    return SubDigraph<const GR, const NF, const AF>
-      (digraph, node_filter_map, arc_filter_map);
+  template<typename DGR, typename NF, typename AF>
+  SubDigraph<const DGR, const NF, const AF>
+  subDigraph(const DGR& digraph,
+             const NF& node_filter, const AF& arc_filter) {
+    return SubDigraph<const DGR, const NF, const AF>
+      (digraph, node_filter, arc_filter);
   }
 
 
-  template <typename _Graph, typename _NodeFilterMap,
-            typename _EdgeFilterMap, bool _checked = true>
-  class SubGraphBase : public GraphAdaptorBase<_Graph> {
+  template <typename GR, typename NF, typename EF, bool ch = true>
+  class SubGraphBase : public GraphAdaptorBase<GR> {
   public:
-    typedef _Graph Graph;
-    typedef _NodeFilterMap NodeFilterMap;
-    typedef _EdgeFilterMap EdgeFilterMap;
+    typedef GR Graph;
+    typedef NF NodeFilterMap;
+    typedef EF EdgeFilterMap;
 
     typedef SubGraphBase Adaptor;
-    typedef GraphAdaptorBase<_Graph> Parent;
+    typedef GraphAdaptorBase<GR> Parent;
   protected:
 
-    NodeFilterMap* _node_filter_map;
-    EdgeFilterMap* _edge_filter_map;
+    NF* _node_filter;
+    EF* _edge_filter;
 
     SubGraphBase()
-      : Parent(), _node_filter_map(0), _edge_filter_map(0) { }
+      : Parent(), _node_filter(0), _edge_filter(0) { }
 
-    void setNodeFilterMap(NodeFilterMap& node_filter_map) {
-      _node_filter_map=&node_filter_map;
-    }
-    void setEdgeFilterMap(EdgeFilterMap& edge_filter_map) {
-      _edge_filter_map=&edge_filter_map;
+    void initialize(GR& graph, NF& node_filter, EF& edge_filter) {
+      Parent::initialize(graph);
+      _node_filter = &node_filter;
+      _edge_filter = &edge_filter;
     }
 
   public:
@@ -889,95 +891,95 @@ namespace lemon {
 
     void first(Node& i) const {
       Parent::first(i);
-      while (i!=INVALID && !(*_node_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_node_filter)[i]) Parent::next(i);
     }
 
     void first(Arc& i) const {
       Parent::first(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::source(i)]
-                            || !(*_node_filter_map)[Parent::target(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::source(i)]
+                            || !(*_node_filter)[Parent::target(i)]))
         Parent::next(i);
     }
 
     void first(Edge& i) const {
       Parent::first(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::u(i)]
-                            || !(*_node_filter_map)[Parent::v(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::u(i)]
+                            || !(*_node_filter)[Parent::v(i)]))
         Parent::next(i);
     }
 
     void firstIn(Arc& i, const Node& n) const {
       Parent::firstIn(i, n);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::source(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::source(i)]))
         Parent::nextIn(i);
     }
 
     void firstOut(Arc& i, const Node& n) const {
       Parent::firstOut(i, n);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::target(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::target(i)]))
         Parent::nextOut(i);
     }
 
     void firstInc(Edge& i, bool& d, const Node& n) const {
       Parent::firstInc(i, d, n);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::u(i)]
-                            || !(*_node_filter_map)[Parent::v(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::u(i)]
+                            || !(*_node_filter)[Parent::v(i)]))
         Parent::nextInc(i, d);
     }
 
     void next(Node& i) const {
       Parent::next(i);
-      while (i!=INVALID && !(*_node_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_node_filter)[i]) Parent::next(i);
     }
 
     void next(Arc& i) const {
       Parent::next(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::source(i)]
-                            || !(*_node_filter_map)[Parent::target(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::source(i)]
+                            || !(*_node_filter)[Parent::target(i)]))
         Parent::next(i);
     }
 
     void next(Edge& i) const {
       Parent::next(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::u(i)]
-                            || !(*_node_filter_map)[Parent::v(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::u(i)]
+                            || !(*_node_filter)[Parent::v(i)]))
         Parent::next(i);
     }
 
     void nextIn(Arc& i) const {
       Parent::nextIn(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::source(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::source(i)]))
         Parent::nextIn(i);
     }
 
     void nextOut(Arc& i) const {
       Parent::nextOut(i);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::target(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::target(i)]))
         Parent::nextOut(i);
     }
 
     void nextInc(Edge& i, bool& d) const {
       Parent::nextInc(i, d);
-      while (i!=INVALID && (!(*_edge_filter_map)[i]
-                            || !(*_node_filter_map)[Parent::u(i)]
-                            || !(*_node_filter_map)[Parent::v(i)]))
+      while (i!=INVALID && (!(*_edge_filter)[i]
+                            || !(*_node_filter)[Parent::u(i)]
+                            || !(*_node_filter)[Parent::v(i)]))
         Parent::nextInc(i, d);
     }
 
-    void status(const Node& n, bool v) const { _node_filter_map->set(n, v); }
-    void status(const Edge& e, bool v) const { _edge_filter_map->set(e, v); }
+    void status(const Node& n, bool v) const { _node_filter->set(n, v); }
+    void status(const Edge& e, bool v) const { _edge_filter->set(e, v); }
 
-    bool status(const Node& n) const { return (*_node_filter_map)[n]; }
-    bool status(const Edge& e) const { return (*_edge_filter_map)[e]; }
+    bool status(const Node& n) const { return (*_node_filter)[n]; }
+    bool status(const Edge& e) const { return (*_edge_filter)[e]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -986,11 +988,11 @@ namespace lemon {
     typedef FindArcTagIndicator<Graph> FindArcTag;
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
-      if (!(*_node_filter_map)[u] || !(*_node_filter_map)[v]) {
+      if (!(*_node_filter)[u] || !(*_node_filter)[v]) {
         return INVALID;
       }
       Arc arc = Parent::findArc(u, v, prev);
-      while (arc != INVALID && !(*_edge_filter_map)[arc]) {
+      while (arc != INVALID && !(*_edge_filter)[arc]) {
         arc = Parent::findArc(u, v, arc);
       }
       return arc;
@@ -999,28 +1001,29 @@ namespace lemon {
     typedef FindEdgeTagIndicator<Graph> FindEdgeTag;
     Edge findEdge(const Node& u, const Node& v,
                   const Edge& prev = INVALID) const {
-      if (!(*_node_filter_map)[u] || !(*_node_filter_map)[v]) {
+      if (!(*_node_filter)[u] || !(*_node_filter)[v]) {
         return INVALID;
       }
       Edge edge = Parent::findEdge(u, v, prev);
-      while (edge != INVALID && !(*_edge_filter_map)[edge]) {
+      while (edge != INVALID && !(*_edge_filter)[edge]) {
         edge = Parent::findEdge(u, v, edge);
       }
       return edge;
     }
 
-    template <typename _Value>
-    class NodeMap : public SubMapExtender<Adaptor,
-      typename Parent::template NodeMap<_Value> > {
+    template <typename V>
+    class NodeMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
+          LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template NodeMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> Parent;
 
-      NodeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      NodeMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      NodeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
+        : Parent(adaptor) {}
+      NodeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       NodeMap& operator=(const NodeMap& cmap) {
@@ -1029,23 +1032,24 @@ namespace lemon {
 
       template <typename CMap>
       NodeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class ArcMap : public SubMapExtender<Adaptor,
-      typename Parent::template ArcMap<_Value> > {
+    template <typename V>
+    class ArcMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
+          LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template ArcMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> Parent;
 
-      ArcMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      ArcMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      ArcMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
+        : Parent(adaptor) {}
+      ArcMap(const SubGraphBase<GR, NF, EF, ch>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       ArcMap& operator=(const ArcMap& cmap) {
@@ -1054,24 +1058,25 @@ namespace lemon {
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class EdgeMap : public SubMapExtender<Adaptor,
-      typename Parent::template EdgeMap<_Value> > {
+    template <typename V>
+    class EdgeMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template EdgeMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> Parent;
 
-      EdgeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
+      EdgeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
+        : Parent(adaptor) {}
 
-      EdgeMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      EdgeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       EdgeMap& operator=(const EdgeMap& cmap) {
@@ -1080,34 +1085,33 @@ namespace lemon {
 
       template <typename CMap>
       EdgeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
   };
 
-  template <typename _Graph, typename _NodeFilterMap, typename _EdgeFilterMap>
-  class SubGraphBase<_Graph, _NodeFilterMap, _EdgeFilterMap, false>
-    : public GraphAdaptorBase<_Graph> {
+  template <typename GR, typename NF, typename EF>
+  class SubGraphBase<GR, NF, EF, false>
+    : public GraphAdaptorBase<GR> {
   public:
-    typedef _Graph Graph;
-    typedef _NodeFilterMap NodeFilterMap;
-    typedef _EdgeFilterMap EdgeFilterMap;
+    typedef GR Graph;
+    typedef NF NodeFilterMap;
+    typedef EF EdgeFilterMap;
 
     typedef SubGraphBase Adaptor;
-    typedef GraphAdaptorBase<_Graph> Parent;
+    typedef GraphAdaptorBase<GR> Parent;
   protected:
-    NodeFilterMap* _node_filter_map;
-    EdgeFilterMap* _edge_filter_map;
-    SubGraphBase() : Parent(),
-                     _node_filter_map(0), _edge_filter_map(0) { }
+    NF* _node_filter;
+    EF* _edge_filter;
+    SubGraphBase() 
+	  : Parent(), _node_filter(0), _edge_filter(0) { }
 
-    void setNodeFilterMap(NodeFilterMap& node_filter_map) {
-      _node_filter_map=&node_filter_map;
-    }
-    void setEdgeFilterMap(EdgeFilterMap& edge_filter_map) {
-      _edge_filter_map=&edge_filter_map;
+    void initialize(GR& graph, NF& node_filter, EF& edge_filter) {
+      Parent::initialize(graph);
+      _node_filter = &node_filter;
+      _edge_filter = &edge_filter;
     }
 
   public:
@@ -1118,65 +1122,65 @@ namespace lemon {
 
     void first(Node& i) const {
       Parent::first(i);
-      while (i!=INVALID && !(*_node_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_node_filter)[i]) Parent::next(i);
     }
 
     void first(Arc& i) const {
       Parent::first(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::next(i);
     }
 
     void first(Edge& i) const {
       Parent::first(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::next(i);
     }
 
     void firstIn(Arc& i, const Node& n) const {
       Parent::firstIn(i, n);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextIn(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextIn(i);
     }
 
     void firstOut(Arc& i, const Node& n) const {
       Parent::firstOut(i, n);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextOut(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextOut(i);
     }
 
     void firstInc(Edge& i, bool& d, const Node& n) const {
       Parent::firstInc(i, d, n);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextInc(i, d);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextInc(i, d);
     }
 
     void next(Node& i) const {
       Parent::next(i);
-      while (i!=INVALID && !(*_node_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_node_filter)[i]) Parent::next(i);
     }
     void next(Arc& i) const {
       Parent::next(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::next(i);
     }
     void next(Edge& i) const {
       Parent::next(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::next(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::next(i);
     }
     void nextIn(Arc& i) const {
       Parent::nextIn(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextIn(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextIn(i);
     }
 
     void nextOut(Arc& i) const {
       Parent::nextOut(i);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextOut(i);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextOut(i);
     }
     void nextInc(Edge& i, bool& d) const {
       Parent::nextInc(i, d);
-      while (i!=INVALID && !(*_edge_filter_map)[i]) Parent::nextInc(i, d);
+      while (i!=INVALID && !(*_edge_filter)[i]) Parent::nextInc(i, d);
     }
 
-    void status(const Node& n, bool v) const { _node_filter_map->set(n, v); }
-    void status(const Edge& e, bool v) const { _edge_filter_map->set(e, v); }
+    void status(const Node& n, bool v) const { _node_filter->set(n, v); }
+    void status(const Edge& e, bool v) const { _edge_filter->set(e, v); }
 
-    bool status(const Node& n) const { return (*_node_filter_map)[n]; }
-    bool status(const Edge& e) const { return (*_edge_filter_map)[e]; }
+    bool status(const Node& n) const { return (*_node_filter)[n]; }
+    bool status(const Edge& e) const { return (*_edge_filter)[e]; }
 
     typedef False NodeNumTag;
     typedef False ArcNumTag;
@@ -1186,7 +1190,7 @@ namespace lemon {
     Arc findArc(const Node& u, const Node& v,
                 const Arc& prev = INVALID) const {
       Arc arc = Parent::findArc(u, v, prev);
-      while (arc != INVALID && !(*_edge_filter_map)[arc]) {
+      while (arc != INVALID && !(*_edge_filter)[arc]) {
         arc = Parent::findArc(u, v, arc);
       }
       return arc;
@@ -1196,24 +1200,25 @@ namespace lemon {
     Edge findEdge(const Node& u, const Node& v,
                   const Edge& prev = INVALID) const {
       Edge edge = Parent::findEdge(u, v, prev);
-      while (edge != INVALID && !(*_edge_filter_map)[edge]) {
+      while (edge != INVALID && !(*_edge_filter)[edge]) {
         edge = Parent::findEdge(u, v, edge);
       }
       return edge;
     }
 
-    template <typename _Value>
-    class NodeMap : public SubMapExtender<Adaptor,
-      typename Parent::template NodeMap<_Value> > {
+    template <typename V>
+    class NodeMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
+          LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template NodeMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> Parent;
 
-      NodeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      NodeMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      NodeMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
+        : Parent(adaptor) {}
+      NodeMap(const SubGraphBase<GR, NF, EF, false>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       NodeMap& operator=(const NodeMap& cmap) {
@@ -1222,23 +1227,24 @@ namespace lemon {
 
       template <typename CMap>
       NodeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class ArcMap : public SubMapExtender<Adaptor,
-      typename Parent::template ArcMap<_Value> > {
+    template <typename V>
+    class ArcMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
+          LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template ArcMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> Parent;
 
-      ArcMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
-      ArcMap(const Adaptor& adaptor, const Value& value)
-        : MapParent(adaptor, value) {}
+      ArcMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
+        : Parent(adaptor) {}
+      ArcMap(const SubGraphBase<GR, NF, EF, false>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       ArcMap& operator=(const ArcMap& cmap) {
@@ -1247,24 +1253,25 @@ namespace lemon {
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
 
-    template <typename _Value>
-    class EdgeMap : public SubMapExtender<Adaptor,
-      typename Parent::template EdgeMap<_Value> > {
+    template <typename V>
+    class EdgeMap 
+      : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
+        LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, typename Parent::
-                             template EdgeMap<Value> > MapParent;
+      typedef V Value;
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
+		  LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> Parent;
 
-      EdgeMap(const Adaptor& adaptor)
-        : MapParent(adaptor) {}
+      EdgeMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
+        : Parent(adaptor) {}
 
-      EdgeMap(const Adaptor& adaptor, const _Value& value)
-        : MapParent(adaptor, value) {}
+      EdgeMap(const SubGraphBase<GR, NF, EF, false>& adaptor, const V& value)
+        : Parent(adaptor, value) {}
 
     private:
       EdgeMap& operator=(const EdgeMap& cmap) {
@@ -1273,7 +1280,7 @@ namespace lemon {
 
       template <typename CMap>
       EdgeMap& operator=(const CMap& cmap) {
-        MapParent::operator=(cmap);
+        Parent::operator=(cmap);
         return *this;
       }
     };
@@ -1332,7 +1339,7 @@ namespace lemon {
     /// The type of the edge filter map.
     typedef EF EdgeFilterMap;
 
-    typedef GraphAdaptorExtender< SubGraphBase<GR, NF, EF, true> >
+    typedef GraphAdaptorExtender<SubGraphBase<GR, NF, EF, true> >
       Parent;
 
     typedef typename Parent::Node Node;
@@ -1346,11 +1353,8 @@ namespace lemon {
     ///
     /// Creates a subgraph for the given graph with the given node
     /// and edge filter maps.
-    SubGraph(Graph& graph, NodeFilterMap& node_filter_map,
-             EdgeFilterMap& edge_filter_map) {
-      setGraph(graph);
-      setNodeFilterMap(node_filter_map);
-      setEdgeFilterMap(edge_filter_map);
+    SubGraph(GR& graph, NF& node_filter, EF& edge_filter) {
+      initialize(graph, node_filter, edge_filter);
     }
 
     /// \brief Sets the status of the given node
@@ -1414,34 +1418,30 @@ namespace lemon {
   /// \relates SubGraph
   template<typename GR, typename NF, typename EF>
   SubGraph<const GR, NF, EF>
-  subGraph(const GR& graph,
-           NF& node_filter_map, EF& edge_filter_map) {
+  subGraph(const GR& graph, NF& node_filter, EF& edge_filter) {
     return SubGraph<const GR, NF, EF>
-      (graph, node_filter_map, edge_filter_map);
+      (graph, node_filter, edge_filter);
   }
 
   template<typename GR, typename NF, typename EF>
   SubGraph<const GR, const NF, EF>
-  subGraph(const GR& graph,
-           const NF& node_filter_map, EF& edge_filter_map) {
+  subGraph(const GR& graph, const NF& node_filter, EF& edge_filter) {
     return SubGraph<const GR, const NF, EF>
-      (graph, node_filter_map, edge_filter_map);
+      (graph, node_filter, edge_filter);
   }
 
   template<typename GR, typename NF, typename EF>
   SubGraph<const GR, NF, const EF>
-  subGraph(const GR& graph,
-           NF& node_filter_map, const EF& edge_filter_map) {
+  subGraph(const GR& graph, NF& node_filter, const EF& edge_filter) {
     return SubGraph<const GR, NF, const EF>
-      (graph, node_filter_map, edge_filter_map);
+      (graph, node_filter, edge_filter);
   }
 
   template<typename GR, typename NF, typename EF>
   SubGraph<const GR, const NF, const EF>
-  subGraph(const GR& graph,
-           const NF& node_filter_map, const EF& edge_filter_map) {
+  subGraph(const GR& graph, const NF& node_filter, const EF& edge_filter) {
     return SubGraph<const GR, const NF, const EF>
-      (graph, node_filter_map, edge_filter_map);
+      (graph, node_filter, edge_filter);
   }
 
 
@@ -1481,7 +1481,8 @@ namespace lemon {
            typename Enable = void>
   class FilterNodes :
     public DigraphAdaptorExtender<
-      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, bool>, true> > {
+      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, Const<bool, true> >,
+                     true> > {
 #endif
   public:
 
@@ -1489,17 +1490,15 @@ namespace lemon {
     typedef NF NodeFilterMap;
 
     typedef DigraphAdaptorExtender<
-      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, bool>, true> >
-      Parent;
+      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, Const<bool, true> >, 
+                     true> > Parent;
 
     typedef typename Parent::Node Node;
 
   protected:
-    ConstMap<typename Digraph::Arc, bool> const_true_map;
+    ConstMap<typename Digraph::Arc, Const<bool, true> > const_true_map;
 
-    FilterNodes() : const_true_map(true) {
-      Parent::setArcFilterMap(const_true_map);
-    }
+    FilterNodes() : const_true_map() {}
 
   public:
 
@@ -1507,12 +1506,10 @@ namespace lemon {
     ///
     /// Creates a subgraph for the given digraph or graph with the
     /// given node filter map.
-    FilterNodes(GR& graph, NodeFilterMap& node_filter) :
-      Parent(), const_true_map(true)
+    FilterNodes(GR& graph, NF& node_filter) 
+      : Parent(), const_true_map()
     {
-      Parent::setDigraph(graph);
-      Parent::setNodeFilterMap(node_filter);
-      Parent::setArcFilterMap(const_true_map);
+      Parent::initialize(graph, node_filter, const_true_map);
     }
 
     /// \brief Sets the status of the given node
@@ -1547,30 +1544,27 @@ namespace lemon {
   class FilterNodes<GR, NF,
                     typename enable_if<UndirectedTagIndicator<GR> >::type> :
     public GraphAdaptorExtender<
-      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, bool>, true> > {
+      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, Const<bool, true> >, 
+                   true> > {
 
   public:
     typedef GR Graph;
     typedef NF NodeFilterMap;
     typedef GraphAdaptorExtender<
-      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, bool>, true> >
-      Parent;
+      SubGraphBase<GR, NF, ConstMap<typename GR::Edge, Const<bool, true> >, 
+                   true> > Parent;
 
     typedef typename Parent::Node Node;
   protected:
-    ConstMap<typename Graph::Edge, bool> const_true_map;
+    ConstMap<typename GR::Edge, Const<bool, true> > const_true_map;
 
-    FilterNodes() : const_true_map(true) {
-      Parent::setEdgeFilterMap(const_true_map);
-    }
+    FilterNodes() : const_true_map() {}
 
   public:
 
-    FilterNodes(Graph& _graph, NodeFilterMap& node_filter_map) :
-      Parent(), const_true_map(true) {
-      Parent::setGraph(_graph);
-      Parent::setNodeFilterMap(node_filter_map);
-      Parent::setEdgeFilterMap(const_true_map);
+    FilterNodes(GR& graph, NodeFilterMap& node_filter) :
+      Parent(), const_true_map() {
+      Parent::initialize(graph, node_filter, const_true_map);
     }
 
     void status(const Node& n, bool v) const { Parent::status(n, v); }
@@ -1588,14 +1582,14 @@ namespace lemon {
   /// \relates FilterNodes
   template<typename GR, typename NF>
   FilterNodes<const GR, NF>
-  filterNodes(const GR& graph, NF& node_filter_map) {
-    return FilterNodes<const GR, NF>(graph, node_filter_map);
+  filterNodes(const GR& graph, NF& node_filter) {
+    return FilterNodes<const GR, NF>(graph, node_filter);
   }
 
   template<typename GR, typename NF>
   FilterNodes<const GR, const NF>
-  filterNodes(const GR& graph, const NF& node_filter_map) {
-    return FilterNodes<const GR, const NF>(graph, node_filter_map);
+  filterNodes(const GR& graph, const NF& node_filter) {
+    return FilterNodes<const GR, const NF>(graph, node_filter);
   }
 
   /// \ingroup graph_adaptors
@@ -1612,45 +1606,44 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   /// \tparam AF The type of the arc filter map.
   /// It must be a \c bool (or convertible) arc map of the
   /// adapted digraph. The default type is
-  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<bool>".
+  /// \ref concepts::Digraph::ArcMap "DGR::ArcMap<bool>".
   ///
   /// \note The \c Node and \c Arc types of this adaptor and the adapted
   /// digraph are convertible to each other.
 #ifdef DOXYGEN
-  template<typename GR,
+  template<typename DGR,
            typename AF>
   class FilterArcs {
 #else
-  template<typename GR,
-           typename AF = typename GR::template ArcMap<bool> >
+  template<typename DGR,
+           typename AF = typename DGR::template ArcMap<bool> >
   class FilterArcs :
     public DigraphAdaptorExtender<
-      SubDigraphBase<GR, ConstMap<typename GR::Node, bool>, AF, false> > {
+      SubDigraphBase<DGR, ConstMap<typename DGR::Node, Const<bool, true> >,
+                     AF, false> > {
 #endif
   public:
     /// The type of the adapted digraph.
-    typedef GR Digraph;
+    typedef DGR Digraph;
     /// The type of the arc filter map.
     typedef AF ArcFilterMap;
 
     typedef DigraphAdaptorExtender<
-      SubDigraphBase<GR, ConstMap<typename GR::Node, bool>, AF, false> >
-      Parent;
+      SubDigraphBase<DGR, ConstMap<typename DGR::Node, Const<bool, true> >, 
+                     AF, false> > Parent;
 
     typedef typename Parent::Arc Arc;
 
   protected:
-    ConstMap<typename Digraph::Node, bool> const_true_map;
+    ConstMap<typename DGR::Node, Const<bool, true> > const_true_map;
 
-    FilterArcs() : const_true_map(true) {
-      Parent::setNodeFilterMap(const_true_map);
-    }
+    FilterArcs() : const_true_map() {}
 
   public:
 
@@ -1658,11 +1651,9 @@ namespace lemon {
     ///
     /// Creates a subdigraph for the given digraph with the given arc
     /// filter map.
-    FilterArcs(Digraph& digraph, ArcFilterMap& arc_filter)
-      : Parent(), const_true_map(true) {
-      Parent::setDigraph(digraph);
-      Parent::setNodeFilterMap(const_true_map);
-      Parent::setArcFilterMap(arc_filter);
+    FilterArcs(DGR& digraph, ArcFilterMap& arc_filter)
+      : Parent(), const_true_map() {
+      Parent::initialize(digraph, const_true_map, arc_filter);
     }
 
     /// \brief Sets the status of the given arc
@@ -1698,16 +1689,16 @@ namespace lemon {
   /// This function just returns a read-only \ref FilterArcs adaptor.
   /// \ingroup graph_adaptors
   /// \relates FilterArcs
-  template<typename GR, typename AF>
-  FilterArcs<const GR, AF>
-  filterArcs(const GR& digraph, AF& arc_filter_map) {
-    return FilterArcs<const GR, AF>(digraph, arc_filter_map);
+  template<typename DGR, typename AF>
+  FilterArcs<const DGR, AF>
+  filterArcs(const DGR& digraph, AF& arc_filter) {
+    return FilterArcs<const DGR, AF>(digraph, arc_filter);
   }
 
-  template<typename GR, typename AF>
-  FilterArcs<const GR, const AF>
-  filterArcs(const GR& digraph, const AF& arc_filter_map) {
-    return FilterArcs<const GR, const AF>(digraph, arc_filter_map);
+  template<typename DGR, typename AF>
+  FilterArcs<const DGR, const AF>
+  filterArcs(const DGR& digraph, const AF& arc_filter) {
+    return FilterArcs<const DGR, const AF>(digraph, arc_filter);
   }
 
   /// \ingroup graph_adaptors
@@ -1743,7 +1734,8 @@ namespace lemon {
            typename EF = typename GR::template EdgeMap<bool> >
   class FilterEdges :
     public GraphAdaptorExtender<
-      SubGraphBase<GR, ConstMap<typename GR::Node,bool>, EF, false> > {
+      SubGraphBase<GR, ConstMap<typename GR::Node, Const<bool, true> >, 
+                   EF, false> > {
 #endif
   public:
     /// The type of the adapted graph.
@@ -1752,13 +1744,13 @@ namespace lemon {
     typedef EF EdgeFilterMap;
 
     typedef GraphAdaptorExtender<
-      SubGraphBase<GR, ConstMap<typename GR::Node,bool>, EF, false> >
-      Parent;
+      SubGraphBase<GR, ConstMap<typename GR::Node, Const<bool, true > >, 
+                   EF, false> > Parent;
 
     typedef typename Parent::Edge Edge;
 
   protected:
-    ConstMap<typename Graph::Node, bool> const_true_map;
+    ConstMap<typename GR::Node, Const<bool, true> > const_true_map;
 
     FilterEdges() : const_true_map(true) {
       Parent::setNodeFilterMap(const_true_map);
@@ -1770,11 +1762,9 @@ namespace lemon {
     ///
     /// Creates a subgraph for the given graph with the given edge
     /// filter map.
-    FilterEdges(Graph& graph, EdgeFilterMap& edge_filter_map) :
-      Parent(), const_true_map(true) {
-      Parent::setGraph(graph);
-      Parent::setNodeFilterMap(const_true_map);
-      Parent::setEdgeFilterMap(edge_filter_map);
+    FilterEdges(GR& graph, EF& edge_filter) 
+      : Parent(), const_true_map() {
+      Parent::initialize(graph, const_true_map, edge_filter);
     }
 
     /// \brief Sets the status of the given edge
@@ -1812,21 +1802,21 @@ namespace lemon {
   /// \relates FilterEdges
   template<typename GR, typename EF>
   FilterEdges<const GR, EF>
-  filterEdges(const GR& graph, EF& edge_filter_map) {
-    return FilterEdges<const GR, EF>(graph, edge_filter_map);
+  filterEdges(const GR& graph, EF& edge_filter) {
+    return FilterEdges<const GR, EF>(graph, edge_filter);
   }
 
   template<typename GR, typename EF>
   FilterEdges<const GR, const EF>
-  filterEdges(const GR& graph, const EF& edge_filter_map) {
-    return FilterEdges<const GR, const EF>(graph, edge_filter_map);
+  filterEdges(const GR& graph, const EF& edge_filter) {
+    return FilterEdges<const GR, const EF>(graph, edge_filter);
   }
 
 
-  template <typename _Digraph>
+  template <typename DGR>
   class UndirectorBase {
   public:
-    typedef _Digraph Digraph;
+    typedef DGR Digraph;
     typedef UndirectorBase Adaptor;
 
     typedef True UndirectedTag;
@@ -2062,34 +2052,35 @@ namespace lemon {
 
   private:
 
-    template <typename _Value>
+    template <typename V>
     class ArcMapBase {
     private:
 
-      typedef typename Digraph::template ArcMap<_Value> MapImpl;
+      typedef typename DGR::template ArcMap<V> MapImpl;
 
     public:
 
       typedef typename MapTraits<MapImpl>::ReferenceMapTag ReferenceMapTag;
 
-      typedef _Value Value;
+      typedef V Value;
       typedef Arc Key;
       typedef typename MapTraits<MapImpl>::ConstReturnValue ConstReturnValue;
       typedef typename MapTraits<MapImpl>::ReturnValue ReturnValue;
       typedef typename MapTraits<MapImpl>::ConstReturnValue ConstReference;
       typedef typename MapTraits<MapImpl>::ReturnValue Reference;
 
-      ArcMapBase(const Adaptor& adaptor) :
+      ArcMapBase(const UndirectorBase<DGR>& adaptor) :
         _forward(*adaptor._digraph), _backward(*adaptor._digraph) {}
 
-      ArcMapBase(const Adaptor& adaptor, const Value& v)
-        : _forward(*adaptor._digraph, v), _backward(*adaptor._digraph, v) {}
+      ArcMapBase(const UndirectorBase<DGR>& adaptor, const V& value)
+        : _forward(*adaptor._digraph, value), 
+          _backward(*adaptor._digraph, value) {}
 
-      void set(const Arc& a, const Value& v) {
+      void set(const Arc& a, const V& value) {
         if (direction(a)) {
-          _forward.set(a, v);
+          _forward.set(a, value);
         } else {
-          _backward.set(a, v);
+          _backward.set(a, value);
         }
       }
 
@@ -2117,17 +2108,17 @@ namespace lemon {
 
   public:
 
-    template <typename _Value>
-    class NodeMap : public Digraph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public DGR::template NodeMap<V> {
     public:
 
-      typedef _Value Value;
-      typedef typename Digraph::template NodeMap<Value> Parent;
+      typedef V Value;
+      typedef typename DGR::template NodeMap<Value> Parent;
 
-      explicit NodeMap(const Adaptor& adaptor)
+      explicit NodeMap(const UndirectorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
 
-      NodeMap(const Adaptor& adaptor, const _Value& value)
+      NodeMap(const UndirectorBase<DGR>& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) { }
 
     private:
@@ -2143,18 +2134,18 @@ namespace lemon {
 
     };
 
-    template <typename _Value>
+    template <typename V>
     class ArcMap
-      : public SubMapExtender<Adaptor, ArcMapBase<_Value> >
+      : public SubMapExtender<UndirectorBase<DGR>, ArcMapBase<V> >
     {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, ArcMapBase<Value> > Parent;
+      typedef V Value;
+      typedef SubMapExtender<Adaptor, ArcMapBase<V> > Parent;
 
-      explicit ArcMap(const Adaptor& adaptor)
+      explicit ArcMap(const UndirectorBase<DGR>& adaptor)
         : Parent(adaptor) {}
 
-      ArcMap(const Adaptor& adaptor, const Value& value)
+      ArcMap(const UndirectorBase<DGR>& adaptor, const V& value)
         : Parent(adaptor, value) {}
 
     private:
@@ -2169,17 +2160,17 @@ namespace lemon {
       }
     };
 
-    template <typename _Value>
-    class EdgeMap : public Digraph::template ArcMap<_Value> {
+    template <typename V>
+    class EdgeMap : public Digraph::template ArcMap<V> {
     public:
 
-      typedef _Value Value;
-      typedef typename Digraph::template ArcMap<Value> Parent;
+      typedef V Value;
+      typedef typename Digraph::template ArcMap<V> Parent;
 
-      explicit EdgeMap(const Adaptor& adaptor)
+      explicit EdgeMap(const UndirectorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
 
-      EdgeMap(const Adaptor& adaptor, const Value& value)
+      EdgeMap(const UndirectorBase<DGR>& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) {}
 
     private:
@@ -2195,19 +2186,19 @@ namespace lemon {
 
     };
 
-    typedef typename ItemSetTraits<Digraph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<DGR, Node>::ItemNotifier NodeNotifier;
     NodeNotifier& notifier(Node) const { return _digraph->notifier(Node()); }
 
-    typedef typename ItemSetTraits<Digraph, Edge>::ItemNotifier EdgeNotifier;
+    typedef typename ItemSetTraits<DGR, Edge>::ItemNotifier EdgeNotifier;
     EdgeNotifier& notifier(Edge) const { return _digraph->notifier(Edge()); }
 
   protected:
 
     UndirectorBase() : _digraph(0) {}
 
-    Digraph* _digraph;
+    DGR* _digraph;
 
-    void setDigraph(Digraph& digraph) {
+    void initialize(DGR& digraph) {
       _digraph = &digraph;
     }
 
@@ -2226,7 +2217,7 @@ namespace lemon {
   /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
   ///
@@ -2236,17 +2227,17 @@ namespace lemon {
   /// each other.
   /// (Thus the \c Arc type of the adaptor is convertible to the \c Arc type
   /// of the adapted digraph.)
-  template<typename GR>
+  template<typename DGR>
 #ifdef DOXYGEN
   class Undirector {
 #else
   class Undirector :
-    public GraphAdaptorExtender<UndirectorBase<GR> > {
+    public GraphAdaptorExtender<UndirectorBase<DGR> > {
 #endif
   public:
     /// The type of the adapted digraph.
-    typedef GR Digraph;
-    typedef GraphAdaptorExtender<UndirectorBase<GR> > Parent;
+    typedef DGR Digraph;
+    typedef GraphAdaptorExtender<UndirectorBase<DGR> > Parent;
   protected:
     Undirector() { }
   public:
@@ -2254,8 +2245,8 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Creates an undirected graph from the given digraph.
-    Undirector(Digraph& digraph) {
-      setDigraph(digraph);
+    Undirector(DGR& digraph) {
+      initialize(digraph);
     }
 
     /// \brief Arc map combined from two original arc maps
@@ -2355,21 +2346,21 @@ namespace lemon {
   /// This function just returns a read-only \ref Undirector adaptor.
   /// \ingroup graph_adaptors
   /// \relates Undirector
-  template<typename GR>
-  Undirector<const GR> undirector(const GR& digraph) {
-    return Undirector<const GR>(digraph);
+  template<typename DGR>
+  Undirector<const DGR> undirector(const DGR& digraph) {
+    return Undirector<const DGR>(digraph);
   }
 
 
-  template <typename _Graph, typename _DirectionMap>
+  template <typename GR, typename DM>
   class OrienterBase {
   public:
 
-    typedef _Graph Graph;
-    typedef _DirectionMap DirectionMap;
+    typedef GR Graph;
+    typedef DM DirectionMap;
 
-    typedef typename Graph::Node Node;
-    typedef typename Graph::Edge Arc;
+    typedef typename GR::Node Node;
+    typedef typename GR::Edge Arc;
 
     void reverseArc(const Arc& arc) {
       _direction->set(arc, !(*_direction)[arc]);
@@ -2448,22 +2439,22 @@ namespace lemon {
     int maxNodeId() const { return _graph->maxNodeId(); }
     int maxArcId() const { return _graph->maxEdgeId(); }
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
     NodeNotifier& notifier(Node) const { return _graph->notifier(Node()); }
 
-    typedef typename ItemSetTraits<Graph, Arc>::ItemNotifier ArcNotifier;
+    typedef typename ItemSetTraits<GR, Arc>::ItemNotifier ArcNotifier;
     ArcNotifier& notifier(Arc) const { return _graph->notifier(Arc()); }
 
-    template <typename _Value>
-    class NodeMap : public _Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
 
-      typedef typename _Graph::template NodeMap<_Value> Parent;
+      typedef typename GR::template NodeMap<V> Parent;
 
-      explicit NodeMap(const OrienterBase& adapter)
+      explicit NodeMap(const OrienterBase<GR, DM>& adapter)
         : Parent(*adapter._graph) {}
 
-      NodeMap(const OrienterBase& adapter, const _Value& value)
+      NodeMap(const OrienterBase<GR, DM>& adapter, const V& value)
         : Parent(*adapter._graph, value) {}
 
     private:
@@ -2479,16 +2470,16 @@ namespace lemon {
 
     };
 
-    template <typename _Value>
-    class ArcMap : public _Graph::template EdgeMap<_Value> {
+    template <typename V>
+    class ArcMap : public GR::template EdgeMap<V> {
     public:
 
-      typedef typename Graph::template EdgeMap<_Value> Parent;
+      typedef typename Graph::template EdgeMap<V> Parent;
 
-      explicit ArcMap(const OrienterBase& adapter)
+      explicit ArcMap(const OrienterBase<GR, DM>& adapter)
         : Parent(*adapter._graph) { }
 
-      ArcMap(const OrienterBase& adapter, const _Value& value)
+      ArcMap(const OrienterBase<GR, DM>& adapter, const V& value)
         : Parent(*adapter._graph, value) { }
 
     private:
@@ -2507,14 +2498,11 @@ namespace lemon {
 
   protected:
     Graph* _graph;
-    DirectionMap* _direction;
+    DM* _direction;
 
-    void setDirectionMap(DirectionMap& direction) {
-      _direction = &direction;
-    }
-
-    void setGraph(Graph& graph) {
+    void initialize(GR& graph, DM& direction) {
       _graph = &graph;
+      _direction = &direction;
     }
 
   };
@@ -2572,9 +2560,8 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor of the adaptor.
-    Orienter(Graph& graph, DirectionMap& direction) {
-      setGraph(graph);
-      setDirectionMap(direction);
+    Orienter(GR& graph, DM& direction) {
+      Parent::initialize(graph, direction);
     }
 
     /// \brief Reverses the given arc
@@ -2594,67 +2581,62 @@ namespace lemon {
   /// \relates Orienter
   template<typename GR, typename DM>
   Orienter<const GR, DM>
-  orienter(const GR& graph, DM& direction_map) {
-    return Orienter<const GR, DM>(graph, direction_map);
+  orienter(const GR& graph, DM& direction) {
+    return Orienter<const GR, DM>(graph, direction);
   }
 
   template<typename GR, typename DM>
   Orienter<const GR, const DM>
-  orienter(const GR& graph, const DM& direction_map) {
-    return Orienter<const GR, const DM>(graph, direction_map);
+  orienter(const GR& graph, const DM& direction) {
+    return Orienter<const GR, const DM>(graph, direction);
   }
 
   namespace _adaptor_bits {
 
-    template<typename Digraph,
-             typename CapacityMap,
-             typename FlowMap,
-             typename Tolerance>
+    template <typename DGR, typename CM, typename FM, typename TL>
     class ResForwardFilter {
     public:
 
-      typedef typename Digraph::Arc Key;
+      typedef typename DGR::Arc Key;
       typedef bool Value;
 
     private:
 
-      const CapacityMap* _capacity;
-      const FlowMap* _flow;
-      Tolerance _tolerance;
+      const CM* _capacity;
+      const FM* _flow;
+      TL _tolerance;
+
     public:
 
-      ResForwardFilter(const CapacityMap& capacity, const FlowMap& flow,
-                       const Tolerance& tolerance = Tolerance())
+      ResForwardFilter(const CM& capacity, const FM& flow,
+                       const TL& tolerance = TL())
         : _capacity(&capacity), _flow(&flow), _tolerance(tolerance) { }
 
-      bool operator[](const typename Digraph::Arc& a) const {
+      bool operator[](const typename DGR::Arc& a) const {
         return _tolerance.positive((*_capacity)[a] - (*_flow)[a]);
       }
     };
 
-    template<typename Digraph,
-             typename CapacityMap,
-             typename FlowMap,
-             typename Tolerance>
+    template<typename DGR,typename CM, typename FM, typename TL>
     class ResBackwardFilter {
     public:
 
-      typedef typename Digraph::Arc Key;
+      typedef typename DGR::Arc Key;
       typedef bool Value;
 
     private:
 
-      const CapacityMap* _capacity;
-      const FlowMap* _flow;
-      Tolerance _tolerance;
+      const CM* _capacity;
+      const FM* _flow;
+      TL _tolerance;
 
     public:
 
-      ResBackwardFilter(const CapacityMap& capacity, const FlowMap& flow,
-                        const Tolerance& tolerance = Tolerance())
+      ResBackwardFilter(const CM& capacity, const FM& flow,
+                        const TL& tolerance = TL())
         : _capacity(&capacity), _flow(&flow), _tolerance(tolerance) { }
 
-      bool operator[](const typename Digraph::Arc& a) const {
+      bool operator[](const typename DGR::Arc& a) const {
         return _tolerance.positive((*_flow)[a]);
       }
     };
@@ -2681,7 +2663,7 @@ namespace lemon {
   /// arcs).
   /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It is implicitly \c const.
   /// \tparam CM The type of the capacity map.
@@ -2703,25 +2685,26 @@ namespace lemon {
   /// convertible to each other, moreover the \c Arc type of the adaptor
   /// is convertible to the \c Arc type of the adapted digraph.
 #ifdef DOXYGEN
-  template<typename GR, typename CM, typename FM, typename TL>
+  template<typename DGR, typename CM, typename FM, typename TL>
   class ResidualDigraph
 #else
-  template<typename GR,
-           typename CM = typename GR::template ArcMap<int>,
+  template<typename DGR,
+           typename CM = typename DGR::template ArcMap<int>,
            typename FM = CM,
            typename TL = Tolerance<typename CM::Value> >
-  class ResidualDigraph :
-    public FilterArcs<
-      Undirector<const GR>,
-      typename Undirector<const GR>::template CombinedArcMap<
-        _adaptor_bits::ResForwardFilter<const GR, CM, FM, TL>,
-        _adaptor_bits::ResBackwardFilter<const GR, CM, FM, TL> > >
+  class ResidualDigraph 
+    : public SubDigraph<
+        Undirector<const DGR>,
+        ConstMap<typename DGR::Node, Const<bool, true> >,
+        typename Undirector<const DGR>::template CombinedArcMap<
+          _adaptor_bits::ResForwardFilter<const DGR, CM, FM, TL>,
+          _adaptor_bits::ResBackwardFilter<const DGR, CM, FM, TL> > >
 #endif
   {
   public:
 
     /// The type of the underlying digraph.
-    typedef GR Digraph;
+    typedef DGR Digraph;
     /// The type of the capacity map.
     typedef CM CapacityMap;
     /// The type of the flow map.
@@ -2736,21 +2719,24 @@ namespace lemon {
 
     typedef Undirector<const Digraph> Undirected;
 
-    typedef _adaptor_bits::ResForwardFilter<const Digraph, CapacityMap,
-                                            FlowMap, Tolerance> ForwardFilter;
+    typedef ConstMap<typename DGR::Node, Const<bool, true> > NodeFilter;
 
-    typedef _adaptor_bits::ResBackwardFilter<const Digraph, CapacityMap,
-                                             FlowMap, Tolerance> BackwardFilter;
+    typedef _adaptor_bits::ResForwardFilter<const DGR, CM,
+                                            FM, TL> ForwardFilter;
+
+    typedef _adaptor_bits::ResBackwardFilter<const DGR, CM,
+                                             FM, TL> BackwardFilter;
 
     typedef typename Undirected::
       template CombinedArcMap<ForwardFilter, BackwardFilter> ArcFilter;
 
-    typedef FilterArcs<Undirected, ArcFilter> Parent;
+    typedef SubDigraph<Undirected, NodeFilter, ArcFilter> Parent;
 
     const CapacityMap* _capacity;
     FlowMap* _flow;
 
     Undirected _graph;
+    NodeFilter _node_filter;
     ForwardFilter _forward_filter;
     BackwardFilter _backward_filter;
     ArcFilter _arc_filter;
@@ -2761,15 +2747,15 @@ namespace lemon {
     ///
     /// Constructor of the residual digraph adaptor. The parameters are the
     /// digraph, the capacity map, the flow map, and a tolerance object.
-    ResidualDigraph(const Digraph& digraph, const CapacityMap& capacity,
-                    FlowMap& flow, const Tolerance& tolerance = Tolerance())
-      : Parent(), _capacity(&capacity), _flow(&flow), _graph(digraph),
+    ResidualDigraph(const DGR& digraph, const CM& capacity,
+                    FM& flow, const TL& tolerance = Tolerance())
+      : Parent(), _capacity(&capacity), _flow(&flow), 
+        _graph(digraph), _node_filter(),
         _forward_filter(capacity, flow, tolerance),
         _backward_filter(capacity, flow, tolerance),
         _arc_filter(_forward_filter, _backward_filter)
     {
-      Parent::setDigraph(_graph);
-      Parent::setArcFilterMap(_arc_filter);
+      Parent::initialize(_graph, _node_filter, _arc_filter);
     }
 
     typedef typename Parent::Arc Arc;
@@ -2845,7 +2831,8 @@ namespace lemon {
       typedef typename CapacityMap::Value Value;
 
       /// Constructor
-      ResidualCapacity(const Adaptor& adaptor) : _adaptor(&adaptor) {}
+      ResidualCapacity(const ResidualDigraph<DGR, CM, FM, TL>& adaptor) 
+        : _adaptor(&adaptor) {}
 
       /// Returns the value associated with the given residual arc
       Value operator[](const Arc& a) const {
@@ -2865,26 +2852,26 @@ namespace lemon {
 
   /// \brief Returns a (read-only) Residual adaptor
   ///
-  /// This function just returns a (read-only) \ref Residual adaptor.
+  /// This function just returns a (read-only) \ref ResidualDigraph adaptor.
   /// \ingroup graph_adaptors
-  /// \relates Residual
-  template<typename GR, typename CM, typename FM>
-  ResidualDigraph<GR, CM, FM>
-  residualDigraph(const GR& digraph, const CM& capacity_map, FM& flow_map) {
-    return ResidualDigraph<GR, CM, FM> (digraph, capacity_map, flow_map);
+  /// \relates ResidualDigraph
+    template<typename DGR, typename CM, typename FM>
+  ResidualDigraph<DGR, CM, FM>
+  residualDigraph(const DGR& digraph, const CM& capacity_map, FM& flow_map) {
+    return ResidualDigraph<DGR, CM, FM> (digraph, capacity_map, flow_map);
   }
 
 
-  template <typename _Digraph>
+  template <typename DGR>
   class SplitNodesBase {
   public:
 
-    typedef _Digraph Digraph;
-    typedef DigraphAdaptorBase<const _Digraph> Parent;
+    typedef DGR Digraph;
+    typedef DigraphAdaptorBase<const DGR> Parent;
     typedef SplitNodesBase Adaptor;
 
-    typedef typename Digraph::Node DigraphNode;
-    typedef typename Digraph::Arc DigraphArc;
+    typedef typename DGR::Node DigraphNode;
+    typedef typename DGR::Arc DigraphArc;
 
     class Node;
     class Arc;
@@ -3148,32 +3135,32 @@ namespace lemon {
 
   private:
 
-    template <typename _Value>
+    template <typename V>
     class NodeMapBase
-      : public MapTraits<typename Parent::template NodeMap<_Value> > {
-      typedef typename Parent::template NodeMap<_Value> NodeImpl;
+      : public MapTraits<typename Parent::template NodeMap<V> > {
+      typedef typename Parent::template NodeMap<V> NodeImpl;
     public:
       typedef Node Key;
-      typedef _Value Value;
+      typedef V Value;
       typedef typename MapTraits<NodeImpl>::ReferenceMapTag ReferenceMapTag;
       typedef typename MapTraits<NodeImpl>::ReturnValue ReturnValue;
       typedef typename MapTraits<NodeImpl>::ConstReturnValue ConstReturnValue;
       typedef typename MapTraits<NodeImpl>::ReturnValue Reference;
       typedef typename MapTraits<NodeImpl>::ConstReturnValue ConstReference;
 
-      NodeMapBase(const Adaptor& adaptor)
+      NodeMapBase(const SplitNodesBase<DGR>& adaptor)
         : _in_map(*adaptor._digraph), _out_map(*adaptor._digraph) {}
-      NodeMapBase(const Adaptor& adaptor, const Value& value)
+      NodeMapBase(const SplitNodesBase<DGR>& adaptor, const V& value)
         : _in_map(*adaptor._digraph, value),
           _out_map(*adaptor._digraph, value) {}
 
-      void set(const Node& key, const Value& val) {
-        if (Adaptor::inNode(key)) { _in_map.set(key, val); }
+      void set(const Node& key, const V& val) {
+        if (SplitNodesBase<DGR>::inNode(key)) { _in_map.set(key, val); }
         else {_out_map.set(key, val); }
       }
 
       ReturnValue operator[](const Node& key) {
-        if (Adaptor::inNode(key)) { return _in_map[key]; }
+        if (SplitNodesBase<DGR>::inNode(key)) { return _in_map[key]; }
         else { return _out_map[key]; }
       }
 
@@ -3186,28 +3173,28 @@ namespace lemon {
       NodeImpl _in_map, _out_map;
     };
 
-    template <typename _Value>
+    template <typename V>
     class ArcMapBase
-      : public MapTraits<typename Parent::template ArcMap<_Value> > {
-      typedef typename Parent::template ArcMap<_Value> ArcImpl;
-      typedef typename Parent::template NodeMap<_Value> NodeImpl;
+      : public MapTraits<typename Parent::template ArcMap<V> > {
+      typedef typename Parent::template ArcMap<V> ArcImpl;
+      typedef typename Parent::template NodeMap<V> NodeImpl;
     public:
       typedef Arc Key;
-      typedef _Value Value;
+      typedef V Value;
       typedef typename MapTraits<ArcImpl>::ReferenceMapTag ReferenceMapTag;
       typedef typename MapTraits<ArcImpl>::ReturnValue ReturnValue;
       typedef typename MapTraits<ArcImpl>::ConstReturnValue ConstReturnValue;
       typedef typename MapTraits<ArcImpl>::ReturnValue Reference;
       typedef typename MapTraits<ArcImpl>::ConstReturnValue ConstReference;
 
-      ArcMapBase(const Adaptor& adaptor)
+      ArcMapBase(const SplitNodesBase<DGR>& adaptor)
         : _arc_map(*adaptor._digraph), _node_map(*adaptor._digraph) {}
-      ArcMapBase(const Adaptor& adaptor, const Value& value)
+      ArcMapBase(const SplitNodesBase<DGR>& adaptor, const V& value)
         : _arc_map(*adaptor._digraph, value),
           _node_map(*adaptor._digraph, value) {}
 
-      void set(const Arc& key, const Value& val) {
-        if (Adaptor::origArc(key)) {
+      void set(const Arc& key, const V& val) {
+        if (SplitNodesBase<DGR>::origArc(key)) {
           _arc_map.set(key._item.first(), val);
         } else {
           _node_map.set(key._item.second(), val);
@@ -3215,7 +3202,7 @@ namespace lemon {
       }
 
       ReturnValue operator[](const Arc& key) {
-        if (Adaptor::origArc(key)) {
+        if (SplitNodesBase<DGR>::origArc(key)) {
           return _arc_map[key._item.first()];
         } else {
           return _node_map[key._item.second()];
@@ -3223,7 +3210,7 @@ namespace lemon {
       }
 
       ConstReturnValue operator[](const Arc& key) const {
-        if (Adaptor::origArc(key)) {
+        if (SplitNodesBase<DGR>::origArc(key)) {
           return _arc_map[key._item.first()];
         } else {
           return _node_map[key._item.second()];
@@ -3237,18 +3224,18 @@ namespace lemon {
 
   public:
 
-    template <typename _Value>
+    template <typename V>
     class NodeMap
-      : public SubMapExtender<Adaptor, NodeMapBase<_Value> >
+      : public SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<V> >
     {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, NodeMapBase<Value> > Parent;
+      typedef V Value;
+      typedef SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<Value> > Parent;
 
-      NodeMap(const Adaptor& adaptor)
+      NodeMap(const SplitNodesBase<DGR>& adaptor)
         : Parent(adaptor) {}
 
-      NodeMap(const Adaptor& adaptor, const Value& value)
+      NodeMap(const SplitNodesBase<DGR>& adaptor, const V& value)
         : Parent(adaptor, value) {}
 
     private:
@@ -3263,18 +3250,18 @@ namespace lemon {
       }
     };
 
-    template <typename _Value>
+    template <typename V>
     class ArcMap
-      : public SubMapExtender<Adaptor, ArcMapBase<_Value> >
+      : public SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<V> >
     {
     public:
-      typedef _Value Value;
-      typedef SubMapExtender<Adaptor, ArcMapBase<Value> > Parent;
+      typedef V Value;
+      typedef SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<Value> > Parent;
 
-      ArcMap(const Adaptor& adaptor)
+      ArcMap(const SplitNodesBase<DGR>& adaptor)
         : Parent(adaptor) {}
 
-      ArcMap(const Adaptor& adaptor, const Value& value)
+      ArcMap(const SplitNodesBase<DGR>& adaptor, const V& value)
         : Parent(adaptor, value) {}
 
     private:
@@ -3293,9 +3280,9 @@ namespace lemon {
 
     SplitNodesBase() : _digraph(0) {}
 
-    Digraph* _digraph;
+    DGR* _digraph;
 
-    void setDigraph(Digraph& digraph) {
+    void initialize(Digraph& digraph) {
       _digraph = &digraph;
     }
 
@@ -3322,25 +3309,25 @@ namespace lemon {
   /// costs/capacities of the original digraph to the \e bind \e arcs
   /// in the adaptor.
   ///
-  /// \tparam GR The type of the adapted digraph.
+  /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It is implicitly \c const.
   ///
   /// \note The \c Node type of this adaptor is converible to the \c Node
   /// type of the adapted digraph.
-  template <typename GR>
+  template <typename DGR>
 #ifdef DOXYGEN
   class SplitNodes {
 #else
   class SplitNodes
-    : public DigraphAdaptorExtender<SplitNodesBase<const GR> > {
+    : public DigraphAdaptorExtender<SplitNodesBase<const DGR> > {
 #endif
   public:
-    typedef GR Digraph;
-    typedef DigraphAdaptorExtender<SplitNodesBase<const GR> > Parent;
+    typedef DGR Digraph;
+    typedef DigraphAdaptorExtender<SplitNodesBase<const DGR> > Parent;
 
-    typedef typename Digraph::Node DigraphNode;
-    typedef typename Digraph::Arc DigraphArc;
+    typedef typename DGR::Node DigraphNode;
+    typedef typename DGR::Arc DigraphArc;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
@@ -3348,8 +3335,8 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor of the adaptor.
-    SplitNodes(const Digraph& g) {
-      Parent::setDigraph(g);
+    SplitNodes(const DGR& g) {
+      Parent::initialize(g);
     }
 
     /// \brief Returns \c true if the given node is an in-node.
@@ -3441,7 +3428,7 @@ namespace lemon {
 
       /// Returns the value associated with the given key.
       Value operator[](const Key& key) const {
-        if (Parent::inNode(key)) {
+        if (SplitNodesBase<const DGR>::inNode(key)) {
           return _in_map[key];
         } else {
           return _out_map[key];
@@ -3450,7 +3437,7 @@ namespace lemon {
 
       /// Returns a reference to the value associated with the given key.
       Value& operator[](const Key& key) {
-        if (Parent::inNode(key)) {
+        if (SplitNodesBase<const DGR>::inNode(key)) {
           return _in_map[key];
         } else {
           return _out_map[key];
@@ -3459,7 +3446,7 @@ namespace lemon {
 
       /// Sets the value associated with the given key.
       void set(const Key& key, const Value& value) {
-        if (Parent::inNode(key)) {
+        if (SplitNodesBase<const DGR>::inNode(key)) {
           _in_map.set(key, value);
         } else {
           _out_map.set(key, value);
@@ -3530,7 +3517,7 @@ namespace lemon {
 
       /// Returns the value associated with the given key.
       Value operator[](const Key& arc) const {
-        if (Parent::origArc(arc)) {
+        if (SplitNodesBase<const DGR>::origArc(arc)) {
           return _arc_map[arc];
         } else {
           return _node_map[arc];
@@ -3539,7 +3526,7 @@ namespace lemon {
 
       /// Returns a reference to the value associated with the given key.
       Value& operator[](const Key& arc) {
-        if (Parent::origArc(arc)) {
+        if (SplitNodesBase<const DGR>::origArc(arc)) {
           return _arc_map[arc];
         } else {
           return _node_map[arc];
@@ -3548,7 +3535,7 @@ namespace lemon {
 
       /// Sets the value associated with the given key.
       void set(const Arc& arc, const Value& val) {
-        if (Parent::origArc(arc)) {
+        if (SplitNodesBase<const DGR>::origArc(arc)) {
           _arc_map.set(arc, val);
         } else {
           _node_map.set(arc, val);
@@ -3594,11 +3581,13 @@ namespace lemon {
   /// This function just returns a (read-only) \ref SplitNodes adaptor.
   /// \ingroup graph_adaptors
   /// \relates SplitNodes
-  template<typename GR>
-  SplitNodes<GR>
-  splitNodes(const GR& digraph) {
-    return SplitNodes<GR>(digraph);
+  template<typename DGR>
+  SplitNodes<DGR>
+  splitNodes(const DGR& digraph) {
+    return SplitNodes<DGR>(digraph);
   }
+
+#undef LEMON_SCOPE_FIX
 
 } //namespace lemon
 

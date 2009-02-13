@@ -29,13 +29,13 @@
 /// Graphs which use another graph's node-set as own.
 namespace lemon {
 
-  template <typename _Graph>
+  template <typename GR>
   class ListArcSetBase {
   public:
 
-    typedef _Graph Graph;
-    typedef typename Graph::Node Node;
-    typedef typename Graph::NodeIt NodeIt;
+    typedef GR Graph;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
 
   protected:
 
@@ -44,10 +44,10 @@ namespace lemon {
       NodeT() : first_out(-1), first_in(-1) {}
     };
 
-    typedef typename ItemSetTraits<Graph, Node>::
+    typedef typename ItemSetTraits<GR, Node>::
     template Map<NodeT>::Type NodesImplBase;
 
-    NodesImplBase* nodes;
+    NodesImplBase* _nodes;
 
     struct ArcT {
       Node source, target;
@@ -61,17 +61,17 @@ namespace lemon {
     int first_arc;
     int first_free_arc;
 
-    const Graph* graph;
+    const GR* _graph;
 
-    void initalize(const Graph& _graph, NodesImplBase& _nodes) {
-      graph = &_graph;
-      nodes = &_nodes;
+    void initalize(const GR& graph, NodesImplBase& nodes) {
+      _graph = &graph;
+      _nodes = &nodes;
     }
 
   public:
 
     class Arc {
-      friend class ListArcSetBase<Graph>;
+      friend class ListArcSetBase<GR>;
     protected:
       Arc(int _id) : id(_id) {}
       int id;
@@ -94,16 +94,16 @@ namespace lemon {
         n = first_free_arc;
         first_free_arc = arcs[first_free_arc].next_in;
       }
-      arcs[n].next_in = (*nodes)[v].first_in;
-      if ((*nodes)[v].first_in != -1) {
-        arcs[(*nodes)[v].first_in].prev_in = n;
+      arcs[n].next_in = (*_nodes)[v].first_in;
+      if ((*_nodes)[v].first_in != -1) {
+        arcs[(*_nodes)[v].first_in].prev_in = n;
       }
-      (*nodes)[v].first_in = n;
-      arcs[n].next_out = (*nodes)[u].first_out;
-      if ((*nodes)[u].first_out != -1) {
-        arcs[(*nodes)[u].first_out].prev_out = n;
+      (*_nodes)[v].first_in = n;
+      arcs[n].next_out = (*_nodes)[u].first_out;
+      if ((*_nodes)[u].first_out != -1) {
+        arcs[(*_nodes)[u].first_out].prev_out = n;
       }
-      (*nodes)[u].first_out = n;
+      (*_nodes)[u].first_out = n;
       arcs[n].source = u;
       arcs[n].target = v;
       return Arc(n);
@@ -114,7 +114,7 @@ namespace lemon {
       if (arcs[n].prev_in != -1) {
         arcs[arcs[n].prev_in].next_in = arcs[n].next_in;
       } else {
-        (*nodes)[arcs[n].target].first_in = arcs[n].next_in;
+        (*_nodes)[arcs[n].target].first_in = arcs[n].next_in;
       }
       if (arcs[n].next_in != -1) {
         arcs[arcs[n].next_in].prev_in = arcs[n].prev_in;
@@ -123,7 +123,7 @@ namespace lemon {
       if (arcs[n].prev_out != -1) {
         arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
       } else {
-        (*nodes)[arcs[n].source].first_out = arcs[n].next_out;
+        (*_nodes)[arcs[n].source].first_out = arcs[n].next_out;
       }
       if (arcs[n].next_out != -1) {
         arcs[arcs[n].next_out].prev_out = arcs[n].prev_out;
@@ -134,8 +134,8 @@ namespace lemon {
     void clear() {
       Node node;
       for (first(node); node != INVALID; next(node)) {
-        (*nodes)[node].first_in = -1;
-        (*nodes)[node].first_out = -1;
+        (*_nodes)[node].first_in = -1;
+        (*_nodes)[node].first_out = -1;
       }
       arcs.clear();
       first_arc = -1;
@@ -143,20 +143,20 @@ namespace lemon {
     }
 
     void first(Node& node) const {
-      graph->first(node);
+      _graph->first(node);
     }
 
     void next(Node& node) const {
-      graph->next(node);
+      _graph->next(node);
     }
 
     void first(Arc& arc) const {
       Node node;
       first(node);
-      while (node != INVALID && (*nodes)[node].first_in == -1) {
+      while (node != INVALID && (*_nodes)[node].first_in == -1) {
         next(node);
       }
-      arc.id = (node == INVALID) ? -1 : (*nodes)[node].first_in;
+      arc.id = (node == INVALID) ? -1 : (*_nodes)[node].first_in;
     }
 
     void next(Arc& arc) const {
@@ -165,15 +165,15 @@ namespace lemon {
       } else {
         Node node = arcs[arc.id].target;
         next(node);
-        while (node != INVALID && (*nodes)[node].first_in == -1) {
+        while (node != INVALID && (*_nodes)[node].first_in == -1) {
           next(node);
         }
-        arc.id = (node == INVALID) ? -1 : (*nodes)[node].first_in;
+        arc.id = (node == INVALID) ? -1 : (*_nodes)[node].first_in;
       }
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_out;
+      arc.id = (*_nodes)[node].first_out;
     }
 
     void nextOut(Arc& arc) const {
@@ -181,42 +181,42 @@ namespace lemon {
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_in;
+      arc.id = (*_nodes)[node].first_in;
     }
 
     void nextIn(Arc& arc) const {
       arc.id = arcs[arc.id].next_in;
     }
 
-    int id(const Node& node) const { return graph->id(node); }
+    int id(const Node& node) const { return _graph->id(node); }
     int id(const Arc& arc) const { return arc.id; }
 
-    Node nodeFromId(int ix) const { return graph->nodeFromId(ix); }
+    Node nodeFromId(int ix) const { return _graph->nodeFromId(ix); }
     Arc arcFromId(int ix) const { return Arc(ix); }
 
-    int maxNodeId() const { return graph->maxNodeId(); };
+    int maxNodeId() const { return _graph->maxNodeId(); };
     int maxArcId() const { return arcs.size() - 1; }
 
     Node source(const Arc& arc) const { return arcs[arc.id].source;}
     Node target(const Arc& arc) const { return arcs[arc.id].target;}
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
 
     NodeNotifier& notifier(Node) const {
-      return graph->notifier(Node());
+      return _graph->notifier(Node());
     }
 
-    template <typename _Value>
-    class NodeMap : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
 
-      typedef typename _Graph::template NodeMap<_Value> Parent;
+      typedef typename GR::template NodeMap<V> Parent;
 
-      explicit NodeMap(const ListArcSetBase<Graph>& arcset)
-        : Parent(*arcset.graph) {}
+      explicit NodeMap(const ListArcSetBase<GR>& arcset)
+        : Parent(*arcset._graph) {}
 
-      NodeMap(const ListArcSetBase<Graph>& arcset, const _Value& value)
-        : Parent(*arcset.graph, value) {}
+      NodeMap(const ListArcSetBase<GR>& arcset, const V& value)
+        : Parent(*arcset._graph, value) {}
 
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
@@ -250,24 +250,24 @@ namespace lemon {
   /// that node can be removed from the underlying graph, in this case
   /// all arcs incident to the given node is erased from the arc set.
   ///
-  /// \param _Graph The type of the graph which shares its node set with
+  /// \param GR The type of the graph which shares its node set with
   /// this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
   ///
   /// This class is fully conform to the \ref concepts::Digraph
   /// "Digraph" concept.
-  template <typename _Graph>
-  class ListArcSet : public ArcSetExtender<ListArcSetBase<_Graph> > {
+  template <typename GR>
+  class ListArcSet : public ArcSetExtender<ListArcSetBase<GR> > {
 
   public:
 
-    typedef ArcSetExtender<ListArcSetBase<_Graph> > Parent;
+    typedef ArcSetExtender<ListArcSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
 
-    typedef _Graph Graph;
+    typedef GR Graph;
 
 
     typedef typename Parent::NodesImplBase NodesImplBase;
@@ -295,7 +295,7 @@ namespace lemon {
     public:
       typedef NodesImplBase Parent;
 
-      NodesImpl(const Graph& graph, ListArcSet& arcset)
+      NodesImpl(const GR& graph, ListArcSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
       virtual ~NodesImpl() {}
@@ -321,15 +321,15 @@ namespace lemon {
       ListArcSet& _arcset;
     };
 
-    NodesImpl nodes;
+    NodesImpl _nodes;
 
   public:
 
     /// \brief Constructor of the ArcSet.
     ///
     /// Constructor of the ArcSet.
-    ListArcSet(const Graph& graph) : nodes(graph, *this) {
-      Parent::initalize(graph, nodes);
+    ListArcSet(const GR& graph) : _nodes(graph, *this) {
+      Parent::initalize(graph, _nodes);
     }
 
     /// \brief Add a new arc to the digraph.
@@ -350,13 +350,13 @@ namespace lemon {
 
   };
 
-  template <typename _Graph>
+  template <typename GR>
   class ListEdgeSetBase {
   public:
 
-    typedef _Graph Graph;
-    typedef typename Graph::Node Node;
-    typedef typename Graph::NodeIt NodeIt;
+    typedef GR Graph;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
 
   protected:
 
@@ -365,10 +365,10 @@ namespace lemon {
       NodeT() : first_out(-1) {}
     };
 
-    typedef typename ItemSetTraits<Graph, Node>::
+    typedef typename ItemSetTraits<GR, Node>::
     template Map<NodeT>::Type NodesImplBase;
 
-    NodesImplBase* nodes;
+    NodesImplBase* _nodes;
 
     struct ArcT {
       Node target;
@@ -381,11 +381,11 @@ namespace lemon {
     int first_arc;
     int first_free_arc;
 
-    const Graph* graph;
+    const GR* _graph;
 
-    void initalize(const Graph& _graph, NodesImplBase& _nodes) {
-      graph = &_graph;
-      nodes = &_nodes;
+    void initalize(const GR& graph, NodesImplBase& nodes) {
+      _graph = &graph;
+      _nodes = &nodes;
     }
 
   public:
@@ -437,18 +437,18 @@ namespace lemon {
       arcs[n].target = u;
       arcs[n | 1].target = v;
 
-      arcs[n].next_out = (*nodes)[v].first_out;
-      if ((*nodes)[v].first_out != -1) {
-        arcs[(*nodes)[v].first_out].prev_out = n;
+      arcs[n].next_out = (*_nodes)[v].first_out;
+      if ((*_nodes)[v].first_out != -1) {
+        arcs[(*_nodes)[v].first_out].prev_out = n;
       }
-      (*nodes)[v].first_out = n;
+      (*_nodes)[v].first_out = n;
       arcs[n].prev_out = -1;
 
-      if ((*nodes)[u].first_out != -1) {
-        arcs[(*nodes)[u].first_out].prev_out = (n | 1);
+      if ((*_nodes)[u].first_out != -1) {
+        arcs[(*_nodes)[u].first_out].prev_out = (n | 1);
       }
-      arcs[n | 1].next_out = (*nodes)[u].first_out;
-      (*nodes)[u].first_out = (n | 1);
+      arcs[n | 1].next_out = (*_nodes)[u].first_out;
+      (*_nodes)[u].first_out = (n | 1);
       arcs[n | 1].prev_out = -1;
 
       return Edge(n / 2);
@@ -464,7 +464,7 @@ namespace lemon {
       if (arcs[n].prev_out != -1) {
         arcs[arcs[n].prev_out].next_out = arcs[n].next_out;
       } else {
-        (*nodes)[arcs[n | 1].target].first_out = arcs[n].next_out;
+        (*_nodes)[arcs[n | 1].target].first_out = arcs[n].next_out;
       }
 
       if (arcs[n | 1].next_out != -1) {
@@ -474,7 +474,7 @@ namespace lemon {
       if (arcs[n | 1].prev_out != -1) {
         arcs[arcs[n | 1].prev_out].next_out = arcs[n | 1].next_out;
       } else {
-        (*nodes)[arcs[n].target].first_out = arcs[n | 1].next_out;
+        (*_nodes)[arcs[n].target].first_out = arcs[n | 1].next_out;
       }
 
       arcs[n].next_out = first_free_arc;
@@ -485,7 +485,7 @@ namespace lemon {
     void clear() {
       Node node;
       for (first(node); node != INVALID; next(node)) {
-        (*nodes)[node].first_out = -1;
+        (*_nodes)[node].first_out = -1;
       }
       arcs.clear();
       first_arc = -1;
@@ -493,20 +493,20 @@ namespace lemon {
     }
 
     void first(Node& node) const {
-      graph->first(node);
+      _graph->first(node);
     }
 
     void next(Node& node) const {
-      graph->next(node);
+      _graph->next(node);
     }
 
     void first(Arc& arc) const {
       Node node;
       first(node);
-      while (node != INVALID && (*nodes)[node].first_out == -1) {
+      while (node != INVALID && (*_nodes)[node].first_out == -1) {
         next(node);
       }
-      arc.id = (node == INVALID) ? -1 : (*nodes)[node].first_out;
+      arc.id = (node == INVALID) ? -1 : (*_nodes)[node].first_out;
     }
 
     void next(Arc& arc) const {
@@ -515,10 +515,10 @@ namespace lemon {
       } else {
         Node node = arcs[arc.id ^ 1].target;
         next(node);
-        while(node != INVALID && (*nodes)[node].first_out == -1) {
+        while(node != INVALID && (*_nodes)[node].first_out == -1) {
           next(node);
         }
-        arc.id = (node == INVALID) ? -1 : (*nodes)[node].first_out;
+        arc.id = (node == INVALID) ? -1 : (*_nodes)[node].first_out;
       }
     }
 
@@ -526,7 +526,7 @@ namespace lemon {
       Node node;
       first(node);
       while (node != INVALID) {
-        edge.id = (*nodes)[node].first_out;
+        edge.id = (*_nodes)[node].first_out;
         while ((edge.id & 1) != 1) {
           edge.id = arcs[edge.id].next_out;
         }
@@ -551,7 +551,7 @@ namespace lemon {
       }
       next(node);
       while (node != INVALID) {
-        edge.id = (*nodes)[node].first_out;
+        edge.id = (*_nodes)[node].first_out;
         while ((edge.id & 1) != 1) {
           edge.id = arcs[edge.id].next_out;
         }
@@ -565,7 +565,7 @@ namespace lemon {
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_out;
+      arc.id = (*_nodes)[node].first_out;
     }
 
     void nextOut(Arc& arc) const {
@@ -573,7 +573,7 @@ namespace lemon {
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      arc.id = (((*nodes)[node].first_out) ^ 1);
+      arc.id = (((*_nodes)[node].first_out) ^ 1);
       if (arc.id == -2) arc.id = -1;
     }
 
@@ -583,7 +583,7 @@ namespace lemon {
     }
 
     void firstInc(Edge &arc, bool& dir, const Node& node) const {
-      int de = (*nodes)[node].first_out;
+      int de = (*_nodes)[node].first_out;
       if (de != -1 ) {
         arc.id = de / 2;
         dir = ((de & 1) == 1);
@@ -611,15 +611,15 @@ namespace lemon {
       return Arc(edge.id * 2 + (dir ? 1 : 0));
     }
 
-    int id(const Node& node) const { return graph->id(node); }
+    int id(const Node& node) const { return _graph->id(node); }
     static int id(Arc e) { return e.id; }
     static int id(Edge e) { return e.id; }
 
-    Node nodeFromId(int id) const { return graph->nodeFromId(id); }
+    Node nodeFromId(int id) const { return _graph->nodeFromId(id); }
     static Arc arcFromId(int id) { return Arc(id);}
     static Edge edgeFromId(int id) { return Edge(id);}
 
-    int maxNodeId() const { return graph->maxNodeId(); };
+    int maxNodeId() const { return _graph->maxNodeId(); };
     int maxEdgeId() const { return arcs.size() / 2 - 1; }
     int maxArcId() const { return arcs.size()-1; }
 
@@ -629,23 +629,23 @@ namespace lemon {
     Node u(Edge e) const { return arcs[2 * e.id].target; }
     Node v(Edge e) const { return arcs[2 * e.id + 1].target; }
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
 
     NodeNotifier& notifier(Node) const {
-      return graph->notifier(Node());
+      return _graph->notifier(Node());
     }
 
-    template <typename _Value>
-    class NodeMap : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
 
-      typedef typename _Graph::template NodeMap<_Value> Parent;
+      typedef typename GR::template NodeMap<V> Parent;
 
-      explicit NodeMap(const ListEdgeSetBase<Graph>& arcset)
-        : Parent(*arcset.graph) {}
+      explicit NodeMap(const ListEdgeSetBase<GR>& arcset)
+        : Parent(*arcset._graph) {}
 
-      NodeMap(const ListEdgeSetBase<Graph>& arcset, const _Value& value)
-        : Parent(*arcset.graph, value) {}
+      NodeMap(const ListEdgeSetBase<GR>& arcset, const V& value)
+        : Parent(*arcset._graph, value) {}
 
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
@@ -679,25 +679,25 @@ namespace lemon {
   /// be removed from the underlying graph, in this case all edges
   /// incident to the given node is erased from the arc set.
   ///
-  /// \param _Graph The type of the graph which shares its node set
+  /// \param GR The type of the graph which shares its node set
   /// with this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
   ///
   /// This class is fully conform to the \ref concepts::Graph "Graph"
   /// concept.
-  template <typename _Graph>
-  class ListEdgeSet : public EdgeSetExtender<ListEdgeSetBase<_Graph> > {
+  template <typename GR>
+  class ListEdgeSet : public EdgeSetExtender<ListEdgeSetBase<GR> > {
 
   public:
 
-    typedef EdgeSetExtender<ListEdgeSetBase<_Graph> > Parent;
+    typedef EdgeSetExtender<ListEdgeSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
 
-    typedef _Graph Graph;
+    typedef GR Graph;
 
 
     typedef typename Parent::NodesImplBase NodesImplBase;
@@ -720,7 +720,7 @@ namespace lemon {
     public:
       typedef NodesImplBase Parent;
 
-      NodesImpl(const Graph& graph, ListEdgeSet& arcset)
+      NodesImpl(const GR& graph, ListEdgeSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
       virtual ~NodesImpl() {}
@@ -746,15 +746,15 @@ namespace lemon {
       ListEdgeSet& _arcset;
     };
 
-    NodesImpl nodes;
+    NodesImpl _nodes;
 
   public:
 
     /// \brief Constructor of the EdgeSet.
     ///
     /// Constructor of the EdgeSet.
-    ListEdgeSet(const Graph& graph) : nodes(graph, *this) {
-      Parent::initalize(graph, nodes);
+    ListEdgeSet(const GR& graph) : _nodes(graph, *this) {
+      Parent::initalize(graph, _nodes);
     }
 
     /// \brief Add a new edge to the graph.
@@ -775,11 +775,11 @@ namespace lemon {
 
   };
 
-  template <typename _Graph>
+  template <typename GR>
   class SmartArcSetBase {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
     typedef typename Graph::Node Node;
     typedef typename Graph::NodeIt NodeIt;
 
@@ -790,10 +790,10 @@ namespace lemon {
       NodeT() : first_out(-1), first_in(-1) {}
     };
 
-    typedef typename ItemSetTraits<Graph, Node>::
+    typedef typename ItemSetTraits<GR, Node>::
     template Map<NodeT>::Type NodesImplBase;
 
-    NodesImplBase* nodes;
+    NodesImplBase* _nodes;
 
     struct ArcT {
       Node source, target;
@@ -803,17 +803,17 @@ namespace lemon {
 
     std::vector<ArcT> arcs;
 
-    const Graph* graph;
+    const GR* _graph;
 
-    void initalize(const Graph& _graph, NodesImplBase& _nodes) {
-      graph = &_graph;
-      nodes = &_nodes;
+    void initalize(const GR& graph, NodesImplBase& nodes) {
+      _graph = &graph;
+      _nodes = &nodes;
     }
 
   public:
 
     class Arc {
-      friend class SmartArcSetBase<Graph>;
+      friend class SmartArcSetBase<GR>;
     protected:
       Arc(int _id) : id(_id) {}
       int id;
@@ -830,10 +830,10 @@ namespace lemon {
     Arc addArc(const Node& u, const Node& v) {
       int n = arcs.size();
       arcs.push_back(ArcT());
-      arcs[n].next_in = (*nodes)[v].first_in;
-      (*nodes)[v].first_in = n;
-      arcs[n].next_out = (*nodes)[u].first_out;
-      (*nodes)[u].first_out = n;
+      arcs[n].next_in = (*_nodes)[v].first_in;
+      (*_nodes)[v].first_in = n;
+      arcs[n].next_out = (*_nodes)[u].first_out;
+      (*_nodes)[u].first_out = n;
       arcs[n].source = u;
       arcs[n].target = v;
       return Arc(n);
@@ -842,18 +842,18 @@ namespace lemon {
     void clear() {
       Node node;
       for (first(node); node != INVALID; next(node)) {
-        (*nodes)[node].first_in = -1;
-        (*nodes)[node].first_out = -1;
+        (*_nodes)[node].first_in = -1;
+        (*_nodes)[node].first_out = -1;
       }
       arcs.clear();
     }
 
     void first(Node& node) const {
-      graph->first(node);
+      _graph->first(node);
     }
 
     void next(Node& node) const {
-      graph->next(node);
+      _graph->next(node);
     }
 
     void first(Arc& arc) const {
@@ -865,7 +865,7 @@ namespace lemon {
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_out;
+      arc.id = (*_nodes)[node].first_out;
     }
 
     void nextOut(Arc& arc) const {
@@ -873,42 +873,42 @@ namespace lemon {
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_in;
+      arc.id = (*_nodes)[node].first_in;
     }
 
     void nextIn(Arc& arc) const {
       arc.id = arcs[arc.id].next_in;
     }
 
-    int id(const Node& node) const { return graph->id(node); }
+    int id(const Node& node) const { return _graph->id(node); }
     int id(const Arc& arc) const { return arc.id; }
 
-    Node nodeFromId(int ix) const { return graph->nodeFromId(ix); }
+    Node nodeFromId(int ix) const { return _graph->nodeFromId(ix); }
     Arc arcFromId(int ix) const { return Arc(ix); }
 
-    int maxNodeId() const { return graph->maxNodeId(); };
+    int maxNodeId() const { return _graph->maxNodeId(); };
     int maxArcId() const { return arcs.size() - 1; }
 
     Node source(const Arc& arc) const { return arcs[arc.id].source;}
     Node target(const Arc& arc) const { return arcs[arc.id].target;}
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
 
     NodeNotifier& notifier(Node) const {
-      return graph->notifier(Node());
+      return _graph->notifier(Node());
     }
 
-    template <typename _Value>
-    class NodeMap : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
 
-      typedef typename _Graph::template NodeMap<_Value> Parent;
+      typedef typename GR::template NodeMap<V> Parent;
 
-      explicit NodeMap(const SmartArcSetBase<Graph>& arcset)
-        : Parent(*arcset.graph) { }
+      explicit NodeMap(const SmartArcSetBase<GR>& arcset)
+        : Parent(*arcset._graph) { }
 
-      NodeMap(const SmartArcSetBase<Graph>& arcset, const _Value& value)
-        : Parent(*arcset.graph, value) { }
+      NodeMap(const SmartArcSetBase<GR>& arcset, const V& value)
+        : Parent(*arcset._graph, value) { }
 
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
@@ -937,7 +937,7 @@ namespace lemon {
   /// class. The node handling functions (id handling, observing, and
   /// iterators) works equivalently as in the original graph.
   ///
-  /// \param _Graph The type of the graph which shares its node set with
+  /// \param GR The type of the graph which shares its node set with
   /// this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
@@ -954,17 +954,17 @@ namespace lemon {
   ///
   /// This class is fully conform to the \ref concepts::Digraph
   /// "Digraph" concept.
-  template <typename _Graph>
-  class SmartArcSet : public ArcSetExtender<SmartArcSetBase<_Graph> > {
+  template <typename GR>
+  class SmartArcSet : public ArcSetExtender<SmartArcSetBase<GR> > {
 
   public:
 
-    typedef ArcSetExtender<SmartArcSetBase<_Graph> > Parent;
+    typedef ArcSetExtender<SmartArcSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
 
-    typedef _Graph Graph;
+    typedef GR Graph;
 
   protected:
 
@@ -986,7 +986,7 @@ namespace lemon {
     public:
       typedef NodesImplBase Parent;
 
-      NodesImpl(const Graph& graph, SmartArcSet& arcset)
+      NodesImpl(const GR& graph, SmartArcSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
       virtual ~NodesImpl() {}
@@ -1026,15 +1026,15 @@ namespace lemon {
       SmartArcSet& _arcset;
     };
 
-    NodesImpl nodes;
+    NodesImpl _nodes;
 
   public:
 
     /// \brief Constructor of the ArcSet.
     ///
     /// Constructor of the ArcSet.
-    SmartArcSet(const Graph& graph) : nodes(graph, *this) {
-      Parent::initalize(graph, nodes);
+    SmartArcSet(const GR& graph) : _nodes(graph, *this) {
+      Parent::initalize(graph, _nodes);
     }
 
     /// \brief Add a new arc to the digraph.
@@ -1052,19 +1052,19 @@ namespace lemon {
     /// invalidated. It occurs when a node in the underlying graph is
     /// erased and it is not isolated in the ArcSet.
     bool valid() const {
-      return nodes.attached();
+      return _nodes.attached();
     }
 
   };
 
 
-  template <typename _Graph>
+  template <typename GR>
   class SmartEdgeSetBase {
   public:
 
-    typedef _Graph Graph;
-    typedef typename Graph::Node Node;
-    typedef typename Graph::NodeIt NodeIt;
+    typedef GR Graph;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
 
   protected:
 
@@ -1073,10 +1073,10 @@ namespace lemon {
       NodeT() : first_out(-1) {}
     };
 
-    typedef typename ItemSetTraits<Graph, Node>::
+    typedef typename ItemSetTraits<GR, Node>::
     template Map<NodeT>::Type NodesImplBase;
 
-    NodesImplBase* nodes;
+    NodesImplBase* _nodes;
 
     struct ArcT {
       Node target;
@@ -1086,11 +1086,11 @@ namespace lemon {
 
     std::vector<ArcT> arcs;
 
-    const Graph* graph;
+    const GR* _graph;
 
-    void initalize(const Graph& _graph, NodesImplBase& _nodes) {
-      graph = &_graph;
-      nodes = &_nodes;
+    void initalize(const GR& graph, NodesImplBase& nodes) {
+      _graph = &graph;
+      _nodes = &nodes;
     }
 
   public:
@@ -1135,11 +1135,11 @@ namespace lemon {
       arcs[n].target = u;
       arcs[n | 1].target = v;
 
-      arcs[n].next_out = (*nodes)[v].first_out;
-      (*nodes)[v].first_out = n;
+      arcs[n].next_out = (*_nodes)[v].first_out;
+      (*_nodes)[v].first_out = n;
 
-      arcs[n | 1].next_out = (*nodes)[u].first_out;
-      (*nodes)[u].first_out = (n | 1);
+      arcs[n | 1].next_out = (*_nodes)[u].first_out;
+      (*_nodes)[u].first_out = (n | 1);
 
       return Edge(n / 2);
     }
@@ -1147,17 +1147,17 @@ namespace lemon {
     void clear() {
       Node node;
       for (first(node); node != INVALID; next(node)) {
-        (*nodes)[node].first_out = -1;
+        (*_nodes)[node].first_out = -1;
       }
       arcs.clear();
     }
 
     void first(Node& node) const {
-      graph->first(node);
+      _graph->first(node);
     }
 
     void next(Node& node) const {
-      graph->next(node);
+      _graph->next(node);
     }
 
     void first(Arc& arc) const {
@@ -1177,7 +1177,7 @@ namespace lemon {
     }
 
     void firstOut(Arc& arc, const Node& node) const {
-      arc.id = (*nodes)[node].first_out;
+      arc.id = (*_nodes)[node].first_out;
     }
 
     void nextOut(Arc& arc) const {
@@ -1185,7 +1185,7 @@ namespace lemon {
     }
 
     void firstIn(Arc& arc, const Node& node) const {
-      arc.id = (((*nodes)[node].first_out) ^ 1);
+      arc.id = (((*_nodes)[node].first_out) ^ 1);
       if (arc.id == -2) arc.id = -1;
     }
 
@@ -1195,7 +1195,7 @@ namespace lemon {
     }
 
     void firstInc(Edge &arc, bool& dir, const Node& node) const {
-      int de = (*nodes)[node].first_out;
+      int de = (*_nodes)[node].first_out;
       if (de != -1 ) {
         arc.id = de / 2;
         dir = ((de & 1) == 1);
@@ -1223,15 +1223,15 @@ namespace lemon {
       return Arc(edge.id * 2 + (dir ? 1 : 0));
     }
 
-    int id(Node node) const { return graph->id(node); }
+    int id(Node node) const { return _graph->id(node); }
     static int id(Arc arc) { return arc.id; }
     static int id(Edge arc) { return arc.id; }
 
-    Node nodeFromId(int id) const { return graph->nodeFromId(id); }
+    Node nodeFromId(int id) const { return _graph->nodeFromId(id); }
     static Arc arcFromId(int id) { return Arc(id); }
     static Edge edgeFromId(int id) { return Edge(id);}
 
-    int maxNodeId() const { return graph->maxNodeId(); };
+    int maxNodeId() const { return _graph->maxNodeId(); };
     int maxArcId() const { return arcs.size() - 1; }
     int maxEdgeId() const { return arcs.size() / 2 - 1; }
 
@@ -1241,23 +1241,23 @@ namespace lemon {
     Node u(Edge e) const { return arcs[2 * e.id].target; }
     Node v(Edge e) const { return arcs[2 * e.id + 1].target; }
 
-    typedef typename ItemSetTraits<Graph, Node>::ItemNotifier NodeNotifier;
+    typedef typename ItemSetTraits<GR, Node>::ItemNotifier NodeNotifier;
 
     NodeNotifier& notifier(Node) const {
-      return graph->notifier(Node());
+      return _graph->notifier(Node());
     }
 
-    template <typename _Value>
-    class NodeMap : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class NodeMap : public GR::template NodeMap<V> {
     public:
 
-      typedef typename _Graph::template NodeMap<_Value> Parent;
+      typedef typename GR::template NodeMap<V> Parent;
 
-      explicit NodeMap(const SmartEdgeSetBase<Graph>& arcset)
-        : Parent(*arcset.graph) { }
+      explicit NodeMap(const SmartEdgeSetBase<GR>& arcset)
+        : Parent(*arcset._graph) { }
 
-      NodeMap(const SmartEdgeSetBase<Graph>& arcset, const _Value& value)
-        : Parent(*arcset.graph, value) { }
+      NodeMap(const SmartEdgeSetBase<GR>& arcset, const V& value)
+        : Parent(*arcset._graph, value) { }
 
       NodeMap& operator=(const NodeMap& cmap) {
         return operator=<NodeMap>(cmap);
@@ -1285,7 +1285,7 @@ namespace lemon {
   /// node handling functions (id handling, observing, and iterators)
   /// works equivalently as in the original graph.
   ///
-  /// \param _Graph The type of the graph which shares its node set
+  /// \param GR The type of the graph which shares its node set
   /// with this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   ///  concept.
@@ -1302,18 +1302,18 @@ namespace lemon {
   ///
   /// This class is fully conform to the \ref concepts::Graph
   /// "Graph" concept.
-  template <typename _Graph>
-  class SmartEdgeSet : public EdgeSetExtender<SmartEdgeSetBase<_Graph> > {
+  template <typename GR>
+  class SmartEdgeSet : public EdgeSetExtender<SmartEdgeSetBase<GR> > {
 
   public:
 
-    typedef EdgeSetExtender<SmartEdgeSetBase<_Graph> > Parent;
+    typedef EdgeSetExtender<SmartEdgeSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
 
-    typedef _Graph Graph;
+    typedef GR Graph;
 
   protected:
 
@@ -1334,7 +1334,7 @@ namespace lemon {
     public:
       typedef NodesImplBase Parent;
 
-      NodesImpl(const Graph& graph, SmartEdgeSet& arcset)
+      NodesImpl(const GR& graph, SmartEdgeSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
       virtual ~NodesImpl() {}
@@ -1374,15 +1374,15 @@ namespace lemon {
       SmartEdgeSet& _arcset;
     };
 
-    NodesImpl nodes;
+    NodesImpl _nodes;
 
   public:
 
     /// \brief Constructor of the EdgeSet.
     ///
     /// Constructor of the EdgeSet.
-    SmartEdgeSet(const Graph& graph) : nodes(graph, *this) {
-      Parent::initalize(graph, nodes);
+    SmartEdgeSet(const GR& graph) : _nodes(graph, *this) {
+      Parent::initalize(graph, _nodes);
     }
 
     /// \brief Add a new edge to the graph.
@@ -1400,7 +1400,7 @@ namespace lemon {
     /// invalidated. It occurs when a node in the underlying graph is
     /// erased and it is not isolated in the EdgeSet.
     bool valid() const {
-      return nodes.attached();
+      return _nodes.attached();
     }
 
   };
