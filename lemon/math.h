@@ -60,7 +60,7 @@ namespace lemon {
   ///This function checks whether the parameter is NaN or not.
   ///Is should be equivalent with std::isnan(), but it is not
   ///provided by all compilers.
-  inline bool isnan(double v)
+  inline bool isNaN(double v)
     {
       return v!=v;
     }

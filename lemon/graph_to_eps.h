@@ -29,8 +29,12 @@
 #include<sys/time.h>
 #include<ctime>
 #else
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include<windows.h>
 #endif
 
@@ -688,18 +692,30 @@ public:
       os << "%%CreationDate: " << cbuf;
 #else
       SYSTEMTIME time;
-      char buf1[11], buf2[9], buf3[5];
-
       GetSystemTime(&time);
+#if defined(_MSC_VER) && (_MSC_VER < 1500)
+      LPWSTR buf1, buf2, buf3;
       if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        "ddd MMM dd", buf1, 11) &&
+                        L"ddd MMM dd", buf1, 11) &&
           GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        "HH':'mm':'ss", buf2, 9) &&
+                        L"HH':'mm':'ss", buf2, 9) &&
           GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                                "yyyy", buf3, 5)) {
+                        L"yyyy", buf3, 5)) {
         os << "%%CreationDate: " << buf1 << ' '
            << buf2 << ' ' << buf3 << std::endl;
       }
+#else
+        char buf1[11], buf2[9], buf3[5];
+        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
+                          "ddd MMM dd", buf1, 11) &&
+            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
+                          "HH':'mm':'ss", buf2, 9) &&
+            GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
+                          "yyyy", buf3, 5)) {
+          os << "%%CreationDate: " << buf1 << ' '
+             << buf2 << ' ' << buf3 << std::endl;
+        }
+#endif
 #endif
     }
 
