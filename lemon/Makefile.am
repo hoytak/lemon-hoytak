@@ -12,7 +12,8 @@ lemon_libemon_la_SOURCES = \
 	lemon/color.cc \
 	lemon/lp_base.cc \
 	lemon/lp_skeleton.cc \
-	lemon/random.cc
+        lemon/random.cc \
+	lemon/bits/windows.cc
 
 
 lemon_libemon_la_CXXFLAGS = \
@@ -90,7 +91,8 @@ lemon_HEADERS += \
 	lemon/suurballe.h \
 	lemon/time_measure.h \
 	lemon/tolerance.h \
-	lemon/unionfind.h
+	lemon/unionfind.h \
+	lemon/bits/windows.h
 
 bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \

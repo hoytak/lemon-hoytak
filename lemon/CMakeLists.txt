@@ -14,7 +14,9 @@ SET(LEMON_SOURCES
   color.cc
   lp_base.cc
   lp_skeleton.cc
-  random.cc)
+  random.cc
+  bits/windows.cc
+)
 
 IF(HAVE_GLPK)
   SET(LEMON_SOURCES ${LEMON_SOURCES} glpk.cc)
