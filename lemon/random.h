@@ -77,7 +77,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #else
-#include <windows.h>
+#include <lemon/bits/windows.h>
 #endif
 
 ///\ingroup misc
@@ -666,9 +666,7 @@ namespace lemon {
       gettimeofday(&tv, 0);
       seed(getpid() + tv.tv_sec + tv.tv_usec);
 #else
-      FILETIME time;
-      GetSystemTimeAsFileTime(&time);
-      seed(GetCurrentProcessId() + time.dwHighDateTime + time.dwLowDateTime);
+      seed(bits::getWinRndSeed());
 #endif
       return true;
     }

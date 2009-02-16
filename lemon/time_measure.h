@@ -24,14 +24,7 @@
 ///\brief Tools for measuring cpu usage
 
 #ifdef WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#include <cmath>
+#include <lemon/bits/windows.h>
 #else
 #include <unistd.h>
 #include <sys/times.h>
@@ -92,26 +85,7 @@ namespace lemon {
       cutime=ts.tms_cutime/tck;
       cstime=ts.tms_cstime/tck;
 #else
-      static const double ch = 4294967296.0e-7;
-      static const double cl = 1.0e-7;
-
-      FILETIME system;
-      GetSystemTimeAsFileTime(&system);
-      rtime = ch * system.dwHighDateTime + cl * system.dwLowDateTime;
-
-      FILETIME create, exit, kernel, user;
-      if (GetProcessTimes(GetCurrentProcess(),&create, &exit, &kernel, &user)) {
-        utime = ch * user.dwHighDateTime + cl * user.dwLowDateTime;
-        stime = ch * kernel.dwHighDateTime + cl * kernel.dwLowDateTime;
-        cutime = 0;
-        cstime = 0;
-      } else {
-        rtime = 0;
-        utime = 0;
-        stime = 0;
-        cutime = 0;
-        cstime = 0;
-      }
+      bits::getWinProcTimes(rtime, utime, stime, cutime, cstime);
 #endif
     }
 

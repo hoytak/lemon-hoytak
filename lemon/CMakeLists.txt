@@ -4,7 +4,9 @@ ADD_LIBRARY(lemon
   arg_parser.cc
   base.cc
   color.cc
-  random.cc)
+  random.cc
+  bits/windows.cc
+)
 
 INSTALL(
   TARGETS lemon

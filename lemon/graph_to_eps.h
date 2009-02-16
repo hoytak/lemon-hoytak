@@ -29,13 +29,7 @@
 #include<sys/time.h>
 #include<ctime>
 #else
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include<windows.h>
+#include<lemon/bits/windows.h>
 #endif
 
 #include<lemon/math.h>
@@ -683,41 +677,19 @@ public:
     os << "%%Creator: LEMON, graphToEps()\n";
 
     {
+      os << "%%CreationDate: ";
 #ifndef WIN32
       timeval tv;
       gettimeofday(&tv, 0);
 
       char cbuf[26];
       ctime_r(&tv.tv_sec,cbuf);
-      os << "%%CreationDate: " << cbuf;
+      os << cbuf;
 #else
-      SYSTEMTIME time;
-      GetSystemTime(&time);
-#if defined(_MSC_VER) && (_MSC_VER < 1500)
-      LPWSTR buf1, buf2, buf3;
-      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"ddd MMM dd", buf1, 11) &&
-          GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"HH':'mm':'ss", buf2, 9) &&
-          GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"yyyy", buf3, 5)) {
-        os << "%%CreationDate: " << buf1 << ' '
-           << buf2 << ' ' << buf3 << std::endl;
-      }
-#else
-        char buf1[11], buf2[9], buf3[5];
-        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                          "ddd MMM dd", buf1, 11) &&
-            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
-                          "HH':'mm':'ss", buf2, 9) &&
-            GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                          "yyyy", buf3, 5)) {
-          os << "%%CreationDate: " << buf1 << ' '
-             << buf2 << ' ' << buf3 << std::endl;
-        }
-#endif
+      os << bits::getWinFormattedDate();
 #endif
     }
+    os << std::endl;
 
     if (_autoArcWidthScale) {
       double max_w=0;

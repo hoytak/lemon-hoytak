@@ -10,7 +10,8 @@ lemon_libemon_la_SOURCES = \
         lemon/arg_parser.cc \
         lemon/base.cc \
         lemon/color.cc \
-        lemon/random.cc
+        lemon/random.cc \
+	lemon/bits/windows.cc
 
 #lemon_libemon_la_CXXFLAGS = $(GLPK_CFLAGS) $(CPLEX_CFLAGS) $(SOPLEX_CXXFLAGS)
 #lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
@@ -40,7 +41,8 @@ lemon_HEADERS += \
 	lemon/smart_graph.h \
         lemon/time_measure.h \
         lemon/tolerance.h \
-	lemon/unionfind.h
+	lemon/unionfind.h \
+	lemon/bits/windows.h
 
 bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \
