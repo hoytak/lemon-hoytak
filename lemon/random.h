@@ -344,18 +344,8 @@ namespace lemon {
       }
     };
 
-    template <typename Result, int exp, bool pos = (exp >= 0)>
-    struct ShiftMultiplier {
-      static const Result multiplier() {
-        Result res = ShiftMultiplier<Result, exp / 2>::multiplier();
-        res *= res;
-        if ((exp & 1) == 1) res *= static_cast<Result>(2.0);
-        return res;
-      }
-    };
-
     template <typename Result, int exp>
-    struct ShiftMultiplier<Result, exp, false> {
+    struct ShiftMultiplier {
       static const Result multiplier() {
         Result res = ShiftMultiplier<Result, exp / 2>::multiplier();
         res *= res;
@@ -365,35 +355,35 @@ namespace lemon {
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, 0, true> {
+    struct ShiftMultiplier<Result, 0> {
       static const Result multiplier() {
         return static_cast<Result>(1.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -20, true> {
+    struct ShiftMultiplier<Result, 20> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/1048576.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -32, true> {
+    struct ShiftMultiplier<Result, 32> {
       static const Result multiplier() {
-        return static_cast<Result>(1.0/424967296.0);
+        return static_cast<Result>(1.0/4294967296.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -53, true> {
+    struct ShiftMultiplier<Result, 53> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/9007199254740992.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -64, true> {
+    struct ShiftMultiplier<Result, 64> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/18446744073709551616.0);
       }
@@ -413,7 +403,7 @@ namespace lemon {
       static const int bits = std::numeric_limits<Word>::digits;
 
       static Result convert(RandomCore<Word>& rnd) {
-        return Shifting<Result, - shift - rest>::
+        return Shifting<Result, shift + rest>::
           shift(static_cast<Result>(rnd() >> (bits - rest)));
       }
     };
@@ -423,7 +413,7 @@ namespace lemon {
       static const int bits = std::numeric_limits<Word>::digits;
 
       static Result convert(RandomCore<Word>& rnd) {
-        return Shifting<Result, - shift - bits>::
+        return Shifting<Result, shift + bits>::
           shift(static_cast<Result>(rnd())) +
           RealConversion<Result, Word, rest-bits, shift + bits>::
           convert(rnd);
