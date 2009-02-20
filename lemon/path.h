@@ -929,9 +929,8 @@ namespace lemon {
     };
 
     template <typename Target, typename Source,
-              bool buildEnable = BuildTagIndicator<Target>::value,
-              bool revEnable = RevPathTagIndicator<Source>::value>
-    struct PathCopySelector {
+              bool buildEnable = BuildTagIndicator<Target>::value>
+    struct PathCopySelectorForward {
       static void copy(Target& target, const Source& source) {
         target.clear();
         for (typename Source::ArcIt it(source); it != INVALID; ++it) {
@@ -941,7 +940,16 @@ namespace lemon {
     };
 
     template <typename Target, typename Source>
-    struct PathCopySelector<Target, Source, false, true> {
+    struct PathCopySelectorForward<Target, Source, true> {
+      static void copy(Target& target, const Source& source) {
+        target.clear();
+        target.build(source);
+      }
+    };
+
+    template <typename Target, typename Source,
+              bool buildEnable = BuildTagIndicator<Target>::value>
+    struct PathCopySelectorBackward {
       static void copy(Target& target, const Source& source) {
         target.clear();
         for (typename Source::RevArcIt it(source); it != INVALID; ++it) {
@@ -951,19 +959,27 @@ namespace lemon {
     };
 
     template <typename Target, typename Source>
-    struct PathCopySelector<Target, Source, true, false> {
-      static void copy(Target& target, const Source& source) {
-        target.clear();
-        target.build(source);
-      }
-    };
-
-    template <typename Target, typename Source>
-    struct PathCopySelector<Target, Source, true, true> {
+    struct PathCopySelectorBackward<Target, Source, true> {
       static void copy(Target& target, const Source& source) {
         target.clear();
         target.buildRev(source);
       }
+    };
+
+    
+    template <typename Target, typename Source,
+              bool revEnable = RevPathTagIndicator<Source>::value>
+    struct PathCopySelector {
+      static void copy(Target& target, const Source& source) {
+        PathCopySelectorForward<Target, Source>::copy(target, source);
+      }      
+    };
+
+    template <typename Target, typename Source>
+    struct PathCopySelector<Target, Source, true> {
+      static void copy(Target& target, const Source& source) {
+        PathCopySelectorBackward<Target, Source>::copy(target, source);
+      }      
     };
 
   }
