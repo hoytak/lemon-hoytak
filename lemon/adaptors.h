@@ -3195,25 +3195,25 @@ namespace lemon {
 
       void set(const Arc& key, const V& val) {
         if (SplitNodesBase<DGR>::origArc(key)) {
-          _arc_map.set(key._item.first(), val);
+          _arc_map.set(static_cast<const DigraphArc&>(key), val);
         } else {
-          _node_map.set(key._item.second(), val);
+          _node_map.set(static_cast<const DigraphNode&>(key), val);
         }
       }
 
       ReturnValue operator[](const Arc& key) {
         if (SplitNodesBase<DGR>::origArc(key)) {
-          return _arc_map[key._item.first()];
+          return _arc_map[static_cast<const DigraphArc&>(key)];
         } else {
-          return _node_map[key._item.second()];
+          return _node_map[static_cast<const DigraphNode&>(key)];
         }
       }
 
       ConstReturnValue operator[](const Arc& key) const {
         if (SplitNodesBase<DGR>::origArc(key)) {
-          return _arc_map[key._item.first()];
+          return _arc_map[static_cast<const DigraphArc&>(key)];
         } else {
-          return _node_map[key._item.second()];
+          return _node_map[static_cast<const DigraphNode&>(key)];
         }
       }
 
