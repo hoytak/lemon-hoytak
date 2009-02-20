@@ -28,7 +28,15 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#ifdef UNICODE
+#undef UNICODE
+#endif
 #include <windows.h>
+#ifdef LOCALE_INVARIANT
+#define MY_LOCALE LOCALE_INVARIANT
+#else
+#define MY_LOCALE LOCALE_NEUTRAL
+#endif
 #else
 #include <unistd.h>
 #include <ctime>
@@ -87,27 +95,15 @@ namespace lemon {
 #ifdef WIN32
       SYSTEMTIME time;
       GetSystemTime(&time);
-#if defined(_MSC_VER) && (_MSC_VER < 1500)
-      LPWSTR buf1, buf2, buf3;
-      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"ddd MMM dd", buf1, 11) &&
-          GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"HH':'mm':'ss", buf2, 9) &&
-          GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        L"yyyy", buf3, 5)) {
-        os << buf1 << ' ' << buf2 << ' ' << buf3;
-      }
-#else
       char buf1[11], buf2[9], buf3[5];
-      if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        "ddd MMM dd", buf1, 11) &&
-          GetTimeFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        "HH':'mm':'ss", buf2, 9) &&
-          GetDateFormat(LOCALE_USER_DEFAULT, 0, &time,
-                        "yyyy", buf3, 5)) {
+	  if (GetDateFormat(MY_LOCALE, 0, &time,
+                        ("ddd MMM dd"), buf1, 11) &&
+          GetTimeFormat(MY_LOCALE, 0, &time,
+                        ("HH':'mm':'ss"), buf2, 9) &&
+          GetDateFormat(MY_LOCALE, 0, &time,
+                        ("yyyy"), buf3, 5)) {
         os << buf1 << ' ' << buf2 << ' ' << buf3;
       }
-#endif
       else os << "unknown";
 #else
       timeval tv;

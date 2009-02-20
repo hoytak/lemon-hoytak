@@ -96,7 +96,7 @@ namespace lemon {
   };
 
 
-#if defined __GNUC__ && !defined __STRICT_ANSI__
+#if defined HAVE_LONG_LONG
 
   // long long
   template <typename _Graph, typename _Item>

@@ -22,6 +22,12 @@ AC_CONFIG_HEADERS([config.h lemon/config.h])
 dnl Do compilation tests using the C++ compiler.
 AC_LANG([C++])
 
+dnl Check the existence of long long type.
+AC_CHECK_TYPE(long long, [long_long_found=yes], [long_long_found=no])
+if test x"$long_long_found" = x"yes"; then
+  AC_DEFINE([HAVE_LONG_LONG], [1], [Define to 1 if you have long long.])
+fi
+
 dnl Checks for programs.
 AC_PROG_CXX
 AC_PROG_CXXCPP
@@ -118,6 +124,8 @@ echo Package version............... : $PACKAGE-$VERSION
 echo
 echo C++ compiler.................. : $CXX
 echo C++ compiles flags............ : $WARNINGCXXFLAGS $CXXFLAGS
+echo
+echo Compiler supports long long... : $long_long_found
 echo
 echo GLPK support.................. : $lx_glpk_found
 echo CPLEX support................. : $lx_cplex_found

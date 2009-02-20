@@ -350,38 +350,17 @@ namespace lemon {
   template <typename Digraph>
   class DigraphWriter;
 
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       std::ostream& os = std::cout) {
-    DigraphWriter<Digraph> tmp(digraph, os);
-    return tmp;
-  }
+                                       std::ostream& os = std::cout);
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
+                                       const std::string& fn);
 
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
   template <typename Digraph>
   DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const std::string& fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
+                                       const char* fn);
 
-  /// \brief Return a \ref DigraphWriter class
-  ///
-  /// This function just returns a \ref DigraphWriter class.
-  /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const char* fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
-    return tmp;
-  }
 
   /// \ingroup lemon_io
   ///
@@ -526,12 +505,15 @@ namespace lemon {
 
   private:
 
-    friend DigraphWriter<Digraph> digraphWriter<>(const Digraph& digraph,
-                                                  std::ostream& os);
-    friend DigraphWriter<Digraph> digraphWriter<>(const Digraph& digraph,
-                                                  const std::string& fn);
-    friend DigraphWriter<Digraph> digraphWriter<>(const Digraph& digraph,
-                                                  const char *fn);
+    template <typename DGR>
+    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph, 
+                                            std::ostream& os);
+    template <typename DGR>
+    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph,
+                                            const std::string& fn);
+    template <typename DGR>
+    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph,
+                                            const char *fn);
 
     DigraphWriter(DigraphWriter& other)
       : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
@@ -933,39 +915,49 @@ namespace lemon {
     /// @}
   };
 
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
+                                       std::ostream& os) {
+    DigraphWriter<Digraph> tmp(digraph, os);
+    return tmp;
+  }
+
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
+                                       const std::string& fn) {
+    DigraphWriter<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
+
+  /// \brief Return a \ref DigraphWriter class
+  ///
+  /// This function just returns a \ref DigraphWriter class.
+  /// \relates DigraphWriter
+  template <typename Digraph>
+  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
+                                       const char* fn) {
+    DigraphWriter<Digraph> tmp(digraph, fn);
+    return tmp;
+  }
+
   template <typename Graph>
   class GraphWriter;
 
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
   template <typename Graph>
   GraphWriter<Graph> graphWriter(const Graph& graph,
-                                 std::ostream& os = std::cout) {
-    GraphWriter<Graph> tmp(graph, os);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
+                                 std::ostream& os = std::cout);
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn) {
-    GraphWriter<Graph> tmp(graph, fn);
-    return tmp;
-  }
-
-  /// \brief Return a \ref GraphWriter class
-  ///
-  /// This function just returns a \ref GraphWriter class.
-  /// \relates GraphWriter
+  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn);
   template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn) {
-    GraphWriter<Graph> tmp(graph, fn);
-    return tmp;
-  }
+  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn);
 
   /// \ingroup lemon_io
   ///
@@ -1081,13 +1073,16 @@ namespace lemon {
 
   private:
 
-    friend GraphWriter<Graph> graphWriter<>(const Graph& graph,
-                                            std::ostream& os);
-    friend GraphWriter<Graph> graphWriter<>(const Graph& graph,
-                                            const std::string& fn);
-    friend GraphWriter<Graph> graphWriter<>(const Graph& graph,
-                                            const char *fn);
-
+    template <typename GR>
+    friend GraphWriter<GR> graphWriter(const GR& graph,
+                                       std::ostream& os);
+    template <typename GR>
+    friend GraphWriter<GR> graphWriter(const GR& graph,
+                                       const std::string& fn);
+    template <typename GR>
+    friend GraphWriter<GR> graphWriter(const GR& graph,
+                                       const char *fn);
+    
     GraphWriter(GraphWriter& other)
       : _os(other._os), local_os(other.local_os), _graph(other._graph),
         _skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
@@ -1533,6 +1528,37 @@ namespace lemon {
 
     /// @}
   };
+
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(const Graph& graph,
+                                 std::ostream& os) {
+    GraphWriter<Graph> tmp(graph, os);
+    return tmp;
+  }
+
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn) {
+    GraphWriter<Graph> tmp(graph, fn);
+    return tmp;
+  }
+
+  /// \brief Return a \ref GraphWriter class
+  ///
+  /// This function just returns a \ref GraphWriter class.
+  /// \relates GraphWriter
+  template <typename Graph>
+  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn) {
+    GraphWriter<Graph> tmp(graph, fn);
+    return tmp;
+  }
 
   class SectionWriter;
 

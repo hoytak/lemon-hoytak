@@ -38,17 +38,14 @@ namespace lemon {
   ///handle the comparison of numbers that are obtained
   ///as a result of a probably inexact computation.
   ///
-  ///This is an abstract class, it should be specialized for all
-  ///numerical data types. These specialized classes like
+  ///The general implementation is suitable only if the data type is exact,
+  ///like the integer types, otherwise a specialized version must be
+  ///implemented. These specialized classes like
   ///Tolerance<double> may offer additional tuning parameters.
   ///
   ///\sa Tolerance<float>
   ///\sa Tolerance<double>
   ///\sa Tolerance<long double>
-  ///\sa Tolerance<int>
-  ///\sa Tolerance<long long int>
-  ///\sa Tolerance<unsigned int>
-  ///\sa Tolerance<unsigned long long int>
 
   template<class T>
   class Tolerance
@@ -64,20 +61,20 @@ namespace lemon {
     ///@{
 
     ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) {return false;}
+    static bool less(Value a,Value b) {return a<b;}
     ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) {return false;}
+    static bool different(Value a,Value b) {return a!=b;}
     ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) {return false;}
+    static bool positive(Value a) {return static_cast<Value>(0) < a;}
     ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value a) {return false;}
+    static bool negative(Value a) {return a < static_cast<Value>(0);}
     ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) {return false;}
+    static bool nonZero(Value a) {return a != static_cast<Value>(0);}
 
     ///@}
 
     ///Returns the zero value.
-    static Value zero() {return T();}
+    static Value zero() {return static_cast<Value>(0);}
 
     //   static bool finite(Value a) {}
     //   static Value big() {}
@@ -237,213 +234,6 @@ namespace lemon {
     ///Returns zero
     static Value zero() {return 0;}
   };
-
-  ///Integer specialization of Tolerance.
-
-  ///Integer specialization of Tolerance.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<int>
-  {
-  public:
-    ///\e
-    typedef int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value a) { return 0>a; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0; }
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-  ///Unsigned integer specialization of Tolerance.
-
-  ///Unsigned integer specialization of Tolerance.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<unsigned int>
-  {
-  public:
-    ///\e
-    typedef unsigned int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value) { return false; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0; }
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-
-  ///Long integer specialization of Tolerance.
-
-  ///Long integer specialization of Tolerance.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<long int>
-  {
-  public:
-    ///\e
-    typedef long int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value a) { return 0>a; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;}
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-  ///Unsigned long integer specialization of Tolerance.
-
-  ///Unsigned long integer specialization of Tolerance.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<unsigned long int>
-  {
-  public:
-    ///\e
-    typedef unsigned long int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value) { return false; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;}
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-#if defined __GNUC__ && !defined __STRICT_ANSI__
-
-  ///Long long integer specialization of Tolerance.
-
-  ///Long long integer specialization of Tolerance.
-  ///\warning This class (more exactly, type <tt>long long</tt>)
-  ///is not ansi compatible.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<long long int>
-  {
-  public:
-    ///\e
-    typedef long long int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value a) { return 0>a; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;}
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-  ///Unsigned long long integer specialization of Tolerance.
-
-  ///Unsigned long long integer specialization of Tolerance.
-  ///\warning This class (more exactly, type <tt>unsigned long long</tt>)
-  ///is not ansi compatible.
-  ///\sa Tolerance
-  template<>
-  class Tolerance<unsigned long long int>
-  {
-  public:
-    ///\e
-    typedef unsigned long long int Value;
-
-    ///\name Comparisons
-    ///See \ref lemon::Tolerance "Tolerance" for more details.
-
-    ///@{
-
-    ///Returns \c true if \c a is \e surely strictly less than \c b
-    static bool less(Value a,Value b) { return a<b;}
-    ///Returns \c true if \c a is \e surely different from \c b
-    static bool different(Value a,Value b) { return a!=b; }
-    ///Returns \c true if \c a is \e surely positive
-    static bool positive(Value a) { return 0<a; }
-    ///Returns \c true if \c a is \e surely negative
-    static bool negative(Value) { return false; }
-    ///Returns \c true if \c a is \e surely non-zero
-    static bool nonZero(Value a) { return a!=0;}
-
-    ///@}
-
-    ///Returns zero
-    static Value zero() {return 0;}
-  };
-
-#endif
 
   /// @}
 
