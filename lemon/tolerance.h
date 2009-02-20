@@ -371,7 +371,7 @@ namespace lemon {
     static Value zero() {return 0;}
   };
 
-#if defined __GNUC__ && !defined __STRICT_ANSI__
+#if HAVE_LONG_LONG 
 
   ///Long long integer specialization of Tolerance.
 

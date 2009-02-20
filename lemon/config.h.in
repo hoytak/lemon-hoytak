@@ -3,3 +3,6 @@
 
 /* Define to 1 if you have GLPK. */
 #undef HAVE_GLPK
+
+/* Define to 1 if you have long long */
+#undef HAVE_LONG_LONG

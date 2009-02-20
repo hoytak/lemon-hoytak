@@ -1,0 +1,1 @@
+#cmakedefine HAVE_LONG_LONG 1
