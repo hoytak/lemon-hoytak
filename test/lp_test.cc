@@ -366,7 +366,6 @@ int main()
     lpTest(lp_glpk1);
     aTest(lp_glpk2);
   }
-  GlpkLp::freeEnv();
 #endif
 
 #ifdef HAVE_CPLEX

@@ -115,7 +115,6 @@ int main()
     GlpkMip mip1;
     aTest(mip1);
   }
-  GlpkLp::freeEnv();
 #endif
 
 #ifdef HAVE_CPLEX
