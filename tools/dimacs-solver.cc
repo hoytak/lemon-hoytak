@@ -1,0 +1,233 @@
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library.
+ *
+ * Copyright (C) 2003-2009
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
+///\ingroup tools
+///\file
+///\brief DIMACS to LGF converter.
+///
+/// This program converts various DIMACS formats to the LEMON Digraph Format
+/// (LGF).
+///
+/// See
+/// \verbatim
+///  dimacs-solver --help
+/// \endverbatim
+/// for more info on usage.
+///
+
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
+#include <lemon/smart_graph.h>
+#include <lemon/dimacs.h>
+#include <lemon/lgf_writer.h>
+#include <lemon/time_measure.h>
+
+#include <lemon/arg_parser.h>
+#include <lemon/error.h>
+
+#include <lemon/dijkstra.h>
+#include <lemon/preflow.h>
+#include <lemon/max_matching.h>
+
+using namespace lemon;
+typedef SmartDigraph Digraph;
+DIGRAPH_TYPEDEFS(Digraph);
+typedef SmartGraph Graph;
+
+template<class Value>
+void solve_sp(ArgParser &ap, std::istream &is, std::ostream &,
+              DimacsDescriptor &desc)
+{
+  bool report = !ap.given("q");
+  Digraph g;
+  Node s;
+  Digraph::ArcMap<Value> len(g);
+  Timer t;
+  t.restart();
+  readDimacsSp(is, g, len, s, desc);
+  if(report) std::cerr << "Read the file: " << t << '\n';
+  t.restart();
+  Dijkstra<Digraph, Digraph::ArcMap<Value> > dij(g,len);
+  if(report) std::cerr << "Setup Dijkstra class: " << t << '\n';
+  t.restart();
+  dij.run(s);
+  if(report) std::cerr << "Run Dijkstra: " << t << '\n';
+}
+
+template<class Value>
+void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
+              DimacsDescriptor &desc)
+{
+  bool report = !ap.given("q");
+  Digraph g;
+  Node s,t;
+  Digraph::ArcMap<Value> cap(g);
+  Timer ti;
+  ti.restart();
+  readDimacsMax(is, g, cap, s, t, desc);
+  if(report) std::cerr << "Read the file: " << ti << '\n';
+  ti.restart();
+  Preflow<Digraph, Digraph::ArcMap<Value> > pre(g,cap,s,t);
+  if(report) std::cerr << "Setup Preflow class: " << ti << '\n';
+  ti.restart();
+  pre.run();
+  if(report) std::cerr << "Run Preflow: " << ti << '\n';
+  if(report) std::cerr << "\nMax flow value: " << pre.flowValue() << '\n';  
+}
+
+void solve_mat(ArgParser &ap, std::istream &is, std::ostream &,
+              DimacsDescriptor &desc)
+{
+  bool report = !ap.given("q");
+  Graph g;
+  Timer ti;
+  ti.restart();
+  readDimacsMat(is, g, desc);
+  if(report) std::cerr << "Read the file: " << ti << '\n';
+  ti.restart();
+  MaxMatching<Graph> mat(g);
+  if(report) std::cerr << "Setup MaxMatching class: " << ti << '\n';
+  ti.restart();
+  mat.run();
+  if(report) std::cerr << "Run MaxMatching: " << ti << '\n';
+  if(report) std::cerr << "\nCardinality of max matching: "
+                       << mat.matchingSize() << '\n';  
+}
+
+
+template<class Value>
+void solve(ArgParser &ap, std::istream &is, std::ostream &os,
+           DimacsDescriptor &desc)
+{
+  switch(desc.type)
+    {
+    case DimacsDescriptor::MIN:
+      std::cerr <<
+        "\n\n Sorry, the min. cost flow solver is not yet available.\n"
+                << std::endl;
+      break;
+    case DimacsDescriptor::MAX:
+      solve_max<Value>(ap,is,os,desc);
+      break;
+    case DimacsDescriptor::SP:
+      solve_sp<Value>(ap,is,os,desc);
+      break;
+    case DimacsDescriptor::MAT:
+      solve_mat(ap,is,os,desc);
+      break;
+    default:
+      break;
+    }
+}
+
+int main(int argc, const char *argv[]) {
+  typedef SmartDigraph Digraph;
+
+  typedef Digraph::Arc Arc;
+  typedef Digraph::Node Node;
+  typedef Digraph::ArcIt ArcIt;
+  typedef Digraph::NodeIt NodeIt;
+  typedef Digraph::ArcMap<double> DoubleArcMap;
+  typedef Digraph::NodeMap<double> DoubleNodeMap;
+
+  std::string inputName;
+  std::string outputName;
+
+  ArgParser ap(argc, argv);
+  ap.other("[INFILE [OUTFILE]]",
+           "If either the INFILE or OUTFILE file is missing the standard\n"
+           "     input/output will be used instead.")
+    .boolOption("q", "Do not print any report")
+    .boolOption("int","Use 'int' for capacities, costs etc. (default)")
+    .optionGroup("datatype","int")
+#ifdef HAVE_LONG_LONG
+    .boolOption("long","Use 'long long' for capacities, costs etc.")
+    .optionGroup("datatype","long")
+#endif
+    .boolOption("double","Use 'double' for capacities, costs etc.")
+    .optionGroup("datatype","double")
+    .boolOption("ldouble","Use 'long double' for capacities, costs etc.")
+    .optionGroup("datatype","ldouble")
+    .onlyOneGroup("datatype")
+    .run();
+
+  std::ifstream input;
+  std::ofstream output;
+
+  switch(ap.files().size())
+    {
+    case 2:
+      output.open(ap.files()[1].c_str());
+      if (!output) {
+        throw IoError("Cannot open the file for writing", ap.files()[1]);
+      }
+    case 1:
+      input.open(ap.files()[0].c_str());
+      if (!input) {
+        throw IoError("File cannot be found", ap.files()[0]);
+      }
+    case 0:
+      break;
+    default:
+      std::cerr << ap.commandName() << ": too many arguments\n";
+      return 1;
+  }
+  std::istream& is = (ap.files().size()<1 ? std::cin : input);
+  std::ostream& os = (ap.files().size()<2 ? std::cout : output);
+
+  DimacsDescriptor desc = dimacsType(is);
+  
+  if(!ap.given("q"))
+    {
+      std::cout << "Problem type: ";
+      switch(desc.type)
+        {
+        case DimacsDescriptor::MIN:
+          std::cout << "min";
+          break;
+        case DimacsDescriptor::MAX:
+          std::cout << "max";
+          break;
+        case DimacsDescriptor::SP:
+          std::cout << "sp";
+        case DimacsDescriptor::MAT:
+          std::cout << "mat";
+          break;
+        default:
+          exit(1);
+          break;
+        }
+      std::cout << "\nNum of nodes: " << desc.nodeNum;
+      std::cout << "\nNum of arcs:  " << desc.edgeNum;
+      std::cout << '\n' << std::endl;
+    }
+    
+  if(ap.given("double"))
+    solve<double>(ap,is,os,desc);
+  else if(ap.given("ldouble"))
+    solve<long double>(ap,is,os,desc);
+#ifdef HAVE_LONG_LONG
+  else if(ap.given("long"))
+    solve<long long>(ap,is,os,desc);
+#endif
+  else solve<int>(ap,is,os,desc);
+
+  return 0;
+}
