@@ -83,6 +83,7 @@ lemon_HEADERS += \
 	lemon/maps.h \
 	lemon/math.h \
 	lemon/max_matching.h \
+	lemon/min_cost_arborescence.h \
 	lemon/nauty_reader.h \
 	lemon/path.h \
 	lemon/preflow.h \

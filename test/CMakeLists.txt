@@ -29,6 +29,7 @@ SET(TESTS
   kruskal_test
   maps_test
   max_matching_test
+  min_cost_arborescence_test
   path_test
   preflow_test
   radix_sort_test
