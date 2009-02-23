@@ -19,6 +19,7 @@
 #ifndef LEMON_BITS_DEFAULT_MAP_H
 #define LEMON_BITS_DEFAULT_MAP_H
 
+#include <lemon/config.h>
 #include <lemon/bits/array_map.h>
 #include <lemon/bits/vector_map.h>
 //#include <lemon/bits/debug_map.h>
