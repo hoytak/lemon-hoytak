@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_WINDOWS_H
-#define LEMON_WINDOWS_H
+#ifndef LEMON_BITS_WINDOWS_H
+#define LEMON_BITS_WINDOWS_H
 
 #include <string>
 

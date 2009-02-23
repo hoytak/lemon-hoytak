@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_CONCEPT_DIGRAPH_H
-#define LEMON_CONCEPT_DIGRAPH_H
+#ifndef LEMON_CONCEPTS_DIGRAPH_H
+#define LEMON_CONCEPTS_DIGRAPH_H
 
 ///\ingroup graph_concepts
 ///\file
@@ -484,4 +484,4 @@ namespace lemon {
 
 
 
-#endif // LEMON_CONCEPT_DIGRAPH_H
+#endif

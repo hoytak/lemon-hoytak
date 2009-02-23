@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_CONCEPT_MAPS_H
-#define LEMON_CONCEPT_MAPS_H
+#ifndef LEMON_CONCEPTS_MAPS_H
+#define LEMON_CONCEPTS_MAPS_H
 
 #include <lemon/core.h>
 #include <lemon/concept_check.h>
@@ -213,4 +213,4 @@ namespace lemon {
 
 } //namespace lemon
 
-#endif // LEMON_CONCEPT_MAPS_H
+#endif

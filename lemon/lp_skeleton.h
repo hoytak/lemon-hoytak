@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_LP_SKELETON
-#define LEMON_LP_SKELETON
+#ifndef LEMON_LP_SKELETON_H
+#define LEMON_LP_SKELETON_H
 
 #include <lemon/lp_base.h>
 
@@ -226,4 +226,4 @@ namespace lemon {
 
 } //namespace lemon
 
-#endif // LEMON_LP_SKELETON
+#endif
