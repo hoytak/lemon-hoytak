@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_BITS_PRED_MAP_PATH_H
-#define LEMON_BITS_PRED_MAP_PATH_H
+#ifndef LEMON_BITS_PATH_DUMP_H
+#define LEMON_BITS_PATH_DUMP_H
 
 #include <lemon/core.h>
 #include <lemon/concept_check.h>

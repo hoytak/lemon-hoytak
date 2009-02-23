@@ -21,8 +21,8 @@
 ///\brief The concept of graph components.
 
 
-#ifndef LEMON_CONCEPT_GRAPH_COMPONENTS_H
-#define LEMON_CONCEPT_GRAPH_COMPONENTS_H
+#ifndef LEMON_CONCEPTS_GRAPH_COMPONENTS_H
+#define LEMON_CONCEPTS_GRAPH_COMPONENTS_H
 
 #include <lemon/core.h>
 #include <lemon/concepts/maps.h>
