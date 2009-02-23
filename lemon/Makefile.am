@@ -64,6 +64,7 @@ lemon_HEADERS += \
 	lemon/edge_set.h \
 	lemon/elevator.h \
 	lemon/error.h \
+	lemon/euler.h \
 	lemon/full_graph.h \
 	lemon/glpk.h \
 	lemon/graph_to_eps.h \
