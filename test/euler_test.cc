@@ -25,11 +25,11 @@ using namespace lemon;
 template <typename Digraph>
 void checkDiEulerIt(const Digraph& g)
 {
-  typename Digraph::template ArcMap<int> visitationNumber(g);
+  typename Digraph::template ArcMap<int> visitationNumber(g, 0);
 
   DiEulerIt<Digraph> e(g);
   typename Digraph::Node firstNode = g.source(e);
-  typename Digraph::Node lastNode;
+  typename Digraph::Node lastNode = g.target(e);
 
   for (; e != INVALID; ++e)
   {
@@ -53,11 +53,11 @@ void checkDiEulerIt(const Digraph& g)
 template <typename Graph>
 void checkEulerIt(const Graph& g)
 {
-  typename Graph::template EdgeMap<int> visitationNumber(g);
+  typename Graph::template EdgeMap<int> visitationNumber(g, 0);
 
   EulerIt<Graph> e(g);
   typename Graph::Node firstNode = g.u(e);
-  typename Graph::Node lastNode;
+  typename Graph::Node lastNode = g.v(e);
 
   for (; e != INVALID; ++e)
   {
