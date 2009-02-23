@@ -18,10 +18,9 @@
 
 ///\ingroup tools
 ///\file
-///\brief DIMACS to LGF converter.
+///\brief DIMACS problem solver.
 ///
-/// This program converts various DIMACS formats to the LEMON Digraph Format
-/// (LGF).
+/// This program solves various problems given in DIMACS format.
 ///
 /// See
 /// \verbatim
@@ -120,8 +119,7 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
     {
     case DimacsDescriptor::MIN:
       std::cerr <<
-        "\n\n Sorry, the min. cost flow solver is not yet available.\n"
-                << std::endl;
+        "\n\n Sorry, the min. cost flow solver is not yet available.\n";
       break;
     case DimacsDescriptor::MAX:
       solve_max<Value>(ap,is,os,desc);
@@ -141,11 +139,6 @@ int main(int argc, const char *argv[]) {
   typedef SmartDigraph Digraph;
 
   typedef Digraph::Arc Arc;
-  typedef Digraph::Node Node;
-  typedef Digraph::ArcIt ArcIt;
-  typedef Digraph::NodeIt NodeIt;
-  typedef Digraph::ArcMap<double> DoubleArcMap;
-  typedef Digraph::NodeMap<double> DoubleNodeMap;
 
   std::string inputName;
   std::string outputName;
@@ -188,7 +181,7 @@ int main(int argc, const char *argv[]) {
     default:
       std::cerr << ap.commandName() << ": too many arguments\n";
       return 1;
-  }
+    }
   std::istream& is = (ap.files().size()<1 ? std::cin : input);
   std::ostream& os = (ap.files().size()<2 ? std::cout : output);
 
@@ -216,7 +209,7 @@ int main(int argc, const char *argv[]) {
         }
       std::cout << "\nNum of nodes: " << desc.nodeNum;
       std::cout << "\nNum of arcs:  " << desc.edgeNum;
-      std::cout << '\n' << std::endl;
+      std::cout << "\n\n";
     }
     
   if(ap.given("double"))
