@@ -699,6 +699,7 @@ int main(int argc,const char **argv)
 //     .mandatoryGroup("dist")
     .onlyOneGroup("dist")
     .boolOption("eps", "Also generate .eps output (prefix.eps)")
+    .boolOption("nonodes", "Draw the edges only in the generated .eps")
     .boolOption("dir", "Directed digraph is generated (each arcs are replaced by two directed ones)")
     .boolOption("2con", "Create a two connected planar digraph")
     .optionGroup("alg","2con")
@@ -819,7 +820,7 @@ int main(int argc,const char **argv)
   if(ap["eps"])
     graphToEps(g,prefix+".eps").scaleToA4().
       scale(600).nodeScale(.005).arcWidthScale(.001).preScale(false).
-      coords(coords).run();
+      coords(coords).hideNodes(ap.given("nonodes")).run();
 
   if(ap["dir"])
     DigraphWriter<ListGraph>(g,prefix+".lgf").
