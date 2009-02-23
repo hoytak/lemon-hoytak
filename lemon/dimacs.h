@@ -295,9 +295,24 @@ namespace lemon {
     _readDimacs(is, g, capacity, u, v, desc);
   }
 
-  /// DIMACS plain digraph reader function.
+  template<typename Graph>
+  typename enable_if<lemon::UndirectedTagIndicator<Graph>,void>::type
+  _addArcEdge(Graph &g, typename Graph::Node s, typename Graph::Node t,
+              dummy<0> = 0)
+  {
+    g.addEdge(s,t);
+  }
+  template<typename Graph>
+  typename disable_if<lemon::UndirectedTagIndicator<Graph>,void>::type
+  _addArcEdge(Graph &g, typename Graph::Node s, typename Graph::Node t,
+              dummy<1> = 1)
+  {
+    g.addArc(s,t);
+  }
+  
+  /// DIMACS plain (di)graph reader function.
   ///
-  /// This function reads a digraph without any designated nodes and
+  /// This function reads a (di)graph without any designated nodes and
   /// maps from DIMACS format, i.e. from DIMACS files having a line
   /// starting with
   /// \code
@@ -307,15 +322,38 @@ namespace lemon {
   ///
   /// If the file type was previously evaluated by dimacsType(), then
   /// the descriptor struct should be given by the \c dest parameter.
-  template<typename Digraph>
-  void readDimacsMat(std::istream& is, Digraph &g,
-                     DimacsDescriptor desc=DimacsDescriptor()) {
-    typename Digraph::Node u,v;
-    NullMap<typename Digraph::Arc, int> n;
+  template<typename Graph>
+  void readDimacsMat(std::istream& is, Graph &g,
+                     DimacsDescriptor desc=DimacsDescriptor())
+  {
     if(desc.type==DimacsDescriptor::NONE) desc=dimacsType(is);
     if(desc.type!=DimacsDescriptor::MAT)
       throw FormatError("Problem type mismatch");
-    _readDimacs(is, g, n, u, v, desc);
+
+    g.clear();
+    std::vector<typename Graph::Node> nodes;
+    char c;
+    int i, j;
+    std::string str;
+    nodes.resize(desc.nodeNum + 1);
+    for (int k = 1; k <= desc.nodeNum; ++k) {
+      nodes[k] = g.addNode();
+    }
+    
+    while (is >> c) {
+      switch (c) {
+      case 'c': // comment line
+        getline(is, str);
+        break;
+      case 'n': // node definition line
+        break;
+      case 'a': // arc (arc) definition line
+        is >> i >> j;
+        getline(is, str);
+        _addArcEdge(g,nodes[i], nodes[j]);
+        break;
+      }
+    }
   }
 
   /// DIMACS plain digraph writer function.
