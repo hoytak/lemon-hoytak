@@ -22,6 +22,7 @@
 #include <vector>
 #include <algorithm>
 
+#include <lemon/core.h>
 #include <lemon/bits/enable_if.h>
 #include <lemon/bits/traits.h>
 #include <lemon/assert.h>
