@@ -31,19 +31,19 @@ namespace lemon {
   /// \brief Default traits class of Preflow class.
   ///
   /// Default traits class of Preflow class.
-  /// \tparam _Digraph Digraph type.
-  /// \tparam _CapacityMap Capacity map type.
-  template <typename _Digraph, typename _CapacityMap>
+  /// \tparam GR Digraph type.
+  /// \tparam CM Capacity map type.
+  template <typename GR, typename CM>
   struct PreflowDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
 
     /// \brief The type of the map that stores the arc capacities.
     ///
     /// The type of the map that stores the arc capacities.
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef _CapacityMap CapacityMap;
+    typedef CM CapacityMap;
 
     /// \brief The type of the flow values.
     typedef typename CapacityMap::Value Value;
@@ -104,21 +104,21 @@ namespace lemon {
   /// the maximum flow value and the minimum cut is obtained. The
   /// second phase constructs a feasible maximum flow on each arc.
   ///
-  /// \tparam _Digraph The type of the digraph the algorithm runs on.
-  /// \tparam _CapacityMap The type of the capacity map. The default map
-  /// type is \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  /// \tparam CM The type of the capacity map. The default map
+  /// type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
 #ifdef DOXYGEN
-  template <typename _Digraph, typename _CapacityMap, typename _Traits>
+  template <typename GR, typename CM, typename TR>
 #else
-  template <typename _Digraph,
-            typename _CapacityMap = typename _Digraph::template ArcMap<int>,
-            typename _Traits = PreflowDefaultTraits<_Digraph, _CapacityMap> >
+  template <typename GR,
+            typename CM = typename GR::template ArcMap<int>,
+            typename TR = PreflowDefaultTraits<GR, CM> >
 #endif
   class Preflow {
   public:
 
     ///The \ref PreflowDefaultTraits "traits class" of the algorithm.
-    typedef _Traits Traits;
+    typedef TR Traits;
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
     ///The type of the capacity map.

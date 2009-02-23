@@ -49,11 +49,11 @@ namespace lemon {
     ///arcs of the shortest paths.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
-    ///Instantiates a PredMap.
+    ///Instantiates a \c PredMap.
 
-    ///This function instantiates a PredMap.
+    ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
-    ///PredMap.
+    ///\ref PredMap.
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -64,11 +64,11 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a ProcessedMap.
+    ///Instantiates a \c ProcessedMap.
 
-    ///This function instantiates a ProcessedMap.
+    ///This function instantiates a \ref ProcessedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the ProcessedMap
+    ///we would like to define the \ref ProcessedMap
 #ifdef DOXYGEN
     static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
@@ -83,11 +83,11 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
     ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a ReachedMap.
+    ///Instantiates a \c ReachedMap.
 
-    ///This function instantiates a ReachedMap.
+    ///This function instantiates a \ref ReachedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the ReachedMap.
+    ///we would like to define the \ref ReachedMap.
     static ReachedMap *createReachedMap(const Digraph &g)
     {
       return new ReachedMap(g);
@@ -98,11 +98,11 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<int> DistMap;
-    ///Instantiates a DistMap.
+    ///Instantiates a \c DistMap.
 
-    ///This function instantiates a DistMap.
+    ///This function instantiates a \ref DistMap.
     ///\param g is the digraph, to which we would like to define the
-    ///DistMap.
+    ///\ref DistMap.
     static DistMap *createDistMap(const Digraph &g)
     {
       return new DistMap(g);
@@ -221,10 +221,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///PredMap type.
+    ///\c PredMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///PredMap type.
+    ///\c PredMap type.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetPredMap : public Bfs< Digraph, SetPredMapTraits<T> > {
@@ -241,10 +241,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///DistMap type.
+    ///\c DistMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///DistMap type.
+    ///\c DistMap type.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetDistMap : public Bfs< Digraph, SetDistMapTraits<T> > {
@@ -261,10 +261,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ReachedMap type.
+    ///\c ReachedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ReachedMap type.
+    ///\c ReachedMap type.
     ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     template <class T>
     struct SetReachedMap : public Bfs< Digraph, SetReachedMapTraits<T> > {
@@ -281,10 +281,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type.
+    ///\c ProcessedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type.
+    ///\c ProcessedMap type.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetProcessedMap : public Bfs< Digraph, SetProcessedMapTraits<T> > {
@@ -300,10 +300,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///\c ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///\c ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
     struct SetStandardProcessedMap :
       public Bfs< Digraph, SetStandardProcessedMapTraits > {
@@ -1194,9 +1194,9 @@ namespace lemon {
   ///
   /// This class defines the interface of the BfsVisit events, and
   /// it could be the base of a real visitor class.
-  template <typename _Digraph>
+  template <typename GR>
   struct BfsVisitor {
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
     /// \brief Called for the source node(s) of the BFS.
@@ -1224,9 +1224,9 @@ namespace lemon {
     void examine(const Arc& arc) {}
   };
 #else
-  template <typename _Digraph>
+  template <typename GR>
   struct BfsVisitor {
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
     void start(const Node&) {}
@@ -1254,12 +1254,12 @@ namespace lemon {
   /// \brief Default traits class of BfsVisit class.
   ///
   /// Default traits class of BfsVisit class.
-  /// \tparam _Digraph The type of the digraph the algorithm runs on.
-  template<class _Digraph>
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  template<class GR>
   struct BfsVisitDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
 
     /// \brief The type of the map that indicates which nodes are reached.
     ///
@@ -1280,12 +1280,12 @@ namespace lemon {
 
   /// \ingroup search
   ///
-  /// \brief %BFS algorithm class with visitor interface.
+  /// \brief BFS algorithm class with visitor interface.
   ///
-  /// This class provides an efficient implementation of the %BFS algorithm
+  /// This class provides an efficient implementation of the BFS algorithm
   /// with visitor interface.
   ///
-  /// The %BfsVisit class provides an alternative interface to the Bfs
+  /// The BfsVisit class provides an alternative interface to the Bfs
   /// class. It works with callback mechanism, the BfsVisit object calls
   /// the member functions of the \c Visitor class on every BFS event.
   ///
@@ -1294,37 +1294,37 @@ namespace lemon {
   /// events of the BFS algorithm. Otherwise consider to use Bfs or bfs()
   /// instead.
   ///
-  /// \tparam _Digraph The type of the digraph the algorithm runs on.
-  /// The default value is
-  /// \ref ListDigraph. The value of _Digraph is not used directly by
-  /// \ref BfsVisit, it is only passed to \ref BfsVisitDefaultTraits.
-  /// \tparam _Visitor The Visitor type that is used by the algorithm.
-  /// \ref BfsVisitor "BfsVisitor<_Digraph>" is an empty visitor, which
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  /// The default type is \ref ListDigraph.
+  /// The value of GR is not used directly by \ref BfsVisit,
+  /// it is only passed to \ref BfsVisitDefaultTraits.
+  /// \tparam VS The Visitor type that is used by the algorithm.
+  /// \ref BfsVisitor "BfsVisitor<GR>" is an empty visitor, which
   /// does not observe the BFS events. If you want to observe the BFS
   /// events, you should implement your own visitor class.
-  /// \tparam _Traits Traits class to set various data types used by the
+  /// \tparam TR Traits class to set various data types used by the
   /// algorithm. The default traits class is
-  /// \ref BfsVisitDefaultTraits "BfsVisitDefaultTraits<_Digraph>".
+  /// \ref BfsVisitDefaultTraits "BfsVisitDefaultTraits<GR>".
   /// See \ref BfsVisitDefaultTraits for the documentation of
   /// a BFS visit traits class.
 #ifdef DOXYGEN
-  template <typename _Digraph, typename _Visitor, typename _Traits>
+  template <typename GR, typename VS, typename TR>
 #else
-  template <typename _Digraph = ListDigraph,
-            typename _Visitor = BfsVisitor<_Digraph>,
-            typename _Traits = BfsVisitDefaultTraits<_Digraph> >
+  template <typename GR = ListDigraph,
+            typename VS = BfsVisitor<GR>,
+            typename TR = BfsVisitDefaultTraits<GR> >
 #endif
   class BfsVisit {
   public:
 
     ///The traits class.
-    typedef _Traits Traits;
+    typedef TR Traits;
 
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
 
     ///The visitor type used by the algorithm.
-    typedef _Visitor Visitor;
+    typedef VS Visitor;
 
     ///The type of the map that indicates which nodes are reached.
     typedef typename Traits::ReachedMap ReachedMap;

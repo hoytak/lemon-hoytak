@@ -114,7 +114,7 @@ namespace lemon {
     /// \brief An empty base directed graph class.
     ///
     /// This class provides the minimal set of features needed for a
-    /// directed graph structure. All digraph concepts have to be
+    /// directed graph structure. All digraph concepts have to
     /// conform to this base directed graph. It just provides types
     /// for nodes and arcs and functions to get the source and the
     /// target of the arcs.
@@ -179,7 +179,7 @@ namespace lemon {
     ///
     /// This class provides the minimal set of features needed for an
     /// undirected graph structure. All undirected graph concepts have
-    /// to be conform to this base graph. It just provides types for
+    /// to conform to this base graph. It just provides types for
     /// nodes, arcs and edges and functions to get the
     /// source and the target of the arcs and edges,
     /// conversion from arcs to edges and function to get
@@ -294,7 +294,7 @@ namespace lemon {
     ///
     /// This class provides beside the core digraph features
     /// core id functions for the digraph structure.
-    /// The most of the base digraphs should be conform to this concept.
+    /// The most of the base digraphs should conform to this concept.
     /// The id's are unique and immutable.
     template <typename _Base = BaseDigraphComponent>
     class IDableDigraphComponent : public _Base {
@@ -372,7 +372,7 @@ namespace lemon {
     ///
     /// This class provides beside the core undirected graph features
     /// core id functions for the undirected graph structure.  The
-    /// most of the base undirected graphs should be conform to this
+    /// most of the base undirected graphs should conform to this
     /// concept.  The id's are unique and immutable.
     template <typename _Base = BaseGraphComponent>
     class IDableGraphComponent : public IDableDigraphComponent<_Base> {
