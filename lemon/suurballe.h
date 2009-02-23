@@ -27,6 +27,8 @@
 #include <vector>
 #include <lemon/bin_heap.h>
 #include <lemon/path.h>
+#include <lemon/list_graph.h>
+#include <lemon/maps.h>
 
 namespace lemon {
 

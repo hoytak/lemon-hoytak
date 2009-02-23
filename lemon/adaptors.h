@@ -30,6 +30,7 @@
 #include <lemon/bits/variant.h>
 
 #include <lemon/bits/graph_adaptor_extender.h>
+#include <lemon/bits/map_extender.h>
 #include <lemon/tolerance.h>
 
 #include <algorithm>

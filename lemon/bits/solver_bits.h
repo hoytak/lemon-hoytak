@@ -19,6 +19,8 @@
 #ifndef LEMON_BITS_SOLVER_BITS_H
 #define LEMON_BITS_SOLVER_BITS_H
 
+#include <vector>
+
 namespace lemon {
 
   namespace _solver_bits {

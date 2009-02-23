@@ -19,6 +19,9 @@
 #ifndef LEMON_BITS_PRED_MAP_PATH_H
 #define LEMON_BITS_PRED_MAP_PATH_H
 
+#include <lemon/core.h>
+#include <lemon/concept_check.h>
+
 namespace lemon {
 
   template <typename _Digraph, typename _PredMap>

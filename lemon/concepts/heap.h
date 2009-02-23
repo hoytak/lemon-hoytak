@@ -24,6 +24,7 @@
 #define LEMON_CONCEPT_HEAP_H
 
 #include <lemon/core.h>
+#include <lemon/concept_check.h>
 
 namespace lemon {
 
