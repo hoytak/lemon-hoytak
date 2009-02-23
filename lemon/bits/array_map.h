@@ -135,7 +135,7 @@ namespace lemon {
 
     // \brief Template assign operator.
     //
-    // The given parameter should be conform to the ReadMap
+    // The given parameter should conform to the ReadMap
     // concecpt and could be indiced by the current item set of
     // the NodeMap. In this case the value for each item
     // is assigned by the value of the given ReadMap.

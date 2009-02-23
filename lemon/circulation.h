@@ -31,30 +31,30 @@ namespace lemon {
   /// \brief Default traits class of Circulation class.
   ///
   /// Default traits class of Circulation class.
-  /// \tparam _Diraph Digraph type.
-  /// \tparam _LCapMap Lower bound capacity map type.
-  /// \tparam _UCapMap Upper bound capacity map type.
-  /// \tparam _DeltaMap Delta map type.
-  template <typename _Diraph, typename _LCapMap,
-            typename _UCapMap, typename _DeltaMap>
+  /// \tparam GR Digraph type.
+  /// \tparam LM Lower bound capacity map type.
+  /// \tparam UM Upper bound capacity map type.
+  /// \tparam DM Delta map type.
+  template <typename GR, typename LM,
+            typename UM, typename DM>
   struct CirculationDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
-    typedef _Diraph Digraph;
+    typedef GR Digraph;
 
     /// \brief The type of the map that stores the circulation lower
     /// bound.
     ///
     /// The type of the map that stores the circulation lower bound.
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef _LCapMap LCapMap;
+    typedef LM LCapMap;
 
     /// \brief The type of the map that stores the circulation upper
     /// bound.
     ///
     /// The type of the map that stores the circulation upper bound.
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef _UCapMap UCapMap;
+    typedef UM UCapMap;
 
     /// \brief The type of the map that stores the lower bound for
     /// the supply of the nodes.
@@ -62,7 +62,7 @@ namespace lemon {
     /// The type of the map that stores the lower bound for the supply
     /// of the nodes. It must meet the \ref concepts::ReadMap "ReadMap"
     /// concept.
-    typedef _DeltaMap DeltaMap;
+    typedef DM DeltaMap;
 
     /// \brief The type of the flow values.
     typedef typename DeltaMap::Value Value;
@@ -137,35 +137,33 @@ namespace lemon {
      \ref min_cost_flow "minimum cost flow" problem can be calculated
      in this way.
 
-     \tparam _Digraph The type of the digraph the algorithm runs on.
-     \tparam _LCapMap The type of the lower bound capacity map. The default
-     map type is \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
-     \tparam _UCapMap The type of the upper bound capacity map. The default
-     map type is \c _LCapMap.
-     \tparam _DeltaMap The type of the map that stores the lower bound
+     \tparam GR The type of the digraph the algorithm runs on.
+     \tparam LM The type of the lower bound capacity map. The default
+     map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+     \tparam UM The type of the upper bound capacity map. The default
+     map type is \c LM.
+     \tparam DM The type of the map that stores the lower bound
      for the supply of the nodes. The default map type is
-     \c _Digraph::ArcMap<_UCapMap::Value>.
+     \ref concepts::Digraph::NodeMap "GR::NodeMap<UM::Value>".
   */
 #ifdef DOXYGEN
-template< typename _Digraph,
-          typename _LCapMap,
-          typename _UCapMap,
-          typename _DeltaMap,
-          typename _Traits >
+template< typename GR,
+          typename LM,
+          typename UM,
+          typename DM,
+          typename TR >
 #else
-template< typename _Digraph,
-          typename _LCapMap = typename _Digraph::template ArcMap<int>,
-          typename _UCapMap = _LCapMap,
-          typename _DeltaMap = typename _Digraph::
-                               template NodeMap<typename _UCapMap::Value>,
-          typename _Traits=CirculationDefaultTraits<_Digraph, _LCapMap,
-                                                    _UCapMap, _DeltaMap> >
+template< typename GR,
+          typename LM = typename GR::template ArcMap<int>,
+          typename UM = LM,
+          typename DM = typename GR::template NodeMap<typename UM::Value>,
+          typename TR = CirculationDefaultTraits<GR, LM, UM, DM> >
 #endif
   class Circulation {
   public:
 
     ///The \ref CirculationDefaultTraits "traits class" of the algorithm.
-    typedef _Traits Traits;
+    typedef TR Traits;
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
     ///The type of the flow values.
