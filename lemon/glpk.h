@@ -102,6 +102,14 @@ namespace lemon {
 
   public:
 
+    /// \brief Deallocates the globally allocated memory of GLPK.
+
+    /// Deallocates the globally allocated memory of GLPK.  \note
+    /// Usually, it do not have to be called, because the GLPK use
+    /// only a small amount of global memory, and it is deallocated
+    /// automatically at the end of program.
+    static void freeEnv();
+
     ///Pointer to the underlying GLPK data structure.
     LPX *lpx() {return lp;}
     ///Const pointer to the underlying GLPK data structure.
