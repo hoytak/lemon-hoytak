@@ -228,25 +228,25 @@ namespace lemon {
   };
 
 
-  ///Checks if the graph is Euler
+  ///Checks if the graph is Eulerian
 
   /// \ingroup graph_prop
-  ///Checks if the graph is Euler. It works for both directed and undirected
+  ///Checks if the graph is Eulerian. It works for both directed and undirected
   ///graphs.
-  ///\note By definition, a digraph is called \e Euler if
+  ///\note By definition, a digraph is called \e Eulerian if
   ///and only if it is connected and the number of its incoming and outgoing
   ///arcs are the same for each node.
-  ///Similarly, an undirected graph is called \e Euler if
+  ///Similarly, an undirected graph is called \e Eulerian if
   ///and only if it is connected and the number of incident arcs is even
-  ///for each node. <em>Therefore, there are digraphs which are not Euler, but
-  ///still have an Euler tour</em>.
+  ///for each node. <em>Therefore, there are digraphs which are not Eulerian,
+  ///but still have an Euler tour</em>.
   ///\todo Test required
   template<class Digraph>
 #ifdef DOXYGEN
   bool
 #else
   typename enable_if<UndirectedTagIndicator<Digraph>,bool>::type
-  euler(const Digraph &g)
+  eulerian(const Digraph &g)
   {
     for(typename Digraph::NodeIt n(g);n!=INVALID;++n)
       if(countIncEdges(g,n)%2) return false;
@@ -255,7 +255,7 @@ namespace lemon {
   template<class Digraph>
   typename disable_if<UndirectedTagIndicator<Digraph>,bool>::type
 #endif
-  euler(const Digraph &g)
+  eulerian(const Digraph &g)
   {
     for(typename Digraph::NodeIt n(g);n!=INVALID;++n)
       if(countInArcs(g,n)!=countOutArcs(g,n)) return false;
