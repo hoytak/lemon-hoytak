@@ -26,6 +26,7 @@ check_PROGRAMS += \
 	test/maps_test \
 	test/max_matching_test \
 	test/min_cost_arborescence_test \
+	test/min_cost_flow_test \
 	test/path_test \
 	test/preflow_test \
 	test/radix_sort_test \
@@ -68,6 +69,7 @@ test_maps_test_SOURCES = test/maps_test.cc
 test_mip_test_SOURCES = test/mip_test.cc
 test_max_matching_test_SOURCES = test/max_matching_test.cc
 test_min_cost_arborescence_test_SOURCES = test/min_cost_arborescence_test.cc
+test_min_cost_flow_test_SOURCES = test/min_cost_flow_test.cc
 test_path_test_SOURCES = test/path_test.cc
 test_preflow_test_SOURCES = test/preflow_test.cc
 test_radix_sort_test_SOURCES = test/radix_sort_test.cc

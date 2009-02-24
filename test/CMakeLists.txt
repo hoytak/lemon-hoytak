@@ -30,6 +30,7 @@ SET(TESTS
   maps_test
   max_matching_test
   min_cost_arborescence_test
+  min_cost_flow_test
   path_test
   preflow_test
   radix_sort_test
