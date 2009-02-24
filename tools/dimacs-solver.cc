@@ -44,6 +44,7 @@
 #include <lemon/dijkstra.h>
 #include <lemon/preflow.h>
 #include <lemon/max_matching.h>
+#include <lemon/network_simplex.h>
 
 using namespace lemon;
 typedef SmartDigraph Digraph;
@@ -91,6 +92,29 @@ void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
   if(report) std::cerr << "\nMax flow value: " << pre.flowValue() << '\n';  
 }
 
+template<class Value>
+void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
+               DimacsDescriptor &desc)
+{
+  bool report = !ap.given("q");
+  Digraph g;
+  Digraph::ArcMap<Value> lower(g), cap(g), cost(g);
+  Digraph::NodeMap<Value> sup(g);
+  Timer ti;
+  ti.restart();
+  readDimacsMin(is, g, lower, cap, cost, sup, desc);
+  if (report) std::cerr << "Read the file: " << ti << '\n';
+  ti.restart();
+  NetworkSimplex< Digraph, Digraph::ArcMap<Value>, Digraph::ArcMap<Value>,
+                  Digraph::ArcMap<Value>, Digraph::NodeMap<Value> >
+    ns(g, lower, cap, cost, sup);
+  if (report) std::cerr << "Setup NetworkSimplex class: " << ti << '\n';
+  ti.restart();
+  ns.run();
+  if (report) std::cerr << "Run NetworkSimplex: " << ti << '\n';
+  if (report) std::cerr << "\nMin flow cost: " << ns.totalCost() << '\n';
+}
+
 void solve_mat(ArgParser &ap, std::istream &is, std::ostream &,
               DimacsDescriptor &desc)
 {
@@ -118,8 +142,7 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
   switch(desc.type)
     {
     case DimacsDescriptor::MIN:
-      std::cerr <<
-        "\n\n Sorry, the min. cost flow solver is not yet available.\n";
+      solve_min<Value>(ap,is,os,desc);
       break;
     case DimacsDescriptor::MAX:
       solve_max<Value>(ap,is,os,desc);
