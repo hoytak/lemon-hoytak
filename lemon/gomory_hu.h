@@ -63,7 +63,7 @@ namespace lemon {
   template <typename GR,
 	    typename CAP = typename GR::template EdgeMap<int>
             >
-  class GomoryHuTree {
+  class GomoryHu {
   public:
 
     /// The graph type
@@ -116,7 +116,7 @@ namespace lemon {
     /// Constructor
     /// \param graph The graph the algorithm will run on.
     /// \param capacity The capacity map.
-    GomoryHuTree(const Graph& graph, const Capacity& capacity) 
+    GomoryHu(const Graph& graph, const Capacity& capacity) 
       : _graph(graph), _capacity(capacity),
 	_pred(0), _weight(0), _order(0) 
     {
@@ -127,7 +127,7 @@ namespace lemon {
     /// \brief Destructor
     ///
     /// Destructor
-    ~GomoryHuTree() {
+    ~GomoryHu() {
       destroyStructures();
     }
 
@@ -340,16 +340,16 @@ namespace lemon {
     /// Iterate on the nodes of a minimum cut
     
     /// This iterator class lists the nodes of a minimum cut found by
-    /// GomoryHuTree. Before using it, you must allocate a GomoryHuTree class,
-    /// and call its \ref GomoryHuTree::run() "run()" method.
+    /// GomoryHu. Before using it, you must allocate a GomoryHu class,
+    /// and call its \ref GomoryHu::run() "run()" method.
     ///
     /// This example counts the nodes in the minimum cut separating \c s from
     /// \c t.
     /// \code
-    /// GomoruHuTree<Graph> gom(g, capacities);
+    /// GomoruHu<Graph> gom(g, capacities);
     /// gom.run();
     /// int sum=0;
-    /// for(GomoruHuTree<Graph>::MinCutNodeIt n(gom,s,t);n!=INVALID;++n) ++sum;
+    /// for(GomoruHu<Graph>::MinCutNodeIt n(gom,s,t);n!=INVALID;++n) ++sum;
     /// \endcode
     class MinCutNodeIt
     {
@@ -361,8 +361,8 @@ namespace lemon {
 
       /// Constructor
       ///
-      MinCutNodeIt(GomoryHuTree const &gomory,
-                   ///< The GomoryHuTree class. You must call its
+      MinCutNodeIt(GomoryHu const &gomory,
+                   ///< The GomoryHu class. You must call its
                    ///  run() method
                    ///  before initializing this iterator
                    const Node& s, ///< Base node
@@ -437,20 +437,20 @@ namespace lemon {
     /// Iterate on the edges of a minimum cut
     
     /// This iterator class lists the edges of a minimum cut found by
-    /// GomoryHuTree. Before using it, you must allocate a GomoryHuTree class,
-    /// and call its \ref GomoryHuTree::run() "run()" method.
+    /// GomoryHu. Before using it, you must allocate a GomoryHu class,
+    /// and call its \ref GomoryHu::run() "run()" method.
     ///
     /// This example computes the value of the minimum cut separating \c s from
     /// \c t.
     /// \code
-    /// GomoruHuTree<Graph> gom(g, capacities);
+    /// GomoruHu<Graph> gom(g, capacities);
     /// gom.run();
     /// int value=0;
-    /// for(GomoruHuTree<Graph>::MinCutEdgeIt e(gom,s,t);e!=INVALID;++e)
+    /// for(GomoruHu<Graph>::MinCutEdgeIt e(gom,s,t);e!=INVALID;++e)
     ///   value+=capacities[e];
     /// \endcode
     /// the result will be the same as it is returned by
-    /// \ref GomoryHuTree::minCostValue() "gom.minCostValue(s,t)"
+    /// \ref GomoryHu::minCostValue() "gom.minCostValue(s,t)"
     class MinCutEdgeIt
     {
       bool _side;
@@ -470,8 +470,8 @@ namespace lemon {
       }
       
     public:
-      MinCutEdgeIt(GomoryHuTree const &gomory,
-                   ///< The GomoryHuTree class. You must call its
+      MinCutEdgeIt(GomoryHu const &gomory,
+                   ///< The GomoryHu class. You must call its
                    ///  run() method
                    ///  before initializing this iterator
                    const Node& s,  ///< Base node

@@ -3,7 +3,7 @@
 #include "test_tools.h"
 #include <lemon/smart_graph.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/gomory_hu_tree.h>
+#include <lemon/gomory_hu.h>
 #include <cstdlib>
 
 using namespace std;
@@ -60,7 +60,7 @@ int main() {
   GraphReader<Graph>(graph, input).
     edgeMap("capacity", capacity).run();
 
-  GomoryHuTree<Graph> ght(graph, capacity);
+  GomoryHu<Graph> ght(graph, capacity);
   ght.init();
   ght.run();
 
@@ -75,14 +75,14 @@ int main() {
       check(pf.flowValue() == cutValue(graph, cm, capacity), "Wrong cut 2");
 
       int sum=0;
-      for(GomoryHuTree<Graph>::MinCutEdgeIt a(ght, u, v);a!=INVALID;++a)
+      for(GomoryHu<Graph>::MinCutEdgeIt a(ght, u, v);a!=INVALID;++a)
         sum+=capacity[a]; 
       check(sum == ght.minCutValue(u, v), "Problem with MinCutEdgeIt");
 
       sum=0;
-      for(GomoryHuTree<Graph>::MinCutNodeIt n(ght, u, v,true);n!=INVALID;++n)
+      for(GomoryHu<Graph>::MinCutNodeIt n(ght, u, v,true);n!=INVALID;++n)
         sum++;
-      for(GomoryHuTree<Graph>::MinCutNodeIt n(ght, u, v,false);n!=INVALID;++n)
+      for(GomoryHu<Graph>::MinCutNodeIt n(ght, u, v,false);n!=INVALID;++n)
         sum++;
       check(sum == countNodes(graph), "Problem with MinCutNodeIt");
       
