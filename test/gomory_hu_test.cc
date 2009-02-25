@@ -2,11 +2,7 @@
 
 #include "test_tools.h"
 #include <lemon/smart_graph.h>
-#include <lemon/adaptors.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/lgf_writer.h>
-#include <lemon/dimacs.h>
-#include <lemon/time_measure.h>
 #include <lemon/gomory_hu_tree.h>
 #include <cstdlib>
 
@@ -77,6 +73,18 @@ int main() {
       check(pf.flowValue() == ght.minCutValue(u, v), "Wrong cut 1");
       check(cm[u] != cm[v], "Wrong cut 3");
       check(pf.flowValue() == cutValue(graph, cm, capacity), "Wrong cut 2");
+
+      int sum=0;
+      for(GomoryHuTree<Graph>::MinCutEdgeIt a(ght, u, v);a!=INVALID;++a)
+        sum+=capacity[a]; 
+      check(sum == ght.minCutValue(u, v), "Problem with MinCutEdgeIt");
+
+      sum=0;
+      for(GomoryHuTree<Graph>::MinCutNodeIt n(ght, u, v,true);n!=INVALID;++n)
+        sum++;
+      for(GomoryHuTree<Graph>::MinCutNodeIt n(ght, u, v,false);n!=INVALID;++n)
+        sum++;
+      check(sum == countNodes(graph), "Problem with MinCutNodeIt");
       
     }
   }

@@ -21,6 +21,7 @@
 
 #include <limits>
 
+#include <lemon/core.h>
 #include <lemon/preflow.h>
 #include <lemon/concept_check.h>
 #include <lemon/concepts/maps.h>
@@ -35,31 +36,40 @@ namespace lemon {
   ///
   /// \brief Gomory-Hu cut tree algorithm
   ///
-  /// The Gomory-Hu tree is a tree on the nodeset of the digraph, but it
-  /// may contain arcs which are not in the original digraph. It helps
-  /// to calculate the minimum cut between all pairs of nodes, because
-  /// the minimum capacity arc on the tree path between two nodes has
-  /// the same weight as the minimum cut in the digraph between these
-  /// nodes. Moreover this arc separates the nodes to two parts which
-  /// determine this minimum cut.
+  /// The Gomory-Hu tree is a tree on the node set of the graph, but it
+  /// may contain edges which are not in the original digraph. It has the
+  /// property that the minimum capacity edge of the path between two nodes 
+  /// in this tree has the same weight as the minimum cut in the digraph
+  /// between these nodes. Moreover the components obtained by removing
+  /// this edge from the tree determine the corresponding minimum cut.
+  ///
+  /// Therefore once this tree is computed, the minimum cut between any pair
+  /// of nodes can easily be obtained.
   /// 
-  /// The algorithm calculates \e n-1 distinict minimum cuts with
-  /// preflow algorithm, therefore the algorithm has
+  /// The algorithm calculates \e n-1 distinct minimum cuts (currently with
+  /// the \ref Preflow algorithm), therefore the algorithm has
   /// \f$(O(n^3\sqrt{e})\f$ overall time complexity. It calculates a
-  /// rooted Gomory-Hu tree, the structure of the tree and the weights
-  /// can be obtained with \c predNode() and \c predValue()
-  /// functions. The \c minCutValue() and \c minCutMap() calculates
+  /// rooted Gomory-Hu tree, its structure and the weights can be obtained
+  /// by \c predNode(), \c predValue() and \c rootDist().
+  /// 
+  /// The members \c minCutMap() and \c minCutValue() calculate
   /// the minimum cut and the minimum cut value between any two node
-  /// in the digraph.
-  template <typename _Graph, 
-	    typename _Capacity = typename _Graph::template EdgeMap<int> >
+  /// in the digraph. You can also list (iterate on) the nodes and the
+  /// edges of the cuts using MinCutNodeIt and MinCutEdgeIt.
+  ///
+  /// \tparam GR The undirected graph data structure the algorithm will run on
+  /// \tparam CAP type of the EdgeMap describing the Edge capacities.
+  /// it is typename GR::template EdgeMap<int> by default.
+  template <typename GR,
+	    typename CAP = typename GR::template EdgeMap<int>
+            >
   class GomoryHuTree {
   public:
 
     /// The graph type
-    typedef _Graph Graph;
-    /// The capacity on edges
-    typedef _Capacity Capacity;
+    typedef GR Graph;
+    /// The type if the edge capacity map
+    typedef CAP Capacity;
     /// The value type of capacities
     typedef typename Capacity::Value Value;
     
@@ -104,7 +114,7 @@ namespace lemon {
     /// \brief Constructor
     ///
     /// Constructor
-    /// \param graph The graph type.
+    /// \param graph The graph the algorithm will run on.
     /// \param capacity The capacity map.
     GomoryHuTree(const Graph& graph, const Capacity& capacity) 
       : _graph(graph), _capacity(capacity),
@@ -121,10 +131,10 @@ namespace lemon {
       destroyStructures();
     }
 
-    /// \brief Initializes the internal data structures.
-    ///
-    /// Initializes the internal data structures.
-    ///
+    // \brief Initialize the internal data structures.
+    //
+    // This function initializes the internal data structures.
+    //
     void init() {
       createStructures();
 
@@ -138,9 +148,12 @@ namespace lemon {
     }
 
 
-    /// \brief Starts the algorithm
-    ///
-    /// Starts the algorithm.
+    // \brief Start the algorithm
+    //
+    // This function starts the algorithm.
+    //
+    // \pre \ref init() must be called before using this function.
+    //
     void start() {
       Preflow<Graph, Capacity> fa(_graph, _capacity, _root, INVALID);
 
@@ -185,40 +198,57 @@ namespace lemon {
       }
     }
 
-    /// \brief Runs the Gomory-Hu algorithm.  
+    ///\name Execution Control
+ 
+    ///@{
+
+    /// \brief Run the Gomory-Hu algorithm.
     ///
-    /// Runs the Gomory-Hu algorithm.
-    /// \note gh.run() is just a shortcut of the following code.
-    /// \code
-    ///   ght.init();
-    ///   ght.start();
-    /// \endcode
+    /// This function runs the Gomory-Hu algorithm.
     void run() {
       init();
       start();
     }
+    
+    /// @}
 
-    /// \brief Returns the predecessor node in the Gomory-Hu tree.
+    ///\name Query Functions
+    ///The results of the algorithm can be obtained using these
+    ///functions.\n
+    ///The \ref run() "run()" should be called before using them.\n
+    ///See also MinCutNodeIt and MinCutEdgeIt
+
+    ///@{
+
+    /// \brief Return the predecessor node in the Gomory-Hu tree.
     ///
-    /// Returns the predecessor node in the Gomory-Hu tree. If the node is
+    /// This function returns the predecessor node in the Gomory-Hu tree.
+    /// If the node is
     /// the root of the Gomory-Hu tree, then it returns \c INVALID.
     Node predNode(const Node& node) {
       return (*_pred)[node];
     }
 
-    /// \brief Returns the weight of the predecessor arc in the
+    /// \brief Return the distance from the root node in the Gomory-Hu tree.
+    ///
+    /// This function returns the distance of \c node from the root node
+    /// in the Gomory-Hu tree.
+    int rootDist(const Node& node) {
+      return (*_order)[node];
+    }
+
+    /// \brief Return the weight of the predecessor edge in the
     /// Gomory-Hu tree.
     ///
-    /// Returns the weight of the predecessor arc in the Gomory-Hu
-    /// tree.  If the node is the root of the Gomory-Hu tree, the
-    /// result is undefined.
+    /// This function returns the weight of the predecessor edge in the
+    /// Gomory-Hu tree.  If the node is the root, the result is undefined.
     Value predValue(const Node& node) {
       return (*_weight)[node];
     }
 
-    /// \brief Returns the minimum cut value between two nodes
+    /// \brief Return the minimum cut value between two nodes
     ///
-    /// Returns the minimum cut value between two nodes. The
+    /// This function returns the minimum cut value between two nodes. The
     /// algorithm finds the nearest common ancestor in the Gomory-Hu
     /// tree and calculates the minimum weight arc on the paths to
     /// the ancestor.
@@ -228,41 +258,52 @@ namespace lemon {
       
       while (sn != tn) {
 	if ((*_order)[sn] < (*_order)[tn]) {
-	  if ((*_weight)[tn] < value) value = (*_weight)[tn];
+	  if ((*_weight)[tn] <= value) value = (*_weight)[tn];
 	  tn = (*_pred)[tn];
 	} else {
-	  if ((*_weight)[sn] < value) value = (*_weight)[sn];
+	  if ((*_weight)[sn] <= value) value = (*_weight)[sn];
 	  sn = (*_pred)[sn];
 	}
       }
       return value;
     }
 
-    /// \brief Returns the minimum cut between two nodes
+    /// \brief Return the minimum cut between two nodes
     ///
-    /// Returns the minimum cut value between two nodes. The
-    /// algorithm finds the nearest common ancestor in the Gomory-Hu
-    /// tree and calculates the minimum weight arc on the paths to
-    /// the ancestor. Then it sets all nodes to the cut determined by
-    /// this arc. The \c cutMap should be \ref concepts::ReadWriteMap
+    /// This function returns the minimum cut between the nodes \c s and \c t
+    /// the \r cutMap parameter by setting the nodes in the component of
+    /// \c \s to true and the other nodes to false.
+    ///
+    /// The \c cutMap should be \ref concepts::ReadWriteMap
     /// "ReadWriteMap".
+    ///
+    /// For higher level interfaces, see MinCutNodeIt and MinCutEdgeIt
     template <typename CutMap>
-    Value minCutMap(const Node& s, const Node& t, CutMap& cutMap) const {
+    Value minCutMap(const Node& s, ///< Base node
+                    const Node& t,
+                    ///< The node you want to separate from Node s.
+                    CutMap& cutMap
+                    ///< The cut will be return in this map.
+                    /// It must be a \c bool \ref concepts::ReadWriteMap
+                    /// "ReadWriteMap" on the graph nodes.
+                    ) const {
       Node sn = s, tn = t;
-
+      bool s_root=false;
       Node rn = INVALID;
       Value value = std::numeric_limits<Value>::max();
       
       while (sn != tn) {
 	if ((*_order)[sn] < (*_order)[tn]) {
-	  if ((*_weight)[tn] < value) {
+	  if ((*_weight)[tn] <= value) {
 	    rn = tn;
+            s_root = false;
 	    value = (*_weight)[tn];
 	  }
 	  tn = (*_pred)[tn];
 	} else {
-	  if ((*_weight)[sn] < value) {
+	  if ((*_weight)[sn] <= value) {
 	    rn = sn;
+            s_root = true;
 	    value = (*_weight)[sn];
 	  }
 	  sn = (*_pred)[sn];
@@ -271,13 +312,14 @@ namespace lemon {
 
       typename Graph::template NodeMap<bool> reached(_graph, false);
       reached.set(_root, true);
-      cutMap.set(_root, false);
+      cutMap.set(_root, !s_root);
       reached.set(rn, true);
-      cutMap.set(rn, true);
+      cutMap.set(rn, s_root);
 
+      std::vector<Node> st;
       for (NodeIt n(_graph); n != INVALID; ++n) {
-	std::vector<Node> st;
-	Node nn = n;
+	st.clear();
+        Node nn = n;
 	while (!reached[nn]) {
 	  st.push_back(nn);
 	  nn = (*_pred)[nn];
@@ -290,6 +332,220 @@ namespace lemon {
       
       return value;
     }
+
+    ///@}
+
+    friend class MinCutNodeIt;
+
+    /// Iterate on the nodes of a minimum cut
+    
+    /// This iterator class lists the nodes of a minimum cut found by
+    /// GomoryHuTree. Before using it, you must allocate a GomoryHuTree class,
+    /// and call its \ref GomoryHuTree::run() "run()" method.
+    ///
+    /// This example counts the nodes in the minimum cut separating \c s from
+    /// \c t.
+    /// \code
+    /// GomoruHuTree<Graph> gom(g, capacities);
+    /// gom.run();
+    /// int sum=0;
+    /// for(GomoruHuTree<Graph>::MinCutNodeIt n(gom,s,t);n!=INVALID;++n) ++sum;
+    /// \endcode
+    class MinCutNodeIt
+    {
+      bool _side;
+      typename Graph::NodeIt _node_it;
+      typename Graph::template NodeMap<bool> _cut;
+    public:
+      /// Constructor
+
+      /// Constructor
+      ///
+      MinCutNodeIt(GomoryHuTree const &gomory,
+                   ///< The GomoryHuTree class. You must call its
+                   ///  run() method
+                   ///  before initializing this iterator
+                   const Node& s, ///< Base node
+                   const Node& t,
+                   ///< The node you want to separate from Node s.
+                   bool side=true
+                   ///< If it is \c true (default) then the iterator lists
+                   ///  the nodes of the component containing \c s,
+                   ///  otherwise it lists the other component.
+                   /// \note As the minimum cut is not always unique,
+                   /// \code
+                   /// MinCutNodeIt(gomory, s, t, true);
+                   /// \endcode
+                   /// and
+                   /// \code
+                   /// MinCutNodeIt(gomory, t, s, false);
+                   /// \endcode
+                   /// does not necessarily give the same set of nodes.
+                   /// However it is ensured that
+                   /// \code
+                   /// MinCutNodeIt(gomory, s, t, true);
+                   /// \endcode
+                   /// and
+                   /// \code
+                   /// MinCutNodeIt(gomory, s, t, false);
+                   /// \endcode
+                   /// together list each node exactly once.
+                   )
+        : _side(side), _cut(gomory._graph)
+      {
+        gomory.minCutMap(s,t,_cut);
+        for(_node_it=typename Graph::NodeIt(gomory._graph);
+            _node_it!=INVALID && _cut[_node_it]!=_side;
+            ++_node_it) {}
+      }
+      /// Conversion to Node
+
+      /// Conversion to Node
+      ///
+      operator typename Graph::Node() const
+      {
+        return _node_it;
+      }
+      bool operator==(Invalid) { return _node_it==INVALID; }
+      bool operator!=(Invalid) { return _node_it!=INVALID; }
+      /// Next node
+
+      /// Next node
+      ///
+      MinCutNodeIt &operator++()
+      {
+        for(++_node_it;_node_it!=INVALID&&_cut[_node_it]!=_side;++_node_it) {}
+        return *this;
+      }
+      /// Postfix incrementation
+
+      /// Postfix incrementation
+      ///
+      /// \warning This incrementation
+      /// returns a \c Node, not a \ref MinCutNodeIt, as one may
+      /// expect.
+      typename Graph::Node operator++(int)
+      {
+        typename Graph::Node n=*this;
+        ++(*this);
+        return n;
+      }
+    };
+    
+    friend class MinCutEdgeIt;
+    
+    /// Iterate on the edges of a minimum cut
+    
+    /// This iterator class lists the edges of a minimum cut found by
+    /// GomoryHuTree. Before using it, you must allocate a GomoryHuTree class,
+    /// and call its \ref GomoryHuTree::run() "run()" method.
+    ///
+    /// This example computes the value of the minimum cut separating \c s from
+    /// \c t.
+    /// \code
+    /// GomoruHuTree<Graph> gom(g, capacities);
+    /// gom.run();
+    /// int value=0;
+    /// for(GomoruHuTree<Graph>::MinCutEdgeIt e(gom,s,t);e!=INVALID;++e)
+    ///   value+=capacities[e];
+    /// \endcode
+    /// the result will be the same as it is returned by
+    /// \ref GomoryHuTree::minCostValue() "gom.minCostValue(s,t)"
+    class MinCutEdgeIt
+    {
+      bool _side;
+      const Graph &_graph;
+      typename Graph::NodeIt _node_it;
+      typename Graph::OutArcIt _arc_it;
+      typename Graph::template NodeMap<bool> _cut;
+      void step()
+      {
+        ++_arc_it;
+        while(_node_it!=INVALID && _arc_it==INVALID)
+          {
+            for(++_node_it;_node_it!=INVALID&&!_cut[_node_it];++_node_it) {}
+            if(_node_it!=INVALID)
+              _arc_it=typename Graph::OutArcIt(_graph,_node_it);
+          }
+      }
+      
+    public:
+      MinCutEdgeIt(GomoryHuTree const &gomory,
+                   ///< The GomoryHuTree class. You must call its
+                   ///  run() method
+                   ///  before initializing this iterator
+                   const Node& s,  ///< Base node
+                   const Node& t,
+                   ///< The node you want to separate from Node s.
+                   bool side=true
+                   ///< If it is \c true (default) then the listed arcs
+                   ///  will be oriented from the
+                   ///  the nodes of the component containing \c s,
+                   ///  otherwise they will be oriented in the opposite
+                   ///  direction.
+                   )
+        : _graph(gomory._graph), _cut(_graph)
+      {
+        gomory.minCutMap(s,t,_cut);
+        if(!side)
+          for(typename Graph::NodeIt n(_graph);n!=INVALID;++n)
+            _cut[n]=!_cut[n];
+
+        for(_node_it=typename Graph::NodeIt(_graph);
+            _node_it!=INVALID && !_cut[_node_it];
+            ++_node_it) {}
+        _arc_it = _node_it!=INVALID ?
+          typename Graph::OutArcIt(_graph,_node_it) : INVALID;
+        while(_node_it!=INVALID && _arc_it == INVALID)
+          {
+            for(++_node_it; _node_it!=INVALID&&!_cut[_node_it]; ++_node_it) {}
+            if(_node_it!=INVALID)
+              _arc_it= typename Graph::OutArcIt(_graph,_node_it);
+          }
+        while(_arc_it!=INVALID && _cut[_graph.target(_arc_it)]) step();
+      }
+      /// Conversion to Arc
+
+      /// Conversion to Arc
+      ///
+      operator typename Graph::Arc() const
+      {
+        return _arc_it;
+      }
+      /// Conversion to Edge
+
+      /// Conversion to Edge
+      ///
+      operator typename Graph::Edge() const
+      {
+        return _arc_it;
+      }
+      bool operator==(Invalid) { return _node_it==INVALID; }
+      bool operator!=(Invalid) { return _node_it!=INVALID; }
+      /// Next edge
+
+      /// Next edge
+      ///
+      MinCutEdgeIt &operator++()
+      {
+        step();
+        while(_arc_it!=INVALID && _cut[_graph.target(_arc_it)]) step();
+        return *this;
+      }
+      /// Postfix incrementation
+      
+      /// Postfix incrementation
+      ///
+      /// \warning This incrementation
+      /// returns a \c Arc, not a \ref MinCutEdgeIt, as one may
+      /// expect.
+      typename Graph::Arc operator++(int)
+      {
+        typename Graph::Arc e=*this;
+        ++(*this);
+        return e;
+      }
+    };
 
   };
 
