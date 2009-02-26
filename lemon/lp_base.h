@@ -918,8 +918,6 @@ namespace lemon {
   protected:
 
     //Abstract virtual functions
-    virtual LpBase* _newSolver() const = 0;
-    virtual LpBase* _cloneSolver() const = 0;
 
     virtual int _addColId(int col) { return cols.addIndex(col); }
     virtual int _addRowId(int row) { return rows.addIndex(row); }
@@ -986,11 +984,6 @@ namespace lemon {
 
     /// Virtual destructor
     virtual ~LpBase() {}
-
-    ///Creates a new LP problem
-    LpBase* newSolver() {return _newSolver();}
-    ///Makes a copy of the LP problem
-    LpBase* cloneSolver() {return _cloneSolver();}
 
     ///Gives back the name of the solver.
     const char* solverName() const {return _solverName();}
@@ -1821,6 +1814,11 @@ namespace lemon {
 
   public:
 
+    ///Allocate a new LP problem instance
+    virtual LpSolver* newSolver() const = 0;
+    ///Make a copy of the LP problem
+    virtual LpSolver* cloneSolver() const = 0;
+
     ///\name Solve the LP
 
     ///@{
@@ -1935,13 +1933,8 @@ namespace lemon {
     Value primal() const { return _getPrimalValue()+obj_const_comp;}
     ///@}
 
-    LpSolver* newSolver() {return _newSolver();}
-    LpSolver* cloneSolver() {return _cloneSolver();}
-
   protected:
 
-    virtual LpSolver* _newSolver() const = 0;
-    virtual LpSolver* _cloneSolver() const = 0;
   };
 
 
@@ -1974,6 +1967,11 @@ namespace lemon {
       ///The Mip or at least the relaxed problem is unbounded
       UNBOUNDED = 4
     };
+
+    ///Allocate a new MIP problem instance
+    virtual MipSolver* newSolver() const = 0;
+    ///Make a copy of the MIP problem
+    virtual MipSolver* cloneSolver() const = 0;
 
     ///\name Solve the MIP
 
@@ -2062,15 +2060,6 @@ namespace lemon {
     virtual Value _getSol(int i) const = 0;
     virtual Value _getSolValue() const = 0;
 
-  public:
-
-    MipSolver* newSolver() {return _newSolver();}
-    MipSolver* cloneSolver() {return _cloneSolver();}
-
-  protected:
-
-    virtual MipSolver* _newSolver() const = 0;
-    virtual MipSolver* _cloneSolver() const = 0;
   };
 
 

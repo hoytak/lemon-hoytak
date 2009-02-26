@@ -106,6 +106,17 @@ void aTest(MipSolver& mip)
 
 }
 
+template<class MIP>
+void cloneTest()
+{
+  
+  MIP* mip = new MIP();
+  MIP* mipnew = mip->newSolver();
+  MIP* mipclone = mip->cloneSolver();
+  delete mip;
+  delete mipnew;
+  delete mipclone;
+}
 
 int main()
 {
@@ -114,6 +125,7 @@ int main()
   {
     GlpkMip mip1;
     aTest(mip1);
+    cloneTest<GlpkMip>();
   }
 #endif
 
@@ -129,6 +141,7 @@ int main()
     std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
 #endif
   }
+  cloneTest<CplexMip>();
 #endif
 
   return 0;

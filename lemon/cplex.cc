@@ -451,8 +451,8 @@ namespace lemon {
 
   CplexLp::~CplexLp() {}
 
-  CplexLp* CplexLp::_newSolver() const { return new CplexLp; }
-  CplexLp* CplexLp::_cloneSolver() const {return new CplexLp(*this); }
+  CplexLp* CplexLp::newSolver() const { return new CplexLp; }
+  CplexLp* CplexLp::cloneSolver() const {return new CplexLp(*this); }
 
   const char* CplexLp::_solverName() const { return "CplexLp"; }
 
@@ -823,8 +823,8 @@ namespace lemon {
 
   CplexMip::~CplexMip() {}
 
-  CplexMip* CplexMip::_newSolver() const { return new CplexMip; }
-  CplexMip* CplexMip::_cloneSolver() const {return new CplexMip(*this); }
+  CplexMip* CplexMip::newSolver() const { return new CplexMip; }
+  CplexMip* CplexMip::cloneSolver() const {return new CplexMip(*this); }
 
   const char* CplexMip::_solverName() const { return "CplexMip"; }
 

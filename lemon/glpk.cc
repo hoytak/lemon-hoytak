@@ -534,8 +534,8 @@ namespace lemon {
     messageLevel(MESSAGE_NO_OUTPUT);
   }
 
-  GlpkLp* GlpkLp::_newSolver() const { return new GlpkLp; }
-  GlpkLp* GlpkLp::_cloneSolver() const { return new GlpkLp(*this); }
+  GlpkLp* GlpkLp::newSolver() const { return new GlpkLp; }
+  GlpkLp* GlpkLp::cloneSolver() const { return new GlpkLp(*this); }
 
   const char* GlpkLp::_solverName() const { return "GlpkLp"; }
 
@@ -940,8 +940,8 @@ namespace lemon {
     return glp_mip_obj_val(lp);
   }
 
-  GlpkMip* GlpkMip::_newSolver() const { return new GlpkMip; }
-  GlpkMip* GlpkMip::_cloneSolver() const {return new GlpkMip(*this); }
+  GlpkMip* GlpkMip::newSolver() const { return new GlpkMip; }
+  GlpkMip* GlpkMip::cloneSolver() const {return new GlpkMip(*this); }
 
   const char* GlpkMip::_solverName() const { return "GlpkMip"; }
 

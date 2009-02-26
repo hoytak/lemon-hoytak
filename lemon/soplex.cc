@@ -54,12 +54,12 @@ namespace lemon {
     _dual_values.clear();
   }
 
-  SoplexLp* SoplexLp::_newSolver() const {
+  SoplexLp* SoplexLp::newSolver() const {
     SoplexLp* newlp = new SoplexLp();
     return newlp;
   }
 
-  SoplexLp* SoplexLp::_cloneSolver() const {
+  SoplexLp* SoplexLp::cloneSolver() const {
     SoplexLp* newlp = new SoplexLp(*this);
     return newlp;
   }

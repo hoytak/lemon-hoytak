@@ -73,11 +73,12 @@ namespace lemon {
     SoplexLp(const SoplexLp&);
     /// \e
     ~SoplexLp();
+    /// \e
+    virtual SoplexLp* newSolver() const;
+    /// \e
+    virtual SoplexLp* cloneSolver() const;
 
   protected:
-
-    virtual SoplexLp* _newSolver() const;
-    virtual SoplexLp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 

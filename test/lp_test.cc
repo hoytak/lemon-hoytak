@@ -197,6 +197,11 @@ void lpTest(LpSolver& lp)
     buf << "Coeff. of p2 should be 0";
     check(const_cast<const LpSolver::Expr&>(e)[p2]==0, buf.str());
 
+    //Test for clone/new
+    LP* lpnew = lp.newSolver();
+    LP* lpclone = lp.cloneSolver();
+    delete lpnew;
+    delete lpclone;
 
   }
 
@@ -247,7 +252,8 @@ void solveAndCheck(LpSolver& lp, LpSolver::ProblemType stat,
 
   if (stat ==  LpSolver::OPTIMAL) {
     std::ostringstream sbuf;
-    sbuf << "Wrong optimal value: the right optimum is " << exp_opt;
+    sbuf << "Wrong optimal value (" << lp.primal() <<") with "
+         << lp.solverName() <<"\n     the right optimum is " << exp_opt;
     check(std::abs(lp.primal()-exp_opt) < 1e-3, sbuf.str());
   }
 }
@@ -355,6 +361,19 @@ void aTest(LpSolver & lp)
 
 }
 
+template<class LP>
+void cloneTest()
+{
+  //Test for clone/new
+  
+  LP* lp = new LP();
+  LP* lpnew = lp->newSolver();
+  LP* lpclone = lp->cloneSolver();
+  delete lp;
+  delete lpnew;
+  delete lpclone;
+}
+
 int main()
 {
   LpSkeleton lp_skel;
@@ -365,6 +384,7 @@ int main()
     GlpkLp lp_glpk1,lp_glpk2;
     lpTest(lp_glpk1);
     aTest(lp_glpk2);
+    cloneTest<GlpkLp>();
   }
 #endif
 
@@ -381,6 +401,7 @@ int main()
     std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
 #endif
   }
+    cloneTest<CplexLp>();
 #endif
 
 #ifdef HAVE_SOPLEX
@@ -388,6 +409,7 @@ int main()
     SoplexLp lp_soplex1,lp_soplex2;
     lpTest(lp_soplex1);
     aTest(lp_soplex2);
+    cloneTest<SoplexLp>();
   }
 #endif
 
@@ -396,6 +418,7 @@ int main()
     ClpLp lp_clp1,lp_clp2;
     lpTest(lp_clp1);
     aTest(lp_clp2);
+    cloneTest<ClpLp>();
   }
 #endif
 

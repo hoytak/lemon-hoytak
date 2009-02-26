@@ -56,12 +56,12 @@ namespace lemon {
     }
   }
 
-  ClpLp* ClpLp::_newSolver() const {
+  ClpLp* ClpLp::newSolver() const {
     ClpLp* newlp = new ClpLp;
     return newlp;
   }
 
-  ClpLp* ClpLp::_cloneSolver() const {
+  ClpLp* ClpLp::cloneSolver() const {
     ClpLp* copylp = new ClpLp(*this);
     return copylp;
   }

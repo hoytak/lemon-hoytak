@@ -56,6 +56,11 @@ namespace lemon {
     /// \e
     ~ClpLp();
 
+    /// \e
+    virtual ClpLp* newSolver() const;
+    /// \e
+    virtual ClpLp* cloneSolver() const;
+
   protected:
 
     mutable double* _primal_ray;
@@ -65,9 +70,6 @@ namespace lemon {
     void _clear_temporals();
 
   protected:
-
-    virtual ClpLp* _newSolver() const;
-    virtual ClpLp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 
