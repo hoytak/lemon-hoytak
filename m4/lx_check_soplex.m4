@@ -20,7 +20,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     if test x"$with_soplex_includedir" != x"no"; then
       SOPLEX_CXXFLAGS="-I$with_soplex_includedir"
     elif test x"$with_soplex" != x"yes"; then
-      SOPLEX_CXXFLAGS="-I$with_soplex/include"
+      SOPLEX_CXXFLAGS="-I$with_soplex/src"
     fi
 
     if test x"$with_soplex_libdir" != x"no"; then
@@ -38,7 +38,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     LIBS="$SOPLEX_LIBS"
 
     lx_soplex_test_prog='
-      #include <soplex/soplex.h>
+      #include <soplex.h>
 
       int main(int argc, char** argv)
       {

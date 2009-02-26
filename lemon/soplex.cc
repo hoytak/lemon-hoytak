@@ -19,7 +19,7 @@
 #include <iostream>
 #include <lemon/soplex.h>
 
-#include <soplex/soplex.h>
+#include <soplex.h>
 
 
 ///\file
