@@ -155,8 +155,6 @@ namespace lemon {
     virtual Value _getPrimalRay(int i) const;
     virtual Value _getDualRay(int i) const;
 
-    ///\todo It should be clarified
-    ///
     virtual ProblemType _getPrimalType() const;
     virtual ProblemType _getDualType() const;
 

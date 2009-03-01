@@ -205,27 +205,15 @@ namespace lemon {
 
   protected:
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual SolveExitStatus _solve();
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual Value _getSol(int i) const;
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual Value _getSolValue() const;
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual ProblemType _getType() const;
 
     ///\e
