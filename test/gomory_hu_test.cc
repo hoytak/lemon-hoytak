@@ -61,7 +61,6 @@ int main() {
     edgeMap("capacity", capacity).run();
 
   GomoryHu<Graph> ght(graph, capacity);
-  ght.init();
   ght.run();
 
   for (NodeIt u(graph); u != INVALID; ++u) {
