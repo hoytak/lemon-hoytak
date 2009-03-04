@@ -522,6 +522,12 @@ namespace lemon {
     cols.clear();
   }
 
+  void GlpkBase::freeEnv() {
+    glp_free_env();
+  }
+
+  GlpkBase::FreeEnvHelper GlpkBase::freeEnvHelper;
+
   // GlpkLp members
 
   GlpkLp::GlpkLp()

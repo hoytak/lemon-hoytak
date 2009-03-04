@@ -100,6 +100,18 @@ namespace lemon {
 
     virtual void _clear();
 
+  private:
+
+    static void freeEnv();
+
+    struct FreeEnvHelper {
+      ~FreeEnvHelper() {
+        freeEnv();
+      }
+    };
+    
+    static FreeEnvHelper freeEnvHelper;
+    
   public:
 
     ///Pointer to the underlying GLPK data structure.
