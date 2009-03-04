@@ -68,6 +68,7 @@ lemon_HEADERS += \
 	lemon/euler.h \
 	lemon/full_graph.h \
 	lemon/glpk.h \
+	lemon/gomory_hu.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
 	lemon/hypercube_graph.h \
