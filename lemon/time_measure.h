@@ -202,7 +202,7 @@ namespace lemon {
     double realTime() const {return rtime;}
   };
 
-  TimeStamp operator*(double b,const TimeStamp &t)
+  inline TimeStamp operator*(double b,const TimeStamp &t)
   {
     return t*b;
   }
