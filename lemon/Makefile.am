@@ -17,6 +17,7 @@ lemon_libemon_la_SOURCES = \
 
 
 lemon_libemon_la_CXXFLAGS = \
+	$(AM_CXXFLAGS) \
 	$(GLPK_CFLAGS) \
 	$(CPLEX_CFLAGS) \
 	$(SOPLEX_CXXFLAGS) \
