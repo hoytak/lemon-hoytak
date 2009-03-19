@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -109,7 +109,7 @@ void aTest(MipSolver& mip)
 template<class MIP>
 void cloneTest()
 {
-  
+
   MIP* mip = new MIP();
   MIP* mipnew = mip->newSolver();
   MIP* mipclone = mip->cloneSolver();
@@ -133,6 +133,7 @@ int main()
   try {
     CplexMip mip2;
     aTest(mip2);
+    cloneTest<CplexMip>();
   } catch (CplexEnv::LicenseError& error) {
 #ifdef LEMON_FORCE_CPLEX_CHECK
     check(false, error.what());
@@ -141,7 +142,6 @@ int main()
     std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
 #endif
   }
-  cloneTest<CplexMip>();
 #endif
 
   return 0;

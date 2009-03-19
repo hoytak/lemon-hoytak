@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -441,13 +441,13 @@ namespace lemon {
   // CplexLp members
 
   CplexLp::CplexLp()
-    : LpBase(), CplexBase(), LpSolver() {}
+    : LpBase(), LpSolver(), CplexBase() {}
 
   CplexLp::CplexLp(const CplexEnv& env)
-    : LpBase(), CplexBase(env), LpSolver() {}
+    : LpBase(), LpSolver(), CplexBase(env) {}
 
   CplexLp::CplexLp(const CplexLp& other)
-    : LpBase(), CplexBase(other), LpSolver() {}
+    : LpBase(), LpSolver(), CplexBase(other) {}
 
   CplexLp::~CplexLp() {}
 
@@ -798,7 +798,7 @@ namespace lemon {
   // CplexMip members
 
   CplexMip::CplexMip()
-    : LpBase(), CplexBase(), MipSolver() {
+    : LpBase(), MipSolver(), CplexBase() {
 
 #if CPX_VERSION < 800
     CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MIP);
@@ -808,7 +808,7 @@ namespace lemon {
   }
 
   CplexMip::CplexMip(const CplexEnv& env)
-    : LpBase(), CplexBase(env), MipSolver() {
+    : LpBase(), MipSolver(), CplexBase(env) {
 
 #if CPX_VERSION < 800
     CPXchgprobtype(cplexEnv(),  _prob, CPXPROB_MIP);
@@ -819,7 +819,7 @@ namespace lemon {
   }
 
   CplexMip::CplexMip(const CplexMip& other)
-    : LpBase(), CplexBase(other), MipSolver() {}
+    : LpBase(), MipSolver(), CplexBase(other) {}
 
   CplexMip::~CplexMip() {}
 

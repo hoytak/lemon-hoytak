@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -78,7 +78,7 @@ namespace lemon {
   /// \brief Base interface for the CPLEX LP and MIP solver
   ///
   /// This class implements the common interface of the CPLEX LP and
-  /// MIP solvers.  
+  /// MIP solvers.
   /// \ingroup lp_group
   class CplexBase : virtual public LpBase {
   protected:
@@ -235,10 +235,13 @@ namespace lemon {
     /// \e
     virtual ~CplexMip();
 
+    /// \e
+    virtual CplexMip* cloneSolver() const;
+    /// \e
+    virtual CplexMip* newSolver() const;
+
   protected:
 
-    virtual CplexMip* _cloneSolver() const;
-    virtual CplexMip* _newSolver() const;
 
     virtual const char* _solverName() const;
 
