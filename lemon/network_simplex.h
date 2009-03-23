@@ -28,6 +28,7 @@
 #include <limits>
 #include <algorithm>
 
+#include <lemon/core.h>
 #include <lemon/math.h>
 
 namespace lemon {
@@ -120,7 +121,7 @@ namespace lemon {
   private:
 
     // References for the original data
-    const Digraph &_orig_graph;
+    const Digraph &_graph;
     const LowerMap *_orig_lower;
     const CapacityMap &_orig_cap;
     const CostMap &_orig_cost;
@@ -130,21 +131,20 @@ namespace lemon {
     Capacity _orig_flow_value;
 
     // Result maps
-    FlowMap *_flow_result;
-    PotentialMap *_potential_result;
+    FlowMap *_flow_map;
+    PotentialMap *_potential_map;
     bool _local_flow;
     bool _local_potential;
-
-    // Data structures for storing the graph
-    ArcVector _arc;
-    NodeVector _node;
-    IntNodeMap _node_id;
-    IntVector _source;
-    IntVector _target;
 
     // The number of nodes and arcs in the original graph
     int _node_num;
     int _arc_num;
+
+    // Data structures for storing the graph
+    IntNodeMap _node_id;
+    ArcVector _arc_ref;
+    IntVector _source;
+    IntVector _target;
 
     // Node and arc maps
     CapacityVector _cap;
@@ -153,23 +153,18 @@ namespace lemon {
     CapacityVector _flow;
     CostVector _pi;
 
-    // Node and arc maps for the spanning tree structure
+    // Data for storing the spanning tree structure
     IntVector _depth;
     IntVector _parent;
     IntVector _pred;
     IntVector _thread;
     BoolVector _forward;
     IntVector _state;
-
-    // The root node
     int _root;
 
-    // The entering arc in the current pivot iteration
-    int _in_arc;
-
     // Temporary data used in the current pivot iteration
-    int join, u_in, v_in, u_out, v_out;
-    int right, first, second, last;
+    int in_arc, join, u_in, v_in, u_out, v_out;
+    int first, second, right, last;
     int stem, par_stem, new_stem;
     Capacity delta;
 
@@ -187,7 +182,6 @@ namespace lemon {
     private:
 
       // References to the NetworkSimplex class
-      const ArcVector &_arc;
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
@@ -203,9 +197,9 @@ namespace lemon {
 
       /// Constructor
       FirstEligiblePivotRule(NetworkSimplex &ns) :
-        _arc(ns._arc), _source(ns._source), _target(ns._target),
+        _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns._in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
       {}
 
       /// Find next entering arc
@@ -245,7 +239,6 @@ namespace lemon {
     private:
 
       // References to the NetworkSimplex class
-      const ArcVector &_arc;
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
@@ -258,9 +251,9 @@ namespace lemon {
 
       /// Constructor
       BestEligiblePivotRule(NetworkSimplex &ns) :
-        _arc(ns._arc), _source(ns._source), _target(ns._target),
+        _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns._in_arc), _arc_num(ns._arc_num)
+        _in_arc(ns.in_arc), _arc_num(ns._arc_num)
       {}
 
       /// Find next entering arc
@@ -291,7 +284,6 @@ namespace lemon {
     private:
 
       // References to the NetworkSimplex class
-      const ArcVector &_arc;
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
@@ -308,9 +300,9 @@ namespace lemon {
 
       /// Constructor
       BlockSearchPivotRule(NetworkSimplex &ns) :
-        _arc(ns._arc), _source(ns._source), _target(ns._target),
+        _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns._in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
       {
         // The main parameters of the pivot rule
         const double BLOCK_SIZE_FACTOR = 2.0;
@@ -370,7 +362,6 @@ namespace lemon {
     private:
 
       // References to the NetworkSimplex class
-      const ArcVector &_arc;
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
@@ -389,9 +380,9 @@ namespace lemon {
 
       /// Constructor
       CandidateListPivotRule(NetworkSimplex &ns) :
-        _arc(ns._arc), _source(ns._source), _target(ns._target),
+        _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns._in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
       {
         // The main parameters of the pivot rule
         const double LIST_LENGTH_FACTOR = 1.0;
@@ -482,7 +473,6 @@ namespace lemon {
     private:
 
       // References to the NetworkSimplex class
-      const ArcVector &_arc;
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
@@ -515,9 +505,9 @@ namespace lemon {
 
       /// Constructor
       AlteringListPivotRule(NetworkSimplex &ns) :
-        _arc(ns._arc), _source(ns._source), _target(ns._target),
+        _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns._in_arc), _arc_num(ns._arc_num),
+        _in_arc(ns.in_arc), _arc_num(ns._arc_num),
         _next_arc(0), _cand_cost(ns._arc_num), _sort_func(_cand_cost)
       {
         // The main parameters of the pivot rule
@@ -549,7 +539,7 @@ namespace lemon {
 
         // Extend the list
         int cnt = _block_size;
-        int last_edge = 0;
+        int last_arc = 0;
         int limit = _head_length;
 
         for (int e = _next_arc; e < _arc_num; ++e) {
@@ -557,7 +547,7 @@ namespace lemon {
             (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (_cand_cost[e] < 0) {
             _candidates[_curr_length++] = e;
-            last_edge = e;
+            last_arc = e;
           }
           if (--cnt == 0) {
             if (_curr_length > limit) break;
@@ -571,7 +561,7 @@ namespace lemon {
               (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
             if (_cand_cost[e] < 0) {
               _candidates[_curr_length++] = e;
-              last_edge = e;
+              last_arc = e;
             }
             if (--cnt == 0) {
               if (_curr_length > limit) break;
@@ -581,7 +571,7 @@ namespace lemon {
           }
         }
         if (_curr_length == 0) return false;
-        _next_arc = last_edge + 1;
+        _next_arc = last_arc + 1;
 
         // Make heap of the candidate list (approximating a partial sort)
         make_heap( _candidates.begin(), _candidates.begin() + _curr_length,
@@ -603,47 +593,47 @@ namespace lemon {
     ///
     /// General constructor (with lower bounds).
     ///
-    /// \param digraph The digraph the algorithm runs on.
+    /// \param graph The digraph the algorithm runs on.
     /// \param lower The lower bounds of the arcs.
     /// \param capacity The capacities (upper bounds) of the arcs.
     /// \param cost The cost (length) values of the arcs.
     /// \param supply The supply values of the nodes (signed).
-    NetworkSimplex( const Digraph &digraph,
+    NetworkSimplex( const Digraph &graph,
                     const LowerMap &lower,
                     const CapacityMap &capacity,
                     const CostMap &cost,
                     const SupplyMap &supply ) :
-      _orig_graph(digraph), _orig_lower(&lower), _orig_cap(capacity),
+      _graph(graph), _orig_lower(&lower), _orig_cap(capacity),
       _orig_cost(cost), _orig_supply(&supply),
-      _flow_result(NULL), _potential_result(NULL),
+      _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
-      _node_id(digraph)
+      _node_id(graph)
     {}
 
     /// \brief General constructor (without lower bounds).
     ///
     /// General constructor (without lower bounds).
     ///
-    /// \param digraph The digraph the algorithm runs on.
+    /// \param graph The digraph the algorithm runs on.
     /// \param capacity The capacities (upper bounds) of the arcs.
     /// \param cost The cost (length) values of the arcs.
     /// \param supply The supply values of the nodes (signed).
-    NetworkSimplex( const Digraph &digraph,
+    NetworkSimplex( const Digraph &graph,
                     const CapacityMap &capacity,
                     const CostMap &cost,
                     const SupplyMap &supply ) :
-      _orig_graph(digraph), _orig_lower(NULL), _orig_cap(capacity),
+      _graph(graph), _orig_lower(NULL), _orig_cap(capacity),
       _orig_cost(cost), _orig_supply(&supply),
-      _flow_result(NULL), _potential_result(NULL),
+      _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
-      _node_id(digraph)
+      _node_id(graph)
     {}
 
     /// \brief Simple constructor (with lower bounds).
     ///
     /// Simple constructor (with lower bounds).
     ///
-    /// \param digraph The digraph the algorithm runs on.
+    /// \param graph The digraph the algorithm runs on.
     /// \param lower The lower bounds of the arcs.
     /// \param capacity The capacities (upper bounds) of the arcs.
     /// \param cost The cost (length) values of the arcs.
@@ -651,48 +641,48 @@ namespace lemon {
     /// \param t The target node.
     /// \param flow_value The required amount of flow from node \c s
     /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    NetworkSimplex( const Digraph &digraph,
+    NetworkSimplex( const Digraph &graph,
                     const LowerMap &lower,
                     const CapacityMap &capacity,
                     const CostMap &cost,
                     Node s, Node t,
                     Capacity flow_value ) :
-      _orig_graph(digraph), _orig_lower(&lower), _orig_cap(capacity),
+      _graph(graph), _orig_lower(&lower), _orig_cap(capacity),
       _orig_cost(cost), _orig_supply(NULL),
       _orig_source(s), _orig_target(t), _orig_flow_value(flow_value),
-      _flow_result(NULL), _potential_result(NULL),
+      _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
-      _node_id(digraph)
+      _node_id(graph)
     {}
 
     /// \brief Simple constructor (without lower bounds).
     ///
     /// Simple constructor (without lower bounds).
     ///
-    /// \param digraph The digraph the algorithm runs on.
+    /// \param graph The digraph the algorithm runs on.
     /// \param capacity The capacities (upper bounds) of the arcs.
     /// \param cost The cost (length) values of the arcs.
     /// \param s The source node.
     /// \param t The target node.
     /// \param flow_value The required amount of flow from node \c s
     /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    NetworkSimplex( const Digraph &digraph,
+    NetworkSimplex( const Digraph &graph,
                     const CapacityMap &capacity,
                     const CostMap &cost,
                     Node s, Node t,
                     Capacity flow_value ) :
-      _orig_graph(digraph), _orig_lower(NULL), _orig_cap(capacity),
+      _graph(graph), _orig_lower(NULL), _orig_cap(capacity),
       _orig_cost(cost), _orig_supply(NULL),
       _orig_source(s), _orig_target(t), _orig_flow_value(flow_value),
-      _flow_result(NULL), _potential_result(NULL),
+      _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
-      _node_id(digraph)
+      _node_id(graph)
     {}
 
     /// Destructor.
     ~NetworkSimplex() {
-      if (_local_flow) delete _flow_result;
-      if (_local_potential) delete _potential_result;
+      if (_local_flow) delete _flow_map;
+      if (_local_potential) delete _potential_map;
     }
 
     /// \brief Set the flow map.
@@ -702,10 +692,10 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     NetworkSimplex& flowMap(FlowMap &map) {
       if (_local_flow) {
-        delete _flow_result;
+        delete _flow_map;
         _local_flow = false;
       }
-      _flow_result = &map;
+      _flow_map = &map;
       return *this;
     }
 
@@ -716,10 +706,10 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     NetworkSimplex& potentialMap(PotentialMap &map) {
       if (_local_potential) {
-        delete _potential_result;
+        delete _potential_map;
         _local_potential = false;
       }
-      _potential_result = &map;
+      _potential_map = &map;
       return *this;
     }
 
@@ -783,7 +773,7 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     const FlowMap& flowMap() const {
-      return *_flow_result;
+      return *_flow_map;
     }
 
     /// \brief Return a const reference to the potential map
@@ -794,7 +784,7 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     const PotentialMap& potentialMap() const {
-      return *_potential_result;
+      return *_potential_map;
     }
 
     /// \brief Return the flow on the given arc.
@@ -803,7 +793,7 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     Capacity flow(const Arc& arc) const {
-      return (*_flow_result)[arc];
+      return (*_flow_map)[arc];
     }
 
     /// \brief Return the potential of the given node.
@@ -812,7 +802,7 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     Cost potential(const Node& node) const {
-      return (*_potential_result)[node];
+      return (*_potential_map)[node];
     }
 
     /// \brief Return the total cost of the found flow.
@@ -823,8 +813,8 @@ namespace lemon {
     /// \pre \ref run() must be called before using this function.
     Cost totalCost() const {
       Cost c = 0;
-      for (ArcIt e(_orig_graph); e != INVALID; ++e)
-        c += (*_flow_result)[e] * _orig_cost[e];
+      for (ArcIt e(_graph); e != INVALID; ++e)
+        c += (*_flow_map)[e] * _orig_cost[e];
       return c;
     }
 
@@ -835,46 +825,44 @@ namespace lemon {
     // Initialize internal data structures
     bool init() {
       // Initialize result maps
-      if (!_flow_result) {
-        _flow_result = new FlowMap(_orig_graph);
+      if (!_flow_map) {
+        _flow_map = new FlowMap(_graph);
         _local_flow = true;
       }
-      if (!_potential_result) {
-        _potential_result = new PotentialMap(_orig_graph);
+      if (!_potential_map) {
+        _potential_map = new PotentialMap(_graph);
         _local_potential = true;
       }
 
       // Initialize vectors
-      _node_num = countNodes(_orig_graph);
-      _arc_num = countArcs(_orig_graph);
+      _node_num = countNodes(_graph);
+      _arc_num = countArcs(_graph);
       int all_node_num = _node_num + 1;
-      int all_edge_num = _arc_num + _node_num;
+      int all_arc_num = _arc_num + _node_num;
 
-      _arc.resize(_arc_num);
-      _node.reserve(_node_num);
-      _source.resize(all_edge_num);
-      _target.resize(all_edge_num);
+      _arc_ref.resize(_arc_num);
+      _source.resize(all_arc_num);
+      _target.resize(all_arc_num);
 
-      _cap.resize(all_edge_num);
-      _cost.resize(all_edge_num);
+      _cap.resize(all_arc_num);
+      _cost.resize(all_arc_num);
       _supply.resize(all_node_num);
-      _flow.resize(all_edge_num, 0);
+      _flow.resize(all_arc_num, 0);
       _pi.resize(all_node_num, 0);
 
       _depth.resize(all_node_num);
       _parent.resize(all_node_num);
       _pred.resize(all_node_num);
-      _thread.resize(all_node_num);
       _forward.resize(all_node_num);
-      _state.resize(all_edge_num, STATE_LOWER);
+      _thread.resize(all_node_num);
+      _state.resize(all_arc_num, STATE_LOWER);
 
       // Initialize node related data
       bool valid_supply = true;
       if (_orig_supply) {
         Supply sum = 0;
         int i = 0;
-        for (NodeIt n(_orig_graph); n != INVALID; ++n, ++i) {
-          _node.push_back(n);
+        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
           _node_id[n] = i;
           _supply[i] = (*_orig_supply)[n];
           sum += _supply[i];
@@ -882,8 +870,7 @@ namespace lemon {
         valid_supply = (sum == 0);
       } else {
         int i = 0;
-        for (NodeIt n(_orig_graph); n != INVALID; ++n, ++i) {
-          _node.push_back(n);
+        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
           _node_id[n] = i;
           _supply[i] = 0;
         }
@@ -904,16 +891,16 @@ namespace lemon {
       // Store the arcs in a mixed order
       int k = std::max(int(sqrt(_arc_num)), 10);
       int i = 0;
-      for (ArcIt e(_orig_graph); e != INVALID; ++e) {
-        _arc[i] = e;
+      for (ArcIt e(_graph); e != INVALID; ++e) {
+        _arc_ref[i] = e;
         if ((i += k) >= _arc_num) i = (i % k) + 1;
       }
 
       // Initialize arc maps
       for (int i = 0; i != _arc_num; ++i) {
-        Arc e = _arc[i];
-        _source[i] = _node_id[_orig_graph.source(e)];
-        _target[i] = _node_id[_orig_graph.target(e)];
+        Arc e = _arc_ref[i];
+        _source[i] = _node_id[_graph.source(e)];
+        _target[i] = _node_id[_graph.target(e)];
         _cost[i] = _orig_cost[e];
         _cap[i] = _orig_cap[e];
       }
@@ -921,7 +908,7 @@ namespace lemon {
       // Remove non-zero lower bounds
       if (_orig_lower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Capacity c = (*_orig_lower)[_arc[i]];
+          Capacity c = (*_orig_lower)[_arc_ref[i]];
           if (c != 0) {
             _cap[i] -= c;
             _supply[_source[i]] -= c;
@@ -957,8 +944,8 @@ namespace lemon {
 
     // Find the join node
     void findJoinNode() {
-      int u = _source[_in_arc];
-      int v = _target[_in_arc];
+      int u = _source[in_arc];
+      int v = _target[in_arc];
       while (_depth[u] > _depth[v]) u = _parent[u];
       while (_depth[v] > _depth[u]) v = _parent[v];
       while (u != v) {
@@ -973,14 +960,14 @@ namespace lemon {
     bool findLeavingArc() {
       // Initialize first and second nodes according to the direction
       // of the cycle
-      if (_state[_in_arc] == STATE_LOWER) {
-        first  = _source[_in_arc];
-        second = _target[_in_arc];
+      if (_state[in_arc] == STATE_LOWER) {
+        first  = _source[in_arc];
+        second = _target[in_arc];
       } else {
-        first  = _target[_in_arc];
-        second = _source[_in_arc];
+        first  = _target[in_arc];
+        second = _source[in_arc];
       }
-      delta = _cap[_in_arc];
+      delta = _cap[in_arc];
       int result = 0;
       Capacity d;
       int e;
@@ -1020,22 +1007,22 @@ namespace lemon {
     void changeFlow(bool change) {
       // Augment along the cycle
       if (delta > 0) {
-        Capacity val = _state[_in_arc] * delta;
-        _flow[_in_arc] += val;
-        for (int u = _source[_in_arc]; u != join; u = _parent[u]) {
+        Capacity val = _state[in_arc] * delta;
+        _flow[in_arc] += val;
+        for (int u = _source[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? -val : val;
         }
-        for (int u = _target[_in_arc]; u != join; u = _parent[u]) {
+        for (int u = _target[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? val : -val;
         }
       }
       // Update the state of the entering and leaving arcs
       if (change) {
-        _state[_in_arc] = STATE_TREE;
+        _state[in_arc] = STATE_TREE;
         _state[_pred[u_out]] =
           (_flow[_pred[u_out]] == 0) ? STATE_LOWER : STATE_UPPER;
       } else {
-        _state[_in_arc] = -_state[_in_arc];
+        _state[in_arc] = -_state[in_arc];
       }
     }
 
@@ -1106,8 +1093,8 @@ namespace lemon {
         _forward[u] = !_forward[v];
         u = v;
       }
-      _pred[u_in] = _in_arc;
-      _forward[u_in] = (u_in == _source[_in_arc]);
+      _pred[u_in] = in_arc;
+      _forward[u_in] = (u_in == _source[in_arc]);
     }
 
     // Update _depth and _potential vectors
@@ -1163,20 +1150,20 @@ namespace lemon {
         if (_flow[e] > 0) return false;
       }
 
-      // Copy flow values to _flow_result
+      // Copy flow values to _flow_map
       if (_orig_lower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc[i];
-          (*_flow_result)[e] = (*_orig_lower)[e] + _flow[i];
+          Arc e = _arc_ref[i];
+          _flow_map->set(e, (*_orig_lower)[e] + _flow[i]);
         }
       } else {
         for (int i = 0; i != _arc_num; ++i) {
-          (*_flow_result)[_arc[i]] = _flow[i];
+          _flow_map->set(_arc_ref[i], _flow[i]);
         }
       }
-      // Copy potential values to _potential_result
-      for (int i = 0; i != _node_num; ++i) {
-        (*_potential_result)[_node[i]] = _pi[i];
+      // Copy potential values to _potential_map
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        _potential_map->set(n, _pi[_node_id[n]]);
       }
 
       return true;
