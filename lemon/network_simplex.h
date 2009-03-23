@@ -154,10 +154,13 @@ namespace lemon {
     CostVector _pi;
 
     // Data for storing the spanning tree structure
-    IntVector _depth;
     IntVector _parent;
     IntVector _pred;
     IntVector _thread;
+    IntVector _rev_thread;
+    IntVector _succ_num;
+    IntVector _last_succ;
+    IntVector _dirty_revs;
     BoolVector _forward;
     IntVector _state;
     int _root;
@@ -850,11 +853,13 @@ namespace lemon {
       _flow.resize(all_arc_num, 0);
       _pi.resize(all_node_num, 0);
 
-      _depth.resize(all_node_num);
       _parent.resize(all_node_num);
       _pred.resize(all_node_num);
       _forward.resize(all_node_num);
       _thread.resize(all_node_num);
+      _rev_thread.resize(all_node_num);
+      _succ_num.resize(all_node_num);
+      _last_succ.resize(all_node_num);
       _state.resize(all_arc_num, STATE_LOWER);
 
       // Initialize node related data
@@ -881,10 +886,12 @@ namespace lemon {
 
       // Set data for the artificial root node
       _root = _node_num;
-      _depth[_root] = 0;
       _parent[_root] = -1;
       _pred[_root] = -1;
       _thread[_root] = 0;
+      _rev_thread[0] = _root;
+      _succ_num[_root] = all_node_num;
+      _last_succ[_root] = _root - 1;
       _supply[_root] = 0;
       _pi[_root] = 0;
 
@@ -922,7 +929,9 @@ namespace lemon {
       Capacity max_cap = std::numeric_limits<Capacity>::max();
       for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
         _thread[u] = u + 1;
-        _depth[u] = 1;
+        _rev_thread[u + 1] = u;
+        _succ_num[u] = 1;
+        _last_succ[u] = u;
         _parent[u] = _root;
         _pred[u] = e;
         if (_supply[u] >= 0) {
@@ -946,11 +955,12 @@ namespace lemon {
     void findJoinNode() {
       int u = _source[in_arc];
       int v = _target[in_arc];
-      while (_depth[u] > _depth[v]) u = _parent[u];
-      while (_depth[v] > _depth[u]) v = _parent[v];
       while (u != v) {
-        u = _parent[u];
-        v = _parent[v];
+        if (_succ_num[u] < _succ_num[v]) {
+          u = _parent[u];
+        } else {
+          v = _parent[v];
+        }
       }
       join = u;
     }
@@ -1026,88 +1036,147 @@ namespace lemon {
       }
     }
 
-    // Update _thread and _parent vectors
-    void updateThreadParent() {
-      int u;
+    // Update the tree structure
+    void updateTreeStructure() {
+      int u, w;
+      int old_rev_thread = _rev_thread[u_out];
+      int old_succ_num = _succ_num[u_out];
+      int old_last_succ = _last_succ[u_out];
       v_out = _parent[u_out];
 
-      // Handle the case when join and v_out coincide
-      bool par_first = false;
-      if (join == v_out) {
-        for (u = join; u != u_in && u != v_in; u = _thread[u]) ;
-        if (u == v_in) {
-          par_first = true;
-          while (_thread[u] != u_out) u = _thread[u];
-          first = u;
-        }
+      u = _last_succ[u_in];  // the last successor of u_in
+      right = _thread[u];    // the node after it
+
+      // Handle the case when old_rev_thread equals to v_in
+      // (it also means that join and v_out coincide)
+      if (old_rev_thread == v_in) {
+        last = _thread[_last_succ[u_out]];
+      } else {
+        last = _thread[v_in];
       }
 
-      // Find the last successor of u_in (u) and the node after it (right)
-      // according to the thread index
-      for (u = u_in; _depth[_thread[u]] > _depth[u_in]; u = _thread[u]) ;
-      right = _thread[u];
-      if (_thread[v_in] == u_out) {
-        for (last = u; _depth[last] > _depth[u_out]; last = _thread[last]) ;
-        if (last == u_out) last = _thread[last];
-      }
-      else last = _thread[v_in];
-
-      // Update stem nodes
+      // Update _thread and _parent along the stem nodes (i.e. the nodes
+      // between u_in and u_out, whose parent have to be changed)
       _thread[v_in] = stem = u_in;
+      _dirty_revs.clear();
+      _dirty_revs.push_back(v_in);
       par_stem = v_in;
       while (stem != u_out) {
-        _thread[u] = new_stem = _parent[stem];
+        // Insert the next stem node into the thread list
+        new_stem = _parent[stem];
+        _thread[u] = new_stem;
+        _dirty_revs.push_back(u);
 
-        // Find the node just before the stem node (u) according to
-        // the original thread index
-        for (u = new_stem; _thread[u] != stem; u = _thread[u]) ;
-        _thread[u] = right;
+        // Remove the subtree of stem from the thread list
+        w = _rev_thread[stem];
+        _thread[w] = right;
+        _rev_thread[right] = w;
 
-        // Change the parent node of stem and shift stem and par_stem nodes
+        // Change the parent node and shift stem nodes
         _parent[stem] = par_stem;
         par_stem = stem;
         stem = new_stem;
 
-        // Find the last successor of stem (u) and the node after it (right)
-        // according to the thread index
-        for (u = stem; _depth[_thread[u]] > _depth[stem]; u = _thread[u]) ;
+        // Update u and right
+        u = _last_succ[stem] == _last_succ[par_stem] ?
+          _rev_thread[par_stem] : _last_succ[stem];
         right = _thread[u];
       }
       _parent[u_out] = par_stem;
       _thread[u] = last;
+      _rev_thread[last] = u;
+      _last_succ[u_out] = u;
 
-      if (join == v_out && par_first) {
-        if (first != v_in) _thread[first] = right;
-      } else {
-        for (u = v_out; _thread[u] != u_out; u = _thread[u]) ;
-        _thread[u] = right;
+      // Remove the subtree of u_out from the thread list except for
+      // the case when old_rev_thread equals to v_in
+      // (it also means that join and v_out coincide)
+      if (old_rev_thread != v_in) {
+        _thread[old_rev_thread] = right;
+        _rev_thread[right] = old_rev_thread;
       }
-    }
 
-    // Update _pred and _forward vectors
-    void updatePredArc() {
-      int u = u_out, v;
+      // Update _rev_thread using the new _thread values
+      for (int i = 0; i < int(_dirty_revs.size()); ++i) {
+        u = _dirty_revs[i];
+        _rev_thread[_thread[u]] = u;
+      }
+
+      // Update _pred, _forward, _last_succ and _succ_num for the
+      // stem nodes from u_out to u_in
+      int tmp_sc = 0, tmp_ls = _last_succ[u_out];
+      u = u_out;
       while (u != u_in) {
-        v = _parent[u];
-        _pred[u] = _pred[v];
-        _forward[u] = !_forward[v];
-        u = v;
+        w = _parent[u];
+        _pred[u] = _pred[w];
+        _forward[u] = !_forward[w];
+        tmp_sc += _succ_num[u] - _succ_num[w];
+        _succ_num[u] = tmp_sc;
+        _last_succ[w] = tmp_ls;
+        u = w;
       }
       _pred[u_in] = in_arc;
       _forward[u_in] = (u_in == _source[in_arc]);
+      _succ_num[u_in] = old_succ_num;
+
+      // Set limits for updating _last_succ form v_in and v_out
+      // towards the root
+      int up_limit_in = -1;
+      int up_limit_out = -1;
+      if (_last_succ[join] == v_in) {
+        up_limit_out = join;
+      } else {
+        up_limit_in = join;
+      }
+
+      // Update _last_succ from v_in towards the root
+      for (u = v_in; u != up_limit_in && _last_succ[u] == v_in;
+           u = _parent[u]) {
+        _last_succ[u] = _last_succ[u_out];
+      }
+      // Update _last_succ from v_out towards the root
+      if (join != old_rev_thread && v_in != old_rev_thread) {
+        for (u = v_out; u != up_limit_out && _last_succ[u] == old_last_succ;
+             u = _parent[u]) {
+          _last_succ[u] = old_rev_thread;
+        }
+      } else {
+        for (u = v_out; u != up_limit_out && _last_succ[u] == old_last_succ;
+             u = _parent[u]) {
+          _last_succ[u] = _last_succ[u_out];
+        }
+      }
+
+      // Update _succ_num from v_in to join
+      for (u = v_in; u != join; u = _parent[u]) {
+        _succ_num[u] += old_succ_num;
+      }
+      // Update _succ_num from v_out to join
+      for (u = v_out; u != join; u = _parent[u]) {
+        _succ_num[u] -= old_succ_num;
+      }
     }
 
-    // Update _depth and _potential vectors
-    void updateDepthPotential() {
-      _depth[u_in] = _depth[v_in] + 1;
+    // Update potentials
+    void updatePotential() {
       Cost sigma = _forward[u_in] ?
         _pi[v_in] - _pi[u_in] - _cost[_pred[u_in]] :
         _pi[v_in] - _pi[u_in] + _cost[_pred[u_in]];
-      _pi[u_in] += sigma;
-      for(int u = _thread[u_in]; _parent[u] != -1; u = _thread[u]) {
-        _depth[u] = _depth[_parent[u]] + 1;
-        if (_depth[u] <= _depth[u_in]) break;
-        _pi[u] += sigma;
+      if (_succ_num[u_in] > _node_num / 2) {
+        // Update in the upper subtree (which contains the root)
+        int before = _rev_thread[u_in];
+        int after = _thread[_last_succ[u_in]];
+        _thread[before] = after;
+        _pi[_root] -= sigma;
+        for (int u = _thread[_root]; u != _root; u = _thread[u]) {
+          _pi[u] -= sigma;
+        }
+        _thread[before] = u_in;
+      } else {
+        // Update in the lower subtree (which has been moved)
+        int end = _thread[_last_succ[u_in]];
+        for (int u = u_in; u != end; u = _thread[u]) {
+          _pi[u] += sigma;
+        }
       }
     }
 
@@ -1139,9 +1208,8 @@ namespace lemon {
         bool change = findLeavingArc();
         changeFlow(change);
         if (change) {
-          updateThreadParent();
-          updatePredArc();
-          updateDepthPotential();
+          updateTreeStructure();
+          updatePotential();
         }
       }
 
