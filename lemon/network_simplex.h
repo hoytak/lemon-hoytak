@@ -41,12 +41,18 @@ namespace lemon {
   ///
   /// \ref NetworkSimplex implements the primal Network Simplex algorithm
   /// for finding a \ref min_cost_flow "minimum cost flow".
+  /// This algorithm is a specialized version of the linear programming
+  /// simplex method directly for the minimum cost flow problem.
+  /// It is one of the most efficient solution methods.
+  ///
+  /// In general this class is the fastest implementation available
+  /// in LEMON for the minimum cost flow problem.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
   /// \tparam V The value type used in the algorithm.
   /// By default it is \c int.
   ///
-  /// \warning \c V must be a signed integer type.
+  /// \warning The value type must be a signed integer type.
   ///
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations. For more information see \ref PivotRule.
@@ -789,7 +795,7 @@ namespace lemon {
     ///
     /// This function runs the algorithm.
     /// The paramters can be specified using \ref lowerMap(),
-    /// \ref upperMap(), \ref capacityMap(), \ref boundMaps(), 
+    /// \ref upperMap(), \ref capacityMap(), \ref boundMaps(),
     /// \ref costMap(), \ref supplyMap() and \ref stSupply()
     /// functions. For example,
     /// \code
@@ -798,12 +804,62 @@ namespace lemon {
     ///     .supplyMap(sup).run();
     /// \endcode
     ///
+    /// This function can be called more than once. All the parameters
+    /// that have been given are kept for the next call, unless
+    /// \ref reset() is called, thus only the modified parameters
+    /// have to be set again. See \ref reset() for examples.
+    ///
     /// \param pivot_rule The pivot rule that will be used during the
     /// algorithm. For more information see \ref PivotRule.
     ///
     /// \return \c true if a feasible flow can be found.
     bool run(PivotRule pivot_rule = BLOCK_SEARCH) {
       return init() && start(pivot_rule);
+    }
+
+    /// \brief Reset all the parameters that have been given before.
+    ///
+    /// This function resets all the paramaters that have been given
+    /// using \ref lowerMap(), \ref upperMap(), \ref capacityMap(),
+    /// \ref boundMaps(), \ref costMap(), \ref supplyMap() and
+    /// \ref stSupply() functions before.
+    ///
+    /// It is useful for multiple run() calls. If this function is not
+    /// used, all the parameters given before are kept for the next
+    /// \ref run() call.
+    ///
+    /// For example,
+    /// \code
+    ///   NetworkSimplex<ListDigraph> ns(graph);
+    ///
+    ///   // First run
+    ///   ns.lowerMap(lower).capacityMap(cap).costMap(cost)
+    ///     .supplyMap(sup).run();
+    ///
+    ///   // Run again with modified cost map (reset() is not called,
+    ///   // so only the cost map have to be set again)
+    ///   cost[e] += 100;
+    ///   ns.costMap(cost).run();
+    ///
+    ///   // Run again from scratch using reset()
+    ///   // (the lower bounds will be set to zero on all arcs)
+    ///   ns.reset();
+    ///   ns.capacityMap(cap).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& reset() {
+      delete _plower;
+      delete _pupper;
+      delete _pcost;
+      delete _psupply;
+      _plower = NULL;
+      _pupper = NULL;
+      _pcost = NULL;
+      _psupply = NULL;
+      _pstsup = false;
+      return *this;
     }
 
     /// @}
@@ -920,8 +976,8 @@ namespace lemon {
       _cap.resize(all_arc_num);
       _cost.resize(all_arc_num);
       _supply.resize(all_node_num);
-      _flow.resize(all_arc_num, 0);
-      _pi.resize(all_node_num, 0);
+      _flow.resize(all_arc_num);
+      _pi.resize(all_node_num);
 
       _parent.resize(all_node_num);
       _pred.resize(all_node_num);
@@ -930,7 +986,7 @@ namespace lemon {
       _rev_thread.resize(all_node_num);
       _succ_num.resize(all_node_num);
       _last_succ.resize(all_node_num);
-      _state.resize(all_arc_num, STATE_LOWER);
+      _state.resize(all_arc_num);
 
       // Initialize node related data
       bool valid_supply = true;
@@ -986,12 +1042,16 @@ namespace lemon {
           _target[i] = _node_id[_graph.target(e)];
           _cap[i] = (*_pupper)[e];
           _cost[i] = (*_pcost)[e];
+          _flow[i] = 0;
+          _state[i] = STATE_LOWER;
         }
       } else {
         for (int i = 0; i != _arc_num; ++i) {
           Arc e = _arc_ref[i];
           _source[i] = _node_id[_graph.source(e)];
           _target[i] = _node_id[_graph.target(e)];
+          _flow[i] = 0;
+          _state[i] = STATE_LOWER;
         }
         if (_pupper) {
           for (int i = 0; i != _arc_num; ++i)
@@ -1032,6 +1092,9 @@ namespace lemon {
         _last_succ[u] = u;
         _parent[u] = _root;
         _pred[u] = e;
+        _cost[e] = max_cost;
+        _cap[e] = max_cap;
+        _state[e] = STATE_TREE;
         if (_supply[u] >= 0) {
           _flow[e] = _supply[u];
           _forward[u] = true;
@@ -1041,9 +1104,6 @@ namespace lemon {
           _forward[u] = false;
           _pi[u] = max_cost;
         }
-        _cost[e] = max_cost;
-        _cap[e] = max_cap;
-        _state[e] = STATE_TREE;
       }
 
       return true;

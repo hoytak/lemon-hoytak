@@ -89,7 +89,8 @@ public:
 
       MCF mcf(g);
 
-      b = mcf.lowerMap(lower)
+      b = mcf.reset()
+             .lowerMap(lower)
              .upperMap(upper)
              .capacityMap(upper)
              .boundMaps(lower, upper)
@@ -242,46 +243,44 @@ int main()
 
   // A. Test NetworkSimplex with the default pivot rule
   {
-    NetworkSimplex<Digraph> mcf1(gr), mcf2(gr), mcf3(gr), mcf4(gr),
-                            mcf5(gr), mcf6(gr), mcf7(gr), mcf8(gr);
+    NetworkSimplex<Digraph> mcf(gr);
 
-    checkMcf(mcf1, mcf1.upperMap(u).costMap(c).supplyMap(s1).run(),
+    mcf.upperMap(u).costMap(c);
+    checkMcf(mcf, mcf.supplyMap(s1).run(),
              gr, l1, u, c, s1, true,  5240, "#A1");
-    checkMcf(mcf2, mcf2.upperMap(u).costMap(c).stSupply(v, w, 27).run(),
+    checkMcf(mcf, mcf.stSupply(v, w, 27).run(),
              gr, l1, u, c, s2, true,  7620, "#A2");
-    checkMcf(mcf3, mcf3.boundMaps(l2, u).costMap(c).supplyMap(s1).run(),
+    mcf.lowerMap(l2);
+    checkMcf(mcf, mcf.supplyMap(s1).run(),
              gr, l2, u, c, s1, true,  5970, "#A3");
-    checkMcf(mcf4, mcf4.boundMaps(l2, u).costMap(c).stSupply(v, w, 27).run(),
+    checkMcf(mcf, mcf.stSupply(v, w, 27).run(),
              gr, l2, u, c, s2, true,  8010, "#A4");
-    checkMcf(mcf5, mcf5.supplyMap(s1).run(),
+    mcf.reset();
+    checkMcf(mcf, mcf.supplyMap(s1).run(),
              gr, l1, cu, cc, s1, true,  74, "#A5");
-    checkMcf(mcf6, mcf6.stSupply(v, w, 27).lowerMap(l2).run(),
+    checkMcf(mcf, mcf.lowerMap(l2).stSupply(v, w, 27).run(),
              gr, l2, cu, cc, s2, true,  94, "#A6");
-    checkMcf(mcf7, mcf7.run(),
+    mcf.reset();
+    checkMcf(mcf, mcf.run(),
              gr, l1, cu, cc, s3, true,   0, "#A7");
-    checkMcf(mcf8, mcf8.boundMaps(l2, u).run(),
+    checkMcf(mcf, mcf.boundMaps(l2, u).run(),
              gr, l2, u, cc, s3, false,   0, "#A8");
   }
 
   // B. Test NetworkSimplex with each pivot rule
   {
-    NetworkSimplex<Digraph> mcf1(gr), mcf2(gr), mcf3(gr), mcf4(gr), mcf5(gr);
-    NetworkSimplex<Digraph>::PivotRule pr;
+    NetworkSimplex<Digraph> mcf(gr);
+    mcf.supplyMap(s1).costMap(c).capacityMap(u).lowerMap(l2);
 
-    pr = NetworkSimplex<Digraph>::FIRST_ELIGIBLE;
-    checkMcf(mcf1, mcf1.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::FIRST_ELIGIBLE),
              gr, l2, u, c, s1, true,  5970, "#B1");
-    pr = NetworkSimplex<Digraph>::BEST_ELIGIBLE;
-    checkMcf(mcf2, mcf2.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::BEST_ELIGIBLE),
              gr, l2, u, c, s1, true,  5970, "#B2");
-    pr = NetworkSimplex<Digraph>::BLOCK_SEARCH;
-    checkMcf(mcf3, mcf3.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::BLOCK_SEARCH),
              gr, l2, u, c, s1, true,  5970, "#B3");
-    pr = NetworkSimplex<Digraph>::CANDIDATE_LIST;
-    checkMcf(mcf4, mcf4.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::CANDIDATE_LIST),
              gr, l2, u, c, s1, true,  5970, "#B4");
-    pr = NetworkSimplex<Digraph>::ALTERING_LIST;
-    checkMcf(mcf5, mcf5.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::ALTERING_LIST),
              gr, l2, u, c, s1, true,  5970, "#B5");
   }
 
