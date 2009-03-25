@@ -105,9 +105,8 @@ void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
   readDimacsMin(is, g, lower, cap, cost, sup, desc);
   if (report) std::cerr << "Read the file: " << ti << '\n';
   ti.restart();
-  NetworkSimplex< Digraph, Digraph::ArcMap<Value>, Digraph::ArcMap<Value>,
-                  Digraph::ArcMap<Value>, Digraph::NodeMap<Value> >
-    ns(g, lower, cap, cost, sup);
+  NetworkSimplex<Digraph, Value> ns(g);
+  ns.lowerMap(lower).capacityMap(cap).costMap(cost).supplyMap(sup);
   if (report) std::cerr << "Setup NetworkSimplex class: " << ti << '\n';
   ti.restart();
   ns.run();

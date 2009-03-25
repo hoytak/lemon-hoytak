@@ -20,15 +20,9 @@
 #include <fstream>
 
 #include <lemon/list_graph.h>
-#include <lemon/smart_graph.h>
 #include <lemon/lgf_reader.h>
 
-//#include <lemon/cycle_canceling.h>
-//#include <lemon/capacity_scaling.h>
-//#include <lemon/cost_scaling.h>
 #include <lemon/network_simplex.h>
-//#include <lemon/min_cost_flow.h>
-//#include <lemon/min_cost_max_flow.h>
 
 #include <lemon/concepts/digraph.h>
 #include <lemon/concept_check.h>
@@ -93,36 +87,30 @@ public:
     void constraints() {
       checkConcept<concepts::Digraph, GR>();
 
-      MCF mcf_test1(g, lower, upper, cost, sup);
-      MCF mcf_test2(g, upper, cost, sup);
-      MCF mcf_test3(g, lower, upper, cost, n, n, k);
-      MCF mcf_test4(g, upper, cost, n, n, k);
+      MCF mcf(g);
 
-      // TODO: This part should be enabled and the next part
-      // should be removed if map copying is supported
-/*
-      flow = mcf_test1.flowMap();
-      mcf_test1.flowMap(flow);
+      b = mcf.lowerMap(lower)
+             .upperMap(upper)
+             .capacityMap(upper)
+             .boundMaps(lower, upper)
+             .costMap(cost)
+             .supplyMap(sup)
+             .stSupply(n, n, k)
+             .run();
 
-      pot = mcf_test1.potentialMap();
-      mcf_test1.potentialMap(pot);
-*/
-/**/
-      const typename MCF::FlowMap &fm =
-        mcf_test1.flowMap();
-      mcf_test1.flowMap(flow);
-      const typename MCF::PotentialMap &pm =
-        mcf_test1.potentialMap();
-      mcf_test1.potentialMap(pot);
+      const typename MCF::FlowMap &fm = mcf.flowMap();
+      const typename MCF::PotentialMap &pm = mcf.potentialMap();
+
+      v = mcf.totalCost();
+      double x = mcf.template totalCost<double>();
+      v = mcf.flow(a);
+      v = mcf.potential(n);
+      mcf.flowMap(flow);
+      mcf.potentialMap(pot);
+
       ignore_unused_variable_warning(fm);
       ignore_unused_variable_warning(pm);
-/**/
-
-      mcf_test1.run();
-
-      v = mcf_test1.totalCost();
-      v = mcf_test1.flow(a);
-      v = mcf_test1.potential(n);
+      ignore_unused_variable_warning(x);
     }
 
     typedef typename GR::Node Node;
@@ -139,6 +127,7 @@ public:
     const Arc &a;
     const Value &k;
     Value v;
+    bool b;
 
     typename MCF::FlowMap &flow;
     typename MCF::PotentialMap &pot;
@@ -172,7 +161,7 @@ bool checkFlow( const GR& gr, const LM& lower, const UM& upper,
 }
 
 // Check the feasibility of the given potentials (dual soluiton)
-// using the Complementary Slackness optimality condition
+// using the "Complementary Slackness" optimality condition
 template < typename GR, typename LM, typename UM,
            typename CM, typename FM, typename PM >
 bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
@@ -217,23 +206,14 @@ int main()
   // Check the interfaces
   {
     typedef int Value;
-    // This typedef should be enabled if the standard maps are
-    // reference maps in the graph concepts
+    // TODO: This typedef should be enabled if the standard maps are
+    // reference maps in the graph concepts (See #190).
+/**/
     //typedef concepts::Digraph GR;
     typedef ListDigraph GR;
-    typedef concepts::ReadMap<GR::Node, Value> NM;
-    typedef concepts::ReadMap<GR::Arc, Value> AM;
-
-    //checkConcept< McfClassConcept<GR, Value>,
-    //              CycleCanceling<GR, AM, AM, AM, NM> >();
-    //checkConcept< McfClassConcept<GR, Value>,
-    //              CapacityScaling<GR, AM, AM, AM, NM> >();
-    //checkConcept< McfClassConcept<GR, Value>,
-    //              CostScaling<GR, AM, AM, AM, NM> >();
+/**/
     checkConcept< McfClassConcept<GR, Value>,
-                  NetworkSimplex<GR, AM, AM, AM, NM> >();
-    //checkConcept< MinCostFlow<GR, Value>,
-    //              NetworkSimplex<GR, AM, AM, AM, NM> >();
+                  NetworkSimplex<GR, Value> >();
   }
 
   // Run various MCF tests
@@ -244,6 +224,7 @@ int main()
   Digraph gr;
   Digraph::ArcMap<int> c(gr), l1(gr), l2(gr), u(gr);
   Digraph::NodeMap<int> s1(gr), s2(gr), s3(gr);
+  ConstMap<Arc, int> cc(1), cu(std::numeric_limits<int>::max());
   Node v, w;
 
   std::istringstream input(test_lgf);
@@ -259,197 +240,50 @@ int main()
     .node("target", w)
     .run();
 
-/*
-  // A. Test CapacityScaling with scaling
+  // A. Test NetworkSimplex with the default pivot rule
   {
-    CapacityScaling<Digraph> mcf1(gr, u, c, s1);
-    CapacityScaling<Digraph> mcf2(gr, u, c, v, w, 27);
-    CapacityScaling<Digraph> mcf3(gr, u, c, s3);
-    CapacityScaling<Digraph> mcf4(gr, l2, u, c, s1);
-    CapacityScaling<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    CapacityScaling<Digraph> mcf6(gr, l2, u, c, s3);
+    NetworkSimplex<Digraph> mcf1(gr), mcf2(gr), mcf3(gr), mcf4(gr),
+                            mcf5(gr), mcf6(gr), mcf7(gr), mcf8(gr);
 
-    checkMcf(mcf1, mcf1.run(), gr, l1, u, c, s1, true,  5240, "#A1");
-    checkMcf(mcf2, mcf2.run(), gr, l1, u, c, s2, true,  7620, "#A2");
-    checkMcf(mcf3, mcf3.run(), gr, l1, u, c, s3, true,     0, "#A3");
-    checkMcf(mcf4, mcf4.run(), gr, l2, u, c, s1, true,  5970, "#A4");
-    checkMcf(mcf5, mcf5.run(), gr, l2, u, c, s2, true,  8010, "#A5");
-    checkMcf(mcf6, mcf6.run(), gr, l2, u, c, s3, false,    0, "#A6");
+    checkMcf(mcf1, mcf1.upperMap(u).costMap(c).supplyMap(s1).run(),
+             gr, l1, u, c, s1, true,  5240, "#A1");
+    checkMcf(mcf2, mcf2.upperMap(u).costMap(c).stSupply(v, w, 27).run(),
+             gr, l1, u, c, s2, true,  7620, "#A2");
+    checkMcf(mcf3, mcf3.boundMaps(l2, u).costMap(c).supplyMap(s1).run(),
+             gr, l2, u, c, s1, true,  5970, "#A3");
+    checkMcf(mcf4, mcf4.boundMaps(l2, u).costMap(c).stSupply(v, w, 27).run(),
+             gr, l2, u, c, s2, true,  8010, "#A4");
+    checkMcf(mcf5, mcf5.supplyMap(s1).run(),
+             gr, l1, cu, cc, s1, true,  74, "#A5");
+    checkMcf(mcf6, mcf6.stSupply(v, w, 27).lowerMap(l2).run(),
+             gr, l2, cu, cc, s2, true,  94, "#A6");
+    checkMcf(mcf7, mcf7.run(),
+             gr, l1, cu, cc, s3, true,   0, "#A7");
+    checkMcf(mcf8, mcf8.boundMaps(l2, u).run(),
+             gr, l2, u, cc, s3, false,   0, "#A8");
   }
 
-  // B. Test CapacityScaling without scaling
+  // B. Test NetworkSimplex with each pivot rule
   {
-    CapacityScaling<Digraph> mcf1(gr, u, c, s1);
-    CapacityScaling<Digraph> mcf2(gr, u, c, v, w, 27);
-    CapacityScaling<Digraph> mcf3(gr, u, c, s3);
-    CapacityScaling<Digraph> mcf4(gr, l2, u, c, s1);
-    CapacityScaling<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    CapacityScaling<Digraph> mcf6(gr, l2, u, c, s3);
+    NetworkSimplex<Digraph> mcf1(gr), mcf2(gr), mcf3(gr), mcf4(gr), mcf5(gr);
+    NetworkSimplex<Digraph>::PivotRule pr;
 
-    checkMcf(mcf1, mcf1.run(false), gr, l1, u, c, s1, true,  5240, "#B1");
-    checkMcf(mcf2, mcf2.run(false), gr, l1, u, c, s2, true,  7620, "#B2");
-    checkMcf(mcf3, mcf3.run(false), gr, l1, u, c, s3, true,     0, "#B3");
-    checkMcf(mcf4, mcf4.run(false), gr, l2, u, c, s1, true,  5970, "#B4");
-    checkMcf(mcf5, mcf5.run(false), gr, l2, u, c, s2, true,  8010, "#B5");
-    checkMcf(mcf6, mcf6.run(false), gr, l2, u, c, s3, false,    0, "#B6");
+    pr = NetworkSimplex<Digraph>::FIRST_ELIGIBLE;
+    checkMcf(mcf1, mcf1.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+             gr, l2, u, c, s1, true,  5970, "#B1");
+    pr = NetworkSimplex<Digraph>::BEST_ELIGIBLE;
+    checkMcf(mcf2, mcf2.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+             gr, l2, u, c, s1, true,  5970, "#B2");
+    pr = NetworkSimplex<Digraph>::BLOCK_SEARCH;
+    checkMcf(mcf3, mcf3.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+             gr, l2, u, c, s1, true,  5970, "#B3");
+    pr = NetworkSimplex<Digraph>::CANDIDATE_LIST;
+    checkMcf(mcf4, mcf4.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+             gr, l2, u, c, s1, true,  5970, "#B4");
+    pr = NetworkSimplex<Digraph>::ALTERING_LIST;
+    checkMcf(mcf5, mcf5.boundMaps(l2, u).costMap(c).supplyMap(s1).run(pr),
+             gr, l2, u, c, s1, true,  5970, "#B5");
   }
-
-  // C. Test CostScaling using partial augment-relabel method
-  {
-    CostScaling<Digraph> mcf1(gr, u, c, s1);
-    CostScaling<Digraph> mcf2(gr, u, c, v, w, 27);
-    CostScaling<Digraph> mcf3(gr, u, c, s3);
-    CostScaling<Digraph> mcf4(gr, l2, u, c, s1);
-    CostScaling<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    CostScaling<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(), gr, l1, u, c, s1, true,  5240, "#C1");
-    checkMcf(mcf2, mcf2.run(), gr, l1, u, c, s2, true,  7620, "#C2");
-    checkMcf(mcf3, mcf3.run(), gr, l1, u, c, s3, true,     0, "#C3");
-    checkMcf(mcf4, mcf4.run(), gr, l2, u, c, s1, true,  5970, "#C4");
-    checkMcf(mcf5, mcf5.run(), gr, l2, u, c, s2, true,  8010, "#C5");
-    checkMcf(mcf6, mcf6.run(), gr, l2, u, c, s3, false,    0, "#C6");
-  }
-
-  // D. Test CostScaling using push-relabel method
-  {
-    CostScaling<Digraph> mcf1(gr, u, c, s1);
-    CostScaling<Digraph> mcf2(gr, u, c, v, w, 27);
-    CostScaling<Digraph> mcf3(gr, u, c, s3);
-    CostScaling<Digraph> mcf4(gr, l2, u, c, s1);
-    CostScaling<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    CostScaling<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(false), gr, l1, u, c, s1, true,  5240, "#D1");
-    checkMcf(mcf2, mcf2.run(false), gr, l1, u, c, s2, true,  7620, "#D2");
-    checkMcf(mcf3, mcf3.run(false), gr, l1, u, c, s3, true,     0, "#D3");
-    checkMcf(mcf4, mcf4.run(false), gr, l2, u, c, s1, true,  5970, "#D4");
-    checkMcf(mcf5, mcf5.run(false), gr, l2, u, c, s2, true,  8010, "#D5");
-    checkMcf(mcf6, mcf6.run(false), gr, l2, u, c, s3, false,    0, "#D6");
-  }
-*/
-
-  // E. Test NetworkSimplex with FIRST_ELIGIBLE_PIVOT
-  {
-    NetworkSimplex<Digraph>::PivotRuleEnum pr =
-      NetworkSimplex<Digraph>::FIRST_ELIGIBLE_PIVOT;
-    NetworkSimplex<Digraph> mcf1(gr, u, c, s1);
-    NetworkSimplex<Digraph> mcf2(gr, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf3(gr, u, c, s3);
-    NetworkSimplex<Digraph> mcf4(gr, l2, u, c, s1);
-    NetworkSimplex<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(pr), gr, l1, u, c, s1, true,  5240, "#E1");
-    checkMcf(mcf2, mcf2.run(pr), gr, l1, u, c, s2, true,  7620, "#E2");
-    checkMcf(mcf3, mcf3.run(pr), gr, l1, u, c, s3, true,     0, "#E3");
-    checkMcf(mcf4, mcf4.run(pr), gr, l2, u, c, s1, true,  5970, "#E4");
-    checkMcf(mcf5, mcf5.run(pr), gr, l2, u, c, s2, true,  8010, "#E5");
-    checkMcf(mcf6, mcf6.run(pr), gr, l2, u, c, s3, false,    0, "#E6");
-  }
-
-  // F. Test NetworkSimplex with BEST_ELIGIBLE_PIVOT
-  {
-    NetworkSimplex<Digraph>::PivotRuleEnum pr =
-      NetworkSimplex<Digraph>::BEST_ELIGIBLE_PIVOT;
-    NetworkSimplex<Digraph> mcf1(gr, u, c, s1);
-    NetworkSimplex<Digraph> mcf2(gr, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf3(gr, u, c, s3);
-    NetworkSimplex<Digraph> mcf4(gr, l2, u, c, s1);
-    NetworkSimplex<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(pr), gr, l1, u, c, s1, true,  5240, "#F1");
-    checkMcf(mcf2, mcf2.run(pr), gr, l1, u, c, s2, true,  7620, "#F2");
-    checkMcf(mcf3, mcf3.run(pr), gr, l1, u, c, s3, true,     0, "#F3");
-    checkMcf(mcf4, mcf4.run(pr), gr, l2, u, c, s1, true,  5970, "#F4");
-    checkMcf(mcf5, mcf5.run(pr), gr, l2, u, c, s2, true,  8010, "#F5");
-    checkMcf(mcf6, mcf6.run(pr), gr, l2, u, c, s3, false,    0, "#F6");
-  }
-
-  // G. Test NetworkSimplex with BLOCK_SEARCH_PIVOT
-  {
-    NetworkSimplex<Digraph>::PivotRuleEnum pr =
-      NetworkSimplex<Digraph>::BLOCK_SEARCH_PIVOT;
-    NetworkSimplex<Digraph> mcf1(gr, u, c, s1);
-    NetworkSimplex<Digraph> mcf2(gr, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf3(gr, u, c, s3);
-    NetworkSimplex<Digraph> mcf4(gr, l2, u, c, s1);
-    NetworkSimplex<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(pr), gr, l1, u, c, s1, true,  5240, "#G1");
-    checkMcf(mcf2, mcf2.run(pr), gr, l1, u, c, s2, true,  7620, "#G2");
-    checkMcf(mcf3, mcf3.run(pr), gr, l1, u, c, s3, true,     0, "#G3");
-    checkMcf(mcf4, mcf4.run(pr), gr, l2, u, c, s1, true,  5970, "#G4");
-    checkMcf(mcf5, mcf5.run(pr), gr, l2, u, c, s2, true,  8010, "#G5");
-    checkMcf(mcf6, mcf6.run(pr), gr, l2, u, c, s3, false,    0, "#G6");
-  }
-
-  // H. Test NetworkSimplex with CANDIDATE_LIST_PIVOT
-  {
-    NetworkSimplex<Digraph>::PivotRuleEnum pr =
-      NetworkSimplex<Digraph>::CANDIDATE_LIST_PIVOT;
-    NetworkSimplex<Digraph> mcf1(gr, u, c, s1);
-    NetworkSimplex<Digraph> mcf2(gr, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf3(gr, u, c, s3);
-    NetworkSimplex<Digraph> mcf4(gr, l2, u, c, s1);
-    NetworkSimplex<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(pr), gr, l1, u, c, s1, true,  5240, "#H1");
-    checkMcf(mcf2, mcf2.run(pr), gr, l1, u, c, s2, true,  7620, "#H2");
-    checkMcf(mcf3, mcf3.run(pr), gr, l1, u, c, s3, true,     0, "#H3");
-    checkMcf(mcf4, mcf4.run(pr), gr, l2, u, c, s1, true,  5970, "#H4");
-    checkMcf(mcf5, mcf5.run(pr), gr, l2, u, c, s2, true,  8010, "#H5");
-    checkMcf(mcf6, mcf6.run(pr), gr, l2, u, c, s3, false,    0, "#H6");
-  }
-
-  // I. Test NetworkSimplex with ALTERING_LIST_PIVOT
-  {
-    NetworkSimplex<Digraph>::PivotRuleEnum pr =
-      NetworkSimplex<Digraph>::ALTERING_LIST_PIVOT;
-    NetworkSimplex<Digraph> mcf1(gr, u, c, s1);
-    NetworkSimplex<Digraph> mcf2(gr, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf3(gr, u, c, s3);
-    NetworkSimplex<Digraph> mcf4(gr, l2, u, c, s1);
-    NetworkSimplex<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    NetworkSimplex<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(pr), gr, l1, u, c, s1, true,  5240, "#I1");
-    checkMcf(mcf2, mcf2.run(pr), gr, l1, u, c, s2, true,  7620, "#I2");
-    checkMcf(mcf3, mcf3.run(pr), gr, l1, u, c, s3, true,     0, "#I3");
-    checkMcf(mcf4, mcf4.run(pr), gr, l2, u, c, s1, true,  5970, "#I4");
-    checkMcf(mcf5, mcf5.run(pr), gr, l2, u, c, s2, true,  8010, "#I5");
-    checkMcf(mcf6, mcf6.run(pr), gr, l2, u, c, s3, false,    0, "#I6");
-  }
-
-/*
-  // J. Test MinCostFlow
-  {
-    MinCostFlow<Digraph> mcf1(gr, u, c, s1);
-    MinCostFlow<Digraph> mcf2(gr, u, c, v, w, 27);
-    MinCostFlow<Digraph> mcf3(gr, u, c, s3);
-    MinCostFlow<Digraph> mcf4(gr, l2, u, c, s1);
-    MinCostFlow<Digraph> mcf5(gr, l2, u, c, v, w, 27);
-    MinCostFlow<Digraph> mcf6(gr, l2, u, c, s3);
-
-    checkMcf(mcf1, mcf1.run(), gr, l1, u, c, s1, true,  5240, "#J1");
-    checkMcf(mcf2, mcf2.run(), gr, l1, u, c, s2, true,  7620, "#J2");
-    checkMcf(mcf3, mcf3.run(), gr, l1, u, c, s3, true,     0, "#J3");
-    checkMcf(mcf4, mcf4.run(), gr, l2, u, c, s1, true,  5970, "#J4");
-    checkMcf(mcf5, mcf5.run(), gr, l2, u, c, s2, true,  8010, "#J5");
-    checkMcf(mcf6, mcf6.run(), gr, l2, u, c, s3, false,    0, "#J6");
-  }
-*/
-/*
-  // K. Test MinCostMaxFlow
-  {
-    MinCostMaxFlow<Digraph> mcmf(gr, u, c, v, w);
-    mcmf.run();
-    checkMcf(mcmf, true, gr, l1, u, c, s3, true, 7620, "#K1");
-  }
-*/
 
   return 0;
 }

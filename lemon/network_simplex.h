@@ -22,7 +22,7 @@
 /// \ingroup min_cost_flow
 ///
 /// \file
-/// \brief Network simplex algorithm for finding a minimum cost flow.
+/// \brief Network Simplex algorithm for finding a minimum cost flow.
 
 #include <vector>
 #include <limits>
@@ -36,80 +36,89 @@ namespace lemon {
   /// \addtogroup min_cost_flow
   /// @{
 
-  /// \brief Implementation of the primal network simplex algorithm
+  /// \brief Implementation of the primal Network Simplex algorithm
   /// for finding a \ref min_cost_flow "minimum cost flow".
   ///
-  /// \ref NetworkSimplex implements the primal network simplex algorithm
+  /// \ref NetworkSimplex implements the primal Network Simplex algorithm
   /// for finding a \ref min_cost_flow "minimum cost flow".
   ///
-  /// \tparam Digraph The digraph type the algorithm runs on.
-  /// \tparam LowerMap The type of the lower bound map.
-  /// \tparam CapacityMap The type of the capacity (upper bound) map.
-  /// \tparam CostMap The type of the cost (length) map.
-  /// \tparam SupplyMap The type of the supply map.
+  /// \tparam GR The digraph type the algorithm runs on.
+  /// \tparam V The value type used in the algorithm.
+  /// By default it is \c int.
   ///
-  /// \warning
-  /// - Arc capacities and costs should be \e non-negative \e integers.
-  /// - Supply values should be \e signed \e integers.
-  /// - The value types of the maps should be convertible to each other.
-  /// - \c CostMap::Value must be signed type.
+  /// \warning \c V must be a signed integer type.
   ///
-  /// \note \ref NetworkSimplex provides five different pivot rule
-  /// implementations that significantly affect the efficiency of the
-  /// algorithm.
-  /// By default "Block Search" pivot rule is used, which proved to be
-  /// by far the most efficient according to our benchmark tests.
-  /// However another pivot rule can be selected using \ref run()
-  /// function with the proper parameter.
-#ifdef DOXYGEN
-  template < typename Digraph,
-             typename LowerMap,
-             typename CapacityMap,
-             typename CostMap,
-             typename SupplyMap >
-
-#else
-  template < typename Digraph,
-             typename LowerMap = typename Digraph::template ArcMap<int>,
-             typename CapacityMap = typename Digraph::template ArcMap<int>,
-             typename CostMap = typename Digraph::template ArcMap<int>,
-             typename SupplyMap = typename Digraph::template NodeMap<int> >
-#endif
+  /// \note %NetworkSimplex provides five different pivot rule
+  /// implementations. For more information see \ref PivotRule.
+  template <typename GR, typename V = int>
   class NetworkSimplex
   {
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+  public:
 
-    typedef typename CapacityMap::Value Capacity;
-    typedef typename CostMap::Value Cost;
-    typedef typename SupplyMap::Value Supply;
+    /// The value type of the algorithm
+    typedef V Value;
+    /// The type of the flow map
+    typedef typename GR::template ArcMap<Value> FlowMap;
+    /// The type of the potential map
+    typedef typename GR::template NodeMap<Value> PotentialMap;
+
+  public:
+
+    /// \brief Enum type for selecting the pivot rule.
+    ///
+    /// Enum type for selecting the pivot rule for the \ref run()
+    /// function.
+    ///
+    /// \ref NetworkSimplex provides five different pivot rule
+    /// implementations that significantly affect the running time
+    /// of the algorithm.
+    /// By default \ref BLOCK_SEARCH "Block Search" is used, which
+    /// proved to be the most efficient and the most robust on various
+    /// test inputs according to our benchmark tests.
+    /// However another pivot rule can be selected using the \ref run()
+    /// function with the proper parameter.
+    enum PivotRule {
+
+      /// The First Eligible pivot rule.
+      /// The next eligible arc is selected in a wraparound fashion
+      /// in every iteration.
+      FIRST_ELIGIBLE,
+
+      /// The Best Eligible pivot rule.
+      /// The best eligible arc is selected in every iteration.
+      BEST_ELIGIBLE,
+
+      /// The Block Search pivot rule.
+      /// A specified number of arcs are examined in every iteration
+      /// in a wraparound fashion and the best eligible arc is selected
+      /// from this block.
+      BLOCK_SEARCH,
+
+      /// The Candidate List pivot rule.
+      /// In a major iteration a candidate list is built from eligible arcs
+      /// in a wraparound fashion and in the following minor iterations
+      /// the best eligible arc is selected from this list.
+      CANDIDATE_LIST,
+
+      /// The Altering Candidate List pivot rule.
+      /// It is a modified version of the Candidate List method.
+      /// It keeps only the several best eligible arcs from the former
+      /// candidate list and extends this list in every iteration.
+      ALTERING_LIST
+    };
+
+  private:
+
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+
+    typedef typename GR::template ArcMap<Value> ValueArcMap;
+    typedef typename GR::template NodeMap<Value> ValueNodeMap;
 
     typedef std::vector<Arc> ArcVector;
     typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
-    typedef std::vector<Capacity> CapacityVector;
-    typedef std::vector<Cost> CostVector;
-    typedef std::vector<Supply> SupplyVector;
-
-  public:
-
-    /// The type of the flow map
-    typedef typename Digraph::template ArcMap<Capacity> FlowMap;
-    /// The type of the potential map
-    typedef typename Digraph::template NodeMap<Cost> PotentialMap;
-
-  public:
-
-    /// Enum type for selecting the pivot rule used by \ref run()
-    enum PivotRuleEnum {
-      FIRST_ELIGIBLE_PIVOT,
-      BEST_ELIGIBLE_PIVOT,
-      BLOCK_SEARCH_PIVOT,
-      CANDIDATE_LIST_PIVOT,
-      ALTERING_LIST_PIVOT
-    };
-
-  private:
+    typedef std::vector<Value> ValueVector;
 
     // State constants for arcs
     enum ArcStateEnum {
@@ -120,15 +129,19 @@ namespace lemon {
 
   private:
 
-    // References for the original data
-    const Digraph &_graph;
-    const LowerMap *_orig_lower;
-    const CapacityMap &_orig_cap;
-    const CostMap &_orig_cost;
-    const SupplyMap *_orig_supply;
-    Node _orig_source;
-    Node _orig_target;
-    Capacity _orig_flow_value;
+    // Data related to the underlying digraph
+    const GR &_graph;
+    int _node_num;
+    int _arc_num;
+
+    // Parameters of the problem
+    ValueArcMap *_plower;
+    ValueArcMap *_pupper;
+    ValueArcMap *_pcost;
+    ValueNodeMap *_psupply;
+    bool _pstsup;
+    Node _psource, _ptarget;
+    Value _pstflow;
 
     // Result maps
     FlowMap *_flow_map;
@@ -136,22 +149,18 @@ namespace lemon {
     bool _local_flow;
     bool _local_potential;
 
-    // The number of nodes and arcs in the original graph
-    int _node_num;
-    int _arc_num;
-
-    // Data structures for storing the graph
+    // Data structures for storing the digraph
     IntNodeMap _node_id;
     ArcVector _arc_ref;
     IntVector _source;
     IntVector _target;
 
-    // Node and arc maps
-    CapacityVector _cap;
-    CostVector _cost;
-    CostVector _supply;
-    CapacityVector _flow;
-    CostVector _pi;
+    // Node and arc data
+    ValueVector _cap;
+    ValueVector _cost;
+    ValueVector _supply;
+    ValueVector _flow;
+    ValueVector _pi;
 
     // Data for storing the spanning tree structure
     IntVector _parent;
@@ -169,17 +178,11 @@ namespace lemon {
     int in_arc, join, u_in, v_in, u_out, v_out;
     int first, second, right, last;
     int stem, par_stem, new_stem;
-    Capacity delta;
+    Value delta;
 
   private:
 
-    /// \brief Implementation of the "First Eligible" pivot rule for the
-    /// \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// This class implements the "First Eligible" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// For more information see \ref NetworkSimplex::run().
+    // Implementation of the First Eligible pivot rule
     class FirstEligiblePivotRule
     {
     private:
@@ -187,9 +190,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const CostVector &_cost;
+      const ValueVector &_cost;
       const IntVector  &_state;
-      const CostVector &_pi;
+      const ValueVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -198,16 +201,16 @@ namespace lemon {
 
     public:
 
-      /// Constructor
+      // Constructor
       FirstEligiblePivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
         _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
       {}
 
-      /// Find next entering arc
+      // Find next entering arc
       bool findEnteringArc() {
-        Cost c;
+        Value c;
         for (int e = _next_arc; e < _arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < 0) {
@@ -230,13 +233,7 @@ namespace lemon {
     }; //class FirstEligiblePivotRule
 
 
-    /// \brief Implementation of the "Best Eligible" pivot rule for the
-    /// \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// This class implements the "Best Eligible" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// For more information see \ref NetworkSimplex::run().
+    // Implementation of the Best Eligible pivot rule
     class BestEligiblePivotRule
     {
     private:
@@ -244,24 +241,24 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const CostVector &_cost;
+      const ValueVector &_cost;
       const IntVector  &_state;
-      const CostVector &_pi;
+      const ValueVector &_pi;
       int &_in_arc;
       int _arc_num;
 
     public:
 
-      /// Constructor
+      // Constructor
       BestEligiblePivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
         _in_arc(ns.in_arc), _arc_num(ns._arc_num)
       {}
 
-      /// Find next entering arc
+      // Find next entering arc
       bool findEnteringArc() {
-        Cost c, min = 0;
+        Value c, min = 0;
         for (int e = 0; e < _arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < min) {
@@ -275,13 +272,7 @@ namespace lemon {
     }; //class BestEligiblePivotRule
 
 
-    /// \brief Implementation of the "Block Search" pivot rule for the
-    /// \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// This class implements the "Block Search" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// For more information see \ref NetworkSimplex::run().
+    // Implementation of the Block Search pivot rule
     class BlockSearchPivotRule
     {
     private:
@@ -289,9 +280,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const CostVector &_cost;
+      const ValueVector &_cost;
       const IntVector  &_state;
-      const CostVector &_pi;
+      const ValueVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -301,7 +292,7 @@ namespace lemon {
 
     public:
 
-      /// Constructor
+      // Constructor
       BlockSearchPivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
@@ -315,9 +306,9 @@ namespace lemon {
                                 MIN_BLOCK_SIZE );
       }
 
-      /// Find next entering arc
+      // Find next entering arc
       bool findEnteringArc() {
-        Cost c, min = 0;
+        Value c, min = 0;
         int cnt = _block_size;
         int e, min_arc = _next_arc;
         for (e = _next_arc; e < _arc_num; ++e) {
@@ -353,13 +344,7 @@ namespace lemon {
     }; //class BlockSearchPivotRule
 
 
-    /// \brief Implementation of the "Candidate List" pivot rule for the
-    /// \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// This class implements the "Candidate List" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// For more information see \ref NetworkSimplex::run().
+    // Implementation of the Candidate List pivot rule
     class CandidateListPivotRule
     {
     private:
@@ -367,9 +352,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const CostVector &_cost;
+      const ValueVector &_cost;
       const IntVector  &_state;
-      const CostVector &_pi;
+      const ValueVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -403,7 +388,7 @@ namespace lemon {
 
       /// Find next entering arc
       bool findEnteringArc() {
-        Cost min, c;
+        Value min, c;
         int e, min_arc = _next_arc;
         if (_curr_length > 0 && _minor_count < _minor_limit) {
           // Minor iteration: select the best eligible arc from the
@@ -464,13 +449,7 @@ namespace lemon {
     }; //class CandidateListPivotRule
 
 
-    /// \brief Implementation of the "Altering Candidate List" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// This class implements the "Altering Candidate List" pivot rule
-    /// for the \ref NetworkSimplex "network simplex" algorithm.
-    ///
-    /// For more information see \ref NetworkSimplex::run().
+    // Implementation of the Altering Candidate List pivot rule
     class AlteringListPivotRule
     {
     private:
@@ -478,9 +457,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const CostVector &_cost;
+      const ValueVector &_cost;
       const IntVector  &_state;
-      const CostVector &_pi;
+      const ValueVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -488,15 +467,15 @@ namespace lemon {
       int _block_size, _head_length, _curr_length;
       int _next_arc;
       IntVector _candidates;
-      CostVector _cand_cost;
+      ValueVector _cand_cost;
 
       // Functor class to compare arcs during sort of the candidate list
       class SortFunc
       {
       private:
-        const CostVector &_map;
+        const ValueVector &_map;
       public:
-        SortFunc(const CostVector &map) : _map(map) {}
+        SortFunc(const ValueVector &map) : _map(map) {}
         bool operator()(int left, int right) {
           return _map[left] > _map[right];
         }
@@ -506,7 +485,7 @@ namespace lemon {
 
     public:
 
-      /// Constructor
+      // Constructor
       AlteringListPivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
@@ -527,7 +506,7 @@ namespace lemon {
         _curr_length = 0;
       }
 
-      /// Find next entering arc
+      // Find next entering arc
       bool findEnteringArc() {
         // Check the current candidate list
         int e;
@@ -592,95 +571,23 @@ namespace lemon {
 
   public:
 
-    /// \brief General constructor (with lower bounds).
+    /// \brief Constructor.
     ///
-    /// General constructor (with lower bounds).
+    /// Constructor.
     ///
     /// \param graph The digraph the algorithm runs on.
-    /// \param lower The lower bounds of the arcs.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param supply The supply values of the nodes (signed).
-    NetworkSimplex( const Digraph &graph,
-                    const LowerMap &lower,
-                    const CapacityMap &capacity,
-                    const CostMap &cost,
-                    const SupplyMap &supply ) :
-      _graph(graph), _orig_lower(&lower), _orig_cap(capacity),
-      _orig_cost(cost), _orig_supply(&supply),
+    NetworkSimplex(const GR& graph) :
+      _graph(graph),
+      _plower(NULL), _pupper(NULL), _pcost(NULL),
+      _psupply(NULL), _pstsup(false),
       _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
       _node_id(graph)
-    {}
-
-    /// \brief General constructor (without lower bounds).
-    ///
-    /// General constructor (without lower bounds).
-    ///
-    /// \param graph The digraph the algorithm runs on.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param supply The supply values of the nodes (signed).
-    NetworkSimplex( const Digraph &graph,
-                    const CapacityMap &capacity,
-                    const CostMap &cost,
-                    const SupplyMap &supply ) :
-      _graph(graph), _orig_lower(NULL), _orig_cap(capacity),
-      _orig_cost(cost), _orig_supply(&supply),
-      _flow_map(NULL), _potential_map(NULL),
-      _local_flow(false), _local_potential(false),
-      _node_id(graph)
-    {}
-
-    /// \brief Simple constructor (with lower bounds).
-    ///
-    /// Simple constructor (with lower bounds).
-    ///
-    /// \param graph The digraph the algorithm runs on.
-    /// \param lower The lower bounds of the arcs.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param s The source node.
-    /// \param t The target node.
-    /// \param flow_value The required amount of flow from node \c s
-    /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    NetworkSimplex( const Digraph &graph,
-                    const LowerMap &lower,
-                    const CapacityMap &capacity,
-                    const CostMap &cost,
-                    Node s, Node t,
-                    Capacity flow_value ) :
-      _graph(graph), _orig_lower(&lower), _orig_cap(capacity),
-      _orig_cost(cost), _orig_supply(NULL),
-      _orig_source(s), _orig_target(t), _orig_flow_value(flow_value),
-      _flow_map(NULL), _potential_map(NULL),
-      _local_flow(false), _local_potential(false),
-      _node_id(graph)
-    {}
-
-    /// \brief Simple constructor (without lower bounds).
-    ///
-    /// Simple constructor (without lower bounds).
-    ///
-    /// \param graph The digraph the algorithm runs on.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param s The source node.
-    /// \param t The target node.
-    /// \param flow_value The required amount of flow from node \c s
-    /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    NetworkSimplex( const Digraph &graph,
-                    const CapacityMap &capacity,
-                    const CostMap &cost,
-                    Node s, Node t,
-                    Capacity flow_value ) :
-      _graph(graph), _orig_lower(NULL), _orig_cap(capacity),
-      _orig_cost(cost), _orig_supply(NULL),
-      _orig_source(s), _orig_target(t), _orig_flow_value(flow_value),
-      _flow_map(NULL), _potential_map(NULL),
-      _local_flow(false), _local_potential(false),
-      _node_id(graph)
-    {}
+    {
+      LEMON_ASSERT(std::numeric_limits<Value>::is_integer &&
+                   std::numeric_limits<Value>::is_signed,
+        "The value type of NetworkSimplex must be a signed integer");
+    }
 
     /// Destructor.
     ~NetworkSimplex() {
@@ -688,12 +595,165 @@ namespace lemon {
       if (_local_potential) delete _potential_map;
     }
 
+    /// \brief Set the lower bounds on the arcs.
+    ///
+    /// This function sets the lower bounds on the arcs.
+    /// If neither this function nor \ref boundMaps() is used before
+    /// calling \ref run(), the lower bounds will be set to zero
+    /// on all arcs.
+    ///
+    /// \param map An arc map storing the lower bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template <typename LOWER>
+    NetworkSimplex& lowerMap(const LOWER& map) {
+      delete _plower;
+      _plower = new ValueArcMap(_graph);
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        (*_plower)[a] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the upper bounds (capacities) on the arcs.
+    ///
+    /// This function sets the upper bounds (capacities) on the arcs.
+    /// If none of the functions \ref upperMap(), \ref capacityMap()
+    /// and \ref boundMaps() is used before calling \ref run(),
+    /// the upper bounds (capacities) will be set to
+    /// \c std::numeric_limits<Value>::max() on all arcs.
+    ///
+    /// \param map An arc map storing the upper bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename UPPER>
+    NetworkSimplex& upperMap(const UPPER& map) {
+      delete _pupper;
+      _pupper = new ValueArcMap(_graph);
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        (*_pupper)[a] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the upper bounds (capacities) on the arcs.
+    ///
+    /// This function sets the upper bounds (capacities) on the arcs.
+    /// It is just an alias for \ref upperMap().
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename CAP>
+    NetworkSimplex& capacityMap(const CAP& map) {
+      return upperMap(map);
+    }
+
+    /// \brief Set the lower and upper bounds on the arcs.
+    ///
+    /// This function sets the lower and upper bounds on the arcs.
+    /// If neither this function nor \ref lowerMap() is used before
+    /// calling \ref run(), the lower bounds will be set to zero
+    /// on all arcs.
+    /// If none of the functions \ref upperMap(), \ref capacityMap()
+    /// and \ref boundMaps() is used before calling \ref run(),
+    /// the upper bounds (capacities) will be set to
+    /// \c std::numeric_limits<Value>::max() on all arcs.
+    ///
+    /// \param lower An arc map storing the lower bounds.
+    /// \param upper An arc map storing the upper bounds.
+    ///
+    /// The \c Value type of the maps must be convertible to the
+    /// \c Value type of the algorithm.
+    ///
+    /// \note This function is just a shortcut of calling \ref lowerMap()
+    /// and \ref upperMap() separately.
+    ///
+    /// \return <tt>(*this)</tt>
+    template <typename LOWER, typename UPPER>
+    NetworkSimplex& boundMaps(const LOWER& lower, const UPPER& upper) {
+      return lowerMap(lower).upperMap(upper);
+    }
+
+    /// \brief Set the costs of the arcs.
+    ///
+    /// This function sets the costs of the arcs.
+    /// If it is not used before calling \ref run(), the costs
+    /// will be set to \c 1 on all arcs.
+    ///
+    /// \param map An arc map storing the costs.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename COST>
+    NetworkSimplex& costMap(const COST& map) {
+      delete _pcost;
+      _pcost = new ValueArcMap(_graph);
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        (*_pcost)[a] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the supply values of the nodes.
+    ///
+    /// This function sets the supply values of the nodes.
+    /// If neither this function nor \ref stSupply() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    /// (It makes sense only if non-zero lower bounds are given.)
+    ///
+    /// \param map A node map storing the supply values.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename SUP>
+    NetworkSimplex& supplyMap(const SUP& map) {
+      delete _psupply;
+      _pstsup = false;
+      _psupply = new ValueNodeMap(_graph);
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        (*_psupply)[n] = map[n];
+      }
+      return *this;
+    }
+
+    /// \brief Set single source and target nodes and a supply value.
+    ///
+    /// This function sets a single source node and a single target node
+    /// and the required flow value.
+    /// If neither this function nor \ref supplyMap() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    /// (It makes sense only if non-zero lower bounds are given.)
+    ///
+    /// \param s The source node.
+    /// \param t The target node.
+    /// \param k The required amount of flow from node \c s to node \c t
+    /// (i.e. the supply of \c s and the demand of \c t).
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& stSupply(const Node& s, const Node& t, Value k) {
+      delete _psupply;
+      _psupply = NULL;
+      _pstsup = true;
+      _psource = s;
+      _ptarget = t;
+      _pstflow = k;
+      return *this;
+    }
+
     /// \brief Set the flow map.
     ///
     /// This function sets the flow map.
+    /// If it is not used before calling \ref run(), an instance will
+    /// be allocated automatically. The destructor deallocates this
+    /// automatically allocated map, of course.
     ///
     /// \return <tt>(*this)</tt>
-    NetworkSimplex& flowMap(FlowMap &map) {
+    NetworkSimplex& flowMap(FlowMap& map) {
       if (_local_flow) {
         delete _flow_map;
         _local_flow = false;
@@ -704,10 +764,14 @@ namespace lemon {
 
     /// \brief Set the potential map.
     ///
-    /// This function sets the potential map.
+    /// This function sets the potential map, which is used for storing
+    /// the dual solution.
+    /// If it is not used before calling \ref run(), an instance will
+    /// be allocated automatically. The destructor deallocates this
+    /// automatically allocated map, of course.
     ///
     /// \return <tt>(*this)</tt>
-    NetworkSimplex& potentialMap(PotentialMap &map) {
+    NetworkSimplex& potentialMap(PotentialMap& map) {
       if (_local_potential) {
         delete _potential_map;
         _local_potential = false;
@@ -716,47 +780,29 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Execution control
-    /// The algorithm can be executed using the
-    /// \ref lemon::NetworkSimplex::run() "run()" function.
+    /// \name Execution Control
+    /// The algorithm can be executed using \ref run().
+
     /// @{
 
     /// \brief Run the algorithm.
     ///
     /// This function runs the algorithm.
+    /// The paramters can be specified using \ref lowerMap(),
+    /// \ref upperMap(), \ref capacityMap(), \ref boundMaps(), 
+    /// \ref costMap(), \ref supplyMap() and \ref stSupply()
+    /// functions. For example,
+    /// \code
+    ///   NetworkSimplex<ListDigraph> ns(graph);
+    ///   ns.boundMaps(lower, upper).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
     ///
-    /// \param pivot_rule The pivot rule that is used during the
-    /// algorithm.
-    ///
-    /// The available pivot rules:
-    ///
-    /// - FIRST_ELIGIBLE_PIVOT The next eligible arc is selected in
-    /// a wraparound fashion in every iteration
-    /// (\ref FirstEligiblePivotRule).
-    ///
-    /// - BEST_ELIGIBLE_PIVOT The best eligible arc is selected in
-    /// every iteration (\ref BestEligiblePivotRule).
-    ///
-    /// - BLOCK_SEARCH_PIVOT A specified number of arcs are examined in
-    /// every iteration in a wraparound fashion and the best eligible
-    /// arc is selected from this block (\ref BlockSearchPivotRule).
-    ///
-    /// - CANDIDATE_LIST_PIVOT In a major iteration a candidate list is
-    /// built from eligible arcs in a wraparound fashion and in the
-    /// following minor iterations the best eligible arc is selected
-    /// from this list (\ref CandidateListPivotRule).
-    ///
-    /// - ALTERING_LIST_PIVOT It is a modified version of the
-    /// "Candidate List" pivot rule. It keeps only the several best
-    /// eligible arcs from the former candidate list and extends this
-    /// list in every iteration (\ref AlteringListPivotRule).
-    ///
-    /// According to our comprehensive benchmark tests the "Block Search"
-    /// pivot rule proved to be the fastest and the most robust on
-    /// various test inputs. Thus it is the default option.
+    /// \param pivot_rule The pivot rule that will be used during the
+    /// algorithm. For more information see \ref PivotRule.
     ///
     /// \return \c true if a feasible flow can be found.
-    bool run(PivotRuleEnum pivot_rule = BLOCK_SEARCH_PIVOT) {
+    bool run(PivotRule pivot_rule = BLOCK_SEARCH) {
       return init() && start(pivot_rule);
     }
 
@@ -765,9 +811,52 @@ namespace lemon {
     /// \name Query Functions
     /// The results of the algorithm can be obtained using these
     /// functions.\n
-    /// \ref lemon::NetworkSimplex::run() "run()" must be called before
-    /// using them.
+    /// The \ref run() function must be called before using them.
+
     /// @{
+
+    /// \brief Return the total cost of the found flow.
+    ///
+    /// This function returns the total cost of the found flow.
+    /// The complexity of the function is \f$ O(e) \f$.
+    ///
+    /// \note The return type of the function can be specified as a
+    /// template parameter. For example,
+    /// \code
+    ///   ns.totalCost<double>();
+    /// \endcode
+    /// It is useful if the total cost cannot be stored in the \c Value
+    /// type of the algorithm, which is the default return type of the
+    /// function.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    template <typename Num>
+    Num totalCost() const {
+      Num c = 0;
+      if (_pcost) {
+        for (ArcIt e(_graph); e != INVALID; ++e)
+          c += (*_flow_map)[e] * (*_pcost)[e];
+      } else {
+        for (ArcIt e(_graph); e != INVALID; ++e)
+          c += (*_flow_map)[e];
+      }
+      return c;
+    }
+
+#ifndef DOXYGEN
+    Value totalCost() const {
+      return totalCost<Value>();
+    }
+#endif
+
+    /// \brief Return the flow on the given arc.
+    ///
+    /// This function returns the flow on the given arc.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    Value flow(const Arc& a) const {
+      return (*_flow_map)[a];
+    }
 
     /// \brief Return a const reference to the flow map.
     ///
@@ -779,46 +868,26 @@ namespace lemon {
       return *_flow_map;
     }
 
+    /// \brief Return the potential (dual value) of the given node.
+    ///
+    /// This function returns the potential (dual value) of the
+    /// given node.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    Value potential(const Node& n) const {
+      return (*_potential_map)[n];
+    }
+
     /// \brief Return a const reference to the potential map
     /// (the dual solution).
     ///
     /// This function returns a const reference to a node map storing
-    /// the found potentials (the dual solution).
+    /// the found potentials, which form the dual solution of the
+    /// \ref min_cost_flow "minimum cost flow" problem.
     ///
     /// \pre \ref run() must be called before using this function.
     const PotentialMap& potentialMap() const {
       return *_potential_map;
-    }
-
-    /// \brief Return the flow on the given arc.
-    ///
-    /// This function returns the flow on the given arc.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    Capacity flow(const Arc& arc) const {
-      return (*_flow_map)[arc];
-    }
-
-    /// \brief Return the potential of the given node.
-    ///
-    /// This function returns the potential of the given node.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    Cost potential(const Node& node) const {
-      return (*_potential_map)[node];
-    }
-
-    /// \brief Return the total cost of the found flow.
-    ///
-    /// This function returns the total cost of the found flow.
-    /// The complexity of the function is \f$ O(e) \f$.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    Cost totalCost() const {
-      Cost c = 0;
-      for (ArcIt e(_graph); e != INVALID; ++e)
-        c += (*_flow_map)[e] * _orig_cost[e];
-      return c;
     }
 
     /// @}
@@ -842,6 +911,7 @@ namespace lemon {
       _arc_num = countArcs(_graph);
       int all_node_num = _node_num + 1;
       int all_arc_num = _arc_num + _node_num;
+      if (_node_num == 0) return false;
 
       _arc_ref.resize(_arc_num);
       _source.resize(all_arc_num);
@@ -864,12 +934,17 @@ namespace lemon {
 
       // Initialize node related data
       bool valid_supply = true;
-      if (_orig_supply) {
-        Supply sum = 0;
+      if (!_pstsup && !_psupply) {
+        _pstsup = true;
+        _psource = _ptarget = NodeIt(_graph);
+        _pstflow = 0;
+      }
+      if (_psupply) {
+        Value sum = 0;
         int i = 0;
         for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
           _node_id[n] = i;
-          _supply[i] = (*_orig_supply)[n];
+          _supply[i] = (*_psupply)[n];
           sum += _supply[i];
         }
         valid_supply = (sum == 0);
@@ -879,8 +954,8 @@ namespace lemon {
           _node_id[n] = i;
           _supply[i] = 0;
         }
-        _supply[_node_id[_orig_source]] =  _orig_flow_value;
-        _supply[_node_id[_orig_target]] = -_orig_flow_value;
+        _supply[_node_id[_psource]] =  _pstflow;
+        _supply[_node_id[_ptarget]]   = -_pstflow;
       }
       if (!valid_supply) return false;
 
@@ -904,18 +979,41 @@ namespace lemon {
       }
 
       // Initialize arc maps
-      for (int i = 0; i != _arc_num; ++i) {
-        Arc e = _arc_ref[i];
-        _source[i] = _node_id[_graph.source(e)];
-        _target[i] = _node_id[_graph.target(e)];
-        _cost[i] = _orig_cost[e];
-        _cap[i] = _orig_cap[e];
+      if (_pupper && _pcost) {
+        for (int i = 0; i != _arc_num; ++i) {
+          Arc e = _arc_ref[i];
+          _source[i] = _node_id[_graph.source(e)];
+          _target[i] = _node_id[_graph.target(e)];
+          _cap[i] = (*_pupper)[e];
+          _cost[i] = (*_pcost)[e];
+        }
+      } else {
+        for (int i = 0; i != _arc_num; ++i) {
+          Arc e = _arc_ref[i];
+          _source[i] = _node_id[_graph.source(e)];
+          _target[i] = _node_id[_graph.target(e)];
+        }
+        if (_pupper) {
+          for (int i = 0; i != _arc_num; ++i)
+            _cap[i] = (*_pupper)[_arc_ref[i]];
+        } else {
+          Value val = std::numeric_limits<Value>::max();
+          for (int i = 0; i != _arc_num; ++i)
+            _cap[i] = val;
+        }
+        if (_pcost) {
+          for (int i = 0; i != _arc_num; ++i)
+            _cost[i] = (*_pcost)[_arc_ref[i]];
+        } else {
+          for (int i = 0; i != _arc_num; ++i)
+            _cost[i] = 1;
+        }
       }
 
       // Remove non-zero lower bounds
-      if (_orig_lower) {
+      if (_plower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Capacity c = (*_orig_lower)[_arc_ref[i]];
+          Value c = (*_plower)[_arc_ref[i]];
           if (c != 0) {
             _cap[i] -= c;
             _supply[_source[i]] -= c;
@@ -925,8 +1023,8 @@ namespace lemon {
       }
 
       // Add artificial arcs and initialize the spanning tree data structure
-      Cost max_cost = std::numeric_limits<Cost>::max() / 4;
-      Capacity max_cap = std::numeric_limits<Capacity>::max();
+      Value max_cap = std::numeric_limits<Value>::max();
+      Value max_cost = std::numeric_limits<Value>::max() / 4;
       for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
         _thread[u] = u + 1;
         _rev_thread[u + 1] = u;
@@ -979,7 +1077,7 @@ namespace lemon {
       }
       delta = _cap[in_arc];
       int result = 0;
-      Capacity d;
+      Value d;
       int e;
 
       // Search the cycle along the path form the first node to the root
@@ -1017,7 +1115,7 @@ namespace lemon {
     void changeFlow(bool change) {
       // Augment along the cycle
       if (delta > 0) {
-        Capacity val = _state[in_arc] * delta;
+        Value val = _state[in_arc] * delta;
         _flow[in_arc] += val;
         for (int u = _source[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? -val : val;
@@ -1158,7 +1256,7 @@ namespace lemon {
 
     // Update potentials
     void updatePotential() {
-      Cost sigma = _forward[u_in] ?
+      Value sigma = _forward[u_in] ?
         _pi[v_in] - _pi[u_in] - _cost[_pred[u_in]] :
         _pi[v_in] - _pi[u_in] + _cost[_pred[u_in]];
       if (_succ_num[u_in] > _node_num / 2) {
@@ -1181,28 +1279,28 @@ namespace lemon {
     }
 
     // Execute the algorithm
-    bool start(PivotRuleEnum pivot_rule) {
+    bool start(PivotRule pivot_rule) {
       // Select the pivot rule implementation
       switch (pivot_rule) {
-        case FIRST_ELIGIBLE_PIVOT:
+        case FIRST_ELIGIBLE:
           return start<FirstEligiblePivotRule>();
-        case BEST_ELIGIBLE_PIVOT:
+        case BEST_ELIGIBLE:
           return start<BestEligiblePivotRule>();
-        case BLOCK_SEARCH_PIVOT:
+        case BLOCK_SEARCH:
           return start<BlockSearchPivotRule>();
-        case CANDIDATE_LIST_PIVOT:
+        case CANDIDATE_LIST:
           return start<CandidateListPivotRule>();
-        case ALTERING_LIST_PIVOT:
+        case ALTERING_LIST:
           return start<AlteringListPivotRule>();
       }
       return false;
     }
 
-    template<class PivotRuleImplementation>
+    template <typename PivotRuleImpl>
     bool start() {
-      PivotRuleImplementation pivot(*this);
+      PivotRuleImpl pivot(*this);
 
-      // Execute the network simplex algorithm
+      // Execute the Network Simplex algorithm
       while (pivot.findEnteringArc()) {
         findJoinNode();
         bool change = findLeavingArc();
@@ -1219,10 +1317,10 @@ namespace lemon {
       }
 
       // Copy flow values to _flow_map
-      if (_orig_lower) {
+      if (_plower) {
         for (int i = 0; i != _arc_num; ++i) {
           Arc e = _arc_ref[i];
-          _flow_map->set(e, (*_orig_lower)[e] + _flow[i]);
+          _flow_map->set(e, (*_plower)[e] + _flow[i]);
         }
       } else {
         for (int i = 0; i != _arc_num; ++i) {
