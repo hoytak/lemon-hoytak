@@ -22,26 +22,25 @@ do
         -e "s/\<directed edges\>/_ar_c_label_s/g"\
         -e "s/UGraph/_Gr_aph_label_/g"\
         -e "s/u[Gg]raph/_gr_aph_label_/g"\
-        -e "s/\<Graph\>/_Digr_aph_label_/g"\
+        -e "s/Graph\>/_Digr_aph_label_/g"\
         -e "s/\<graph\>/_digr_aph_label_/g"\
-        -e "s/\<Graphs\>/_Digr_aph_label_s/g"\
+        -e "s/Graphs\>/_Digr_aph_label_s/g"\
         -e "s/\<graphs\>/_digr_aph_label_s/g"\
-        -e "s/_Graph/__Gr_aph_label_/g"\
-        -e "s/\([Gg]\)raph\([a-z_]\)/_\1r_aph_label_\2/g"\
+        -e "s/\([Gg]\)raph\([a-z]\)/_\1r_aph_label_\2/g"\
         -e "s/\([a-z_]\)graph/\1_gr_aph_label_/g"\
         -e "s/Graph/_Digr_aph_label_/g"\
         -e "s/graph/_digr_aph_label_/g"\
         -e "s/UEdge/_Ed_ge_label_/g"\
         -e "s/u[Ee]dge/_ed_ge_label_/g"\
         -e "s/IncEdgeIt/_In_cEd_geIt_label_/g"\
-        -e "s/\<Edge\>/_Ar_c_label_/g"\
+        -e "s/Edge\>/_Ar_c_label_/g"\
         -e "s/\<edge\>/_ar_c_label_/g"\
-        -e "s/\<Edges\>/_Ar_c_label_s/g"\
+        -e "s/_edge\>/_ar_c_label_/g"\
+        -e "s/Edges\>/_Ar_c_label_s/g"\
         -e "s/\<edges\>/_ar_c_label_s/g"\
-        -e "s/_Edge/__Ed_ge_label_/g"\
-        -e "s/Edge\([a-z_]\)/_Ed_ge_label_\1/g"\
-        -e "s/edge\([a-z_]\)/_ed_ge_label_\1/g"\
-        -e "s/\([a-z_]\)edge/\1_ed_ge_label_/g"\
+        -e "s/_edges\>/_ar_c_label_s/g"\
+        -e "s/\([Ee]\)dge\([a-z]\)/_\1d_ge_label_\2/g"\
+        -e "s/\([a-z]\)edge/\1_ed_ge_label_/g"\
         -e "s/Edge/_Ar_c_label_/g"\
         -e "s/edge/_ar_c_label_/g"\
         -e "s/A[Nn]ode/_Re_d_label_/g"\
@@ -116,6 +115,11 @@ do
         -e "s/\<arcSubGraphAdaptor\>/filterEdges/g"\
         -e "s/\<DirGraphAdaptor\>/Orienter/g"\
         -e "s/\<dirGraphAdaptor\>/orienter/g"\
+        -e "s/\<LpCplex\>/CplexLp/g"\
+        -e "s/\<MipCplex\>/CplexMip/g"\
+        -e "s/\<LpGlpk\>/GlpkLp/g"\
+        -e "s/\<MipGlpk\>/GlpkMip/g"\
+        -e "s/\<LpSoplex\>/SoplexLp/g"\
     <$i > $TMP
     mv $TMP $i
 done

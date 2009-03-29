@@ -88,7 +88,12 @@ function update_end() {
 function check_action() {
     if [ "$3" == 'tabs' ]
     then
-        PATTERN=$(echo -e '\t')
+        if echo $2 | grep -q -v -E 'Makefile\.am$'
+        then
+            PATTERN=$(echo -e '\t')
+        else
+            PATTERN='        '
+        fi
     elif [ "$3" == 'trailing spaces' ]
     then
         PATTERN='\ +$'
