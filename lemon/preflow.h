@@ -32,8 +32,8 @@ namespace lemon {
   ///
   /// Default traits class of Preflow class.
   /// \tparam GR Digraph type.
-  /// \tparam CM Capacity map type.
-  template <typename GR, typename CM>
+  /// \tparam CAP Capacity map type.
+  template <typename GR, typename CAP>
   struct PreflowDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
@@ -43,7 +43,7 @@ namespace lemon {
     ///
     /// The type of the map that stores the arc capacities.
     /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef CM CapacityMap;
+    typedef CAP CapacityMap;
 
     /// \brief The type of the flow values.
     typedef typename CapacityMap::Value Value;
@@ -94,8 +94,9 @@ namespace lemon {
   /// \brief %Preflow algorithm class.
   ///
   /// This class provides an implementation of Goldberg-Tarjan's \e preflow
-  /// \e push-relabel algorithm producing a flow of maximum value in a
-  /// digraph. The preflow algorithms are the fastest known maximum
+  /// \e push-relabel algorithm producing a \ref max_flow
+  /// "flow of maximum value" in a digraph.
+  /// The preflow algorithms are the fastest known maximum
   /// flow algorithms. The current implementation use a mixture of the
   /// \e "highest label" and the \e "bound decrease" heuristics.
   /// The worst case time complexity of the algorithm is \f$O(n^2\sqrt{e})\f$.
@@ -105,14 +106,14 @@ namespace lemon {
   /// second phase constructs a feasible maximum flow on each arc.
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
-  /// \tparam CM The type of the capacity map. The default map
+  /// \tparam CAP The type of the capacity map. The default map
   /// type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
 #ifdef DOXYGEN
-  template <typename GR, typename CM, typename TR>
+  template <typename GR, typename CAP, typename TR>
 #else
   template <typename GR,
-            typename CM = typename GR::template ArcMap<int>,
-            typename TR = PreflowDefaultTraits<GR, CM> >
+            typename CAP = typename GR::template ArcMap<int>,
+            typename TR = PreflowDefaultTraits<GR, CAP> >
 #endif
   class Preflow {
   public:
@@ -194,9 +195,9 @@ namespace lemon {
 
     ///@{
 
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMapTraits : public Traits {
-      typedef _FlowMap FlowMap;
+      typedef T FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
         LEMON_ASSERT(false, "FlowMap is not initialized");
         return 0; // ignore warnings
@@ -208,16 +209,16 @@ namespace lemon {
     ///
     /// \ref named-templ-param "Named parameter" for setting FlowMap
     /// type.
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMap
-      : public Preflow<Digraph, CapacityMap, SetFlowMapTraits<_FlowMap> > {
+      : public Preflow<Digraph, CapacityMap, SetFlowMapTraits<T> > {
       typedef Preflow<Digraph, CapacityMap,
-                      SetFlowMapTraits<_FlowMap> > Create;
+                      SetFlowMapTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph&, int) {
         LEMON_ASSERT(false, "Elevator is not initialized");
         return 0; // ignore warnings
@@ -233,16 +234,16 @@ namespace lemon {
     /// \ref elevator(Elevator&) "elevator()" function before calling
     /// \ref run() or \ref init().
     /// \sa SetStandardElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevator
-      : public Preflow<Digraph, CapacityMap, SetElevatorTraits<_Elevator> > {
+      : public Preflow<Digraph, CapacityMap, SetElevatorTraits<T> > {
       typedef Preflow<Digraph, CapacityMap,
-                      SetElevatorTraits<_Elevator> > Create;
+                      SetElevatorTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph& digraph, int max_level) {
         return new Elevator(digraph, max_level);
       }
@@ -260,12 +261,12 @@ namespace lemon {
     /// algorithm with the \ref elevator(Elevator&) "elevator()" function
     /// before calling \ref run() or \ref init().
     /// \sa SetElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevator
       : public Preflow<Digraph, CapacityMap,
-                       SetStandardElevatorTraits<_Elevator> > {
+                       SetStandardElevatorTraits<T> > {
       typedef Preflow<Digraph, CapacityMap,
-                      SetStandardElevatorTraits<_Elevator> > Create;
+                      SetStandardElevatorTraits<T> > Create;
     };
 
     /// @}
@@ -946,7 +947,7 @@ namespace lemon {
     /// could be slightly different if inexact computation is used.
     ///
     /// \note This function calls \ref minCut() for each node, so it runs in
-    /// \f$O(n)\f$ time.
+    /// O(n) time.
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.

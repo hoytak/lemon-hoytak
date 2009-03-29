@@ -46,10 +46,10 @@ namespace lemon {
   ///
   ///\sa LinkedElevator
   ///
-  ///\param Graph Type of the underlying graph.
-  ///\param Item Type of the items the data is assigned to (Graph::Node,
-  ///Graph::Arc, Graph::Edge).
-  template<class Graph, class Item>
+  ///\param GR Type of the underlying graph.
+  ///\param Item Type of the items the data is assigned to (\c GR::Node,
+  ///\c GR::Arc or \c GR::Edge).
+  template<class GR, class Item>
   class Elevator
   {
   public:
@@ -60,10 +60,10 @@ namespace lemon {
   private:
 
     typedef Item *Vit;
-    typedef typename ItemSetTraits<Graph,Item>::template Map<Vit>::Type VitMap;
-    typedef typename ItemSetTraits<Graph,Item>::template Map<int>::Type IntMap;
+    typedef typename ItemSetTraits<GR,Item>::template Map<Vit>::Type VitMap;
+    typedef typename ItemSetTraits<GR,Item>::template Map<int>::Type IntMap;
 
-    const Graph &_g;
+    const GR &_g;
     int _max_level;
     int _item_num;
     VitMap _where;
@@ -105,7 +105,7 @@ namespace lemon {
     ///\param graph The underlying graph.
     ///\param max_level The maximum allowed level.
     ///Set the range of the possible labels to <tt>[0..max_level]</tt>.
-    Elevator(const Graph &graph,int max_level) :
+    Elevator(const GR &graph,int max_level) :
       _g(graph),
       _max_level(max_level),
       _item_num(_max_level),
@@ -122,9 +122,9 @@ namespace lemon {
     ///\param graph The underlying graph.
     ///Set the range of the possible labels to <tt>[0..max_level]</tt>,
     ///where \c max_level is equal to the number of labeled items in the graph.
-    Elevator(const Graph &graph) :
+    Elevator(const GR &graph) :
       _g(graph),
-      _max_level(countItems<Graph, Item>(graph)),
+      _max_level(countItems<GR, Item>(graph)),
       _item_num(_max_level),
       _where(graph),
       _level(graph,0),
@@ -430,7 +430,7 @@ namespace lemon {
       _first[0]=&_items[0];
       _last_active[0]=&_items[0]-1;
       Vit n=&_items[0];
-      for(typename ItemSetTraits<Graph,Item>::ItemIt i(_g);i!=INVALID;++i)
+      for(typename ItemSetTraits<GR,Item>::ItemIt i(_g);i!=INVALID;++i)
         {
           *n=i;
           _where.set(i,n);
@@ -489,10 +489,10 @@ namespace lemon {
   ///
   ///\sa Elevator
   ///
-  ///\param Graph Type of the underlying graph.
-  ///\param Item Type of the items the data is assigned to (Graph::Node,
-  ///Graph::Arc, Graph::Edge).
-  template <class Graph, class Item>
+  ///\param GR Type of the underlying graph.
+  ///\param Item Type of the items the data is assigned to (\c GR::Node,
+  ///\c GR::Arc or \c GR::Edge).
+  template <class GR, class Item>
   class LinkedElevator {
   public:
 
@@ -501,14 +501,14 @@ namespace lemon {
 
   private:
 
-    typedef typename ItemSetTraits<Graph,Item>::
+    typedef typename ItemSetTraits<GR,Item>::
     template Map<Item>::Type ItemMap;
-    typedef typename ItemSetTraits<Graph,Item>::
+    typedef typename ItemSetTraits<GR,Item>::
     template Map<int>::Type IntMap;
-    typedef typename ItemSetTraits<Graph,Item>::
+    typedef typename ItemSetTraits<GR,Item>::
     template Map<bool>::Type BoolMap;
 
-    const Graph &_graph;
+    const GR &_graph;
     int _max_level;
     int _item_num;
     std::vector<Item> _first, _last;
@@ -525,7 +525,7 @@ namespace lemon {
     ///\param graph The underlying graph.
     ///\param max_level The maximum allowed level.
     ///Set the range of the possible labels to <tt>[0..max_level]</tt>.
-    LinkedElevator(const Graph& graph, int max_level)
+    LinkedElevator(const GR& graph, int max_level)
       : _graph(graph), _max_level(max_level), _item_num(_max_level),
         _first(_max_level + 1), _last(_max_level + 1),
         _prev(graph), _next(graph),
@@ -538,8 +538,8 @@ namespace lemon {
     ///\param graph The underlying graph.
     ///Set the range of the possible labels to <tt>[0..max_level]</tt>,
     ///where \c max_level is equal to the number of labeled items in the graph.
-    LinkedElevator(const Graph& graph)
-      : _graph(graph), _max_level(countItems<Graph, Item>(graph)),
+    LinkedElevator(const GR& graph)
+      : _graph(graph), _max_level(countItems<GR, Item>(graph)),
         _item_num(_max_level),
         _first(_max_level + 1), _last(_max_level + 1),
         _prev(graph, INVALID), _next(graph, INVALID),
@@ -935,7 +935,7 @@ namespace lemon {
         _first[i] = _last[i] = INVALID;
       }
       _init_level = 0;
-      for(typename ItemSetTraits<Graph,Item>::ItemIt i(_graph);
+      for(typename ItemSetTraits<GR,Item>::ItemIt i(_graph);
           i != INVALID; ++i) {
         _level.set(i, _max_level);
         _active.set(i, false);

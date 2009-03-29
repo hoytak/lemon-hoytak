@@ -24,14 +24,14 @@
 #include <lemon/bits/default_map.h>
 #include <lemon/bits/map_extender.h>
 
-///\ingroup digraphbits
-///\file
-///\brief Extenders for the arc set types
+//\ingroup digraphbits
+//\file
+//\brief Extenders for the arc set types
 namespace lemon {
 
-  /// \ingroup digraphbits
-  ///
-  /// \brief Extender for the ArcSets
+  // \ingroup digraphbits
+  //
+  // \brief Extender for the ArcSets
   template <typename Base>
   class ArcSetExtender : public Base {
   public:
@@ -72,7 +72,7 @@ namespace lemon {
 
     // Alteration notifier extensions
 
-    /// The arc observer registry.
+    // The arc observer registry.
     typedef AlterationNotifier<ArcSetExtender, Arc> ArcNotifier;
 
   protected:
@@ -83,9 +83,7 @@ namespace lemon {
 
     using Parent::notifier;
 
-    /// \brief Gives back the arc alteration notifier.
-    ///
-    /// Gives back the arc alteration notifier.
+    // Gives back the arc alteration notifier.
     ArcNotifier& notifier(Arc) const {
       return arc_notifier;
     }
@@ -185,30 +183,30 @@ namespace lemon {
 
     };
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the source in this case) of the iterator
+    // \brief Base node of the iterator
+    //
+    // Returns the base node (ie. the source in this case) of the iterator
     Node baseNode(const OutArcIt &e) const {
       return Parent::source(static_cast<const Arc&>(e));
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the target in this case) of the
-    /// iterator
+    // \brief Running node of the iterator
+    //
+    // Returns the running node (ie. the target in this case) of the
+    // iterator
     Node runningNode(const OutArcIt &e) const {
       return Parent::target(static_cast<const Arc&>(e));
     }
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the target in this case) of the iterator
+    // \brief Base node of the iterator
+    //
+    // Returns the base node (ie. the target in this case) of the iterator
     Node baseNode(const InArcIt &e) const {
       return Parent::target(static_cast<const Arc&>(e));
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the source in this case) of the
-    /// iterator
+    // \brief Running node of the iterator
+    //
+    // Returns the running node (ie. the source in this case) of the
+    // iterator
     Node runningNode(const InArcIt &e) const {
       return Parent::source(static_cast<const Arc&>(e));
     }
@@ -271,9 +269,9 @@ namespace lemon {
   };
 
 
-  /// \ingroup digraphbits
-  ///
-  /// \brief Extender for the EdgeSets
+  // \ingroup digraphbits
+  //
+  // \brief Extender for the EdgeSets
   template <typename Base>
   class EdgeSetExtender : public Base {
 
@@ -492,43 +490,43 @@ namespace lemon {
       }
     };
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the source in this case) of the iterator
+    // \brief Base node of the iterator
+    //
+    // Returns the base node (ie. the source in this case) of the iterator
     Node baseNode(const OutArcIt &e) const {
       return Parent::source(static_cast<const Arc&>(e));
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the target in this case) of the
-    /// iterator
+    // \brief Running node of the iterator
+    //
+    // Returns the running node (ie. the target in this case) of the
+    // iterator
     Node runningNode(const OutArcIt &e) const {
       return Parent::target(static_cast<const Arc&>(e));
     }
 
-    /// \brief Base node of the iterator
-    ///
-    /// Returns the base node (ie. the target in this case) of the iterator
+    // \brief Base node of the iterator
+    //
+    // Returns the base node (ie. the target in this case) of the iterator
     Node baseNode(const InArcIt &e) const {
       return Parent::target(static_cast<const Arc&>(e));
     }
-    /// \brief Running node of the iterator
-    ///
-    /// Returns the running node (ie. the source in this case) of the
-    /// iterator
+    // \brief Running node of the iterator
+    //
+    // Returns the running node (ie. the source in this case) of the
+    // iterator
     Node runningNode(const InArcIt &e) const {
       return Parent::source(static_cast<const Arc&>(e));
     }
 
-    /// Base node of the iterator
-    ///
-    /// Returns the base node of the iterator
+    // Base node of the iterator
+    //
+    // Returns the base node of the iterator
     Node baseNode(const IncEdgeIt &e) const {
       return e.direction ? u(e) : v(e);
     }
-    /// Running node of the iterator
-    ///
-    /// Returns the running node of the iterator
+    // Running node of the iterator
+    //
+    // Returns the running node of the iterator
     Node runningNode(const IncEdgeIt &e) const {
       return e.direction ? v(e) : u(e);
     }

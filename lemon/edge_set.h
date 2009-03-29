@@ -255,7 +255,7 @@ namespace lemon {
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
   ///
-  /// This class is fully conform to the \ref concepts::Digraph
+  /// This class fully conforms to the \ref concepts::Digraph
   /// "Digraph" concept.
   template <typename GR>
   class ListArcSet : public ArcSetExtender<ListArcSetBase<GR> > {
@@ -336,7 +336,7 @@ namespace lemon {
     ///
     /// Add a new arc to the digraph with source node \c s
     /// and target node \c t.
-    /// \return the new arc.
+    /// \return The new arc.
     Arc addArc(const Node& s, const Node& t) {
       return Parent::addArc(s, t);
     }
@@ -684,7 +684,7 @@ namespace lemon {
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
   ///
-  /// This class is fully conform to the \ref concepts::Graph "Graph"
+  /// This class fully conforms to the \ref concepts::Graph "Graph"
   /// concept.
   template <typename GR>
   class ListEdgeSet : public EdgeSetExtender<ListEdgeSetBase<GR> > {
@@ -761,7 +761,7 @@ namespace lemon {
     ///
     /// Add a new edge to the graph with node \c u
     /// and node \c v endpoints.
-    /// \return the new edge.
+    /// \return The new edge.
     Edge addEdge(const Node& u, const Node& v) {
       return Parent::addEdge(u, v);
     }
@@ -952,7 +952,7 @@ namespace lemon {
   /// the arc set is invalidated, and it cannot be used anymore. The
   /// validity can be checked with the \c valid() member function.
   ///
-  /// This class is fully conform to the \ref concepts::Digraph
+  /// This class fully conforms to the \ref concepts::Digraph
   /// "Digraph" concept.
   template <typename GR>
   class SmartArcSet : public ArcSetExtender<SmartArcSetBase<GR> > {
@@ -1041,7 +1041,7 @@ namespace lemon {
     ///
     /// Add a new arc to the digraph with source node \c s
     /// and target node \c t.
-    /// \return the new arc.
+    /// \return The new arc.
     Arc addArc(const Node& s, const Node& t) {
       return Parent::addArc(s, t);
     }
@@ -1300,7 +1300,7 @@ namespace lemon {
   /// is invalidated, and it cannot be used anymore. The validity can
   /// be checked with the \c valid() member function.
   ///
-  /// This class is fully conform to the \ref concepts::Graph
+  /// This class fully conforms to the \ref concepts::Graph
   /// "Graph" concept.
   template <typename GR>
   class SmartEdgeSet : public EdgeSetExtender<SmartEdgeSetBase<GR> > {
@@ -1389,7 +1389,7 @@ namespace lemon {
     ///
     /// Add a new edge to the graph with node \c u
     /// and node \c v endpoints.
-    /// \return the new edge.
+    /// \return The new edge.
     Edge addEdge(const Node& u, const Node& v) {
       return Parent::addEdge(u, v);
     }

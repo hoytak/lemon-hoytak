@@ -1034,11 +1034,11 @@ namespace lemon {
   ///
   ///\sa findArc()
   ///\sa ArcLookUp, AllArcLookUp, DynArcLookUp
-  template <typename _Graph>
-  class ConArcIt : public _Graph::Arc {
+  template <typename GR>
+  class ConArcIt : public GR::Arc {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
     typedef typename Graph::Arc Parent;
 
     typedef typename Graph::Arc Arc;
@@ -1157,11 +1157,11 @@ namespace lemon {
   ///\endcode
   ///
   ///\sa findEdge()
-  template <typename _Graph>
-  class ConEdgeIt : public _Graph::Edge {
+  template <typename GR>
+  class ConEdgeIt : public GR::Edge {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
     typedef typename Graph::Edge Parent;
 
     typedef typename Graph::Edge Edge;
@@ -1211,29 +1211,29 @@ namespace lemon {
   ///optimal time bound in a constant factor for any distribution of
   ///queries.
   ///
-  ///\tparam G The type of the underlying digraph.
+  ///\tparam GR The type of the underlying digraph.
   ///
   ///\sa ArcLookUp
   ///\sa AllArcLookUp
-  template<class G>
+  template <typename GR>
   class DynArcLookUp
-    : protected ItemSetTraits<G, typename G::Arc>::ItemNotifier::ObserverBase
+    : protected ItemSetTraits<GR, typename GR::Arc>::ItemNotifier::ObserverBase
   {
   public:
-    typedef typename ItemSetTraits<G, typename G::Arc>
+    typedef typename ItemSetTraits<GR, typename GR::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
-    TEMPLATE_DIGRAPH_TYPEDEFS(G);
-    typedef G Digraph;
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+    typedef GR Digraph;
 
   protected:
 
-    class AutoNodeMap : public ItemSetTraits<G, Node>::template Map<Arc>::Type {
+    class AutoNodeMap : public ItemSetTraits<GR, Node>::template Map<Arc>::Type {
     public:
 
-      typedef typename ItemSetTraits<G, Node>::template Map<Arc>::Type Parent;
+      typedef typename ItemSetTraits<GR, Node>::template Map<Arc>::Type Parent;
 
-      AutoNodeMap(const G& digraph) : Parent(digraph, INVALID) {}
+      AutoNodeMap(const GR& digraph) : Parent(digraph, INVALID) {}
 
       virtual void add(const Node& node) {
         Parent::add(node);
@@ -1623,16 +1623,16 @@ namespace lemon {
   ///digraph changes. This is a time consuming (superlinearly proportional
   ///(<em>O</em>(<em>m</em> log<em>m</em>)) to the number of arcs).
   ///
-  ///\tparam G The type of the underlying digraph.
+  ///\tparam GR The type of the underlying digraph.
   ///
   ///\sa DynArcLookUp
   ///\sa AllArcLookUp
-  template<class G>
+  template<class GR>
   class ArcLookUp
   {
   public:
-    TEMPLATE_DIGRAPH_TYPEDEFS(G);
-    typedef G Digraph;
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+    typedef GR Digraph;
 
   protected:
     const Digraph &_g;
@@ -1733,20 +1733,20 @@ namespace lemon {
   ///digraph changes. This is a time consuming (superlinearly proportional
   ///(<em>O</em>(<em>m</em> log<em>m</em>)) to the number of arcs).
   ///
-  ///\tparam G The type of the underlying digraph.
+  ///\tparam GR The type of the underlying digraph.
   ///
   ///\sa DynArcLookUp
   ///\sa ArcLookUp
-  template<class G>
-  class AllArcLookUp : public ArcLookUp<G>
+  template<class GR>
+  class AllArcLookUp : public ArcLookUp<GR>
   {
-    using ArcLookUp<G>::_g;
-    using ArcLookUp<G>::_right;
-    using ArcLookUp<G>::_left;
-    using ArcLookUp<G>::_head;
+    using ArcLookUp<GR>::_g;
+    using ArcLookUp<GR>::_right;
+    using ArcLookUp<GR>::_left;
+    using ArcLookUp<GR>::_head;
 
-    TEMPLATE_DIGRAPH_TYPEDEFS(G);
-    typedef G Digraph;
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+    typedef GR Digraph;
 
     typename Digraph::template ArcMap<Arc> _next;
 
@@ -1773,7 +1773,7 @@ namespace lemon {
     ///
     ///It builds up the search database, which remains valid until the digraph
     ///changes.
-    AllArcLookUp(const Digraph &g) : ArcLookUp<G>(g), _next(g) {refreshNext();}
+    AllArcLookUp(const Digraph &g) : ArcLookUp<GR>(g), _next(g) {refreshNext();}
 
     ///Refresh the data structure at a node.
 
@@ -1783,7 +1783,7 @@ namespace lemon {
     ///the number of the outgoing arcs of \c n.
     void refresh(Node n)
     {
-      ArcLookUp<G>::refresh(n);
+      ArcLookUp<GR>::refresh(n);
       refreshNext(_head[n]);
     }
 
@@ -1830,7 +1830,7 @@ namespace lemon {
 #ifdef DOXYGEN
     Arc operator()(Node s, Node t, Arc prev=INVALID) const {}
 #else
-    using ArcLookUp<G>::operator() ;
+    using ArcLookUp<GR>::operator() ;
     Arc operator()(Node s, Node t, Arc prev) const
     {
       return prev==INVALID?(*this)(s,t):_next[prev];

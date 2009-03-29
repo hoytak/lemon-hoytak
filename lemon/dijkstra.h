@@ -38,8 +38,10 @@ namespace lemon {
   ///
   /// This operation traits class defines all computational operations and
   /// constants which are used in the Dijkstra algorithm.
-  template <typename Value>
+  template <typename V>
   struct DijkstraDefaultOperationTraits {
+    /// \e
+    typedef V Value;
     /// \brief Gives back the zero value of the type.
     static Value zero() {
       return static_cast<Value>(0);
@@ -58,8 +60,8 @@ namespace lemon {
 
   ///Default traits class of Dijkstra class.
   ///\tparam GR The type of the digraph.
-  ///\tparam LM The type of the length map.
-  template<class GR, class LM>
+  ///\tparam LEN The type of the length map.
+  template<typename GR, typename LEN>
   struct DijkstraDefaultTraits
   {
     ///The type of the digraph the algorithm runs on.
@@ -69,9 +71,9 @@ namespace lemon {
 
     ///The type of the map that stores the arc lengths.
     ///It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef LM LengthMap;
+    typedef LEN LengthMap;
     ///The type of the length of the arcs.
-    typedef typename LM::Value Value;
+    typedef typename LEN::Value Value;
 
     /// Operation traits for %Dijkstra algorithm.
 
@@ -100,7 +102,7 @@ namespace lemon {
     ///
     ///\sa BinHeap
     ///\sa Dijkstra
-    typedef BinHeap<typename LM::Value, HeapCrossRef, std::less<Value> > Heap;
+    typedef BinHeap<typename LEN::Value, HeapCrossRef, std::less<Value> > Heap;
     ///Instantiates a \c Heap.
 
     ///This function instantiates a \ref Heap.
@@ -150,7 +152,7 @@ namespace lemon {
 
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    typedef typename Digraph::template NodeMap<typename LM::Value> DistMap;
+    typedef typename Digraph::template NodeMap<typename LEN::Value> DistMap;
     ///Instantiates a \c DistMap.
 
     ///This function instantiates a \ref DistMap.
@@ -180,18 +182,18 @@ namespace lemon {
   ///
   ///\tparam GR The type of the digraph the algorithm runs on.
   ///The default type is \ref ListDigraph.
-  ///\tparam LM A \ref concepts::ReadMap "readable" arc map that specifies
+  ///\tparam LEN A \ref concepts::ReadMap "readable" arc map that specifies
   ///the lengths of the arcs.
   ///It is read once for each arc, so the map may involve in
   ///relatively time consuming process to compute the arc lengths if
   ///it is necessary. The default map type is \ref
   ///concepts::Digraph::ArcMap "GR::ArcMap<int>".
 #ifdef DOXYGEN
-  template <typename GR, typename LM, typename TR>
+  template <typename GR, typename LEN, typename TR>
 #else
   template <typename GR=ListDigraph,
-            typename LM=typename GR::template ArcMap<int>,
-            typename TR=DijkstraDefaultTraits<GR,LM> >
+            typename LEN=typename GR::template ArcMap<int>,
+            typename TR=DijkstraDefaultTraits<GR,LEN> >
 #endif
   class Dijkstra {
   public:
@@ -913,8 +915,8 @@ namespace lemon {
 
   ///Default traits class of dijkstra() function.
   ///\tparam GR The type of the digraph.
-  ///\tparam LM The type of the length map.
-  template<class GR, class LM>
+  ///\tparam LEN The type of the length map.
+  template<class GR, class LEN>
   struct DijkstraWizardDefaultTraits
   {
     ///The type of the digraph the algorithm runs on.
@@ -923,9 +925,9 @@ namespace lemon {
 
     ///The type of the map that stores the arc lengths.
     ///It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef LM LengthMap;
+    typedef LEN LengthMap;
     ///The type of the length of the arcs.
-    typedef typename LM::Value Value;
+    typedef typename LEN::Value Value;
 
     /// Operation traits for Dijkstra algorithm.
 
@@ -1007,7 +1009,7 @@ namespace lemon {
 
     ///The type of the map that stores the distances of the nodes.
     ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    typedef typename Digraph::template NodeMap<typename LM::Value> DistMap;
+    typedef typename Digraph::template NodeMap<typename LEN::Value> DistMap;
     ///Instantiates a DistMap.
 
     ///This function instantiates a DistMap.
@@ -1033,10 +1035,10 @@ namespace lemon {
   /// as well as the \ref Dijkstra class.
   /// The \ref DijkstraWizardBase is a class to be the default traits of the
   /// \ref DijkstraWizard class.
-  template<class GR,class LM>
-  class DijkstraWizardBase : public DijkstraWizardDefaultTraits<GR,LM>
+  template<typename GR, typename LEN>
+  class DijkstraWizardBase : public DijkstraWizardDefaultTraits<GR,LEN>
   {
-    typedef DijkstraWizardDefaultTraits<GR,LM> Base;
+    typedef DijkstraWizardDefaultTraits<GR,LEN> Base;
   protected:
     //The type of the nodes in the digraph.
     typedef typename Base::Digraph::Node Node;
@@ -1070,9 +1072,9 @@ namespace lemon {
     /// others are initiated to \c 0.
     /// \param g The digraph the algorithm runs on.
     /// \param l The length map.
-    DijkstraWizardBase(const GR &g,const LM &l) :
+    DijkstraWizardBase(const GR &g,const LEN &l) :
       _g(reinterpret_cast<void*>(const_cast<GR*>(&g))),
-      _length(reinterpret_cast<void*>(const_cast<LM*>(&l))),
+      _length(reinterpret_cast<void*>(const_cast<LEN*>(&l))),
       _processed(0), _pred(0), _dist(0), _path(0), _di(0) {}
 
   };
@@ -1281,11 +1283,11 @@ namespace lemon {
   ///to the end of the parameter list.
   ///\sa DijkstraWizard
   ///\sa Dijkstra
-  template<class GR, class LM>
-  DijkstraWizard<DijkstraWizardBase<GR,LM> >
-  dijkstra(const GR &digraph, const LM &length)
+  template<typename GR, typename LEN>
+  DijkstraWizard<DijkstraWizardBase<GR,LEN> >
+  dijkstra(const GR &digraph, const LEN &length)
   {
-    return DijkstraWizard<DijkstraWizardBase<GR,LM> >(digraph,length);
+    return DijkstraWizard<DijkstraWizardBase<GR,LEN> >(digraph,length);
   }
 
 } //END OF NAMESPACE LEMON

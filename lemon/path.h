@@ -40,7 +40,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \tparam _Digraph The digraph type in which the path is.
+  /// \tparam GR The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence, it
@@ -52,11 +52,11 @@ namespace lemon {
   /// insertion and erase is done in O(1) (amortized) time. The
   /// implementation uses two vectors for storing the front and back
   /// insertions.
-  template <typename _Digraph>
+  template <typename GR>
   class Path {
   public:
 
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
 
     /// \brief Default constructor
@@ -137,7 +137,7 @@ namespace lemon {
 
     /// \brief The nth arc.
     ///
-    /// \pre n is in the [0..length() - 1] range
+    /// \pre \c n is in the <tt>[0..length() - 1]</tt> range.
     const Arc& nth(int n) const {
       return n < int(head.size()) ? *(head.rbegin() + n) :
         *(tail.begin() + (n - head.size()));
@@ -145,7 +145,7 @@ namespace lemon {
 
     /// \brief Initialize arc iterator to point to the nth arc
     ///
-    /// \pre n is in the [0..length() - 1] range
+    /// \pre \c n is in the <tt>[0..length() - 1]</tt> range.
     ArcIt nthIt(int n) const {
       return ArcIt(*this, n);
     }
@@ -228,7 +228,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \tparam _Digraph The digraph type in which the path is.
+  /// \tparam GR The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
@@ -240,11 +240,11 @@ namespace lemon {
   /// erasure is amortized O(1) time. This implementation is faster
   /// then the \c Path type because it use just one vector for the
   /// arcs.
-  template <typename _Digraph>
+  template <typename GR>
   class SimplePath {
   public:
 
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
 
     /// \brief Default constructor
@@ -329,7 +329,7 @@ namespace lemon {
 
     /// \brief The nth arc.
     ///
-    /// \pre n is in the [0..length() - 1] range
+    /// \pre \c n is in the <tt>[0..length() - 1]</tt> range.
     const Arc& nth(int n) const {
       return data[n];
     }
@@ -392,7 +392,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \tparam _Digraph The digraph type in which the path is.
+  /// \tparam GR The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
@@ -404,11 +404,11 @@ namespace lemon {
   /// of the arc in the path. The length can be computed in O(n)
   /// time. The front and back insertion and erasure is O(1) time
   /// and it can be splited and spliced in O(1) time.
-  template <typename _Digraph>
+  template <typename GR>
   class ListPath {
   public:
 
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
 
   protected:
@@ -507,7 +507,7 @@ namespace lemon {
     /// \brief The nth arc.
     ///
     /// This function looks for the nth arc in O(n) time.
-    /// \pre n is in the [0..length() - 1] range
+    /// \pre \c n is in the <tt>[0..length() - 1]</tt> range.
     const Arc& nth(int n) const {
       Node *node = first;
       for (int i = 0; i < n; ++i) {
@@ -732,7 +732,7 @@ namespace lemon {
   /// \brief A structure for representing directed paths in a digraph.
   ///
   /// A structure for representing directed path in a digraph.
-  /// \tparam _Digraph The digraph type in which the path is.
+  /// \tparam GR The digraph type in which the path is.
   ///
   /// In a sense, the path can be treated as a list of arcs. The
   /// lemon path type stores just this list. As a consequence it
@@ -746,11 +746,11 @@ namespace lemon {
   /// Being the the most memory efficient path type in LEMON,
   /// it is intented to be
   /// used when you want to store a large number of paths.
-  template <typename _Digraph>
+  template <typename GR>
   class StaticPath {
   public:
 
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
 
     /// \brief Default constructor
@@ -833,7 +833,7 @@ namespace lemon {
 
     /// \brief The nth arc.
     ///
-    /// \pre n is in the [0..length() - 1] range
+    /// \pre \c n is in the <tt>[0..length() - 1]</tt> range.
     const Arc& nth(int n) const {
       return arcs[n];
     }

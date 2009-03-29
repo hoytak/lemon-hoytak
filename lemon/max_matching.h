@@ -55,12 +55,12 @@ namespace lemon {
   /// tight. This decomposition can be attained by calling \c
   /// decomposition() after running the algorithm.
   ///
-  /// \param _Graph The graph type the algorithm runs on.
-  template <typename _Graph>
+  /// \param GR The graph type the algorithm runs on.
+  template <typename GR>
   class MaxMatching {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
     typedef typename Graph::template NodeMap<typename Graph::Arc>
     MatchingMap;
 
@@ -463,7 +463,7 @@ namespace lemon {
     /// Initialize the matching from a \c bool valued \c Edge map. This
     /// map must have the property that there are no two incident edges
     /// with true value, ie. it contains a matching.
-    /// \return %True if the map contains a matching.
+    /// \return \c true if the map contains a matching.
     template <typename MatchingMap>
     bool matchingInit(const MatchingMap& matching) {
       createStructures();
@@ -613,7 +613,7 @@ namespace lemon {
   /// This class provides an efficient implementation of Edmond's
   /// maximum weighted matching algorithm. The implementation is based
   /// on extensive use of priority queues and provides
-  /// \f$O(nm\log(n))\f$ time complexity.
+  /// \f$O(nm\log n)\f$ time complexity.
   ///
   /// The maximum weighted matching problem is to find undirected
   /// edges in the graph with maximum overall weight and no two of
@@ -647,13 +647,16 @@ namespace lemon {
   /// "BlossomIt" nested class, which is able to iterate on the nodes
   /// of a blossom. If the value type is integral then the dual
   /// solution is multiplied by \ref MaxWeightedMatching::dualScale "4".
-  template <typename _Graph,
-            typename _WeightMap = typename _Graph::template EdgeMap<int> >
+  template <typename GR,
+            typename WM = typename GR::template EdgeMap<int> >
   class MaxWeightedMatching {
   public:
 
-    typedef _Graph Graph;
-    typedef _WeightMap WeightMap;
+    ///\e
+    typedef GR Graph;
+    ///\e
+    typedef WM WeightMap;
+    ///\e
     typedef typename WeightMap::Value Value;
 
     /// \brief Scaling factor for dual solution
@@ -1957,7 +1960,7 @@ namespace lemon {
   /// This class provides an efficient implementation of Edmond's
   /// maximum weighted perfect matching algorithm. The implementation
   /// is based on extensive use of priority queues and provides
-  /// \f$O(nm\log(n))\f$ time complexity.
+  /// \f$O(nm\log n)\f$ time complexity.
   ///
   /// The maximum weighted matching problem is to find undirected
   /// edges in the graph with maximum overall weight and no two of
@@ -1990,13 +1993,13 @@ namespace lemon {
   /// "BlossomIt" nested class which is able to iterate on the nodes
   /// of a blossom. If the value type is integral then the dual
   /// solution is multiplied by \ref MaxWeightedMatching::dualScale "4".
-  template <typename _Graph,
-            typename _WeightMap = typename _Graph::template EdgeMap<int> >
+  template <typename GR,
+            typename WM = typename GR::template EdgeMap<int> >
   class MaxWeightedPerfectMatching {
   public:
 
-    typedef _Graph Graph;
-    typedef _WeightMap WeightMap;
+    typedef GR Graph;
+    typedef WM WeightMap;
     typedef typename WeightMap::Value Value;
 
     /// \brief Scaling factor for dual solution

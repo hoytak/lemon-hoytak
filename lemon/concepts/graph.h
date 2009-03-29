@@ -601,23 +601,35 @@ namespace lemon {
 
       /// \brief Opposite node on an arc
       ///
-      /// \return the opposite of the given Node on the given Edge
+      /// \return The opposite of the given node on the given edge.
       Node oppositeNode(Node, Edge) const { return INVALID; }
 
       /// \brief First node of the edge.
       ///
-      /// \return the first node of the given Edge.
+      /// \return The first node of the given edge.
       ///
       /// Naturally edges don't have direction and thus
-      /// don't have source and target node. But we use these two methods
-      /// to query the two nodes of the arc. The direction of the arc
-      /// which arises this way is called the inherent direction of the
+      /// don't have source and target node. However we use \c u() and \c v()
+      /// methods to query the two nodes of the arc. The direction of the
+      /// arc which arises this way is called the inherent direction of the
       /// edge, and is used to define the "default" direction
       /// of the directed versions of the arcs.
-      /// \sa direction
+      /// \sa v()
+      /// \sa direction()
       Node u(Edge) const { return INVALID; }
 
       /// \brief Second node of the edge.
+      ///
+      /// \return The second node of the given edge.
+      ///
+      /// Naturally edges don't have direction and thus
+      /// don't have source and target node. However we use \c u() and \c v()
+      /// methods to query the two nodes of the arc. The direction of the
+      /// arc which arises this way is called the inherent direction of the
+      /// edge, and is used to define the "default" direction
+      /// of the directed versions of the arcs.
+      /// \sa u()
+      /// \sa direction()
       Node v(Edge) const { return INVALID; }
 
       /// \brief Source node of the directed arc.

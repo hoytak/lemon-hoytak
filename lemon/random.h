@@ -603,7 +603,7 @@ namespace lemon {
     /// By default, this function calls the \c seedFromFile() member
     /// function with the <tt>/dev/urandom</tt> file. If it does not success,
     /// it uses the \c seedFromTime().
-    /// \return Currently always true.
+    /// \return Currently always \c true.
     bool seed() {
 #ifndef WIN32
       if (seedFromFile("/dev/urandom", 0)) return true;
@@ -624,7 +624,7 @@ namespace lemon {
     /// entropy).
     /// \param file The source file
     /// \param offset The offset, from the file read.
-    /// \return True when the seeding successes.
+    /// \return \c true when the seeding successes.
 #ifndef WIN32
     bool seedFromFile(const std::string& file = "/dev/urandom", int offset = 0)
 #else
@@ -645,7 +645,7 @@ namespace lemon {
     /// Seding from process id and time. This function uses the
     /// current process id and the current time for initialize the
     /// random sequence.
-    /// \return Currently always true.
+    /// \return Currently always \c true.
     bool seedFromTime() {
 #ifndef WIN32
       timeval tv;

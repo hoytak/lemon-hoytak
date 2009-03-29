@@ -54,29 +54,29 @@ namespace lemon {
   ///\endcode
   ///If \c g is not Euler then the resulted tour will not be full or closed.
   ///\sa EulerIt
-  template<class Digraph>
+  template<typename GR>
   class DiEulerIt
   {
-    typedef typename Digraph::Node Node;
-    typedef typename Digraph::NodeIt NodeIt;
-    typedef typename Digraph::Arc Arc;
-    typedef typename Digraph::ArcIt ArcIt;
-    typedef typename Digraph::OutArcIt OutArcIt;
-    typedef typename Digraph::InArcIt InArcIt;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
+    typedef typename GR::Arc Arc;
+    typedef typename GR::ArcIt ArcIt;
+    typedef typename GR::OutArcIt OutArcIt;
+    typedef typename GR::InArcIt InArcIt;
 
-    const Digraph &g;
-    typename Digraph::template NodeMap<OutArcIt> nedge;
+    const GR &g;
+    typename GR::template NodeMap<OutArcIt> nedge;
     std::list<Arc> euler;
 
   public:
 
     ///Constructor
 
-    ///\param _g A digraph.
+    ///\param gr A digraph.
     ///\param start The starting point of the tour. If it is not given
     ///       the tour will start from the first node.
-    DiEulerIt(const Digraph &_g,typename Digraph::Node start=INVALID)
-      : g(_g), nedge(g)
+    DiEulerIt(const GR &gr, typename GR::Node start = INVALID)
+      : g(gr), nedge(g)
     {
       if(start==INVALID) start=NodeIt(g);
       for(NodeIt n(g);n!=INVALID;++n) nedge[n]=OutArcIt(g,n);
@@ -145,31 +145,31 @@ namespace lemon {
   ///
   ///If \c g is not Euler then the resulted tour will not be full or closed.
   ///\sa EulerIt
-  template<class Digraph>
+  template<typename GR>
   class EulerIt
   {
-    typedef typename Digraph::Node Node;
-    typedef typename Digraph::NodeIt NodeIt;
-    typedef typename Digraph::Arc Arc;
-    typedef typename Digraph::Edge Edge;
-    typedef typename Digraph::ArcIt ArcIt;
-    typedef typename Digraph::OutArcIt OutArcIt;
-    typedef typename Digraph::InArcIt InArcIt;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
+    typedef typename GR::Arc Arc;
+    typedef typename GR::Edge Edge;
+    typedef typename GR::ArcIt ArcIt;
+    typedef typename GR::OutArcIt OutArcIt;
+    typedef typename GR::InArcIt InArcIt;
 
-    const Digraph &g;
-    typename Digraph::template NodeMap<OutArcIt> nedge;
-    typename Digraph::template EdgeMap<bool> visited;
+    const GR &g;
+    typename GR::template NodeMap<OutArcIt> nedge;
+    typename GR::template EdgeMap<bool> visited;
     std::list<Arc> euler;
 
   public:
 
     ///Constructor
 
-    ///\param _g An graph.
+    ///\param gr An graph.
     ///\param start The starting point of the tour. If it is not given
     ///       the tour will start from the first node.
-    EulerIt(const Digraph &_g,typename Digraph::Node start=INVALID)
-      : g(_g), nedge(g), visited(g,false)
+    EulerIt(const GR &gr, typename GR::Node start = INVALID)
+      : g(gr), nedge(g), visited(g, false)
     {
       if(start==INVALID) start=NodeIt(g);
       for(NodeIt n(g);n!=INVALID;++n) nedge[n]=OutArcIt(g,n);
@@ -238,25 +238,25 @@ namespace lemon {
   ///and only if it is connected and the number of incident arcs is even
   ///for each node. <em>Therefore, there are digraphs which are not Eulerian,
   ///but still have an Euler tour</em>.
-  template<class Digraph>
+  template<typename GR>
 #ifdef DOXYGEN
   bool
 #else
-  typename enable_if<UndirectedTagIndicator<Digraph>,bool>::type
-  eulerian(const Digraph &g)
+  typename enable_if<UndirectedTagIndicator<GR>,bool>::type
+  eulerian(const GR &g)
   {
-    for(typename Digraph::NodeIt n(g);n!=INVALID;++n)
+    for(typename GR::NodeIt n(g);n!=INVALID;++n)
       if(countIncEdges(g,n)%2) return false;
     return connected(g);
   }
-  template<class Digraph>
-  typename disable_if<UndirectedTagIndicator<Digraph>,bool>::type
+  template<class GR>
+  typename disable_if<UndirectedTagIndicator<GR>,bool>::type
 #endif
-  eulerian(const Digraph &g)
+  eulerian(const GR &g)
   {
-    for(typename Digraph::NodeIt n(g);n!=INVALID;++n)
+    for(typename GR::NodeIt n(g);n!=INVALID;++n)
       if(countInArcs(g,n)!=countOutArcs(g,n)) return false;
-    return connected(Undirector<const Digraph>(g));
+    return connected(Undirector<const GR>(g));
   }
 
 }

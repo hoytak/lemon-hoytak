@@ -64,11 +64,11 @@ namespace lemon {
 
 ///Default traits class of \ref GraphToEps.
 ///
-///\c G is the type of the underlying graph.
-template<class G>
+///\param GR is the type of the underlying graph.
+template<class GR>
 struct DefaultGraphToEpsTraits
 {
-  typedef G Graph;
+  typedef GR Graph;
   typedef typename Graph::Node Node;
   typedef typename Graph::NodeIt NodeIt;
   typedef typename Graph::Arc Arc;
@@ -139,15 +139,14 @@ struct DefaultGraphToEpsTraits
   ///Constructor
 
   ///Constructor
-  ///\param _g  Reference to the graph to be printed.
-  ///\param _os Reference to the output stream.
-  ///\param _os Reference to the output stream.
+  ///\param gr  Reference to the graph to be printed.
+  ///\param ost Reference to the output stream.
   ///By default it is <tt>std::cout</tt>.
-  ///\param _pros If it is \c true, then the \c ostream referenced by \c _os
+  ///\param pros If it is \c true, then the \c ostream referenced by \c os
   ///will be explicitly deallocated by the destructor.
-  DefaultGraphToEpsTraits(const G &_g,std::ostream& _os=std::cout,
-                          bool _pros=false) :
-    g(_g), os(_os),
+  DefaultGraphToEpsTraits(const GR &gr, std::ostream& ost = std::cout,
+                          bool pros = false) :
+    g(gr), os(ost),
     _coords(dim2::Point<double>(1,1)), _nodeSizes(1), _nodeShapes(0),
     _nodeColors(WHITE), _arcColors(BLACK),
     _arcWidths(1.0), _arcWidthScale(0.003),
@@ -158,8 +157,8 @@ struct DefaultGraphToEpsTraits
     _enableParallel(false), _parArcDist(1),
     _showNodeText(false), _nodeTexts(false), _nodeTextSize(1),
     _showNodePsText(false), _nodePsTexts(false), _nodePsTextsPreamble(0),
-    _undirected(lemon::UndirectedTagIndicator<G>::value),
-    _pleaseRemoveOsStream(_pros), _scaleToA4(false),
+    _undirected(lemon::UndirectedTagIndicator<GR>::value),
+    _pleaseRemoveOsStream(pros), _scaleToA4(false),
     _nodeTextColorType(SAME_COL), _nodeTextColors(BLACK),
     _autoNodeScale(false),
     _autoArcWidthScale(false),
@@ -1134,55 +1133,55 @@ const double GraphToEps<T>::A4BORDER = 15;
 ///\warning Don't forget to put the \ref GraphToEps::run() "run()"
 ///to the end of the parameter list.
 ///\sa GraphToEps
-///\sa graphToEps(G &g, const char *file_name)
-template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> >
-graphToEps(G &g, std::ostream& os=std::cout)
+///\sa graphToEps(GR &g, const char *file_name)
+template<class GR>
+GraphToEps<DefaultGraphToEpsTraits<GR> >
+graphToEps(GR &g, std::ostream& os=std::cout)
 {
   return
-    GraphToEps<DefaultGraphToEpsTraits<G> >(DefaultGraphToEpsTraits<G>(g,os));
+    GraphToEps<DefaultGraphToEpsTraits<GR> >(DefaultGraphToEpsTraits<GR>(g,os));
 }
 
 ///Generates an EPS file from a graph
 
 ///\ingroup eps_io
 ///This function does the same as
-///\ref graphToEps(G &g,std::ostream& os)
+///\ref graphToEps(GR &g,std::ostream& os)
 ///but it writes its output into the file \c file_name
 ///instead of a stream.
-///\sa graphToEps(G &g, std::ostream& os)
-template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> >
-graphToEps(G &g,const char *file_name)
+///\sa graphToEps(GR &g, std::ostream& os)
+template<class GR>
+GraphToEps<DefaultGraphToEpsTraits<GR> >
+graphToEps(GR &g,const char *file_name)
 {
   std::ostream* os = new std::ofstream(file_name);
   if (!(*os)) {
     delete os;
     throw IoError("Cannot write file", file_name);
   }
-  return GraphToEps<DefaultGraphToEpsTraits<G> >
-    (DefaultGraphToEpsTraits<G>(g,*os,true));
+  return GraphToEps<DefaultGraphToEpsTraits<GR> >
+    (DefaultGraphToEpsTraits<GR>(g,*os,true));
 }
 
 ///Generates an EPS file from a graph
 
 ///\ingroup eps_io
 ///This function does the same as
-///\ref graphToEps(G &g,std::ostream& os)
+///\ref graphToEps(GR &g,std::ostream& os)
 ///but it writes its output into the file \c file_name
 ///instead of a stream.
-///\sa graphToEps(G &g, std::ostream& os)
-template<class G>
-GraphToEps<DefaultGraphToEpsTraits<G> >
-graphToEps(G &g,const std::string& file_name)
+///\sa graphToEps(GR &g, std::ostream& os)
+template<class GR>
+GraphToEps<DefaultGraphToEpsTraits<GR> >
+graphToEps(GR &g,const std::string& file_name)
 {
   std::ostream* os = new std::ofstream(file_name.c_str());
   if (!(*os)) {
     delete os;
     throw IoError("Cannot write file", file_name);
   }
-  return GraphToEps<DefaultGraphToEpsTraits<G> >
-    (DefaultGraphToEpsTraits<G>(g,*os,true));
+  return GraphToEps<DefaultGraphToEpsTraits<GR> >
+    (DefaultGraphToEpsTraits<GR>(g,*os,true));
 }
 
 } //END OF NAMESPACE LEMON

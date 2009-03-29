@@ -448,15 +448,15 @@ namespace lemon {
   /// It is impossible to read this in
   /// a single pass, because the arcs are not constructed when the node
   /// maps are read.
-  template <typename _Digraph>
+  template <typename GR>
   class DigraphReader {
   public:
 
-    typedef _Digraph Digraph;
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+    typedef GR Digraph;
 
   private:
 
+    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
     std::istream* _is;
     bool local_is;
@@ -1246,14 +1246,15 @@ namespace lemon {
   /// prefixed with \c '+' and \c '-', then these can be read into an
   /// arc map.  Similarly, an attribute can be read into an arc, if
   /// it's value is an edge label prefixed with \c '+' or \c '-'.
-  template <typename _Graph>
+  template <typename GR>
   class GraphReader {
   public:
 
-    typedef _Graph Graph;
-    TEMPLATE_GRAPH_TYPEDEFS(Graph);
+    typedef GR Graph;
 
   private:
+
+    TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
     std::istream* _is;
     bool local_is;
@@ -1356,12 +1357,12 @@ namespace lemon {
     }
 
   private:
-    template <typename GR>
-    friend GraphReader<GR> graphReader(GR& graph, std::istream& is);
-    template <typename GR>
-    friend GraphReader<GR> graphReader(GR& graph, const std::string& fn); 
-    template <typename GR>
-    friend GraphReader<GR> graphReader(GR& graph, const char *fn);
+    template <typename Graph>
+    friend GraphReader<Graph> graphReader(Graph& graph, std::istream& is);
+    template <typename Graph>
+    friend GraphReader<Graph> graphReader(Graph& graph, const std::string& fn); 
+    template <typename Graph>
+    friend GraphReader<Graph> graphReader(Graph& graph, const char *fn);
 
     GraphReader(GraphReader& other)
       : _is(other._is), local_is(other.local_is), _graph(other._graph),

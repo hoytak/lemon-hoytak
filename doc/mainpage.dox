@@ -45,16 +45,11 @@ If you want to get a quick start and see the most important features then
 take a look at our \ref quicktour
 "Quick Tour to LEMON" which will guide you along.
 
-If you already feel like using our library, see the page that tells you
-\ref getstart "How to start using LEMON".
-
-If you
-want to see how LEMON works, see
-some \ref demoprograms "demo programs".
+If you already feel like using our library, see the
+<a class="el" href="http://lemon.cs.elte.hu/pub/tutorial/">LEMON Tutorial</a>.
 
 If you know what you are looking for then try to find it under the
-<a class="el" href="modules.html">Modules</a>
-section.
+<a class="el" href="modules.html">Modules</a> section.
 
 If you are a user of the old (0.x) series of LEMON, please check out the
 \ref migration "Migration Guide" for the backward incompatibilities.

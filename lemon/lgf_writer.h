@@ -406,11 +406,11 @@ namespace lemon {
   /// section to the stream. The output stream can be retrieved with
   /// the \c ostream() function, hence the second pass can append its
   /// output to the output of the first pass.
-  template <typename _Digraph>
+  template <typename GR>
   class DigraphWriter {
   public:
 
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
   private:
@@ -974,11 +974,11 @@ namespace lemon {
   /// '+' and \c '-'. The arcs are written into the \c \@attributes
   /// section as a \c '+' or a \c '-' prefix (depends on the direction
   /// of the arc) and the label of corresponding edge.
-  template <typename _Graph>
+  template <typename GR>
   class GraphWriter {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
     TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
   private:
@@ -1073,15 +1073,15 @@ namespace lemon {
 
   private:
 
-    template <typename GR>
-    friend GraphWriter<GR> graphWriter(const GR& graph,
-                                       std::ostream& os);
-    template <typename GR>
-    friend GraphWriter<GR> graphWriter(const GR& graph,
-                                       const std::string& fn);
-    template <typename GR>
-    friend GraphWriter<GR> graphWriter(const GR& graph,
-                                       const char *fn);
+    template <typename Graph>
+    friend GraphWriter<Graph> graphWriter(const Graph& graph,
+                                          std::ostream& os);
+    template <typename Graph>
+    friend GraphWriter<Graph> graphWriter(const Graph& graph,
+                                          const std::string& fn);
+    template <typename Graph>
+    friend GraphWriter<Graph> graphWriter(const Graph& graph,
+                                          const char *fn);
     
     GraphWriter(GraphWriter& other)
       : _os(other._os), local_os(other.local_os), _graph(other._graph),

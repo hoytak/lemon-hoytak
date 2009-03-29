@@ -2254,26 +2254,27 @@ namespace lemon {
     ///
     /// This map adaptor class adapts two arc maps of the underlying
     /// digraph to get an arc map of the undirected graph.
-    /// Its value type is inherited from the first arc map type
-    /// (\c %ForwardMap).
-    template <typename ForwardMap, typename BackwardMap>
+    /// Its value type is inherited from the first arc map type (\c FW).
+    /// \tparam FW The type of the "foward" arc map.
+    /// \tparam BK The type of the "backward" arc map.
+    template <typename FW, typename BK>
     class CombinedArcMap {
     public:
 
       /// The key type of the map
       typedef typename Parent::Arc Key;
       /// The value type of the map
-      typedef typename ForwardMap::Value Value;
+      typedef typename FW::Value Value;
 
-      typedef typename MapTraits<ForwardMap>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<FW>::ReferenceMapTag ReferenceMapTag;
 
-      typedef typename MapTraits<ForwardMap>::ReturnValue ReturnValue;
-      typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReturnValue;
-      typedef typename MapTraits<ForwardMap>::ReturnValue Reference;
-      typedef typename MapTraits<ForwardMap>::ConstReturnValue ConstReference;
+      typedef typename MapTraits<FW>::ReturnValue ReturnValue;
+      typedef typename MapTraits<FW>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<FW>::ReturnValue Reference;
+      typedef typename MapTraits<FW>::ConstReturnValue ConstReference;
 
       /// Constructor
-      CombinedArcMap(ForwardMap& forward, BackwardMap& backward)
+      CombinedArcMap(FW& forward, BK& backward)
         : _forward(&forward), _backward(&backward) {}
 
       /// Sets the value associated with the given key.
@@ -2305,39 +2306,36 @@ namespace lemon {
 
     protected:
 
-      ForwardMap* _forward;
-      BackwardMap* _backward;
+      FW* _forward;
+      BK* _backward;
 
     };
 
     /// \brief Returns a combined arc map
     ///
     /// This function just returns a combined arc map.
-    template <typename ForwardMap, typename BackwardMap>
-    static CombinedArcMap<ForwardMap, BackwardMap>
-    combinedArcMap(ForwardMap& forward, BackwardMap& backward) {
-      return CombinedArcMap<ForwardMap, BackwardMap>(forward, backward);
+    template <typename FW, typename BK>
+    static CombinedArcMap<FW, BK>
+    combinedArcMap(FW& forward, BK& backward) {
+      return CombinedArcMap<FW, BK>(forward, backward);
     }
 
-    template <typename ForwardMap, typename BackwardMap>
-    static CombinedArcMap<const ForwardMap, BackwardMap>
-    combinedArcMap(const ForwardMap& forward, BackwardMap& backward) {
-      return CombinedArcMap<const ForwardMap,
-        BackwardMap>(forward, backward);
+    template <typename FW, typename BK>
+    static CombinedArcMap<const FW, BK>
+    combinedArcMap(const FW& forward, BK& backward) {
+      return CombinedArcMap<const FW, BK>(forward, backward);
     }
 
-    template <typename ForwardMap, typename BackwardMap>
-    static CombinedArcMap<ForwardMap, const BackwardMap>
-    combinedArcMap(ForwardMap& forward, const BackwardMap& backward) {
-      return CombinedArcMap<ForwardMap,
-        const BackwardMap>(forward, backward);
+    template <typename FW, typename BK>
+    static CombinedArcMap<FW, const BK>
+    combinedArcMap(FW& forward, const BK& backward) {
+      return CombinedArcMap<FW, const BK>(forward, backward);
     }
 
-    template <typename ForwardMap, typename BackwardMap>
-    static CombinedArcMap<const ForwardMap, const BackwardMap>
-    combinedArcMap(const ForwardMap& forward, const BackwardMap& backward) {
-      return CombinedArcMap<const ForwardMap,
-        const BackwardMap>(forward, backward);
+    template <typename FW, typename BK>
+    static CombinedArcMap<const FW, const BK>
+    combinedArcMap(const FW& forward, const BK& backward) {
+      return CombinedArcMap<const FW, const BK>(forward, backward);
     }
 
   };
@@ -3406,25 +3404,26 @@ namespace lemon {
     ///
     /// This map adaptor class adapts two node maps of the original digraph
     /// to get a node map of the split digraph.
-    /// Its value type is inherited from the first node map type
-    /// (\c InNodeMap).
-    template <typename InNodeMap, typename OutNodeMap>
+    /// Its value type is inherited from the first node map type (\c IN).
+    /// \tparam IN The type of the node map for the in-nodes. 
+    /// \tparam OUT The type of the node map for the out-nodes.
+    template <typename IN, typename OUT>
     class CombinedNodeMap {
     public:
 
       /// The key type of the map
       typedef Node Key;
       /// The value type of the map
-      typedef typename InNodeMap::Value Value;
+      typedef typename IN::Value Value;
 
-      typedef typename MapTraits<InNodeMap>::ReferenceMapTag ReferenceMapTag;
-      typedef typename MapTraits<InNodeMap>::ReturnValue ReturnValue;
-      typedef typename MapTraits<InNodeMap>::ConstReturnValue ConstReturnValue;
-      typedef typename MapTraits<InNodeMap>::ReturnValue Reference;
-      typedef typename MapTraits<InNodeMap>::ConstReturnValue ConstReference;
+      typedef typename MapTraits<IN>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<IN>::ReturnValue ReturnValue;
+      typedef typename MapTraits<IN>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<IN>::ReturnValue Reference;
+      typedef typename MapTraits<IN>::ConstReturnValue ConstReference;
 
       /// Constructor
-      CombinedNodeMap(InNodeMap& in_map, OutNodeMap& out_map)
+      CombinedNodeMap(IN& in_map, OUT& out_map)
         : _in_map(in_map), _out_map(out_map) {}
 
       /// Returns the value associated with the given key.
@@ -3456,8 +3455,8 @@ namespace lemon {
 
     private:
 
-      InNodeMap& _in_map;
-      OutNodeMap& _out_map;
+      IN& _in_map;
+      OUT& _out_map;
 
     };
 
@@ -3465,29 +3464,28 @@ namespace lemon {
     /// \brief Returns a combined node map
     ///
     /// This function just returns a combined node map.
-    template <typename InNodeMap, typename OutNodeMap>
-    static CombinedNodeMap<InNodeMap, OutNodeMap>
-    combinedNodeMap(InNodeMap& in_map, OutNodeMap& out_map) {
-      return CombinedNodeMap<InNodeMap, OutNodeMap>(in_map, out_map);
+    template <typename IN, typename OUT>
+    static CombinedNodeMap<IN, OUT>
+    combinedNodeMap(IN& in_map, OUT& out_map) {
+      return CombinedNodeMap<IN, OUT>(in_map, out_map);
     }
 
-    template <typename InNodeMap, typename OutNodeMap>
-    static CombinedNodeMap<const InNodeMap, OutNodeMap>
-    combinedNodeMap(const InNodeMap& in_map, OutNodeMap& out_map) {
-      return CombinedNodeMap<const InNodeMap, OutNodeMap>(in_map, out_map);
+    template <typename IN, typename OUT>
+    static CombinedNodeMap<const IN, OUT>
+    combinedNodeMap(const IN& in_map, OUT& out_map) {
+      return CombinedNodeMap<const IN, OUT>(in_map, out_map);
     }
 
-    template <typename InNodeMap, typename OutNodeMap>
-    static CombinedNodeMap<InNodeMap, const OutNodeMap>
-    combinedNodeMap(InNodeMap& in_map, const OutNodeMap& out_map) {
-      return CombinedNodeMap<InNodeMap, const OutNodeMap>(in_map, out_map);
+    template <typename IN, typename OUT>
+    static CombinedNodeMap<IN, const OUT>
+    combinedNodeMap(IN& in_map, const OUT& out_map) {
+      return CombinedNodeMap<IN, const OUT>(in_map, out_map);
     }
 
-    template <typename InNodeMap, typename OutNodeMap>
-    static CombinedNodeMap<const InNodeMap, const OutNodeMap>
-    combinedNodeMap(const InNodeMap& in_map, const OutNodeMap& out_map) {
-      return CombinedNodeMap<const InNodeMap,
-        const OutNodeMap>(in_map, out_map);
+    template <typename IN, typename OUT>
+    static CombinedNodeMap<const IN, const OUT>
+    combinedNodeMap(const IN& in_map, const OUT& out_map) {
+      return CombinedNodeMap<const IN, const OUT>(in_map, out_map);
     }
 
     /// \brief Arc map combined from an arc map and a node map of the
@@ -3495,25 +3493,26 @@ namespace lemon {
     ///
     /// This map adaptor class adapts an arc map and a node map of the
     /// original digraph to get an arc map of the split digraph.
-    /// Its value type is inherited from the original arc map type
-    /// (\c ArcMap).
-    template <typename ArcMap, typename NodeMap>
+    /// Its value type is inherited from the original arc map type (\c AM).
+    /// \tparam AM The type of the arc map.
+    /// \tparam NM the type of the node map.
+    template <typename AM, typename NM>
     class CombinedArcMap {
     public:
 
       /// The key type of the map
       typedef Arc Key;
       /// The value type of the map
-      typedef typename ArcMap::Value Value;
+      typedef typename AM::Value Value;
 
-      typedef typename MapTraits<ArcMap>::ReferenceMapTag ReferenceMapTag;
-      typedef typename MapTraits<ArcMap>::ReturnValue ReturnValue;
-      typedef typename MapTraits<ArcMap>::ConstReturnValue ConstReturnValue;
-      typedef typename MapTraits<ArcMap>::ReturnValue Reference;
-      typedef typename MapTraits<ArcMap>::ConstReturnValue ConstReference;
+      typedef typename MapTraits<AM>::ReferenceMapTag ReferenceMapTag;
+      typedef typename MapTraits<AM>::ReturnValue ReturnValue;
+      typedef typename MapTraits<AM>::ConstReturnValue ConstReturnValue;
+      typedef typename MapTraits<AM>::ReturnValue Reference;
+      typedef typename MapTraits<AM>::ConstReturnValue ConstReference;
 
       /// Constructor
-      CombinedArcMap(ArcMap& arc_map, NodeMap& node_map)
+      CombinedArcMap(AM& arc_map, NM& node_map)
         : _arc_map(arc_map), _node_map(node_map) {}
 
       /// Returns the value associated with the given key.
@@ -3544,8 +3543,10 @@ namespace lemon {
       }
 
     private:
-      ArcMap& _arc_map;
-      NodeMap& _node_map;
+
+      AM& _arc_map;
+      NM& _node_map;
+
     };
 
     /// \brief Returns a combined arc map

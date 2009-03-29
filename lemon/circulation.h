@@ -215,9 +215,9 @@ template< typename GR,
 
     ///@{
 
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMapTraits : public Traits {
-      typedef _FlowMap FlowMap;
+      typedef T FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
         LEMON_ASSERT(false, "FlowMap is not initialized");
         return 0; // ignore warnings
@@ -229,17 +229,17 @@ template< typename GR,
     ///
     /// \ref named-templ-param "Named parameter" for setting FlowMap
     /// type.
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMap
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           SetFlowMapTraits<_FlowMap> > {
+                           SetFlowMapTraits<T> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          SetFlowMapTraits<_FlowMap> > Create;
+                          SetFlowMapTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph&, int) {
         LEMON_ASSERT(false, "Elevator is not initialized");
         return 0; // ignore warnings
@@ -255,17 +255,17 @@ template< typename GR,
     /// \ref elevator(Elevator&) "elevator()" function before calling
     /// \ref run() or \ref init().
     /// \sa SetStandardElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           SetElevatorTraits<_Elevator> > {
+                           SetElevatorTraits<T> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          SetElevatorTraits<_Elevator> > Create;
+                          SetElevatorTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph& digraph, int max_level) {
         return new Elevator(digraph, max_level);
       }
@@ -283,12 +283,12 @@ template< typename GR,
     /// algorithm with the \ref elevator(Elevator&) "elevator()" function
     /// before calling \ref run() or \ref init().
     /// \sa SetElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevator
       : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                       SetStandardElevatorTraits<_Elevator> > {
+                       SetStandardElevatorTraits<T> > {
       typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                      SetStandardElevatorTraits<_Elevator> > Create;
+                      SetStandardElevatorTraits<T> > Create;
     };
 
     /// @}
@@ -682,7 +682,7 @@ template< typename GR,
     /// empty set, so \c bar[v] will be \c false for all nodes \c v.
     ///
     /// \note This function calls \ref barrier() for each node,
-    /// so it runs in \f$O(n)\f$ time.
+    /// so it runs in O(n) time.
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.

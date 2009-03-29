@@ -57,27 +57,27 @@ namespace lemon {
   /// undirected graph you can run just the first phase of the
   /// algorithm or you can use the algorithm of Nagamochi and Ibaraki
   /// which solves the undirected problem in
-  /// \f$ O(nm + n^2 \log(n)) \f$ time: it is implemented in the
+  /// \f$ O(nm + n^2 \log n) \f$ time: it is implemented in the
   /// NagamochiIbaraki algorithm class.
   ///
-  /// \param _Digraph is the graph type of the algorithm.
-  /// \param _CapacityMap is an edge map of capacities which should
-  /// be any numreric type. The default type is _Digraph::ArcMap<int>.
-  /// \param _Tolerance is the handler of the inexact computation. The
-  /// default type for this is Tolerance<CapacityMap::Value>.
+  /// \param GR The digraph class the algorithm runs on.
+  /// \param CAP An arc map of capacities which can be any numreric type.
+  /// The default type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \param TOL Tolerance class for handling inexact computations. The
+  /// default tolerance type is \ref Tolerance "Tolerance<CAP::Value>".
 #ifdef DOXYGEN
-  template <typename _Digraph, typename _CapacityMap, typename _Tolerance>
+  template <typename GR, typename CAP, typename TOL>
 #else
-  template <typename _Digraph,
-            typename _CapacityMap = typename _Digraph::template ArcMap<int>,
-            typename _Tolerance = Tolerance<typename _CapacityMap::Value> >
+  template <typename GR,
+            typename CAP = typename GR::template ArcMap<int>,
+            typename TOL = Tolerance<typename CAP::Value> >
 #endif
   class HaoOrlin {
   private:
 
-    typedef _Digraph Digraph;
-    typedef _CapacityMap CapacityMap;
-    typedef _Tolerance Tolerance;
+    typedef GR Digraph;
+    typedef CAP CapacityMap;
+    typedef TOL Tolerance;
 
     typedef typename CapacityMap::Value Value;
 
@@ -817,7 +817,7 @@ namespace lemon {
 
     /// \name Execution control
     /// The simplest way to execute the algorithm is to use
-    /// one of the member functions called \c run(...).
+    /// one of the member functions called \ref run().
     /// \n
     /// If you need more control on the execution,
     /// first you must call \ref init(), then the \ref calculateIn() or

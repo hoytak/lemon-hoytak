@@ -225,15 +225,15 @@ namespace lemon {
 
     ///Add a new node to the digraph.
 
-    /// \return the new node.
-    ///
+    /// Add a new node to the digraph.
+    /// \return The new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new arc to the digraph.
 
     ///Add a new arc to the digraph with source node \c s
     ///and target node \c t.
-    ///\return the new arc.
+    ///\return The new arc.
     Arc addArc(const Node& s, const Node& t) {
       return Parent::addArc(s, t);
     }
@@ -666,15 +666,15 @@ namespace lemon {
 
     ///Add a new node to the graph.
 
-    /// \return the new node.
-    ///
+    /// Add a new node to the graph.
+    /// \return The new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new edge to the graph.
 
     ///Add a new edge to the graph with node \c s
     ///and \c t.
-    ///\return the new edge.
+    ///\return The new edge.
     Edge addEdge(const Node& s, const Node& t) {
       return Parent::addEdge(s, t);
     }

@@ -291,7 +291,7 @@ namespace lemon {
   /// reasons. Thus the maximum dimension of this implementation is 26
   /// (assuming that the size of \c int is 32 bit).
   ///
-  /// This graph type is fully conform to the \ref concepts::Graph
+  /// This graph type fully conforms to the \ref concepts::Graph
   /// "Graph" concept, and it also has an important extra feature
   /// that its maps are real \ref concepts::ReferenceMap
   /// "reference map"s.

@@ -46,7 +46,7 @@ namespace lemon {
   ///
   /// Check whether the given undirected graph is connected.
   /// \param graph The undirected graph.
-  /// \return %True when there is path between any two nodes in the graph.
+  /// \return \c true when there is path between any two nodes in the graph.
   /// \note By definition, the empty graph is connected.
   template <typename Graph>
   bool connected(const Graph& graph) {
@@ -234,7 +234,7 @@ namespace lemon {
   /// Check whether the given directed graph is strongly connected. The
   /// graph is strongly connected when any two nodes of the graph are
   /// connected with directed paths in both direction.
-  /// \return %False when the graph is not strongly connected.
+  /// \return \c false when the graph is not strongly connected.
   /// \see connected
   ///
   /// \note By definition, the empty graph is strongly connected.
@@ -709,7 +709,7 @@ namespace lemon {
   /// on same circle.
   ///
   /// \param graph The graph.
-  /// \return %True when the graph bi-node-connected.
+  /// \return \c true when the graph bi-node-connected.
   template <typename Graph>
   bool biNodeConnected(const Graph& graph) {
     return countBiNodeConnectedComponents(graph) <= 1;
@@ -1230,7 +1230,7 @@ namespace lemon {
   /// from 0 to the number of the nodes in the graph minus one. Each values
   /// of the map will be set exactly once, the values will be set descending
   /// order.
-  /// \return %False when the graph is not DAG.
+  /// \return \c false when the graph is not DAG.
   ///
   /// \see topologicalSort
   /// \see dag
@@ -1279,7 +1279,7 @@ namespace lemon {
   ///
   /// Check that the given directed graph is a DAG. The DAG is
   /// an Directed Acyclic Digraph.
-  /// \return %False when the graph is not DAG.
+  /// \return \c false when the graph is not DAG.
   /// \see acyclic
   template <typename Digraph>
   bool dag(const Digraph& digraph) {
@@ -1321,7 +1321,7 @@ namespace lemon {
   ///
   /// Check that the given undirected graph acyclic.
   /// \param graph The undirected graph.
-  /// \return %True when there is no circle in the graph.
+  /// \return \c true when there is no circle in the graph.
   /// \see dag
   template <typename Graph>
   bool acyclic(const Graph& graph) {
@@ -1355,7 +1355,7 @@ namespace lemon {
   ///
   /// Check that the given undirected graph is tree.
   /// \param graph The undirected graph.
-  /// \return %True when the graph is acyclic and connected.
+  /// \return \c true when the graph is acyclic and connected.
   template <typename Graph>
   bool tree(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -1448,7 +1448,7 @@ namespace lemon {
   /// The function checks if the given undirected \c graph graph is bipartite
   /// or not. The \ref Bfs algorithm is used to calculate the result.
   /// \param graph The undirected graph.
-  /// \return %True if \c graph is bipartite, %false otherwise.
+  /// \return \c true if \c graph is bipartite, \c false otherwise.
   /// \sa bipartitePartitions
   template<typename Graph>
   inline bool bipartite(const Graph &graph){
@@ -1489,7 +1489,7 @@ namespace lemon {
   /// \param graph The undirected graph.
   /// \retval partMap A writable bool map of nodes. It will be set as the
   /// two partitions of the graph.
-  /// \return %True if \c graph is bipartite, %false otherwise.
+  /// \return \c true if \c graph is bipartite, \c false otherwise.
   template<typename Graph, typename NodeMap>
   inline bool bipartitePartitions(const Graph &graph, NodeMap &partMap){
     using namespace _connectivity_bits;

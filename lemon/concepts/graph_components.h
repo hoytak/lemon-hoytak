@@ -20,7 +20,6 @@
 ///\file
 ///\brief The concept of graph components.
 
-
 #ifndef LEMON_CONCEPTS_GRAPH_COMPONENTS_H
 #define LEMON_CONCEPTS_GRAPH_COMPONENTS_H
 
@@ -44,7 +43,7 @@ namespace lemon {
     /// with 'a'.
 
 #ifndef DOXYGEN
-    template <char _selector = '0'>
+    template <char sel = '0'>
 #endif
     class GraphItem {
     public:
@@ -296,11 +295,11 @@ namespace lemon {
     /// core id functions for the digraph structure.
     /// The most of the base digraphs should conform to this concept.
     /// The id's are unique and immutable.
-    template <typename _Base = BaseDigraphComponent>
-    class IDableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class IDableDigraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
 
@@ -374,14 +373,14 @@ namespace lemon {
     /// core id functions for the undirected graph structure.  The
     /// most of the base undirected graphs should conform to this
     /// concept.  The id's are unique and immutable.
-    template <typename _Base = BaseGraphComponent>
-    class IDableGraphComponent : public IDableDigraphComponent<_Base> {
+    template <typename BAS = BaseGraphComponent>
+    class IDableGraphComponent : public IDableDigraphComponent<BAS> {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Edge Edge;
 
-      using IDableDigraphComponent<_Base>::id;
+      using IDableDigraphComponent<Base>::id;
 
       /// \brief Gives back an unique integer id for the Edge.
       ///
@@ -425,8 +424,8 @@ namespace lemon {
     ///
     /// Skeleton class for graph NodeIt and ArcIt.
     ///
-    template <typename _Graph, typename _Item>
-    class GraphItemIt : public _Item {
+    template <typename GR, typename Item>
+    class GraphItemIt : public Item {
     public:
       /// \brief Default constructor.
       ///
@@ -442,7 +441,7 @@ namespace lemon {
       ///
       /// Sets the iterator to the first item of \c the graph.
       ///
-      explicit GraphItemIt(const _Graph&) {}
+      explicit GraphItemIt(const GR&) {}
       /// \brief Invalid constructor \& conversion.
       ///
       /// This constructor initializes the item to be invalid.
@@ -479,24 +478,24 @@ namespace lemon {
           ++it2 = it1;
           ++(++it1);
 
-          _Item bi = it1;
+          Item bi = it1;
           bi = it2;
         }
-        _Graph& g;
+        GR& g;
       };
     };
 
     /// \brief Skeleton class for graph InArcIt and OutArcIt
     ///
     /// \note Because InArcIt and OutArcIt may not inherit from the same
-    /// base class, the _selector is a additional template parameter. For
-    /// InArcIt you should instantiate it with character 'i' and for
+    /// base class, the \c sel is a additional template parameter (selector).
+    /// For InArcIt you should instantiate it with character 'i' and for
     /// OutArcIt with 'o'.
-    template <typename _Graph,
-              typename _Item = typename _Graph::Arc,
-              typename _Base = typename _Graph::Node,
-              char _selector = '0'>
-    class GraphIncIt : public _Item {
+    template <typename GR,
+              typename Item = typename GR::Arc,
+              typename Base = typename GR::Node,
+              char sel = '0'>
+    class GraphIncIt : public Item {
     public:
       /// \brief Default constructor.
       ///
@@ -507,14 +506,14 @@ namespace lemon {
       ///
       /// Copy constructor.
       ///
-      GraphIncIt(GraphIncIt const& gi) : _Item(gi) {}
+      GraphIncIt(GraphIncIt const& gi) : Item(gi) {}
       /// \brief Sets the iterator to the first arc incoming into or outgoing
       /// from the node.
       ///
       /// Sets the iterator to the first arc incoming into or outgoing
       /// from the node.
       ///
-      explicit GraphIncIt(const _Graph&, const _Base&) {}
+      explicit GraphIncIt(const GR&, const Base&) {}
       /// \brief Invalid constructor \& conversion.
       ///
       /// This constructor initializes the item to be invalid.
@@ -546,21 +545,21 @@ namespace lemon {
       template <typename _GraphIncIt>
       struct Constraints {
         void constraints() {
-          checkConcept<GraphItem<_selector>, _GraphIncIt>();
+          checkConcept<GraphItem<sel>, _GraphIncIt>();
           _GraphIncIt it1(graph, node);
           _GraphIncIt it2;
 
           it2 = ++it1;
           ++it2 = it1;
           ++(++it1);
-          _Item e = it1;
+          Item e = it1;
           e = it2;
 
         }
 
-        _Item arc;
-        _Base node;
-        _Graph graph;
+        Item arc;
+        Base node;
+        GR graph;
         _GraphIncIt it;
       };
     };
@@ -571,12 +570,12 @@ namespace lemon {
     /// This class provides beside the core digraph features
     /// iterator based iterable interface for the digraph structure.
     /// This concept is part of the Digraph concept.
-    template <typename _Base = BaseDigraphComponent>
-    class IterableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class IterableDigraphComponent : public BAS {
 
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
 
@@ -756,11 +755,11 @@ namespace lemon {
     /// This class provides beside the core graph features iterator
     /// based iterable interface for the undirected graph structure.
     /// This concept is part of the Graph concept.
-    template <typename _Base = BaseGraphComponent>
-    class IterableGraphComponent : public IterableDigraphComponent<_Base> {
+    template <typename BAS = BaseGraphComponent>
+    class IterableGraphComponent : public IterableDigraphComponent<BAS> {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
       typedef typename Base::Edge Edge;
@@ -773,8 +772,8 @@ namespace lemon {
       /// This interface provides functions for iteration on graph items
       /// @{
 
-      using IterableDigraphComponent<_Base>::first;
-      using IterableDigraphComponent<_Base>::next;
+      using IterableDigraphComponent<Base>::first;
+      using IterableDigraphComponent<Base>::next;
 
       /// \brief Gives back the first edge in the iterating
       /// order.
@@ -808,8 +807,8 @@ namespace lemon {
       /// use it.
       void nextInc(Edge&, bool&) const {}
 
-      using IterableDigraphComponent<_Base>::baseNode;
-      using IterableDigraphComponent<_Base>::runningNode;
+      using IterableDigraphComponent<Base>::baseNode;
+      using IterableDigraphComponent<Base>::runningNode;
 
       /// @}
 
@@ -875,7 +874,6 @@ namespace lemon {
         }
 
         const _Graph& graph;
-
       };
     };
 
@@ -887,11 +885,11 @@ namespace lemon {
     /// obsevers can be registered into the notifier and whenever an
     /// alteration occured in the digraph all the observers will
     /// notified about it.
-    template <typename _Base = BaseDigraphComponent>
-    class AlterableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class AlterableDigraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
 
@@ -945,11 +943,11 @@ namespace lemon {
     /// obsevers can be registered into the notifier and whenever an
     /// alteration occured in the graph all the observers will
     /// notified about it.
-    template <typename _Base = BaseGraphComponent>
-    class AlterableGraphComponent : public AlterableDigraphComponent<_Base> {
+    template <typename BAS = BaseGraphComponent>
+    class AlterableGraphComponent : public AlterableDigraphComponent<BAS> {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Edge Edge;
 
 
@@ -974,9 +972,7 @@ namespace lemon {
         }
 
         const _Graph& graph;
-
       };
-
     };
 
     /// \brief Class describing the concept of graph maps
@@ -984,18 +980,18 @@ namespace lemon {
     /// This class describes the common interface of the graph maps
     /// (NodeMap, ArcMap), that is maps that can be used to
     /// associate data to graph descriptors (nodes or arcs).
-    template <typename _Graph, typename _Item, typename _Value>
-    class GraphMap : public ReadWriteMap<_Item, _Value> {
+    template <typename GR, typename K, typename V>
+    class GraphMap : public ReadWriteMap<K, V> {
     public:
 
-      typedef ReadWriteMap<_Item, _Value> Parent;
+      typedef ReadWriteMap<K, V> Parent;
 
       /// The graph type of the map.
-      typedef _Graph Graph;
+      typedef GR Graph;
       /// The key type of the map.
-      typedef _Item Key;
+      typedef K Key;
       /// The value type of the map.
-      typedef _Value Value;
+      typedef V Value;
 
       /// \brief Construct a new map.
       ///
@@ -1055,11 +1051,11 @@ namespace lemon {
     /// This class provides beside the core digraph features
     /// map interface for the digraph structure.
     /// This concept is part of the Digraph concept.
-    template <typename _Base = BaseDigraphComponent>
-    class MappableDigraphComponent : public _Base  {
+    template <typename BAS = BaseDigraphComponent>
+    class MappableDigraphComponent : public BAS  {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
 
@@ -1069,10 +1065,10 @@ namespace lemon {
       ///
       /// ReadWrite map of the nodes.
       ///
-      template <typename _Value>
-      class NodeMap : public GraphMap<Digraph, Node, _Value> {
+      template <typename V>
+      class NodeMap : public GraphMap<Digraph, Node, V> {
       public:
-        typedef GraphMap<MappableDigraphComponent, Node, _Value> Parent;
+        typedef GraphMap<MappableDigraphComponent, Node, V> Parent;
 
         /// \brief Construct a new map.
         ///
@@ -1083,7 +1079,7 @@ namespace lemon {
         /// \brief Construct a new map with default value.
         ///
         /// Construct a new map for the digraph and initalise the values.
-        NodeMap(const MappableDigraphComponent& digraph, const _Value& value)
+        NodeMap(const MappableDigraphComponent& digraph, const V& value)
           : Parent(digraph, value) {}
 
       private:
@@ -1097,7 +1093,7 @@ namespace lemon {
         /// Assign operator.
         template <typename CMap>
         NodeMap& operator=(const CMap&) {
-          checkConcept<ReadMap<Node, _Value>, CMap>();
+          checkConcept<ReadMap<Node, V>, CMap>();
           return *this;
         }
 
@@ -1107,10 +1103,10 @@ namespace lemon {
       ///
       /// ReadWrite map of the arcs.
       ///
-      template <typename _Value>
-      class ArcMap : public GraphMap<Digraph, Arc, _Value> {
+      template <typename V>
+      class ArcMap : public GraphMap<Digraph, Arc, V> {
       public:
-        typedef GraphMap<MappableDigraphComponent, Arc, _Value> Parent;
+        typedef GraphMap<MappableDigraphComponent, Arc, V> Parent;
 
         /// \brief Construct a new map.
         ///
@@ -1121,7 +1117,7 @@ namespace lemon {
         /// \brief Construct a new map with default value.
         ///
         /// Construct a new map for the digraph and initalise the values.
-        ArcMap(const MappableDigraphComponent& digraph, const _Value& value)
+        ArcMap(const MappableDigraphComponent& digraph, const V& value)
           : Parent(digraph, value) {}
 
       private:
@@ -1135,7 +1131,7 @@ namespace lemon {
         /// Assign operator.
         template <typename CMap>
         ArcMap& operator=(const CMap&) {
-          checkConcept<ReadMap<Arc, _Value>, CMap>();
+          checkConcept<ReadMap<Arc, V>, CMap>();
           return *this;
         }
 
@@ -1191,11 +1187,11 @@ namespace lemon {
     /// This class provides beside the core graph features
     /// map interface for the graph structure.
     /// This concept is part of the Graph concept.
-    template <typename _Base = BaseGraphComponent>
-    class MappableGraphComponent : public MappableDigraphComponent<_Base>  {
+    template <typename BAS = BaseGraphComponent>
+    class MappableGraphComponent : public MappableDigraphComponent<BAS>  {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Edge Edge;
 
       typedef MappableGraphComponent Graph;
@@ -1204,10 +1200,10 @@ namespace lemon {
       ///
       /// ReadWrite map of the edges.
       ///
-      template <typename _Value>
-      class EdgeMap : public GraphMap<Graph, Edge, _Value> {
+      template <typename V>
+      class EdgeMap : public GraphMap<Graph, Edge, V> {
       public:
-        typedef GraphMap<MappableGraphComponent, Edge, _Value> Parent;
+        typedef GraphMap<MappableGraphComponent, Edge, V> Parent;
 
         /// \brief Construct a new map.
         ///
@@ -1218,7 +1214,7 @@ namespace lemon {
         /// \brief Construct a new map with default value.
         ///
         /// Construct a new map for the graph and initalise the values.
-        EdgeMap(const MappableGraphComponent& graph, const _Value& value)
+        EdgeMap(const MappableGraphComponent& graph, const V& value)
           : Parent(graph, value) {}
 
       private:
@@ -1232,7 +1228,7 @@ namespace lemon {
         /// Assign operator.
         template <typename CMap>
         EdgeMap& operator=(const CMap&) {
-          checkConcept<ReadMap<Edge, _Value>, CMap>();
+          checkConcept<ReadMap<Edge, V>, CMap>();
           return *this;
         }
 
@@ -1276,13 +1272,13 @@ namespace lemon {
     /// extendable interface for the digraph structure.  The main
     /// difference between the base and this interface is that the
     /// digraph alterations should handled already on this level.
-    template <typename _Base = BaseDigraphComponent>
-    class ExtendableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class ExtendableDigraphComponent : public BAS {
     public:
-      typedef _Base Base;
+      typedef BAS Base;
 
-      typedef typename _Base::Node Node;
-      typedef typename _Base::Arc Arc;
+      typedef typename Base::Node Node;
+      typedef typename Base::Arc Arc;
 
       /// \brief Adds a new node to the digraph.
       ///
@@ -1321,13 +1317,13 @@ namespace lemon {
     /// The main difference between the base and this interface is
     /// that the graph alterations should handled already on this
     /// level.
-    template <typename _Base = BaseGraphComponent>
-    class ExtendableGraphComponent : public _Base {
+    template <typename BAS = BaseGraphComponent>
+    class ExtendableGraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
-      typedef typename _Base::Node Node;
-      typedef typename _Base::Edge Edge;
+      typedef BAS Base;
+      typedef typename Base::Node Node;
+      typedef typename Base::Edge Edge;
 
       /// \brief Adds a new node to the graph.
       ///
@@ -1365,11 +1361,11 @@ namespace lemon {
     /// functions for the digraph structure. The main difference between
     /// the base and this interface is that the digraph alterations
     /// should handled already on this level.
-    template <typename _Base = BaseDigraphComponent>
-    class ErasableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class ErasableDigraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Arc Arc;
 
@@ -1405,11 +1401,11 @@ namespace lemon {
     /// core erase functions for the undirceted graph structure. The
     /// main difference between the base and this interface is that
     /// the graph alterations should handled already on this level.
-    template <typename _Base = BaseGraphComponent>
-    class ErasableGraphComponent : public _Base {
+    template <typename BAS = BaseGraphComponent>
+    class ErasableGraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
       typedef typename Base::Node Node;
       typedef typename Base::Edge Edge;
 
@@ -1445,11 +1441,11 @@ namespace lemon {
     /// functions for the digraph structure. The main difference between
     /// the base and this interface is that the digraph alterations
     /// should handled already on this level.
-    template <typename _Base = BaseDigraphComponent>
-    class ClearableDigraphComponent : public _Base {
+    template <typename BAS = BaseDigraphComponent>
+    class ClearableDigraphComponent : public BAS {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
 
       /// \brief Erase all nodes and arcs from the digraph.
       ///
@@ -1474,11 +1470,11 @@ namespace lemon {
     /// core clear functions for the undirected graph structure. The
     /// main difference between the base and this interface is that
     /// the graph alterations should handled already on this level.
-    template <typename _Base = BaseGraphComponent>
-    class ClearableGraphComponent : public ClearableDigraphComponent<_Base> {
+    template <typename BAS = BaseGraphComponent>
+    class ClearableGraphComponent : public ClearableDigraphComponent<BAS> {
     public:
 
-      typedef _Base Base;
+      typedef BAS Base;
 
       template <typename _Graph>
       struct Constraints {

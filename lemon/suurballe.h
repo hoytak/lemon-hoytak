@@ -45,9 +45,9 @@ namespace lemon {
   /// In fact, this implementation is the specialization of the
   /// \ref CapacityScaling "successive shortest path" algorithm.
   ///
-  /// \tparam Digraph The digraph type the algorithm runs on.
+  /// \tparam GR The digraph type the algorithm runs on.
   /// The default value is \c ListDigraph.
-  /// \tparam LengthMap The type of the length (cost) map.
+  /// \tparam LEN The type of the length (cost) map.
   /// The default value is <tt>Digraph::ArcMap<int></tt>.
   ///
   /// \warning Length values should be \e non-negative \e integers.
@@ -55,21 +55,26 @@ namespace lemon {
   /// \note For finding node-disjoint paths this algorithm can be used
   /// with \ref SplitNodes.
 #ifdef DOXYGEN
-  template <typename Digraph, typename LengthMap>
+  template <typename GR, typename LEN>
 #else
-  template < typename Digraph = ListDigraph,
-             typename LengthMap = typename Digraph::template ArcMap<int> >
+  template < typename GR = ListDigraph,
+             typename LEN = typename GR::template ArcMap<int> >
 #endif
   class Suurballe
   {
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef typename LengthMap::Value Length;
     typedef ConstMap<Arc, int> ConstArcMap;
-    typedef typename Digraph::template NodeMap<Arc> PredMap;
+    typedef typename GR::template NodeMap<Arc> PredMap;
 
   public:
 
+    /// The type of the digraph the algorithm runs on.
+    typedef GR Digraph;
+    /// The type of the length map.
+    typedef LEN LengthMap;
+    /// The type of the lengths.
+    typedef typename LengthMap::Value Length;
     /// The type of the flow map.
     typedef typename Digraph::template ArcMap<int> FlowMap;
     /// The type of the potential map.
@@ -256,7 +261,7 @@ namespace lemon {
     /// The found flow contains only 0 and 1 values. It is the union of
     /// the found arc-disjoint paths.
     ///
-    /// \return \c (*this)
+    /// \return <tt>(*this)</tt>
     Suurballe& flowMap(FlowMap &map) {
       if (_local_flow) {
         delete _flow;
@@ -273,7 +278,7 @@ namespace lemon {
     /// The potentials provide the dual solution of the underlying
     /// minimum cost flow problem.
     ///
-    /// \return \c (*this)
+    /// \return <tt>(*this)</tt>
     Suurballe& potentialMap(PotentialMap &map) {
       if (_local_potential) {
         delete _potential;
@@ -458,7 +463,7 @@ namespace lemon {
     /// \brief Return the total length (cost) of the found paths (flow).
     ///
     /// This function returns the total length (cost) of the found paths
-    /// (flow). The complexity of the function is \f$ O(e) \f$.
+    /// (flow). The complexity of the function is O(e).
     ///
     /// \pre \ref run() or \ref findFlow() must be called before using
     /// this function.
