@@ -72,7 +72,7 @@ void solve_sp(ArgParser &ap, std::istream &is, std::ostream &,
 
 template<class Value>
 void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
-              DimacsDescriptor &desc)
+               Value infty, DimacsDescriptor &desc)
 {
   bool report = !ap.given("q");
   Digraph g;
@@ -80,7 +80,7 @@ void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
   Digraph::ArcMap<Value> cap(g);
   Timer ti;
   ti.restart();
-  readDimacsMax(is, g, cap, s, t, desc);
+  readDimacsMax(is, g, cap, s, t, infty, desc);
   if(report) std::cerr << "Read the file: " << ti << '\n';
   ti.restart();
   Preflow<Digraph, Digraph::ArcMap<Value> > pre(g,cap,s,t);
@@ -115,6 +115,17 @@ template<class Value>
 void solve(ArgParser &ap, std::istream &is, std::ostream &os,
            DimacsDescriptor &desc)
 {
+  std::stringstream iss(ap["infcap"]);
+  Value infty;
+  iss >> infty;
+  if(iss.fail())
+    {
+      std::cerr << "Cannot interpret '"
+                << static_cast<std::string>(ap["infcap"]) << "' as infinite"
+                << std::endl;
+      exit(1);
+    }
+  
   switch(desc.type)
     {
     case DimacsDescriptor::MIN:
@@ -122,7 +133,7 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
         "\n\n Sorry, the min. cost flow solver is not yet available.\n";
       break;
     case DimacsDescriptor::MAX:
-      solve_max<Value>(ap,is,os,desc);
+      solve_max<Value>(ap,is,os,infty,desc);
       break;
     case DimacsDescriptor::SP:
       solve_sp<Value>(ap,is,os,desc);
@@ -159,6 +170,7 @@ int main(int argc, const char *argv[]) {
     .boolOption("ldouble","Use 'long double' for capacities, costs etc.")
     .optionGroup("datatype","ldouble")
     .onlyOneGroup("datatype")
+    .stringOption("infcap","Value used for 'very high' capacities","0")
     .run();
 
   std::ifstream input;
