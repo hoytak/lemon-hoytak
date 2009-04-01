@@ -178,12 +178,18 @@ namespace lemon {
     ///Solve with dual simplex
     SolveExitStatus solveDual();
 
+  private:
+
+    bool _presolve;
+
+  public:
+
     ///Turns on or off the presolver
 
     ///Turns on (\c b is \c true) or off (\c b is \c false) the presolver
     ///
     ///The presolver is off by default.
-    void presolver(bool b);
+    void presolver(bool presolve);
 
     ///Enum for \c messageLevel() parameter
     enum MessageLevel {

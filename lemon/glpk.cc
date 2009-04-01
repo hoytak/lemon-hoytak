@@ -533,11 +533,13 @@ namespace lemon {
   GlpkLp::GlpkLp()
     : LpBase(), LpSolver(), GlpkBase() {
     messageLevel(MESSAGE_NO_OUTPUT);
+    presolver(false);
   }
 
   GlpkLp::GlpkLp(const GlpkLp& other)
     : LpBase(other), LpSolver(other), GlpkBase(other) {
     messageLevel(MESSAGE_NO_OUTPUT);
+    presolver(false);
   }
 
   GlpkLp* GlpkLp::newSolver() const { return new GlpkLp; }
@@ -574,8 +576,24 @@ namespace lemon {
       smcp.msg_lev = GLP_MSG_ALL;
       break;
     }
+    smcp.presolve = _presolve;
 
-    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    // If the basis is not valid we get an error return value.
+    // In this case we can try to create a new basis.
+    switch (glp_simplex(lp, &smcp)) {
+    case 0:
+      break;
+    case GLP_EBADB:
+    case GLP_ESING:
+    case GLP_ECOND:
+      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_adv_basis(lp, 0);
+      if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+      break;
+    default:
+      return UNSOLVED;
+    }
+
     return SOLVED;
   }
 
@@ -600,8 +618,23 @@ namespace lemon {
       break;
     }
     smcp.meth = GLP_DUAL;
+    smcp.presolve = _presolve;
 
-    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    // If the basis is not valid we get an error return value.
+    // In this case we can try to create a new basis.
+    switch (glp_simplex(lp, &smcp)) {
+    case 0:
+      break;
+    case GLP_EBADB:
+    case GLP_ESING:
+    case GLP_ECOND:
+      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_adv_basis(lp, 0);
+      if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+      break;
+    default:
+      return UNSOLVED;
+    }
     return SOLVED;
   }
 
@@ -819,8 +852,8 @@ namespace lemon {
     }
   }
 
-  void GlpkLp::presolver(bool b) {
-    lpx_set_int_parm(lp, LPX_K_PRESOL, b ? 1 : 0);
+  void GlpkLp::presolver(bool presolve) {
+    _presolve = presolve;
   }
 
   void GlpkLp::messageLevel(MessageLevel m) {
@@ -881,7 +914,22 @@ namespace lemon {
     }
     smcp.meth = GLP_DUAL;
 
-    if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+    // If the basis is not valid we get an error return value.
+    // In this case we can try to create a new basis.
+    switch (glp_simplex(lp, &smcp)) {
+    case 0:
+      break;
+    case GLP_EBADB:
+    case GLP_ESING:
+    case GLP_ECOND:
+      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_adv_basis(lp, 0);
+      if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
+      break;
+    default:
+      return UNSOLVED;
+    }
+
     if (glp_get_status(lp) != GLP_OPT) return SOLVED;
 
     glp_iocp iocp;
