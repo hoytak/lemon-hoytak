@@ -39,8 +39,12 @@ XFAIL_TESTS =
 include lemon/Makefile.am
 include test/Makefile.am
 include doc/Makefile.am
-include demo/Makefile.am
 include tools/Makefile.am
+
+DIST_SUBDIRS = demo
+
+demo:
+	$(MAKE) $(AM_MAKEFLAGS) -C demo
 
 MRPROPERFILES = \
 	aclocal.m4 \
@@ -68,4 +72,4 @@ distcheck-bz2: distcheck
 	zcat $(PACKAGE)-$(VERSION).tar.gz | \
 	bzip2 --best -c > $(PACKAGE)-$(VERSION).tar.bz2
 
-.PHONY: mrproper dist-bz2 distcheck-bz2
+.PHONY: demo mrproper dist-bz2 distcheck-bz2

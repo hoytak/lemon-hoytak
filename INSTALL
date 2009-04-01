@@ -27,8 +27,8 @@ issue the following commands:
    3. `make'
 
       This command compiles the non-template part of LEMON into libemon.a
-      file. It also compiles the programs in the tools and demo subdirectories
-      when enabled.
+      file. It also compiles the programs in the tools subdirectory by
+      default.
 
    4. `make check'
 
@@ -74,14 +74,6 @@ CXXFLAGS='flags'
 --prefix=PREFIX
 
   Set the installation prefix to PREFIX. By default it is /usr/local.
-
---enable-demo
-
-   Build the examples in the demo subdirectory.
-
---disable-demo
-
-   Do not build the examples in the demo subdirectory (default).
 
 --enable-tools
 

@@ -64,19 +64,6 @@ LX_CHECK_CLP
 AM_CONDITIONAL([HAVE_LP], [test x"$lx_lp_found" = x"yes"])
 AM_CONDITIONAL([HAVE_MIP], [test x"$lx_mip_found" = x"yes"])
 
-dnl Disable/enable building the demo programs.
-AC_ARG_ENABLE([demo],
-AS_HELP_STRING([--enable-demo], [build the demo programs])
-AS_HELP_STRING([--disable-demo], [do not build the demo programs @<:@default@:>@]),
-              [], [enable_demo=no])
-AC_MSG_CHECKING([whether to build the demo programs])
-if test x"$enable_demo" != x"no"; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-AM_CONDITIONAL([WANT_DEMO], [test x"$enable_demo" != x"no"])
-
 dnl Disable/enable building the binary tools.
 AC_ARG_ENABLE([tools],
 AS_HELP_STRING([--enable-tools], [build additional tools @<:@default@:>@])
@@ -110,6 +97,7 @@ AC_SUBST([CONFIG_STATUS_DEPENDENCIES],
 
 AC_CONFIG_FILES([
 Makefile
+demo/Makefile
 cmake/version.cmake
 doc/Doxyfile
 lemon/lemon.pc
@@ -132,7 +120,6 @@ echo CPLEX support................. : $lx_cplex_found
 echo SOPLEX support................ : $lx_soplex_found
 echo CLP support................... : $lx_clp_found
 echo
-echo Build demo programs........... : $enable_demo
 echo Build additional tools........ : $enable_tools
 echo
 echo The packace will be installed in

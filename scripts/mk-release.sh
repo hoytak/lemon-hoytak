@@ -14,7 +14,7 @@ echo ' Start making release tarballs for version '${LEMON_VERSION}
 echo '*****************************************************************'
 
 autoreconf -vif
-./configure --enable-demo
+./configure
 
 make
 make html

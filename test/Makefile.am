@@ -37,6 +37,8 @@ check_PROGRAMS += \
 	test/time_measure_test \
 	test/unionfind_test
 
+test_test_tools_pass_DEPENDENCIES = demo
+
 if HAVE_LP
 check_PROGRAMS += test/lp_test
 endif HAVE_LP
