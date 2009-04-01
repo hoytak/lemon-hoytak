@@ -18,3 +18,6 @@
 
 /* Define to 1 if you have CLP */
 #undef HAVE_CLP
+
+/* Define to 1 if you have CBC */
+#undef HAVE_CBC

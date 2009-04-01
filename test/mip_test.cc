@@ -18,7 +18,6 @@
 
 #include "test_tools.h"
 
-
 #ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
 #endif
@@ -29,6 +28,10 @@
 
 #ifdef HAVE_GLPK
 #include <lemon/glpk.h>
+#endif
+
+#ifdef HAVE_CBC
+#include <lemon/cbc.h>
 #endif
 
 
@@ -57,12 +60,11 @@ void solveAndCheck(MipSolver& mip, MipSolver::ProblemType stat,
 
 void aTest(MipSolver& mip)
 {
- //The following example is very simple
+  //The following example is very simple
 
 
   typedef MipSolver::Row Row;
   typedef MipSolver::Col Col;
-
 
 
   Col x1 = mip.addCol();
@@ -74,22 +76,23 @@ void aTest(MipSolver& mip)
 
   mip.max();
 
-
   //Unconstrained optimization
   mip.solve();
   //Check it out!
 
   //Constraints
-  mip.addRow(2*x1+x2 <=2);
-  mip.addRow(x1-2*x2 <=0);
+  mip.addRow(2 * x1 + x2 <= 2);
+  Row y2 = mip.addRow(x1 - 2 * x2 <= 0);
 
   //Nonnegativity of the variable x1
   mip.colLowerBound(x1, 0);
+
 
   //Maximization of x1
   //over the triangle with vertices (0,0),(4/5,2/5),(0,2)
   double expected_opt=4.0/5.0;
   solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
+
 
   //Restrict x2 to integer
   mip.colType(x2,MipSolver::INTEGER);
@@ -102,9 +105,14 @@ void aTest(MipSolver& mip)
   expected_opt=0;
   solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
-
+  //Erase a variable
+  mip.erase(x2);
+  mip.rowUpperBound(y2, 8);
+  expected_opt=1;
+  solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
 }
+
 
 template<class MIP>
 void cloneTest()
@@ -141,6 +149,14 @@ int main()
     std::cerr << error.what() << std::endl;
     std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
 #endif
+  }
+#endif
+
+#ifdef HAVE_CBC
+  {
+    CbcMip mip1;
+    aTest(mip1);
+    cloneTest<CbcMip>();
   }
 #endif
 
