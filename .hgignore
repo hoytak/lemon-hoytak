@@ -22,7 +22,7 @@ lemon/lemon.pc
 lemon/libemon.la
 lemon/stamp-h2
 doc/Doxyfile
-cmake/cmake.version
+cmake/version.cmake
 .dirstamp
 .libs/*
 .deps/*
