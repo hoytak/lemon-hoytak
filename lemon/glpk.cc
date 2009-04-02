@@ -586,8 +586,9 @@ namespace lemon {
     case GLP_EBADB:
     case GLP_ESING:
     case GLP_ECOND:
-      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_term_out(false);
       glp_adv_basis(lp, 0);
+      glp_term_out(true);
       if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
       break;
     default:
@@ -628,8 +629,9 @@ namespace lemon {
     case GLP_EBADB:
     case GLP_ESING:
     case GLP_ECOND:
-      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_term_out(false);
       glp_adv_basis(lp, 0);
+      glp_term_out(true);
       if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
       break;
     default:
@@ -922,8 +924,9 @@ namespace lemon {
     case GLP_EBADB:
     case GLP_ESING:
     case GLP_ECOND:
-      lpx_set_int_parm(lp, LPX_K_MSGLEV, smcp.msg_lev);
+      glp_term_out(false);
       glp_adv_basis(lp, 0);
+      glp_term_out(true);
       if (glp_simplex(lp, &smcp) != 0) return UNSOLVED;
       break;
     default:
