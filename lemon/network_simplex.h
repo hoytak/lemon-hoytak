@@ -54,7 +54,8 @@ namespace lemon {
   /// \tparam C The value type used for costs and potentials in the
   /// algorithm. By default it is the same as \c F.
   ///
-  /// \warning Both value types must be signed integer types.
+  /// \warning Both value types must be signed and all input data must
+  /// be integer.
   ///
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations. For more information see \ref PivotRule.
@@ -1044,8 +1045,10 @@ namespace lemon {
       }
 
       // Initialize arc maps
-      Flow max_cap = std::numeric_limits<Flow>::max();
-      Cost max_cost = std::numeric_limits<Cost>::max() / 4;
+      Flow inf_cap =
+        std::numeric_limits<Flow>::has_infinity ?
+        std::numeric_limits<Flow>::infinity() :
+        std::numeric_limits<Flow>::max();
       if (_pupper && _pcost) {
         for (int i = 0; i != _arc_num; ++i) {
           Arc e = _arc_ref[i];
@@ -1069,7 +1072,7 @@ namespace lemon {
             _cap[i] = (*_pupper)[_arc_ref[i]];
         } else {
           for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = max_cap;
+            _cap[i] = inf_cap;
         }
         if (_pcost) {
           for (int i = 0; i != _arc_num; ++i)
@@ -1078,6 +1081,18 @@ namespace lemon {
           for (int i = 0; i != _arc_num; ++i)
             _cost[i] = 1;
         }
+      }
+      
+      // Initialize artifical cost
+      Cost art_cost;
+      if (std::numeric_limits<Cost>::is_exact) {
+        art_cost = std::numeric_limits<Cost>::max() / 4 + 1;
+      } else {
+        art_cost = std::numeric_limits<Cost>::min();
+        for (int i = 0; i != _arc_num; ++i) {
+          if (_cost[i] > art_cost) art_cost = _cost[i];
+        }
+        art_cost = (art_cost + 1) * _node_num;
       }
 
       // Remove non-zero lower bounds
@@ -1100,17 +1115,17 @@ namespace lemon {
         _last_succ[u] = u;
         _parent[u] = _root;
         _pred[u] = e;
-        _cost[e] = max_cost;
-        _cap[e] = max_cap;
+        _cost[e] = art_cost;
+        _cap[e] = inf_cap;
         _state[e] = STATE_TREE;
         if (_supply[u] >= 0) {
           _flow[e] = _supply[u];
           _forward[u] = true;
-          _pi[u] = -max_cost;
+          _pi[u] = -art_cost;
         } else {
           _flow[e] = -_supply[u];
           _forward[u] = false;
-          _pi[u] = max_cost;
+          _pi[u] = art_cost;
         }
       }
 
@@ -1327,22 +1342,10 @@ namespace lemon {
       Cost sigma = _forward[u_in] ?
         _pi[v_in] - _pi[u_in] - _cost[_pred[u_in]] :
         _pi[v_in] - _pi[u_in] + _cost[_pred[u_in]];
-      if (_succ_num[u_in] > _node_num / 2) {
-        // Update in the upper subtree (which contains the root)
-        int before = _rev_thread[u_in];
-        int after = _thread[_last_succ[u_in]];
-        _thread[before] = after;
-        _pi[_root] -= sigma;
-        for (int u = _thread[_root]; u != _root; u = _thread[u]) {
-          _pi[u] -= sigma;
-        }
-        _thread[before] = u_in;
-      } else {
-        // Update in the lower subtree (which has been moved)
-        int end = _thread[_last_succ[u_in]];
-        for (int u = u_in; u != end; u = _thread[u]) {
-          _pi[u] += sigma;
-        }
+      // Update potentials in the subtree, which has been moved
+      int end = _thread[_last_succ[u_in]];
+      for (int u = u_in; u != end; u = _thread[u]) {
+        _pi[u] += sigma;
       }
     }
 
