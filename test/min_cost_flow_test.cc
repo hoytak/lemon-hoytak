@@ -77,7 +77,7 @@ char test_lgf[] =
 
 
 // Check the interface of an MCF algorithm
-template <typename GR, typename Value>
+template <typename GR, typename Flow, typename Cost>
 class McfClassConcept
 {
 public:
@@ -116,18 +116,19 @@ public:
 
     typedef typename GR::Node Node;
     typedef typename GR::Arc Arc;
-    typedef concepts::ReadMap<Node, Value> NM;
-    typedef concepts::ReadMap<Arc, Value> AM;
+    typedef concepts::ReadMap<Node, Flow> NM;
+    typedef concepts::ReadMap<Arc, Flow> FAM;
+    typedef concepts::ReadMap<Arc, Cost> CAM;
 
     const GR &g;
-    const AM &lower;
-    const AM &upper;
-    const AM &cost;
+    const FAM &lower;
+    const FAM &upper;
+    const CAM &cost;
     const NM &sup;
     const Node &n;
     const Arc &a;
-    const Value &k;
-    Value v;
+    const Flow &k;
+    Flow v;
     bool b;
 
     typename MCF::FlowMap &flow;
@@ -206,15 +207,16 @@ int main()
 {
   // Check the interfaces
   {
-    typedef int Value;
+    typedef int Flow;
+    typedef int Cost;
     // TODO: This typedef should be enabled if the standard maps are
     // reference maps in the graph concepts (See #190).
 /**/
     //typedef concepts::Digraph GR;
     typedef ListDigraph GR;
 /**/
-    checkConcept< McfClassConcept<GR, Value>,
-                  NetworkSimplex<GR, Value> >();
+    checkConcept< McfClassConcept<GR, Flow, Cost>,
+                  NetworkSimplex<GR, Flow, Cost> >();
   }
 
   // Run various MCF tests

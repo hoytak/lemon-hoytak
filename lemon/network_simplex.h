@@ -49,24 +49,28 @@ namespace lemon {
   /// in LEMON for the minimum cost flow problem.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
-  /// \tparam V The value type used in the algorithm.
-  /// By default it is \c int.
+  /// \tparam F The value type used for flow amounts, capacity bounds
+  /// and supply values in the algorithm. By default it is \c int.
+  /// \tparam C The value type used for costs and potentials in the
+  /// algorithm. By default it is the same as \c F.
   ///
-  /// \warning The value type must be a signed integer type.
+  /// \warning Both value types must be signed integer types.
   ///
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations. For more information see \ref PivotRule.
-  template <typename GR, typename V = int>
+  template <typename GR, typename F = int, typename C = F>
   class NetworkSimplex
   {
   public:
 
-    /// The value type of the algorithm
-    typedef V Value;
+    /// The flow type of the algorithm
+    typedef F Flow;
+    /// The cost type of the algorithm
+    typedef C Cost;
     /// The type of the flow map
-    typedef typename GR::template ArcMap<Value> FlowMap;
+    typedef typename GR::template ArcMap<Flow> FlowMap;
     /// The type of the potential map
-    typedef typename GR::template NodeMap<Value> PotentialMap;
+    typedef typename GR::template NodeMap<Cost> PotentialMap;
 
   public:
 
@@ -117,14 +121,16 @@ namespace lemon {
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef typename GR::template ArcMap<Value> ValueArcMap;
-    typedef typename GR::template NodeMap<Value> ValueNodeMap;
+    typedef typename GR::template ArcMap<Flow> FlowArcMap;
+    typedef typename GR::template ArcMap<Cost> CostArcMap;
+    typedef typename GR::template NodeMap<Flow> FlowNodeMap;
 
     typedef std::vector<Arc> ArcVector;
     typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
-    typedef std::vector<Value> ValueVector;
+    typedef std::vector<Flow> FlowVector;
+    typedef std::vector<Cost> CostVector;
 
     // State constants for arcs
     enum ArcStateEnum {
@@ -141,13 +147,13 @@ namespace lemon {
     int _arc_num;
 
     // Parameters of the problem
-    ValueArcMap *_plower;
-    ValueArcMap *_pupper;
-    ValueArcMap *_pcost;
-    ValueNodeMap *_psupply;
+    FlowArcMap *_plower;
+    FlowArcMap *_pupper;
+    CostArcMap *_pcost;
+    FlowNodeMap *_psupply;
     bool _pstsup;
     Node _psource, _ptarget;
-    Value _pstflow;
+    Flow _pstflow;
 
     // Result maps
     FlowMap *_flow_map;
@@ -162,11 +168,11 @@ namespace lemon {
     IntVector _target;
 
     // Node and arc data
-    ValueVector _cap;
-    ValueVector _cost;
-    ValueVector _supply;
-    ValueVector _flow;
-    ValueVector _pi;
+    FlowVector _cap;
+    CostVector _cost;
+    FlowVector _supply;
+    FlowVector _flow;
+    CostVector _pi;
 
     // Data for storing the spanning tree structure
     IntVector _parent;
@@ -184,7 +190,7 @@ namespace lemon {
     int in_arc, join, u_in, v_in, u_out, v_out;
     int first, second, right, last;
     int stem, par_stem, new_stem;
-    Value delta;
+    Flow delta;
 
   private:
 
@@ -196,9 +202,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const ValueVector &_cost;
+      const CostVector &_cost;
       const IntVector  &_state;
-      const ValueVector &_pi;
+      const CostVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -216,7 +222,7 @@ namespace lemon {
 
       // Find next entering arc
       bool findEnteringArc() {
-        Value c;
+        Cost c;
         for (int e = _next_arc; e < _arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < 0) {
@@ -247,9 +253,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const ValueVector &_cost;
+      const CostVector &_cost;
       const IntVector  &_state;
-      const ValueVector &_pi;
+      const CostVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -264,7 +270,7 @@ namespace lemon {
 
       // Find next entering arc
       bool findEnteringArc() {
-        Value c, min = 0;
+        Cost c, min = 0;
         for (int e = 0; e < _arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < min) {
@@ -286,9 +292,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const ValueVector &_cost;
+      const CostVector &_cost;
       const IntVector  &_state;
-      const ValueVector &_pi;
+      const CostVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -314,7 +320,7 @@ namespace lemon {
 
       // Find next entering arc
       bool findEnteringArc() {
-        Value c, min = 0;
+        Cost c, min = 0;
         int cnt = _block_size;
         int e, min_arc = _next_arc;
         for (e = _next_arc; e < _arc_num; ++e) {
@@ -358,9 +364,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const ValueVector &_cost;
+      const CostVector &_cost;
       const IntVector  &_state;
-      const ValueVector &_pi;
+      const CostVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -394,7 +400,7 @@ namespace lemon {
 
       /// Find next entering arc
       bool findEnteringArc() {
-        Value min, c;
+        Cost min, c;
         int e, min_arc = _next_arc;
         if (_curr_length > 0 && _minor_count < _minor_limit) {
           // Minor iteration: select the best eligible arc from the
@@ -463,9 +469,9 @@ namespace lemon {
       // References to the NetworkSimplex class
       const IntVector  &_source;
       const IntVector  &_target;
-      const ValueVector &_cost;
+      const CostVector &_cost;
       const IntVector  &_state;
-      const ValueVector &_pi;
+      const CostVector &_pi;
       int &_in_arc;
       int _arc_num;
 
@@ -473,15 +479,15 @@ namespace lemon {
       int _block_size, _head_length, _curr_length;
       int _next_arc;
       IntVector _candidates;
-      ValueVector _cand_cost;
+      CostVector _cand_cost;
 
       // Functor class to compare arcs during sort of the candidate list
       class SortFunc
       {
       private:
-        const ValueVector &_map;
+        const CostVector &_map;
       public:
-        SortFunc(const ValueVector &map) : _map(map) {}
+        SortFunc(const CostVector &map) : _map(map) {}
         bool operator()(int left, int right) {
           return _map[left] > _map[right];
         }
@@ -590,9 +596,12 @@ namespace lemon {
       _local_flow(false), _local_potential(false),
       _node_id(graph)
     {
-      LEMON_ASSERT(std::numeric_limits<Value>::is_integer &&
-                   std::numeric_limits<Value>::is_signed,
-        "The value type of NetworkSimplex must be a signed integer");
+      LEMON_ASSERT(std::numeric_limits<Flow>::is_integer &&
+                   std::numeric_limits<Flow>::is_signed,
+        "The flow type of NetworkSimplex must be signed integer");
+      LEMON_ASSERT(std::numeric_limits<Cost>::is_integer &&
+                   std::numeric_limits<Cost>::is_signed,
+        "The cost type of NetworkSimplex must be signed integer");
     }
 
     /// Destructor.
@@ -609,14 +618,14 @@ namespace lemon {
     /// on all arcs.
     ///
     /// \param map An arc map storing the lower bounds.
-    /// Its \c Value type must be convertible to the \c Value type
+    /// Its \c Value type must be convertible to the \c Flow type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
     template <typename LOWER>
     NetworkSimplex& lowerMap(const LOWER& map) {
       delete _plower;
-      _plower = new ValueArcMap(_graph);
+      _plower = new FlowArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
         (*_plower)[a] = map[a];
       }
@@ -629,17 +638,17 @@ namespace lemon {
     /// If none of the functions \ref upperMap(), \ref capacityMap()
     /// and \ref boundMaps() is used before calling \ref run(),
     /// the upper bounds (capacities) will be set to
-    /// \c std::numeric_limits<Value>::max() on all arcs.
+    /// \c std::numeric_limits<Flow>::max() on all arcs.
     ///
     /// \param map An arc map storing the upper bounds.
-    /// Its \c Value type must be convertible to the \c Value type
+    /// Its \c Value type must be convertible to the \c Flow type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
     template<typename UPPER>
     NetworkSimplex& upperMap(const UPPER& map) {
       delete _pupper;
-      _pupper = new ValueArcMap(_graph);
+      _pupper = new FlowArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
         (*_pupper)[a] = map[a];
       }
@@ -666,13 +675,13 @@ namespace lemon {
     /// If none of the functions \ref upperMap(), \ref capacityMap()
     /// and \ref boundMaps() is used before calling \ref run(),
     /// the upper bounds (capacities) will be set to
-    /// \c std::numeric_limits<Value>::max() on all arcs.
+    /// \c std::numeric_limits<Flow>::max() on all arcs.
     ///
     /// \param lower An arc map storing the lower bounds.
     /// \param upper An arc map storing the upper bounds.
     ///
     /// The \c Value type of the maps must be convertible to the
-    /// \c Value type of the algorithm.
+    /// \c Flow type of the algorithm.
     ///
     /// \note This function is just a shortcut of calling \ref lowerMap()
     /// and \ref upperMap() separately.
@@ -690,14 +699,14 @@ namespace lemon {
     /// will be set to \c 1 on all arcs.
     ///
     /// \param map An arc map storing the costs.
-    /// Its \c Value type must be convertible to the \c Value type
+    /// Its \c Value type must be convertible to the \c Cost type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
     template<typename COST>
     NetworkSimplex& costMap(const COST& map) {
       delete _pcost;
-      _pcost = new ValueArcMap(_graph);
+      _pcost = new CostArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
         (*_pcost)[a] = map[a];
       }
@@ -712,7 +721,7 @@ namespace lemon {
     /// (It makes sense only if non-zero lower bounds are given.)
     ///
     /// \param map A node map storing the supply values.
-    /// Its \c Value type must be convertible to the \c Value type
+    /// Its \c Value type must be convertible to the \c Flow type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
@@ -720,7 +729,7 @@ namespace lemon {
     NetworkSimplex& supplyMap(const SUP& map) {
       delete _psupply;
       _pstsup = false;
-      _psupply = new ValueNodeMap(_graph);
+      _psupply = new FlowNodeMap(_graph);
       for (NodeIt n(_graph); n != INVALID; ++n) {
         (*_psupply)[n] = map[n];
       }
@@ -741,7 +750,7 @@ namespace lemon {
     /// (i.e. the supply of \c s and the demand of \c t).
     ///
     /// \return <tt>(*this)</tt>
-    NetworkSimplex& stSupply(const Node& s, const Node& t, Value k) {
+    NetworkSimplex& stSupply(const Node& s, const Node& t, Flow k) {
       delete _psupply;
       _psupply = NULL;
       _pstsup = true;
@@ -874,14 +883,14 @@ namespace lemon {
     /// \brief Return the total cost of the found flow.
     ///
     /// This function returns the total cost of the found flow.
-    /// The complexity of the function is \f$ O(e) \f$.
+    /// The complexity of the function is O(e).
     ///
     /// \note The return type of the function can be specified as a
     /// template parameter. For example,
     /// \code
     ///   ns.totalCost<double>();
     /// \endcode
-    /// It is useful if the total cost cannot be stored in the \c Value
+    /// It is useful if the total cost cannot be stored in the \c Cost
     /// type of the algorithm, which is the default return type of the
     /// function.
     ///
@@ -900,8 +909,8 @@ namespace lemon {
     }
 
 #ifndef DOXYGEN
-    Value totalCost() const {
-      return totalCost<Value>();
+    Cost totalCost() const {
+      return totalCost<Cost>();
     }
 #endif
 
@@ -910,7 +919,7 @@ namespace lemon {
     /// This function returns the flow on the given arc.
     ///
     /// \pre \ref run() must be called before using this function.
-    Value flow(const Arc& a) const {
+    Flow flow(const Arc& a) const {
       return (*_flow_map)[a];
     }
 
@@ -930,7 +939,7 @@ namespace lemon {
     /// given node.
     ///
     /// \pre \ref run() must be called before using this function.
-    Value potential(const Node& n) const {
+    Cost potential(const Node& n) const {
       return (*_potential_map)[n];
     }
 
@@ -996,7 +1005,7 @@ namespace lemon {
         _pstflow = 0;
       }
       if (_psupply) {
-        Value sum = 0;
+        Flow sum = 0;
         int i = 0;
         for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
           _node_id[n] = i;
@@ -1035,6 +1044,8 @@ namespace lemon {
       }
 
       // Initialize arc maps
+      Flow max_cap = std::numeric_limits<Flow>::max();
+      Cost max_cost = std::numeric_limits<Cost>::max() / 4;
       if (_pupper && _pcost) {
         for (int i = 0; i != _arc_num; ++i) {
           Arc e = _arc_ref[i];
@@ -1057,9 +1068,8 @@ namespace lemon {
           for (int i = 0; i != _arc_num; ++i)
             _cap[i] = (*_pupper)[_arc_ref[i]];
         } else {
-          Value val = std::numeric_limits<Value>::max();
           for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = val;
+            _cap[i] = max_cap;
         }
         if (_pcost) {
           for (int i = 0; i != _arc_num; ++i)
@@ -1073,7 +1083,7 @@ namespace lemon {
       // Remove non-zero lower bounds
       if (_plower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Value c = (*_plower)[_arc_ref[i]];
+          Flow c = (*_plower)[_arc_ref[i]];
           if (c != 0) {
             _cap[i] -= c;
             _supply[_source[i]] -= c;
@@ -1083,8 +1093,6 @@ namespace lemon {
       }
 
       // Add artificial arcs and initialize the spanning tree data structure
-      Value max_cap = std::numeric_limits<Value>::max();
-      Value max_cost = std::numeric_limits<Value>::max() / 4;
       for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
         _thread[u] = u + 1;
         _rev_thread[u + 1] = u;
@@ -1137,7 +1145,7 @@ namespace lemon {
       }
       delta = _cap[in_arc];
       int result = 0;
-      Value d;
+      Flow d;
       int e;
 
       // Search the cycle along the path form the first node to the root
@@ -1175,7 +1183,7 @@ namespace lemon {
     void changeFlow(bool change) {
       // Augment along the cycle
       if (delta > 0) {
-        Value val = _state[in_arc] * delta;
+        Flow val = _state[in_arc] * delta;
         _flow[in_arc] += val;
         for (int u = _source[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? -val : val;
@@ -1316,7 +1324,7 @@ namespace lemon {
 
     // Update potentials
     void updatePotential() {
-      Value sigma = _forward[u_in] ?
+      Cost sigma = _forward[u_in] ?
         _pi[v_in] - _pi[u_in] - _cost[_pred[u_in]] :
         _pi[v_in] - _pi[u_in] + _cost[_pred[u_in]];
       if (_succ_num[u_in] > _node_num / 2) {
