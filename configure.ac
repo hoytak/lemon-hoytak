@@ -59,8 +59,7 @@ dnl Checks for libraries.
 LX_CHECK_GLPK
 LX_CHECK_CPLEX
 LX_CHECK_SOPLEX
-LX_CHECK_CLP
-LX_CHECK_CBC
+LX_CHECK_COIN
 
 AM_CONDITIONAL([HAVE_LP], [test x"$lx_lp_found" = x"yes"])
 AM_CONDITIONAL([HAVE_MIP], [test x"$lx_mip_found" = x"yes"])

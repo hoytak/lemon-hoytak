@@ -150,3 +150,26 @@ CXXFLAGS='flags'
 --without-soplex
 
    Disable SoPlex support.
+
+--with-coin[=PREFIX]
+
+   Enable support for COIN-OR solvers (CLP and CBC). You should
+   specify the prefix too. (by default, COIN-OR tools install
+   themselves to the source code directory). This command enables the
+   solvers that are actually found.
+
+--with-coin-includedir=DIR
+
+   The directory where the COIN-OR header files are located. This is
+   only useful when the COIN-OR headers and libraries are not under
+   the same prefix (which is unlikely).
+
+--with-coin-libdir=DIR
+
+   The directory where the COIN-OR libraries are located. This is only
+   useful when the COIN-OR headers and libraries are not under the
+   same prefix (which is unlikely).
+
+--without-coin
+
+   Disable COIN-OR support.
