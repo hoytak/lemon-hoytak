@@ -1832,7 +1832,7 @@ namespace lemon {
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
   /// \c GR::Edge).
   ///
-  /// \see DescriptorMap
+  /// \see RangeIdMap
   template <typename GR, typename K>
   class IdMap : public MapBase<K, int> {
   public:
@@ -1898,7 +1898,7 @@ namespace lemon {
   };
 
 
-  /// \brief General invertable graph map type.
+  /// \brief General cross reference graph map type.
 
   /// This class provides simple invertable graph maps.
   /// It wraps an arbitrary \ref concepts::ReadWriteMap "ReadWriteMap"
@@ -1915,7 +1915,7 @@ namespace lemon {
   ///
   /// \see IterableValueMap
   template <typename GR, typename K, typename V>
-  class InvertableMap
+  class CrossRefMap
     : protected ItemSetTraits<GR, K>::template Map<V>::Type {
   private:
 
@@ -1927,19 +1927,19 @@ namespace lemon {
 
   public:
 
-    /// The graph type of InvertableMap.
+    /// The graph type of CrossRefMap.
     typedef GR Graph;
-    /// The key type of InvertableMap (\c Node, \c Arc or \c Edge).
+    /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
     typedef K Item;
-    /// The key type of InvertableMap (\c Node, \c Arc or \c Edge).
+    /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
     typedef K Key;
-    /// The value type of InvertableMap.
+    /// The value type of CrossRefMap.
     typedef V Value;
 
     /// \brief Constructor.
     ///
-    /// Construct a new InvertableMap for the given graph.
-    explicit InvertableMap(const Graph& graph) : Map(graph) {}
+    /// Construct a new CrossRefMap for the given graph.
+    explicit CrossRefMap(const Graph& graph) : Map(graph) {}
 
     /// \brief Forward iterator for values.
     ///
@@ -1948,7 +1948,7 @@ namespace lemon {
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     class ValueIterator
       : public std::iterator<std::forward_iterator_tag, Value> {
-      friend class InvertableMap;
+      friend class CrossRefMap;
     private:
       ValueIterator(typename Container::const_iterator _it)
         : it(_it) {}
@@ -2072,13 +2072,13 @@ namespace lemon {
       /// \brief Constructor
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const InvertableMap& inverted)
+      explicit InverseMap(const CrossRefMap& inverted)
         : _inverted(inverted) {}
 
       /// The value type of the InverseMap.
-      typedef typename InvertableMap::Key Value;
+      typedef typename CrossRefMap::Key Value;
       /// The key type of the InverseMap.
-      typedef typename InvertableMap::Value Key;
+      typedef typename CrossRefMap::Value Key;
 
       /// \brief Subscript operator.
       ///
@@ -2089,7 +2089,7 @@ namespace lemon {
       }
 
     private:
-      const InvertableMap& _inverted;
+      const CrossRefMap& _inverted;
     };
 
     /// \brief It gives back the read-only inverse map.
@@ -2101,18 +2101,17 @@ namespace lemon {
 
   };
 
-  /// \brief Provides a mutable, continuous and unique descriptor for each
-  /// item in a graph.
+  /// \brief Provides continuous and unique ID for the
+  /// items of a graph.
   ///
-  /// DescriptorMap provides a unique and continuous (but mutable)
-  /// descriptor (id) for each item of the same type (\c Node, \c Arc or
+  /// RangeIdMap provides a unique and continuous
+  /// ID for each item of a given type (\c Node, \c Arc or
   /// \c Edge) in a graph. This id is
   ///  - \b unique: different items get different ids,
   ///  - \b continuous: the range of the ids is the set of integers
   ///    between 0 and \c n-1, where \c n is the number of the items of
-  ///    this type (\c Node, \c Arc or \c Edge). So the id of an item can
-  ///    change if you delete an other item of the same type, i.e. this
-  ///    id is mutable.
+  ///    this type (\c Node, \c Arc or \c Edge).
+  ///  - So, the ids can change when deleting an item of the same type.
   ///
   /// Thus this id is not (necessarily) the same as what can get using
   /// the \c id() function of the graph or \ref IdMap.
@@ -2125,25 +2124,25 @@ namespace lemon {
   ///
   /// \see IdMap
   template <typename GR, typename K>
-  class DescriptorMap
+  class RangeIdMap
     : protected ItemSetTraits<GR, K>::template Map<int>::Type {
 
     typedef typename ItemSetTraits<GR, K>::template Map<int>::Type Map;
 
   public:
-    /// The graph type of DescriptorMap.
+    /// The graph type of RangeIdMap.
     typedef GR Graph;
-    /// The key type of DescriptorMap (\c Node, \c Arc or \c Edge).
+    /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
     typedef K Item;
-    /// The key type of DescriptorMap (\c Node, \c Arc or \c Edge).
+    /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
     typedef K Key;
-    /// The value type of DescriptorMap.
+    /// The value type of RangeIdMap.
     typedef int Value;
 
     /// \brief Constructor.
     ///
-    /// Constructor for descriptor map.
-    explicit DescriptorMap(const Graph& gr) : Map(gr) {
+    /// Constructor.
+    explicit RangeIdMap(const Graph& gr) : Map(gr) {
       Item it;
       const typename Map::Notifier* nf = Map::notifier();
       for (nf->first(it); it != INVALID; nf->next(it)) {
@@ -2244,16 +2243,16 @@ namespace lemon {
       _inv_map[pi] = q;
     }
 
-    /// \brief Gives back the \e descriptor of the item.
+    /// \brief Gives back the \e RangeId of the item
     ///
-    /// Gives back the mutable and unique \e descriptor of the map.
+    /// Gives back the \e RangeId of the item.
     int operator[](const Item& item) const {
       return Map::operator[](item);
     }
 
-    /// \brief Gives back the item by its descriptor.
-    ///
-    /// Gives back th item by its descriptor.
+    /// \brief Gives back the item belonging to a \e RangeId
+    /// 
+    /// Gives back the item belonging to a \e RangeId.
     Item operator()(int id) const {
       return _inv_map[id];
     }
@@ -2265,22 +2264,22 @@ namespace lemon {
 
   public:
 
-    /// \brief The inverse map type of DescriptorMap.
+    /// \brief The inverse map type of RangeIdMap.
     ///
-    /// The inverse map type of DescriptorMap.
+    /// The inverse map type of RangeIdMap.
     class InverseMap {
     public:
       /// \brief Constructor
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const DescriptorMap& inverted)
+      explicit InverseMap(const RangeIdMap& inverted)
         : _inverted(inverted) {}
 
 
       /// The value type of the InverseMap.
-      typedef typename DescriptorMap::Key Value;
+      typedef typename RangeIdMap::Key Value;
       /// The key type of the InverseMap.
-      typedef typename DescriptorMap::Value Key;
+      typedef typename RangeIdMap::Value Key;
 
       /// \brief Subscript operator.
       ///
@@ -2298,7 +2297,7 @@ namespace lemon {
       }
 
     private:
-      const DescriptorMap& _inverted;
+      const RangeIdMap& _inverted;
     };
 
     /// \brief Gives back the inverse of the map.
