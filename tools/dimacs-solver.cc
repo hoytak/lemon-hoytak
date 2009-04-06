@@ -115,7 +115,7 @@ template<class Value>
 void solve(ArgParser &ap, std::istream &is, std::ostream &os,
            DimacsDescriptor &desc)
 {
-  std::stringstream iss(ap["infcap"]);
+  std::stringstream iss(static_cast<std::string>(ap["infcap"]));
   Value infty;
   iss >> infty;
   if(iss.fail())
