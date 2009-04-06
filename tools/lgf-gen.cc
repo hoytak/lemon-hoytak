@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <set>
+#include <ctime>
 #include <lemon/list_graph.h>
 #include <lemon/random.h>
 #include <lemon/dim2.h>
