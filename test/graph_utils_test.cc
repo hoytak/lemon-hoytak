@@ -38,15 +38,15 @@ void checkFindArcs() {
     for (int i = 0; i < 10; ++i) {
       digraph.addNode();
     }
-    DescriptorMap<Digraph, Node> nodes(digraph);
-    typename DescriptorMap<Digraph, Node>::InverseMap invNodes(nodes);
+    RangeIdMap<Digraph, Node> nodes(digraph);
+    typename RangeIdMap<Digraph, Node>::InverseMap invNodes(nodes);
     for (int i = 0; i < 100; ++i) {
       int src = rnd[invNodes.size()];
       int trg = rnd[invNodes.size()];
       digraph.addArc(invNodes[src], invNodes[trg]);
     }
     typename Digraph::template ArcMap<bool> found(digraph, false);
-    DescriptorMap<Digraph, Arc> arcs(digraph);
+    RangeIdMap<Digraph, Arc> arcs(digraph);
     for (NodeIt src(digraph); src != INVALID; ++src) {
       for (NodeIt trg(digraph); trg != INVALID; ++trg) {
         for (ConArcIt<Digraph> con(digraph, src, trg); con != INVALID; ++con) {
@@ -113,15 +113,15 @@ void checkFindEdges() {
   for (int i = 0; i < 10; ++i) {
     graph.addNode();
   }
-  DescriptorMap<Graph, Node> nodes(graph);
-  typename DescriptorMap<Graph, Node>::InverseMap invNodes(nodes);
+  RangeIdMap<Graph, Node> nodes(graph);
+  typename RangeIdMap<Graph, Node>::InverseMap invNodes(nodes);
   for (int i = 0; i < 100; ++i) {
     int src = rnd[invNodes.size()];
     int trg = rnd[invNodes.size()];
     graph.addEdge(invNodes[src], invNodes[trg]);
   }
   typename Graph::template EdgeMap<int> found(graph, 0);
-  DescriptorMap<Graph, Edge> edges(graph);
+  RangeIdMap<Graph, Edge> edges(graph);
   for (NodeIt src(graph); src != INVALID; ++src) {
     for (NodeIt trg(graph); trg != INVALID; ++trg) {
       for (ConEdgeIt<Graph> con(graph, src, trg); con != INVALID; ++con) {
