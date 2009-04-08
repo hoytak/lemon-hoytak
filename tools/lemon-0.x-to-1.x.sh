@@ -89,6 +89,10 @@ do
         -e "s/\<\([Ff]\)orkWriteMap\>/\1orkMap/g"\
         -e "s/\<StoreBoolMap\>/LoggerBoolMap/g"\
         -e "s/\<storeBoolMap\>/loggerBoolMap/g"\
+        -e "s/\<InvertableMap\>/CrossRefMap/g"\
+        -e "s/\<invertableMap\>/crossRefMap/g"\
+        -e "s/\<DescriptorMap\>/RangeIdMap/g"\
+        -e "s/\<descriptorMap\>/rangeIdMap/g"\
         -e "s/\<BoundingBox\>/Box/g"\
         -e "s/\<readNauty\>/readNautyGraph/g"\
         -e "s/\<RevDigraphAdaptor\>/ReverseDigraph/g"\
