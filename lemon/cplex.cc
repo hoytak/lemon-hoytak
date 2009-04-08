@@ -72,12 +72,14 @@ namespace lemon {
   CplexBase::CplexBase() : LpBase() {
     int status;
     _prob = CPXcreateprob(cplexEnv(), &status, "Cplex problem");
+    messageLevel(MESSAGE_NOTHING);
   }
 
   CplexBase::CplexBase(const CplexEnv& env)
     : LpBase(), _env(env) {
     int status;
     _prob = CPXcreateprob(cplexEnv(), &status, "Cplex problem");
+    messageLevel(MESSAGE_NOTHING);
   }
 
   CplexBase::CplexBase(const CplexBase& cplex)
@@ -86,6 +88,7 @@ namespace lemon {
     _prob = CPXcloneprob(cplexEnv(), cplex._prob, &status);
     rows = cplex.rows;
     cols = cplex.cols;
+    messageLevel(MESSAGE_NOTHING);
   }
 
   CplexBase::~CplexBase() {
@@ -438,6 +441,25 @@ namespace lemon {
     cols.clear();
   }
 
+  void CplexBase::_messageLevel(MessageLevel level) {
+    switch (level) {
+    case MESSAGE_NOTHING:
+      _message_enabled = false;
+      break;
+    case MESSAGE_ERROR:
+    case MESSAGE_WARNING:
+    case MESSAGE_NORMAL:
+    case MESSAGE_VERBOSE:
+      _message_enabled = true;
+      break;
+    }
+  }
+
+  void CplexBase::_applyMessageLevel() {
+    CPXsetintparam(cplexEnv(), CPX_PARAM_SCRIND, 
+                   _message_enabled ? CPX_ON : CPX_OFF);
+  }
+
   // CplexLp members
 
   CplexLp::CplexLp()
@@ -507,21 +529,25 @@ namespace lemon {
 
   CplexLp::SolveExitStatus CplexLp::_solve() {
     _clear_temporals();
+    _applyMessageLevel();
     return convertStatus(CPXlpopt(cplexEnv(), _prob));
   }
 
   CplexLp::SolveExitStatus CplexLp::solvePrimal() {
     _clear_temporals();
+    _applyMessageLevel();
     return convertStatus(CPXprimopt(cplexEnv(), _prob));
   }
 
   CplexLp::SolveExitStatus CplexLp::solveDual() {
     _clear_temporals();
+    _applyMessageLevel();
     return convertStatus(CPXdualopt(cplexEnv(), _prob));
   }
 
   CplexLp::SolveExitStatus CplexLp::solveBarrier() {
     _clear_temporals();
+    _applyMessageLevel();
     return convertStatus(CPXbaropt(cplexEnv(), _prob));
   }
 
@@ -600,7 +626,7 @@ namespace lemon {
     return _dual_ray[i];
   }
 
-  //7.5-os cplex statusai (Vigyazat: a 9.0-asei masok!)
+  // Cplex 7.0 status values
   // This table lists the statuses, returned by the CPXgetstat()
   // routine, for solutions to LP problems or mixed integer problems. If
   // no solution exists, the return value is zero.
@@ -647,7 +673,7 @@ namespace lemon {
   // 20   CPX_PIVOT
   //       User pivot used
   //
-  //     Ezeket hova tegyem:
+  // Pending return values
   // ??case CPX_ABORT_DUAL_INFEAS
   // ??case CPX_ABORT_CROSSOVER
   // ??case CPX_INForUNBD
@@ -718,7 +744,6 @@ namespace lemon {
 #else
     statusSwitch(cplexEnv(),stat);
     //CPXgetstat(cplexEnv(), _prob);
-    //printf("A primal status: %d, CPX_OPTIMAL=%d \n",stat,CPX_OPTIMAL);
     switch (stat) {
     case 0:
       return UNDEFINED; //Undefined
@@ -751,7 +776,7 @@ namespace lemon {
 #endif
   }
 
-  //9.0-as cplex verzio statusai
+  // Cplex 9.0 status values
   // CPX_STAT_ABORT_DUAL_OBJ_LIM
   // CPX_STAT_ABORT_IT_LIM
   // CPX_STAT_ABORT_OBJ_LIM
@@ -864,6 +889,7 @@ namespace lemon {
 
   CplexMip::SolveExitStatus CplexMip::_solve() {
     int status;
+    _applyMessageLevel();
     status = CPXmipopt (cplexEnv(), _prob);
     if (status==0)
       return SOLVED;

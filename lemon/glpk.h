@@ -100,6 +100,8 @@ namespace lemon {
 
     virtual void _clear();
 
+    virtual void _messageLevel(MessageLevel level);
+
   private:
 
     static void freeEnv();
@@ -111,6 +113,10 @@ namespace lemon {
     };
     
     static FreeEnvHelper freeEnvHelper;
+
+  protected:
+    
+    int _message_level;
     
   public:
 
@@ -191,30 +197,6 @@ namespace lemon {
     ///The presolver is off by default.
     void presolver(bool presolve);
 
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// error messages only
-      MESSAGE_ERROR_MESSAGE = 1,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 2,
-      /// full output (includes informational messages)
-      MESSAGE_FULL_OUTPUT = 3
-    };
-
-  private:
-
-    MessageLevel _message_level;
-
-  public:
-
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
   };
 
   /// \brief Interface for the GLPK MIP solver
@@ -244,30 +226,6 @@ namespace lemon {
     virtual Value _getSol(int i) const;
     virtual Value _getSolValue() const;
 
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// error messages only
-      MESSAGE_ERROR_MESSAGE = 1,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 2,
-      /// full output (includes informational messages)
-      MESSAGE_FULL_OUTPUT = 3
-    };
-
-  private:
-
-    MessageLevel _message_level;
-
-  public:
-
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
   };
 
 

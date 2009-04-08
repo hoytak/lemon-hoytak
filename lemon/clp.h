@@ -136,6 +136,8 @@ namespace lemon {
 
     virtual void _clear();
 
+    virtual void _messageLevel(MessageLevel);
+    
   public:
 
     ///Solves LP with primal simplex method.
@@ -152,26 +154,6 @@ namespace lemon {
 
     ///Returns the variable identifier understood by CLP.
     int clpCol(Col c) const { return cols(id(c)); }
-
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// print final solution
-      MESSAGE_FINAL_SOLUTION = 1,
-      /// print factorization
-      MESSAGE_FACTORIZATION = 2,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 3,
-      /// verbose output
-      MESSAGE_VERBOSE_OUTPUT = 4
-    };
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
 
   };
 
