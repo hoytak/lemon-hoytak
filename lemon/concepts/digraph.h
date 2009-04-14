@@ -421,12 +421,11 @@ namespace lemon {
       /// Gives back the opposite node on the given arc.
       Node oppositeNode(const Node&, const Arc&) const { return INVALID; }
 
-      /// \brief Read write map of the nodes to type \c T.
+      /// \brief Reference map of the nodes to type \c T.
       ///
-      /// ReadWrite map of the nodes to type \c T.
-      /// \sa Reference
+      /// Reference map of the nodes to type \c T.
       template<class T>
-      class NodeMap : public ReadWriteMap< Node, T > {
+      class NodeMap : public ReferenceMap<Node, T, T&, const T&> {
       public:
 
         ///\e
@@ -436,7 +435,8 @@ namespace lemon {
 
       private:
         ///Copy constructor
-        NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
+        NodeMap(const NodeMap& nm) : 
+          ReferenceMap<Node, T, T&, const T&>(nm) { }
         ///Assignment operator
         template <typename CMap>
         NodeMap& operator=(const CMap&) {
@@ -445,12 +445,11 @@ namespace lemon {
         }
       };
 
-      /// \brief Read write map of the arcs to type \c T.
+      /// \brief Reference map of the arcs to type \c T.
       ///
       /// Reference map of the arcs to type \c T.
-      /// \sa Reference
       template<class T>
-      class ArcMap : public ReadWriteMap<Arc,T> {
+      class ArcMap : public ReferenceMap<Arc, T, T&, const T&> {
       public:
 
         ///\e
@@ -459,7 +458,8 @@ namespace lemon {
         ArcMap(const Digraph&, T) { }
       private:
         ///Copy constructor
-        ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
+        ArcMap(const ArcMap& em) :
+          ReferenceMap<Arc, T, T&, const T&>(em) { }
         ///Assignment operator
         template <typename CMap>
         ArcMap& operator=(const CMap&) {
@@ -471,6 +471,7 @@ namespace lemon {
       template <typename _Digraph>
       struct Constraints {
         void constraints() {
+          checkConcept<BaseDigraphComponent, _Digraph>();
           checkConcept<IterableDigraphComponent<>, _Digraph>();
           checkConcept<IDableDigraphComponent<>, _Digraph>();
           checkConcept<MappableDigraphComponent<>, _Digraph>();

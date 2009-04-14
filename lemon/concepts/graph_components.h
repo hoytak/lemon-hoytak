@@ -988,8 +988,9 @@ namespace lemon {
     /// This class describes the concept of standard graph maps, i.e.
     /// the \c NodeMap, \c ArcMap and \c EdgeMap subtypes of digraph and 
     /// graph types, which can be used for associating data to graph items.
+    /// The standard graph maps must conform to the ReferenceMap concept.
     template <typename GR, typename K, typename V>
-    class GraphMap : public ReadWriteMap<K, V> {
+    class GraphMap : public ReferenceMap<K, V, V&, const V&> {
     public:
 
       typedef ReadWriteMap<K, V> Parent;
@@ -1000,6 +1001,13 @@ namespace lemon {
       typedef K Key;
       /// The value type of the map.
       typedef V Value;
+      /// The reference type of the map.
+      typedef Value& Reference;
+      /// The const reference type of the map.
+      typedef const Value& ConstReference;
+
+      // The reference map tag.
+      typedef True ReferenceMapTag;
 
       /// \brief Construct a new map.
       ///
@@ -1031,7 +1039,8 @@ namespace lemon {
       template<typename _Map>
       struct Constraints {
         void constraints() {
-          checkConcept<ReadWriteMap<Key, Value>, _Map >();
+          checkConcept
+            <ReferenceMap<Key, Value, Value&, const Value&>, _Map>();
           _Map m1(g);
           _Map m2(g,t);
           
@@ -1073,6 +1082,7 @@ namespace lemon {
       /// \brief Standard graph map for the nodes.
       ///
       /// Standard graph map for the nodes.
+      /// It conforms to the ReferenceMap concept.
       template <typename V>
       class NodeMap : public GraphMap<MappableDigraphComponent, Node, V> {
       public:
@@ -1110,6 +1120,7 @@ namespace lemon {
       /// \brief Standard graph map for the arcs.
       ///
       /// Standard graph map for the arcs.
+      /// It conforms to the ReferenceMap concept.
       template <typename V>
       class ArcMap : public GraphMap<MappableDigraphComponent, Arc, V> {
       public:
@@ -1207,6 +1218,7 @@ namespace lemon {
       /// \brief Standard graph map for the edges.
       ///
       /// Standard graph map for the edges.
+      /// It conforms to the ReferenceMap concept.
       template <typename V>
       class EdgeMap : public GraphMap<MappableGraphComponent, Edge, V> {
       public:

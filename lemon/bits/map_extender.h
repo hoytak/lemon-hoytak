@@ -47,6 +47,8 @@ namespace lemon {
 
     typedef typename Parent::Key Key;
     typedef typename Parent::Value Value;
+    typedef typename Parent::Reference Reference;
+    typedef typename Parent::ConstReference ConstReference;
 
     class MapIt;
     class ConstMapIt;
@@ -187,6 +189,8 @@ namespace lemon {
 
     typedef typename Parent::Key Key;
     typedef typename Parent::Value Value;
+    typedef typename Parent::Reference Reference;
+    typedef typename Parent::ConstReference ConstReference;
 
     class MapIt;
     class ConstMapIt;

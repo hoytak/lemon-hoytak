@@ -22,8 +22,6 @@
 #include <lemon/core.h>
 #include <lemon/error.h>
 
-#include <lemon/bits/default_map.h>
-
 namespace lemon {
 
   template <typename _Digraph>
