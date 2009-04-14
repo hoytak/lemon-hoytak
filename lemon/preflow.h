@@ -404,7 +404,7 @@ namespace lemon {
 
       _phase = true;
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _excess->set(n, 0);
+        (*_excess)[n] = 0;
       }
 
       for (ArcIt e(_graph); e != INVALID; ++e) {
@@ -417,10 +417,10 @@ namespace lemon {
       _level->initAddItem(_target);
 
       std::vector<Node> queue;
-      reached.set(_source, true);
+      reached[_source] = true;
 
       queue.push_back(_target);
-      reached.set(_target, true);
+      reached[_target] = true;
       while (!queue.empty()) {
         _level->initNewLevel();
         std::vector<Node> nqueue;
@@ -429,7 +429,7 @@ namespace lemon {
           for (InArcIt e(_graph, n); e != INVALID; ++e) {
             Node u = _graph.source(e);
             if (!reached[u] && _tolerance.positive((*_capacity)[e])) {
-              reached.set(u, true);
+              reached[u] = true;
               _level->initAddItem(u);
               nqueue.push_back(u);
             }
@@ -444,7 +444,7 @@ namespace lemon {
           Node u = _graph.target(e);
           if ((*_level)[u] == _level->maxLevel()) continue;
           _flow->set(e, (*_capacity)[e]);
-          _excess->set(u, (*_excess)[u] + (*_capacity)[e]);
+          (*_excess)[u] += (*_capacity)[e];
           if (u != _target && !_level->active(u)) {
             _level->activate(u);
           }
@@ -478,7 +478,7 @@ namespace lemon {
           excess -= (*_flow)[e];
         }
         if (excess < 0 && n != _source) return false;
-        _excess->set(n, excess);
+        (*_excess)[n] = excess;
       }
 
       typename Digraph::template NodeMap<bool> reached(_graph, false);
@@ -487,10 +487,10 @@ namespace lemon {
       _level->initAddItem(_target);
 
       std::vector<Node> queue;
-      reached.set(_source, true);
+      reached[_source] = true;
 
       queue.push_back(_target);
-      reached.set(_target, true);
+      reached[_target] = true;
       while (!queue.empty()) {
         _level->initNewLevel();
         std::vector<Node> nqueue;
@@ -500,7 +500,7 @@ namespace lemon {
             Node u = _graph.source(e);
             if (!reached[u] &&
                 _tolerance.positive((*_capacity)[e] - (*_flow)[e])) {
-              reached.set(u, true);
+              reached[u] = true;
               _level->initAddItem(u);
               nqueue.push_back(u);
             }
@@ -508,7 +508,7 @@ namespace lemon {
           for (OutArcIt e(_graph, n); e != INVALID; ++e) {
             Node v = _graph.target(e);
             if (!reached[v] && _tolerance.positive((*_flow)[e])) {
-              reached.set(v, true);
+              reached[v] = true;
               _level->initAddItem(v);
               nqueue.push_back(v);
             }
@@ -524,7 +524,7 @@ namespace lemon {
           Node u = _graph.target(e);
           if ((*_level)[u] == _level->maxLevel()) continue;
           _flow->set(e, (*_capacity)[e]);
-          _excess->set(u, (*_excess)[u] + rem);
+          (*_excess)[u] += rem;
           if (u != _target && !_level->active(u)) {
             _level->activate(u);
           }
@@ -536,7 +536,7 @@ namespace lemon {
           Node v = _graph.source(e);
           if ((*_level)[v] == _level->maxLevel()) continue;
           _flow->set(e, 0);
-          _excess->set(v, (*_excess)[v] + rem);
+          (*_excess)[v] += rem;
           if (v != _target && !_level->active(v)) {
             _level->activate(v);
           }
@@ -577,12 +577,12 @@ namespace lemon {
               }
               if (!_tolerance.less(rem, excess)) {
                 _flow->set(e, (*_flow)[e] + excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push_1;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
+                (*_excess)[v] += rem;
                 _flow->set(e, (*_capacity)[e]);
               }
             } else if (new_level > (*_level)[v]) {
@@ -600,12 +600,12 @@ namespace lemon {
               }
               if (!_tolerance.less(rem, excess)) {
                 _flow->set(e, (*_flow)[e] - excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push_1;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
+                (*_excess)[v] += rem;
                 _flow->set(e, 0);
               }
             } else if (new_level > (*_level)[v]) {
@@ -615,7 +615,7 @@ namespace lemon {
 
         no_more_push_1:
 
-          _excess->set(n, excess);
+          (*_excess)[n] = excess;
 
           if (excess != 0) {
             if (new_level + 1 < _level->maxLevel()) {
@@ -650,12 +650,12 @@ namespace lemon {
               }
               if (!_tolerance.less(rem, excess)) {
                 _flow->set(e, (*_flow)[e] + excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push_2;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
+                (*_excess)[v] += rem;
                 _flow->set(e, (*_capacity)[e]);
               }
             } else if (new_level > (*_level)[v]) {
@@ -673,12 +673,12 @@ namespace lemon {
               }
               if (!_tolerance.less(rem, excess)) {
                 _flow->set(e, (*_flow)[e] - excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push_2;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
+                (*_excess)[v] += rem;
                 _flow->set(e, 0);
               }
             } else if (new_level > (*_level)[v]) {
@@ -688,7 +688,7 @@ namespace lemon {
 
         no_more_push_2:
 
-          _excess->set(n, excess);
+          (*_excess)[n] = excess;
 
           if (excess != 0) {
             if (new_level + 1 < _level->maxLevel()) {
@@ -731,7 +731,7 @@ namespace lemon {
 
       typename Digraph::template NodeMap<bool> reached(_graph);
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        reached.set(n, (*_level)[n] < _level->maxLevel());
+        reached[n] = (*_level)[n] < _level->maxLevel();
       }
 
       _level->initStart();
@@ -739,7 +739,7 @@ namespace lemon {
 
       std::vector<Node> queue;
       queue.push_back(_source);
-      reached.set(_source, true);
+      reached[_source] = true;
 
       while (!queue.empty()) {
         _level->initNewLevel();
@@ -749,7 +749,7 @@ namespace lemon {
           for (OutArcIt e(_graph, n); e != INVALID; ++e) {
             Node v = _graph.target(e);
             if (!reached[v] && _tolerance.positive((*_flow)[e])) {
-              reached.set(v, true);
+              reached[v] = true;
               _level->initAddItem(v);
               nqueue.push_back(v);
             }
@@ -758,7 +758,7 @@ namespace lemon {
             Node u = _graph.source(e);
             if (!reached[u] &&
                 _tolerance.positive((*_capacity)[e] - (*_flow)[e])) {
-              reached.set(u, true);
+              reached[u] = true;
               _level->initAddItem(u);
               nqueue.push_back(u);
             }
@@ -792,12 +792,12 @@ namespace lemon {
             }
             if (!_tolerance.less(rem, excess)) {
               _flow->set(e, (*_flow)[e] + excess);
-              _excess->set(v, (*_excess)[v] + excess);
+              (*_excess)[v] += excess;
               excess = 0;
               goto no_more_push;
             } else {
               excess -= rem;
-              _excess->set(v, (*_excess)[v] + rem);
+              (*_excess)[v] += rem;
               _flow->set(e, (*_capacity)[e]);
             }
           } else if (new_level > (*_level)[v]) {
@@ -815,12 +815,12 @@ namespace lemon {
             }
             if (!_tolerance.less(rem, excess)) {
               _flow->set(e, (*_flow)[e] - excess);
-              _excess->set(v, (*_excess)[v] + excess);
+              (*_excess)[v] += excess;
               excess = 0;
               goto no_more_push;
             } else {
               excess -= rem;
-              _excess->set(v, (*_excess)[v] + rem);
+              (*_excess)[v] += rem;
               _flow->set(e, 0);
             }
           } else if (new_level > (*_level)[v]) {
@@ -830,7 +830,7 @@ namespace lemon {
 
       no_more_push:
 
-        _excess->set(n, excess);
+        (*_excess)[n] = excess;
 
         if (excess != 0) {
           if (new_level + 1 < _level->maxLevel()) {

@@ -293,7 +293,7 @@ namespace lemon {
           minimum = (*_cost_arcs)[nodes[i]];
         }
       }
-      _arc_order->set(minimum.arc, _dual_variables.size());
+      (*_arc_order)[minimum.arc] = _dual_variables.size();
       DualVariable var(_dual_node_list.size() - 1,
                        _dual_node_list.size(), minimum.value);
       _dual_variables.push_back(var);
@@ -335,7 +335,7 @@ namespace lemon {
           minimum = (*_cost_arcs)[nodes[i]];
         }
       }
-      _arc_order->set(minimum.arc, _dual_variables.size());
+      (*_arc_order)[minimum.arc] = _dual_variables.size();
       DualVariable var(node_bottom, _dual_node_list.size(), minimum.value);
       _dual_variables.push_back(var);
       StackLevel level;
@@ -364,7 +364,7 @@ namespace lemon {
       while (!_heap->empty()) {
         Node source = _heap->top();
         _heap->pop();
-        _node_order->set(source, -1);
+        (*_node_order)[source] = -1;
         for (OutArcIt it(*_digraph, source); it != INVALID; ++it) {
           if ((*_arc_order)[it] < 0) continue;
           Node target = _digraph->target(it);
@@ -650,13 +650,13 @@ namespace lemon {
       _heap->clear();
       for (NodeIt it(*_digraph); it != INVALID; ++it) {
         (*_cost_arcs)[it].arc = INVALID;
-        _node_order->set(it, -3);
-        _heap_cross_ref->set(it, Heap::PRE_HEAP);
+        (*_node_order)[it] = -3;
+        (*_heap_cross_ref)[it] = Heap::PRE_HEAP;
         _pred->set(it, INVALID);
       }
       for (ArcIt it(*_digraph); it != INVALID; ++it) {
         _arborescence->set(it, false);
-        _arc_order->set(it, -1);
+        (*_arc_order)[it] = -1;
       }
       _dual_node_list.clear();
       _dual_variables.clear();

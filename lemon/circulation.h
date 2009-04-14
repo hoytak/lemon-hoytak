@@ -453,13 +453,13 @@ template< typename GR,
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
-        _excess->set(n, (*_delta)[n]);
+        (*_excess)[n] = (*_delta)[n];
       }
 
       for (ArcIt e(_g);e!=INVALID;++e) {
         _flow->set(e, (*_lo)[e]);
-        _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_flow)[e]);
-        _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_flow)[e]);
+        (*_excess)[_g.target(e)] += (*_flow)[e];
+        (*_excess)[_g.source(e)] -= (*_flow)[e];
       }
 
       // global relabeling tested, but in general case it provides
@@ -482,23 +482,23 @@ template< typename GR,
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
-        _excess->set(n, (*_delta)[n]);
+        (*_excess)[n] = (*_delta)[n];
       }
 
       for (ArcIt e(_g);e!=INVALID;++e) {
         if (!_tol.positive((*_excess)[_g.target(e)] + (*_up)[e])) {
           _flow->set(e, (*_up)[e]);
-          _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_up)[e]);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_up)[e]);
+          (*_excess)[_g.target(e)] += (*_up)[e];
+          (*_excess)[_g.source(e)] -= (*_up)[e];
         } else if (_tol.positive((*_excess)[_g.target(e)] + (*_lo)[e])) {
           _flow->set(e, (*_lo)[e]);
-          _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_lo)[e]);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_lo)[e]);
+          (*_excess)[_g.target(e)] += (*_lo)[e];
+          (*_excess)[_g.source(e)] -= (*_lo)[e];
         } else {
           Value fc = -(*_excess)[_g.target(e)];
           _flow->set(e, fc);
-          _excess->set(_g.target(e), 0);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - fc);
+          (*_excess)[_g.target(e)] = 0;
+          (*_excess)[_g.source(e)] -= fc;
         }
       }
 
@@ -537,16 +537,16 @@ template< typename GR,
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
               _flow->set(e, (*_flow)[e] + exc);
-              _excess->set(v, (*_excess)[v] + exc);
+              (*_excess)[v] += exc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
-              _excess->set(act,0);
+              (*_excess)[act] = 0;
               _level->deactivate(act);
               goto next_l;
             }
             else {
               _flow->set(e, (*_up)[e]);
-              _excess->set(v, (*_excess)[v] + fc);
+              (*_excess)[v] += fc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
               exc-=fc;
@@ -561,16 +561,16 @@ template< typename GR,
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
               _flow->set(e, (*_flow)[e] - exc);
-              _excess->set(v, (*_excess)[v] + exc);
+              (*_excess)[v] += exc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
-              _excess->set(act,0);
+              (*_excess)[act] = 0;
               _level->deactivate(act);
               goto next_l;
             }
             else {
               _flow->set(e, (*_lo)[e]);
-              _excess->set(v, (*_excess)[v] + fc);
+              (*_excess)[v] += fc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
               exc-=fc;
@@ -579,7 +579,7 @@ template< typename GR,
           else if((*_level)[v]<mlevel) mlevel=(*_level)[v];
         }
 
-        _excess->set(act, exc);
+        (*_excess)[act] = exc;
         if(!_tol.positive(exc)) _level->deactivate(act);
         else if(mlevel==_node_num) {
           _level->liftHighestActiveToTop();

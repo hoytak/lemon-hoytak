@@ -143,11 +143,11 @@ namespace lemon {
 
       _root = NodeIt(_graph);
       for (NodeIt n(_graph); n != INVALID; ++n) {
-	_pred->set(n, _root);
-	_order->set(n, -1);
+        (*_pred)[n] = _root;
+        (*_order)[n] = -1;
       }
-      _pred->set(_root, INVALID);
-      _weight->set(_root, std::numeric_limits<Value>::max()); 
+      (*_pred)[_root] = INVALID;
+      (*_weight)[_root] = std::numeric_limits<Value>::max(); 
     }
 
 
@@ -164,22 +164,22 @@ namespace lemon {
 
 	fa.runMinCut();
 
-	_weight->set(n, fa.flowValue());
+	(*_weight)[n] = fa.flowValue();
 
 	for (NodeIt nn(_graph); nn != INVALID; ++nn) {
 	  if (nn != n && fa.minCut(nn) && (*_pred)[nn] == pn) {
-	    _pred->set(nn, n);
+	    (*_pred)[nn] = n;
 	  }
 	}
 	if ((*_pred)[pn] != INVALID && fa.minCut((*_pred)[pn])) {
-	  _pred->set(n, (*_pred)[pn]);
-	  _pred->set(pn, n);
-	  _weight->set(n, (*_weight)[pn]);
-	  _weight->set(pn, fa.flowValue());	
+	  (*_pred)[n] = (*_pred)[pn];
+	  (*_pred)[pn] = n;
+	  (*_weight)[n] = (*_weight)[pn];
+	  (*_weight)[pn] = fa.flowValue();
 	}
       }
 
-      _order->set(_root, 0);
+      (*_order)[_root] = 0;
       int index = 1;
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -190,7 +190,7 @@ namespace lemon {
 	  nn = (*_pred)[nn];
 	}
 	while (!st.empty()) {
-	  _order->set(st.back(), index++);
+	  (*_order)[st.back()] = index++;
 	  st.pop_back();
 	}
       }
@@ -309,9 +309,9 @@ namespace lemon {
       }
 
       typename Graph::template NodeMap<bool> reached(_graph, false);
-      reached.set(_root, true);
+      reached[_root] = true;
       cutMap.set(_root, !s_root);
-      reached.set(rn, true);
+      reached[rn] = true;
       cutMap.set(rn, s_root);
 
       std::vector<Node> st;
