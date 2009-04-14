@@ -84,6 +84,8 @@ namespace lemon {
     row_num = col_num = 0;
   }
 
+  void SkeletonSolverBase::_messageLevel(MessageLevel) {}
+
   LpSkeleton::SolveExitStatus LpSkeleton::_solve() { return SOLVED; }
 
   LpSkeleton::Value LpSkeleton::_getPrimal(int) const { return 0; }

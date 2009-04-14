@@ -140,6 +140,8 @@ namespace lemon {
     ///\e
     virtual void _clear();
 
+    ///\e
+    virtual void _messageLevel(MessageLevel);
   };
 
   /// \brief Skeleton class for an LP solver interface

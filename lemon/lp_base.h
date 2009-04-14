@@ -69,6 +69,21 @@ namespace lemon {
       MAX
     };
 
+    ///Enum for \c messageLevel() parameter
+    enum MessageLevel {
+      /// no output (default value)
+      MESSAGE_NOTHING,
+      /// error messages only
+      MESSAGE_ERROR,
+      /// warnings
+      MESSAGE_WARNING,
+      /// normal output
+      MESSAGE_NORMAL,
+      /// verbose output
+      MESSAGE_VERBOSE
+    };
+    
+
     ///The floating point type used by the solver
     typedef double Value;
     ///The infinity constant
@@ -973,6 +988,8 @@ namespace lemon {
 
     virtual const char* _solverName() const = 0;
 
+    virtual void _messageLevel(MessageLevel level) = 0;
+
     //Own protected stuff
 
     //Constant component of the objective function
@@ -1526,6 +1543,9 @@ namespace lemon {
 
     ///Clears the problem
     void clear() { _clear(); }
+
+    /// Sets the message level of the solver
+    void messageLevel(MessageLevel level) { _messageLevel(level); }
 
     ///@}
 
