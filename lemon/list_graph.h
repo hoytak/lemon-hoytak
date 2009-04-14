@@ -320,9 +320,6 @@ namespace lemon {
   ///Most of the member functions and nested classes are documented
   ///only in the concept class.
   ///
-  ///An important extra feature of this digraph implementation is that
-  ///its maps are real \ref concepts::ReferenceMap "reference map"s.
-  ///
   ///\sa concepts::Digraph
 
   class ListDigraph : public ExtendedListDigraphBase {
@@ -1175,9 +1172,6 @@ namespace lemon {
   ///also provides several useful additional functionalities.
   ///Most of the member functions and nested classes are documented
   ///only in the concept class.
-  ///
-  ///An important extra feature of this graph implementation is that
-  ///its maps are real \ref concepts::ReferenceMap "reference map"s.
   ///
   ///\sa concepts::Graph
 

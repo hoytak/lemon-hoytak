@@ -191,9 +191,7 @@ namespace lemon {
   ///It is also quite memory efficient, but at the price
   ///that <b> it does support only limited (only stack-like)
   ///node and arc deletions</b>.
-  ///It conforms to the \ref concepts::Digraph "Digraph concept" with
-  ///an important extra feature that its maps are real \ref
-  ///concepts::ReferenceMap "reference map"s.
+  ///It fully conforms to the \ref concepts::Digraph "Digraph concept".
   ///
   ///\sa concepts::Digraph.
   class SmartDigraph : public ExtendedSmartDigraphBase {
@@ -629,15 +627,9 @@ namespace lemon {
   /// It is also quite memory efficient, but at the price
   /// that <b> it does support only limited (only stack-like)
   /// node and arc deletions</b>.
-  /// Except from this it conforms to
-  /// the \ref concepts::Graph "Graph concept".
-  ///
-  /// It also has an
-  /// important extra feature that
-  /// its maps are real \ref concepts::ReferenceMap "reference map"s.
+  /// It fully conforms to the \ref concepts::Graph "Graph concept".
   ///
   /// \sa concepts::Graph.
-  ///
   class SmartGraph : public ExtendedSmartGraphBase {
   private:
 
