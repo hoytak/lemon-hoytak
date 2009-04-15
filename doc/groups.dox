@@ -407,7 +407,7 @@ see the \ref max_flow "maximum flow problem".
 */
 
 /**
-@defgroup graph_prop Connectivity and Other Graph Properties
+@defgroup graph_properties Connectivity and Other Graph Properties
 @ingroup algs
 \brief Algorithms for discovering the graph properties
 

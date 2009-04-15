@@ -14,12 +14,18 @@ EXTRA_DIST += \
 	doc/CMakeLists.txt
 
 DOC_EPS_IMAGES18 = \
+	bipartite_matching.eps \
+	bipartite_partitions.eps \
+	connected_components.eps \
+	edge_biconnected_components.eps \
 	grid_graph.eps \
+	node_biconnected_components.eps \
 	nodeshape_0.eps \
 	nodeshape_1.eps \
 	nodeshape_2.eps \
 	nodeshape_3.eps \
-	nodeshape_4.eps
+	nodeshape_4.eps \
+	strongly_connected_components.eps
 
 DOC_EPS_IMAGES = \
 	$(DOC_EPS_IMAGES18)

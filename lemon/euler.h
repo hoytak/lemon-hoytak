@@ -24,7 +24,7 @@
 #include<lemon/connectivity.h>
 #include <list>
 
-/// \ingroup graph_prop
+/// \ingroup graph_properties
 /// \file
 /// \brief Euler tour
 ///
@@ -36,7 +36,7 @@ namespace lemon {
 
   ///Euler iterator for digraphs.
 
-  /// \ingroup graph_prop
+  /// \ingroup graph_properties
   ///This iterator converts to the \c Arc type of the digraph and using
   ///operator ++, it provides an Euler tour of a \e directed
   ///graph (if there exists).
@@ -123,7 +123,7 @@ namespace lemon {
 
   ///Euler iterator for graphs.
 
-  /// \ingroup graph_prop
+  /// \ingroup graph_properties
   ///This iterator converts to the \c Arc (or \c Edge)
   ///type of the digraph and using
   ///operator ++, it provides an Euler tour of an undirected
@@ -228,7 +228,7 @@ namespace lemon {
 
   ///Checks if the graph is Eulerian
 
-  /// \ingroup graph_prop
+  /// \ingroup graph_properties
   ///Checks if the graph is Eulerian. It works for both directed and undirected
   ///graphs.
   ///\note By definition, a digraph is called \e Eulerian if

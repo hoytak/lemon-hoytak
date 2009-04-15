@@ -32,7 +32,7 @@
 #include <stack>
 #include <functional>
 
-/// \ingroup connectivity
+/// \ingroup graph_properties
 /// \file
 /// \brief Connectivity algorithms
 ///
@@ -40,7 +40,7 @@
 
 namespace lemon {
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check whether the given undirected graph is connected.
   ///
@@ -63,7 +63,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Count the number of connected components of an undirected graph
   ///
@@ -105,11 +105,14 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the connected components of an undirected graph
   ///
   /// Find the connected components of an undirected graph.
+  ///
+  /// \image html connected_components.png
+  /// \image latex connected_components.eps "Connected components" width=\textwidth
   ///
   /// \param graph The graph. It must be undirected.
   /// \retval compMap A writable node map. The values will be set from 0 to
@@ -117,7 +120,6 @@ namespace lemon {
   /// will be set exactly once, the values of a certain component will be
   /// set continuously.
   /// \return The number of components
-  ///
   template <class Graph, class NodeMap>
   int connectedComponents(const Graph &graph, NodeMap &compMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -227,7 +229,7 @@ namespace lemon {
   }
 
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check whether the given directed graph is strongly connected.
   ///
@@ -285,7 +287,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Count the strongly connected components of a directed graph
   ///
@@ -349,7 +351,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the strongly connected components of a directed graph
   ///
@@ -361,13 +363,15 @@ namespace lemon {
   /// that there is no arc going from a higher numbered component to
   /// a lower.
   ///
+  /// \image html strongly_connected_components.png
+  /// \image latex strongly_connected_components.eps "Strongly connected components" width=\textwidth
+  ///
   /// \param digraph The digraph.
   /// \retval compMap A writable node map. The values will be set from 0 to
   /// the number of the strongly connected components minus one. Each value
   /// of the map will be set exactly once, the values of a certain component
   /// will be set continuously.
   /// \return The number of components
-  ///
   template <typename Digraph, typename NodeMap>
   int stronglyConnectedComponents(const Digraph& digraph, NodeMap& compMap) {
     checkConcept<concepts::Digraph, Digraph>();
@@ -416,7 +420,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the cut arcs of the strongly connected components.
   ///
@@ -700,7 +704,7 @@ namespace lemon {
   template <typename Graph>
   int countBiNodeConnectedComponents(const Graph& graph);
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Checks the graph is bi-node-connected.
   ///
@@ -715,7 +719,7 @@ namespace lemon {
     return countBiNodeConnectedComponents(graph) <= 1;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Count the biconnected components.
   ///
@@ -750,7 +754,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the bi-node-connected components.
   ///
@@ -759,13 +763,15 @@ namespace lemon {
   /// relation on the undirected edges. Two undirected edge are in relationship
   /// when they are on same circle.
   ///
+  /// \image html node_biconnected_components.png
+  /// \image latex node_biconnected_components.eps "bi-node-connected components" width=\textwidth
+  ///
   /// \param graph The graph.
   /// \retval compMap A writable uedge map. The values will be set from 0
   /// to the number of the biconnected components minus one. Each values
   /// of the map will be set exactly once, the values of a certain component
   /// will be set continuously.
   /// \return The number of components.
-  ///
   template <typename Graph, typename EdgeMap>
   int biNodeConnectedComponents(const Graph& graph,
                                 EdgeMap& compMap) {
@@ -793,7 +799,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the bi-node-connected cut nodes.
   ///
@@ -1023,7 +1029,7 @@ namespace lemon {
   template <typename Graph>
   int countBiEdgeConnectedComponents(const Graph& graph);
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Checks that the graph is bi-edge-connected.
   ///
@@ -1038,7 +1044,7 @@ namespace lemon {
     return countBiEdgeConnectedComponents(graph) <= 1;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Count the bi-edge-connected components.
   ///
@@ -1073,7 +1079,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the bi-edge-connected components.
   ///
@@ -1082,13 +1088,15 @@ namespace lemon {
   /// relation on the nodes. Two nodes are in relationship when they are
   /// connected at least two edge-disjoint paths.
   ///
+  /// \image html edge_biconnected_components.png
+  /// \image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
+  ///
   /// \param graph The graph.
   /// \retval compMap A writable node map. The values will be set from 0 to
   /// the number of the biconnected components minus one. Each values
   /// of the map will be set exactly once, the values of a certain component
   /// will be set continuously.
   /// \return The number of components.
-  ///
   template <typename Graph, typename NodeMap>
   int biEdgeConnectedComponents(const Graph& graph, NodeMap& compMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -1115,7 +1123,7 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the bi-edge-connected cut edges.
   ///
@@ -1179,7 +1187,7 @@ namespace lemon {
 
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Sort the nodes of a DAG into topolgical order.
   ///
@@ -1218,7 +1226,7 @@ namespace lemon {
     }
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Sort the nodes of a DAG into topolgical order.
   ///
@@ -1273,7 +1281,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check that the given directed graph is a DAG.
   ///
@@ -1315,7 +1323,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check that the given undirected graph is acyclic.
   ///
@@ -1349,7 +1357,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check that the given undirected graph is tree.
   ///
@@ -1441,7 +1449,7 @@ namespace lemon {
     };
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check if the given undirected graph is bipartite or not
   ///
@@ -1478,7 +1486,7 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Check if the given undirected graph is bipartite or not
   ///
@@ -1486,6 +1494,10 @@ namespace lemon {
   /// or not. The  \ref  Bfs  algorithm  is   used  to  calculate the result.
   /// During the execution, the \c partMap will be set as the two
   /// partitions of the graph.
+  ///
+  /// \image html bipartite_partitions.png
+  /// \image latex bipartite_partitions.eps "Bipartite partititions" width=\textwidth
+  ///
   /// \param graph The undirected graph.
   /// \retval partMap A writable bool map of nodes. It will be set as the
   /// two partitions of the graph.
