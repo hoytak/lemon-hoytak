@@ -78,13 +78,19 @@ namespace lemon {
     DiEulerIt(const GR &gr, typename GR::Node start = INVALID)
       : g(gr), nedge(g)
     {
-      if(start==INVALID) start=NodeIt(g);
-      for(NodeIt n(g);n!=INVALID;++n) nedge[n]=OutArcIt(g,n);
-      while(nedge[start]!=INVALID) {
-        euler.push_back(nedge[start]);
-        Node next=g.target(nedge[start]);
-        ++nedge[start];
-        start=next;
+      if (start==INVALID) {
+        NodeIt n(g);
+        while (n!=INVALID && OutArcIt(g,n)==INVALID) ++n;
+        start=n;
+      }
+      if (start!=INVALID) {
+        for (NodeIt n(g); n!=INVALID; ++n) nedge[n]=OutArcIt(g,n);
+        while (nedge[start]!=INVALID) {
+          euler.push_back(nedge[start]);
+          Node next=g.target(nedge[start]);
+          ++nedge[start];
+          start=next;
+        }
       }
     }
 
@@ -171,15 +177,21 @@ namespace lemon {
     EulerIt(const GR &gr, typename GR::Node start = INVALID)
       : g(gr), nedge(g), visited(g, false)
     {
-      if(start==INVALID) start=NodeIt(g);
-      for(NodeIt n(g);n!=INVALID;++n) nedge[n]=OutArcIt(g,n);
-      while(nedge[start]!=INVALID) {
-        euler.push_back(nedge[start]);
-        visited[nedge[start]]=true;
-        Node next=g.target(nedge[start]);
-        ++nedge[start];
-        start=next;
-        while(nedge[start]!=INVALID && visited[nedge[start]]) ++nedge[start];
+      if (start==INVALID) {
+        NodeIt n(g);
+        while (n!=INVALID && OutArcIt(g,n)==INVALID) ++n;
+        start=n;
+      }
+      if (start!=INVALID) {
+        for (NodeIt n(g); n!=INVALID; ++n) nedge[n]=OutArcIt(g,n);
+        while(nedge[start]!=INVALID) {
+          euler.push_back(nedge[start]);
+          visited[nedge[start]]=true;
+          Node next=g.target(nedge[start]);
+          ++nedge[start];
+          start=next;
+          while(nedge[start]!=INVALID && visited[nedge[start]]) ++nedge[start];
+        }
       }
     }
 
