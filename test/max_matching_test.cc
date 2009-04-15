@@ -20,12 +20,14 @@
 #include <sstream>
 #include <vector>
 #include <queue>
-#include <lemon/math.h>
 #include <cstdlib>
 
 #include <lemon/max_matching.h>
 #include <lemon/smart_graph.h>
+#include <lemon/concepts/graph.h>
+#include <lemon/concepts/maps.h>
 #include <lemon/lgf_reader.h>
+#include <lemon/math.h>
 
 #include "test_tools.h"
 
@@ -109,6 +111,108 @@ const std::string lgf[lgfn] = {
   "7 6  5      250\n"
   "5 2  6      539\n",
 };
+
+void checkMaxMatchingCompile()
+{
+  typedef concepts::Graph Graph;
+  typedef Graph::Node Node;
+  typedef Graph::Edge Edge;
+  typedef Graph::EdgeMap<bool> MatMap;
+
+  Graph g;
+  Node n;
+  Edge e;
+  MatMap mat(g);
+
+  MaxMatching<Graph> mat_test(g);
+  const MaxMatching<Graph>&
+    const_mat_test = mat_test;
+
+  mat_test.init();
+  mat_test.greedyInit();
+  mat_test.matchingInit(mat);
+  mat_test.startSparse();
+  mat_test.startDense();
+  mat_test.run();
+  
+  const_mat_test.matchingSize();
+  const_mat_test.matching(e);
+  const_mat_test.matching(n);
+  const_mat_test.mate(n);
+
+  MaxMatching<Graph>::Status stat = 
+    const_mat_test.decomposition(n);
+  const_mat_test.barrier(n);
+  
+  ignore_unused_variable_warning(stat);
+}
+
+void checkMaxWeightedMatchingCompile()
+{
+  typedef concepts::Graph Graph;
+  typedef Graph::Node Node;
+  typedef Graph::Edge Edge;
+  typedef Graph::EdgeMap<int> WeightMap;
+
+  Graph g;
+  Node n;
+  Edge e;
+  WeightMap w(g);
+
+  MaxWeightedMatching<Graph> mat_test(g, w);
+  const MaxWeightedMatching<Graph>&
+    const_mat_test = mat_test;
+
+  mat_test.init();
+  mat_test.start();
+  mat_test.run();
+  
+  const_mat_test.matchingValue();
+  const_mat_test.matchingSize();
+  const_mat_test.matching(e);
+  const_mat_test.matching(n);
+  const_mat_test.mate(n);
+  
+  int k = 0;
+  const_mat_test.dualValue();
+  const_mat_test.nodeValue(n);
+  const_mat_test.blossomNum();
+  const_mat_test.blossomSize(k);
+  const_mat_test.blossomValue(k);
+}
+
+void checkMaxWeightedPerfectMatchingCompile()
+{
+  typedef concepts::Graph Graph;
+  typedef Graph::Node Node;
+  typedef Graph::Edge Edge;
+  typedef Graph::EdgeMap<int> WeightMap;
+
+  Graph g;
+  Node n;
+  Edge e;
+  WeightMap w(g);
+
+  MaxWeightedPerfectMatching<Graph> mat_test(g, w);
+  const MaxWeightedPerfectMatching<Graph>&
+    const_mat_test = mat_test;
+
+  mat_test.init();
+  mat_test.start();
+  mat_test.run();
+  
+  const_mat_test.matchingValue();
+  const_mat_test.matching(e);
+  const_mat_test.matching(n);
+  const_mat_test.mate(n);
+  
+  int k = 0;
+  const_mat_test.dualValue();
+  const_mat_test.nodeValue(n);
+  const_mat_test.blossomNum();
+  const_mat_test.blossomSize(k);
+  const_mat_test.blossomValue(k);
+}
 
 void checkMatching(const SmartGraph& graph,
                    const MaxMatching<SmartGraph>& mm) {

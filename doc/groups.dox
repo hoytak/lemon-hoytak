@@ -435,9 +435,10 @@ embedding and drawing.
 @ingroup algs
 \brief Algorithms for finding matchings in graphs and bipartite graphs.
 
-This group contains algorithm objects and functions to calculate
+This group contains the algorithms for calculating
 matchings in graphs and bipartite graphs. The general matching problem is
-finding a subset of the arcs which does not shares common endpoints.
+finding a subset of the edges for which each node has at most one incident
+edge.
 
 There are several different algorithms for calculate matchings in
 graphs.  The matching problems in bipartite graphs are generally
