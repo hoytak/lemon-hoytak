@@ -286,7 +286,7 @@ namespace lemon {
 
     typedef Dijkstra Create;
 
-    ///\name Named template parameters
+    ///\name Named Template Parameters
 
     ///@{
 

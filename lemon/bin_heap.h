@@ -73,9 +73,9 @@ namespace lemon {
     /// The item-int map must be initialized in such way that it assigns
     /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      IN_HEAP = 0,    ///< \e
-      PRE_HEAP = -1,  ///< \e
-      POST_HEAP = -2  ///< \e
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
   private:

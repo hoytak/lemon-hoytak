@@ -287,7 +287,7 @@ namespace lemon {
     ///
     Timer(bool run=true) :_running(run) {_reset();}
 
-    ///\name Control the state of the timer
+    ///\name Control the State of the Timer
     ///Basically a Timer can be either running or stopped,
     ///but it provides a bit finer control on the execution.
     ///The \ref lemon::Timer "Timer" also counts the number of
@@ -395,7 +395,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Query Functions for the ellapsed time
+    ///\name Query Functions for the Ellapsed Time
 
     ///@{
 

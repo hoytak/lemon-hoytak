@@ -288,7 +288,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Execution control
+    /// \name Execution Control
     /// The simplest way to execute the algorithm is to call the run()
     /// function.
     /// \n

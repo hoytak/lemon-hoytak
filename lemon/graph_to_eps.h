@@ -268,22 +268,18 @@ public:
     /// = 1
     ///\image html nodeshape_1.png
     ///\image latex nodeshape_1.eps "SQUARE shape (1)" width=2cm
-    ///
     SQUARE=1,
     /// = 2
     ///\image html nodeshape_2.png
     ///\image latex nodeshape_2.eps "DIAMOND shape (2)" width=2cm
-    ///
     DIAMOND=2,
     /// = 3
     ///\image html nodeshape_3.png
-    ///\image latex nodeshape_2.eps "MALE shape (4)" width=2cm
-    ///
+    ///\image latex nodeshape_3.eps "MALE shape (3)" width=2cm
     MALE=3,
     /// = 4
     ///\image html nodeshape_4.png
-    ///\image latex nodeshape_2.eps "FEMALE shape (4)" width=2cm
-    ///
+    ///\image latex nodeshape_4.eps "FEMALE shape (4)" width=2cm
     FEMALE=4
   };
 

@@ -90,10 +90,10 @@ namespace lemon {
 
   /// \ingroup spantree
   ///
-  /// \brief %MinCostArborescence algorithm class.
+  /// \brief Minimum Cost Arborescence algorithm class.
   ///
   /// This class provides an efficient implementation of
-  /// %MinCostArborescence algorithm. The arborescence is a tree
+  /// Minimum Cost Arborescence algorithm. The arborescence is a tree
   /// which is directed from a given source node of the digraph. One or
   /// more sources should be given for the algorithm and it will calculate
   /// the minimum cost subgraph which are union of arborescences with the
@@ -390,7 +390,7 @@ namespace lemon {
 
   public:
 
-    /// \name Named template parameters
+    /// \name Named Template Parameters
 
     /// @{
 
@@ -630,7 +630,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Execution control
+    /// \name Execution Control
     /// The simplest way to execute the algorithm is to use
     /// one of the member functions called \c run(...). \n
     /// If you need more control on the execution,

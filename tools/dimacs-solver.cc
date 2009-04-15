@@ -23,11 +23,10 @@
 /// This program solves various problems given in DIMACS format.
 ///
 /// See
-/// \verbatim
-///  dimacs-solver --help
-/// \endverbatim
+/// \code
+///   dimacs-solver --help
+/// \endcode
 /// for more info on usage.
-///
 
 #include <iostream>
 #include <fstream>

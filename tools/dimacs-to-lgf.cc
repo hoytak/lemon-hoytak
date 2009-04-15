@@ -24,11 +24,10 @@
 /// (LGF).
 ///
 /// See
-/// \verbatim
-///  dimacs-to-lgf --help
-/// \endverbatim
-/// for more info on usage.
-///
+/// \code
+///   dimacs-to-lgf --help
+/// \endcode
+/// for more info on the usage.
 
 #include <iostream>
 #include <fstream>
