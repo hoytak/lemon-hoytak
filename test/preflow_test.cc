@@ -84,18 +84,22 @@ void checkPreflowCompile()
   CapMap cap;
   FlowMap flow;
   CutMap cut;
+  VType v;
+  bool b;
 
-  Preflow<Digraph, CapMap>
-    ::SetFlowMap<FlowMap>
-    ::SetElevator<Elev>
-    ::SetStandardElevator<LinkedElev>
-    ::Create preflow_test(g,cap,n,n);
+  typedef Preflow<Digraph, CapMap>
+            ::SetFlowMap<FlowMap>
+            ::SetElevator<Elev>
+            ::SetStandardElevator<LinkedElev>
+            ::Create PreflowType;
+  PreflowType preflow_test(g, cap, n, n);
+  const PreflowType& const_preflow_test = preflow_test;
 
-  preflow_test.capacityMap(cap);
-  flow = preflow_test.flowMap();
-  preflow_test.flowMap(flow);
-  preflow_test.source(n);
-  preflow_test.target(n);
+  preflow_test
+    .capacityMap(cap)
+    .flowMap(flow)
+    .source(n)
+    .target(n);
 
   preflow_test.init();
   preflow_test.init(cap);
@@ -104,11 +108,13 @@ void checkPreflowCompile()
   preflow_test.run();
   preflow_test.runMinCut();
 
-  preflow_test.flowValue();
-  preflow_test.minCut(n);
-  preflow_test.minCutMap(cut);
-  preflow_test.flow(e);
-
+  v = const_preflow_test.flowValue();
+  v = const_preflow_test.flow(e);
+  const FlowMap& fm = const_preflow_test.flowMap();
+  b = const_preflow_test.minCut(n);
+  const_preflow_test.minCutMap(cut);
+  
+  ignore_unused_variable_warning(fm);
 }
 
 int cutValue (const SmartDigraph& g,

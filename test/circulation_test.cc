@@ -71,27 +71,34 @@ void checkCirculationCompile()
   DeltaMap delta;
   FlowMap flow;
   BarrierMap bar;
+  VType v;
+  bool b;
 
-  Circulation<Digraph, CapMap, CapMap, DeltaMap>
-    ::SetFlowMap<FlowMap>
-    ::SetElevator<Elev>
-    ::SetStandardElevator<LinkedElev>
-    ::Create circ_test(g,lcap,ucap,delta);
-
-  circ_test.lowerCapMap(lcap);
-  circ_test.upperCapMap(ucap);
-  circ_test.deltaMap(delta);
-  flow = circ_test.flowMap();
-  circ_test.flowMap(flow);
+  typedef Circulation<Digraph, CapMap, CapMap, DeltaMap>
+            ::SetFlowMap<FlowMap>
+            ::SetElevator<Elev>
+            ::SetStandardElevator<LinkedElev>
+            ::Create CirculationType;
+  CirculationType circ_test(g, lcap, ucap, delta);
+  const CirculationType& const_circ_test = circ_test;
+   
+  circ_test
+    .lowerCapMap(lcap)
+    .upperCapMap(ucap)
+    .deltaMap(delta)
+    .flowMap(flow);
 
   circ_test.init();
   circ_test.greedyInit();
   circ_test.start();
   circ_test.run();
 
-  circ_test.barrier(n);
-  circ_test.barrierMap(bar);
-  circ_test.flow(a);
+  v = const_circ_test.flow(a);
+  const FlowMap& fm = const_circ_test.flowMap();
+  b = const_circ_test.barrier(n);
+  const_circ_test.barrierMap(bar);
+  
+  ignore_unused_variable_warning(fm);
 }
 
 template <class G, class LM, class UM, class DM>

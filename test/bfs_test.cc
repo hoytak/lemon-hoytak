@@ -58,41 +58,80 @@ void checkBfsCompile()
   typedef Digraph::Arc Arc;
 
   Digraph G;
-  Node s, t;
+  Node s, t, n;
   Arc e;
-  int l;
+  int l, i;
   bool b;
   BType::DistMap d(G);
   BType::PredMap p(G);
   Path<Digraph> pp;
+  concepts::ReadMap<Node,bool> nm;
 
   {
     BType bfs_test(G);
+    const BType& const_bfs_test = bfs_test;
 
     bfs_test.run(s);
     bfs_test.run(s,t);
     bfs_test.run();
 
-    l  = bfs_test.dist(t);
-    e  = bfs_test.predArc(t);
-    s  = bfs_test.predNode(t);
-    b  = bfs_test.reached(t);
-    d  = bfs_test.distMap();
-    p  = bfs_test.predMap();
-    pp = bfs_test.path(t);
+    bfs_test.init();
+    bfs_test.addSource(s);
+    n = bfs_test.processNextNode();
+    n = bfs_test.processNextNode(t, b);
+    n = bfs_test.processNextNode(nm, n);
+    n = const_bfs_test.nextNode();
+    b = const_bfs_test.emptyQueue();
+    i = const_bfs_test.queueSize();
+    
+    bfs_test.start();
+    bfs_test.start(t);
+    bfs_test.start(nm);
+
+    l  = const_bfs_test.dist(t);
+    e  = const_bfs_test.predArc(t);
+    s  = const_bfs_test.predNode(t);
+    b  = const_bfs_test.reached(t);
+    d  = const_bfs_test.distMap();
+    p  = const_bfs_test.predMap();
+    pp = const_bfs_test.path(t);
   }
   {
     BType
       ::SetPredMap<concepts::ReadWriteMap<Node,Arc> >
       ::SetDistMap<concepts::ReadWriteMap<Node,int> >
       ::SetReachedMap<concepts::ReadWriteMap<Node,bool> >
-      ::SetProcessedMap<concepts::WriteMap<Node,bool> >
       ::SetStandardProcessedMap
+      ::SetProcessedMap<concepts::WriteMap<Node,bool> >
       ::Create bfs_test(G);
+      
+    concepts::ReadWriteMap<Node,Arc> pred_map;
+    concepts::ReadWriteMap<Node,int> dist_map;
+    concepts::ReadWriteMap<Node,bool> reached_map;
+    concepts::WriteMap<Node,bool> processed_map;
+    
+    bfs_test
+      .predMap(pred_map)
+      .distMap(dist_map)
+      .reachedMap(reached_map)
+      .processedMap(processed_map);
 
     bfs_test.run(s);
     bfs_test.run(s,t);
     bfs_test.run();
+    
+    bfs_test.init();
+    bfs_test.addSource(s);
+    n = bfs_test.processNextNode();
+    n = bfs_test.processNextNode(t, b);
+    n = bfs_test.processNextNode(nm, n);
+    n = bfs_test.nextNode();
+    b = bfs_test.emptyQueue();
+    i = bfs_test.queueSize();
+    
+    bfs_test.start();
+    bfs_test.start(t);
+    bfs_test.start(nm);
 
     l  = bfs_test.dist(t);
     e  = bfs_test.predArc(t);
