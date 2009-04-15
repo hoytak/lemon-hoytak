@@ -26,33 +26,31 @@
 
 /// \ingroup graph_properties
 /// \file
-/// \brief Euler tour
+/// \brief Euler tour iterators and a function for checking the \e Eulerian 
+/// property.
 ///
-///This file provides an Euler tour iterator and ways to check
-///if a digraph is euler.
-
+///This file provides Euler tour iterators and a function to check
+///if a (di)graph is \e Eulerian.
 
 namespace lemon {
 
-  ///Euler iterator for digraphs.
+  ///Euler tour iterator for digraphs.
 
-  /// \ingroup graph_properties
-  ///This iterator converts to the \c Arc type of the digraph and using
-  ///operator ++, it provides an Euler tour of a \e directed
-  ///graph (if there exists).
+  /// \ingroup graph_prop
+  ///This iterator provides an Euler tour (Eulerian circuit) of a \e directed
+  ///graph (if there exists) and it converts to the \c Arc type of the digraph.
   ///
-  ///For example
-  ///if the given digraph is Euler (i.e it has only one nontrivial component
-  ///and the in-degree is equal to the out-degree for all nodes),
-  ///the following code will put the arcs of \c g
-  ///to the vector \c et according to an
-  ///Euler tour of \c g.
+  ///For example, if the given digraph has an Euler tour (i.e it has only one
+  ///non-trivial component and the in-degree is equal to the out-degree 
+  ///for all nodes), then the following code will put the arcs of \c g
+  ///to the vector \c et according to an Euler tour of \c g.
   ///\code
   ///  std::vector<ListDigraph::Arc> et;
-  ///  for(DiEulerIt<ListDigraph> e(g),e!=INVALID;++e)
+  ///  for(DiEulerIt<ListDigraph> e(g); e!=INVALID; ++e)
   ///    et.push_back(e);
   ///\endcode
-  ///If \c g is not Euler then the resulted tour will not be full or closed.
+  ///If \c g has no Euler tour, then the resulted walk will not be closed
+  ///or not contain all arcs.
   ///\sa EulerIt
   template<typename GR>
   class DiEulerIt
@@ -65,18 +63,19 @@ namespace lemon {
     typedef typename GR::InArcIt InArcIt;
 
     const GR &g;
-    typename GR::template NodeMap<OutArcIt> nedge;
+    typename GR::template NodeMap<OutArcIt> narc;
     std::list<Arc> euler;
 
   public:
 
     ///Constructor
 
+    ///Constructor.
     ///\param gr A digraph.
-    ///\param start The starting point of the tour. If it is not given
-    ///       the tour will start from the first node.
+    ///\param start The starting point of the tour. If it is not given,
+    ///the tour will start from the first node that has an outgoing arc.
     DiEulerIt(const GR &gr, typename GR::Node start = INVALID)
-      : g(gr), nedge(g)
+      : g(gr), narc(g)
     {
       if (start==INVALID) {
         NodeIt n(g);
@@ -84,40 +83,45 @@ namespace lemon {
         start=n;
       }
       if (start!=INVALID) {
-        for (NodeIt n(g); n!=INVALID; ++n) nedge[n]=OutArcIt(g,n);
-        while (nedge[start]!=INVALID) {
-          euler.push_back(nedge[start]);
-          Node next=g.target(nedge[start]);
-          ++nedge[start];
+        for (NodeIt n(g); n!=INVALID; ++n) narc[n]=OutArcIt(g,n);
+        while (narc[start]!=INVALID) {
+          euler.push_back(narc[start]);
+          Node next=g.target(narc[start]);
+          ++narc[start];
           start=next;
         }
       }
     }
 
-    ///Arc Conversion
+    ///Arc conversion
     operator Arc() { return euler.empty()?INVALID:euler.front(); }
+    ///Compare with \c INVALID
     bool operator==(Invalid) { return euler.empty(); }
+    ///Compare with \c INVALID
     bool operator!=(Invalid) { return !euler.empty(); }
 
     ///Next arc of the tour
+
+    ///Next arc of the tour
+    ///
     DiEulerIt &operator++() {
       Node s=g.target(euler.front());
       euler.pop_front();
-      //This produces a warning.Strange.
-      //std::list<Arc>::iterator next=euler.begin();
       typename std::list<Arc>::iterator next=euler.begin();
-      while(nedge[s]!=INVALID) {
-        euler.insert(next,nedge[s]);
-        Node n=g.target(nedge[s]);
-        ++nedge[s];
+      while(narc[s]!=INVALID) {
+        euler.insert(next,narc[s]);
+        Node n=g.target(narc[s]);
+        ++narc[s];
         s=n;
       }
       return *this;
     }
     ///Postfix incrementation
 
+    /// Postfix incrementation.
+    ///
     ///\warning This incrementation
-    ///returns an \c Arc, not an \ref DiEulerIt, as one may
+    ///returns an \c Arc, not a \ref DiEulerIt, as one may
     ///expect.
     Arc operator++(int)
     {
@@ -127,30 +131,28 @@ namespace lemon {
     }
   };
 
-  ///Euler iterator for graphs.
+  ///Euler tour iterator for graphs.
 
   /// \ingroup graph_properties
-  ///This iterator converts to the \c Arc (or \c Edge)
-  ///type of the digraph and using
-  ///operator ++, it provides an Euler tour of an undirected
-  ///digraph (if there exists).
+  ///This iterator provides an Euler tour (Eulerian circuit) of an
+  ///\e undirected graph (if there exists) and it converts to the \c Arc
+  ///and \c Edge types of the graph.
   ///
-  ///For example
-  ///if the given digraph if Euler (i.e it has only one nontrivial component
-  ///and the degree of each node is even),
+  ///For example, if the given graph has an Euler tour (i.e it has only one 
+  ///non-trivial component and the degree of each node is even),
   ///the following code will print the arc IDs according to an
   ///Euler tour of \c g.
   ///\code
-  ///  for(EulerIt<ListGraph> e(g),e!=INVALID;++e) {
+  ///  for(EulerIt<ListGraph> e(g); e!=INVALID; ++e) {
   ///    std::cout << g.id(Edge(e)) << std::eol;
   ///  }
   ///\endcode
-  ///Although the iterator provides an Euler tour of an graph,
-  ///it still returns Arcs in order to indicate the direction of the tour.
-  ///(But Arc will convert to Edges, of course).
+  ///Although this iterator is for undirected graphs, it still returns 
+  ///arcs in order to indicate the direction of the tour.
+  ///(But arcs convert to edges, of course.)
   ///
-  ///If \c g is not Euler then the resulted tour will not be full or closed.
-  ///\sa EulerIt
+  ///If \c g has no Euler tour, then the resulted walk will not be closed
+  ///or not contain all edges.
   template<typename GR>
   class EulerIt
   {
@@ -163,7 +165,7 @@ namespace lemon {
     typedef typename GR::InArcIt InArcIt;
 
     const GR &g;
-    typename GR::template NodeMap<OutArcIt> nedge;
+    typename GR::template NodeMap<OutArcIt> narc;
     typename GR::template EdgeMap<bool> visited;
     std::list<Arc> euler;
 
@@ -171,11 +173,12 @@ namespace lemon {
 
     ///Constructor
 
-    ///\param gr An graph.
-    ///\param start The starting point of the tour. If it is not given
-    ///       the tour will start from the first node.
+    ///Constructor.
+    ///\param gr A graph.
+    ///\param start The starting point of the tour. If it is not given,
+    ///the tour will start from the first node that has an incident edge.
     EulerIt(const GR &gr, typename GR::Node start = INVALID)
-      : g(gr), nedge(g), visited(g, false)
+      : g(gr), narc(g), visited(g, false)
     {
       if (start==INVALID) {
         NodeIt n(g);
@@ -183,41 +186,43 @@ namespace lemon {
         start=n;
       }
       if (start!=INVALID) {
-        for (NodeIt n(g); n!=INVALID; ++n) nedge[n]=OutArcIt(g,n);
-        while(nedge[start]!=INVALID) {
-          euler.push_back(nedge[start]);
-          visited[nedge[start]]=true;
-          Node next=g.target(nedge[start]);
-          ++nedge[start];
+        for (NodeIt n(g); n!=INVALID; ++n) narc[n]=OutArcIt(g,n);
+        while(narc[start]!=INVALID) {
+          euler.push_back(narc[start]);
+          visited[narc[start]]=true;
+          Node next=g.target(narc[start]);
+          ++narc[start];
           start=next;
-          while(nedge[start]!=INVALID && visited[nedge[start]]) ++nedge[start];
+          while(narc[start]!=INVALID && visited[narc[start]]) ++narc[start];
         }
       }
     }
 
-    ///Arc Conversion
+    ///Arc conversion
     operator Arc() const { return euler.empty()?INVALID:euler.front(); }
-    ///Arc Conversion
+    ///Edge conversion
     operator Edge() const { return euler.empty()?INVALID:euler.front(); }
-    ///\e
+    ///Compare with \c INVALID
     bool operator==(Invalid) const { return euler.empty(); }
-    ///\e
+    ///Compare with \c INVALID
     bool operator!=(Invalid) const { return !euler.empty(); }
 
     ///Next arc of the tour
+
+    ///Next arc of the tour
+    ///
     EulerIt &operator++() {
       Node s=g.target(euler.front());
       euler.pop_front();
       typename std::list<Arc>::iterator next=euler.begin();
-
-      while(nedge[s]!=INVALID) {
-        while(nedge[s]!=INVALID && visited[nedge[s]]) ++nedge[s];
-        if(nedge[s]==INVALID) break;
+      while(narc[s]!=INVALID) {
+        while(narc[s]!=INVALID && visited[narc[s]]) ++narc[s];
+        if(narc[s]==INVALID) break;
         else {
-          euler.insert(next,nedge[s]);
-          visited[nedge[s]]=true;
-          Node n=g.target(nedge[s]);
-          ++nedge[s];
+          euler.insert(next,narc[s]);
+          visited[narc[s]]=true;
+          Node n=g.target(narc[s]);
+          ++narc[s];
           s=n;
         }
       }
@@ -226,9 +231,10 @@ namespace lemon {
 
     ///Postfix incrementation
 
-    ///\warning This incrementation
-    ///returns an \c Arc, not an \ref EulerIt, as one may
-    ///expect.
+    /// Postfix incrementation.
+    ///
+    ///\warning This incrementation returns an \c Arc (which converts to 
+    ///an \c Edge), not an \ref EulerIt, as one may expect.
     Arc operator++(int)
     {
       Arc e=*this;
@@ -238,18 +244,23 @@ namespace lemon {
   };
 
 
-  ///Checks if the graph is Eulerian
+  ///Check if the given graph is \e Eulerian
 
   /// \ingroup graph_properties
-  ///Checks if the graph is Eulerian. It works for both directed and undirected
-  ///graphs.
-  ///\note By definition, a digraph is called \e Eulerian if
-  ///and only if it is connected and the number of its incoming and outgoing
+  ///This function checks if the given graph is \e Eulerian.
+  ///It works for both directed and undirected graphs.
+  ///
+  ///By definition, a digraph is called \e Eulerian if
+  ///and only if it is connected and the number of incoming and outgoing
   ///arcs are the same for each node.
   ///Similarly, an undirected graph is called \e Eulerian if
-  ///and only if it is connected and the number of incident arcs is even
-  ///for each node. <em>Therefore, there are digraphs which are not Eulerian,
-  ///but still have an Euler tour</em>.
+  ///and only if it is connected and the number of incident edges is even
+  ///for each node.
+  ///
+  ///\note There are (di)graphs that are not Eulerian, but still have an
+  /// Euler tour, since they may contain isolated nodes.
+  ///
+  ///\sa DiEulerIt, EulerIt
   template<typename GR>
 #ifdef DOXYGEN
   bool
@@ -268,7 +279,7 @@ namespace lemon {
   {
     for(typename GR::NodeIt n(g);n!=INVALID;++n)
       if(countInArcs(g,n)!=countOutArcs(g,n)) return false;
-    return connected(Undirector<const GR>(g));
+    return connected(undirector(g));
   }
 
 }
