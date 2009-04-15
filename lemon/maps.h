@@ -2728,8 +2728,8 @@ namespace lemon {
 
   /// \brief Potential difference map
   ///
-  /// PotentialMap returns the difference between the potentials of the
-  /// source and target nodes of each arc in a digraph, i.e. it returns
+  /// PotentialDifferenceMap returns the difference between the potentials of
+  /// the source and target nodes of each arc in a digraph, i.e. it returns
   /// \code
   ///   potential[gr.target(arc)] - potential[gr.source(arc)].
   /// \endcode

@@ -206,7 +206,7 @@ namespace lemon {
 
     typedef Dfs Create;
 
-    ///\name Named template parameters
+    ///\name Named Template Parameters
 
     ///@{
 

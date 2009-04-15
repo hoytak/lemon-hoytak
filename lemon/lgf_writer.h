@@ -538,7 +538,7 @@ namespace lemon {
 
   public:
 
-    /// \name Writing rules
+    /// \name Writing Rules
     /// @{
 
     /// \brief Node map writing rule
@@ -641,7 +641,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Section captions
+    /// \name Section Captions
     /// @{
 
     /// \brief Add an additional caption to the \c \@nodes section
@@ -668,7 +668,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Skipping section
+    /// \name Skipping Section
     /// @{
 
     /// \brief Skip writing the node set
@@ -885,7 +885,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the writer
+    /// \name Execution of the Writer
     /// @{
 
     /// \brief Start the batch processing
@@ -1106,7 +1106,7 @@ namespace lemon {
 
   public:
 
-    /// \name Writing rules
+    /// \name Writing Rules
     /// @{
 
     /// \brief Node map writing rule
@@ -1255,7 +1255,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Section captions
+    /// \name Section Captions
     /// @{
 
     /// \brief Add an additional caption to the \c \@nodes section
@@ -1282,7 +1282,7 @@ namespace lemon {
       return *this;
     }
 
-    /// \name Skipping section
+    /// \name Skipping Section
     /// @{
 
     /// \brief Skip writing the node set
@@ -1499,7 +1499,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the writer
+    /// \name Execution of the Writer
     /// @{
 
     /// \brief Start the batch processing
@@ -1651,7 +1651,7 @@ namespace lemon {
 
   public:
 
-    /// \name Section writers
+    /// \name Section Writers
     /// @{
 
     /// \brief Add a section writer with line oriented writing
@@ -1718,7 +1718,7 @@ namespace lemon {
   public:
 
 
-    /// \name Execution of the writer
+    /// \name Execution of the Writer
     /// @{
 
     /// \brief Start the batch processing

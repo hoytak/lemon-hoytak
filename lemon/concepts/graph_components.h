@@ -602,7 +602,7 @@ namespace lemon {
 
       typedef IterableDigraphComponent Digraph;
 
-      /// \name Base iteration
+      /// \name Base Iteration
       ///
       /// This interface provides functions for iteration on digraph items.
       ///
@@ -654,7 +654,7 @@ namespace lemon {
 
       /// @}
 
-      /// \name Class based iteration
+      /// \name Class Based Iteration
       ///
       /// This interface provides iterator classes for digraph items.
       ///
@@ -779,7 +779,7 @@ namespace lemon {
 
       typedef IterableGraphComponent Graph;
 
-      /// \name Base iteration
+      /// \name Base Iteration
       ///
       /// This interface provides functions for iteration on edges.
       ///
@@ -818,7 +818,7 @@ namespace lemon {
 
       /// @}
 
-      /// \name Class based iteration
+      /// \name Class Based Iteration
       ///
       /// This interface provides iterator classes for edges.
       ///

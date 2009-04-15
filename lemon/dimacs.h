@@ -37,11 +37,16 @@ namespace lemon {
   /// DIMACS file type descriptor.
   struct DimacsDescriptor
   {
-    ///File type enum
-    enum Type
-      {
-        NONE, MIN, MAX, SP, MAT
-      };
+    ///\brief DIMACS file type enum
+    ///
+    ///DIMACS file type enum.
+    enum Type {
+      NONE,  ///< Undefined type.
+      MIN,   ///< DIMACS file type for minimum cost flow problems.
+      MAX,   ///< DIMACS file type for maximum flow problems.
+      SP,    ///< DIMACS file type for shostest path problems.
+      MAT    ///< DIMACS file type for plain graphs and matching problems.
+    };
     ///The file type
     Type type;
     ///The number of nodes in the graph
@@ -49,16 +54,16 @@ namespace lemon {
     ///The number of edges in the graph
     int edgeNum;
     int lineShift;
-    /// Constructor. Sets the type to NONE.
+    ///Constructor. It sets the type to \c NONE.
     DimacsDescriptor() : type(NONE) {}
   };
 
   ///Discover the type of a DIMACS file
 
-  ///It starts seeking the beginning of the file for the problem type
-  ///and size info. The found data is returned in a special struct
-  ///that can be evaluated and passed to the appropriate reader
-  ///function.
+  ///This function starts seeking the beginning of the given file for the
+  ///problem type and size info. 
+  ///The found data is returned in a special struct that can be evaluated
+  ///and passed to the appropriate reader function.
   DimacsDescriptor dimacsType(std::istream& is)
   {
     DimacsDescriptor r;
@@ -96,8 +101,7 @@ namespace lemon {
   }
 
 
-
-  /// DIMACS minimum cost flow reader function.
+  /// \brief DIMACS minimum cost flow reader function.
   ///
   /// This function reads a minimum cost flow instance from DIMACS format,
   /// i.e. from a DIMACS file having a line starting with
@@ -253,7 +257,7 @@ namespace lemon {
     }
   }
 
-  /// DIMACS maximum flow reader function.
+  /// \brief DIMACS maximum flow reader function.
   ///
   /// This function reads a maximum flow instance from DIMACS format,
   /// i.e. from a DIMACS file having a line starting with
@@ -287,7 +291,7 @@ namespace lemon {
     _readDimacs(is,g,capacity,s,t,infty,desc);
   }
 
-  /// DIMACS shortest path reader function.
+  /// \brief DIMACS shortest path reader function.
   ///
   /// This function reads a shortest path instance from DIMACS format,
   /// i.e. from a DIMACS file having a line starting with
@@ -313,7 +317,7 @@ namespace lemon {
     _readDimacs(is, g, length, s, t, 0, desc);
   }
 
-  /// DIMACS capacitated digraph reader function.
+  /// \brief DIMACS capacitated digraph reader function.
   ///
   /// This function reads an arc capacitated digraph instance from
   /// DIMACS 'max' or 'sp' format.
@@ -359,11 +363,11 @@ namespace lemon {
     g.addArc(s,t);
   }
   
-  /// DIMACS plain (di)graph reader function.
+  /// \brief DIMACS plain (di)graph reader function.
   ///
-  /// This function reads a (di)graph without any designated nodes and
-  /// maps from DIMACS format, i.e. from DIMACS files having a line
-  /// starting with
+  /// This function reads a plain (di)graph without any designated nodes
+  /// and maps (e.g. a matching instance) from DIMACS format, i.e. from 
+  /// DIMACS files having a line starting with
   /// \code
   ///   p mat
   /// \endcode

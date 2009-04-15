@@ -52,12 +52,12 @@ namespace lemon {
 
     ///Possible outcomes of an LP solving procedure
     enum SolveExitStatus {
-      ///This means that the problem has been successfully solved: either
+      /// = 0. It means that the problem has been successfully solved: either
       ///an optimal solution has been found or infeasibility/unboundedness
       ///has been proved.
       SOLVED = 0,
-      ///Any other case (including the case when some user specified
-      ///limit has been exceeded)
+      /// = 1. Any other case (including the case when some user specified
+      ///limit has been exceeded).
       UNSOLVED = 1
     };
 
@@ -71,15 +71,15 @@ namespace lemon {
 
     ///Enum for \c messageLevel() parameter
     enum MessageLevel {
-      /// no output (default value)
+      /// No output (default value).
       MESSAGE_NOTHING,
-      /// error messages only
+      /// Error messages only.
       MESSAGE_ERROR,
-      /// warnings
+      /// Warnings.
       MESSAGE_WARNING,
-      /// normal output
+      /// Normal output.
       MESSAGE_NORMAL,
-      /// verbose output
+      /// Verbose output.
       MESSAGE_VERBOSE
     };
     
@@ -1005,7 +1005,7 @@ namespace lemon {
     ///Gives back the name of the solver.
     const char* solverName() const {return _solverName();}
 
-    ///\name Build up and modify the LP
+    ///\name Build Up and Modify the LP
 
     ///@{
 
@@ -1788,15 +1788,15 @@ namespace lemon {
 
     /// The problem types for primal and dual problems
     enum ProblemType {
-      ///Feasible solution hasn't been found (but may exist).
+      /// = 0. Feasible solution hasn't been found (but may exist).
       UNDEFINED = 0,
-      ///The problem has no feasible solution
+      /// = 1. The problem has no feasible solution.
       INFEASIBLE = 1,
-      ///Feasible solution found
+      /// = 2. Feasible solution found.
       FEASIBLE = 2,
-      ///Optimal solution exists and found
+      /// = 3. Optimal solution exists and found.
       OPTIMAL = 3,
-      ///The cost function is unbounded
+      /// = 4. The cost function is unbounded.
       UNBOUNDED = 4
     };
 
@@ -1852,7 +1852,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Obtain the solution
+    ///\name Obtain the Solution
 
     ///@{
 
@@ -1974,17 +1974,16 @@ namespace lemon {
 
     /// The problem types for MIP problems
     enum ProblemType {
-      ///Feasible solution hasn't been found (but may exist).
+      /// = 0. Feasible solution hasn't been found (but may exist).
       UNDEFINED = 0,
-      ///The problem has no feasible solution
+      /// = 1. The problem has no feasible solution.
       INFEASIBLE = 1,
-      ///Feasible solution found
+      /// = 2. Feasible solution found.
       FEASIBLE = 2,
-      ///Optimal solution exists and found
+      /// = 3. Optimal solution exists and found.
       OPTIMAL = 3,
-      ///The cost function is unbounded
-      ///
-      ///The Mip or at least the relaxed problem is unbounded
+      /// = 4. The cost function is unbounded.
+      ///The Mip or at least the relaxed problem is unbounded.
       UNBOUNDED = 4
     };
 
@@ -2006,14 +2005,14 @@ namespace lemon {
 
     ///@}
 
-    ///\name Setting column type
+    ///\name Set Column Type
     ///@{
 
     ///Possible variable (column) types (e.g. real, integer, binary etc.)
     enum ColTypes {
-      ///Continuous variable (default)
+      /// = 0. Continuous variable (default).
       REAL = 0,
-      ///Integer variable
+      /// = 1. Integer variable.
       INTEGER = 1
     };
 
@@ -2034,7 +2033,7 @@ namespace lemon {
     }
     ///@}
 
-    ///\name Obtain the solution
+    ///\name Obtain the Solution
 
     ///@{
 
