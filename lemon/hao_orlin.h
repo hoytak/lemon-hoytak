@@ -31,39 +31,41 @@
 /// \ingroup min_cut
 /// \brief Implementation of the Hao-Orlin algorithm.
 ///
-/// Implementation of the Hao-Orlin algorithm class for testing network
-/// reliability.
+/// Implementation of the Hao-Orlin algorithm for finding a minimum cut 
+/// in a digraph.
 
 namespace lemon {
 
   /// \ingroup min_cut
   ///
-  /// \brief %Hao-Orlin algorithm to find a minimum cut in directed graphs.
+  /// \brief Hao-Orlin algorithm for finding a minimum cut in a digraph.
   ///
-  /// Hao-Orlin calculates a minimum cut in a directed graph
-  /// \f$D=(V,A)\f$. It takes a fixed node \f$ source \in V \f$ and
+  /// This class implements the Hao-Orlin algorithm for finding a minimum
+  /// value cut in a directed graph \f$D=(V,A)\f$. 
+  /// It takes a fixed node \f$ source \in V \f$ and
   /// consists of two phases: in the first phase it determines a
   /// minimum cut with \f$ source \f$ on the source-side (i.e. a set
-  /// \f$ X\subsetneq V \f$ with \f$ source \in X \f$ and minimal
-  /// out-degree) and in the second phase it determines a minimum cut
+  /// \f$ X\subsetneq V \f$ with \f$ source \in X \f$ and minimal outgoing
+  /// capacity) and in the second phase it determines a minimum cut
   /// with \f$ source \f$ on the sink-side (i.e. a set
-  /// \f$ X\subsetneq V \f$ with \f$ source \notin X \f$ and minimal
-  /// out-degree). Obviously, the smaller of these two cuts will be a
+  /// \f$ X\subsetneq V \f$ with \f$ source \notin X \f$ and minimal outgoing
+  /// capacity). Obviously, the smaller of these two cuts will be a
   /// minimum cut of \f$ D \f$. The algorithm is a modified
-  /// push-relabel preflow algorithm and our implementation calculates
+  /// preflow push-relabel algorithm. Our implementation calculates
   /// the minimum cut in \f$ O(n^2\sqrt{m}) \f$ time (we use the
   /// highest-label rule), or in \f$O(nm)\f$ for unit capacities. The
-  /// purpose of such algorithm is testing network reliability. For an
-  /// undirected graph you can run just the first phase of the
-  /// algorithm or you can use the algorithm of Nagamochi and Ibaraki
-  /// which solves the undirected problem in
-  /// \f$ O(nm + n^2 \log n) \f$ time: it is implemented in the
-  /// NagamochiIbaraki algorithm class.
+  /// purpose of such algorithm is e.g. testing network reliability.
   ///
-  /// \param GR The digraph class the algorithm runs on.
-  /// \param CAP An arc map of capacities which can be any numreric type.
-  /// The default type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
-  /// \param TOL Tolerance class for handling inexact computations. The
+  /// For an undirected graph you can run just the first phase of the
+  /// algorithm or you can use the algorithm of Nagamochi and Ibaraki,
+  /// which solves the undirected problem in \f$ O(nm + n^2 \log n) \f$ 
+  /// time. It is implemented in the NagamochiIbaraki algorithm class.
+  ///
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  /// \tparam CAP The type of the arc map containing the capacities,
+  /// which can be any numreric type. The default map type is
+  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \tparam TOL Tolerance class for handling inexact computations. The
   /// default tolerance type is \ref Tolerance "Tolerance<CAP::Value>".
 #ifdef DOXYGEN
   template <typename GR, typename CAP, typename TOL>
@@ -73,15 +75,20 @@ namespace lemon {
             typename TOL = Tolerance<typename CAP::Value> >
 #endif
   class HaoOrlin {
-  private:
-
+  public:
+   
+    /// The digraph type of the algorithm
     typedef GR Digraph;
+    /// The capacity map type of the algorithm
     typedef CAP CapacityMap;
+    /// The tolerance type of the algorithm
     typedef TOL Tolerance;
+
+  private:
 
     typedef typename CapacityMap::Value Value;
 
-    TEMPLATE_GRAPH_TYPEDEFS(Digraph);
+    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
     const Digraph& _graph;
     const CapacityMap* _capacity;
@@ -815,31 +822,32 @@ namespace lemon {
 
   public:
 
-    /// \name Execution control
+    /// \name Execution Control
     /// The simplest way to execute the algorithm is to use
     /// one of the member functions called \ref run().
     /// \n
-    /// If you need more control on the execution,
-    /// first you must call \ref init(), then the \ref calculateIn() or
-    /// \ref calculateOut() functions.
+    /// If you need better control on the execution,
+    /// you have to call one of the \ref init() functions first, then
+    /// \ref calculateOut() and/or \ref calculateIn().
 
     /// @{
 
-    /// \brief Initializes the internal data structures.
+    /// \brief Initialize the internal data structures.
     ///
-    /// Initializes the internal data structures. It creates
-    /// the maps, residual graph adaptors and some bucket structures
-    /// for the algorithm.
+    /// This function initializes the internal data structures. It creates
+    /// the maps and some bucket structures for the algorithm.
+    /// The first node is used as the source node for the push-relabel
+    /// algorithm.
     void init() {
       init(NodeIt(_graph));
     }
 
-    /// \brief Initializes the internal data structures.
+    /// \brief Initialize the internal data structures.
     ///
-    /// Initializes the internal data structures. It creates
-    /// the maps, residual graph adaptor and some bucket structures
-    /// for the algorithm. Node \c source  is used as the push-relabel
-    /// algorithm's source.
+    /// This function initializes the internal data structures. It creates
+    /// the maps and some bucket structures for the algorithm. 
+    /// The given node is used as the source node for the push-relabel
+    /// algorithm.
     void init(const Node& source) {
       _source = source;
 
@@ -879,31 +887,35 @@ namespace lemon {
     }
 
 
-    /// \brief Calculates a minimum cut with \f$ source \f$ on the
+    /// \brief Calculate a minimum cut with \f$ source \f$ on the
     /// source-side.
     ///
-    /// Calculates a minimum cut with \f$ source \f$ on the
+    /// This function calculates a minimum cut with \f$ source \f$ on the
     /// source-side (i.e. a set \f$ X\subsetneq V \f$ with
-    /// \f$ source \in X \f$ and minimal out-degree).
+    /// \f$ source \in X \f$ and minimal outgoing capacity).
+    ///
+    /// \pre \ref init() must be called before using this function.
     void calculateOut() {
       findMinCutOut();
     }
 
-    /// \brief Calculates a minimum cut with \f$ source \f$ on the
-    /// target-side.
+    /// \brief Calculate a minimum cut with \f$ source \f$ on the
+    /// sink-side.
     ///
-    /// Calculates a minimum cut with \f$ source \f$ on the
-    /// target-side (i.e. a set \f$ X\subsetneq V \f$ with
-    /// \f$ source \in X \f$ and minimal out-degree).
+    /// This function calculates a minimum cut with \f$ source \f$ on the
+    /// sink-side (i.e. a set \f$ X\subsetneq V \f$ with
+    /// \f$ source \notin X \f$ and minimal outgoing capacity).
+    ///
+    /// \pre \ref init() must be called before using this function.
     void calculateIn() {
       findMinCutIn();
     }
 
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm. It finds nodes \c source and \c target
-    /// arbitrarily and then calls \ref init(), \ref calculateOut()
+    /// This function runs the algorithm. It finds nodes \c source and
+    /// \c target arbitrarily and then calls \ref init(), \ref calculateOut()
     /// and \ref calculateIn().
     void run() {
       init();
@@ -911,11 +923,11 @@ namespace lemon {
       calculateIn();
     }
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm. It uses the given \c source node, finds a
-    /// proper \c target and then calls the \ref init(), \ref
-    /// calculateOut() and \ref calculateIn().
+    /// This function runs the algorithm. It uses the given \c source node, 
+    /// finds a proper \c target node and then calls the \ref init(),
+    /// \ref calculateOut() and \ref calculateIn().
     void run(const Node& s) {
       init(s);
       calculateOut();
@@ -926,32 +938,41 @@ namespace lemon {
 
     /// \name Query Functions
     /// The result of the %HaoOrlin algorithm
-    /// can be obtained using these functions.
-    /// \n
-    /// Before using these functions, either \ref run(), \ref
-    /// calculateOut() or \ref calculateIn() must be called.
+    /// can be obtained using these functions.\n
+    /// \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// should be called before using them.
 
     /// @{
 
-    /// \brief Returns the value of the minimum value cut.
+    /// \brief Return the value of the minimum cut.
     ///
-    /// Returns the value of the minimum value cut.
+    /// This function returns the value of the minimum cut.
+    ///
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// must be called before using this function.
     Value minCutValue() const {
       return _min_cut;
     }
 
 
-    /// \brief Returns a minimum cut.
+    /// \brief Return a minimum cut.
     ///
-    /// Sets \c nodeMap to the characteristic vector of a minimum
-    /// value cut: it will give a nonempty set \f$ X\subsetneq V \f$
-    /// with minimal out-degree (i.e. \c nodeMap will be true exactly
-    /// for the nodes of \f$ X \f$).  \pre nodeMap should be a
-    /// bool-valued node-map.
-    template <typename NodeMap>
-    Value minCutMap(NodeMap& nodeMap) const {
+    /// This function sets \c cutMap to the characteristic vector of a
+    /// minimum value cut: it will give a non-empty set \f$ X\subsetneq V \f$
+    /// with minimal outgoing capacity (i.e. \c cutMap will be \c true exactly
+    /// for the nodes of \f$ X \f$).
+    ///
+    /// \param cutMap A \ref concepts::WriteMap "writable" node map with
+    /// \c bool (or convertible) value type.
+    ///
+    /// \return The value of the minimum cut.
+    ///
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// must be called before using this function.
+    template <typename CutMap>
+    Value minCutMap(CutMap& cutMap) const {
       for (NodeIt it(_graph); it != INVALID; ++it) {
-        nodeMap.set(it, (*_min_cut_map)[it]);
+        cutMap.set(it, (*_min_cut_map)[it]);
       }
       return _min_cut;
     }
@@ -959,7 +980,6 @@ namespace lemon {
     /// @}
 
   }; //class HaoOrlin
-
 
 } //namespace lemon
 
