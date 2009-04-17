@@ -138,13 +138,17 @@ void checkMaxMatchingCompile()
   const_mat_test.matchingSize();
   const_mat_test.matching(e);
   const_mat_test.matching(n);
+  const MaxMatching<Graph>::MatchingMap& mmap =
+    const_mat_test.matchingMap();
+  e = mmap[n];
   const_mat_test.mate(n);
 
   MaxMatching<Graph>::Status stat = 
-    const_mat_test.decomposition(n);
+    const_mat_test.status(n);
+  const MaxMatching<Graph>::StatusMap& smap =
+    const_mat_test.statusMap();
+  stat = smap[n];
   const_mat_test.barrier(n);
-  
-  ignore_unused_variable_warning(stat);
 }
 
 void checkMaxWeightedMatchingCompile()
@@ -167,10 +171,13 @@ void checkMaxWeightedMatchingCompile()
   mat_test.start();
   mat_test.run();
   
-  const_mat_test.matchingValue();
+  const_mat_test.matchingWeight();
   const_mat_test.matchingSize();
   const_mat_test.matching(e);
   const_mat_test.matching(n);
+  const MaxWeightedMatching<Graph>::MatchingMap& mmap =
+    const_mat_test.matchingMap();
+  e = mmap[n];
   const_mat_test.mate(n);
   
   int k = 0;
@@ -201,9 +208,12 @@ void checkMaxWeightedPerfectMatchingCompile()
   mat_test.start();
   mat_test.run();
   
-  const_mat_test.matchingValue();
+  const_mat_test.matchingWeight();
   const_mat_test.matching(e);
   const_mat_test.matching(n);
+  const MaxWeightedPerfectMatching<Graph>::MatchingMap& mmap =
+    const_mat_test.matchingMap();
+  e = mmap[n];
   const_mat_test.mate(n);
   
   int k = 0;
@@ -224,9 +234,9 @@ void checkMatching(const SmartGraph& graph,
   int barrier_num = 0;
 
   for (NodeIt n(graph); n != INVALID; ++n) {
-    check(mm.decomposition(n) == MaxMatching<SmartGraph>::EVEN ||
+    check(mm.status(n) == MaxMatching<SmartGraph>::EVEN ||
           mm.matching(n) != INVALID, "Wrong Gallai-Edmonds decomposition");
-    if (mm.decomposition(n) == MaxMatching<SmartGraph>::ODD) {
+    if (mm.status(n) == MaxMatching<SmartGraph>::ODD) {
       ++barrier_num;
     } else {
       comp.insert(n);
@@ -239,16 +249,16 @@ void checkMatching(const SmartGraph& graph,
       check(e == mm.matching(graph.v(e)), "Wrong matching");
       ++num;
     }
-    check(mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::EVEN ||
-          mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::MATCHED,
+    check(mm.status(graph.u(e)) != MaxMatching<SmartGraph>::EVEN ||
+          mm.status(graph.v(e)) != MaxMatching<SmartGraph>::MATCHED,
           "Wrong Gallai-Edmonds decomposition");
 
-    check(mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::EVEN ||
-          mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::MATCHED,
+    check(mm.status(graph.v(e)) != MaxMatching<SmartGraph>::EVEN ||
+          mm.status(graph.u(e)) != MaxMatching<SmartGraph>::MATCHED,
           "Wrong Gallai-Edmonds decomposition");
 
-    if (mm.decomposition(graph.u(e)) != MaxMatching<SmartGraph>::ODD &&
-        mm.decomposition(graph.v(e)) != MaxMatching<SmartGraph>::ODD) {
+    if (mm.status(graph.u(e)) != MaxMatching<SmartGraph>::ODD &&
+        mm.status(graph.v(e)) != MaxMatching<SmartGraph>::ODD) {
       comp.join(graph.u(e), graph.v(e));
     }
   }
@@ -256,7 +266,7 @@ void checkMatching(const SmartGraph& graph,
   std::set<int> comp_root;
   int odd_comp_num = 0;
   for (NodeIt n(graph); n != INVALID; ++n) {
-    if (mm.decomposition(n) != MaxMatching<SmartGraph>::ODD) {
+    if (mm.status(n) != MaxMatching<SmartGraph>::ODD) {
       int root = comp.find(n);
       if (comp_root.find(root) == comp_root.end()) {
         comp_root.insert(root);

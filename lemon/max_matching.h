@@ -40,7 +40,7 @@ namespace lemon {
   /// \brief Maximum cardinality matching in general graphs
   ///
   /// This class implements Edmonds' alternating forest matching algorithm
-  /// for finding a maximum cardinality matching in a general graph. 
+  /// for finding a maximum cardinality matching in a general undirected graph.
   /// It can be started from an arbitrary initial matching 
   /// (the default is the empty one).
   ///
@@ -53,16 +53,17 @@ namespace lemon {
   /// a perfect matching. The number of the factor-critical components
   /// minus the number of barrier nodes is a lower bound on the
   /// unmatched nodes, and the matching is optimal if and only if this bound is
-  /// tight. This decomposition can be obtained by calling \c
-  /// decomposition() after running the algorithm.
+  /// tight. This decomposition can be obtained using \ref status() or
+  /// \ref statusMap() after running the algorithm.
   ///
-  /// \tparam GR The graph type the algorithm runs on.
+  /// \tparam GR The undirected graph type the algorithm runs on.
   template <typename GR>
   class MaxMatching {
   public:
 
     /// The graph type of the algorithm
     typedef GR Graph;
+    /// The type of the matching map
     typedef typename Graph::template NodeMap<typename Graph::Arc>
     MatchingMap;
 
@@ -84,6 +85,7 @@ namespace lemon {
       UNMATCHED = -2  ///< = -2.
     };
 
+    /// The type of the status map
     typedef typename Graph::template NodeMap<Status> StatusMap;
 
   private:
@@ -583,6 +585,14 @@ namespace lemon {
       return (*_matching)[n];
     }
 
+    /// \brief Return a const reference to the matching map.
+    ///
+    /// This function returns a const reference to a node map that stores
+    /// the matching arc (or edge) incident to each node.
+    const MatchingMap& matchingMap() const {
+      return *_matching;
+    }
+
     /// \brief Return the mate of the given node.
     ///
     /// This function returns the mate of the given node in the current 
@@ -605,8 +615,17 @@ namespace lemon {
     ///
     /// This function returns the \ref Status "status" of the given node
     /// in the Edmonds-Gallai decomposition.
-    Status decomposition(const Node& n) const {
+    Status status(const Node& n) const {
       return (*_status)[n];
+    }
+
+    /// \brief Return a const reference to the status map, which stores
+    /// the Edmonds-Gallai decomposition.
+    ///
+    /// This function returns a const reference to a node map that stores the
+    /// \ref Status "status" of each node in the Edmonds-Gallai decomposition.
+    const StatusMap& statusMap() const {
+      return *_status;
     }
 
     /// \brief Return \c true if the given node is in the barrier.
@@ -662,7 +681,7 @@ namespace lemon {
   /// If the value type is integer, then the dual solution is multiplied
   /// by \ref MaxWeightedMatching::dualScale "4".
   ///
-  /// \tparam GR The graph type the algorithm runs on.
+  /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is 
   /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<int>".
 #ifdef DOXYGEN
@@ -681,6 +700,7 @@ namespace lemon {
     /// The value type of the edge weights
     typedef typename WeightMap::Value Value;
 
+    /// The type of the matching map
     typedef typename Graph::template NodeMap<typename Graph::Arc>
     MatchingMap;
 
@@ -1829,7 +1849,7 @@ namespace lemon {
     /// This function returns the weight of the found matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
-    Value matchingValue() const {
+    Value matchingWeight() const {
       Value sum = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
         if ((*_matching)[n] != INVALID) {
@@ -1873,6 +1893,14 @@ namespace lemon {
     /// \pre Either run() or start() must be called before using this function.
     Arc matching(const Node& node) const {
       return (*_matching)[node];
+    }
+
+    /// \brief Return a const reference to the matching map.
+    ///
+    /// This function returns a const reference to a node map that stores
+    /// the matching arc (or edge) incident to each node.
+    const MatchingMap& matchingMap() const {
+      return *_matching;
     }
 
     /// \brief Return the mate of the given node.
@@ -2050,7 +2078,7 @@ namespace lemon {
   /// If the value type is integer, then the dual solution is multiplied
   /// by \ref MaxWeightedMatching::dualScale "4".
   ///
-  /// \tparam GR The graph type the algorithm runs on.
+  /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is 
   /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<int>".
 #ifdef DOXYGEN
@@ -2076,6 +2104,7 @@ namespace lemon {
     static const int dualScale =
       std::numeric_limits<Value>::is_integer ? 4 : 1;
 
+    /// The type of the matching map
     typedef typename Graph::template NodeMap<typename Graph::Arc>
     MatchingMap;
 
@@ -3038,7 +3067,7 @@ namespace lemon {
     /// This function returns the weight of the found matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
-    Value matchingValue() const {
+    Value matchingWeight() const {
       Value sum = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
         if ((*_matching)[n] != INVALID) {
@@ -3067,6 +3096,14 @@ namespace lemon {
     /// \pre Either run() or start() must be called before using this function.
     Arc matching(const Node& node) const {
       return (*_matching)[node];
+    }
+
+    /// \brief Return a const reference to the matching map.
+    ///
+    /// This function returns a const reference to a node map that stores
+    /// the matching arc (or edge) incident to each node.
+    const MatchingMap& matchingMap() const {
+      return *_matching;
     }
 
     /// \brief Return the mate of the given node.
