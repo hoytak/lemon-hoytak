@@ -30,6 +30,9 @@
 
 #include <lemon/core.h>
 #include <lemon/math.h>
+#include <lemon/maps.h>
+#include <lemon/circulation.h>
+#include <lemon/adaptors.h>
 
 namespace lemon {
 
@@ -47,6 +50,8 @@ namespace lemon {
   ///
   /// In general this class is the fastest implementation available
   /// in LEMON for the minimum cost flow problem.
+  /// Moreover it supports both direction of the supply/demand inequality
+  /// constraints. For more information see \ref ProblemType.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
   /// \tparam F The value type used for flow amounts, capacity bounds
@@ -58,7 +63,8 @@ namespace lemon {
   /// be integer.
   ///
   /// \note %NetworkSimplex provides five different pivot rule
-  /// implementations. For more information see \ref PivotRule.
+  /// implementations, from which the most efficient one is used
+  /// by default. For more information see \ref PivotRule.
   template <typename GR, typename F = int, typename C = F>
   class NetworkSimplex
   {
@@ -68,10 +74,17 @@ namespace lemon {
     typedef F Flow;
     /// The cost type of the algorithm
     typedef C Cost;
+#ifdef DOXYGEN
+    /// The type of the flow map
+    typedef GR::ArcMap<Flow> FlowMap;
+    /// The type of the potential map
+    typedef GR::NodeMap<Cost> PotentialMap;
+#else
     /// The type of the flow map
     typedef typename GR::template ArcMap<Flow> FlowMap;
     /// The type of the potential map
     typedef typename GR::template NodeMap<Cost> PotentialMap;
+#endif
 
   public:
 
@@ -117,6 +130,58 @@ namespace lemon {
       /// candidate list and extends this list in every iteration.
       ALTERING_LIST
     };
+    
+    /// \brief Enum type for selecting the problem type.
+    ///
+    /// Enum type for selecting the problem type, i.e. the direction of
+    /// the inequalities in the supply/demand constraints of the
+    /// \ref min_cost_flow "minimum cost flow problem".
+    ///
+    /// The default problem type is \c GEQ, since this form is supported
+    /// by other minimum cost flow algorithms and the \ref Circulation
+    /// algorithm as well.
+    /// The \c LEQ problem type can be selected using the \ref problemType()
+    /// function.
+    ///
+    /// Note that the equality form is a special case of both problem type.
+    enum ProblemType {
+
+      /// This option means that there are "<em>greater or equal</em>"
+      /// constraints in the defintion, i.e. the exact formulation of the
+      /// problem is the following.
+      /**
+          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
+          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \geq
+              sup(u) \quad \forall u\in V \f]
+          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
+      */
+      /// It means that the total demand must be greater or equal to the 
+      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
+      /// negative) and all the supplies have to be carried out from 
+      /// the supply nodes, but there could be demands that are not 
+      /// satisfied.
+      GEQ,
+      /// It is just an alias for the \c GEQ option.
+      CARRY_SUPPLIES = GEQ,
+
+      /// This option means that there are "<em>less or equal</em>"
+      /// constraints in the defintion, i.e. the exact formulation of the
+      /// problem is the following.
+      /**
+          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
+          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \leq
+              sup(u) \quad \forall u\in V \f]
+          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
+      */
+      /// It means that the total demand must be less or equal to the 
+      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
+      /// positive) and all the demands have to be satisfied, but there
+      /// could be supplies that are not carried out from the supply
+      /// nodes.
+      LEQ,
+      /// It is just an alias for the \c LEQ option.
+      SATISFY_DEMANDS = LEQ
+    };
 
   private:
 
@@ -155,6 +220,7 @@ namespace lemon {
     bool _pstsup;
     Node _psource, _ptarget;
     Flow _pstflow;
+    ProblemType _ptype;
 
     // Result maps
     FlowMap *_flow_map;
@@ -586,13 +652,13 @@ namespace lemon {
 
     /// \brief Constructor.
     ///
-    /// Constructor.
+    /// The constructor of the class.
     ///
     /// \param graph The digraph the algorithm runs on.
     NetworkSimplex(const GR& graph) :
       _graph(graph),
       _plower(NULL), _pupper(NULL), _pcost(NULL),
-      _psupply(NULL), _pstsup(false),
+      _psupply(NULL), _pstsup(false), _ptype(GEQ),
       _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
       _node_id(graph)
@@ -610,6 +676,12 @@ namespace lemon {
       if (_local_flow) delete _flow_map;
       if (_local_potential) delete _potential_map;
     }
+
+    /// \name Parameters
+    /// The parameters of the algorithm can be specified using these
+    /// functions.
+
+    /// @{
 
     /// \brief Set the lower bounds on the arcs.
     ///
@@ -760,6 +832,20 @@ namespace lemon {
       _pstflow = k;
       return *this;
     }
+    
+    /// \brief Set the problem type.
+    ///
+    /// This function sets the problem type for the algorithm.
+    /// If it is not used before calling \ref run(), the \ref GEQ problem
+    /// type will be used.
+    ///
+    /// For more information see \ref ProblemType.
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& problemType(ProblemType problem_type) {
+      _ptype = problem_type;
+      return *this;
+    }
 
     /// \brief Set the flow map.
     ///
@@ -795,6 +881,8 @@ namespace lemon {
       _potential_map = &map;
       return *this;
     }
+    
+    /// @}
 
     /// \name Execution Control
     /// The algorithm can be executed using \ref run().
@@ -804,10 +892,11 @@ namespace lemon {
     /// \brief Run the algorithm.
     ///
     /// This function runs the algorithm.
-    /// The paramters can be specified using \ref lowerMap(),
+    /// The paramters can be specified using functions \ref lowerMap(),
     /// \ref upperMap(), \ref capacityMap(), \ref boundMaps(),
-    /// \ref costMap(), \ref supplyMap() and \ref stSupply()
-    /// functions. For example,
+    /// \ref costMap(), \ref supplyMap(), \ref stSupply(), 
+    /// \ref problemType(), \ref flowMap() and \ref potentialMap().
+    /// For example,
     /// \code
     ///   NetworkSimplex<ListDigraph> ns(graph);
     ///   ns.boundMaps(lower, upper).costMap(cost)
@@ -830,9 +919,10 @@ namespace lemon {
     /// \brief Reset all the parameters that have been given before.
     ///
     /// This function resets all the paramaters that have been given
-    /// using \ref lowerMap(), \ref upperMap(), \ref capacityMap(),
-    /// \ref boundMaps(), \ref costMap(), \ref supplyMap() and
-    /// \ref stSupply() functions before.
+    /// before using functions \ref lowerMap(), \ref upperMap(),
+    /// \ref capacityMap(), \ref boundMaps(), \ref costMap(),
+    /// \ref supplyMap(), \ref stSupply(), \ref problemType(), 
+    /// \ref flowMap() and \ref potentialMap().
     ///
     /// It is useful for multiple run() calls. If this function is not
     /// used, all the parameters given before are kept for the next
@@ -869,6 +959,14 @@ namespace lemon {
       _pcost = NULL;
       _psupply = NULL;
       _pstsup = false;
+      _ptype = GEQ;
+      if (_local_flow) delete _flow_map;
+      if (_local_potential) delete _potential_map;
+      _flow_map = NULL;
+      _potential_map = NULL;
+      _local_flow = false;
+      _local_potential = false;
+
       return *this;
     }
 
@@ -1000,20 +1098,21 @@ namespace lemon {
 
       // Initialize node related data
       bool valid_supply = true;
+      Flow sum_supply = 0;
       if (!_pstsup && !_psupply) {
         _pstsup = true;
         _psource = _ptarget = NodeIt(_graph);
         _pstflow = 0;
       }
       if (_psupply) {
-        Flow sum = 0;
         int i = 0;
         for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
           _node_id[n] = i;
           _supply[i] = (*_psupply)[n];
-          sum += _supply[i];
+          sum_supply += _supply[i];
         }
-        valid_supply = (sum == 0);
+        valid_supply = (_ptype == GEQ && sum_supply <= 0) ||
+                       (_ptype == LEQ && sum_supply >= 0);
       } else {
         int i = 0;
         for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
@@ -1021,9 +1120,94 @@ namespace lemon {
           _supply[i] = 0;
         }
         _supply[_node_id[_psource]] =  _pstflow;
-        _supply[_node_id[_ptarget]]   = -_pstflow;
+        _supply[_node_id[_ptarget]] = -_pstflow;
       }
       if (!valid_supply) return false;
+
+      // Infinite capacity value
+      Flow inf_cap =
+        std::numeric_limits<Flow>::has_infinity ?
+        std::numeric_limits<Flow>::infinity() :
+        std::numeric_limits<Flow>::max();
+
+      // Initialize artifical cost
+      Cost art_cost;
+      if (std::numeric_limits<Cost>::is_exact) {
+        art_cost = std::numeric_limits<Cost>::max() / 4 + 1;
+      } else {
+        art_cost = std::numeric_limits<Cost>::min();
+        for (int i = 0; i != _arc_num; ++i) {
+          if (_cost[i] > art_cost) art_cost = _cost[i];
+        }
+        art_cost = (art_cost + 1) * _node_num;
+      }
+
+      // Run Circulation to check if a feasible solution exists
+      typedef ConstMap<Arc, Flow> ConstArcMap;
+      FlowNodeMap *csup = NULL;
+      bool local_csup = false;
+      if (_psupply) {
+        csup = _psupply;
+      } else {
+        csup = new FlowNodeMap(_graph, 0);
+        (*csup)[_psource] =  _pstflow;
+        (*csup)[_ptarget] = -_pstflow;
+        local_csup = true;
+      }
+      bool circ_result = false;
+      if (_ptype == GEQ || (_ptype == LEQ && sum_supply == 0)) {
+        // GEQ problem type
+        if (_plower) {
+          if (_pupper) {
+            Circulation<GR, FlowArcMap, FlowArcMap, FlowNodeMap>
+              circ(_graph, *_plower, *_pupper, *csup);
+            circ_result = circ.run();
+          } else {
+            Circulation<GR, FlowArcMap, ConstArcMap, FlowNodeMap>
+              circ(_graph, *_plower, ConstArcMap(inf_cap), *csup);
+            circ_result = circ.run();
+          }
+        } else {
+          if (_pupper) {
+            Circulation<GR, ConstArcMap, FlowArcMap, FlowNodeMap>
+              circ(_graph, ConstArcMap(0), *_pupper, *csup);
+            circ_result = circ.run();
+          } else {
+            Circulation<GR, ConstArcMap, ConstArcMap, FlowNodeMap>
+              circ(_graph, ConstArcMap(0), ConstArcMap(inf_cap), *csup);
+            circ_result = circ.run();
+          }
+        }
+      } else {
+        // LEQ problem type
+        typedef ReverseDigraph<const GR> RevGraph;
+        typedef NegMap<FlowNodeMap> NegNodeMap;
+        RevGraph rgraph(_graph);
+        NegNodeMap neg_csup(*csup);
+        if (_plower) {
+          if (_pupper) {
+            Circulation<RevGraph, FlowArcMap, FlowArcMap, NegNodeMap>
+              circ(rgraph, *_plower, *_pupper, neg_csup);
+            circ_result = circ.run();
+          } else {
+            Circulation<RevGraph, FlowArcMap, ConstArcMap, NegNodeMap>
+              circ(rgraph, *_plower, ConstArcMap(inf_cap), neg_csup);
+            circ_result = circ.run();
+          }
+        } else {
+          if (_pupper) {
+            Circulation<RevGraph, ConstArcMap, FlowArcMap, NegNodeMap>
+              circ(rgraph, ConstArcMap(0), *_pupper, neg_csup);
+            circ_result = circ.run();
+          } else {
+            Circulation<RevGraph, ConstArcMap, ConstArcMap, NegNodeMap>
+              circ(rgraph, ConstArcMap(0), ConstArcMap(inf_cap), neg_csup);
+            circ_result = circ.run();
+          }
+        }
+      }
+      if (local_csup) delete csup;
+      if (!circ_result) return false;
 
       // Set data for the artificial root node
       _root = _node_num;
@@ -1033,8 +1217,12 @@ namespace lemon {
       _rev_thread[0] = _root;
       _succ_num[_root] = all_node_num;
       _last_succ[_root] = _root - 1;
-      _supply[_root] = 0;
-      _pi[_root] = 0;
+      _supply[_root] = -sum_supply;
+      if (sum_supply < 0) {
+        _pi[_root] = -art_cost;
+      } else {
+        _pi[_root] = art_cost;
+      }
 
       // Store the arcs in a mixed order
       int k = std::max(int(sqrt(_arc_num)), 10);
@@ -1045,10 +1233,6 @@ namespace lemon {
       }
 
       // Initialize arc maps
-      Flow inf_cap =
-        std::numeric_limits<Flow>::has_infinity ?
-        std::numeric_limits<Flow>::infinity() :
-        std::numeric_limits<Flow>::max();
       if (_pupper && _pcost) {
         for (int i = 0; i != _arc_num; ++i) {
           Arc e = _arc_ref[i];
@@ -1083,18 +1267,6 @@ namespace lemon {
         }
       }
       
-      // Initialize artifical cost
-      Cost art_cost;
-      if (std::numeric_limits<Cost>::is_exact) {
-        art_cost = std::numeric_limits<Cost>::max() / 4 + 1;
-      } else {
-        art_cost = std::numeric_limits<Cost>::min();
-        for (int i = 0; i != _arc_num; ++i) {
-          if (_cost[i] > art_cost) art_cost = _cost[i];
-        }
-        art_cost = (art_cost + 1) * _node_num;
-      }
-
       // Remove non-zero lower bounds
       if (_plower) {
         for (int i = 0; i != _arc_num; ++i) {
@@ -1118,14 +1290,14 @@ namespace lemon {
         _cost[e] = art_cost;
         _cap[e] = inf_cap;
         _state[e] = STATE_TREE;
-        if (_supply[u] >= 0) {
+        if (_supply[u] > 0 || (_supply[u] == 0 && sum_supply <= 0)) {
           _flow[e] = _supply[u];
           _forward[u] = true;
-          _pi[u] = -art_cost;
+          _pi[u] = -art_cost + _pi[_root];
         } else {
           _flow[e] = -_supply[u];
           _forward[u] = false;
-          _pi[u] = art_cost;
+          _pi[u] = art_cost + _pi[_root];
         }
       }
 
@@ -1380,11 +1552,6 @@ namespace lemon {
           updateTreeStructure();
           updatePotential();
         }
-      }
-
-      // Check if the flow amount equals zero on all the artificial arcs
-      for (int e = _arc_num; e != _arc_num + _node_num; ++e) {
-        if (_flow[e] > 0) return false;
       }
 
       // Copy flow values to _flow_map
