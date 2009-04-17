@@ -46,18 +46,18 @@ namespace lemon {
     typedef CM CapacityMap;
 
     /// \brief The type of the flow values.
-    typedef typename CapacityMap::Value Value;
+    typedef typename CapacityMap::Value Flow;
 
     /// \brief The type of the map that stores the flow values.
     ///
     /// The type of the map that stores the flow values.
     /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
-    typedef typename Digraph::template ArcMap<Value> FlowMap;
+    typedef typename Digraph::template ArcMap<Flow> FlowMap;
 
     /// \brief Instantiates a FlowMap.
     ///
     /// This function instantiates a \ref FlowMap.
-    /// \param digraph The digraph, to which we would like to define
+    /// \param digraph The digraph for which we would like to define
     /// the flow map.
     static FlowMap* createFlowMap(const Digraph& digraph) {
       return new FlowMap(digraph);
@@ -74,7 +74,7 @@ namespace lemon {
     /// \brief Instantiates an Elevator.
     ///
     /// This function instantiates an \ref Elevator.
-    /// \param digraph The digraph, to which we would like to define
+    /// \param digraph The digraph for which we would like to define
     /// the elevator.
     /// \param max_level The maximum level of the elevator.
     static Elevator* createElevator(const Digraph& digraph, int max_level) {
@@ -84,7 +84,7 @@ namespace lemon {
     /// \brief The tolerance used by the algorithm
     ///
     /// The tolerance used by the algorithm to handle inexact computation.
-    typedef lemon::Tolerance<Value> Tolerance;
+    typedef lemon::Tolerance<Flow> Tolerance;
 
   };
 
@@ -124,7 +124,7 @@ namespace lemon {
     ///The type of the capacity map.
     typedef typename Traits::CapacityMap CapacityMap;
     ///The type of the flow values.
-    typedef typename Traits::Value Value;
+    typedef typename Traits::Flow Flow;
 
     ///The type of the flow map.
     typedef typename Traits::FlowMap FlowMap;
@@ -150,7 +150,7 @@ namespace lemon {
     Elevator* _level;
     bool _local_level;
 
-    typedef typename Digraph::template NodeMap<Value> ExcessMap;
+    typedef typename Digraph::template NodeMap<Flow> ExcessMap;
     ExcessMap* _excess;
 
     Tolerance _tolerance;
@@ -469,7 +469,7 @@ namespace lemon {
       }
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        Value excess = 0;
+        Flow excess = 0;
         for (InArcIt e(_graph, n); e != INVALID; ++e) {
           excess += (*_flow)[e];
         }
@@ -518,7 +518,7 @@ namespace lemon {
       _level->initFinish();
 
       for (OutArcIt e(_graph, _source); e != INVALID; ++e) {
-        Value rem = (*_capacity)[e] - (*_flow)[e];
+        Flow rem = (*_capacity)[e] - (*_flow)[e];
         if (_tolerance.positive(rem)) {
           Node u = _graph.target(e);
           if ((*_level)[u] == _level->maxLevel()) continue;
@@ -530,7 +530,7 @@ namespace lemon {
         }
       }
       for (InArcIt e(_graph, _source); e != INVALID; ++e) {
-        Value rem = (*_flow)[e];
+        Flow rem = (*_flow)[e];
         if (_tolerance.positive(rem)) {
           Node v = _graph.source(e);
           if ((*_level)[v] == _level->maxLevel()) continue;
@@ -563,11 +563,11 @@ namespace lemon {
         int num = _node_num;
 
         while (num > 0 && n != INVALID) {
-          Value excess = (*_excess)[n];
+          Flow excess = (*_excess)[n];
           int new_level = _level->maxLevel();
 
           for (OutArcIt e(_graph, n); e != INVALID; ++e) {
-            Value rem = (*_capacity)[e] - (*_flow)[e];
+            Flow rem = (*_capacity)[e] - (*_flow)[e];
             if (!_tolerance.positive(rem)) continue;
             Node v = _graph.target(e);
             if ((*_level)[v] < level) {
@@ -590,7 +590,7 @@ namespace lemon {
           }
 
           for (InArcIt e(_graph, n); e != INVALID; ++e) {
-            Value rem = (*_flow)[e];
+            Flow rem = (*_flow)[e];
             if (!_tolerance.positive(rem)) continue;
             Node v = _graph.source(e);
             if ((*_level)[v] < level) {
@@ -636,11 +636,11 @@ namespace lemon {
 
         num = _node_num * 20;
         while (num > 0 && n != INVALID) {
-          Value excess = (*_excess)[n];
+          Flow excess = (*_excess)[n];
           int new_level = _level->maxLevel();
 
           for (OutArcIt e(_graph, n); e != INVALID; ++e) {
-            Value rem = (*_capacity)[e] - (*_flow)[e];
+            Flow rem = (*_capacity)[e] - (*_flow)[e];
             if (!_tolerance.positive(rem)) continue;
             Node v = _graph.target(e);
             if ((*_level)[v] < level) {
@@ -663,7 +663,7 @@ namespace lemon {
           }
 
           for (InArcIt e(_graph, n); e != INVALID; ++e) {
-            Value rem = (*_flow)[e];
+            Flow rem = (*_flow)[e];
             if (!_tolerance.positive(rem)) continue;
             Node v = _graph.source(e);
             if ((*_level)[v] < level) {
@@ -777,12 +777,12 @@ namespace lemon {
 
       Node n;
       while ((n = _level->highestActive()) != INVALID) {
-        Value excess = (*_excess)[n];
+        Flow excess = (*_excess)[n];
         int level = _level->highestActiveLevel();
         int new_level = _level->maxLevel();
 
         for (OutArcIt e(_graph, n); e != INVALID; ++e) {
-          Value rem = (*_capacity)[e] - (*_flow)[e];
+          Flow rem = (*_capacity)[e] - (*_flow)[e];
           if (!_tolerance.positive(rem)) continue;
           Node v = _graph.target(e);
           if ((*_level)[v] < level) {
@@ -805,7 +805,7 @@ namespace lemon {
         }
 
         for (InArcIt e(_graph, n); e != INVALID; ++e) {
-          Value rem = (*_flow)[e];
+          Flow rem = (*_flow)[e];
           if (!_tolerance.positive(rem)) continue;
           Node v = _graph.source(e);
           if ((*_level)[v] < level) {
@@ -896,7 +896,7 @@ namespace lemon {
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    Value flowValue() const {
+    Flow flowValue() const {
       return (*_excess)[_target];
     }
 
@@ -907,7 +907,7 @@ namespace lemon {
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    Value flow(const Arc& arc) const {
+    Flow flow(const Arc& arc) const {
       return (*_flow)[arc];
     }
 
