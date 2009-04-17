@@ -22,7 +22,7 @@
 #include <queue>
 #include <cstdlib>
 
-#include <lemon/max_matching.h>
+#include <lemon/matching.h>
 #include <lemon/smart_graph.h>
 #include <lemon/concepts/graph.h>
 #include <lemon/concepts/maps.h>
