@@ -111,30 +111,24 @@ int main() {
     ho.run();
     ho.minCutMap(cut);
     
-    // BUG: The cut value should be positive
-    check(ho.minCutValue() == 0, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(graph, cap1, cut), "Wrong cut value");
+    check(ho.minCutValue() == 1, "Wrong cut value");
+    check(ho.minCutValue() == cutValue(graph, cap1, cut), "Wrong cut value");
   }
   {
     HaoOrlin<SmartDigraph> ho(graph, cap2);
     ho.run();
     ho.minCutMap(cut);
-    
-    // BUG: The cut value should be positive
-    check(ho.minCutValue() == 0, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(graph, cap2, cut), "Wrong cut value");
+
+    check(ho.minCutValue() == 1, "Wrong cut value");
+    check(ho.minCutValue() == cutValue(graph, cap2, cut), "Wrong cut value");
   }
   {
     HaoOrlin<SmartDigraph> ho(graph, cap3);
     ho.run();
     ho.minCutMap(cut);
     
-    // BUG: The cut value should be positive
-    check(ho.minCutValue() == 0, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(graph, cap3, cut), "Wrong cut value");
+    check(ho.minCutValue() == 1, "Wrong cut value");
+    check(ho.minCutValue() == cutValue(graph, cap3, cut), "Wrong cut value");
   }
   
   typedef Undirector<SmartDigraph> UGraph;
@@ -145,30 +139,24 @@ int main() {
     ho.run();
     ho.minCutMap(cut);
     
-    // BUG: The cut value should be 2
-    check(ho.minCutValue() == 1, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(ugraph, cap1, cut), "Wrong cut value");
+    check(ho.minCutValue() == 2, "Wrong cut value");
+    check(ho.minCutValue() == cutValue(ugraph, cap1, cut), "Wrong cut value");
   }
   {
     HaoOrlin<UGraph, SmartDigraph::ArcMap<int> > ho(ugraph, cap2);
     ho.run();
     ho.minCutMap(cut);
     
-    // TODO: Check this cut value
-    check(ho.minCutValue() == 4, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(ugraph, cap2, cut), "Wrong cut value");
+    check(ho.minCutValue() == 5, "Wrong cut value");
+    check(ho.minCutValue() == cutValue(ugraph, cap2, cut), "Wrong cut value");
   }
   {
     HaoOrlin<UGraph, SmartDigraph::ArcMap<int> > ho(ugraph, cap3);
     ho.run();
     ho.minCutMap(cut);
     
-    // TODO: Check this cut value
     check(ho.minCutValue() == 5, "Wrong cut value");
-    // BUG: It should work
-    //check(ho.minCutValue() == cutValue(ugraph, cap3, cut), "Wrong cut value");
+    check(ho.minCutValue() == cutValue(ugraph, cap3, cut), "Wrong cut value");
   }
 
   return 0;

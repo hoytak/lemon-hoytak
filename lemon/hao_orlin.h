@@ -226,6 +226,7 @@ namespace lemon {
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
         (*_excess)[n] = 0;
+        (*_source_set)[n] = false;
       }
 
       for (ArcIt a(_graph); a != INVALID; ++a) {
@@ -525,6 +526,7 @@ namespace lemon {
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
         (*_excess)[n] = 0;
+        (*_source_set)[n] = false;
       }
 
       for (ArcIt a(_graph); a != INVALID; ++a) {
