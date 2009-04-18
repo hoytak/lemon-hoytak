@@ -101,23 +101,23 @@ namespace lemon {
       }
     };
 
-    template <typename _Graph, bool _dir, typename _Map,
+    template <typename _GR, bool _dir, typename _Map,
               typename _Converter = DefaultConverter<typename _Map::Value> >
-    class GraphArcMapStorage : public MapStorageBase<typename _Graph::Edge> {
+    class GraphArcMapStorage : public MapStorageBase<typename _GR::Edge> {
     public:
       typedef _Map Map;
       typedef _Converter Converter;
-      typedef _Graph Graph;
-      typedef typename Graph::Edge Item;
+      typedef _GR GR;
+      typedef typename GR::Edge Item;
       static const bool dir = _dir;
 
     private:
-      const Graph& _graph;
+      const GR& _graph;
       Map& _map;
       Converter _converter;
 
     public:
-      GraphArcMapStorage(const Graph& graph, Map& map,
+      GraphArcMapStorage(const GR& graph, Map& map,
                          const Converter& converter = Converter())
         : _graph(graph), _map(map), _converter(converter) {}
       virtual ~GraphArcMapStorage() {}
@@ -173,21 +173,21 @@ namespace lemon {
       }
     };
 
-    template <typename Graph>
+    template <typename GR>
     struct GraphArcLookUpConverter {
-      const Graph& _graph;
-      const std::map<std::string, typename Graph::Edge>& _map;
+      const GR& _graph;
+      const std::map<std::string, typename GR::Edge>& _map;
 
-      GraphArcLookUpConverter(const Graph& graph,
+      GraphArcLookUpConverter(const GR& graph,
                               const std::map<std::string,
-                                             typename Graph::Edge>& map)
+                                             typename GR::Edge>& map)
         : _graph(graph), _map(map) {}
 
-      typename Graph::Arc operator()(const std::string& str) {
+      typename GR::Arc operator()(const std::string& str) {
         if (str.empty() || (str[0] != '+' && str[0] != '-')) {
           throw FormatError("Item must start with '+' or '-'");
         }
-        typename std::map<std::string, typename Graph::Edge>
+        typename std::map<std::string, typename GR::Edge>
           ::const_iterator it = _map.find(str.substr(1));
         if (it == _map.end()) {
           throw FormatError("Item not found");
@@ -387,16 +387,15 @@ namespace lemon {
 
   }
 
-  template <typename Digraph>
+  template <typename DGR>
   class DigraphReader;
 
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, 
-                                       std::istream& is = std::cin);
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const std::string& fn);
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const char *fn);
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, std::istream& is = std::cin);
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, const std::string& fn);
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, const char *fn);
 
   /// \ingroup lemon_io
   ///
@@ -419,7 +418,7 @@ namespace lemon {
   /// rules.
   ///
   ///\code
-  /// DigraphReader<Digraph>(digraph, std::cin).
+  /// DigraphReader<DGR>(digraph, std::cin).
   ///   nodeMap("coordinates", coord_map).
   ///   arcMap("capacity", cap_map).
   ///   node("source", src).
@@ -448,21 +447,21 @@ namespace lemon {
   /// It is impossible to read this in
   /// a single pass, because the arcs are not constructed when the node
   /// maps are read.
-  template <typename GR>
+  template <typename DGR>
   class DigraphReader {
   public:
 
-    typedef GR Digraph;
+    typedef DGR Digraph;
 
   private:
 
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+    TEMPLATE_DIGRAPH_TYPEDEFS(DGR);
 
     std::istream* _is;
     bool local_is;
     std::string _filename;
 
-    Digraph& _digraph;
+    DGR& _digraph;
 
     std::string _nodes_caption;
     std::string _arcs_caption;
@@ -500,7 +499,7 @@ namespace lemon {
     ///
     /// Construct a directed graph reader, which reads from the given
     /// input stream.
-    DigraphReader(Digraph& digraph, std::istream& is = std::cin)
+    DigraphReader(DGR& digraph, std::istream& is = std::cin)
       : _is(&is), local_is(false), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
         _skip_nodes(false), _skip_arcs(false) {}
@@ -509,7 +508,7 @@ namespace lemon {
     ///
     /// Construct a directed graph reader, which reads from the given
     /// file.
-    DigraphReader(Digraph& digraph, const std::string& fn)
+    DigraphReader(DGR& digraph, const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true),
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
@@ -524,7 +523,7 @@ namespace lemon {
     ///
     /// Construct a directed graph reader, which reads from the given
     /// file.
-    DigraphReader(Digraph& digraph, const char* fn)
+    DigraphReader(DGR& digraph, const char* fn)
       : _is(new std::ifstream(fn)), local_is(true),
         _filename(fn), _digraph(digraph),
         _use_nodes(false), _use_arcs(false),
@@ -560,13 +559,13 @@ namespace lemon {
 
   private:
 
-    template <typename DGR>
-    friend DigraphReader<DGR> digraphReader(DGR& digraph, std::istream& is);
-    template <typename DGR>
-    friend DigraphReader<DGR> digraphReader(DGR& digraph, 
-                                            const std::string& fn);
-    template <typename DGR>
-    friend DigraphReader<DGR> digraphReader(DGR& digraph, const char *fn);
+    template <typename TDGR>
+    friend DigraphReader<TDGR> digraphReader(TDGR& digraph, std::istream& is);
+    template <typename TDGR>
+    friend DigraphReader<TDGR> digraphReader(TDGR& digraph, 
+                                             const std::string& fn);
+    template <typename TDGR>
+    friend DigraphReader<TDGR> digraphReader(TDGR& digraph, const char *fn);
 
     DigraphReader(DigraphReader& other)
       : _is(other._is), local_is(other.local_is), _digraph(other._digraph),
@@ -1188,14 +1187,41 @@ namespace lemon {
     /// @}
 
   };
-
+  
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref DigraphReader class
   ///
   /// This function just returns a \ref DigraphReader class.
+  ///
+  /// With this function a digraph can be read from an 
+  /// \ref lgf-format "LGF" file or input stream with several maps and
+  /// attributes. For example, there is network flow problem on a
+  /// digraph, i.e. a digraph with a \e capacity map on the arcs and
+  /// \e source and \e target nodes. This digraph can be read with the
+  /// following code:
+  ///
+  ///\code
+  ///ListDigraph digraph;
+  ///ListDigraph::ArcMap<int> cm(digraph);
+  ///ListDigraph::Node src, trg;
+  ///digraphReader(digraph, std::cin).
+  ///  arcMap("capacity", cap).
+  ///  node("source", src).
+  ///  node("target", trg).
+  ///  run();
+  ///\endcode
+  ///
+  /// For a complete documentation, please see the \ref DigraphReader
+  /// class documentation.
+  /// \warning Don't forget to put the \ref DigraphReader::run() "run()"
+  /// to the end of the parameter list.
   /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, std::istream& is) {
-    DigraphReader<Digraph> tmp(digraph, is);
+  /// \sa digraphReader(TDGR& digraph, const std::string& fn)
+  /// \sa digraphReader(TDGR& digraph, const char* fn)
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, std::istream& is) {
+    DigraphReader<TDGR> tmp(digraph, is);
     return tmp;
   }
 
@@ -1203,10 +1229,10 @@ namespace lemon {
   ///
   /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph,
-                                       const std::string& fn) {
-    DigraphReader<Digraph> tmp(digraph, fn);
+  /// \sa digraphReader(TDGR& digraph, std::istream& is)
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, const std::string& fn) {
+    DigraphReader<TDGR> tmp(digraph, fn);
     return tmp;
   }
 
@@ -1214,22 +1240,22 @@ namespace lemon {
   ///
   /// This function just returns a \ref DigraphReader class.
   /// \relates DigraphReader
-  template <typename Digraph>
-  DigraphReader<Digraph> digraphReader(Digraph& digraph, const char* fn) {
-    DigraphReader<Digraph> tmp(digraph, fn);
+  /// \sa digraphReader(TDGR& digraph, std::istream& is)
+  template <typename TDGR>
+  DigraphReader<TDGR> digraphReader(TDGR& digraph, const char* fn) {
+    DigraphReader<TDGR> tmp(digraph, fn);
     return tmp;
   }
 
-  template <typename Graph>
+  template <typename GR>
   class GraphReader;
  
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, 
-                                 std::istream& is = std::cin);
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const std::string& fn);
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const char *fn);
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, std::istream& is = std::cin);
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, const std::string& fn);
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, const char *fn);
 
   /// \ingroup lemon_io
   ///
@@ -1254,13 +1280,13 @@ namespace lemon {
 
   private:
 
-    TEMPLATE_GRAPH_TYPEDEFS(Graph);
+    TEMPLATE_GRAPH_TYPEDEFS(GR);
 
     std::istream* _is;
     bool local_is;
     std::string _filename;
 
-    Graph& _graph;
+    GR& _graph;
 
     std::string _nodes_caption;
     std::string _edges_caption;
@@ -1298,7 +1324,7 @@ namespace lemon {
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// input stream.
-    GraphReader(Graph& graph, std::istream& is = std::cin)
+    GraphReader(GR& graph, std::istream& is = std::cin)
       : _is(&is), local_is(false), _graph(graph),
         _use_nodes(false), _use_edges(false),
         _skip_nodes(false), _skip_edges(false) {}
@@ -1307,7 +1333,7 @@ namespace lemon {
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// file.
-    GraphReader(Graph& graph, const std::string& fn)
+    GraphReader(GR& graph, const std::string& fn)
       : _is(new std::ifstream(fn.c_str())), local_is(true),
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
@@ -1322,7 +1348,7 @@ namespace lemon {
     ///
     /// Construct an undirected graph reader, which reads from the given
     /// file.
-    GraphReader(Graph& graph, const char* fn)
+    GraphReader(GR& graph, const char* fn)
       : _is(new std::ifstream(fn)), local_is(true),
         _filename(fn), _graph(graph),
         _use_nodes(false), _use_edges(false),
@@ -1357,12 +1383,12 @@ namespace lemon {
     }
 
   private:
-    template <typename Graph>
-    friend GraphReader<Graph> graphReader(Graph& graph, std::istream& is);
-    template <typename Graph>
-    friend GraphReader<Graph> graphReader(Graph& graph, const std::string& fn); 
-    template <typename Graph>
-    friend GraphReader<Graph> graphReader(Graph& graph, const char *fn);
+    template <typename TGR>
+    friend GraphReader<TGR> graphReader(TGR& graph, std::istream& is);
+    template <typename TGR>
+    friend GraphReader<TGR> graphReader(TGR& graph, const std::string& fn); 
+    template <typename TGR>
+    friend GraphReader<TGR> graphReader(TGR& graph, const char *fn);
 
     GraphReader(GraphReader& other)
       : _is(other._is), local_is(other.local_is), _graph(other._graph),
@@ -1454,7 +1480,7 @@ namespace lemon {
         new _reader_bits::GraphArcMapStorage<Graph, true, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
       _reader_bits::MapStorageBase<Edge>* backward_storage =
-        new _reader_bits::GraphArcMapStorage<Graph, false, Map>(_graph, map);
+        new _reader_bits::GraphArcMapStorage<GR, false, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
     }
@@ -1468,11 +1494,11 @@ namespace lemon {
                           const Converter& converter = Converter()) {
       checkConcept<concepts::WriteMap<Arc, typename Map::Value>, Map>();
       _reader_bits::MapStorageBase<Edge>* forward_storage =
-        new _reader_bits::GraphArcMapStorage<Graph, true, Map, Converter>
+        new _reader_bits::GraphArcMapStorage<GR, true, Map, Converter>
         (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
       _reader_bits::MapStorageBase<Edge>* backward_storage =
-        new _reader_bits::GraphArcMapStorage<Graph, false, Map, Converter>
+        new _reader_bits::GraphArcMapStorage<GR, false, Map, Converter>
         (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
@@ -1530,7 +1556,7 @@ namespace lemon {
     ///
     /// Add an arc reading rule to reader.
     GraphReader& arc(const std::string& caption, Arc& arc) {
-      typedef _reader_bits::GraphArcLookUpConverter<Graph> Converter;
+      typedef _reader_bits::GraphArcLookUpConverter<GR> Converter;
       Converter converter(_graph, _edge_index);
       _reader_bits::ValueStorageBase* storage =
         new _reader_bits::ValueStorage<Arc, Converter>(arc, converter);
@@ -2033,13 +2059,36 @@ namespace lemon {
 
   };
 
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref GraphReader class
   ///
-  /// This function just returns a \ref GraphReader class.
+  /// This function just returns a \ref GraphReader class. 
+  ///
+  /// With this function a graph can be read from an 
+  /// \ref lgf-format "LGF" file or input stream with several maps and
+  /// attributes. For example, there is weighted matching problem on a
+  /// graph, i.e. a graph with a \e weight map on the edges. This
+  /// graph can be read with the following code:
+  ///
+  ///\code
+  ///ListGraph graph;
+  ///ListGraph::EdgeMap<int> weight(graph);
+  ///graphReader(graph, std::cin).
+  ///  edgeMap("weight", weight).
+  ///  run();
+  ///\endcode
+  ///
+  /// For a complete documentation, please see the \ref GraphReader
+  /// class documentation.
+  /// \warning Don't forget to put the \ref GraphReader::run() "run()"
+  /// to the end of the parameter list.
   /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, std::istream& is) {
-    GraphReader<Graph> tmp(graph, is);
+  /// \sa graphReader(TGR& graph, const std::string& fn)
+  /// \sa graphReader(TGR& graph, const char* fn)
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, std::istream& is) {
+    GraphReader<TGR> tmp(graph, is);
     return tmp;
   }
 
@@ -2047,9 +2096,10 @@ namespace lemon {
   ///
   /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const std::string& fn) {
-    GraphReader<Graph> tmp(graph, fn);
+  /// \sa graphReader(TGR& graph, std::istream& is)
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, const std::string& fn) {
+    GraphReader<TGR> tmp(graph, fn);
     return tmp;
   }
 
@@ -2057,9 +2107,10 @@ namespace lemon {
   ///
   /// This function just returns a \ref GraphReader class.
   /// \relates GraphReader
-  template <typename Graph>
-  GraphReader<Graph> graphReader(Graph& graph, const char* fn) {
-    GraphReader<Graph> tmp(graph, fn);
+  /// \sa graphReader(TGR& graph, std::istream& is)
+  template <typename TGR>
+  GraphReader<TGR> graphReader(TGR& graph, const char* fn) {
+    GraphReader<TGR> tmp(graph, fn);
     return tmp;
   }
 
@@ -2316,10 +2367,18 @@ namespace lemon {
 
   };
 
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref SectionReader class
   ///
   /// This function just returns a \ref SectionReader class.
+  ///
+  /// Please see SectionReader documentation about the custom section
+  /// input.
+  ///
   /// \relates SectionReader
+  /// \sa sectionReader(const std::string& fn)
+  /// \sa sectionReader(const char *fn)
   inline SectionReader sectionReader(std::istream& is) {
     SectionReader tmp(is);
     return tmp;
@@ -2329,6 +2388,7 @@ namespace lemon {
   ///
   /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
+  /// \sa sectionReader(std::istream& is)
   inline SectionReader sectionReader(const std::string& fn) {
     SectionReader tmp(fn);
     return tmp;
@@ -2338,6 +2398,7 @@ namespace lemon {
   ///
   /// This function just returns a \ref SectionReader class.
   /// \relates SectionReader
+  /// \sa sectionReader(std::istream& is)
   inline SectionReader sectionReader(const char* fn) {
     SectionReader tmp(fn);
     return tmp;

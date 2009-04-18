@@ -347,19 +347,17 @@ namespace lemon {
 
   }
 
-  template <typename Digraph>
+  template <typename DGR>
   class DigraphWriter;
 
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       std::ostream& os = std::cout);
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const std::string& fn);
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+                                   std::ostream& os = std::cout);
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, const std::string& fn);
 
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const char* fn);
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, const char* fn);
 
 
   /// \ingroup lemon_io
@@ -381,7 +379,7 @@ namespace lemon {
   /// arc() functions are used to add attribute writing rules.
   ///
   ///\code
-  /// DigraphWriter<Digraph>(digraph, std::cout).
+  /// DigraphWriter<DGR>(digraph, std::cout).
   ///   nodeMap("coordinates", coord_map).
   ///   nodeMap("size", size).
   ///   nodeMap("title", title).
@@ -406,12 +404,12 @@ namespace lemon {
   /// section to the stream. The output stream can be retrieved with
   /// the \c ostream() function, hence the second pass can append its
   /// output to the output of the first pass.
-  template <typename GR>
+  template <typename DGR>
   class DigraphWriter {
   public:
 
-    typedef GR Digraph;
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+    typedef DGR Digraph;
+    TEMPLATE_DIGRAPH_TYPEDEFS(DGR);
 
   private:
 
@@ -419,7 +417,7 @@ namespace lemon {
     std::ostream* _os;
     bool local_os;
 
-    const Digraph& _digraph;
+    const DGR& _digraph;
 
     std::string _nodes_caption;
     std::string _arcs_caption;
@@ -451,7 +449,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output stream.
-    DigraphWriter(const Digraph& digraph, std::ostream& os = std::cout)
+    DigraphWriter(const DGR& digraph, std::ostream& os = std::cout)
       : _os(&os), local_os(false), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {}
 
@@ -459,7 +457,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    DigraphWriter(const Digraph& digraph, const std::string& fn)
+    DigraphWriter(const DGR& digraph, const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
       if (!(*_os)) {
@@ -472,7 +470,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    DigraphWriter(const Digraph& digraph, const char* fn)
+    DigraphWriter(const DGR& digraph, const char* fn)
       : _os(new std::ofstream(fn)), local_os(true), _digraph(digraph),
         _skip_nodes(false), _skip_arcs(false) {
       if (!(*_os)) {
@@ -505,15 +503,15 @@ namespace lemon {
 
   private:
 
-    template <typename DGR>
-    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph, 
-                                            std::ostream& os);
-    template <typename DGR>
-    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph,
-                                            const std::string& fn);
-    template <typename DGR>
-    friend DigraphWriter<DGR> digraphWriter(const DGR& digraph,
-                                            const char *fn);
+    template <typename TDGR>
+    friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+                                             std::ostream& os);
+    template <typename TDGR>
+    friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
+                                             const std::string& fn);
+    template <typename TDGR>
+    friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
+                                             const char *fn);
 
     DigraphWriter(DigraphWriter& other)
       : _os(other._os), local_os(other.local_os), _digraph(other._digraph),
@@ -724,8 +722,8 @@ namespace lemon {
       }
 
       if (label == 0) {
-        IdMap<Digraph, Node> id_map(_digraph);
-        _writer_bits::MapLess<IdMap<Digraph, Node> > id_less(id_map);
+        IdMap<DGR, Node> id_map(_digraph);
+        _writer_bits::MapLess<IdMap<DGR, Node> > id_less(id_map);
         std::sort(nodes.begin(), nodes.end(), id_less);
       } else {
         label->sort(nodes);
@@ -809,8 +807,8 @@ namespace lemon {
       }
 
       if (label == 0) {
-        IdMap<Digraph, Arc> id_map(_digraph);
-        _writer_bits::MapLess<IdMap<Digraph, Arc> > id_less(id_map);
+        IdMap<DGR, Arc> id_map(_digraph);
+        _writer_bits::MapLess<IdMap<DGR, Arc> > id_less(id_map);
         std::sort(arcs.begin(), arcs.end(), id_less);
       } else {
         label->sort(arcs);
@@ -915,14 +913,41 @@ namespace lemon {
     /// @}
   };
 
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref DigraphWriter class
   ///
-  /// This function just returns a \ref DigraphWriter class.
+  /// This function just returns a \ref DigraphWriter class. 
+  ///
+  /// With this function a digraph can be write to a file or output
+  /// stream in \ref lgf-format "LGF" format with several maps and
+  /// attributes. For example, with the following code a network flow
+  /// problem can be written to the standard output, i.e. a digraph
+  /// with a \e capacity map on the arcs and \e source and \e target
+  /// nodes:
+  ///
+  ///\code
+  ///ListDigraph digraph;
+  ///ListDigraph::ArcMap<int> cap(digraph);
+  ///ListDigraph::Node src, trg;
+  ///  // Setting the capacity map and source and target nodes
+  ///digraphWriter(digraph, std::cout).
+  ///  arcMap("capacity", cap).
+  ///  node("source", src).
+  ///  node("target", trg).
+  ///  run();
+  ///\endcode
+  ///
+  /// For a complete documentation, please see the \ref DigraphWriter
+  /// class documentation.
+  /// \warning Don't forget to put the \ref DigraphWriter::run() "run()"
+  /// to the end of the parameter list.
   /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       std::ostream& os) {
-    DigraphWriter<Digraph> tmp(digraph, os);
+  /// \sa digraphWriter(const TDGR& digraph, const std::string& fn)
+  /// \sa digraphWriter(const TDGR& digraph, const char* fn)
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, std::ostream& os) {
+    DigraphWriter<TDGR> tmp(digraph, os);
     return tmp;
   }
 
@@ -930,10 +955,11 @@ namespace lemon {
   ///
   /// This function just returns a \ref DigraphWriter class.
   /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const std::string& fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
+  /// \sa digraphWriter(const TDGR& digraph, std::ostream& os)
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+                                    const std::string& fn) {
+    DigraphWriter<TDGR> tmp(digraph, fn);
     return tmp;
   }
 
@@ -941,23 +967,22 @@ namespace lemon {
   ///
   /// This function just returns a \ref DigraphWriter class.
   /// \relates DigraphWriter
-  template <typename Digraph>
-  DigraphWriter<Digraph> digraphWriter(const Digraph& digraph,
-                                       const char* fn) {
-    DigraphWriter<Digraph> tmp(digraph, fn);
+  /// \sa digraphWriter(const TDGR& digraph, std::ostream& os)
+  template <typename TDGR>
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, const char* fn) {
+    DigraphWriter<TDGR> tmp(digraph, fn);
     return tmp;
   }
 
-  template <typename Graph>
+  template <typename GR>
   class GraphWriter;
 
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph,
-                                 std::ostream& os = std::cout);
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn);
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn);
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, std::ostream& os = std::cout);
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, const std::string& fn);
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, const char* fn);
 
   /// \ingroup lemon_io
   ///
@@ -979,7 +1004,7 @@ namespace lemon {
   public:
 
     typedef GR Graph;
-    TEMPLATE_GRAPH_TYPEDEFS(Graph);
+    TEMPLATE_GRAPH_TYPEDEFS(GR);
 
   private:
 
@@ -987,7 +1012,7 @@ namespace lemon {
     std::ostream* _os;
     bool local_os;
 
-    const Graph& _graph;
+    const GR& _graph;
 
     std::string _nodes_caption;
     std::string _edges_caption;
@@ -1019,7 +1044,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output stream.
-    GraphWriter(const Graph& graph, std::ostream& os = std::cout)
+    GraphWriter(const GR& graph, std::ostream& os = std::cout)
       : _os(&os), local_os(false), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {}
 
@@ -1027,7 +1052,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    GraphWriter(const Graph& graph, const std::string& fn)
+    GraphWriter(const GR& graph, const std::string& fn)
       : _os(new std::ofstream(fn.c_str())), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
       if (!(*_os)) {
@@ -1040,7 +1065,7 @@ namespace lemon {
     ///
     /// Construct a directed graph writer, which writes to the given
     /// output file.
-    GraphWriter(const Graph& graph, const char* fn)
+    GraphWriter(const GR& graph, const char* fn)
       : _os(new std::ofstream(fn)), local_os(true), _graph(graph),
         _skip_nodes(false), _skip_edges(false) {
       if (!(*_os)) {
@@ -1073,15 +1098,13 @@ namespace lemon {
 
   private:
 
-    template <typename Graph>
-    friend GraphWriter<Graph> graphWriter(const Graph& graph,
-                                          std::ostream& os);
-    template <typename Graph>
-    friend GraphWriter<Graph> graphWriter(const Graph& graph,
-                                          const std::string& fn);
-    template <typename Graph>
-    friend GraphWriter<Graph> graphWriter(const Graph& graph,
-                                          const char *fn);
+    template <typename TGR>
+    friend GraphWriter<TGR> graphWriter(const TGR& graph, std::ostream& os);
+    template <typename TGR>
+    friend GraphWriter<TGR> graphWriter(const TGR& graph, 
+                                        const std::string& fn);
+    template <typename TGR>
+    friend GraphWriter<TGR> graphWriter(const TGR& graph, const char *fn);
     
     GraphWriter(GraphWriter& other)
       : _os(other._os), local_os(other.local_os), _graph(other._graph),
@@ -1168,10 +1191,10 @@ namespace lemon {
     GraphWriter& arcMap(const std::string& caption, const Map& map) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
       _writer_bits::MapStorageBase<Edge>* forward_storage =
-        new _writer_bits::GraphArcMapStorage<Graph, true, Map>(_graph, map);
+        new _writer_bits::GraphArcMapStorage<GR, true, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
       _writer_bits::MapStorageBase<Edge>* backward_storage =
-        new _writer_bits::GraphArcMapStorage<Graph, false, Map>(_graph, map);
+        new _writer_bits::GraphArcMapStorage<GR, false, Map>(_graph, map);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
     }
@@ -1185,11 +1208,11 @@ namespace lemon {
                           const Converter& converter = Converter()) {
       checkConcept<concepts::ReadMap<Arc, typename Map::Value>, Map>();
       _writer_bits::MapStorageBase<Edge>* forward_storage =
-        new _writer_bits::GraphArcMapStorage<Graph, true, Map, Converter>
+        new _writer_bits::GraphArcMapStorage<GR, true, Map, Converter>
         (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('+' + caption, forward_storage));
       _writer_bits::MapStorageBase<Edge>* backward_storage =
-        new _writer_bits::GraphArcMapStorage<Graph, false, Map, Converter>
+        new _writer_bits::GraphArcMapStorage<GR, false, Map, Converter>
         (_graph, map, converter);
       _edge_maps.push_back(std::make_pair('-' + caption, backward_storage));
       return *this;
@@ -1247,7 +1270,7 @@ namespace lemon {
     ///
     /// Add an arc writing rule to writer.
     GraphWriter& arc(const std::string& caption, const Arc& arc) {
-      typedef _writer_bits::GraphArcLookUpConverter<Graph> Converter;
+      typedef _writer_bits::GraphArcLookUpConverter<GR> Converter;
       Converter converter(_graph, _edge_index);
       _writer_bits::ValueStorageBase* storage =
         new _writer_bits::ValueStorage<Arc, Converter>(arc, converter);
@@ -1338,8 +1361,8 @@ namespace lemon {
       }
 
       if (label == 0) {
-        IdMap<Graph, Node> id_map(_graph);
-        _writer_bits::MapLess<IdMap<Graph, Node> > id_less(id_map);
+        IdMap<GR, Node> id_map(_graph);
+        _writer_bits::MapLess<IdMap<GR, Node> > id_less(id_map);
         std::sort(nodes.begin(), nodes.end(), id_less);
       } else {
         label->sort(nodes);
@@ -1423,8 +1446,8 @@ namespace lemon {
       }
 
       if (label == 0) {
-        IdMap<Graph, Edge> id_map(_graph);
-        _writer_bits::MapLess<IdMap<Graph, Edge> > id_less(id_map);
+        IdMap<GR, Edge> id_map(_graph);
+        _writer_bits::MapLess<IdMap<GR, Edge> > id_less(id_map);
         std::sort(edges.begin(), edges.end(), id_less);
       } else {
         label->sort(edges);
@@ -1529,14 +1552,37 @@ namespace lemon {
     /// @}
   };
 
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref GraphWriter class
   ///
-  /// This function just returns a \ref GraphWriter class.
+  /// This function just returns a \ref GraphWriter class. 
+  ///
+  /// With this function a graph can be write to a file or output
+  /// stream in \ref lgf-format "LGF" format with several maps and
+  /// attributes. For example, with the following code a weighted
+  /// matching problem can be written to the standard output, i.e. a
+  /// graph with a \e weight map on the edges:
+  ///
+  ///\code
+  ///ListGraph graph;
+  ///ListGraph::EdgeMap<int> weight(graph);
+  ///  // Setting the weight map
+  ///graphWriter(graph, std::cout).
+  ///  edgeMap("weight", weight).
+  ///  run();
+  ///\endcode
+  ///
+  /// For a complete documentation, please see the \ref GraphWriter
+  /// class documentation.
+  /// \warning Don't forget to put the \ref GraphWriter::run() "run()"
+  /// to the end of the parameter list.
   /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph,
-                                 std::ostream& os) {
-    GraphWriter<Graph> tmp(graph, os);
+  /// \sa graphWriter(const TGR& graph, const std::string& fn)
+  /// \sa graphWriter(const TGR& graph, const char* fn)
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, std::ostream& os) {
+    GraphWriter<TGR> tmp(graph, os);
     return tmp;
   }
 
@@ -1544,9 +1590,10 @@ namespace lemon {
   ///
   /// This function just returns a \ref GraphWriter class.
   /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const std::string& fn) {
-    GraphWriter<Graph> tmp(graph, fn);
+  /// \sa graphWriter(const TGR& graph, std::ostream& os)
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, const std::string& fn) {
+    GraphWriter<TGR> tmp(graph, fn);
     return tmp;
   }
 
@@ -1554,9 +1601,10 @@ namespace lemon {
   ///
   /// This function just returns a \ref GraphWriter class.
   /// \relates GraphWriter
-  template <typename Graph>
-  GraphWriter<Graph> graphWriter(const Graph& graph, const char* fn) {
-    GraphWriter<Graph> tmp(graph, fn);
+  /// \sa graphWriter(const TGR& graph, std::ostream& os)
+  template <typename TGR>
+  GraphWriter<TGR> graphWriter(const TGR& graph, const char* fn) {
+    GraphWriter<TGR> tmp(graph, fn);
     return tmp;
   }
 
@@ -1746,10 +1794,18 @@ namespace lemon {
 
   };
 
+  /// \ingroup lemon_io
+  ///
   /// \brief Return a \ref SectionWriter class
   ///
   /// This function just returns a \ref SectionWriter class.
+  ///
+  /// Please see SectionWriter documentation about the custom section
+  /// output.
+  ///
   /// \relates SectionWriter
+  /// \sa sectionWriter(const std::string& fn)
+  /// \sa sectionWriter(const char *fn)
   inline SectionWriter sectionWriter(std::ostream& os) {
     SectionWriter tmp(os);
     return tmp;
@@ -1759,6 +1815,7 @@ namespace lemon {
   ///
   /// This function just returns a \ref SectionWriter class.
   /// \relates SectionWriter
+  /// \sa sectionWriter(std::ostream& os)
   inline SectionWriter sectionWriter(const std::string& fn) {
     SectionWriter tmp(fn);
     return tmp;
@@ -1768,6 +1825,7 @@ namespace lemon {
   ///
   /// This function just returns a \ref SectionWriter class.
   /// \relates SectionWriter
+  /// \sa sectionWriter(std::ostream& os)
   inline SectionWriter sectionWriter(const char* fn) {
     SectionWriter tmp(fn);
     return tmp;
