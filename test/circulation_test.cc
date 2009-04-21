@@ -57,7 +57,7 @@ void checkCirculationCompile()
   typedef Digraph::Node Node;
   typedef Digraph::Arc Arc;
   typedef concepts::ReadMap<Arc,VType> CapMap;
-  typedef concepts::ReadMap<Node,VType> DeltaMap;
+  typedef concepts::ReadMap<Node,VType> SupplyMap;
   typedef concepts::ReadWriteMap<Arc,VType> FlowMap;
   typedef concepts::WriteMap<Node,bool> BarrierMap;
 
@@ -68,24 +68,24 @@ void checkCirculationCompile()
   Node n;
   Arc a;
   CapMap lcap, ucap;
-  DeltaMap delta;
+  SupplyMap supply;
   FlowMap flow;
   BarrierMap bar;
   VType v;
   bool b;
 
-  typedef Circulation<Digraph, CapMap, CapMap, DeltaMap>
+  typedef Circulation<Digraph, CapMap, CapMap, SupplyMap>
             ::SetFlowMap<FlowMap>
             ::SetElevator<Elev>
             ::SetStandardElevator<LinkedElev>
             ::Create CirculationType;
-  CirculationType circ_test(g, lcap, ucap, delta);
+  CirculationType circ_test(g, lcap, ucap, supply);
   const CirculationType& const_circ_test = circ_test;
    
   circ_test
-    .lowerCapMap(lcap)
-    .upperCapMap(ucap)
-    .deltaMap(delta)
+    .lowerMap(lcap)
+    .upperMap(ucap)
+    .supplyMap(supply)
     .flowMap(flow);
 
   circ_test.init();

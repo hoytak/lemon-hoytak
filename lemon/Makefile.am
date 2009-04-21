@@ -93,6 +93,7 @@ lemon_HEADERS += \
 	lemon/math.h \
 	lemon/min_cost_arborescence.h \
 	lemon/nauty_reader.h \
+	lemon/network_simplex.h \
 	lemon/path.h \
 	lemon/preflow.h \
 	lemon/radix_sort.h \
