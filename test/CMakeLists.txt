@@ -29,7 +29,7 @@ SET(TESTS
   heap_test
   kruskal_test
   maps_test
-  max_matching_test
+  matching_test
   min_cost_arborescence_test
   path_test
   preflow_test

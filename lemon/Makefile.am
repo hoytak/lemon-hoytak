@@ -89,8 +89,8 @@ lemon_HEADERS += \
 	lemon/lp_skeleton.h \
 	lemon/list_graph.h \
 	lemon/maps.h \
+	lemon/matching.h \
 	lemon/math.h \
-	lemon/max_matching.h \
 	lemon/min_cost_arborescence.h \
 	lemon/nauty_reader.h \
 	lemon/path.h \

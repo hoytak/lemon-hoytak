@@ -42,7 +42,7 @@
 
 #include <lemon/dijkstra.h>
 #include <lemon/preflow.h>
-#include <lemon/max_matching.h>
+#include <lemon/matching.h>
 
 using namespace lemon;
 typedef SmartDigraph Digraph;

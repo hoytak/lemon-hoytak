@@ -18,136 +18,206 @@
 
 #include <lemon/euler.h>
 #include <lemon/list_graph.h>
-#include <test/test_tools.h>
+#include <lemon/adaptors.h>
+#include "test_tools.h"
 
 using namespace lemon;
 
 template <typename Digraph>
-void checkDiEulerIt(const Digraph& g)
+void checkDiEulerIt(const Digraph& g,
+                    const typename Digraph::Node& start = INVALID)
 {
   typename Digraph::template ArcMap<int> visitationNumber(g, 0);
 
-  DiEulerIt<Digraph> e(g);
+  DiEulerIt<Digraph> e(g, start);
+  if (e == INVALID) return;
   typename Digraph::Node firstNode = g.source(e);
   typename Digraph::Node lastNode = g.target(e);
+  if (start != INVALID) {
+    check(firstNode == start, "checkDiEulerIt: Wrong first node");
+  }
 
-  for (; e != INVALID; ++e)
-  {
-    if (e != INVALID)
-    {
-      lastNode = g.target(e);
-    }
+  for (; e != INVALID; ++e) {
+    if (e != INVALID) lastNode = g.target(e);
     ++visitationNumber[e];
   }
 
   check(firstNode == lastNode,
-      "checkDiEulerIt: first and last node are not the same");
+      "checkDiEulerIt: First and last nodes are not the same");
 
   for (typename Digraph::ArcIt a(g); a != INVALID; ++a)
   {
     check(visitationNumber[a] == 1,
-        "checkDiEulerIt: not visited or multiple times visited arc found");
+        "checkDiEulerIt: Not visited or multiple times visited arc found");
   }
 }
 
 template <typename Graph>
-void checkEulerIt(const Graph& g)
+void checkEulerIt(const Graph& g,
+                  const typename Graph::Node& start = INVALID)
 {
   typename Graph::template EdgeMap<int> visitationNumber(g, 0);
 
-  EulerIt<Graph> e(g);
-  typename Graph::Node firstNode = g.u(e);
-  typename Graph::Node lastNode = g.v(e);
+  EulerIt<Graph> e(g, start);
+  if (e == INVALID) return;
+  typename Graph::Node firstNode = g.source(typename Graph::Arc(e));
+  typename Graph::Node lastNode = g.target(typename Graph::Arc(e));
+  if (start != INVALID) {
+    check(firstNode == start, "checkEulerIt: Wrong first node");
+  }
 
-  for (; e != INVALID; ++e)
-  {
-    if (e != INVALID)
-    {
-      lastNode = g.v(e);
-    }
+  for (; e != INVALID; ++e) {
+    if (e != INVALID) lastNode = g.target(typename Graph::Arc(e));
     ++visitationNumber[e];
   }
 
   check(firstNode == lastNode,
-      "checkEulerIt: first and last node are not the same");
+      "checkEulerIt: First and last nodes are not the same");
 
   for (typename Graph::EdgeIt e(g); e != INVALID; ++e)
   {
     check(visitationNumber[e] == 1,
-        "checkEulerIt: not visited or multiple times visited edge found");
+        "checkEulerIt: Not visited or multiple times visited edge found");
   }
 }
 
 int main()
 {
   typedef ListDigraph Digraph;
-  typedef ListGraph Graph;
-
-  Digraph digraphWithEulerianCircuit;
+  typedef Undirector<Digraph> Graph;
+  
   {
-    Digraph& g = digraphWithEulerianCircuit;
+    Digraph d;
+    Graph g(d);
+    
+    checkDiEulerIt(d);
+    checkDiEulerIt(g);
+    checkEulerIt(g);
 
-    Digraph::Node n0 = g.addNode();
-    Digraph::Node n1 = g.addNode();
-    Digraph::Node n2 = g.addNode();
-
-    g.addArc(n0, n1);
-    g.addArc(n1, n0);
-    g.addArc(n1, n2);
-    g.addArc(n2, n1);
+    check(eulerian(d), "This graph is Eulerian");
+    check(eulerian(g), "This graph is Eulerian");
   }
-
-  Digraph digraphWithoutEulerianCircuit;
   {
-    Digraph& g = digraphWithoutEulerianCircuit;
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n = d.addNode();
 
-    Digraph::Node n0 = g.addNode();
-    Digraph::Node n1 = g.addNode();
-    Digraph::Node n2 = g.addNode();
+    checkDiEulerIt(d);
+    checkDiEulerIt(g);
+    checkEulerIt(g);
 
-    g.addArc(n0, n1);
-    g.addArc(n1, n0);
-    g.addArc(n1, n2);
+    check(eulerian(d), "This graph is Eulerian");
+    check(eulerian(g), "This graph is Eulerian");
   }
-
-  Graph graphWithEulerianCircuit;
   {
-    Graph& g = graphWithEulerianCircuit;
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n = d.addNode();
+    d.addArc(n, n);
 
-    Graph::Node n0 = g.addNode();
-    Graph::Node n1 = g.addNode();
-    Graph::Node n2 = g.addNode();
+    checkDiEulerIt(d);
+    checkDiEulerIt(g);
+    checkEulerIt(g);
 
-    g.addEdge(n0, n1);
-    g.addEdge(n1, n2);
-    g.addEdge(n2, n0);
+    check(eulerian(d), "This graph is Eulerian");
+    check(eulerian(g), "This graph is Eulerian");
   }
-
-  Graph graphWithoutEulerianCircuit;
   {
-    Graph& g = graphWithoutEulerianCircuit;
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n1 = d.addNode();
+    Digraph::Node n2 = d.addNode();
+    Digraph::Node n3 = d.addNode();
+    
+    d.addArc(n1, n2);
+    d.addArc(n2, n1);
+    d.addArc(n2, n3);
+    d.addArc(n3, n2);
 
-    Graph::Node n0 = g.addNode();
-    Graph::Node n1 = g.addNode();
-    Graph::Node n2 = g.addNode();
+    checkDiEulerIt(d);
+    checkDiEulerIt(d, n2);
+    checkDiEulerIt(g);
+    checkDiEulerIt(g, n2);
+    checkEulerIt(g);
+    checkEulerIt(g, n2);
 
-    g.addEdge(n0, n1);
-    g.addEdge(n1, n2);
+    check(eulerian(d), "This graph is Eulerian");
+    check(eulerian(g), "This graph is Eulerian");
   }
+  {
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n1 = d.addNode();
+    Digraph::Node n2 = d.addNode();
+    Digraph::Node n3 = d.addNode();
+    Digraph::Node n4 = d.addNode();
+    Digraph::Node n5 = d.addNode();
+    Digraph::Node n6 = d.addNode();
+    
+    d.addArc(n1, n2);
+    d.addArc(n2, n4);
+    d.addArc(n1, n3);
+    d.addArc(n3, n4);
+    d.addArc(n4, n1);
+    d.addArc(n3, n5);
+    d.addArc(n5, n2);
+    d.addArc(n4, n6);
+    d.addArc(n2, n6);
+    d.addArc(n6, n1);
+    d.addArc(n6, n3);
 
-  checkDiEulerIt(digraphWithEulerianCircuit);
+    checkDiEulerIt(d);
+    checkDiEulerIt(d, n1);
+    checkDiEulerIt(d, n5);
 
-  checkEulerIt(graphWithEulerianCircuit);
+    checkDiEulerIt(g);
+    checkDiEulerIt(g, n1);
+    checkDiEulerIt(g, n5);
+    checkEulerIt(g);
+    checkEulerIt(g, n1);
+    checkEulerIt(g, n5);
 
-  check(eulerian(digraphWithEulerianCircuit),
-      "this graph should have an Eulerian circuit");
-  check(!eulerian(digraphWithoutEulerianCircuit),
-      "this graph should not have an Eulerian circuit");
+    check(eulerian(d), "This graph is Eulerian");
+    check(eulerian(g), "This graph is Eulerian");
+  }
+  {
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n0 = d.addNode();
+    Digraph::Node n1 = d.addNode();
+    Digraph::Node n2 = d.addNode();
+    Digraph::Node n3 = d.addNode();
+    Digraph::Node n4 = d.addNode();
+    Digraph::Node n5 = d.addNode();
+    
+    d.addArc(n1, n2);
+    d.addArc(n2, n3);
+    d.addArc(n3, n1);
 
-  check(eulerian(graphWithEulerianCircuit),
-      "this graph should have an Eulerian circuit");
-  check(!eulerian(graphWithoutEulerianCircuit),
-      "this graph should have an Eulerian circuit");
+    checkDiEulerIt(d);
+    checkDiEulerIt(d, n2);
+
+    checkDiEulerIt(g);
+    checkDiEulerIt(g, n2);
+    checkEulerIt(g);
+    checkEulerIt(g, n2);
+
+    check(!eulerian(d), "This graph is not Eulerian");
+    check(!eulerian(g), "This graph is not Eulerian");
+  }
+  {
+    Digraph d;
+    Graph g(d);
+    Digraph::Node n1 = d.addNode();
+    Digraph::Node n2 = d.addNode();
+    Digraph::Node n3 = d.addNode();
+    
+    d.addArc(n1, n2);
+    d.addArc(n2, n3);
+
+    check(!eulerian(d), "This graph is not Eulerian");
+    check(!eulerian(g), "This graph is not Eulerian");
+  }
 
   return 0;
 }
