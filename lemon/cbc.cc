@@ -55,12 +55,15 @@ namespace lemon {
     _prob->setProblemName("LEMON");
     _osi_solver = 0;
     _cbc_model = 0;
+    messageLevel(MESSAGE_NOTHING);
   }
 
   CbcMip::CbcMip(const CbcMip& other) {
     _prob = new CoinModel(*other._prob);
+    _prob->setProblemName("LEMON");
     _osi_solver = 0;
     _cbc_model = 0;
+    messageLevel(MESSAGE_NOTHING);
   }
 
   CbcMip::~CbcMip() {
@@ -270,24 +273,8 @@ namespace lemon {
     }
     _cbc_model= new CbcModel(*_osi_solver);
 
-    switch (_message_level) {
-    case MESSAGE_NO_OUTPUT:
-      _osi_solver->messageHandler()->setLogLevel(0);
-      _cbc_model->setLogLevel(0);
-      break;
-    case MESSAGE_ERROR_MESSAGE:
-      _osi_solver->messageHandler()->setLogLevel(1);
-      _cbc_model->setLogLevel(1);
-      break;
-    case MESSAGE_NORMAL_OUTPUT:
-      _osi_solver->messageHandler()->setLogLevel(2);
-      _cbc_model->setLogLevel(2);
-      break;
-    case MESSAGE_FULL_OUTPUT:
-      _osi_solver->messageHandler()->setLogLevel(3);
-      _cbc_model->setLogLevel(3);
-      break;
-    }
+    _osi_solver->messageHandler()->setLogLevel(_message_level);
+    _cbc_model->setLogLevel(_message_level);
 
     _cbc_model->initialSolve();
     _cbc_model->solver()->setHintParam(OsiDoReducePrint, true, OsiHintTry);
@@ -453,8 +440,24 @@ namespace lemon {
     cols.clear();
   }
 
-  void CbcMip::messageLevel(MessageLevel m) {
-    _message_level = m;
+  void CbcMip::_messageLevel(MessageLevel level) {
+    switch (level) {
+    case MESSAGE_NOTHING:
+      _message_level = 0;
+      break;
+    case MESSAGE_ERROR:
+      _message_level = 1;
+      break;
+    case MESSAGE_WARNING:
+      _message_level = 1;
+      break;
+    case MESSAGE_NORMAL:
+      _message_level = 2;
+      break;
+    case MESSAGE_VERBOSE:
+      _message_level = 3;
+      break;
+    }
   }
 
 } //END OF NAMESPACE LEMON

@@ -659,7 +659,7 @@ namespace lemon {
 
     /// @}
 
-    ///\name Uniform distributions
+    ///\name Uniform Distributions
     ///
     /// @{
 
@@ -762,7 +762,7 @@ namespace lemon {
 
     /// @}
 
-    ///\name Non-uniform distributions
+    ///\name Non-uniform Distributions
     ///
     ///@{
 
@@ -938,7 +938,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Two dimensional distributions
+    ///\name Two Dimensional Distributions
     ///
     ///@{
 

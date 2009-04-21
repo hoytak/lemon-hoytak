@@ -2,6 +2,8 @@
 
 #include "test_tools.h"
 #include <lemon/smart_graph.h>
+#include <lemon/concepts/graph.h>
+#include <lemon/concepts/maps.h>
 #include <lemon/lgf_reader.h>
 #include <lemon/gomory_hu.h>
 #include <cstdlib>
@@ -32,6 +34,36 @@ char test_lgf[] =
   "source 0\n"
   "target 3\n";
   
+void checkGomoryHuCompile()
+{
+  typedef int Value;
+  typedef concepts::Graph Graph;
+
+  typedef Graph::Node Node;
+  typedef Graph::Edge Edge;
+  typedef concepts::ReadMap<Edge, Value> CapMap;
+  typedef concepts::ReadWriteMap<Node, bool> CutMap;
+
+  Graph g;
+  Node n;
+  CapMap cap;
+  CutMap cut;
+  Value v;
+  int d;
+
+  GomoryHu<Graph, CapMap> gh_test(g, cap);
+  const GomoryHu<Graph, CapMap>&
+    const_gh_test = gh_test;
+
+  gh_test.run();
+
+  n = const_gh_test.predNode(n);
+  v = const_gh_test.predValue(n);
+  d = const_gh_test.rootDist(n);
+  v = const_gh_test.minCutValue(n, n);
+  v = const_gh_test.minCutMap(n, n, cut);
+}
+
 GRAPH_TYPEDEFS(Graph);
 typedef Graph::EdgeMap<int> IntEdgeMap;
 typedef Graph::NodeMap<bool> BoolNodeMap;
@@ -70,8 +102,8 @@ int main() {
       BoolNodeMap cm(graph);
       ght.minCutMap(u, v, cm);
       check(pf.flowValue() == ght.minCutValue(u, v), "Wrong cut 1");
-      check(cm[u] != cm[v], "Wrong cut 3");
-      check(pf.flowValue() == cutValue(graph, cm, capacity), "Wrong cut 2");
+      check(cm[u] != cm[v], "Wrong cut 2");
+      check(pf.flowValue() == cutValue(graph, cm, capacity), "Wrong cut 3");
 
       int sum=0;
       for(GomoryHu<Graph>::MinCutEdgeIt a(ght, u, v);a!=INVALID;++a)
@@ -84,7 +116,6 @@ int main() {
       for(GomoryHu<Graph>::MinCutNodeIt n(ght, u, v,false);n!=INVALID;++n)
         sum++;
       check(sum == countNodes(graph), "Problem with MinCutNodeIt");
-      
     }
   }
   

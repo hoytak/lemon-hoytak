@@ -31,39 +31,41 @@
 /// \ingroup min_cut
 /// \brief Implementation of the Hao-Orlin algorithm.
 ///
-/// Implementation of the Hao-Orlin algorithm class for testing network
-/// reliability.
+/// Implementation of the Hao-Orlin algorithm for finding a minimum cut 
+/// in a digraph.
 
 namespace lemon {
 
   /// \ingroup min_cut
   ///
-  /// \brief %Hao-Orlin algorithm to find a minimum cut in directed graphs.
+  /// \brief Hao-Orlin algorithm for finding a minimum cut in a digraph.
   ///
-  /// Hao-Orlin calculates a minimum cut in a directed graph
-  /// \f$D=(V,A)\f$. It takes a fixed node \f$ source \in V \f$ and
+  /// This class implements the Hao-Orlin algorithm for finding a minimum
+  /// value cut in a directed graph \f$D=(V,A)\f$. 
+  /// It takes a fixed node \f$ source \in V \f$ and
   /// consists of two phases: in the first phase it determines a
   /// minimum cut with \f$ source \f$ on the source-side (i.e. a set
-  /// \f$ X\subsetneq V \f$ with \f$ source \in X \f$ and minimal
-  /// out-degree) and in the second phase it determines a minimum cut
+  /// \f$ X\subsetneq V \f$ with \f$ source \in X \f$ and minimal outgoing
+  /// capacity) and in the second phase it determines a minimum cut
   /// with \f$ source \f$ on the sink-side (i.e. a set
-  /// \f$ X\subsetneq V \f$ with \f$ source \notin X \f$ and minimal
-  /// out-degree). Obviously, the smaller of these two cuts will be a
+  /// \f$ X\subsetneq V \f$ with \f$ source \notin X \f$ and minimal outgoing
+  /// capacity). Obviously, the smaller of these two cuts will be a
   /// minimum cut of \f$ D \f$. The algorithm is a modified
-  /// push-relabel preflow algorithm and our implementation calculates
+  /// preflow push-relabel algorithm. Our implementation calculates
   /// the minimum cut in \f$ O(n^2\sqrt{m}) \f$ time (we use the
   /// highest-label rule), or in \f$O(nm)\f$ for unit capacities. The
-  /// purpose of such algorithm is testing network reliability. For an
-  /// undirected graph you can run just the first phase of the
-  /// algorithm or you can use the algorithm of Nagamochi and Ibaraki
-  /// which solves the undirected problem in
-  /// \f$ O(nm + n^2 \log n) \f$ time: it is implemented in the
-  /// NagamochiIbaraki algorithm class.
+  /// purpose of such algorithm is e.g. testing network reliability.
   ///
-  /// \param GR The digraph class the algorithm runs on.
-  /// \param CAP An arc map of capacities which can be any numreric type.
-  /// The default type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
-  /// \param TOL Tolerance class for handling inexact computations. The
+  /// For an undirected graph you can run just the first phase of the
+  /// algorithm or you can use the algorithm of Nagamochi and Ibaraki,
+  /// which solves the undirected problem in \f$ O(nm + n^2 \log n) \f$ 
+  /// time. It is implemented in the NagamochiIbaraki algorithm class.
+  ///
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  /// \tparam CAP The type of the arc map containing the capacities,
+  /// which can be any numreric type. The default map type is
+  /// \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \tparam TOL Tolerance class for handling inexact computations. The
   /// default tolerance type is \ref Tolerance "Tolerance<CAP::Value>".
 #ifdef DOXYGEN
   template <typename GR, typename CAP, typename TOL>
@@ -73,15 +75,20 @@ namespace lemon {
             typename TOL = Tolerance<typename CAP::Value> >
 #endif
   class HaoOrlin {
-  private:
-
+  public:
+   
+    /// The digraph type of the algorithm
     typedef GR Digraph;
+    /// The capacity map type of the algorithm
     typedef CAP CapacityMap;
+    /// The tolerance type of the algorithm
     typedef TOL Tolerance;
+
+  private:
 
     typedef typename CapacityMap::Value Value;
 
-    TEMPLATE_GRAPH_TYPEDEFS(Digraph);
+    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
 
     const Digraph& _graph;
     const CapacityMap* _capacity;
@@ -161,56 +168,56 @@ namespace lemon {
   private:
 
     void activate(const Node& i) {
-      _active->set(i, true);
+      (*_active)[i] = true;
 
       int bucket = (*_bucket)[i];
 
       if ((*_prev)[i] == INVALID || (*_active)[(*_prev)[i]]) return;
       //unlace
-      _next->set((*_prev)[i], (*_next)[i]);
+      (*_next)[(*_prev)[i]] = (*_next)[i];
       if ((*_next)[i] != INVALID) {
-        _prev->set((*_next)[i], (*_prev)[i]);
+        (*_prev)[(*_next)[i]] = (*_prev)[i];
       } else {
         _last[bucket] = (*_prev)[i];
       }
       //lace
-      _next->set(i, _first[bucket]);
-      _prev->set(_first[bucket], i);
-      _prev->set(i, INVALID);
+      (*_next)[i] = _first[bucket];
+      (*_prev)[_first[bucket]] = i;
+      (*_prev)[i] = INVALID;
       _first[bucket] = i;
     }
 
     void deactivate(const Node& i) {
-      _active->set(i, false);
+      (*_active)[i] = false;
       int bucket = (*_bucket)[i];
 
       if ((*_next)[i] == INVALID || !(*_active)[(*_next)[i]]) return;
 
       //unlace
-      _prev->set((*_next)[i], (*_prev)[i]);
+      (*_prev)[(*_next)[i]] = (*_prev)[i];
       if ((*_prev)[i] != INVALID) {
-        _next->set((*_prev)[i], (*_next)[i]);
+        (*_next)[(*_prev)[i]] = (*_next)[i];
       } else {
         _first[bucket] = (*_next)[i];
       }
       //lace
-      _prev->set(i, _last[bucket]);
-      _next->set(_last[bucket], i);
-      _next->set(i, INVALID);
+      (*_prev)[i] = _last[bucket];
+      (*_next)[_last[bucket]] = i;
+      (*_next)[i] = INVALID;
       _last[bucket] = i;
     }
 
     void addItem(const Node& i, int bucket) {
       (*_bucket)[i] = bucket;
       if (_last[bucket] != INVALID) {
-        _prev->set(i, _last[bucket]);
-        _next->set(_last[bucket], i);
-        _next->set(i, INVALID);
+        (*_prev)[i] = _last[bucket];
+        (*_next)[_last[bucket]] = i;
+        (*_next)[i] = INVALID;
         _last[bucket] = i;
       } else {
-        _prev->set(i, INVALID);
+        (*_prev)[i] = INVALID;
         _first[bucket] = i;
-        _next->set(i, INVALID);
+        (*_next)[i] = INVALID;
         _last[bucket] = i;
       }
     }
@@ -218,11 +225,12 @@ namespace lemon {
     void findMinCutOut() {
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _excess->set(n, 0);
+        (*_excess)[n] = 0;
+        (*_source_set)[n] = false;
       }
 
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        _flow->set(a, 0);
+        (*_flow)[a] = 0;
       }
 
       int bucket_num = 0;
@@ -232,7 +240,7 @@ namespace lemon {
       {
         typename Digraph::template NodeMap<bool> reached(_graph, false);
 
-        reached.set(_source, true);
+        reached[_source] = true;
         bool first_set = true;
 
         for (NodeIt t(_graph); t != INVALID; ++t) {
@@ -240,7 +248,7 @@ namespace lemon {
           _sets.push_front(std::list<int>());
 
           queue[qlast++] = t;
-          reached.set(t, true);
+          reached[t] = true;
 
           while (qfirst != qlast) {
             if (qsep == qfirst) {
@@ -257,7 +265,7 @@ namespace lemon {
             for (InArcIt a(_graph, n); a != INVALID; ++a) {
               Node u = _graph.source(a);
               if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
-                reached.set(u, true);
+                reached[u] = true;
                 queue[qlast++] = u;
               }
             }
@@ -266,18 +274,18 @@ namespace lemon {
         }
 
         ++bucket_num;
-        _bucket->set(_source, 0);
+        (*_bucket)[_source] = 0;
         _dormant[0] = true;
       }
-      _source_set->set(_source, true);
+      (*_source_set)[_source] = true;
 
       Node target = _last[_sets.back().back()];
       {
         for (OutArcIt a(_graph, _source); a != INVALID; ++a) {
           if (_tolerance.positive((*_capacity)[a])) {
             Node u = _graph.target(a);
-            _flow->set(a, (*_capacity)[a]);
-            _excess->set(u, (*_excess)[u] + (*_capacity)[a]);
+            (*_flow)[a] = (*_capacity)[a];
+            (*_excess)[u] += (*_capacity)[a];
             if (!(*_active)[u] && u != _source) {
               activate(u);
             }
@@ -318,14 +326,14 @@ namespace lemon {
                 activate(v);
               }
               if (!_tolerance.less(rem, excess)) {
-                _flow->set(a, (*_flow)[a] + excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_flow)[a] += excess;
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
-                _flow->set(a, (*_capacity)[a]);
+                (*_excess)[v] += rem;
+                (*_flow)[a] = (*_capacity)[a];
               }
             } else if (next_bucket > (*_bucket)[v]) {
               next_bucket = (*_bucket)[v];
@@ -342,14 +350,14 @@ namespace lemon {
                 activate(v);
               }
               if (!_tolerance.less(rem, excess)) {
-                _flow->set(a, (*_flow)[a] - excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_flow)[a] -= excess;
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
-                _flow->set(a, 0);
+                (*_excess)[v] += rem;
+                (*_flow)[a] = 0;
               }
             } else if (next_bucket > (*_bucket)[v]) {
               next_bucket = (*_bucket)[v];
@@ -358,7 +366,7 @@ namespace lemon {
 
         no_more_push:
 
-          _excess->set(n, excess);
+          (*_excess)[n] = excess;
 
           if (excess != 0) {
             if ((*_next)[n] == INVALID) {
@@ -376,16 +384,16 @@ namespace lemon {
               }
             } else if (next_bucket == _node_num) {
               _first[(*_bucket)[n]] = (*_next)[n];
-              _prev->set((*_next)[n], INVALID);
+              (*_prev)[(*_next)[n]] = INVALID;
 
               std::list<std::list<int> >::iterator new_set =
                 _sets.insert(--_sets.end(), std::list<int>());
 
               new_set->push_front(bucket_num);
-              _bucket->set(n, bucket_num);
+              (*_bucket)[n] = bucket_num;
               _first[bucket_num] = _last[bucket_num] = n;
-              _next->set(n, INVALID);
-              _prev->set(n, INVALID);
+              (*_next)[n] = INVALID;
+              (*_prev)[n] = INVALID;
               _dormant[bucket_num] = true;
               ++bucket_num;
 
@@ -395,7 +403,7 @@ namespace lemon {
               }
             } else {
               _first[*_highest] = (*_next)[n];
-              _prev->set((*_next)[n], INVALID);
+              (*_prev)[(*_next)[n]] = INVALID;
 
               while (next_bucket != *_highest) {
                 --_highest;
@@ -409,10 +417,10 @@ namespace lemon {
               }
               --_highest;
 
-              _bucket->set(n, *_highest);
-              _next->set(n, _first[*_highest]);
+              (*_bucket)[n] = *_highest;
+              (*_next)[n] = _first[*_highest];
               if (_first[*_highest] != INVALID) {
-                _prev->set(_first[*_highest], n);
+                (*_prev)[_first[*_highest]] = n;
               } else {
                 _last[*_highest] = n;
               }
@@ -434,13 +442,13 @@ namespace lemon {
         if ((*_excess)[target] < _min_cut) {
           _min_cut = (*_excess)[target];
           for (NodeIt i(_graph); i != INVALID; ++i) {
-            _min_cut_map->set(i, true);
+            (*_min_cut_map)[i] = true;
           }
           for (std::list<int>::iterator it = _sets.back().begin();
                it != _sets.back().end(); ++it) {
             Node n = _first[*it];
             while (n != INVALID) {
-              _min_cut_map->set(n, false);
+              (*_min_cut_map)[n] = false;
               n = (*_next)[n];
             }
           }
@@ -453,13 +461,13 @@ namespace lemon {
               _last[(*_bucket)[target]] = (*_prev)[target];
               new_target = (*_prev)[target];
             } else {
-              _prev->set((*_next)[target], (*_prev)[target]);
+              (*_prev)[(*_next)[target]] = (*_prev)[target];
               new_target = (*_next)[target];
             }
             if ((*_prev)[target] == INVALID) {
               _first[(*_bucket)[target]] = (*_next)[target];
             } else {
-              _next->set((*_prev)[target], (*_next)[target]);
+              (*_next)[(*_prev)[target]] = (*_next)[target];
             }
           } else {
             _sets.back().pop_back();
@@ -475,9 +483,9 @@ namespace lemon {
             new_target = _last[_sets.back().back()];
           }
 
-          _bucket->set(target, 0);
+          (*_bucket)[target] = 0;
 
-          _source_set->set(target, true);
+          (*_source_set)[target] = true;
           for (OutArcIt a(_graph, target); a != INVALID; ++a) {
             Value rem = (*_capacity)[a] - (*_flow)[a];
             if (!_tolerance.positive(rem)) continue;
@@ -485,8 +493,8 @@ namespace lemon {
             if (!(*_active)[v] && !(*_source_set)[v]) {
               activate(v);
             }
-            _excess->set(v, (*_excess)[v] + rem);
-            _flow->set(a, (*_capacity)[a]);
+            (*_excess)[v] += rem;
+            (*_flow)[a] = (*_capacity)[a];
           }
 
           for (InArcIt a(_graph, target); a != INVALID; ++a) {
@@ -496,8 +504,8 @@ namespace lemon {
             if (!(*_active)[v] && !(*_source_set)[v]) {
               activate(v);
             }
-            _excess->set(v, (*_excess)[v] + rem);
-            _flow->set(a, 0);
+            (*_excess)[v] += rem;
+            (*_flow)[a] = 0;
           }
 
           target = new_target;
@@ -517,11 +525,12 @@ namespace lemon {
     void findMinCutIn() {
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _excess->set(n, 0);
+        (*_excess)[n] = 0;
+        (*_source_set)[n] = false;
       }
 
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        _flow->set(a, 0);
+        (*_flow)[a] = 0;
       }
 
       int bucket_num = 0;
@@ -531,7 +540,7 @@ namespace lemon {
       {
         typename Digraph::template NodeMap<bool> reached(_graph, false);
 
-        reached.set(_source, true);
+        reached[_source] = true;
 
         bool first_set = true;
 
@@ -540,7 +549,7 @@ namespace lemon {
           _sets.push_front(std::list<int>());
 
           queue[qlast++] = t;
-          reached.set(t, true);
+          reached[t] = true;
 
           while (qfirst != qlast) {
             if (qsep == qfirst) {
@@ -557,7 +566,7 @@ namespace lemon {
             for (OutArcIt a(_graph, n); a != INVALID; ++a) {
               Node u = _graph.target(a);
               if (!reached[u] && _tolerance.positive((*_capacity)[a])) {
-                reached.set(u, true);
+                reached[u] = true;
                 queue[qlast++] = u;
               }
             }
@@ -566,18 +575,18 @@ namespace lemon {
         }
 
         ++bucket_num;
-        _bucket->set(_source, 0);
+        (*_bucket)[_source] = 0;
         _dormant[0] = true;
       }
-      _source_set->set(_source, true);
+      (*_source_set)[_source] = true;
 
       Node target = _last[_sets.back().back()];
       {
         for (InArcIt a(_graph, _source); a != INVALID; ++a) {
           if (_tolerance.positive((*_capacity)[a])) {
             Node u = _graph.source(a);
-            _flow->set(a, (*_capacity)[a]);
-            _excess->set(u, (*_excess)[u] + (*_capacity)[a]);
+            (*_flow)[a] = (*_capacity)[a];
+            (*_excess)[u] += (*_capacity)[a];
             if (!(*_active)[u] && u != _source) {
               activate(u);
             }
@@ -618,14 +627,14 @@ namespace lemon {
                 activate(v);
               }
               if (!_tolerance.less(rem, excess)) {
-                _flow->set(a, (*_flow)[a] + excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_flow)[a] += excess;
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
-                _flow->set(a, (*_capacity)[a]);
+                (*_excess)[v] += rem;
+                (*_flow)[a] = (*_capacity)[a];
               }
             } else if (next_bucket > (*_bucket)[v]) {
               next_bucket = (*_bucket)[v];
@@ -642,14 +651,14 @@ namespace lemon {
                 activate(v);
               }
               if (!_tolerance.less(rem, excess)) {
-                _flow->set(a, (*_flow)[a] - excess);
-                _excess->set(v, (*_excess)[v] + excess);
+                (*_flow)[a] -= excess;
+                (*_excess)[v] += excess;
                 excess = 0;
                 goto no_more_push;
               } else {
                 excess -= rem;
-                _excess->set(v, (*_excess)[v] + rem);
-                _flow->set(a, 0);
+                (*_excess)[v] += rem;
+                (*_flow)[a] = 0;
               }
             } else if (next_bucket > (*_bucket)[v]) {
               next_bucket = (*_bucket)[v];
@@ -658,7 +667,7 @@ namespace lemon {
 
         no_more_push:
 
-          _excess->set(n, excess);
+          (*_excess)[n] = excess;
 
           if (excess != 0) {
             if ((*_next)[n] == INVALID) {
@@ -676,16 +685,16 @@ namespace lemon {
               }
             } else if (next_bucket == _node_num) {
               _first[(*_bucket)[n]] = (*_next)[n];
-              _prev->set((*_next)[n], INVALID);
+              (*_prev)[(*_next)[n]] = INVALID;
 
               std::list<std::list<int> >::iterator new_set =
                 _sets.insert(--_sets.end(), std::list<int>());
 
               new_set->push_front(bucket_num);
-              _bucket->set(n, bucket_num);
+              (*_bucket)[n] = bucket_num;
               _first[bucket_num] = _last[bucket_num] = n;
-              _next->set(n, INVALID);
-              _prev->set(n, INVALID);
+              (*_next)[n] = INVALID;
+              (*_prev)[n] = INVALID;
               _dormant[bucket_num] = true;
               ++bucket_num;
 
@@ -695,7 +704,7 @@ namespace lemon {
               }
             } else {
               _first[*_highest] = (*_next)[n];
-              _prev->set((*_next)[n], INVALID);
+              (*_prev)[(*_next)[n]] = INVALID;
 
               while (next_bucket != *_highest) {
                 --_highest;
@@ -708,10 +717,10 @@ namespace lemon {
               }
               --_highest;
 
-              _bucket->set(n, *_highest);
-              _next->set(n, _first[*_highest]);
+              (*_bucket)[n] = *_highest;
+              (*_next)[n] = _first[*_highest];
               if (_first[*_highest] != INVALID) {
-                _prev->set(_first[*_highest], n);
+                (*_prev)[_first[*_highest]] = n;
               } else {
                 _last[*_highest] = n;
               }
@@ -733,13 +742,13 @@ namespace lemon {
         if ((*_excess)[target] < _min_cut) {
           _min_cut = (*_excess)[target];
           for (NodeIt i(_graph); i != INVALID; ++i) {
-            _min_cut_map->set(i, false);
+            (*_min_cut_map)[i] = false;
           }
           for (std::list<int>::iterator it = _sets.back().begin();
                it != _sets.back().end(); ++it) {
             Node n = _first[*it];
             while (n != INVALID) {
-              _min_cut_map->set(n, true);
+              (*_min_cut_map)[n] = true;
               n = (*_next)[n];
             }
           }
@@ -752,13 +761,13 @@ namespace lemon {
               _last[(*_bucket)[target]] = (*_prev)[target];
               new_target = (*_prev)[target];
             } else {
-              _prev->set((*_next)[target], (*_prev)[target]);
+              (*_prev)[(*_next)[target]] = (*_prev)[target];
               new_target = (*_next)[target];
             }
             if ((*_prev)[target] == INVALID) {
               _first[(*_bucket)[target]] = (*_next)[target];
             } else {
-              _next->set((*_prev)[target], (*_next)[target]);
+              (*_next)[(*_prev)[target]] = (*_next)[target];
             }
           } else {
             _sets.back().pop_back();
@@ -774,9 +783,9 @@ namespace lemon {
             new_target = _last[_sets.back().back()];
           }
 
-          _bucket->set(target, 0);
+          (*_bucket)[target] = 0;
 
-          _source_set->set(target, true);
+          (*_source_set)[target] = true;
           for (InArcIt a(_graph, target); a != INVALID; ++a) {
             Value rem = (*_capacity)[a] - (*_flow)[a];
             if (!_tolerance.positive(rem)) continue;
@@ -784,8 +793,8 @@ namespace lemon {
             if (!(*_active)[v] && !(*_source_set)[v]) {
               activate(v);
             }
-            _excess->set(v, (*_excess)[v] + rem);
-            _flow->set(a, (*_capacity)[a]);
+            (*_excess)[v] += rem;
+            (*_flow)[a] = (*_capacity)[a];
           }
 
           for (OutArcIt a(_graph, target); a != INVALID; ++a) {
@@ -795,8 +804,8 @@ namespace lemon {
             if (!(*_active)[v] && !(*_source_set)[v]) {
               activate(v);
             }
-            _excess->set(v, (*_excess)[v] + rem);
-            _flow->set(a, 0);
+            (*_excess)[v] += rem;
+            (*_flow)[a] = 0;
           }
 
           target = new_target;
@@ -815,31 +824,32 @@ namespace lemon {
 
   public:
 
-    /// \name Execution control
+    /// \name Execution Control
     /// The simplest way to execute the algorithm is to use
     /// one of the member functions called \ref run().
     /// \n
-    /// If you need more control on the execution,
-    /// first you must call \ref init(), then the \ref calculateIn() or
-    /// \ref calculateOut() functions.
+    /// If you need better control on the execution,
+    /// you have to call one of the \ref init() functions first, then
+    /// \ref calculateOut() and/or \ref calculateIn().
 
     /// @{
 
-    /// \brief Initializes the internal data structures.
+    /// \brief Initialize the internal data structures.
     ///
-    /// Initializes the internal data structures. It creates
-    /// the maps, residual graph adaptors and some bucket structures
-    /// for the algorithm.
+    /// This function initializes the internal data structures. It creates
+    /// the maps and some bucket structures for the algorithm.
+    /// The first node is used as the source node for the push-relabel
+    /// algorithm.
     void init() {
       init(NodeIt(_graph));
     }
 
-    /// \brief Initializes the internal data structures.
+    /// \brief Initialize the internal data structures.
     ///
-    /// Initializes the internal data structures. It creates
-    /// the maps, residual graph adaptor and some bucket structures
-    /// for the algorithm. Node \c source  is used as the push-relabel
-    /// algorithm's source.
+    /// This function initializes the internal data structures. It creates
+    /// the maps and some bucket structures for the algorithm. 
+    /// The given node is used as the source node for the push-relabel
+    /// algorithm.
     void init(const Node& source) {
       _source = source;
 
@@ -879,31 +889,35 @@ namespace lemon {
     }
 
 
-    /// \brief Calculates a minimum cut with \f$ source \f$ on the
+    /// \brief Calculate a minimum cut with \f$ source \f$ on the
     /// source-side.
     ///
-    /// Calculates a minimum cut with \f$ source \f$ on the
+    /// This function calculates a minimum cut with \f$ source \f$ on the
     /// source-side (i.e. a set \f$ X\subsetneq V \f$ with
-    /// \f$ source \in X \f$ and minimal out-degree).
+    /// \f$ source \in X \f$ and minimal outgoing capacity).
+    ///
+    /// \pre \ref init() must be called before using this function.
     void calculateOut() {
       findMinCutOut();
     }
 
-    /// \brief Calculates a minimum cut with \f$ source \f$ on the
-    /// target-side.
+    /// \brief Calculate a minimum cut with \f$ source \f$ on the
+    /// sink-side.
     ///
-    /// Calculates a minimum cut with \f$ source \f$ on the
-    /// target-side (i.e. a set \f$ X\subsetneq V \f$ with
-    /// \f$ source \in X \f$ and minimal out-degree).
+    /// This function calculates a minimum cut with \f$ source \f$ on the
+    /// sink-side (i.e. a set \f$ X\subsetneq V \f$ with
+    /// \f$ source \notin X \f$ and minimal outgoing capacity).
+    ///
+    /// \pre \ref init() must be called before using this function.
     void calculateIn() {
       findMinCutIn();
     }
 
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm. It finds nodes \c source and \c target
-    /// arbitrarily and then calls \ref init(), \ref calculateOut()
+    /// This function runs the algorithm. It finds nodes \c source and
+    /// \c target arbitrarily and then calls \ref init(), \ref calculateOut()
     /// and \ref calculateIn().
     void run() {
       init();
@@ -911,11 +925,11 @@ namespace lemon {
       calculateIn();
     }
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm. It uses the given \c source node, finds a
-    /// proper \c target and then calls the \ref init(), \ref
-    /// calculateOut() and \ref calculateIn().
+    /// This function runs the algorithm. It uses the given \c source node, 
+    /// finds a proper \c target node and then calls the \ref init(),
+    /// \ref calculateOut() and \ref calculateIn().
     void run(const Node& s) {
       init(s);
       calculateOut();
@@ -926,32 +940,41 @@ namespace lemon {
 
     /// \name Query Functions
     /// The result of the %HaoOrlin algorithm
-    /// can be obtained using these functions.
-    /// \n
-    /// Before using these functions, either \ref run(), \ref
-    /// calculateOut() or \ref calculateIn() must be called.
+    /// can be obtained using these functions.\n
+    /// \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// should be called before using them.
 
     /// @{
 
-    /// \brief Returns the value of the minimum value cut.
+    /// \brief Return the value of the minimum cut.
     ///
-    /// Returns the value of the minimum value cut.
+    /// This function returns the value of the minimum cut.
+    ///
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// must be called before using this function.
     Value minCutValue() const {
       return _min_cut;
     }
 
 
-    /// \brief Returns a minimum cut.
+    /// \brief Return a minimum cut.
     ///
-    /// Sets \c nodeMap to the characteristic vector of a minimum
-    /// value cut: it will give a nonempty set \f$ X\subsetneq V \f$
-    /// with minimal out-degree (i.e. \c nodeMap will be true exactly
-    /// for the nodes of \f$ X \f$).  \pre nodeMap should be a
-    /// bool-valued node-map.
-    template <typename NodeMap>
-    Value minCutMap(NodeMap& nodeMap) const {
+    /// This function sets \c cutMap to the characteristic vector of a
+    /// minimum value cut: it will give a non-empty set \f$ X\subsetneq V \f$
+    /// with minimal outgoing capacity (i.e. \c cutMap will be \c true exactly
+    /// for the nodes of \f$ X \f$).
+    ///
+    /// \param cutMap A \ref concepts::WriteMap "writable" node map with
+    /// \c bool (or convertible) value type.
+    ///
+    /// \return The value of the minimum cut.
+    ///
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// must be called before using this function.
+    template <typename CutMap>
+    Value minCutMap(CutMap& cutMap) const {
       for (NodeIt it(_graph); it != INVALID; ++it) {
-        nodeMap.set(it, (*_min_cut_map)[it]);
+        cutMap.set(it, (*_min_cut_map)[it]);
       }
       return _min_cut;
     }
@@ -959,7 +982,6 @@ namespace lemon {
     /// @}
 
   }; //class HaoOrlin
-
 
 } //namespace lemon
 

@@ -2192,6 +2192,9 @@ namespace lemon {
 
     typedef typename ItemSetTraits<DGR, Edge>::ItemNotifier EdgeNotifier;
     EdgeNotifier& notifier(Edge) const { return _digraph->notifier(Edge()); }
+    
+    typedef EdgeNotifier ArcNotifier;
+    ArcNotifier& notifier(Arc) const { return _digraph->notifier(Edge()); }
 
   protected:
 

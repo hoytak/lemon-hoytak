@@ -1315,27 +1315,27 @@ namespace lemon {
 
     virtual void clear() {
       for(NodeIt n(_g);n!=INVALID;++n) {
-        _head.set(n, INVALID);
+        _head[n] = INVALID;
       }
     }
 
     void insert(Arc arc) {
       Node s = _g.source(arc);
       Node t = _g.target(arc);
-      _left.set(arc, INVALID);
-      _right.set(arc, INVALID);
+      _left[arc] = INVALID;
+      _right[arc] = INVALID;
 
       Arc e = _head[s];
       if (e == INVALID) {
-        _head.set(s, arc);
-        _parent.set(arc, INVALID);
+        _head[s] = arc;
+        _parent[arc] = INVALID;
         return;
       }
       while (true) {
         if (t < _g.target(e)) {
           if (_left[e] == INVALID) {
-            _left.set(e, arc);
-            _parent.set(arc, e);
+            _left[e] = arc;
+            _parent[arc] = e;
             splay(arc);
             return;
           } else {
@@ -1343,8 +1343,8 @@ namespace lemon {
           }
         } else {
           if (_right[e] == INVALID) {
-            _right.set(e, arc);
-            _parent.set(arc, e);
+            _right[e] = arc;
+            _parent[arc] = e;
             splay(arc);
             return;
           } else {
@@ -1357,27 +1357,27 @@ namespace lemon {
     void remove(Arc arc) {
       if (_left[arc] == INVALID) {
         if (_right[arc] != INVALID) {
-          _parent.set(_right[arc], _parent[arc]);
+          _parent[_right[arc]] = _parent[arc];
         }
         if (_parent[arc] != INVALID) {
           if (_left[_parent[arc]] == arc) {
-            _left.set(_parent[arc], _right[arc]);
+            _left[_parent[arc]] = _right[arc];
           } else {
-            _right.set(_parent[arc], _right[arc]);
+            _right[_parent[arc]] = _right[arc];
           }
         } else {
-          _head.set(_g.source(arc), _right[arc]);
+          _head[_g.source(arc)] = _right[arc];
         }
       } else if (_right[arc] == INVALID) {
-        _parent.set(_left[arc], _parent[arc]);
+        _parent[_left[arc]] = _parent[arc];
         if (_parent[arc] != INVALID) {
           if (_left[_parent[arc]] == arc) {
-            _left.set(_parent[arc], _left[arc]);
+            _left[_parent[arc]] = _left[arc];
           } else {
-            _right.set(_parent[arc], _left[arc]);
+            _right[_parent[arc]] = _left[arc];
           }
         } else {
-          _head.set(_g.source(arc), _left[arc]);
+          _head[_g.source(arc)] = _left[arc];
         }
       } else {
         Arc e = _left[arc];
@@ -1387,38 +1387,38 @@ namespace lemon {
             e = _right[e];
           }
           Arc s = _parent[e];
-          _right.set(_parent[e], _left[e]);
+          _right[_parent[e]] = _left[e];
           if (_left[e] != INVALID) {
-            _parent.set(_left[e], _parent[e]);
+            _parent[_left[e]] = _parent[e];
           }
 
-          _left.set(e, _left[arc]);
-          _parent.set(_left[arc], e);
-          _right.set(e, _right[arc]);
-          _parent.set(_right[arc], e);
+          _left[e] = _left[arc];
+          _parent[_left[arc]] = e;
+          _right[e] = _right[arc];
+          _parent[_right[arc]] = e;
 
-          _parent.set(e, _parent[arc]);
+          _parent[e] = _parent[arc];
           if (_parent[arc] != INVALID) {
             if (_left[_parent[arc]] == arc) {
-              _left.set(_parent[arc], e);
+              _left[_parent[arc]] = e;
             } else {
-              _right.set(_parent[arc], e);
+              _right[_parent[arc]] = e;
             }
           }
           splay(s);
         } else {
-          _right.set(e, _right[arc]);
-          _parent.set(_right[arc], e);
-          _parent.set(e, _parent[arc]);
+          _right[e] = _right[arc];
+          _parent[_right[arc]] = e;
+          _parent[e] = _parent[arc];
 
           if (_parent[arc] != INVALID) {
             if (_left[_parent[arc]] == arc) {
-              _left.set(_parent[arc], e);
+              _left[_parent[arc]] = e;
             } else {
-              _right.set(_parent[arc], e);
+              _right[_parent[arc]] = e;
             }
           } else {
-            _head.set(_g.source(arc), e);
+            _head[_g.source(arc)] = e;
           }
         }
       }
@@ -1430,17 +1430,17 @@ namespace lemon {
       Arc me=v[m];
       if (a < m) {
         Arc left = refreshRec(v,a,m-1);
-        _left.set(me, left);
-        _parent.set(left, me);
+        _left[me] = left;
+        _parent[left] = me;
       } else {
-        _left.set(me, INVALID);
+        _left[me] = INVALID;
       }
       if (m < b) {
         Arc right = refreshRec(v,m+1,b);
-        _right.set(me, right);
-        _parent.set(right, me);
+        _right[me] = right;
+        _parent[right] = me;
       } else {
-        _right.set(me, INVALID);
+        _right[me] = INVALID;
       }
       return me;
     }
@@ -1452,46 +1452,46 @@ namespace lemon {
         if (!v.empty()) {
           std::sort(v.begin(),v.end(),ArcLess(_g));
           Arc head = refreshRec(v,0,v.size()-1);
-          _head.set(n, head);
-          _parent.set(head, INVALID);
+          _head[n] = head;
+          _parent[head] = INVALID;
         }
-        else _head.set(n, INVALID);
+        else _head[n] = INVALID;
       }
     }
 
     void zig(Arc v) {
       Arc w = _parent[v];
-      _parent.set(v, _parent[w]);
-      _parent.set(w, v);
-      _left.set(w, _right[v]);
-      _right.set(v, w);
+      _parent[v] = _parent[w];
+      _parent[w] = v;
+      _left[w] = _right[v];
+      _right[v] = w;
       if (_parent[v] != INVALID) {
         if (_right[_parent[v]] == w) {
-          _right.set(_parent[v], v);
+          _right[_parent[v]] = v;
         } else {
-          _left.set(_parent[v], v);
+          _left[_parent[v]] = v;
         }
       }
       if (_left[w] != INVALID){
-        _parent.set(_left[w], w);
+        _parent[_left[w]] = w;
       }
     }
 
     void zag(Arc v) {
       Arc w = _parent[v];
-      _parent.set(v, _parent[w]);
-      _parent.set(w, v);
-      _right.set(w, _left[v]);
-      _left.set(v, w);
+      _parent[v] = _parent[w];
+      _parent[w] = v;
+      _right[w] = _left[v];
+      _left[v] = w;
       if (_parent[v] != INVALID){
         if (_left[_parent[v]] == w) {
-          _left.set(_parent[v], v);
+          _left[_parent[v]] = v;
         } else {
-          _right.set(_parent[v], v);
+          _right[_parent[v]] = v;
         }
       }
       if (_right[w] != INVALID){
-        _parent.set(_right[w], w);
+        _parent[_right[w]] = w;
       }
     }
 

@@ -144,14 +144,29 @@ namespace lemon {
 
     virtual void _clear();
 
+    virtual void _messageLevel(MessageLevel level);
+    void _applyMessageLevel();
+
+    bool _message_enabled;
+
   public:
 
     /// Returns the used \c CplexEnv instance
     const CplexEnv& env() const { return _env; }
+
+    /// \brief Returns the const cpxenv pointer
     ///
+    /// \note The cpxenv might be destructed with the solver.
     const cpxenv* cplexEnv() const { return _env.cplexEnv(); }
 
+    /// \brief Returns the const cpxenv pointer
+    ///
+    /// \note The cpxenv might be destructed with the solver.
+    cpxenv* cplexEnv() { return _env.cplexEnv(); }
+
+    /// Returns the cplex problem object
     cpxlp* cplexLp() { return _prob; }
+    /// Returns the cplex problem object
     const cpxlp* cplexLp() const { return _prob; }
 
   };

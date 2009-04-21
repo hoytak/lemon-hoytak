@@ -282,20 +282,20 @@ namespace lemon {
         Node base = (*_blossom_rep)[_blossom_set->find(node)];
 
         while (base != nca) {
-          _ear->set(node, arc);
+          (*_ear)[node] = arc;
 
           Node n = node;
           while (n != base) {
             n = _graph.target((*_matching)[n]);
             Arc a = (*_ear)[n];
             n = _graph.target(a);
-            _ear->set(n, _graph.oppositeArc(a));
+            (*_ear)[n] = _graph.oppositeArc(a);
           }
           node = _graph.target((*_matching)[base]);
           _tree_set->erase(base);
           _tree_set->erase(node);
           _blossom_set->insert(node, _blossom_set->find(base));
-          _status->set(node, EVEN);
+          (*_status)[node] = EVEN;
           _node_queue[_last++] = node;
           arc = _graph.oppositeArc((*_ear)[node]);
           node = _graph.target((*_ear)[node]);
@@ -304,7 +304,7 @@ namespace lemon {
         }
       }
 
-      _blossom_rep->set(_blossom_set->find(nca), nca);
+      (*_blossom_rep)[_blossom_set->find(nca)] = nca;
 
       {
 
@@ -313,20 +313,20 @@ namespace lemon {
         Node base = (*_blossom_rep)[_blossom_set->find(node)];
 
         while (base != nca) {
-          _ear->set(node, arc);
+          (*_ear)[node] = arc;
 
           Node n = node;
           while (n != base) {
             n = _graph.target((*_matching)[n]);
             Arc a = (*_ear)[n];
             n = _graph.target(a);
-            _ear->set(n, _graph.oppositeArc(a));
+            (*_ear)[n] = _graph.oppositeArc(a);
           }
           node = _graph.target((*_matching)[base]);
           _tree_set->erase(base);
           _tree_set->erase(node);
           _blossom_set->insert(node, _blossom_set->find(base));
-          _status->set(node, EVEN);
+          (*_status)[node] = EVEN;
           _node_queue[_last++] = node;
           arc = _graph.oppositeArc((*_ear)[node]);
           node = _graph.target((*_ear)[node]);
@@ -335,7 +335,7 @@ namespace lemon {
         }
       }
 
-      _blossom_rep->set(_blossom_set->find(nca), nca);
+      (*_blossom_rep)[_blossom_set->find(nca)] = nca;
     }
 
 
@@ -344,11 +344,11 @@ namespace lemon {
       Node base = _graph.source(a);
       Node odd = _graph.target(a);
 
-      _ear->set(odd, _graph.oppositeArc(a));
+      (*_ear)[odd] = _graph.oppositeArc(a);
       Node even = _graph.target((*_matching)[odd]);
-      _blossom_rep->set(_blossom_set->insert(even), even);
-      _status->set(odd, ODD);
-      _status->set(even, EVEN);
+      (*_blossom_rep)[_blossom_set->insert(even)] = even;
+      (*_status)[odd] = ODD;
+      (*_status)[even] = EVEN;
       int tree = _tree_set->find((*_blossom_rep)[_blossom_set->find(base)]);
       _tree_set->insert(odd, tree);
       _tree_set->insert(even, tree);
@@ -362,30 +362,30 @@ namespace lemon {
 
       int tree = _tree_set->find((*_blossom_rep)[_blossom_set->find(even)]);
 
-      _matching->set(odd, _graph.oppositeArc(a));
-      _status->set(odd, MATCHED);
+      (*_matching)[odd] = _graph.oppositeArc(a);
+      (*_status)[odd] = MATCHED;
 
       Arc arc = (*_matching)[even];
-      _matching->set(even, a);
+      (*_matching)[even] = a;
 
       while (arc != INVALID) {
         odd = _graph.target(arc);
         arc = (*_ear)[odd];
         even = _graph.target(arc);
-        _matching->set(odd, arc);
+        (*_matching)[odd] = arc;
         arc = (*_matching)[even];
-        _matching->set(even, _graph.oppositeArc((*_matching)[odd]));
+        (*_matching)[even] = _graph.oppositeArc((*_matching)[odd]);
       }
 
       for (typename TreeSet::ItemIt it(*_tree_set, tree);
            it != INVALID; ++it) {
         if ((*_status)[it] == ODD) {
-          _status->set(it, MATCHED);
+          (*_status)[it] = MATCHED;
         } else {
           int blossom = _blossom_set->find(it);
           for (typename BlossomSet::ItemIt jt(*_blossom_set, blossom);
                jt != INVALID; ++jt) {
-            _status->set(jt, MATCHED);
+            (*_status)[jt] = MATCHED;
           }
           _blossom_set->eraseClass(blossom);
         }
@@ -427,8 +427,8 @@ namespace lemon {
     void init() {
       createStructures();
       for(NodeIt n(_graph); n != INVALID; ++n) {
-        _matching->set(n, INVALID);
-        _status->set(n, UNMATCHED);
+        (*_matching)[n] = INVALID;
+        (*_status)[n] = UNMATCHED;
       }
     }
 
@@ -438,18 +438,18 @@ namespace lemon {
     void greedyInit() {
       createStructures();
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _matching->set(n, INVALID);
-        _status->set(n, UNMATCHED);
+        (*_matching)[n] = INVALID;
+        (*_status)[n] = UNMATCHED;
       }
       for (NodeIt n(_graph); n != INVALID; ++n) {
         if ((*_matching)[n] == INVALID) {
           for (OutArcIt a(_graph, n); a != INVALID ; ++a) {
             Node v = _graph.target(a);
             if ((*_matching)[v] == INVALID && v != n) {
-              _matching->set(n, a);
-              _status->set(n, MATCHED);
-              _matching->set(v, _graph.oppositeArc(a));
-              _status->set(v, MATCHED);
+              (*_matching)[n] = a;
+              (*_status)[n] = MATCHED;
+              (*_matching)[v] = _graph.oppositeArc(a);
+              (*_status)[v] = MATCHED;
               break;
             }
           }
@@ -469,21 +469,21 @@ namespace lemon {
       createStructures();
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _matching->set(n, INVALID);
-        _status->set(n, UNMATCHED);
+        (*_matching)[n] = INVALID;
+        (*_status)[n] = UNMATCHED;
       }
       for(EdgeIt e(_graph); e!=INVALID; ++e) {
         if (matching[e]) {
 
           Node u = _graph.u(e);
           if ((*_matching)[u] != INVALID) return false;
-          _matching->set(u, _graph.direct(e, true));
-          _status->set(u, MATCHED);
+          (*_matching)[u] = _graph.direct(e, true);
+          (*_status)[u] = MATCHED;
 
           Node v = _graph.v(e);
           if ((*_matching)[v] != INVALID) return false;
-          _matching->set(v, _graph.direct(e, false));
-          _status->set(v, MATCHED);
+          (*_matching)[v] = _graph.direct(e, false);
+          (*_status)[v] = MATCHED;
         }
       }
       return true;
@@ -497,7 +497,7 @@ namespace lemon {
         if ((*_status)[n] == UNMATCHED) {
           (*_blossom_rep)[_blossom_set->insert(n)] = n;
           _tree_set->insert(n);
-          _status->set(n, EVEN);
+          (*_status)[n] = EVEN;
           processSparse(n);
         }
       }
@@ -512,7 +512,7 @@ namespace lemon {
         if ((*_status)[n] == UNMATCHED) {
           (*_blossom_rep)[_blossom_set->insert(n)] = n;
           _tree_set->insert(n);
-          _status->set(n, EVEN);
+          (*_status)[n] = EVEN;
           processDense(n);
         }
       }
@@ -1548,9 +1548,9 @@ namespace lemon {
         int bi = (*_node_index)[base];
         Value pot = (*_node_data)[bi].pot;
 
-        _matching->set(base, matching);
+        (*_matching)[base] = matching;
         _blossom_node_list.push_back(base);
-        _node_potential->set(base, pot);
+        (*_node_potential)[base] = pot;
       } else {
 
         Value pot = (*_blossom_data)[blossom].pot;
@@ -1644,17 +1644,17 @@ namespace lemon {
       createStructures();
 
       for (ArcIt e(_graph); e != INVALID; ++e) {
-        _node_heap_index->set(e, BinHeap<Value, IntArcMap>::PRE_HEAP);
+        (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
       }
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        _delta1_index->set(n, _delta1->PRE_HEAP);
+        (*_delta1_index)[n] = _delta1->PRE_HEAP;
       }
       for (EdgeIt e(_graph); e != INVALID; ++e) {
-        _delta3_index->set(e, _delta3->PRE_HEAP);
+        (*_delta3_index)[e] = _delta3->PRE_HEAP;
       }
       for (int i = 0; i < _blossom_num; ++i) {
-        _delta2_index->set(i, _delta2->PRE_HEAP);
-        _delta4_index->set(i, _delta4->PRE_HEAP);
+        (*_delta2_index)[i] = _delta2->PRE_HEAP;
+        (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
 
       int index = 0;
@@ -1666,7 +1666,7 @@ namespace lemon {
             max = (dualScale * _weight[e]) / 2;
           }
         }
-        _node_index->set(n, index);
+        (*_node_index)[n] = index;
         (*_node_data)[index].pot = max;
         _delta1->push(n, max);
         int blossom =
@@ -2741,9 +2741,9 @@ namespace lemon {
         int bi = (*_node_index)[base];
         Value pot = (*_node_data)[bi].pot;
 
-        _matching->set(base, matching);
+        (*_matching)[base] = matching;
         _blossom_node_list.push_back(base);
-        _node_potential->set(base, pot);
+        (*_node_potential)[base] = pot;
       } else {
 
         Value pot = (*_blossom_data)[blossom].pot;
@@ -2831,14 +2831,14 @@ namespace lemon {
       createStructures();
 
       for (ArcIt e(_graph); e != INVALID; ++e) {
-        _node_heap_index->set(e, BinHeap<Value, IntArcMap>::PRE_HEAP);
+        (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
       }
       for (EdgeIt e(_graph); e != INVALID; ++e) {
-        _delta3_index->set(e, _delta3->PRE_HEAP);
+        (*_delta3_index)[e] = _delta3->PRE_HEAP;
       }
       for (int i = 0; i < _blossom_num; ++i) {
-        _delta2_index->set(i, _delta2->PRE_HEAP);
-        _delta4_index->set(i, _delta4->PRE_HEAP);
+        (*_delta2_index)[i] = _delta2->PRE_HEAP;
+        (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
 
       int index = 0;
@@ -2850,7 +2850,7 @@ namespace lemon {
             max = (dualScale * _weight[e]) / 2;
           }
         }
-        _node_index->set(n, index);
+        (*_node_index)[n] = index;
         (*_node_data)[index].pot = max;
         int blossom =
           _blossom_set->insert(n, std::numeric_limits<Value>::max());

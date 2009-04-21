@@ -144,6 +144,11 @@ namespace lemon {
 
     virtual void _clear();
 
+    void _messageLevel(MessageLevel m);
+    void _applyMessageLevel();
+
+    int _message_level;
+
   };
 
 } //END OF NAMESPACE LEMON

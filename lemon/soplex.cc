@@ -20,6 +20,7 @@
 #include <lemon/soplex.h>
 
 #include <soplex.h>
+#include <spxout.h>
 
 
 ///\file
@@ -28,6 +29,7 @@ namespace lemon {
 
   SoplexLp::SoplexLp() {
     soplex = new soplex::SoPlex;
+    messageLevel(MESSAGE_NOTHING);
   }
 
   SoplexLp::~SoplexLp() {
@@ -47,6 +49,7 @@ namespace lemon {
     _row_names = lp._row_names;
     _row_names_ref = lp._row_names_ref;
 
+    messageLevel(MESSAGE_NOTHING);
   }
 
   void SoplexLp::_clear_temporals() {
@@ -271,6 +274,8 @@ namespace lemon {
   SoplexLp::SolveExitStatus SoplexLp::_solve() {
 
     _clear_temporals();
+    
+    _applyMessageLevel();
 
     soplex::SPxSolver::Status status = soplex->solve();
 
@@ -417,6 +422,30 @@ namespace lemon {
     cols.clear();
     rows.clear();
     _clear_temporals();
+  }
+
+  void SoplexLp::_messageLevel(MessageLevel level) {
+    switch (level) {
+    case MESSAGE_NOTHING:
+      _message_level = -1;
+      break;
+    case MESSAGE_ERROR:
+      _message_level = soplex::SPxOut::ERROR;
+      break;
+    case MESSAGE_WARNING:
+      _message_level = soplex::SPxOut::WARNING;
+      break;
+    case MESSAGE_NORMAL:
+      _message_level = soplex::SPxOut::INFO2;
+      break;
+    case MESSAGE_VERBOSE:
+      _message_level = soplex::SPxOut::DEBUG;
+      break;
+    }
+  }
+
+  void SoplexLp::_applyMessageLevel() {
+    soplex::Param::setVerbose(_message_level);
   }
 
 } //namespace lemon

@@ -395,12 +395,7 @@ int main()
     aTest(lp_cplex2);
     cloneTest<CplexLp>();
   } catch (CplexEnv::LicenseError& error) {
-#ifdef LEMON_FORCE_CPLEX_CHECK
     check(false, error.what());
-#else
-    std::cerr << error.what() << std::endl;
-    std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
-#endif
   }
 #endif
 

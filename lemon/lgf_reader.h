@@ -592,7 +592,7 @@ namespace lemon {
 
   public:
 
-    /// \name Reading rules
+    /// \name Reading Rules
     /// @{
 
     /// \brief Node map reading rule
@@ -697,7 +697,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Select section by name
+    /// \name Select Section by Name
     /// @{
 
     /// \brief Set \c \@nodes section to be read
@@ -726,7 +726,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Using previously constructed node or arc set
+    /// \name Using Previously Constructed Node or Arc Set
     /// @{
 
     /// \brief Use previously constructed node set
@@ -1115,7 +1115,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the reader
+    /// \name Execution of the Reader
     /// @{
 
     /// \brief Start the batch processing
@@ -1415,7 +1415,7 @@ namespace lemon {
 
   public:
 
-    /// \name Reading rules
+    /// \name Reading Rules
     /// @{
 
     /// \brief Node map reading rule
@@ -1566,7 +1566,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Select section by name
+    /// \name Select Section by Name
     /// @{
 
     /// \brief Set \c \@nodes section to be read
@@ -1595,7 +1595,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Using previously constructed node or edge set
+    /// \name Using Previously Constructed Node or Edge Set
     /// @{
 
     /// \brief Use previously constructed node set
@@ -1985,7 +1985,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the reader
+    /// \name Execution of the Reader
     /// @{
 
     /// \brief Start the batch processing
@@ -2209,7 +2209,7 @@ namespace lemon {
 
   public:
 
-    /// \name Section readers
+    /// \name Section Readers
     /// @{
 
     /// \brief Add a section processor with line oriented reading
@@ -2308,7 +2308,7 @@ namespace lemon {
   public:
 
 
-    /// \name Execution of the reader
+    /// \name Execution of the Reader
     /// @{
 
     /// \brief Start the batch processing
@@ -2500,7 +2500,7 @@ namespace lemon {
   public:
 
 
-    /// \name Node sections
+    /// \name Node Sections
     /// @{
 
     /// \brief Gives back the number of node sections in the file.
@@ -2526,7 +2526,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Arc/Edge sections
+    /// \name Arc/Edge Sections
     /// @{
 
     /// \brief Gives back the number of arc/edge sections in the file.
@@ -2584,7 +2584,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Attribute sections
+    /// \name Attribute Sections
     /// @{
 
     /// \brief Gives back the number of attribute sections in the file.
@@ -2610,7 +2610,7 @@ namespace lemon {
 
     /// @}
 
-    /// \name Extra sections
+    /// \name Extra Sections
     /// @{
 
     /// \brief Gives back the number of extra sections in the file.
@@ -2686,7 +2686,7 @@ namespace lemon {
 
   public:
 
-    /// \name Execution of the contents reader
+    /// \name Execution of the Contents Reader
     /// @{
 
     /// \brief Starts the reading

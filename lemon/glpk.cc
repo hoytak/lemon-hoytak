@@ -31,6 +31,7 @@ namespace lemon {
   GlpkBase::GlpkBase() : LpBase() {
     lp = glp_create_prob();
     glp_create_index(lp);
+    messageLevel(MESSAGE_NOTHING);
   }
 
   GlpkBase::GlpkBase(const GlpkBase &other) : LpBase() {
@@ -39,6 +40,7 @@ namespace lemon {
     glp_create_index(lp);
     rows = other.rows;
     cols = other.cols;
+    messageLevel(MESSAGE_NOTHING);
   }
 
   GlpkBase::~GlpkBase() {
@@ -526,19 +528,37 @@ namespace lemon {
     glp_free_env();
   }
 
+  void GlpkBase::_messageLevel(MessageLevel level) {
+    switch (level) {
+    case MESSAGE_NOTHING:
+      _message_level = GLP_MSG_OFF;
+      break;
+    case MESSAGE_ERROR:
+      _message_level = GLP_MSG_ERR;
+      break;
+    case MESSAGE_WARNING:
+      _message_level = GLP_MSG_ERR;
+      break;
+    case MESSAGE_NORMAL:
+      _message_level = GLP_MSG_ON;
+      break;
+    case MESSAGE_VERBOSE:
+      _message_level = GLP_MSG_ALL;
+      break;
+    }
+  }
+
   GlpkBase::FreeEnvHelper GlpkBase::freeEnvHelper;
 
   // GlpkLp members
 
   GlpkLp::GlpkLp()
     : LpBase(), LpSolver(), GlpkBase() {
-    messageLevel(MESSAGE_NO_OUTPUT);
     presolver(false);
   }
 
   GlpkLp::GlpkLp(const GlpkLp& other)
     : LpBase(other), LpSolver(other), GlpkBase(other) {
-    messageLevel(MESSAGE_NO_OUTPUT);
     presolver(false);
   }
 
@@ -562,20 +582,7 @@ namespace lemon {
     glp_smcp smcp;
     glp_init_smcp(&smcp);
 
-    switch (_message_level) {
-    case MESSAGE_NO_OUTPUT:
-      smcp.msg_lev = GLP_MSG_OFF;
-      break;
-    case MESSAGE_ERROR_MESSAGE:
-      smcp.msg_lev = GLP_MSG_ERR;
-      break;
-    case MESSAGE_NORMAL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ON;
-      break;
-    case MESSAGE_FULL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ALL;
-      break;
-    }
+    smcp.msg_lev = _message_level;
     smcp.presolve = _presolve;
 
     // If the basis is not valid we get an error return value.
@@ -604,20 +611,7 @@ namespace lemon {
     glp_smcp smcp;
     glp_init_smcp(&smcp);
 
-    switch (_message_level) {
-    case MESSAGE_NO_OUTPUT:
-      smcp.msg_lev = GLP_MSG_OFF;
-      break;
-    case MESSAGE_ERROR_MESSAGE:
-      smcp.msg_lev = GLP_MSG_ERR;
-      break;
-    case MESSAGE_NORMAL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ON;
-      break;
-    case MESSAGE_FULL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ALL;
-      break;
-    }
+    smcp.msg_lev = _message_level;
     smcp.meth = GLP_DUAL;
     smcp.presolve = _presolve;
 
@@ -858,20 +852,14 @@ namespace lemon {
     _presolve = presolve;
   }
 
-  void GlpkLp::messageLevel(MessageLevel m) {
-    _message_level = m;
-  }
-
   // GlpkMip members
 
   GlpkMip::GlpkMip()
     : LpBase(), MipSolver(), GlpkBase() {
-    messageLevel(MESSAGE_NO_OUTPUT);
   }
 
   GlpkMip::GlpkMip(const GlpkMip& other)
     : LpBase(), MipSolver(), GlpkBase(other) {
-    messageLevel(MESSAGE_NO_OUTPUT);
   }
 
   void GlpkMip::_setColType(int i, GlpkMip::ColTypes col_type) {
@@ -900,20 +888,7 @@ namespace lemon {
     glp_smcp smcp;
     glp_init_smcp(&smcp);
 
-    switch (_message_level) {
-    case MESSAGE_NO_OUTPUT:
-      smcp.msg_lev = GLP_MSG_OFF;
-      break;
-    case MESSAGE_ERROR_MESSAGE:
-      smcp.msg_lev = GLP_MSG_ERR;
-      break;
-    case MESSAGE_NORMAL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ON;
-      break;
-    case MESSAGE_FULL_OUTPUT:
-      smcp.msg_lev = GLP_MSG_ALL;
-      break;
-    }
+    smcp.msg_lev = _message_level;
     smcp.meth = GLP_DUAL;
 
     // If the basis is not valid we get an error return value.
@@ -938,20 +913,7 @@ namespace lemon {
     glp_iocp iocp;
     glp_init_iocp(&iocp);
 
-    switch (_message_level) {
-    case MESSAGE_NO_OUTPUT:
-      iocp.msg_lev = GLP_MSG_OFF;
-      break;
-    case MESSAGE_ERROR_MESSAGE:
-      iocp.msg_lev = GLP_MSG_ERR;
-      break;
-    case MESSAGE_NORMAL_OUTPUT:
-      iocp.msg_lev = GLP_MSG_ON;
-      break;
-    case MESSAGE_FULL_OUTPUT:
-      iocp.msg_lev = GLP_MSG_ALL;
-      break;
-    }
+    iocp.msg_lev = _message_level;
 
     if (glp_intopt(lp, &iocp) != 0) return UNSOLVED;
     return SOLVED;
@@ -1001,9 +963,5 @@ namespace lemon {
   GlpkMip* GlpkMip::cloneSolver() const {return new GlpkMip(*this); }
 
   const char* GlpkMip::_solverName() const { return "GlpkMip"; }
-
-  void GlpkMip::messageLevel(MessageLevel m) {
-    _message_level = m;
-  }
 
 } //END OF NAMESPACE LEMON

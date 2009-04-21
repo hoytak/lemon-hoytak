@@ -157,9 +157,8 @@ namespace lemon {
   /// can neither add nor delete either arcs or nodes, and it needs
   /// constant space in memory.
   ///
-  /// This class conforms to the \ref concepts::Digraph "Digraph" concept
-  /// and it also has an important extra feature that its maps are
-  /// real \ref concepts::ReferenceMap "reference map"s.
+  /// This class fully conforms to the \ref concepts::Digraph
+  /// "Digraph concept".
   ///
   /// The \c FullDigraph and \c FullGraph classes are very similar,
   /// but there are two differences. While this class conforms only
@@ -527,9 +526,7 @@ namespace lemon {
   /// add nor delete either edges or nodes, and it needs constant
   /// space in memory.
   ///
-  /// This class conforms to the \ref concepts::Graph "Graph" concept
-  /// and it also has an important extra feature that its maps are
-  /// real \ref concepts::ReferenceMap "reference map"s.
+  /// This class fully conforms to the \ref concepts::Graph "Graph concept".
   ///
   /// The \c FullGraph and \c FullDigraph classes are very similar,
   /// but there are two differences. While the \c FullDigraph class

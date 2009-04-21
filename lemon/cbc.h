@@ -115,33 +115,12 @@ namespace lemon {
 
     virtual void _clear();
 
-  public:
+    virtual void _messageLevel(MessageLevel level);
+    void _applyMessageLevel();
 
-    ///Enum for \c messageLevel() parameter
-    enum MessageLevel {
-      /// no output (default value)
-      MESSAGE_NO_OUTPUT = 0,
-      /// error messages only
-      MESSAGE_ERROR_MESSAGE = 1,
-      /// normal output
-      MESSAGE_NORMAL_OUTPUT = 2,
-      /// full output (includes informational messages)
-      MESSAGE_FULL_OUTPUT = 3
-    };
+    int _message_level;
 
-  private:
-
-    MessageLevel _message_level;
-
-  public:
-
-    ///Set the verbosity of the messages
-
-    ///Set the verbosity of the messages
-    ///
-    ///\param m is the level of the messages output by the solver routines.
-    void messageLevel(MessageLevel m);
-
+    
 
   };
 
