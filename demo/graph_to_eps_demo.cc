@@ -182,7 +182,7 @@ int main()
   ListDigraph::NodeMap<int> hcolors(h);
   ListDigraph::NodeMap<Point> hcoords(h);
 
-  int cols=int(sqrt(double(palette.size())));
+  int cols=int(std::sqrt(double(palette.size())));
   for(int i=0;i<int(paletteW.size());i++) {
     Node n=h.addNode();
     hcoords[n]=Point(1+i%cols,1+i/cols);

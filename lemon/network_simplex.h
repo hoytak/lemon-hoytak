@@ -381,7 +381,8 @@ namespace lemon {
         const double BLOCK_SIZE_FACTOR = 2.0;
         const int MIN_BLOCK_SIZE = 10;
 
-        _block_size = std::max( int(BLOCK_SIZE_FACTOR * sqrt(_arc_num)),
+        _block_size = std::max( int(BLOCK_SIZE_FACTOR *
+                                    std::sqrt(double(_arc_num))),
                                 MIN_BLOCK_SIZE );
       }
 
@@ -457,7 +458,8 @@ namespace lemon {
         const double MINOR_LIMIT_FACTOR = 0.1;
         const int MIN_MINOR_LIMIT = 3;
 
-        _list_length = std::max( int(LIST_LENGTH_FACTOR * sqrt(_arc_num)),
+        _list_length = std::max( int(LIST_LENGTH_FACTOR *
+                                     std::sqrt(double(_arc_num))),
                                  MIN_LIST_LENGTH );
         _minor_limit = std::max( int(MINOR_LIMIT_FACTOR * _list_length),
                                  MIN_MINOR_LIMIT );
@@ -577,7 +579,8 @@ namespace lemon {
         const double HEAD_LENGTH_FACTOR = 0.1;
         const int MIN_HEAD_LENGTH = 3;
 
-        _block_size = std::max( int(BLOCK_SIZE_FACTOR * sqrt(_arc_num)),
+        _block_size = std::max( int(BLOCK_SIZE_FACTOR *
+                                    std::sqrt(double(_arc_num))),
                                 MIN_BLOCK_SIZE );
         _head_length = std::max( int(HEAD_LENGTH_FACTOR * _block_size),
                                  MIN_HEAD_LENGTH );
@@ -1225,7 +1228,7 @@ namespace lemon {
       }
 
       // Store the arcs in a mixed order
-      int k = std::max(int(sqrt(_arc_num)), 10);
+      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
       int i = 0;
       for (ArcIt e(_graph); e != INVALID; ++e) {
         _arc_ref[i] = e;
