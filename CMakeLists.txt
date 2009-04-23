@@ -26,12 +26,6 @@ IF(MSVC)
 # C4996: 'function': was declared deprecated
 ENDIF(MSVC)
 
-IF(GLPK_FOUND)
-  SET(HAVE_LP TRUE)
-  SET(HAVE_MIP TRUE)
-  SET(HAVE_GLPK TRUE)
-ENDIF(GLPK_FOUND)
-
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("long long" LONG_LONG)
 
