@@ -33,7 +33,6 @@ namespace lemon {
   class ListArcSetBase {
   public:
 
-    typedef GR Graph;
     typedef typename GR::Node Node;
     typedef typename GR::NodeIt NodeIt;
 
@@ -208,9 +207,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
-
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
 
       explicit NodeMap(const ListArcSetBase<GR>& arcset)
         : Parent(*arcset._graph) {}
@@ -259,16 +258,12 @@ namespace lemon {
   /// "Digraph" concept.
   template <typename GR>
   class ListArcSet : public ArcSetExtender<ListArcSetBase<GR> > {
+    typedef ArcSetExtender<ListArcSetBase<GR> > Parent;
 
   public:
 
-    typedef ArcSetExtender<ListArcSetBase<GR> > Parent;
-
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
-
-    typedef GR Graph;
-
 
     typedef typename Parent::NodesImplBase NodesImplBase;
 
@@ -292,9 +287,9 @@ namespace lemon {
     }
 
     class NodesImpl : public NodesImplBase {
-    public:
       typedef NodesImplBase Parent;
 
+    public:
       NodesImpl(const GR& graph, ListArcSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
@@ -354,7 +349,6 @@ namespace lemon {
   class ListEdgeSetBase {
   public:
 
-    typedef GR Graph;
     typedef typename GR::Node Node;
     typedef typename GR::NodeIt NodeIt;
 
@@ -637,9 +631,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
-
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
 
       explicit NodeMap(const ListEdgeSetBase<GR>& arcset)
         : Parent(*arcset._graph) {}
@@ -688,17 +682,13 @@ namespace lemon {
   /// concept.
   template <typename GR>
   class ListEdgeSet : public EdgeSetExtender<ListEdgeSetBase<GR> > {
+    typedef EdgeSetExtender<ListEdgeSetBase<GR> > Parent;
 
   public:
-
-    typedef EdgeSetExtender<ListEdgeSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
-
-    typedef GR Graph;
-
 
     typedef typename Parent::NodesImplBase NodesImplBase;
 
@@ -717,9 +707,9 @@ namespace lemon {
     }
 
     class NodesImpl : public NodesImplBase {
-    public:
       typedef NodesImplBase Parent;
 
+    public:
       NodesImpl(const GR& graph, ListEdgeSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
@@ -779,9 +769,8 @@ namespace lemon {
   class SmartArcSetBase {
   public:
 
-    typedef GR Graph;
-    typedef typename Graph::Node Node;
-    typedef typename Graph::NodeIt NodeIt;
+    typedef typename GR::Node Node;
+    typedef typename GR::NodeIt NodeIt;
 
   protected:
 
@@ -900,9 +889,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
-
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
 
       explicit NodeMap(const SmartArcSetBase<GR>& arcset)
         : Parent(*arcset._graph) { }
@@ -956,15 +945,12 @@ namespace lemon {
   /// "Digraph" concept.
   template <typename GR>
   class SmartArcSet : public ArcSetExtender<SmartArcSetBase<GR> > {
+    typedef ArcSetExtender<SmartArcSetBase<GR> > Parent;
 
   public:
 
-    typedef ArcSetExtender<SmartArcSetBase<GR> > Parent;
-
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
-
-    typedef GR Graph;
 
   protected:
 
@@ -983,9 +969,9 @@ namespace lemon {
     }
 
     class NodesImpl : public NodesImplBase {
-    public:
       typedef NodesImplBase Parent;
 
+    public:
       NodesImpl(const GR& graph, SmartArcSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 
@@ -1062,7 +1048,6 @@ namespace lemon {
   class SmartEdgeSetBase {
   public:
 
-    typedef GR Graph;
     typedef typename GR::Node Node;
     typedef typename GR::NodeIt NodeIt;
 
@@ -1249,9 +1234,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
-
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
 
       explicit NodeMap(const SmartEdgeSetBase<GR>& arcset)
         : Parent(*arcset._graph) { }
@@ -1304,16 +1289,13 @@ namespace lemon {
   /// "Graph" concept.
   template <typename GR>
   class SmartEdgeSet : public EdgeSetExtender<SmartEdgeSetBase<GR> > {
+    typedef EdgeSetExtender<SmartEdgeSetBase<GR> > Parent;
 
   public:
-
-    typedef EdgeSetExtender<SmartEdgeSetBase<GR> > Parent;
 
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
-
-    typedef GR Graph;
 
   protected:
 
@@ -1331,9 +1313,9 @@ namespace lemon {
     }
 
     class NodesImpl : public NodesImplBase {
-    public:
       typedef NodesImplBase Parent;
 
+    public:
       NodesImpl(const GR& graph, SmartEdgeSet& arcset)
         : Parent(graph), _arcset(arcset) {}
 

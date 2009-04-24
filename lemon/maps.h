@@ -1838,6 +1838,7 @@ namespace lemon {
   public:
     /// The graph type of IdMap.
     typedef GR Graph;
+    typedef GR Digraph;
     /// The key type of IdMap (\c Node, \c Arc or \c Edge).
     typedef K Item;
     /// The key type of IdMap (\c Node, \c Arc or \c Edge).
@@ -1929,6 +1930,7 @@ namespace lemon {
 
     /// The graph type of CrossRefMap.
     typedef GR Graph;
+    typedef GR Digraph;
     /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
     typedef K Item;
     /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
@@ -2132,6 +2134,7 @@ namespace lemon {
   public:
     /// The graph type of RangeIdMap.
     typedef GR Graph;
+    typedef GR Digraph;
     /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
     typedef K Item;
     /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
@@ -2494,7 +2497,8 @@ namespace lemon {
 
   public:
     
-    /// The digraph type
+    /// The graph type of InDegMap
+    typedef GR Graph;
     typedef GR Digraph;
     /// The key type
     typedef typename Digraph::Node Key;
@@ -2623,7 +2627,8 @@ namespace lemon {
 
   public:
 
-    /// The digraph type
+    /// The graph type of OutDegMap
+    typedef GR Graph;
     typedef GR Digraph;
     /// The key type
     typedef typename Digraph::Node Key;

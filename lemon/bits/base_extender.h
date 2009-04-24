@@ -38,10 +38,10 @@ namespace lemon {
   // \brief BaseDigraph to BaseGraph extender
   template <typename Base>
   class UndirDigraphExtender : public Base {
+    typedef Base Parent;
 
   public:
 
-    typedef Base Parent;
     typedef typename Parent::Arc Edge;
     typedef typename Parent::Node Node;
 
@@ -280,8 +280,9 @@ namespace lemon {
 
   template <typename Base>
   class BidirBpGraphExtender : public Base {
-  public:
     typedef Base Parent;
+
+  public:
     typedef BidirBpGraphExtender Digraph;
 
     typedef typename Parent::Node Node;

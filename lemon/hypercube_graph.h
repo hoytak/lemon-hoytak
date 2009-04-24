@@ -294,9 +294,9 @@ namespace lemon {
   /// This graph type fully conforms to the \ref concepts::Graph
   /// "Graph concept".
   class HypercubeGraph : public ExtendedHypercubeGraphBase {
-  public:
-
     typedef ExtendedHypercubeGraphBase Parent;
+
+  public:
 
     /// \brief Constructs a hypercube graph with \c dim dimensions.
     ///

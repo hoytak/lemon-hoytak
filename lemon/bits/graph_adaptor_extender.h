@@ -26,9 +26,10 @@ namespace lemon {
 
   template <typename _Digraph>
   class DigraphAdaptorExtender : public _Digraph {
+    typedef _Digraph Parent;
+
   public:
 
-    typedef _Digraph Parent;
     typedef _Digraph Digraph;
     typedef DigraphAdaptorExtender Adaptor;
 
@@ -173,9 +174,10 @@ namespace lemon {
 
   template <typename _Graph>
   class GraphAdaptorExtender : public _Graph {
+    typedef _Graph Parent;
+
   public:
 
-    typedef _Graph Parent;
     typedef _Graph Graph;
     typedef GraphAdaptorExtender Adaptor;
 

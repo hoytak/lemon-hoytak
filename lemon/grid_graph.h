@@ -499,9 +499,9 @@ namespace lemon {
   /// This graph type fully conforms to the \ref concepts::Graph
   /// "Graph concept".
   class GridGraph : public ExtendedGridGraphBase {
-  public:
-
     typedef ExtendedGridGraphBase Parent;
+
+  public:
 
     /// \brief Map to get the indices of the nodes as dim2::Point<int>.
     ///

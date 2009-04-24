@@ -55,7 +55,7 @@ namespace lemon {
 
   public:
 
-    typedef SmartDigraphBase Graph;
+    typedef SmartDigraphBase Digraph;
 
     class Node;
     class Arc;
@@ -195,8 +195,6 @@ namespace lemon {
   ///
   ///\sa concepts::Digraph.
   class SmartDigraph : public ExtendedSmartDigraphBase {
-  public:
-
     typedef ExtendedSmartDigraphBase Parent;
 
   private:
@@ -420,7 +418,7 @@ namespace lemon {
 
   public:
 
-    typedef SmartGraphBase Digraph;
+    typedef SmartGraphBase Graph;
 
     class Node;
     class Arc;
@@ -631,6 +629,8 @@ namespace lemon {
   ///
   /// \sa concepts::Graph.
   class SmartGraph : public ExtendedSmartGraphBase {
+    typedef ExtendedSmartGraphBase Parent;
+
   private:
 
     ///SmartGraph is \e not copy constructible. Use GraphCopy() instead.
@@ -647,8 +647,6 @@ namespace lemon {
     void operator=(const SmartGraph &) {}
 
   public:
-
-    typedef ExtendedSmartGraphBase Parent;
 
     /// Constructor
 

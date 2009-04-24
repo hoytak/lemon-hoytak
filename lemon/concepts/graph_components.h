@@ -180,6 +180,9 @@ namespace lemon {
     /// to convert from arcs to edges and to get both direction of edges.
     class BaseGraphComponent : public BaseDigraphComponent {
     public:
+
+      typedef BaseGraphComponent Graph;
+
       typedef BaseDigraphComponent::Node Node;
       typedef BaseDigraphComponent::Arc Arc;
 
@@ -189,9 +192,9 @@ namespace lemon {
       /// Undirected graphs can be used as directed graphs, each edge is
       /// represented by two opposite directed arcs.
       class Edge : public GraphItem<'e'> {
-      public:
         typedef GraphItem<'e'> Parent;
 
+      public:
         /// \brief Default constructor.
         ///
         /// Default constructor.
@@ -991,12 +994,10 @@ namespace lemon {
     /// The standard graph maps must conform to the ReferenceMap concept.
     template <typename GR, typename K, typename V>
     class GraphMap : public ReferenceMap<K, V, V&, const V&> {
+      typedef ReferenceMap<K, V, V&, const V&> Parent;
+
     public:
 
-      typedef ReadWriteMap<K, V> Parent;
-
-      /// The graph type of the map.
-      typedef GR Graph;
       /// The key type of the map.
       typedef K Key;
       /// The value type of the map.
@@ -1012,11 +1013,11 @@ namespace lemon {
       /// \brief Construct a new map.
       ///
       /// Construct a new map for the graph.
-      explicit GraphMap(const Graph&) {}
+      explicit GraphMap(const GR&) {}
       /// \brief Construct a new map with default value.
       ///
       /// Construct a new map for the graph and initalize the values.
-      GraphMap(const Graph&, const Value&) {}
+      GraphMap(const GR&, const Value&) {}
 
     private:
       /// \brief Copy constructor.
@@ -1057,7 +1058,7 @@ namespace lemon {
         }
 
         const _Map &m;
-        const Graph &g;
+        const GR &g;
         const typename GraphMap::Value &t;
       };
 
@@ -1085,9 +1086,9 @@ namespace lemon {
       /// It conforms to the ReferenceMap concept.
       template <typename V>
       class NodeMap : public GraphMap<MappableDigraphComponent, Node, V> {
-      public:
         typedef GraphMap<MappableDigraphComponent, Node, V> Parent;
 
+      public:
         /// \brief Construct a new map.
         ///
         /// Construct a new map for the digraph.
@@ -1123,9 +1124,9 @@ namespace lemon {
       /// It conforms to the ReferenceMap concept.
       template <typename V>
       class ArcMap : public GraphMap<MappableDigraphComponent, Arc, V> {
-      public:
         typedef GraphMap<MappableDigraphComponent, Arc, V> Parent;
 
+      public:
         /// \brief Construct a new map.
         ///
         /// Construct a new map for the digraph.
@@ -1221,9 +1222,9 @@ namespace lemon {
       /// It conforms to the ReferenceMap concept.
       template <typename V>
       class EdgeMap : public GraphMap<MappableGraphComponent, Edge, V> {
-      public:
         typedef GraphMap<MappableGraphComponent, Edge, V> Parent;
 
+      public:
         /// \brief Construct a new map.
         ///
         /// Construct a new map for the graph.

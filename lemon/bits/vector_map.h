@@ -56,7 +56,7 @@ namespace lemon {
   public:
 
     // The graph type of the map.
-    typedef _Graph Graph;
+    typedef _Graph GraphType;
     // The item type of the map.
     typedef _Item Item;
     // The reference map tag.
@@ -72,20 +72,24 @@ namespace lemon {
 
     // The map type.
     typedef VectorMap Map;
-    // The base class of the map.
-    typedef typename Notifier::ObserverBase Parent;
 
     // The reference type of the map;
     typedef typename Container::reference Reference;
     // The const reference type of the map;
     typedef typename Container::const_reference ConstReference;
 
+  private:
+
+    // The base class of the map.
+    typedef typename Notifier::ObserverBase Parent;
+
+  public:
 
     // \brief Constructor to attach the new map into the notifier.
     //
     // It constructs a map and attachs it into the notifier.
     // It adds all the items of the graph to the map.
-    VectorMap(const Graph& graph) {
+    VectorMap(const GraphType& graph) {
       Parent::attach(graph.notifier(Item()));
       container.resize(Parent::notifier()->maxId() + 1);
     }
@@ -94,7 +98,7 @@ namespace lemon {
     //
     // It constructs a map uses a given value to initialize the map.
     // It adds all the items of the graph to the map.
-    VectorMap(const Graph& graph, const Value& value) {
+    VectorMap(const GraphType& graph, const Value& value) {
       Parent::attach(graph.notifier(Item()));
       container.resize(Parent::notifier()->maxId() + 1, value);
     }

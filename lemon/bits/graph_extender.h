@@ -37,9 +37,10 @@ namespace lemon {
   // \brief Extender for the digraph implementations
   template <typename Base>
   class DigraphExtender : public Base {
+    typedef Base Parent;
+
   public:
 
-    typedef Base Parent;
     typedef DigraphExtender Digraph;
 
     // Base extensions
@@ -218,10 +219,9 @@ namespace lemon {
     template <typename _Value>
     class NodeMap
       : public MapExtender<DefaultMap<Digraph, Node, _Value> > {
-    public:
-      typedef DigraphExtender Digraph;
       typedef MapExtender<DefaultMap<Digraph, Node, _Value> > Parent;
 
+    public:
       explicit NodeMap(const Digraph& digraph)
         : Parent(digraph) {}
       NodeMap(const Digraph& digraph, const _Value& value)
@@ -243,10 +243,9 @@ namespace lemon {
     template <typename _Value>
     class ArcMap
       : public MapExtender<DefaultMap<Digraph, Arc, _Value> > {
-    public:
-      typedef DigraphExtender Digraph;
       typedef MapExtender<DefaultMap<Digraph, Arc, _Value> > Parent;
 
+    public:
       explicit ArcMap(const Digraph& digraph)
         : Parent(digraph) {}
       ArcMap(const Digraph& digraph, const _Value& value)
@@ -330,9 +329,10 @@ namespace lemon {
   // \brief Extender for the Graphs
   template <typename Base>
   class GraphExtender : public Base {
+    typedef Base Parent;
+
   public:
 
-    typedef Base Parent;
     typedef GraphExtender Graph;
 
     typedef True UndirectedTag;
@@ -601,10 +601,9 @@ namespace lemon {
     template <typename _Value>
     class NodeMap
       : public MapExtender<DefaultMap<Graph, Node, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Node, _Value> > Parent;
 
+    public:
       NodeMap(const Graph& graph)
         : Parent(graph) {}
       NodeMap(const Graph& graph, const _Value& value)
@@ -626,10 +625,9 @@ namespace lemon {
     template <typename _Value>
     class ArcMap
       : public MapExtender<DefaultMap<Graph, Arc, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Arc, _Value> > Parent;
 
+    public:
       ArcMap(const Graph& graph)
         : Parent(graph) {}
       ArcMap(const Graph& graph, const _Value& value)
@@ -651,10 +649,9 @@ namespace lemon {
     template <typename _Value>
     class EdgeMap
       : public MapExtender<DefaultMap<Graph, Edge, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Edge, _Value> > Parent;
 
+    public:
       EdgeMap(const Graph& graph)
         : Parent(graph) {}
 

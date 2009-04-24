@@ -323,6 +323,8 @@ namespace lemon {
   ///\sa concepts::Digraph
 
   class ListDigraph : public ExtendedListDigraphBase {
+    typedef ExtendedListDigraphBase Parent;
+
   private:
     ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
 
@@ -336,8 +338,6 @@ namespace lemon {
     ///Use copyDigraph() instead.
     void operator=(const ListDigraph &) {}
   public:
-
-    typedef ExtendedListDigraphBase Parent;
 
     /// Constructor
 
@@ -793,7 +793,7 @@ namespace lemon {
 
   public:
 
-    typedef ListGraphBase Digraph;
+    typedef ListGraphBase Graph;
 
     class Node;
     class Arc;
@@ -1176,6 +1176,8 @@ namespace lemon {
   ///\sa concepts::Graph
 
   class ListGraph : public ExtendedListGraphBase {
+    typedef ExtendedListGraphBase Parent;
+
   private:
     ///ListGraph is \e not copy constructible. Use copyGraph() instead.
 
@@ -1194,8 +1196,6 @@ namespace lemon {
     /// Constructor.
     ///
     ListGraph() {}
-
-    typedef ExtendedListGraphBase Parent;
 
     typedef Parent::OutArcIt IncEdgeIt;
 

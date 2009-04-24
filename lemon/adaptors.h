@@ -109,13 +109,11 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public DGR::template NodeMap<V> {
-    public:
-
       typedef typename DGR::template NodeMap<V> Parent;
 
+    public:
       explicit NodeMap(const Adaptor& adaptor)
         : Parent(*adaptor._digraph) {}
-
       NodeMap(const Adaptor& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) { }
 
@@ -134,13 +132,11 @@ namespace lemon {
 
     template <typename V>
     class ArcMap : public DGR::template ArcMap<V> {
-    public:
-
       typedef typename DGR::template ArcMap<V> Parent;
 
+    public:
       explicit ArcMap(const DigraphAdaptorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
-
       ArcMap(const DigraphAdaptorBase<DGR>& adaptor, const V& value)
         : Parent(*adaptor._digraph, value) {}
 
@@ -255,8 +251,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
       explicit NodeMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
       NodeMap(const GraphAdaptorBase<GR>& adapter, const V& value)
@@ -277,8 +274,9 @@ namespace lemon {
 
     template <typename V>
     class ArcMap : public GR::template ArcMap<V> {
-    public:
       typedef typename GR::template ArcMap<V> Parent;
+
+    public:
       explicit ArcMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
       ArcMap(const GraphAdaptorBase<GR>& adapter, const V& value)
@@ -298,8 +296,9 @@ namespace lemon {
 
     template <typename V>
     class EdgeMap : public GR::template EdgeMap<V> {
-    public:
       typedef typename GR::template EdgeMap<V> Parent;
+
+    public:
       explicit EdgeMap(const GraphAdaptorBase<GR>& adapter)
         : Parent(*adapter._graph) {}
       EdgeMap(const GraphAdaptorBase<GR>& adapter, const V& value)
@@ -321,9 +320,9 @@ namespace lemon {
 
   template <typename DGR>
   class ReverseDigraphBase : public DigraphAdaptorBase<DGR> {
+    typedef DigraphAdaptorBase<DGR> Parent;
   public:
     typedef DGR Digraph;
-    typedef DigraphAdaptorBase<DGR> Parent;
   protected:
     ReverseDigraphBase() : Parent() { }
   public:
@@ -374,10 +373,10 @@ namespace lemon {
   class ReverseDigraph :
     public DigraphAdaptorExtender<ReverseDigraphBase<DGR> > {
 #endif
+    typedef DigraphAdaptorExtender<ReverseDigraphBase<DGR> > Parent;
   public:
     /// The type of the adapted digraph.
     typedef DGR Digraph;
-    typedef DigraphAdaptorExtender<ReverseDigraphBase<DGR> > Parent;
   protected:
     ReverseDigraph() { }
   public:
@@ -403,13 +402,13 @@ namespace lemon {
 
   template <typename DGR, typename NF, typename AF, bool ch = true>
   class SubDigraphBase : public DigraphAdaptorBase<DGR> {
+    typedef DigraphAdaptorBase<DGR> Parent;
   public:
     typedef DGR Digraph;
     typedef NF NodeFilterMap;
     typedef AF ArcFilterMap;
 
     typedef SubDigraphBase Adaptor;
-    typedef DigraphAdaptorBase<DGR> Parent;
   protected:
     NF* _node_filter;
     AF* _arc_filter;
@@ -509,10 +508,11 @@ namespace lemon {
     class NodeMap 
       : public SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>, 
 	      LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> {
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
+	LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
-	    LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> Parent;
 
       NodeMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor)
         : Parent(adaptor) {}
@@ -535,10 +535,11 @@ namespace lemon {
     class ArcMap 
       : public SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
 	      LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, ch>,
         LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       ArcMap(const SubDigraphBase<DGR, NF, AF, ch>& adaptor)
         : Parent(adaptor) {}
@@ -562,13 +563,13 @@ namespace lemon {
   template <typename DGR, typename NF, typename AF>
   class SubDigraphBase<DGR, NF, AF, false>
     : public DigraphAdaptorBase<DGR> {
+    typedef DigraphAdaptorBase<DGR> Parent;
   public:
     typedef DGR Digraph;
     typedef NF NodeFilterMap;
     typedef AF ArcFilterMap;
 
     typedef SubDigraphBase Adaptor;
-    typedef DigraphAdaptorBase<Digraph> Parent;
   protected:
     NF* _node_filter;
     AF* _arc_filter;
@@ -650,10 +651,11 @@ namespace lemon {
     class NodeMap 
       : public SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
           LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, false>, 
         LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, NodeMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       NodeMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor)
         : Parent(adaptor) {}
@@ -676,10 +678,11 @@ namespace lemon {
     class ArcMap 
       : public SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
           LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> {
+      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
+        LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<SubDigraphBase<DGR, NF, AF, false>,
-          LEMON_SCOPE_FIX(DigraphAdaptorBase<DGR>, ArcMap<V>)> Parent;
 
       ArcMap(const SubDigraphBase<DGR, NF, AF, false>& adaptor)
         : Parent(adaptor) {}
@@ -863,13 +866,13 @@ namespace lemon {
 
   template <typename GR, typename NF, typename EF, bool ch = true>
   class SubGraphBase : public GraphAdaptorBase<GR> {
+    typedef GraphAdaptorBase<GR> Parent;
   public:
     typedef GR Graph;
     typedef NF NodeFilterMap;
     typedef EF EdgeFilterMap;
 
     typedef SubGraphBase Adaptor;
-    typedef GraphAdaptorBase<GR> Parent;
   protected:
 
     NF* _node_filter;
@@ -1016,10 +1019,11 @@ namespace lemon {
     class NodeMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
           LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       NodeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
         : Parent(adaptor) {}
@@ -1042,10 +1046,11 @@ namespace lemon {
     class ArcMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
           LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       ArcMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
         : Parent(adaptor) {}
@@ -1068,10 +1073,11 @@ namespace lemon {
     class EdgeMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, ch>,
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubGraphBase<GR, NF, EF, ch>, 
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       EdgeMap(const SubGraphBase<GR, NF, EF, ch>& adaptor)
         : Parent(adaptor) {}
@@ -1096,13 +1102,13 @@ namespace lemon {
   template <typename GR, typename NF, typename EF>
   class SubGraphBase<GR, NF, EF, false>
     : public GraphAdaptorBase<GR> {
+    typedef GraphAdaptorBase<GR> Parent;
   public:
     typedef GR Graph;
     typedef NF NodeFilterMap;
     typedef EF EdgeFilterMap;
 
     typedef SubGraphBase Adaptor;
-    typedef GraphAdaptorBase<GR> Parent;
   protected:
     NF* _node_filter;
     EF* _edge_filter;
@@ -1211,10 +1217,11 @@ namespace lemon {
     class NodeMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
           LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, NodeMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       NodeMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
         : Parent(adaptor) {}
@@ -1237,10 +1244,11 @@ namespace lemon {
     class ArcMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
           LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> {
-    public:
-      typedef V Value;
       typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, ArcMap<V>)> Parent;
+
+    public:
+      typedef V Value;
 
       ArcMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
         : Parent(adaptor) {}
@@ -1263,10 +1271,11 @@ namespace lemon {
     class EdgeMap 
       : public SubMapExtender<SubGraphBase<GR, NF, EF, false>,
         LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> {
+      typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
+	LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<SubGraphBase<GR, NF, EF, false>, 
-		  LEMON_SCOPE_FIX(GraphAdaptorBase<GR>, EdgeMap<V>)> Parent;
 
       EdgeMap(const SubGraphBase<GR, NF, EF, false>& adaptor)
         : Parent(adaptor) {}
@@ -1485,14 +1494,14 @@ namespace lemon {
       SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, Const<bool, true> >,
                      true> > {
 #endif
+    typedef DigraphAdaptorExtender<
+      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, Const<bool, true> >, 
+                     true> > Parent;
+
   public:
 
     typedef GR Digraph;
     typedef NF NodeFilterMap;
-
-    typedef DigraphAdaptorExtender<
-      SubDigraphBase<GR, NF, ConstMap<typename GR::Arc, Const<bool, true> >, 
-                     true> > Parent;
 
     typedef typename Parent::Node Node;
 
@@ -1548,14 +1557,17 @@ namespace lemon {
       SubGraphBase<GR, NF, ConstMap<typename GR::Edge, Const<bool, true> >, 
                    true> > {
 
-  public:
-    typedef GR Graph;
-    typedef NF NodeFilterMap;
     typedef GraphAdaptorExtender<
       SubGraphBase<GR, NF, ConstMap<typename GR::Edge, Const<bool, true> >, 
                    true> > Parent;
 
+  public:
+
+    typedef GR Graph;
+    typedef NF NodeFilterMap;
+
     typedef typename Parent::Node Node;
+
   protected:
     ConstMap<typename GR::Edge, Const<bool, true> > const_true_map;
 
@@ -1629,15 +1641,16 @@ namespace lemon {
       SubDigraphBase<DGR, ConstMap<typename DGR::Node, Const<bool, true> >,
                      AF, false> > {
 #endif
+    typedef DigraphAdaptorExtender<
+      SubDigraphBase<DGR, ConstMap<typename DGR::Node, Const<bool, true> >, 
+                     AF, false> > Parent;
+
   public:
+
     /// The type of the adapted digraph.
     typedef DGR Digraph;
     /// The type of the arc filter map.
     typedef AF ArcFilterMap;
-
-    typedef DigraphAdaptorExtender<
-      SubDigraphBase<DGR, ConstMap<typename DGR::Node, Const<bool, true> >, 
-                     AF, false> > Parent;
 
     typedef typename Parent::Arc Arc;
 
@@ -1738,15 +1751,16 @@ namespace lemon {
       SubGraphBase<GR, ConstMap<typename GR::Node, Const<bool, true> >, 
                    EF, false> > {
 #endif
+    typedef GraphAdaptorExtender<
+      SubGraphBase<GR, ConstMap<typename GR::Node, Const<bool, true > >, 
+                   EF, false> > Parent;
+
   public:
+
     /// The type of the adapted graph.
     typedef GR Graph;
     /// The type of the edge filter map.
     typedef EF EdgeFilterMap;
-
-    typedef GraphAdaptorExtender<
-      SubGraphBase<GR, ConstMap<typename GR::Node, Const<bool, true > >, 
-                   EF, false> > Parent;
 
     typedef typename Parent::Edge Edge;
 
@@ -2111,10 +2125,10 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public DGR::template NodeMap<V> {
-    public:
+      typedef typename DGR::template NodeMap<V> Parent;
 
+    public:
       typedef V Value;
-      typedef typename DGR::template NodeMap<Value> Parent;
 
       explicit NodeMap(const UndirectorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
@@ -2137,11 +2151,11 @@ namespace lemon {
 
     template <typename V>
     class ArcMap
-      : public SubMapExtender<UndirectorBase<DGR>, ArcMapBase<V> >
-    {
+      : public SubMapExtender<UndirectorBase<DGR>, ArcMapBase<V> > {
+      typedef SubMapExtender<UndirectorBase<DGR>, ArcMapBase<V> > Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<Adaptor, ArcMapBase<V> > Parent;
 
       explicit ArcMap(const UndirectorBase<DGR>& adaptor)
         : Parent(adaptor) {}
@@ -2163,10 +2177,10 @@ namespace lemon {
 
     template <typename V>
     class EdgeMap : public Digraph::template ArcMap<V> {
-    public:
-
-      typedef V Value;
       typedef typename Digraph::template ArcMap<V> Parent;
+
+    public:
+      typedef V Value;
 
       explicit EdgeMap(const UndirectorBase<DGR>& adaptor)
         : Parent(*adaptor._digraph) {}
@@ -2238,10 +2252,10 @@ namespace lemon {
   class Undirector :
     public GraphAdaptorExtender<UndirectorBase<DGR> > {
 #endif
+    typedef GraphAdaptorExtender<UndirectorBase<DGR> > Parent;
   public:
     /// The type of the adapted digraph.
     typedef DGR Digraph;
-    typedef GraphAdaptorExtender<UndirectorBase<DGR> > Parent;
   protected:
     Undirector() { }
   public:
@@ -2449,9 +2463,9 @@ namespace lemon {
 
     template <typename V>
     class NodeMap : public GR::template NodeMap<V> {
-    public:
-
       typedef typename GR::template NodeMap<V> Parent;
+
+    public:
 
       explicit NodeMap(const OrienterBase<GR, DM>& adapter)
         : Parent(*adapter._graph) {}
@@ -2474,9 +2488,9 @@ namespace lemon {
 
     template <typename V>
     class ArcMap : public GR::template EdgeMap<V> {
-    public:
-
       typedef typename Graph::template EdgeMap<V> Parent;
+
+    public:
 
       explicit ArcMap(const OrienterBase<GR, DM>& adapter)
         : Parent(*adapter._graph) { }
@@ -2546,6 +2560,7 @@ namespace lemon {
   class Orienter :
     public DigraphAdaptorExtender<OrienterBase<GR, DM> > {
 #endif
+    typedef DigraphAdaptorExtender<OrienterBase<GR, DM> > Parent;
   public:
 
     /// The type of the adapted graph.
@@ -2553,10 +2568,11 @@ namespace lemon {
     /// The type of the direction edge map.
     typedef DM DirectionMap;
 
-    typedef DigraphAdaptorExtender<OrienterBase<GR, DM> > Parent;
     typedef typename Parent::Arc Arc;
+
   protected:
     Orienter() { }
+
   public:
 
     /// \brief Constructor
@@ -2866,10 +2882,11 @@ namespace lemon {
 
   template <typename DGR>
   class SplitNodesBase {
+    typedef DigraphAdaptorBase<const DGR> Parent;
+
   public:
 
     typedef DGR Digraph;
-    typedef DigraphAdaptorBase<const DGR> Parent;
     typedef SplitNodesBase Adaptor;
 
     typedef typename DGR::Node DigraphNode;
@@ -3228,11 +3245,11 @@ namespace lemon {
 
     template <typename V>
     class NodeMap
-      : public SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<V> >
-    {
+      : public SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<V> > {
+      typedef SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<V> > Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<SplitNodesBase<DGR>, NodeMapBase<Value> > Parent;
 
       NodeMap(const SplitNodesBase<DGR>& adaptor)
         : Parent(adaptor) {}
@@ -3254,11 +3271,11 @@ namespace lemon {
 
     template <typename V>
     class ArcMap
-      : public SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<V> >
-    {
+      : public SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<V> > {
+      typedef SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<V> > Parent;
+
     public:
       typedef V Value;
-      typedef SubMapExtender<SplitNodesBase<DGR>, ArcMapBase<Value> > Parent;
 
       ArcMap(const SplitNodesBase<DGR>& adaptor)
         : Parent(adaptor) {}
@@ -3324,9 +3341,10 @@ namespace lemon {
   class SplitNodes
     : public DigraphAdaptorExtender<SplitNodesBase<const DGR> > {
 #endif
+    typedef DigraphAdaptorExtender<SplitNodesBase<const DGR> > Parent;
+
   public:
     typedef DGR Digraph;
-    typedef DigraphAdaptorExtender<SplitNodesBase<const DGR> > Parent;
 
     typedef typename DGR::Node DigraphNode;
     typedef typename DGR::Arc DigraphArc;

@@ -69,6 +69,7 @@ template<class GR>
 struct DefaultGraphToEpsTraits
 {
   typedef GR Graph;
+  typedef GR Digraph;
   typedef typename Graph::Node Node;
   typedef typename Graph::NodeIt NodeIt;
   typedef typename Graph::Arc Arc;
@@ -241,6 +242,7 @@ template<class T> class GraphToEps : public T
   // dradnats ++C eht yb deriuqer si ti eveileb t'naC
 
   typedef typename T::Graph Graph;
+  typedef typename T::Digraph Digraph;
   typedef typename Graph::Node Node;
   typedef typename Graph::NodeIt NodeIt;
   typedef typename Graph::Arc Arc;

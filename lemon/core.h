@@ -1036,26 +1036,25 @@ namespace lemon {
   ///\sa ArcLookUp, AllArcLookUp, DynArcLookUp
   template <typename GR>
   class ConArcIt : public GR::Arc {
+    typedef typename GR::Arc Parent;
+
   public:
 
-    typedef GR Graph;
-    typedef typename Graph::Arc Parent;
-
-    typedef typename Graph::Arc Arc;
-    typedef typename Graph::Node Node;
+    typedef typename GR::Arc Arc;
+    typedef typename GR::Node Node;
 
     /// \brief Constructor.
     ///
     /// Construct a new ConArcIt iterating on the arcs that
     /// connects nodes \c u and \c v.
-    ConArcIt(const Graph& g, Node u, Node v) : _graph(g) {
+    ConArcIt(const GR& g, Node u, Node v) : _graph(g) {
       Parent::operator=(findArc(_graph, u, v));
     }
 
     /// \brief Constructor.
     ///
     /// Construct a new ConArcIt that continues the iterating from arc \c a.
-    ConArcIt(const Graph& g, Arc a) : Parent(a), _graph(g) {}
+    ConArcIt(const GR& g, Arc a) : Parent(a), _graph(g) {}
 
     /// \brief Increment operator.
     ///
@@ -1066,7 +1065,7 @@ namespace lemon {
       return *this;
     }
   private:
-    const Graph& _graph;
+    const GR& _graph;
   };
 
   namespace _core_bits {
@@ -1159,26 +1158,25 @@ namespace lemon {
   ///\sa findEdge()
   template <typename GR>
   class ConEdgeIt : public GR::Edge {
+    typedef typename GR::Edge Parent;
+
   public:
 
-    typedef GR Graph;
-    typedef typename Graph::Edge Parent;
-
-    typedef typename Graph::Edge Edge;
-    typedef typename Graph::Node Node;
+    typedef typename GR::Edge Edge;
+    typedef typename GR::Node Node;
 
     /// \brief Constructor.
     ///
     /// Construct a new ConEdgeIt iterating on the edges that
     /// connects nodes \c u and \c v.
-    ConEdgeIt(const Graph& g, Node u, Node v) : _graph(g), _u(u), _v(v) {
+    ConEdgeIt(const GR& g, Node u, Node v) : _graph(g), _u(u), _v(v) {
       Parent::operator=(findEdge(_graph, _u, _v));
     }
 
     /// \brief Constructor.
     ///
     /// Construct a new ConEdgeIt that continues iterating from edge \c e.
-    ConEdgeIt(const Graph& g, Edge e) : Parent(e), _graph(g) {}
+    ConEdgeIt(const GR& g, Edge e) : Parent(e), _graph(g) {}
 
     /// \brief Increment operator.
     ///
@@ -1188,7 +1186,7 @@ namespace lemon {
       return *this;
     }
   private:
-    const Graph& _graph;
+    const GR& _graph;
     Node _u, _v;
   };
 
@@ -1219,19 +1217,22 @@ namespace lemon {
   class DynArcLookUp
     : protected ItemSetTraits<GR, typename GR::Arc>::ItemNotifier::ObserverBase
   {
-  public:
     typedef typename ItemSetTraits<GR, typename GR::Arc>
     ::ItemNotifier::ObserverBase Parent;
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+
+  public:
+
+    /// The Digraph type
     typedef GR Digraph;
 
   protected:
 
     class AutoNodeMap : public ItemSetTraits<GR, Node>::template Map<Arc>::Type {
-    public:
-
       typedef typename ItemSetTraits<GR, Node>::template Map<Arc>::Type Parent;
+
+    public:
 
       AutoNodeMap(const GR& digraph) : Parent(digraph, INVALID) {}
 
@@ -1257,12 +1258,6 @@ namespace lemon {
       }
     };
 
-    const Digraph &_g;
-    AutoNodeMap _head;
-    typename Digraph::template ArcMap<Arc> _parent;
-    typename Digraph::template ArcMap<Arc> _left;
-    typename Digraph::template ArcMap<Arc> _right;
-
     class ArcLess {
       const Digraph &g;
     public:
@@ -1272,6 +1267,14 @@ namespace lemon {
         return g.target(a)<g.target(b);
       }
     };
+
+  protected: 
+
+    const Digraph &_g;
+    AutoNodeMap _head;
+    typename Digraph::template ArcMap<Arc> _parent;
+    typename Digraph::template ArcMap<Arc> _left;
+    typename Digraph::template ArcMap<Arc> _right;
 
   public:
 
@@ -1630,8 +1633,11 @@ namespace lemon {
   template<class GR>
   class ArcLookUp
   {
-  public:
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+
+  public:
+
+    /// The Digraph type
     typedef GR Digraph;
 
   protected:
@@ -1746,9 +1752,8 @@ namespace lemon {
     using ArcLookUp<GR>::_head;
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
-    typedef GR Digraph;
 
-    typename Digraph::template ArcMap<Arc> _next;
+    typename GR::template ArcMap<Arc> _next;
 
     Arc refreshNext(Arc head,Arc next=INVALID)
     {
@@ -1767,6 +1772,10 @@ namespace lemon {
     }
 
   public:
+
+    /// The Digraph type
+    typedef GR Digraph;
+
     ///Constructor
 
     ///Constructor.

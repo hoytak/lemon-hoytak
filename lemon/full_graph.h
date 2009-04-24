@@ -31,7 +31,7 @@ namespace lemon {
   class FullDigraphBase {
   public:
 
-    typedef FullDigraphBase Graph;
+    typedef FullDigraphBase Digraph;
 
     class Node;
     class Arc;
@@ -169,9 +169,9 @@ namespace lemon {
   ///
   /// \sa FullGraph
   class FullDigraph : public ExtendedFullDigraphBase {
-  public:
-
     typedef ExtendedFullDigraphBase Parent;
+
+  public:
 
     /// \brief Constructor
     FullDigraph() { construct(0); }
@@ -226,8 +226,6 @@ namespace lemon {
 
 
   class FullGraphBase {
-    int _node_num;
-    int _edge_num;
   public:
 
     typedef FullGraphBase Graph;
@@ -237,6 +235,9 @@ namespace lemon {
     class Edge;
 
   protected:
+
+    int _node_num;
+    int _edge_num;
 
     FullGraphBase() {}
 
@@ -537,9 +538,9 @@ namespace lemon {
   ///
   /// \sa FullDigraph
   class FullGraph : public ExtendedFullGraphBase {
-  public:
-
     typedef ExtendedFullGraphBase Parent;
+
+  public:
 
     /// \brief Constructor
     FullGraph() { construct(0); }
