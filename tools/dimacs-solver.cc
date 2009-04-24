@@ -93,24 +93,42 @@ void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
 
 template<class Value>
 void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
-               DimacsDescriptor &desc)
+               Value infty, DimacsDescriptor &desc)
 {
   bool report = !ap.given("q");
   Digraph g;
   Digraph::ArcMap<Value> lower(g), cap(g), cost(g);
   Digraph::NodeMap<Value> sup(g);
   Timer ti;
+
   ti.restart();
-  readDimacsMin(is, g, lower, cap, cost, sup, 0, desc);
+  readDimacsMin(is, g, lower, cap, cost, sup, infty, desc);
+  ti.stop();
+  Value sum_sup = 0;
+  for (Digraph::NodeIt n(g); n != INVALID; ++n) {
+    sum_sup += sup[n];
+  }
+  if (report) {
+    std::cerr << "Sum of supply values: " << sum_sup << "\n";
+    if (sum_sup <= 0)
+      std::cerr << "GEQ supply contraints are used for NetworkSimplex\n\n";
+    else
+      std::cerr << "LEQ supply contraints are used for NetworkSimplex\n\n";
+  }
   if (report) std::cerr << "Read the file: " << ti << '\n';
+
   ti.restart();
   NetworkSimplex<Digraph, Value> ns(g);
   ns.lowerMap(lower).capacityMap(cap).costMap(cost).supplyMap(sup);
+  if (sum_sup > 0) ns.problemType(ns.LEQ);
   if (report) std::cerr << "Setup NetworkSimplex class: " << ti << '\n';
   ti.restart();
-  ns.run();
-  if (report) std::cerr << "Run NetworkSimplex: " << ti << '\n';
-  if (report) std::cerr << "\nMin flow cost: " << ns.totalCost() << '\n';
+  bool res = ns.run();
+  if (report) {
+    std::cerr << "Run NetworkSimplex: " << ti << "\n\n";
+    std::cerr << "Feasible flow: " << (res ? "found" : "not found") << '\n';
+    if (res) std::cerr << "Min flow cost: " << ns.totalCost() << '\n';
+  }
 }
 
 void solve_mat(ArgParser &ap, std::istream &is, std::ostream &,
@@ -151,7 +169,7 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
   switch(desc.type)
     {
     case DimacsDescriptor::MIN:
-      solve_min<Value>(ap,is,os,desc);
+      solve_min<Value>(ap,is,os,infty,desc);
       break;
     case DimacsDescriptor::MAX:
       solve_max<Value>(ap,is,os,infty,desc);
