@@ -720,7 +720,7 @@ int main(int argc,const char **argv)
     .run();
 
   if (ap["rand"]) {
-    int seed = time(0);
+    int seed = int(time(0));
     std::cout << "Random number seed: " << seed << std::endl;
     rnd = Random(seed);
   }
