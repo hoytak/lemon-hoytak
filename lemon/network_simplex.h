@@ -1144,6 +1144,7 @@ namespace lemon {
 
       // Run Circulation to check if a feasible solution exists
       typedef ConstMap<Arc, Flow> ConstArcMap;
+      ConstArcMap zero_arc_map(0), inf_arc_map(inf_cap);
       FlowNodeMap *csup = NULL;
       bool local_csup = false;
       if (_psupply) {
@@ -1164,17 +1165,17 @@ namespace lemon {
             circ_result = circ.run();
           } else {
             Circulation<GR, FlowArcMap, ConstArcMap, FlowNodeMap>
-              circ(_graph, *_plower, ConstArcMap(inf_cap), *csup);
+              circ(_graph, *_plower, inf_arc_map, *csup);
             circ_result = circ.run();
           }
         } else {
           if (_pupper) {
             Circulation<GR, ConstArcMap, FlowArcMap, FlowNodeMap>
-              circ(_graph, ConstArcMap(0), *_pupper, *csup);
+              circ(_graph, zero_arc_map, *_pupper, *csup);
             circ_result = circ.run();
           } else {
             Circulation<GR, ConstArcMap, ConstArcMap, FlowNodeMap>
-              circ(_graph, ConstArcMap(0), ConstArcMap(inf_cap), *csup);
+              circ(_graph, zero_arc_map, inf_arc_map, *csup);
             circ_result = circ.run();
           }
         }
@@ -1191,17 +1192,17 @@ namespace lemon {
             circ_result = circ.run();
           } else {
             Circulation<RevGraph, FlowArcMap, ConstArcMap, NegNodeMap>
-              circ(rgraph, *_plower, ConstArcMap(inf_cap), neg_csup);
+              circ(rgraph, *_plower, inf_arc_map, neg_csup);
             circ_result = circ.run();
           }
         } else {
           if (_pupper) {
             Circulation<RevGraph, ConstArcMap, FlowArcMap, NegNodeMap>
-              circ(rgraph, ConstArcMap(0), *_pupper, neg_csup);
+              circ(rgraph, zero_arc_map, *_pupper, neg_csup);
             circ_result = circ.run();
           } else {
             Circulation<RevGraph, ConstArcMap, ConstArcMap, NegNodeMap>
-              circ(rgraph, ConstArcMap(0), ConstArcMap(inf_cap), neg_csup);
+              circ(rgraph, zero_arc_map, inf_arc_map, neg_csup);
             circ_result = circ.run();
           }
         }
