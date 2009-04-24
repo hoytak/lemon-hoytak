@@ -233,12 +233,7 @@ int main()
   {
     typedef int Flow;
     typedef int Cost;
-    // TODO: This typedef should be enabled if the standard maps are
-    // reference maps in the graph concepts (See #190).
-/**/
-    //typedef concepts::Digraph GR;
-    typedef ListDigraph GR;
-/**/
+    typedef concepts::Digraph GR;
     checkConcept< McfClassConcept<GR, Flow, Cost>,
                   NetworkSimplex<GR, Flow, Cost> >();
   }
