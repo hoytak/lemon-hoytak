@@ -24,6 +24,7 @@
 #include <lemon/smart_graph.h>
 #include <lemon/min_cost_arborescence.h>
 #include <lemon/lgf_reader.h>
+#include <lemon/concepts/digraph.h>
 
 #include "test_tools.h"
 
@@ -70,6 +71,65 @@ const char test_lgf[] =
   "@attributes\n"
   "source 0\n";
 
+
+void checkMinCostArborescenceCompile()
+{
+  typedef double VType;
+  typedef concepts::Digraph Digraph;
+  typedef concepts::ReadMap<Digraph::Arc, VType> CostMap;
+  typedef Digraph::Node Node;
+  typedef Digraph::Arc Arc;
+  typedef concepts::WriteMap<Digraph::Arc, bool> ArbMap;
+  typedef concepts::ReadWriteMap<Digraph::Node, Digraph::Arc> PredMap;
+
+  typedef MinCostArborescence<Digraph, CostMap>::
+            SetArborescenceMap<ArbMap>::
+            SetPredMap<PredMap>::Create MinCostArbType;
+
+  Digraph g;
+  Node s, n;
+  Arc e;
+  VType c;
+  bool b;
+  int i;
+  CostMap cost;
+  ArbMap arb;
+  PredMap pred;
+
+  MinCostArbType mcarb_test(g, cost);
+  const MinCostArbType& const_mcarb_test = mcarb_test;
+
+  mcarb_test
+    .arborescenceMap(arb)
+    .predMap(pred)
+    .run(s);
+
+  mcarb_test.init();
+  mcarb_test.addSource(s);
+  mcarb_test.start();
+  n = mcarb_test.processNextNode();
+  b = const_mcarb_test.emptyQueue();
+  i = const_mcarb_test.queueSize();
+  
+  c = const_mcarb_test.arborescenceCost();
+  b = const_mcarb_test.arborescence(e);
+  e = const_mcarb_test.pred(n);
+  const MinCostArbType::ArborescenceMap &am =
+    const_mcarb_test.arborescenceMap();
+  const MinCostArbType::PredMap &pm =
+    const_mcarb_test.predMap();
+  b = const_mcarb_test.reached(n);
+  b = const_mcarb_test.processed(n);
+  
+  i = const_mcarb_test.dualNum();
+  c = const_mcarb_test.dualValue();
+  i = const_mcarb_test.dualSize(i);
+  c = const_mcarb_test.dualValue(i);
+  
+  ignore_unused_variable_warning(am);
+  ignore_unused_variable_warning(pm);
+}
+
 int main() {
   typedef SmartDigraph Digraph;
   DIGRAPH_TYPEDEFS(Digraph);
@@ -110,19 +170,19 @@ int main() {
         }
       }
       if (mca.arborescence(it)) {
-        check(sum == cost[it], "INVALID DUAL");
+        check(sum == cost[it], "Invalid dual solution");
       }
-      check(sum <= cost[it], "INVALID DUAL");
+      check(sum <= cost[it], "Invalid dual solution");
     }
   }
 
 
-  check(mca.dualValue() == mca.arborescenceValue(), "INVALID DUAL");
+  check(mca.dualValue() == mca.arborescenceCost(), "Invalid dual solution");
 
-  check(mca.reached(source), "INVALID ARBORESCENCE");
+  check(mca.reached(source), "Invalid arborescence");
   for (ArcIt a(digraph); a != INVALID; ++a) {
     check(!mca.reached(digraph.source(a)) ||
-          mca.reached(digraph.target(a)), "INVALID ARBORESCENCE");
+          mca.reached(digraph.target(a)), "Invalid arborescence");
   }
 
   for (NodeIt n(digraph); n != INVALID; ++n) {
@@ -130,17 +190,17 @@ int main() {
     int cnt = 0;
     for (InArcIt a(digraph, n); a != INVALID; ++a) {
       if (mca.arborescence(a)) {
-        check(mca.pred(n) == a, "INVALID ARBORESCENCE");
+        check(mca.pred(n) == a, "Invalid arborescence");
         ++cnt;
       }
     }
-    check((n == source ? cnt == 0 : cnt == 1), "INVALID ARBORESCENCE");
+    check((n == source ? cnt == 0 : cnt == 1), "Invalid arborescence");
   }
 
   Digraph::ArcMap<bool> arborescence(digraph);
-  check(mca.arborescenceValue() ==
+  check(mca.arborescenceCost() ==
         minCostArborescence(digraph, cost, source, arborescence),
-        "WRONG FUNCTION");
+        "Wrong result of the function interface");
 
   return 0;
 }
