@@ -22,6 +22,7 @@
 #include <lemon/lgf_reader.h>
 #include <lemon/path.h>
 #include <lemon/suurballe.h>
+#include <lemon/concepts/digraph.h>
 
 #include "test_tools.h"
 
@@ -29,46 +30,96 @@ using namespace lemon;
 
 char test_lgf[] =
   "@nodes\n"
-  "label supply1 supply2 supply3\n"
-  "1     0        20      27\n"
-  "2     0       -4        0\n"
-  "3     0        0        0\n"
-  "4     0        0        0\n"
-  "5     0        9        0\n"
-  "6     0       -6        0\n"
-  "7     0        0        0\n"
-  "8     0        0        0\n"
-  "9     0        3        0\n"
-  "10    0       -2        0\n"
-  "11    0        0        0\n"
-  "12    0       -20     -27\n"
+  "label\n"
+  "1\n"
+  "2\n"
+  "3\n"
+  "4\n"
+  "5\n"
+  "6\n"
+  "7\n"
+  "8\n"
+  "9\n"
+  "10\n"
+  "11\n"
+  "12\n"
   "@arcs\n"
-  "      cost capacity lower1 lower2\n"
-  " 1  2  70  11       0      8\n"
-  " 1  3 150   3       0      1\n"
-  " 1  4  80  15       0      2\n"
-  " 2  8  80  12       0      0\n"
-  " 3  5 140   5       0      3\n"
-  " 4  6  60  10       0      1\n"
-  " 4  7  80   2       0      0\n"
-  " 4  8 110   3       0      0\n"
-  " 5  7  60  14       0      0\n"
-  " 5 11 120  12       0      0\n"
-  " 6  3   0   3       0      0\n"
-  " 6  9 140   4       0      0\n"
-  " 6 10  90   8       0      0\n"
-  " 7  1  30   5       0      0\n"
-  " 8 12  60  16       0      4\n"
-  " 9 12  50   6       0      0\n"
-  "10 12  70  13       0      5\n"
-  "10  2 100   7       0      0\n"
-  "10  7  60  10       0      0\n"
-  "11 10  20  14       0      6\n"
-  "12 11  30  10       0      0\n"
+  "      length\n"
+  " 1  2  70\n"
+  " 1  3 150\n"
+  " 1  4  80\n"
+  " 2  8  80\n"
+  " 3  5 140\n"
+  " 4  6  60\n"
+  " 4  7  80\n"
+  " 4  8 110\n"
+  " 5  7  60\n"
+  " 5 11 120\n"
+  " 6  3   0\n"
+  " 6  9 140\n"
+  " 6 10  90\n"
+  " 7  1  30\n"
+  " 8 12  60\n"
+  " 9 12  50\n"
+  "10 12  70\n"
+  "10  2 100\n"
+  "10  7  60\n"
+  "11 10  20\n"
+  "12 11  30\n"
   "@attributes\n"
   "source  1\n"
   "target 12\n"
   "@end\n";
+
+// Check the interface of Suurballe
+void checkSuurballeCompile()
+{
+  typedef int VType;
+  typedef concepts::Digraph Digraph;
+
+  typedef Digraph::Node Node;
+  typedef Digraph::Arc Arc;
+  typedef concepts::ReadMap<Arc, VType> LengthMap;
+  
+  typedef Suurballe<Digraph, LengthMap> SuurballeType;
+
+  Digraph g;
+  Node n;
+  Arc e;
+  LengthMap len;
+  SuurballeType::FlowMap flow(g);
+  SuurballeType::PotentialMap pi(g);
+
+  SuurballeType suurb_test(g, len);
+  const SuurballeType& const_suurb_test = suurb_test;
+
+  suurb_test
+    .flowMap(flow)
+    .potentialMap(pi);
+
+  int k;
+  k = suurb_test.run(n, n);
+  k = suurb_test.run(n, n, k);
+  suurb_test.init(n);
+  k = suurb_test.findFlow(n);
+  k = suurb_test.findFlow(n, k);
+  suurb_test.findPaths();
+  
+  int f;
+  VType c;
+  c = const_suurb_test.totalLength();
+  f = const_suurb_test.flow(e);
+  const SuurballeType::FlowMap& fm =
+    const_suurb_test.flowMap();
+  c = const_suurb_test.potential(n);
+  const SuurballeType::PotentialMap& pm =
+    const_suurb_test.potentialMap();
+  k = const_suurb_test.pathNum();
+  Path<Digraph> p = const_suurb_test.path(k);
+  
+  ignore_unused_variable_warning(fm);
+  ignore_unused_variable_warning(pm);
+}
 
 // Check the feasibility of the flow
 template <typename Digraph, typename FlowMap>
@@ -118,7 +169,6 @@ template <typename Digraph, typename Path>
 bool checkPath( const Digraph& gr, const Path& path,
                 typename Digraph::Node s, typename Digraph::Node t)
 {
-  // Check the "Complementary Slackness" optimality condition
   TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
   Node n = s;
   for (int i = 0; i < path.length(); ++i) {
@@ -136,58 +186,55 @@ int main()
   // Read the test digraph
   ListDigraph digraph;
   ListDigraph::ArcMap<int> length(digraph);
-  Node source, target;
+  Node s, t;
 
   std::istringstream input(test_lgf);
   DigraphReader<ListDigraph>(digraph, input).
-    arcMap("cost", length).
-    node("source", source).
-    node("target", target).
+    arcMap("length", length).
+    node("source", s).
+    node("target", t).
     run();
 
   // Find 2 paths
   {
-    Suurballe<ListDigraph> suurballe(digraph, length, source, target);
-    check(suurballe.run(2) == 2, "Wrong number of paths");
-    check(checkFlow(digraph, suurballe.flowMap(), source, target, 2),
+    Suurballe<ListDigraph> suurballe(digraph, length);
+    check(suurballe.run(s, t) == 2, "Wrong number of paths");
+    check(checkFlow(digraph, suurballe.flowMap(), s, t, 2),
           "The flow is not feasible");
     check(suurballe.totalLength() == 510, "The flow is not optimal");
     check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
-      check(checkPath(digraph, suurballe.path(i), source, target),
-            "Wrong path");
+      check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
   }
 
   // Find 3 paths
   {
-    Suurballe<ListDigraph> suurballe(digraph, length, source, target);
-    check(suurballe.run(3) == 3, "Wrong number of paths");
-    check(checkFlow(digraph, suurballe.flowMap(), source, target, 3),
+    Suurballe<ListDigraph> suurballe(digraph, length);
+    check(suurballe.run(s, t, 3) == 3, "Wrong number of paths");
+    check(checkFlow(digraph, suurballe.flowMap(), s, t, 3),
           "The flow is not feasible");
     check(suurballe.totalLength() == 1040, "The flow is not optimal");
     check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
-      check(checkPath(digraph, suurballe.path(i), source, target),
-            "Wrong path");
+      check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
   }
 
   // Find 5 paths (only 3 can be found)
   {
-    Suurballe<ListDigraph> suurballe(digraph, length, source, target);
-    check(suurballe.run(5) == 3, "Wrong number of paths");
-    check(checkFlow(digraph, suurballe.flowMap(), source, target, 3),
+    Suurballe<ListDigraph> suurballe(digraph, length);
+    check(suurballe.run(s, t, 5) == 3, "Wrong number of paths");
+    check(checkFlow(digraph, suurballe.flowMap(), s, t, 3),
           "The flow is not feasible");
     check(suurballe.totalLength() == 1040, "The flow is not optimal");
     check(checkOptimality(digraph, length, suurballe.flowMap(),
                           suurballe.potentialMap()),
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
-      check(checkPath(digraph, suurballe.path(i), source, target),
-            "Wrong path");
+      check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
   }
 
   return 0;

@@ -14,6 +14,8 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 INCLUDE(FindDoxygen)
 INCLUDE(FindGhostscript)
 FIND_PACKAGE(GLPK 4.33)
+FIND_PACKAGE(CPLEX)
+FIND_PACKAGE(COIN)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
@@ -25,12 +27,6 @@ IF(MSVC)
 # C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
 # C4996: 'function': was declared deprecated
 ENDIF(MSVC)
-
-IF(GLPK_FOUND)
-  SET(HAVE_LP TRUE)
-  SET(HAVE_MIP TRUE)
-  SET(HAVE_GLPK TRUE)
-ENDIF(GLPK_FOUND)
 
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("long long" LONG_LONG)

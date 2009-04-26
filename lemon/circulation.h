@@ -21,6 +21,7 @@
 
 #include <lemon/tolerance.h>
 #include <lemon/elevator.h>
+#include <limits>
 
 ///\ingroup max_flow
 ///\file
@@ -119,15 +120,15 @@ namespace lemon {
      at the nodes.
 
      The exact formulation of this problem is the following.
-     Let \f$G=(V,A)\f$ be a digraph,
-     \f$lower, upper: A\rightarrow\mathbf{R}^+_0\f$ denote the lower and
-     upper bounds on the arcs, for which \f$0 \leq lower(uv) \leq upper(uv)\f$
+     Let \f$G=(V,A)\f$ be a digraph, \f$lower: A\rightarrow\mathbf{R}\f$
+     \f$upper: A\rightarrow\mathbf{R}\cup\{\infty\}\f$ denote the lower and
+     upper bounds on the arcs, for which \f$lower(uv) \leq upper(uv)\f$
      holds for all \f$uv\in A\f$, and \f$sup: V\rightarrow\mathbf{R}\f$
      denotes the signed supply values of the nodes.
      If \f$sup(u)>0\f$, then \f$u\f$ is a supply node with \f$sup(u)\f$
      supply, if \f$sup(u)<0\f$, then \f$u\f$ is a demand node with
      \f$-sup(u)\f$ demand.
-     A feasible circulation is an \f$f: A\rightarrow\mathbf{R}^+_0\f$
+     A feasible circulation is an \f$f: A\rightarrow\mathbf{R}\f$
      solution of the following problem.
 
      \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu)
@@ -150,6 +151,10 @@ namespace lemon {
      then you could easily transform the problem to the above form by reversing
      the direction of the arcs and taking the negative of the supply values
      (e.g. using \ref ReverseDigraph and \ref NegMap adaptors).
+
+     This algorithm either calculates a feasible circulation, or provides
+     a \ref barrier() "barrier", which prooves that a feasible soultion
+     cannot exist.
 
      Note that this algorithm also provides a feasible solution for the
      \ref min_cost_flow "minimum cost flow problem".
@@ -337,6 +342,13 @@ template< typename GR,
 
   private:
 
+    bool checkBoundMaps() {
+      for (ArcIt e(_g);e!=INVALID;++e) {
+        if (_tol.less((*_up)[e], (*_lo)[e])) return false;
+      }
+      return true;
+    }
+
     void createStructures() {
       _node_num = _el = countNodes(_g);
 
@@ -380,7 +392,7 @@ template< typename GR,
 
     /// Sets the upper bound (capacity) map.
     /// \return <tt>(*this)</tt>
-    Circulation& upperMap(const LowerMap& map) {
+    Circulation& upperMap(const UpperMap& map) {
       _up = &map;
       return *this;
     }
@@ -467,6 +479,9 @@ template< typename GR,
     /// to the lower bound.
     void init()
     {
+      LEMON_DEBUG(checkBoundMaps(),
+        "Upper bounds must be greater or equal to the lower bounds");
+
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
@@ -496,6 +511,9 @@ template< typename GR,
     /// to construct the initial solution.
     void greedyInit()
     {
+      LEMON_DEBUG(checkBoundMaps(),
+        "Upper bounds must be greater or equal to the lower bounds");
+
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
@@ -503,11 +521,11 @@ template< typename GR,
       }
 
       for (ArcIt e(_g);e!=INVALID;++e) {
-        if (!_tol.positive((*_excess)[_g.target(e)] + (*_up)[e])) {
+        if (!_tol.less(-(*_excess)[_g.target(e)], (*_up)[e])) {
           _flow->set(e, (*_up)[e]);
           (*_excess)[_g.target(e)] += (*_up)[e];
           (*_excess)[_g.source(e)] -= (*_up)[e];
-        } else if (_tol.positive((*_excess)[_g.target(e)] + (*_lo)[e])) {
+        } else if (_tol.less(-(*_excess)[_g.target(e)], (*_lo)[e])) {
           _flow->set(e, (*_lo)[e]);
           (*_excess)[_g.target(e)] += (*_lo)[e];
           (*_excess)[_g.source(e)] -= (*_lo)[e];
@@ -748,6 +766,9 @@ template< typename GR,
     bool checkBarrier() const
     {
       Flow delta=0;
+      Flow inf_cap = std::numeric_limits<Flow>::has_infinity ?
+        std::numeric_limits<Flow>::infinity() :
+        std::numeric_limits<Flow>::max();
       for(NodeIt n(_g);n!=INVALID;++n)
         if(barrier(n))
           delta-=(*_supply)[n];
@@ -755,7 +776,10 @@ template< typename GR,
         {
           Node s=_g.source(e);
           Node t=_g.target(e);
-          if(barrier(s)&&!barrier(t)) delta+=(*_up)[e];
+          if(barrier(s)&&!barrier(t)) {
+            if (_tol.less(inf_cap - (*_up)[e], delta)) return false;
+            delta+=(*_up)[e];
+          }
           else if(barrier(t)&&!barrier(s)) delta-=(*_lo)[e];
         }
       return _tol.negative(delta);

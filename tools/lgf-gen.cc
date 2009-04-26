@@ -480,8 +480,8 @@ void sparse2(int d)
       Node b=g.v(*ei);
       g.erase(*ei);
       ConstMap<Arc,int> cegy(1);
-      Suurballe<ListGraph,ConstMap<Arc,int> > sur(g,cegy,a,b);
-      int k=sur.run(2);
+      Suurballe<ListGraph,ConstMap<Arc,int> > sur(g,cegy);
+      int k=sur.run(a,b,2);
       if(k<2 || sur.totalLength()>d)
         g.addEdge(a,b);
       else cnt++;
@@ -511,9 +511,8 @@ void sparseTriangle(int d)
       Edge ne;
       if(e==INVALID) {
         ConstMap<Arc,int> cegy(1);
-        Suurballe<ListGraph,ConstMap<Arc,int> >
-          sur(g,cegy,pi->a,pi->b);
-        int k=sur.run(2);
+        Suurballe<ListGraph,ConstMap<Arc,int> > sur(g,cegy);
+        int k=sur.run(pi->a,pi->b,2);
         if(k<2 || sur.totalLength()>d)
           {
             ne=g.addEdge(pi->a,pi->b);
