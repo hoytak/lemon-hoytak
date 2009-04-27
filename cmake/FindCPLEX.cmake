@@ -1,17 +1,25 @@
+SET(CPLEX_ROOT_DIR "" CACHE PATH "CPLEX root directory")
+
 FIND_PATH(CPLEX_INCLUDE_DIR
   ilcplex/cplex.h
-  PATHS "C:/ILOG/CPLEX91/include")
-
+  PATHS "C:/ILOG/CPLEX91/include"
+  PATHS "/opt/ilog/cplex91/include"
+  HINTS ${CPLEX_ROOT_DIR}/include
+)
 FIND_LIBRARY(CPLEX_LIBRARY
-  NAMES cplex91
-  PATHS "C:/ILOG/CPLEX91/lib/msvc7/stat_mda")
+  cplex91
+  PATHS "C:/ILOG/CPLEX91/lib/msvc7/stat_mda"
+  PATHS "/opt/ilog/cplex91/bin"
+  HINTS ${CPLEX_ROOT_DIR}/bin
+)
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(CPLEX DEFAULT_MSG CPLEX_LIBRARY CPLEX_INCLUDE_DIR)
 
 FIND_PATH(CPLEX_BIN_DIR
   cplex91.dll
-  PATHS "C:/ILOG/CPLEX91/bin/x86_win32")
+  PATHS "C:/ILOG/CPLEX91/bin/x86_win32"
+)
 
 IF(CPLEX_FOUND)
   SET(CPLEX_INCLUDE_DIRS ${CPLEX_INCLUDE_DIR})
