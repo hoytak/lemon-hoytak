@@ -55,7 +55,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     LIBS="$lx_save_libs"
 
     if test x"$lx_soplex_found" = x"yes"; then
-      AC_DEFINE([HAVE_SOPLEX], [1], [Define to 1 if you have SOPLEX.])
+      AC_DEFINE([LEMON_HAVE_SOPLEX], [1], [Define to 1 if you have SOPLEX.])
       AC_MSG_RESULT([yes])
     else
       SOPLEX_CXXFLAGS=""

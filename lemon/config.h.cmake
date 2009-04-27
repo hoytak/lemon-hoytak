@@ -1,1 +1,1 @@
-#cmakedefine HAVE_LONG_LONG 1
+#cmakedefine LEMON_HAVE_LONG_LONG 1

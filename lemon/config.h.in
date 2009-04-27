@@ -1,8 +1,8 @@
 /* Define to 1 if you have CPLEX. */
-#undef HAVE_CPLEX
+#undef LEMON_HAVE_CPLEX
 
 /* Define to 1 if you have GLPK. */
-#undef HAVE_GLPK
+#undef LEMON_HAVE_GLPK
 
 /* Define to 1 if you have long long */
-#undef HAVE_LONG_LONG
+#undef LEMON_HAVE_LONG_LONG

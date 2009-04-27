@@ -59,7 +59,7 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
     LIBS="$lx_save_libs"
 
     if test x"$lx_glpk_found" = x"yes"; then
-      AC_DEFINE([HAVE_GLPK], [1], [Define to 1 if you have GLPK.])
+      AC_DEFINE([LEMON_HAVE_GLPK], [1], [Define to 1 if you have GLPK.])
       AC_MSG_RESULT([yes])
     else
       GLPK_CFLAGS=""
