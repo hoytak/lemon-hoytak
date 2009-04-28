@@ -16,6 +16,8 @@ lemon_libemon_la_SOURCES = \
 #lemon_libemon_la_CXXFLAGS = $(GLPK_CFLAGS) $(CPLEX_CFLAGS) $(SOPLEX_CXXFLAGS)
 #lemon_libemon_la_LDFLAGS = $(GLPK_LIBS) $(CPLEX_LIBS) $(SOPLEX_LIBS)
 
+nodist_lemon_HEADERS = lemon/config.h
+
 lemon_HEADERS += \
         lemon/arg_parser.h \
 	lemon/assert.h \
@@ -23,7 +25,6 @@ lemon_HEADERS += \
         lemon/bin_heap.h \
         lemon/color.h \
 	lemon/concept_check.h \
-	lemon/config.h \
         lemon/counter.h \
 	lemon/core.h \
         lemon/dfs.h \
