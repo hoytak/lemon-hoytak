@@ -61,6 +61,7 @@ lemon_HEADERS += \
 	lemon/clp.h \
 	lemon/color.h \
 	lemon/concept_check.h \
+	lemon/config.h \
 	lemon/connectivity.h \
 	lemon/counter.h \
 	lemon/core.h \

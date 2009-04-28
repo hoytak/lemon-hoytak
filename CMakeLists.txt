@@ -28,8 +28,10 @@ IF(MSVC)
 # C4996: 'function': was declared deprecated
 ENDIF(MSVC)
 
+ADD_DEFINITIONS(-DHAVE_CONFIG_H)
+
 INCLUDE(CheckTypeSize)
-CHECK_TYPE_SIZE("long long" LONG_LONG)
+CHECK_TYPE_SIZE("long long" LEMON_LONG_LONG)
 
 ENABLE_TESTING()
 

@@ -97,7 +97,7 @@ namespace lemon {
   };
 
 
-#if defined HAVE_LONG_LONG
+#if defined LEMON_HAVE_LONG_LONG
 
   // long long
   template <typename _Graph, typename _Item>
