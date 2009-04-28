@@ -17,8 +17,6 @@ FIND_PACKAGE(GLPK 4.33)
 FIND_PACKAGE(CPLEX)
 FIND_PACKAGE(COIN)
 
-ADD_DEFINITIONS(-DHAVE_CONFIG_H)
-
 IF(MSVC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /wd4355 /wd4800 /wd4996")
 # Suppressed warnings:
@@ -27,8 +25,6 @@ IF(MSVC)
 # C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
 # C4996: 'function': was declared deprecated
 ENDIF(MSVC)
-
-ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("long long" LEMON_LONG_LONG)

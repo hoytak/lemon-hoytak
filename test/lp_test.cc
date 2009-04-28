@@ -21,9 +21,7 @@
 #include "test_tools.h"
 #include <lemon/tolerance.h>
 
-#ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
-#endif
 
 #ifdef LEMON_HAVE_GLPK
 #include <lemon/glpk.h>
