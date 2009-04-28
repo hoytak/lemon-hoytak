@@ -23,6 +23,7 @@ lemon_HEADERS += \
         lemon/bin_heap.h \
         lemon/color.h \
 	lemon/concept_check.h \
+	lemon/config.h \
         lemon/counter.h \
 	lemon/core.h \
         lemon/dfs.h \
