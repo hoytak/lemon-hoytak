@@ -1045,8 +1045,8 @@ namespace lemon {
       for (int i = 0; i != _node_num; ++i) {
         _sum_supply += _supply[i];
       }
-      if ( !(_stype == GEQ && _sum_supply <= 0 ||
-             _stype == LEQ && _sum_supply >= 0) ) return false;
+      if ( !((_stype == GEQ && _sum_supply <= 0) ||
+             (_stype == LEQ && _sum_supply >= 0)) ) return false;
 
       // Remove non-zero lower bounds
       if (_have_lower) {
