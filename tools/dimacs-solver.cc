@@ -119,8 +119,8 @@ void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
 
   ti.restart();
   NetworkSimplex<Digraph, Value> ns(g);
-  ns.lowerMap(lower).capacityMap(cap).costMap(cost).supplyMap(sup);
-  if (sum_sup > 0) ns.problemType(ns.LEQ);
+  ns.lowerMap(lower).upperMap(cap).costMap(cost).supplyMap(sup);
+  if (sum_sup > 0) ns.supplyType(ns.LEQ);
   if (report) std::cerr << "Setup NetworkSimplex class: " << ti << '\n';
   ti.restart();
   bool res = ns.run();

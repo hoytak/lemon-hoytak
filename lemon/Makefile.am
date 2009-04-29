@@ -15,7 +15,8 @@ lemon_libemon_la_SOURCES = \
 	lemon/random.cc \
 	lemon/bits/windows.cc
 
-
+nodist_lemon_HEADERS = lemon/config.h	
+	
 lemon_libemon_la_CXXFLAGS = \
 	$(AM_CXXFLAGS) \
 	$(GLPK_CFLAGS) \
@@ -57,11 +58,11 @@ lemon_HEADERS += \
 	lemon/assert.h \
 	lemon/bfs.h \
 	lemon/bin_heap.h \
+	lemon/cbc.h \
 	lemon/circulation.h \
 	lemon/clp.h \
 	lemon/color.h \
 	lemon/concept_check.h \
-	lemon/config.h \
 	lemon/connectivity.h \
 	lemon/counter.h \
 	lemon/core.h \

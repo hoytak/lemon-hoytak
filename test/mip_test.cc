@@ -18,9 +18,7 @@
 
 #include "test_tools.h"
 
-#ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
-#endif
 
 #ifdef LEMON_HAVE_CPLEX
 #include <lemon/cplex.h>

@@ -30,9 +30,6 @@
 
 #include <lemon/core.h>
 #include <lemon/math.h>
-#include <lemon/maps.h>
-#include <lemon/circulation.h>
-#include <lemon/adaptors.h>
 
 namespace lemon {
 
@@ -50,14 +47,19 @@ namespace lemon {
   ///
   /// In general this class is the fastest implementation available
   /// in LEMON for the minimum cost flow problem.
-  /// Moreover it supports both direction of the supply/demand inequality
-  /// constraints. For more information see \ref ProblemType.
+  /// Moreover it supports both directions of the supply/demand inequality
+  /// constraints. For more information see \ref SupplyType.
+  ///
+  /// Most of the parameters of the problem (except for the digraph)
+  /// can be given using separate functions, and the algorithm can be
+  /// executed using the \ref run() function. If some parameters are not
+  /// specified, then default values will be used.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
-  /// \tparam F The value type used for flow amounts, capacity bounds
+  /// \tparam V The value type used for flow amounts, capacity bounds
   /// and supply values in the algorithm. By default it is \c int.
   /// \tparam C The value type used for costs and potentials in the
-  /// algorithm. By default it is the same as \c F.
+  /// algorithm. By default it is the same as \c V.
   ///
   /// \warning Both value types must be signed and all input data must
   /// be integer.
@@ -65,33 +67,91 @@ namespace lemon {
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations, from which the most efficient one is used
   /// by default. For more information see \ref PivotRule.
-  template <typename GR, typename F = int, typename C = F>
+  template <typename GR, typename V = int, typename C = V>
   class NetworkSimplex
   {
   public:
 
-    /// The flow type of the algorithm
-    typedef F Flow;
-    /// The cost type of the algorithm
+    /// The type of the flow amounts, capacity bounds and supply values
+    typedef V Value;
+    /// The type of the arc costs
     typedef C Cost;
-#ifdef DOXYGEN
-    /// The type of the flow map
-    typedef GR::ArcMap<Flow> FlowMap;
-    /// The type of the potential map
-    typedef GR::NodeMap<Cost> PotentialMap;
-#else
-    /// The type of the flow map
-    typedef typename GR::template ArcMap<Flow> FlowMap;
-    /// The type of the potential map
-    typedef typename GR::template NodeMap<Cost> PotentialMap;
-#endif
 
   public:
 
-    /// \brief Enum type for selecting the pivot rule.
+    /// \brief Problem type constants for the \c run() function.
     ///
-    /// Enum type for selecting the pivot rule for the \ref run()
+    /// Enum type containing the problem type constants that can be
+    /// returned by the \ref run() function of the algorithm.
+    enum ProblemType {
+      /// The problem has no feasible solution (flow).
+      INFEASIBLE,
+      /// The problem has optimal solution (i.e. it is feasible and
+      /// bounded), and the algorithm has found optimal flow and node
+      /// potentials (primal and dual solutions).
+      OPTIMAL,
+      /// The objective function of the problem is unbounded, i.e.
+      /// there is a directed cycle having negative total cost and
+      /// infinite upper bound.
+      UNBOUNDED
+    };
+    
+    /// \brief Constants for selecting the type of the supply constraints.
+    ///
+    /// Enum type containing constants for selecting the supply type,
+    /// i.e. the direction of the inequalities in the supply/demand
+    /// constraints of the \ref min_cost_flow "minimum cost flow problem".
+    ///
+    /// The default supply type is \c GEQ, since this form is supported
+    /// by other minimum cost flow algorithms and the \ref Circulation
+    /// algorithm, as well.
+    /// The \c LEQ problem type can be selected using the \ref supplyType()
     /// function.
+    ///
+    /// Note that the equality form is a special case of both supply types.
+    enum SupplyType {
+
+      /// This option means that there are <em>"greater or equal"</em>
+      /// supply/demand constraints in the definition, i.e. the exact
+      /// formulation of the problem is the following.
+      /**
+          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
+          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \geq
+              sup(u) \quad \forall u\in V \f]
+          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
+      */
+      /// It means that the total demand must be greater or equal to the 
+      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
+      /// negative) and all the supplies have to be carried out from 
+      /// the supply nodes, but there could be demands that are not 
+      /// satisfied.
+      GEQ,
+      /// It is just an alias for the \c GEQ option.
+      CARRY_SUPPLIES = GEQ,
+
+      /// This option means that there are <em>"less or equal"</em>
+      /// supply/demand constraints in the definition, i.e. the exact
+      /// formulation of the problem is the following.
+      /**
+          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
+          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \leq
+              sup(u) \quad \forall u\in V \f]
+          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
+      */
+      /// It means that the total demand must be less or equal to the 
+      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
+      /// positive) and all the demands have to be satisfied, but there
+      /// could be supplies that are not carried out from the supply
+      /// nodes.
+      LEQ,
+      /// It is just an alias for the \c LEQ option.
+      SATISFY_DEMANDS = LEQ
+    };
+    
+    /// \brief Constants for selecting the pivot rule.
+    ///
+    /// Enum type containing constants for selecting the pivot rule for
+    /// the \ref run() function.
     ///
     /// \ref NetworkSimplex provides five different pivot rule
     /// implementations that significantly affect the running time
@@ -131,71 +191,15 @@ namespace lemon {
       ALTERING_LIST
     };
     
-    /// \brief Enum type for selecting the problem type.
-    ///
-    /// Enum type for selecting the problem type, i.e. the direction of
-    /// the inequalities in the supply/demand constraints of the
-    /// \ref min_cost_flow "minimum cost flow problem".
-    ///
-    /// The default problem type is \c GEQ, since this form is supported
-    /// by other minimum cost flow algorithms and the \ref Circulation
-    /// algorithm as well.
-    /// The \c LEQ problem type can be selected using the \ref problemType()
-    /// function.
-    ///
-    /// Note that the equality form is a special case of both problem type.
-    enum ProblemType {
-
-      /// This option means that there are "<em>greater or equal</em>"
-      /// constraints in the defintion, i.e. the exact formulation of the
-      /// problem is the following.
-      /**
-          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
-          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \geq
-              sup(u) \quad \forall u\in V \f]
-          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
-      */
-      /// It means that the total demand must be greater or equal to the 
-      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
-      /// negative) and all the supplies have to be carried out from 
-      /// the supply nodes, but there could be demands that are not 
-      /// satisfied.
-      GEQ,
-      /// It is just an alias for the \c GEQ option.
-      CARRY_SUPPLIES = GEQ,
-
-      /// This option means that there are "<em>less or equal</em>"
-      /// constraints in the defintion, i.e. the exact formulation of the
-      /// problem is the following.
-      /**
-          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
-          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \leq
-              sup(u) \quad \forall u\in V \f]
-          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
-      */
-      /// It means that the total demand must be less or equal to the 
-      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
-      /// positive) and all the demands have to be satisfied, but there
-      /// could be supplies that are not carried out from the supply
-      /// nodes.
-      LEQ,
-      /// It is just an alias for the \c LEQ option.
-      SATISFY_DEMANDS = LEQ
-    };
-
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
-
-    typedef typename GR::template ArcMap<Flow> FlowArcMap;
-    typedef typename GR::template ArcMap<Cost> CostArcMap;
-    typedef typename GR::template NodeMap<Flow> FlowNodeMap;
 
     typedef std::vector<Arc> ArcVector;
     typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
-    typedef std::vector<Flow> FlowVector;
+    typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
 
     // State constants for arcs
@@ -213,32 +217,23 @@ namespace lemon {
     int _arc_num;
 
     // Parameters of the problem
-    FlowArcMap *_plower;
-    FlowArcMap *_pupper;
-    CostArcMap *_pcost;
-    FlowNodeMap *_psupply;
-    bool _pstsup;
-    Node _psource, _ptarget;
-    Flow _pstflow;
-    ProblemType _ptype;
-
-    // Result maps
-    FlowMap *_flow_map;
-    PotentialMap *_potential_map;
-    bool _local_flow;
-    bool _local_potential;
+    bool _have_lower;
+    SupplyType _stype;
+    Value _sum_supply;
 
     // Data structures for storing the digraph
     IntNodeMap _node_id;
-    ArcVector _arc_ref;
+    IntArcMap _arc_id;
     IntVector _source;
     IntVector _target;
 
     // Node and arc data
-    FlowVector _cap;
+    ValueVector _lower;
+    ValueVector _upper;
+    ValueVector _cap;
     CostVector _cost;
-    FlowVector _supply;
-    FlowVector _flow;
+    ValueVector _supply;
+    ValueVector _flow;
     CostVector _pi;
 
     // Data for storing the spanning tree structure
@@ -257,7 +252,16 @@ namespace lemon {
     int in_arc, join, u_in, v_in, u_out, v_out;
     int first, second, right, last;
     int stem, par_stem, new_stem;
-    Flow delta;
+    Value delta;
+
+  public:
+  
+    /// \brief Constant for infinite upper bounds (capacities).
+    ///
+    /// Constant for infinite upper bounds (capacities).
+    /// It is \c std::numeric_limits<Value>::infinity() if available,
+    /// \c std::numeric_limits<Value>::max() otherwise.
+    const Value INF;
 
   private:
 
@@ -659,431 +663,28 @@ namespace lemon {
     ///
     /// \param graph The digraph the algorithm runs on.
     NetworkSimplex(const GR& graph) :
-      _graph(graph),
-      _plower(NULL), _pupper(NULL), _pcost(NULL),
-      _psupply(NULL), _pstsup(false), _ptype(GEQ),
-      _flow_map(NULL), _potential_map(NULL),
-      _local_flow(false), _local_potential(false),
-      _node_id(graph)
+      _graph(graph), _node_id(graph), _arc_id(graph),
+      INF(std::numeric_limits<Value>::has_infinity ?
+          std::numeric_limits<Value>::infinity() :
+          std::numeric_limits<Value>::max())
     {
-      LEMON_ASSERT(std::numeric_limits<Flow>::is_integer &&
-                   std::numeric_limits<Flow>::is_signed,
-        "The flow type of NetworkSimplex must be signed integer");
-      LEMON_ASSERT(std::numeric_limits<Cost>::is_integer &&
-                   std::numeric_limits<Cost>::is_signed,
-        "The cost type of NetworkSimplex must be signed integer");
-    }
-
-    /// Destructor.
-    ~NetworkSimplex() {
-      if (_local_flow) delete _flow_map;
-      if (_local_potential) delete _potential_map;
-    }
-
-    /// \name Parameters
-    /// The parameters of the algorithm can be specified using these
-    /// functions.
-
-    /// @{
-
-    /// \brief Set the lower bounds on the arcs.
-    ///
-    /// This function sets the lower bounds on the arcs.
-    /// If neither this function nor \ref boundMaps() is used before
-    /// calling \ref run(), the lower bounds will be set to zero
-    /// on all arcs.
-    ///
-    /// \param map An arc map storing the lower bounds.
-    /// Its \c Value type must be convertible to the \c Flow type
-    /// of the algorithm.
-    ///
-    /// \return <tt>(*this)</tt>
-    template <typename LOWER>
-    NetworkSimplex& lowerMap(const LOWER& map) {
-      delete _plower;
-      _plower = new FlowArcMap(_graph);
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_plower)[a] = map[a];
-      }
-      return *this;
-    }
-
-    /// \brief Set the upper bounds (capacities) on the arcs.
-    ///
-    /// This function sets the upper bounds (capacities) on the arcs.
-    /// If none of the functions \ref upperMap(), \ref capacityMap()
-    /// and \ref boundMaps() is used before calling \ref run(),
-    /// the upper bounds (capacities) will be set to
-    /// \c std::numeric_limits<Flow>::max() on all arcs.
-    ///
-    /// \param map An arc map storing the upper bounds.
-    /// Its \c Value type must be convertible to the \c Flow type
-    /// of the algorithm.
-    ///
-    /// \return <tt>(*this)</tt>
-    template<typename UPPER>
-    NetworkSimplex& upperMap(const UPPER& map) {
-      delete _pupper;
-      _pupper = new FlowArcMap(_graph);
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_pupper)[a] = map[a];
-      }
-      return *this;
-    }
-
-    /// \brief Set the upper bounds (capacities) on the arcs.
-    ///
-    /// This function sets the upper bounds (capacities) on the arcs.
-    /// It is just an alias for \ref upperMap().
-    ///
-    /// \return <tt>(*this)</tt>
-    template<typename CAP>
-    NetworkSimplex& capacityMap(const CAP& map) {
-      return upperMap(map);
-    }
-
-    /// \brief Set the lower and upper bounds on the arcs.
-    ///
-    /// This function sets the lower and upper bounds on the arcs.
-    /// If neither this function nor \ref lowerMap() is used before
-    /// calling \ref run(), the lower bounds will be set to zero
-    /// on all arcs.
-    /// If none of the functions \ref upperMap(), \ref capacityMap()
-    /// and \ref boundMaps() is used before calling \ref run(),
-    /// the upper bounds (capacities) will be set to
-    /// \c std::numeric_limits<Flow>::max() on all arcs.
-    ///
-    /// \param lower An arc map storing the lower bounds.
-    /// \param upper An arc map storing the upper bounds.
-    ///
-    /// The \c Value type of the maps must be convertible to the
-    /// \c Flow type of the algorithm.
-    ///
-    /// \note This function is just a shortcut of calling \ref lowerMap()
-    /// and \ref upperMap() separately.
-    ///
-    /// \return <tt>(*this)</tt>
-    template <typename LOWER, typename UPPER>
-    NetworkSimplex& boundMaps(const LOWER& lower, const UPPER& upper) {
-      return lowerMap(lower).upperMap(upper);
-    }
-
-    /// \brief Set the costs of the arcs.
-    ///
-    /// This function sets the costs of the arcs.
-    /// If it is not used before calling \ref run(), the costs
-    /// will be set to \c 1 on all arcs.
-    ///
-    /// \param map An arc map storing the costs.
-    /// Its \c Value type must be convertible to the \c Cost type
-    /// of the algorithm.
-    ///
-    /// \return <tt>(*this)</tt>
-    template<typename COST>
-    NetworkSimplex& costMap(const COST& map) {
-      delete _pcost;
-      _pcost = new CostArcMap(_graph);
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_pcost)[a] = map[a];
-      }
-      return *this;
-    }
-
-    /// \brief Set the supply values of the nodes.
-    ///
-    /// This function sets the supply values of the nodes.
-    /// If neither this function nor \ref stSupply() is used before
-    /// calling \ref run(), the supply of each node will be set to zero.
-    /// (It makes sense only if non-zero lower bounds are given.)
-    ///
-    /// \param map A node map storing the supply values.
-    /// Its \c Value type must be convertible to the \c Flow type
-    /// of the algorithm.
-    ///
-    /// \return <tt>(*this)</tt>
-    template<typename SUP>
-    NetworkSimplex& supplyMap(const SUP& map) {
-      delete _psupply;
-      _pstsup = false;
-      _psupply = new FlowNodeMap(_graph);
-      for (NodeIt n(_graph); n != INVALID; ++n) {
-        (*_psupply)[n] = map[n];
-      }
-      return *this;
-    }
-
-    /// \brief Set single source and target nodes and a supply value.
-    ///
-    /// This function sets a single source node and a single target node
-    /// and the required flow value.
-    /// If neither this function nor \ref supplyMap() is used before
-    /// calling \ref run(), the supply of each node will be set to zero.
-    /// (It makes sense only if non-zero lower bounds are given.)
-    ///
-    /// \param s The source node.
-    /// \param t The target node.
-    /// \param k The required amount of flow from node \c s to node \c t
-    /// (i.e. the supply of \c s and the demand of \c t).
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& stSupply(const Node& s, const Node& t, Flow k) {
-      delete _psupply;
-      _psupply = NULL;
-      _pstsup = true;
-      _psource = s;
-      _ptarget = t;
-      _pstflow = k;
-      return *this;
-    }
-    
-    /// \brief Set the problem type.
-    ///
-    /// This function sets the problem type for the algorithm.
-    /// If it is not used before calling \ref run(), the \ref GEQ problem
-    /// type will be used.
-    ///
-    /// For more information see \ref ProblemType.
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& problemType(ProblemType problem_type) {
-      _ptype = problem_type;
-      return *this;
-    }
-
-    /// \brief Set the flow map.
-    ///
-    /// This function sets the flow map.
-    /// If it is not used before calling \ref run(), an instance will
-    /// be allocated automatically. The destructor deallocates this
-    /// automatically allocated map, of course.
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& flowMap(FlowMap& map) {
-      if (_local_flow) {
-        delete _flow_map;
-        _local_flow = false;
-      }
-      _flow_map = &map;
-      return *this;
-    }
-
-    /// \brief Set the potential map.
-    ///
-    /// This function sets the potential map, which is used for storing
-    /// the dual solution.
-    /// If it is not used before calling \ref run(), an instance will
-    /// be allocated automatically. The destructor deallocates this
-    /// automatically allocated map, of course.
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& potentialMap(PotentialMap& map) {
-      if (_local_potential) {
-        delete _potential_map;
-        _local_potential = false;
-      }
-      _potential_map = &map;
-      return *this;
-    }
-    
-    /// @}
-
-    /// \name Execution Control
-    /// The algorithm can be executed using \ref run().
-
-    /// @{
-
-    /// \brief Run the algorithm.
-    ///
-    /// This function runs the algorithm.
-    /// The paramters can be specified using functions \ref lowerMap(),
-    /// \ref upperMap(), \ref capacityMap(), \ref boundMaps(),
-    /// \ref costMap(), \ref supplyMap(), \ref stSupply(), 
-    /// \ref problemType(), \ref flowMap() and \ref potentialMap().
-    /// For example,
-    /// \code
-    ///   NetworkSimplex<ListDigraph> ns(graph);
-    ///   ns.boundMaps(lower, upper).costMap(cost)
-    ///     .supplyMap(sup).run();
-    /// \endcode
-    ///
-    /// This function can be called more than once. All the parameters
-    /// that have been given are kept for the next call, unless
-    /// \ref reset() is called, thus only the modified parameters
-    /// have to be set again. See \ref reset() for examples.
-    ///
-    /// \param pivot_rule The pivot rule that will be used during the
-    /// algorithm. For more information see \ref PivotRule.
-    ///
-    /// \return \c true if a feasible flow can be found.
-    bool run(PivotRule pivot_rule = BLOCK_SEARCH) {
-      return init() && start(pivot_rule);
-    }
-
-    /// \brief Reset all the parameters that have been given before.
-    ///
-    /// This function resets all the paramaters that have been given
-    /// before using functions \ref lowerMap(), \ref upperMap(),
-    /// \ref capacityMap(), \ref boundMaps(), \ref costMap(),
-    /// \ref supplyMap(), \ref stSupply(), \ref problemType(), 
-    /// \ref flowMap() and \ref potentialMap().
-    ///
-    /// It is useful for multiple run() calls. If this function is not
-    /// used, all the parameters given before are kept for the next
-    /// \ref run() call.
-    ///
-    /// For example,
-    /// \code
-    ///   NetworkSimplex<ListDigraph> ns(graph);
-    ///
-    ///   // First run
-    ///   ns.lowerMap(lower).capacityMap(cap).costMap(cost)
-    ///     .supplyMap(sup).run();
-    ///
-    ///   // Run again with modified cost map (reset() is not called,
-    ///   // so only the cost map have to be set again)
-    ///   cost[e] += 100;
-    ///   ns.costMap(cost).run();
-    ///
-    ///   // Run again from scratch using reset()
-    ///   // (the lower bounds will be set to zero on all arcs)
-    ///   ns.reset();
-    ///   ns.capacityMap(cap).costMap(cost)
-    ///     .supplyMap(sup).run();
-    /// \endcode
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& reset() {
-      delete _plower;
-      delete _pupper;
-      delete _pcost;
-      delete _psupply;
-      _plower = NULL;
-      _pupper = NULL;
-      _pcost = NULL;
-      _psupply = NULL;
-      _pstsup = false;
-      _ptype = GEQ;
-      if (_local_flow) delete _flow_map;
-      if (_local_potential) delete _potential_map;
-      _flow_map = NULL;
-      _potential_map = NULL;
-      _local_flow = false;
-      _local_potential = false;
-
-      return *this;
-    }
-
-    /// @}
-
-    /// \name Query Functions
-    /// The results of the algorithm can be obtained using these
-    /// functions.\n
-    /// The \ref run() function must be called before using them.
-
-    /// @{
-
-    /// \brief Return the total cost of the found flow.
-    ///
-    /// This function returns the total cost of the found flow.
-    /// The complexity of the function is O(e).
-    ///
-    /// \note The return type of the function can be specified as a
-    /// template parameter. For example,
-    /// \code
-    ///   ns.totalCost<double>();
-    /// \endcode
-    /// It is useful if the total cost cannot be stored in the \c Cost
-    /// type of the algorithm, which is the default return type of the
-    /// function.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    template <typename Num>
-    Num totalCost() const {
-      Num c = 0;
-      if (_pcost) {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          c += (*_flow_map)[e] * (*_pcost)[e];
-      } else {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          c += (*_flow_map)[e];
-      }
-      return c;
-    }
-
-#ifndef DOXYGEN
-    Cost totalCost() const {
-      return totalCost<Cost>();
-    }
-#endif
-
-    /// \brief Return the flow on the given arc.
-    ///
-    /// This function returns the flow on the given arc.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    Flow flow(const Arc& a) const {
-      return (*_flow_map)[a];
-    }
-
-    /// \brief Return a const reference to the flow map.
-    ///
-    /// This function returns a const reference to an arc map storing
-    /// the found flow.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    const FlowMap& flowMap() const {
-      return *_flow_map;
-    }
-
-    /// \brief Return the potential (dual value) of the given node.
-    ///
-    /// This function returns the potential (dual value) of the
-    /// given node.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    Cost potential(const Node& n) const {
-      return (*_potential_map)[n];
-    }
-
-    /// \brief Return a const reference to the potential map
-    /// (the dual solution).
-    ///
-    /// This function returns a const reference to a node map storing
-    /// the found potentials, which form the dual solution of the
-    /// \ref min_cost_flow "minimum cost flow" problem.
-    ///
-    /// \pre \ref run() must be called before using this function.
-    const PotentialMap& potentialMap() const {
-      return *_potential_map;
-    }
-
-    /// @}
-
-  private:
-
-    // Initialize internal data structures
-    bool init() {
-      // Initialize result maps
-      if (!_flow_map) {
-        _flow_map = new FlowMap(_graph);
-        _local_flow = true;
-      }
-      if (!_potential_map) {
-        _potential_map = new PotentialMap(_graph);
-        _local_potential = true;
-      }
-
-      // Initialize vectors
+      // Check the value types
+      LEMON_ASSERT(std::numeric_limits<Value>::is_signed,
+        "The flow type of NetworkSimplex must be signed");
+      LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
+        "The cost type of NetworkSimplex must be signed");
+        
+      // Resize vectors
       _node_num = countNodes(_graph);
       _arc_num = countArcs(_graph);
       int all_node_num = _node_num + 1;
       int all_arc_num = _arc_num + _node_num;
-      if (_node_num == 0) return false;
 
-      _arc_ref.resize(_arc_num);
       _source.resize(all_arc_num);
       _target.resize(all_arc_num);
 
+      _lower.resize(all_arc_num);
+      _upper.resize(all_arc_num);
       _cap.resize(all_arc_num);
       _cost.resize(all_arc_num);
       _supply.resize(all_node_num);
@@ -1099,209 +700,420 @@ namespace lemon {
       _last_succ.resize(all_node_num);
       _state.resize(all_arc_num);
 
-      // Initialize node related data
-      bool valid_supply = true;
-      Flow sum_supply = 0;
-      if (!_pstsup && !_psupply) {
-        _pstsup = true;
-        _psource = _ptarget = NodeIt(_graph);
-        _pstflow = 0;
+      // Copy the graph (store the arcs in a mixed order)
+      int i = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _node_id[n] = i;
       }
-      if (_psupply) {
-        int i = 0;
-        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-          _node_id[n] = i;
-          _supply[i] = (*_psupply)[n];
-          sum_supply += _supply[i];
-        }
-        valid_supply = (_ptype == GEQ && sum_supply <= 0) ||
-                       (_ptype == LEQ && sum_supply >= 0);
-      } else {
-        int i = 0;
-        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-          _node_id[n] = i;
-          _supply[i] = 0;
-        }
-        _supply[_node_id[_psource]] =  _pstflow;
-        _supply[_node_id[_ptarget]] = -_pstflow;
+      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
+      i = 0;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _arc_id[a] = i;
+        _source[i] = _node_id[_graph.source(a)];
+        _target[i] = _node_id[_graph.target(a)];
+        if ((i += k) >= _arc_num) i = (i % k) + 1;
       }
-      if (!valid_supply) return false;
+      
+      // Initialize maps
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      for (int i = 0; i != _arc_num; ++i) {
+        _lower[i] = 0;
+        _upper[i] = INF;
+        _cost[i] = 1;
+      }
+      _have_lower = false;
+      _stype = GEQ;
+    }
 
-      // Infinite capacity value
-      Flow inf_cap =
-        std::numeric_limits<Flow>::has_infinity ?
-        std::numeric_limits<Flow>::infinity() :
-        std::numeric_limits<Flow>::max();
+    /// \name Parameters
+    /// The parameters of the algorithm can be specified using these
+    /// functions.
+
+    /// @{
+
+    /// \brief Set the lower bounds on the arcs.
+    ///
+    /// This function sets the lower bounds on the arcs.
+    /// If it is not used before calling \ref run(), the lower bounds
+    /// will be set to zero on all arcs.
+    ///
+    /// \param map An arc map storing the lower bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template <typename LowerMap>
+    NetworkSimplex& lowerMap(const LowerMap& map) {
+      _have_lower = true;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _lower[_arc_id[a]] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the upper bounds (capacities) on the arcs.
+    ///
+    /// This function sets the upper bounds (capacities) on the arcs.
+    /// If it is not used before calling \ref run(), the upper bounds
+    /// will be set to \ref INF on all arcs (i.e. the flow value will be
+    /// unbounded from above on each arc).
+    ///
+    /// \param map An arc map storing the upper bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename UpperMap>
+    NetworkSimplex& upperMap(const UpperMap& map) {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _upper[_arc_id[a]] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the costs of the arcs.
+    ///
+    /// This function sets the costs of the arcs.
+    /// If it is not used before calling \ref run(), the costs
+    /// will be set to \c 1 on all arcs.
+    ///
+    /// \param map An arc map storing the costs.
+    /// Its \c Value type must be convertible to the \c Cost type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename CostMap>
+    NetworkSimplex& costMap(const CostMap& map) {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _cost[_arc_id[a]] = map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the supply values of the nodes.
+    ///
+    /// This function sets the supply values of the nodes.
+    /// If neither this function nor \ref stSupply() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    /// (It makes sense only if non-zero lower bounds are given.)
+    ///
+    /// \param map A node map storing the supply values.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename SupplyMap>
+    NetworkSimplex& supplyMap(const SupplyMap& map) {
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        _supply[_node_id[n]] = map[n];
+      }
+      return *this;
+    }
+
+    /// \brief Set single source and target nodes and a supply value.
+    ///
+    /// This function sets a single source node and a single target node
+    /// and the required flow value.
+    /// If neither this function nor \ref supplyMap() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    /// (It makes sense only if non-zero lower bounds are given.)
+    ///
+    /// Using this function has the same effect as using \ref supplyMap()
+    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// assigned to \c t and all other nodes have zero supply value.
+    ///
+    /// \param s The source node.
+    /// \param t The target node.
+    /// \param k The required amount of flow from node \c s to node \c t
+    /// (i.e. the supply of \c s and the demand of \c t).
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& stSupply(const Node& s, const Node& t, Value k) {
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      _supply[_node_id[s]] =  k;
+      _supply[_node_id[t]] = -k;
+      return *this;
+    }
+    
+    /// \brief Set the type of the supply constraints.
+    ///
+    /// This function sets the type of the supply/demand constraints.
+    /// If it is not used before calling \ref run(), the \ref GEQ supply
+    /// type will be used.
+    ///
+    /// For more information see \ref SupplyType.
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& supplyType(SupplyType supply_type) {
+      _stype = supply_type;
+      return *this;
+    }
+
+    /// @}
+
+    /// \name Execution Control
+    /// The algorithm can be executed using \ref run().
+
+    /// @{
+
+    /// \brief Run the algorithm.
+    ///
+    /// This function runs the algorithm.
+    /// The paramters can be specified using functions \ref lowerMap(),
+    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply(), 
+    /// \ref supplyType().
+    /// For example,
+    /// \code
+    ///   NetworkSimplex<ListDigraph> ns(graph);
+    ///   ns.lowerMap(lower).upperMap(upper).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
+    ///
+    /// This function can be called more than once. All the parameters
+    /// that have been given are kept for the next call, unless
+    /// \ref reset() is called, thus only the modified parameters
+    /// have to be set again. See \ref reset() for examples.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
+    ///
+    /// \param pivot_rule The pivot rule that will be used during the
+    /// algorithm. For more information see \ref PivotRule.
+    ///
+    /// \return \c INFEASIBLE if no feasible flow exists,
+    /// \n \c OPTIMAL if the problem has optimal solution
+    /// (i.e. it is feasible and bounded), and the algorithm has found
+    /// optimal flow and node potentials (primal and dual solutions),
+    /// \n \c UNBOUNDED if the objective function of the problem is
+    /// unbounded, i.e. there is a directed cycle having negative total
+    /// cost and infinite upper bound.
+    ///
+    /// \see ProblemType, PivotRule
+    ProblemType run(PivotRule pivot_rule = BLOCK_SEARCH) {
+      if (!init()) return INFEASIBLE;
+      return start(pivot_rule);
+    }
+
+    /// \brief Reset all the parameters that have been given before.
+    ///
+    /// This function resets all the paramaters that have been given
+    /// before using functions \ref lowerMap(), \ref upperMap(),
+    /// \ref costMap(), \ref supplyMap(), \ref stSupply(), \ref supplyType().
+    ///
+    /// It is useful for multiple run() calls. If this function is not
+    /// used, all the parameters given before are kept for the next
+    /// \ref run() call.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
+    ///
+    /// For example,
+    /// \code
+    ///   NetworkSimplex<ListDigraph> ns(graph);
+    ///
+    ///   // First run
+    ///   ns.lowerMap(lower).upperMap(upper).costMap(cost)
+    ///     .supplyMap(sup).run();
+    ///
+    ///   // Run again with modified cost map (reset() is not called,
+    ///   // so only the cost map have to be set again)
+    ///   cost[e] += 100;
+    ///   ns.costMap(cost).run();
+    ///
+    ///   // Run again from scratch using reset()
+    ///   // (the lower bounds will be set to zero on all arcs)
+    ///   ns.reset();
+    ///   ns.upperMap(capacity).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
+    ///
+    /// \return <tt>(*this)</tt>
+    NetworkSimplex& reset() {
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      for (int i = 0; i != _arc_num; ++i) {
+        _lower[i] = 0;
+        _upper[i] = INF;
+        _cost[i] = 1;
+      }
+      _have_lower = false;
+      _stype = GEQ;
+      return *this;
+    }
+
+    /// @}
+
+    /// \name Query Functions
+    /// The results of the algorithm can be obtained using these
+    /// functions.\n
+    /// The \ref run() function must be called before using them.
+
+    /// @{
+
+    /// \brief Return the total cost of the found flow.
+    ///
+    /// This function returns the total cost of the found flow.
+    /// Its complexity is O(e).
+    ///
+    /// \note The return type of the function can be specified as a
+    /// template parameter. For example,
+    /// \code
+    ///   ns.totalCost<double>();
+    /// \endcode
+    /// It is useful if the total cost cannot be stored in the \c Cost
+    /// type of the algorithm, which is the default return type of the
+    /// function.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    template <typename Number>
+    Number totalCost() const {
+      Number c = 0;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        int i = _arc_id[a];
+        c += Number(_flow[i]) * Number(_cost[i]);
+      }
+      return c;
+    }
+
+#ifndef DOXYGEN
+    Cost totalCost() const {
+      return totalCost<Cost>();
+    }
+#endif
+
+    /// \brief Return the flow on the given arc.
+    ///
+    /// This function returns the flow on the given arc.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    Value flow(const Arc& a) const {
+      return _flow[_arc_id[a]];
+    }
+
+    /// \brief Return the flow map (the primal solution).
+    ///
+    /// This function copies the flow value on each arc into the given
+    /// map. The \c Value type of the algorithm must be convertible to
+    /// the \c Value type of the map.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    template <typename FlowMap>
+    void flowMap(FlowMap &map) const {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        map.set(a, _flow[_arc_id[a]]);
+      }
+    }
+
+    /// \brief Return the potential (dual value) of the given node.
+    ///
+    /// This function returns the potential (dual value) of the
+    /// given node.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    Cost potential(const Node& n) const {
+      return _pi[_node_id[n]];
+    }
+
+    /// \brief Return the potential map (the dual solution).
+    ///
+    /// This function copies the potential (dual value) of each node
+    /// into the given map.
+    /// The \c Cost type of the algorithm must be convertible to the
+    /// \c Value type of the map.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    template <typename PotentialMap>
+    void potentialMap(PotentialMap &map) const {
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        map.set(n, _pi[_node_id[n]]);
+      }
+    }
+
+    /// @}
+
+  private:
+
+    // Initialize internal data structures
+    bool init() {
+      if (_node_num == 0) return false;
+
+      // Check the sum of supply values
+      _sum_supply = 0;
+      for (int i = 0; i != _node_num; ++i) {
+        _sum_supply += _supply[i];
+      }
+      if ( !((_stype == GEQ && _sum_supply <= 0) ||
+             (_stype == LEQ && _sum_supply >= 0)) ) return false;
+
+      // Remove non-zero lower bounds
+      if (_have_lower) {
+        for (int i = 0; i != _arc_num; ++i) {
+          Value c = _lower[i];
+          if (c >= 0) {
+            _cap[i] = _upper[i] < INF ? _upper[i] - c : INF;
+          } else {
+            _cap[i] = _upper[i] < INF + c ? _upper[i] - c : INF;
+          }
+          _supply[_source[i]] -= c;
+          _supply[_target[i]] += c;
+        }
+      } else {
+        for (int i = 0; i != _arc_num; ++i) {
+          _cap[i] = _upper[i];
+        }
+      }
 
       // Initialize artifical cost
-      Cost art_cost;
+      Cost ART_COST;
       if (std::numeric_limits<Cost>::is_exact) {
-        art_cost = std::numeric_limits<Cost>::max() / 4 + 1;
+        ART_COST = std::numeric_limits<Cost>::max() / 4 + 1;
       } else {
-        art_cost = std::numeric_limits<Cost>::min();
+        ART_COST = std::numeric_limits<Cost>::min();
         for (int i = 0; i != _arc_num; ++i) {
-          if (_cost[i] > art_cost) art_cost = _cost[i];
+          if (_cost[i] > ART_COST) ART_COST = _cost[i];
         }
-        art_cost = (art_cost + 1) * _node_num;
+        ART_COST = (ART_COST + 1) * _node_num;
       }
 
-      // Run Circulation to check if a feasible solution exists
-      typedef ConstMap<Arc, Flow> ConstArcMap;
-      ConstArcMap zero_arc_map(0), inf_arc_map(inf_cap);
-      FlowNodeMap *csup = NULL;
-      bool local_csup = false;
-      if (_psupply) {
-        csup = _psupply;
-      } else {
-        csup = new FlowNodeMap(_graph, 0);
-        (*csup)[_psource] =  _pstflow;
-        (*csup)[_ptarget] = -_pstflow;
-        local_csup = true;
+      // Initialize arc maps
+      for (int i = 0; i != _arc_num; ++i) {
+        _flow[i] = 0;
+        _state[i] = STATE_LOWER;
       }
-      bool circ_result = false;
-      if (_ptype == GEQ || (_ptype == LEQ && sum_supply == 0)) {
-        // GEQ problem type
-        if (_plower) {
-          if (_pupper) {
-            Circulation<GR, FlowArcMap, FlowArcMap, FlowNodeMap>
-              circ(_graph, *_plower, *_pupper, *csup);
-            circ_result = circ.run();
-          } else {
-            Circulation<GR, FlowArcMap, ConstArcMap, FlowNodeMap>
-              circ(_graph, *_plower, inf_arc_map, *csup);
-            circ_result = circ.run();
-          }
-        } else {
-          if (_pupper) {
-            Circulation<GR, ConstArcMap, FlowArcMap, FlowNodeMap>
-              circ(_graph, zero_arc_map, *_pupper, *csup);
-            circ_result = circ.run();
-          } else {
-            Circulation<GR, ConstArcMap, ConstArcMap, FlowNodeMap>
-              circ(_graph, zero_arc_map, inf_arc_map, *csup);
-            circ_result = circ.run();
-          }
-        }
-      } else {
-        // LEQ problem type
-        typedef ReverseDigraph<const GR> RevGraph;
-        typedef NegMap<FlowNodeMap> NegNodeMap;
-        RevGraph rgraph(_graph);
-        NegNodeMap neg_csup(*csup);
-        if (_plower) {
-          if (_pupper) {
-            Circulation<RevGraph, FlowArcMap, FlowArcMap, NegNodeMap>
-              circ(rgraph, *_plower, *_pupper, neg_csup);
-            circ_result = circ.run();
-          } else {
-            Circulation<RevGraph, FlowArcMap, ConstArcMap, NegNodeMap>
-              circ(rgraph, *_plower, inf_arc_map, neg_csup);
-            circ_result = circ.run();
-          }
-        } else {
-          if (_pupper) {
-            Circulation<RevGraph, ConstArcMap, FlowArcMap, NegNodeMap>
-              circ(rgraph, zero_arc_map, *_pupper, neg_csup);
-            circ_result = circ.run();
-          } else {
-            Circulation<RevGraph, ConstArcMap, ConstArcMap, NegNodeMap>
-              circ(rgraph, zero_arc_map, inf_arc_map, neg_csup);
-            circ_result = circ.run();
-          }
-        }
-      }
-      if (local_csup) delete csup;
-      if (!circ_result) return false;
-
+      
       // Set data for the artificial root node
       _root = _node_num;
       _parent[_root] = -1;
       _pred[_root] = -1;
       _thread[_root] = 0;
       _rev_thread[0] = _root;
-      _succ_num[_root] = all_node_num;
+      _succ_num[_root] = _node_num + 1;
       _last_succ[_root] = _root - 1;
-      _supply[_root] = -sum_supply;
-      if (sum_supply < 0) {
-        _pi[_root] = -art_cost;
-      } else {
-        _pi[_root] = art_cost;
-      }
-
-      // Store the arcs in a mixed order
-      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
-      int i = 0;
-      for (ArcIt e(_graph); e != INVALID; ++e) {
-        _arc_ref[i] = e;
-        if ((i += k) >= _arc_num) i = (i % k) + 1;
-      }
-
-      // Initialize arc maps
-      if (_pupper && _pcost) {
-        for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _source[i] = _node_id[_graph.source(e)];
-          _target[i] = _node_id[_graph.target(e)];
-          _cap[i] = (*_pupper)[e];
-          _cost[i] = (*_pcost)[e];
-          _flow[i] = 0;
-          _state[i] = STATE_LOWER;
-        }
-      } else {
-        for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _source[i] = _node_id[_graph.source(e)];
-          _target[i] = _node_id[_graph.target(e)];
-          _flow[i] = 0;
-          _state[i] = STATE_LOWER;
-        }
-        if (_pupper) {
-          for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = (*_pupper)[_arc_ref[i]];
-        } else {
-          for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = inf_cap;
-        }
-        if (_pcost) {
-          for (int i = 0; i != _arc_num; ++i)
-            _cost[i] = (*_pcost)[_arc_ref[i]];
-        } else {
-          for (int i = 0; i != _arc_num; ++i)
-            _cost[i] = 1;
-        }
-      }
-      
-      // Remove non-zero lower bounds
-      if (_plower) {
-        for (int i = 0; i != _arc_num; ++i) {
-          Flow c = (*_plower)[_arc_ref[i]];
-          if (c != 0) {
-            _cap[i] -= c;
-            _supply[_source[i]] -= c;
-            _supply[_target[i]] += c;
-          }
-        }
-      }
+      _supply[_root] = -_sum_supply;
+      _pi[_root] = _sum_supply < 0 ? -ART_COST : ART_COST;
 
       // Add artificial arcs and initialize the spanning tree data structure
       for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+        _parent[u] = _root;
+        _pred[u] = e;
         _thread[u] = u + 1;
         _rev_thread[u + 1] = u;
         _succ_num[u] = 1;
         _last_succ[u] = u;
-        _parent[u] = _root;
-        _pred[u] = e;
-        _cost[e] = art_cost;
-        _cap[e] = inf_cap;
+        _cost[e] = ART_COST;
+        _cap[e] = INF;
         _state[e] = STATE_TREE;
-        if (_supply[u] > 0 || (_supply[u] == 0 && sum_supply <= 0)) {
+        if (_supply[u] > 0 || (_supply[u] == 0 && _sum_supply <= 0)) {
           _flow[e] = _supply[u];
           _forward[u] = true;
-          _pi[u] = -art_cost + _pi[_root];
+          _pi[u] = -ART_COST + _pi[_root];
         } else {
           _flow[e] = -_supply[u];
           _forward[u] = false;
-          _pi[u] = art_cost + _pi[_root];
+          _pi[u] = ART_COST + _pi[_root];
         }
       }
 
@@ -1336,13 +1148,14 @@ namespace lemon {
       }
       delta = _cap[in_arc];
       int result = 0;
-      Flow d;
+      Value d;
       int e;
 
       // Search the cycle along the path form the first node to the root
       for (int u = first; u != join; u = _parent[u]) {
         e = _pred[u];
-        d = _forward[u] ? _flow[e] : _cap[e] - _flow[e];
+        d = _forward[u] ?
+          _flow[e] : (_cap[e] == INF ? INF : _cap[e] - _flow[e]);
         if (d < delta) {
           delta = d;
           u_out = u;
@@ -1352,7 +1165,8 @@ namespace lemon {
       // Search the cycle along the path form the second node to the root
       for (int u = second; u != join; u = _parent[u]) {
         e = _pred[u];
-        d = _forward[u] ? _cap[e] - _flow[e] : _flow[e];
+        d = _forward[u] ? 
+          (_cap[e] == INF ? INF : _cap[e] - _flow[e]) : _flow[e];
         if (d <= delta) {
           delta = d;
           u_out = u;
@@ -1374,7 +1188,7 @@ namespace lemon {
     void changeFlow(bool change) {
       // Augment along the cycle
       if (delta > 0) {
-        Flow val = _state[in_arc] * delta;
+        Value val = _state[in_arc] * delta;
         _flow[in_arc] += val;
         for (int u = _source[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? -val : val;
@@ -1526,7 +1340,7 @@ namespace lemon {
     }
 
     // Execute the algorithm
-    bool start(PivotRule pivot_rule) {
+    ProblemType start(PivotRule pivot_rule) {
       // Select the pivot rule implementation
       switch (pivot_rule) {
         case FIRST_ELIGIBLE:
@@ -1540,41 +1354,55 @@ namespace lemon {
         case ALTERING_LIST:
           return start<AlteringListPivotRule>();
       }
-      return false;
+      return INFEASIBLE; // avoid warning
     }
 
     template <typename PivotRuleImpl>
-    bool start() {
+    ProblemType start() {
       PivotRuleImpl pivot(*this);
 
       // Execute the Network Simplex algorithm
       while (pivot.findEnteringArc()) {
         findJoinNode();
         bool change = findLeavingArc();
+        if (delta >= INF) return UNBOUNDED;
         changeFlow(change);
         if (change) {
           updateTreeStructure();
           updatePotential();
         }
       }
-
-      // Copy flow values to _flow_map
-      if (_plower) {
-        for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _flow_map->set(e, (*_plower)[e] + _flow[i]);
-        }
-      } else {
-        for (int i = 0; i != _arc_num; ++i) {
-          _flow_map->set(_arc_ref[i], _flow[i]);
+      
+      // Check feasibility
+      if (_sum_supply < 0) {
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          if (_supply[u] >= 0 && _flow[e] != 0) return INFEASIBLE;
         }
       }
-      // Copy potential values to _potential_map
-      for (NodeIt n(_graph); n != INVALID; ++n) {
-        _potential_map->set(n, _pi[_node_id[n]]);
+      else if (_sum_supply > 0) {
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          if (_supply[u] <= 0 && _flow[e] != 0) return INFEASIBLE;
+        }
+      }
+      else {
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          if (_flow[e] != 0) return INFEASIBLE;
+        }
       }
 
-      return true;
+      // Transform the solution and the supply map to the original form
+      if (_have_lower) {
+        for (int i = 0; i != _arc_num; ++i) {
+          Value c = _lower[i];
+          if (c != 0) {
+            _flow[i] += c;
+            _supply[_source[i]] += c;
+            _supply[_target[i]] -= c;
+          }
+        }
+      }
+
+      return OPTIMAL;
     }
 
   }; //class NetworkSimplex

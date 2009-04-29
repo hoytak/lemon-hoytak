@@ -64,15 +64,15 @@ namespace lemon {
     /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
     typedef SM SupplyMap;
 
-    /// \brief The type of the flow values.
-    typedef typename SupplyMap::Value Flow;
+    /// \brief The type of the flow and supply values.
+    typedef typename SupplyMap::Value Value;
 
     /// \brief The type of the map that stores the flow values.
     ///
     /// The type of the map that stores the flow values.
     /// It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap"
     /// concept.
-    typedef typename Digraph::template ArcMap<Flow> FlowMap;
+    typedef typename Digraph::template ArcMap<Value> FlowMap;
 
     /// \brief Instantiates a FlowMap.
     ///
@@ -104,7 +104,7 @@ namespace lemon {
     /// \brief The tolerance used by the algorithm
     ///
     /// The tolerance used by the algorithm to handle inexact computation.
-    typedef lemon::Tolerance<Flow> Tolerance;
+    typedef lemon::Tolerance<Value> Tolerance;
 
   };
 
@@ -187,8 +187,8 @@ template< typename GR,
     typedef TR Traits;
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
-    ///The type of the flow values.
-    typedef typename Traits::Flow Flow;
+    ///The type of the flow and supply values.
+    typedef typename Traits::Value Value;
 
     ///The type of the lower bound map.
     typedef typename Traits::LowerMap LowerMap;
@@ -221,7 +221,7 @@ template< typename GR,
     Elevator* _level;
     bool _local_level;
 
-    typedef typename Digraph::template NodeMap<Flow> ExcessMap;
+    typedef typename Digraph::template NodeMap<Value> ExcessMap;
     ExcessMap* _excess;
 
     Tolerance _tol;
@@ -530,7 +530,7 @@ template< typename GR,
           (*_excess)[_g.target(e)] += (*_lo)[e];
           (*_excess)[_g.source(e)] -= (*_lo)[e];
         } else {
-          Flow fc = -(*_excess)[_g.target(e)];
+          Value fc = -(*_excess)[_g.target(e)];
           _flow->set(e, fc);
           (*_excess)[_g.target(e)] = 0;
           (*_excess)[_g.source(e)] -= fc;
@@ -563,11 +563,11 @@ template< typename GR,
       while((act=_level->highestActive())!=INVALID) {
         int actlevel=(*_level)[act];
         int mlevel=_node_num;
-        Flow exc=(*_excess)[act];
+        Value exc=(*_excess)[act];
 
         for(OutArcIt e(_g,act);e!=INVALID; ++e) {
           Node v = _g.target(e);
-          Flow fc=(*_up)[e]-(*_flow)[e];
+          Value fc=(*_up)[e]-(*_flow)[e];
           if(!_tol.positive(fc)) continue;
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
@@ -591,7 +591,7 @@ template< typename GR,
         }
         for(InArcIt e(_g,act);e!=INVALID; ++e) {
           Node v = _g.source(e);
-          Flow fc=(*_flow)[e]-(*_lo)[e];
+          Value fc=(*_flow)[e]-(*_lo)[e];
           if(!_tol.positive(fc)) continue;
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
@@ -661,13 +661,13 @@ template< typename GR,
 
     ///@{
 
-    /// \brief Returns the flow on the given arc.
+    /// \brief Returns the flow value on the given arc.
     ///
-    /// Returns the flow on the given arc.
+    /// Returns the flow value on the given arc.
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    Flow flow(const Arc& arc) const {
+    Value flow(const Arc& arc) const {
       return (*_flow)[arc];
     }
 
@@ -750,7 +750,7 @@ template< typename GR,
         if((*_flow)[e]<(*_lo)[e]||(*_flow)[e]>(*_up)[e]) return false;
       for(NodeIt n(_g);n!=INVALID;++n)
         {
-          Flow dif=-(*_supply)[n];
+          Value dif=-(*_supply)[n];
           for(InArcIt e(_g,n);e!=INVALID;++e) dif-=(*_flow)[e];
           for(OutArcIt e(_g,n);e!=INVALID;++e) dif+=(*_flow)[e];
           if(_tol.negative(dif)) return false;
@@ -765,10 +765,10 @@ template< typename GR,
     ///\sa barrierMap()
     bool checkBarrier() const
     {
-      Flow delta=0;
-      Flow inf_cap = std::numeric_limits<Flow>::has_infinity ?
-        std::numeric_limits<Flow>::infinity() :
-        std::numeric_limits<Flow>::max();
+      Value delta=0;
+      Value inf_cap = std::numeric_limits<Value>::has_infinity ?
+        std::numeric_limits<Value>::infinity() :
+        std::numeric_limits<Value>::max();
       for(NodeIt n(_g);n!=INVALID;++n)
         if(barrier(n))
           delta-=(*_supply)[n];
