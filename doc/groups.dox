@@ -352,17 +352,17 @@ The \e minimum \e cost \e flow \e problem is to find a feasible flow of
 minimum total cost from a set of supply nodes to a set of demand nodes
 in a network with capacity constraints (lower and upper bounds)
 and arc costs.
-Formally, let \f$G=(V,A)\f$ be a digraph,
-\f$lower, upper: A\rightarrow\mathbf{Z}^+_0\f$ denote the lower and
+Formally, let \f$G=(V,A)\f$ be a digraph, \f$lower: A\rightarrow\mathbf{Z}\f$,
+\f$upper: A\rightarrow\mathbf{Z}\cup\{+\infty\}\f$ denote the lower and
 upper bounds for the flow values on the arcs, for which
-\f$0 \leq lower(uv) \leq upper(uv)\f$ holds for all \f$uv\in A\f$.
-\f$cost: A\rightarrow\mathbf{Z}^+_0\f$ denotes the cost per unit flow
-on the arcs, and \f$sup: V\rightarrow\mathbf{Z}\f$ denotes the
+\f$lower(uv) \leq upper(uv)\f$ must hold for all \f$uv\in A\f$,
+\f$cost: A\rightarrow\mathbf{Z}\f$ denotes the cost per unit flow
+on the arcs and \f$sup: V\rightarrow\mathbf{Z}\f$ denotes the
 signed supply values of the nodes.
 If \f$sup(u)>0\f$, then \f$u\f$ is a supply node with \f$sup(u)\f$
 supply, if \f$sup(u)<0\f$, then \f$u\f$ is a demand node with
 \f$-sup(u)\f$ demand.
-A minimum cost flow is an \f$f: A\rightarrow\mathbf{Z}^+_0\f$ solution
+A minimum cost flow is an \f$f: A\rightarrow\mathbf{Z}\f$ solution
 of the following optimization problem.
 
 \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
@@ -404,7 +404,7 @@ additional contraint for the algorithms.
 
 The dual solution of the minimum cost flow problem is represented by node 
 potentials \f$\pi: V\rightarrow\mathbf{Z}\f$.
-An \f$f: A\rightarrow\mathbf{Z}^+_0\f$ feasible solution of the problem
+An \f$f: A\rightarrow\mathbf{Z}\f$ feasible solution of the problem
 is optimal if and only if for some \f$\pi: V\rightarrow\mathbf{Z}\f$
 node potentials the following \e complementary \e slackness optimality
 conditions hold.
@@ -413,15 +413,15 @@ conditions hold.
    - if \f$cost^\pi(uv)>0\f$, then \f$f(uv)=lower(uv)\f$;
    - if \f$lower(uv)<f(uv)<upper(uv)\f$, then \f$cost^\pi(uv)=0\f$;
    - if \f$cost^\pi(uv)<0\f$, then \f$f(uv)=upper(uv)\f$.
- - For all \f$u\in V\f$:
+ - For all \f$u\in V\f$ nodes:
    - if \f$\sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \neq sup(u)\f$,
      then \f$\pi(u)=0\f$.
  
 Here \f$cost^\pi(uv)\f$ denotes the \e reduced \e cost of the arc
-\f$uv\in A\f$ with respect to the node potentials \f$\pi\f$, i.e.
+\f$uv\in A\f$ with respect to the potential function \f$\pi\f$, i.e.
 \f[ cost^\pi(uv) = cost(uv) + \pi(u) - \pi(v).\f]
 
-All algorithms provide dual solution (node potentials) as well
+All algorithms provide dual solution (node potentials) as well,
 if an optimal flow is found.
 
 LEMON contains several algorithms for solving minimum cost flow problems.
