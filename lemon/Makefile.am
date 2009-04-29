@@ -57,6 +57,7 @@ lemon_HEADERS += \
 	lemon/assert.h \
 	lemon/bfs.h \
 	lemon/bin_heap.h \
+	lemon/cbc.h \
 	lemon/circulation.h \
 	lemon/clp.h \
 	lemon/color.h \
