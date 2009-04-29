@@ -84,7 +84,7 @@ enum SupplyType {
 };
 
 // Check the interface of an MCF algorithm
-template <typename GR, typename Flow, typename Cost>
+template <typename GR, typename Value, typename Cost>
 class McfClassConcept
 {
 public:
@@ -95,6 +95,7 @@ public:
       checkConcept<concepts::Digraph, GR>();
 
       MCF mcf(g);
+      const MCF& const_mcf = mcf;
 
       b = mcf.reset()
              .lowerMap(lower)
@@ -102,47 +103,38 @@ public:
              .costMap(cost)
              .supplyMap(sup)
              .stSupply(n, n, k)
-             .flowMap(flow)
-             .potentialMap(pot)
              .run();
-      
-      const MCF& const_mcf = mcf;
-
-      const typename MCF::FlowMap &fm = const_mcf.flowMap();
-      const typename MCF::PotentialMap &pm = const_mcf.potentialMap();
 
       c = const_mcf.totalCost();
-      double x = const_mcf.template totalCost<double>();
+      x = const_mcf.template totalCost<double>();
       v = const_mcf.flow(a);
       c = const_mcf.potential(n);
-      
-      v = const_mcf.INF;
-
-      ignore_unused_variable_warning(fm);
-      ignore_unused_variable_warning(pm);
-      ignore_unused_variable_warning(x);
+      const_mcf.flowMap(fm);
+      const_mcf.potentialMap(pm);
     }
 
     typedef typename GR::Node Node;
     typedef typename GR::Arc Arc;
-    typedef concepts::ReadMap<Node, Flow> NM;
-    typedef concepts::ReadMap<Arc, Flow> FAM;
+    typedef concepts::ReadMap<Node, Value> NM;
+    typedef concepts::ReadMap<Arc, Value> VAM;
     typedef concepts::ReadMap<Arc, Cost> CAM;
+    typedef concepts::WriteMap<Arc, Value> FlowMap;
+    typedef concepts::WriteMap<Node, Cost> PotMap;
 
     const GR &g;
-    const FAM &lower;
-    const FAM &upper;
+    const VAM &lower;
+    const VAM &upper;
     const CAM &cost;
     const NM &sup;
     const Node &n;
     const Arc &a;
-    const Flow &k;
-    Flow v;
-    Cost c;
+    const Value &k;
+    FlowMap fm;
+    PotMap pm;
     bool b;
-
-    typename MCF::FlowMap &flow;
-    typename MCF::PotentialMap &pot;
+    double x;
+    typename MCF::Value v;
+    typename MCF::Cost c;
   };
 
 };
@@ -221,11 +213,14 @@ void checkMcf( const MCF& mcf, PT mcf_result,
 {
   check(mcf_result == result, "Wrong result " + test_id);
   if (optimal) {
-    check(checkFlow(gr, lower, upper, supply, mcf.flowMap(), type),
+    typename GR::template ArcMap<typename SM::Value> flow(gr);
+    typename GR::template NodeMap<typename CM::Value> pi(gr);
+    mcf.flowMap(flow);
+    mcf.potentialMap(pi);
+    check(checkFlow(gr, lower, upper, supply, flow, type),
           "The flow is not feasible " + test_id);
     check(mcf.totalCost() == total, "The flow is not optimal " + test_id);
-    check(checkPotential(gr, lower, upper, cost, supply, mcf.flowMap(),
-                         mcf.potentialMap()),
+    check(checkPotential(gr, lower, upper, cost, supply, flow, pi),
           "Wrong potentials " + test_id);
   }
 }
@@ -234,11 +229,13 @@ int main()
 {
   // Check the interfaces
   {
-    typedef int Flow;
-    typedef int Cost;
     typedef concepts::Digraph GR;
-    checkConcept< McfClassConcept<GR, Flow, Cost>,
-                  NetworkSimplex<GR, Flow, Cost> >();
+    checkConcept< McfClassConcept<GR, int, int>,
+                  NetworkSimplex<GR> >();
+    checkConcept< McfClassConcept<GR, double, double>,
+                  NetworkSimplex<GR, double> >();
+    checkConcept< McfClassConcept<GR, int, double>,
+                  NetworkSimplex<GR, int, double> >();
   }
 
   // Run various MCF tests

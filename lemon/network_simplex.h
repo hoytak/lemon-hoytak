@@ -72,21 +72,10 @@ namespace lemon {
   {
   public:
 
-    /// The flow type of the algorithm
+    /// The type of the flow amounts, capacity bounds and supply values
     typedef V Value;
-    /// The cost type of the algorithm
+    /// The type of the arc costs
     typedef C Cost;
-#ifdef DOXYGEN
-    /// The type of the flow map
-    typedef GR::ArcMap<Value> FlowMap;
-    /// The type of the potential map
-    typedef GR::NodeMap<Cost> PotentialMap;
-#else
-    /// The type of the flow map
-    typedef typename GR::template ArcMap<Value> FlowMap;
-    /// The type of the potential map
-    typedef typename GR::template NodeMap<Cost> PotentialMap;
-#endif
 
   public:
 
@@ -206,15 +195,11 @@ namespace lemon {
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef typename GR::template ArcMap<Value> ValueArcMap;
-    typedef typename GR::template ArcMap<Cost> CostArcMap;
-    typedef typename GR::template NodeMap<Value> ValueNodeMap;
-
     typedef std::vector<Arc> ArcVector;
     typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
-    typedef std::vector<Value> FlowVector;
+    typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
 
     // State constants for arcs
@@ -232,34 +217,23 @@ namespace lemon {
     int _arc_num;
 
     // Parameters of the problem
-    ValueArcMap *_plower;
-    ValueArcMap *_pupper;
-    CostArcMap *_pcost;
-    ValueNodeMap *_psupply;
-    bool _pstsup;
-    Node _psource, _ptarget;
-    Value _pstflow;
+    bool _have_lower;
     SupplyType _stype;
-    
     Value _sum_supply;
-
-    // Result maps
-    FlowMap *_flow_map;
-    PotentialMap *_potential_map;
-    bool _local_flow;
-    bool _local_potential;
 
     // Data structures for storing the digraph
     IntNodeMap _node_id;
-    ArcVector _arc_ref;
+    IntArcMap _arc_id;
     IntVector _source;
     IntVector _target;
 
     // Node and arc data
-    FlowVector _cap;
+    ValueVector _lower;
+    ValueVector _upper;
+    ValueVector _cap;
     CostVector _cost;
-    FlowVector _supply;
-    FlowVector _flow;
+    ValueVector _supply;
+    ValueVector _flow;
     CostVector _pi;
 
     // Data for storing the spanning tree structure
@@ -689,12 +663,7 @@ namespace lemon {
     ///
     /// \param graph The digraph the algorithm runs on.
     NetworkSimplex(const GR& graph) :
-      _graph(graph),
-      _plower(NULL), _pupper(NULL), _pcost(NULL),
-      _psupply(NULL), _pstsup(false), _stype(GEQ),
-      _flow_map(NULL), _potential_map(NULL),
-      _local_flow(false), _local_potential(false),
-      _node_id(graph),
+      _graph(graph), _node_id(graph), _arc_id(graph),
       INF(std::numeric_limits<Value>::has_infinity ?
           std::numeric_limits<Value>::infinity() :
           std::numeric_limits<Value>::max())
@@ -704,12 +673,58 @@ namespace lemon {
         "The flow type of NetworkSimplex must be signed");
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of NetworkSimplex must be signed");
-    }
+        
+      // Resize vectors
+      _node_num = countNodes(_graph);
+      _arc_num = countArcs(_graph);
+      int all_node_num = _node_num + 1;
+      int all_arc_num = _arc_num + _node_num;
 
-    /// Destructor.
-    ~NetworkSimplex() {
-      if (_local_flow) delete _flow_map;
-      if (_local_potential) delete _potential_map;
+      _source.resize(all_arc_num);
+      _target.resize(all_arc_num);
+
+      _lower.resize(all_arc_num);
+      _upper.resize(all_arc_num);
+      _cap.resize(all_arc_num);
+      _cost.resize(all_arc_num);
+      _supply.resize(all_node_num);
+      _flow.resize(all_arc_num);
+      _pi.resize(all_node_num);
+
+      _parent.resize(all_node_num);
+      _pred.resize(all_node_num);
+      _forward.resize(all_node_num);
+      _thread.resize(all_node_num);
+      _rev_thread.resize(all_node_num);
+      _succ_num.resize(all_node_num);
+      _last_succ.resize(all_node_num);
+      _state.resize(all_arc_num);
+
+      // Copy the graph (store the arcs in a mixed order)
+      int i = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _node_id[n] = i;
+      }
+      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
+      i = 0;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _arc_id[a] = i;
+        _source[i] = _node_id[_graph.source(a)];
+        _target[i] = _node_id[_graph.target(a)];
+        if ((i += k) >= _arc_num) i = (i % k) + 1;
+      }
+      
+      // Initialize maps
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      for (int i = 0; i != _arc_num; ++i) {
+        _lower[i] = 0;
+        _upper[i] = INF;
+        _cost[i] = 1;
+      }
+      _have_lower = false;
+      _stype = GEQ;
     }
 
     /// \name Parameters
@@ -731,10 +746,9 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     template <typename LowerMap>
     NetworkSimplex& lowerMap(const LowerMap& map) {
-      delete _plower;
-      _plower = new ValueArcMap(_graph);
+      _have_lower = true;
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_plower)[a] = map[a];
+        _lower[_arc_id[a]] = map[a];
       }
       return *this;
     }
@@ -753,10 +767,8 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     template<typename UpperMap>
     NetworkSimplex& upperMap(const UpperMap& map) {
-      delete _pupper;
-      _pupper = new ValueArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_pupper)[a] = map[a];
+        _upper[_arc_id[a]] = map[a];
       }
       return *this;
     }
@@ -774,10 +786,8 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     template<typename CostMap>
     NetworkSimplex& costMap(const CostMap& map) {
-      delete _pcost;
-      _pcost = new CostArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        (*_pcost)[a] = map[a];
+        _cost[_arc_id[a]] = map[a];
       }
       return *this;
     }
@@ -796,11 +806,8 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     template<typename SupplyMap>
     NetworkSimplex& supplyMap(const SupplyMap& map) {
-      delete _psupply;
-      _pstsup = false;
-      _psupply = new ValueNodeMap(_graph);
       for (NodeIt n(_graph); n != INVALID; ++n) {
-        (*_psupply)[n] = map[n];
+        _supply[_node_id[n]] = map[n];
       }
       return *this;
     }
@@ -824,12 +831,11 @@ namespace lemon {
     ///
     /// \return <tt>(*this)</tt>
     NetworkSimplex& stSupply(const Node& s, const Node& t, Value k) {
-      delete _psupply;
-      _psupply = NULL;
-      _pstsup = true;
-      _psource = s;
-      _ptarget = t;
-      _pstflow = k;
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      _supply[_node_id[s]] =  k;
+      _supply[_node_id[t]] = -k;
       return *this;
     }
     
@@ -847,41 +853,6 @@ namespace lemon {
       return *this;
     }
 
-    /// \brief Set the flow map.
-    ///
-    /// This function sets the flow map.
-    /// If it is not used before calling \ref run(), an instance will
-    /// be allocated automatically. The destructor deallocates this
-    /// automatically allocated map, of course.
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& flowMap(FlowMap& map) {
-      if (_local_flow) {
-        delete _flow_map;
-        _local_flow = false;
-      }
-      _flow_map = &map;
-      return *this;
-    }
-
-    /// \brief Set the potential map.
-    ///
-    /// This function sets the potential map, which is used for storing
-    /// the dual solution.
-    /// If it is not used before calling \ref run(), an instance will
-    /// be allocated automatically. The destructor deallocates this
-    /// automatically allocated map, of course.
-    ///
-    /// \return <tt>(*this)</tt>
-    NetworkSimplex& potentialMap(PotentialMap& map) {
-      if (_local_potential) {
-        delete _potential_map;
-        _local_potential = false;
-      }
-      _potential_map = &map;
-      return *this;
-    }
-    
     /// @}
 
     /// \name Execution Control
@@ -894,7 +865,7 @@ namespace lemon {
     /// This function runs the algorithm.
     /// The paramters can be specified using functions \ref lowerMap(),
     /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply(), 
-    /// \ref supplyType(), \ref flowMap() and \ref potentialMap().
+    /// \ref supplyType().
     /// For example,
     /// \code
     ///   NetworkSimplex<ListDigraph> ns(graph);
@@ -906,6 +877,8 @@ namespace lemon {
     /// that have been given are kept for the next call, unless
     /// \ref reset() is called, thus only the modified parameters
     /// have to be set again. See \ref reset() for examples.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
     ///
     /// \param pivot_rule The pivot rule that will be used during the
     /// algorithm. For more information see \ref PivotRule.
@@ -928,12 +901,13 @@ namespace lemon {
     ///
     /// This function resets all the paramaters that have been given
     /// before using functions \ref lowerMap(), \ref upperMap(),
-    /// \ref costMap(), \ref supplyMap(), \ref stSupply(), \ref supplyType(),
-    /// \ref flowMap() and \ref potentialMap().
+    /// \ref costMap(), \ref supplyMap(), \ref stSupply(), \ref supplyType().
     ///
     /// It is useful for multiple run() calls. If this function is not
     /// used, all the parameters given before are kept for the next
     /// \ref run() call.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
     ///
     /// For example,
     /// \code
@@ -957,23 +931,16 @@ namespace lemon {
     ///
     /// \return <tt>(*this)</tt>
     NetworkSimplex& reset() {
-      delete _plower;
-      delete _pupper;
-      delete _pcost;
-      delete _psupply;
-      _plower = NULL;
-      _pupper = NULL;
-      _pcost = NULL;
-      _psupply = NULL;
-      _pstsup = false;
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      for (int i = 0; i != _arc_num; ++i) {
+        _lower[i] = 0;
+        _upper[i] = INF;
+        _cost[i] = 1;
+      }
+      _have_lower = false;
       _stype = GEQ;
-      if (_local_flow) delete _flow_map;
-      if (_local_potential) delete _potential_map;
-      _flow_map = NULL;
-      _potential_map = NULL;
-      _local_flow = false;
-      _local_potential = false;
-
       return *this;
     }
 
@@ -1001,15 +968,12 @@ namespace lemon {
     /// function.
     ///
     /// \pre \ref run() must be called before using this function.
-    template <typename Value>
-    Value totalCost() const {
-      Value c = 0;
-      if (_pcost) {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          c += (*_flow_map)[e] * (*_pcost)[e];
-      } else {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          c += (*_flow_map)[e];
+    template <typename Number>
+    Number totalCost() const {
+      Number c = 0;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        int i = _arc_id[a];
+        c += Number(_flow[i]) * Number(_cost[i]);
       }
       return c;
     }
@@ -1026,17 +990,21 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     Value flow(const Arc& a) const {
-      return (*_flow_map)[a];
+      return _flow[_arc_id[a]];
     }
 
-    /// \brief Return a const reference to the flow map.
+    /// \brief Return the flow map (the primal solution).
     ///
-    /// This function returns a const reference to an arc map storing
-    /// the found flow.
+    /// This function copies the flow value on each arc into the given
+    /// map. The \c Value type of the algorithm must be convertible to
+    /// the \c Value type of the map.
     ///
     /// \pre \ref run() must be called before using this function.
-    const FlowMap& flowMap() const {
-      return *_flow_map;
+    template <typename FlowMap>
+    void flowMap(FlowMap &map) const {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        map.set(a, _flow[_arc_id[a]]);
+      }
     }
 
     /// \brief Return the potential (dual value) of the given node.
@@ -1046,19 +1014,22 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     Cost potential(const Node& n) const {
-      return (*_potential_map)[n];
+      return _pi[_node_id[n]];
     }
 
-    /// \brief Return a const reference to the potential map
-    /// (the dual solution).
+    /// \brief Return the potential map (the dual solution).
     ///
-    /// This function returns a const reference to a node map storing
-    /// the found potentials, which form the dual solution of the
-    /// \ref min_cost_flow "minimum cost flow problem".
+    /// This function copies the potential (dual value) of each node
+    /// into the given map.
+    /// The \c Cost type of the algorithm must be convertible to the
+    /// \c Value type of the map.
     ///
     /// \pre \ref run() must be called before using this function.
-    const PotentialMap& potentialMap() const {
-      return *_potential_map;
+    template <typename PotentialMap>
+    void potentialMap(PotentialMap &map) const {
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        map.set(n, _pi[_node_id[n]]);
+      }
     }
 
     /// @}
@@ -1067,69 +1038,33 @@ namespace lemon {
 
     // Initialize internal data structures
     bool init() {
-      // Initialize result maps
-      if (!_flow_map) {
-        _flow_map = new FlowMap(_graph);
-        _local_flow = true;
-      }
-      if (!_potential_map) {
-        _potential_map = new PotentialMap(_graph);
-        _local_potential = true;
-      }
-
-      // Initialize vectors
-      _node_num = countNodes(_graph);
-      _arc_num = countArcs(_graph);
-      int all_node_num = _node_num + 1;
-      int all_arc_num = _arc_num + _node_num;
       if (_node_num == 0) return false;
 
-      _arc_ref.resize(_arc_num);
-      _source.resize(all_arc_num);
-      _target.resize(all_arc_num);
-
-      _cap.resize(all_arc_num);
-      _cost.resize(all_arc_num);
-      _supply.resize(all_node_num);
-      _flow.resize(all_arc_num);
-      _pi.resize(all_node_num);
-
-      _parent.resize(all_node_num);
-      _pred.resize(all_node_num);
-      _forward.resize(all_node_num);
-      _thread.resize(all_node_num);
-      _rev_thread.resize(all_node_num);
-      _succ_num.resize(all_node_num);
-      _last_succ.resize(all_node_num);
-      _state.resize(all_arc_num);
-
-      // Initialize node related data
-      bool valid_supply = true;
+      // Check the sum of supply values
       _sum_supply = 0;
-      if (!_pstsup && !_psupply) {
-        _pstsup = true;
-        _psource = _ptarget = NodeIt(_graph);
-        _pstflow = 0;
+      for (int i = 0; i != _node_num; ++i) {
+        _sum_supply += _supply[i];
       }
-      if (_psupply) {
-        int i = 0;
-        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-          _node_id[n] = i;
-          _supply[i] = (*_psupply)[n];
-          _sum_supply += _supply[i];
+      if ( !(_stype == GEQ && _sum_supply <= 0 ||
+             _stype == LEQ && _sum_supply >= 0) ) return false;
+
+      // Remove non-zero lower bounds
+      if (_have_lower) {
+        for (int i = 0; i != _arc_num; ++i) {
+          Value c = _lower[i];
+          if (c >= 0) {
+            _cap[i] = _upper[i] < INF ? _upper[i] - c : INF;
+          } else {
+            _cap[i] = _upper[i] < INF + c ? _upper[i] - c : INF;
+          }
+          _supply[_source[i]] -= c;
+          _supply[_target[i]] += c;
         }
-        valid_supply = (_stype == GEQ && _sum_supply <= 0) ||
-                       (_stype == LEQ && _sum_supply >= 0);
       } else {
-        int i = 0;
-        for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-          _node_id[n] = i;
-          _supply[i] = 0;
+        for (int i = 0; i != _arc_num; ++i) {
+          _cap[i] = _upper[i];
         }
-        _supply[_node_id[_psource]] =  _pstflow;
-        _supply[_node_id[_ptarget]] = -_pstflow;
       }
-      if (!valid_supply) return false;
 
       // Initialize artifical cost
       Cost ART_COST;
@@ -1143,93 +1078,31 @@ namespace lemon {
         ART_COST = (ART_COST + 1) * _node_num;
       }
 
+      // Initialize arc maps
+      for (int i = 0; i != _arc_num; ++i) {
+        _flow[i] = 0;
+        _state[i] = STATE_LOWER;
+      }
+      
       // Set data for the artificial root node
       _root = _node_num;
       _parent[_root] = -1;
       _pred[_root] = -1;
       _thread[_root] = 0;
       _rev_thread[0] = _root;
-      _succ_num[_root] = all_node_num;
+      _succ_num[_root] = _node_num + 1;
       _last_succ[_root] = _root - 1;
       _supply[_root] = -_sum_supply;
-      if (_sum_supply < 0) {
-        _pi[_root] = -ART_COST;
-      } else {
-        _pi[_root] = ART_COST;
-      }
-
-      // Store the arcs in a mixed order
-      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
-      int i = 0;
-      for (ArcIt e(_graph); e != INVALID; ++e) {
-        _arc_ref[i] = e;
-        if ((i += k) >= _arc_num) i = (i % k) + 1;
-      }
-
-      // Initialize arc maps
-      if (_pupper && _pcost) {
-        for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _source[i] = _node_id[_graph.source(e)];
-          _target[i] = _node_id[_graph.target(e)];
-          _cap[i] = (*_pupper)[e];
-          _cost[i] = (*_pcost)[e];
-          _flow[i] = 0;
-          _state[i] = STATE_LOWER;
-        }
-      } else {
-        for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _source[i] = _node_id[_graph.source(e)];
-          _target[i] = _node_id[_graph.target(e)];
-          _flow[i] = 0;
-          _state[i] = STATE_LOWER;
-        }
-        if (_pupper) {
-          for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = (*_pupper)[_arc_ref[i]];
-        } else {
-          for (int i = 0; i != _arc_num; ++i)
-            _cap[i] = INF;
-        }
-        if (_pcost) {
-          for (int i = 0; i != _arc_num; ++i)
-            _cost[i] = (*_pcost)[_arc_ref[i]];
-        } else {
-          for (int i = 0; i != _arc_num; ++i)
-            _cost[i] = 1;
-        }
-      }
-      
-      // Remove non-zero lower bounds
-      if (_plower) {
-        for (int i = 0; i != _arc_num; ++i) {
-          Value c = (*_plower)[_arc_ref[i]];
-          if (c > 0) {
-            if (_cap[i] < INF) _cap[i] -= c;
-            _supply[_source[i]] -= c;
-            _supply[_target[i]] += c;
-          }
-          else if (c < 0) {
-            if (_cap[i] < INF + c) {
-              _cap[i] -= c;
-            } else {
-              _cap[i] = INF;
-            }
-            _supply[_source[i]] -= c;
-            _supply[_target[i]] += c;
-          }
-        }
-      }
+      _pi[_root] = _sum_supply < 0 ? -ART_COST : ART_COST;
 
       // Add artificial arcs and initialize the spanning tree data structure
       for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+        _parent[u] = _root;
+        _pred[u] = e;
         _thread[u] = u + 1;
         _rev_thread[u + 1] = u;
         _succ_num[u] = 1;
         _last_succ[u] = u;
-        _parent[u] = _root;
-        _pred[u] = e;
         _cost[e] = ART_COST;
         _cap[e] = INF;
         _state[e] = STATE_TREE;
@@ -1517,20 +1390,16 @@ namespace lemon {
         }
       }
 
-      // Copy flow values to _flow_map
-      if (_plower) {
+      // Transform the solution and the supply map to the original form
+      if (_have_lower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Arc e = _arc_ref[i];
-          _flow_map->set(e, (*_plower)[e] + _flow[i]);
+          Value c = _lower[i];
+          if (c != 0) {
+            _flow[i] += c;
+            _supply[_source[i]] += c;
+            _supply[_target[i]] -= c;
+          }
         }
-      } else {
-        for (int i = 0; i != _arc_num; ++i) {
-          _flow_map->set(_arc_ref[i], _flow[i]);
-        }
-      }
-      // Copy potential values to _potential_map
-      for (NodeIt n(_graph); n != INVALID; ++n) {
-        _potential_map->set(n, _pi[_node_id[n]]);
       }
 
       return OPTIMAL;
