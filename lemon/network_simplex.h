@@ -56,10 +56,10 @@ namespace lemon {
   /// specified, then default values will be used.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
-  /// \tparam F The value type used for flow amounts, capacity bounds
+  /// \tparam V The value type used for flow amounts, capacity bounds
   /// and supply values in the algorithm. By default it is \c int.
   /// \tparam C The value type used for costs and potentials in the
-  /// algorithm. By default it is the same as \c F.
+  /// algorithm. By default it is the same as \c V.
   ///
   /// \warning Both value types must be signed and all input data must
   /// be integer.
@@ -67,23 +67,23 @@ namespace lemon {
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations, from which the most efficient one is used
   /// by default. For more information see \ref PivotRule.
-  template <typename GR, typename F = int, typename C = F>
+  template <typename GR, typename V = int, typename C = V>
   class NetworkSimplex
   {
   public:
 
     /// The flow type of the algorithm
-    typedef F Flow;
+    typedef V Value;
     /// The cost type of the algorithm
     typedef C Cost;
 #ifdef DOXYGEN
     /// The type of the flow map
-    typedef GR::ArcMap<Flow> FlowMap;
+    typedef GR::ArcMap<Value> FlowMap;
     /// The type of the potential map
     typedef GR::NodeMap<Cost> PotentialMap;
 #else
     /// The type of the flow map
-    typedef typename GR::template ArcMap<Flow> FlowMap;
+    typedef typename GR::template ArcMap<Value> FlowMap;
     /// The type of the potential map
     typedef typename GR::template NodeMap<Cost> PotentialMap;
 #endif
@@ -206,15 +206,15 @@ namespace lemon {
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef typename GR::template ArcMap<Flow> FlowArcMap;
+    typedef typename GR::template ArcMap<Value> ValueArcMap;
     typedef typename GR::template ArcMap<Cost> CostArcMap;
-    typedef typename GR::template NodeMap<Flow> FlowNodeMap;
+    typedef typename GR::template NodeMap<Value> ValueNodeMap;
 
     typedef std::vector<Arc> ArcVector;
     typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
-    typedef std::vector<Flow> FlowVector;
+    typedef std::vector<Value> FlowVector;
     typedef std::vector<Cost> CostVector;
 
     // State constants for arcs
@@ -232,16 +232,16 @@ namespace lemon {
     int _arc_num;
 
     // Parameters of the problem
-    FlowArcMap *_plower;
-    FlowArcMap *_pupper;
+    ValueArcMap *_plower;
+    ValueArcMap *_pupper;
     CostArcMap *_pcost;
-    FlowNodeMap *_psupply;
+    ValueNodeMap *_psupply;
     bool _pstsup;
     Node _psource, _ptarget;
-    Flow _pstflow;
+    Value _pstflow;
     SupplyType _stype;
     
-    Flow _sum_supply;
+    Value _sum_supply;
 
     // Result maps
     FlowMap *_flow_map;
@@ -278,16 +278,16 @@ namespace lemon {
     int in_arc, join, u_in, v_in, u_out, v_out;
     int first, second, right, last;
     int stem, par_stem, new_stem;
-    Flow delta;
+    Value delta;
 
   public:
   
     /// \brief Constant for infinite upper bounds (capacities).
     ///
     /// Constant for infinite upper bounds (capacities).
-    /// It is \c std::numeric_limits<Flow>::infinity() if available,
-    /// \c std::numeric_limits<Flow>::max() otherwise.
-    const Flow INF;
+    /// It is \c std::numeric_limits<Value>::infinity() if available,
+    /// \c std::numeric_limits<Value>::max() otherwise.
+    const Value INF;
 
   private:
 
@@ -695,12 +695,12 @@ namespace lemon {
       _flow_map(NULL), _potential_map(NULL),
       _local_flow(false), _local_potential(false),
       _node_id(graph),
-      INF(std::numeric_limits<Flow>::has_infinity ?
-          std::numeric_limits<Flow>::infinity() :
-          std::numeric_limits<Flow>::max())
+      INF(std::numeric_limits<Value>::has_infinity ?
+          std::numeric_limits<Value>::infinity() :
+          std::numeric_limits<Value>::max())
     {
       // Check the value types
-      LEMON_ASSERT(std::numeric_limits<Flow>::is_signed,
+      LEMON_ASSERT(std::numeric_limits<Value>::is_signed,
         "The flow type of NetworkSimplex must be signed");
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of NetworkSimplex must be signed");
@@ -725,14 +725,14 @@ namespace lemon {
     /// will be set to zero on all arcs.
     ///
     /// \param map An arc map storing the lower bounds.
-    /// Its \c Value type must be convertible to the \c Flow type
+    /// Its \c Value type must be convertible to the \c Value type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
     template <typename LowerMap>
     NetworkSimplex& lowerMap(const LowerMap& map) {
       delete _plower;
-      _plower = new FlowArcMap(_graph);
+      _plower = new ValueArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
         (*_plower)[a] = map[a];
       }
@@ -747,14 +747,14 @@ namespace lemon {
     /// unbounded from above on each arc).
     ///
     /// \param map An arc map storing the upper bounds.
-    /// Its \c Value type must be convertible to the \c Flow type
+    /// Its \c Value type must be convertible to the \c Value type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
     template<typename UpperMap>
     NetworkSimplex& upperMap(const UpperMap& map) {
       delete _pupper;
-      _pupper = new FlowArcMap(_graph);
+      _pupper = new ValueArcMap(_graph);
       for (ArcIt a(_graph); a != INVALID; ++a) {
         (*_pupper)[a] = map[a];
       }
@@ -790,7 +790,7 @@ namespace lemon {
     /// (It makes sense only if non-zero lower bounds are given.)
     ///
     /// \param map A node map storing the supply values.
-    /// Its \c Value type must be convertible to the \c Flow type
+    /// Its \c Value type must be convertible to the \c Value type
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
@@ -798,7 +798,7 @@ namespace lemon {
     NetworkSimplex& supplyMap(const SupplyMap& map) {
       delete _psupply;
       _pstsup = false;
-      _psupply = new FlowNodeMap(_graph);
+      _psupply = new ValueNodeMap(_graph);
       for (NodeIt n(_graph); n != INVALID; ++n) {
         (*_psupply)[n] = map[n];
       }
@@ -823,7 +823,7 @@ namespace lemon {
     /// (i.e. the supply of \c s and the demand of \c t).
     ///
     /// \return <tt>(*this)</tt>
-    NetworkSimplex& stSupply(const Node& s, const Node& t, Flow k) {
+    NetworkSimplex& stSupply(const Node& s, const Node& t, Value k) {
       delete _psupply;
       _psupply = NULL;
       _pstsup = true;
@@ -1025,7 +1025,7 @@ namespace lemon {
     /// This function returns the flow on the given arc.
     ///
     /// \pre \ref run() must be called before using this function.
-    Flow flow(const Arc& a) const {
+    Value flow(const Arc& a) const {
       return (*_flow_map)[a];
     }
 
@@ -1204,7 +1204,7 @@ namespace lemon {
       // Remove non-zero lower bounds
       if (_plower) {
         for (int i = 0; i != _arc_num; ++i) {
-          Flow c = (*_plower)[_arc_ref[i]];
+          Value c = (*_plower)[_arc_ref[i]];
           if (c > 0) {
             if (_cap[i] < INF) _cap[i] -= c;
             _supply[_source[i]] -= c;
@@ -1275,7 +1275,7 @@ namespace lemon {
       }
       delta = _cap[in_arc];
       int result = 0;
-      Flow d;
+      Value d;
       int e;
 
       // Search the cycle along the path form the first node to the root
@@ -1315,7 +1315,7 @@ namespace lemon {
     void changeFlow(bool change) {
       // Augment along the cycle
       if (delta > 0) {
-        Flow val = _state[in_arc] * delta;
+        Value val = _state[in_arc] * delta;
         _flow[in_arc] += val;
         for (int u = _source[in_arc]; u != join; u = _parent[u]) {
           _flow[_pred[u]] += _forward[u] ? -val : val;
