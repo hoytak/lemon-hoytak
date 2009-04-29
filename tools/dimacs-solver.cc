@@ -200,7 +200,7 @@ int main(int argc, const char *argv[]) {
     .boolOption("q", "Do not print any report")
     .boolOption("int","Use 'int' for capacities, costs etc. (default)")
     .optionGroup("datatype","int")
-#ifdef HAVE_LONG_LONG
+#ifdef LEMON_HAVE_LONG_LONG
     .boolOption("long","Use 'long long' for capacities, costs etc.")
     .optionGroup("datatype","long")
 #endif
@@ -267,7 +267,7 @@ int main(int argc, const char *argv[]) {
     solve<double>(ap,is,os,desc);
   else if(ap.given("ldouble"))
     solve<long double>(ap,is,os,desc);
-#ifdef HAVE_LONG_LONG
+#ifdef LEMON_HAVE_LONG_LONG
   else if(ap.given("long"))
     solve<long long>(ap,is,os,desc);
 #endif

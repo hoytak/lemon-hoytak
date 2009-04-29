@@ -21,23 +21,21 @@
 #include "test_tools.h"
 #include <lemon/tolerance.h>
 
-#ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
-#endif
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
 #include <lemon/glpk.h>
 #endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
 #include <lemon/cplex.h>
 #endif
 
-#ifdef HAVE_SOPLEX
+#ifdef LEMON_HAVE_SOPLEX
 #include <lemon/soplex.h>
 #endif
 
-#ifdef HAVE_CLP
+#ifdef LEMON_HAVE_CLP
 #include <lemon/clp.h>
 #endif
 
@@ -379,7 +377,7 @@ int main()
   LpSkeleton lp_skel;
   lpTest(lp_skel);
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
   {
     GlpkLp lp_glpk1,lp_glpk2;
     lpTest(lp_glpk1);
@@ -388,7 +386,7 @@ int main()
   }
 #endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
   try {
     CplexLp lp_cplex1,lp_cplex2;
     lpTest(lp_cplex1);
@@ -399,7 +397,7 @@ int main()
   }
 #endif
 
-#ifdef HAVE_SOPLEX
+#ifdef LEMON_HAVE_SOPLEX
   {
     SoplexLp lp_soplex1,lp_soplex2;
     lpTest(lp_soplex1);
@@ -408,7 +406,7 @@ int main()
   }
 #endif
 
-#ifdef HAVE_CLP
+#ifdef LEMON_HAVE_CLP
   {
     ClpLp lp_clp1,lp_clp2;
     lpTest(lp_clp1);

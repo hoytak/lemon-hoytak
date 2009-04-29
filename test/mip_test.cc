@@ -18,19 +18,17 @@
 
 #include "test_tools.h"
 
-#ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
-#endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
 #include <lemon/cplex.h>
 #endif
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
 #include <lemon/glpk.h>
 #endif
 
-#ifdef HAVE_CBC
+#ifdef LEMON_HAVE_CBC
 #include <lemon/cbc.h>
 #endif
 
@@ -129,7 +127,7 @@ void cloneTest()
 int main()
 {
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
   {
     GlpkMip mip1;
     aTest(mip1);
@@ -137,7 +135,7 @@ int main()
   }
 #endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
   try {
     CplexMip mip2;
     aTest(mip2);
@@ -147,7 +145,7 @@ int main()
   }
 #endif
 
-#ifdef HAVE_CBC
+#ifdef LEMON_HAVE_CBC
   {
     CbcMip mip1;
     aTest(mip1);

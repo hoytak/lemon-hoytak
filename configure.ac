@@ -25,7 +25,7 @@ AC_LANG([C++])
 dnl Check the existence of long long type.
 AC_CHECK_TYPE(long long, [long_long_found=yes], [long_long_found=no])
 if test x"$long_long_found" = x"yes"; then
-  AC_DEFINE([HAVE_LONG_LONG], [1], [Define to 1 if you have long long.])
+  AC_DEFINE([LEMON_HAVE_LONG_LONG], [1], [Define to 1 if you have long long.])
 fi
 
 dnl Checks for programs.

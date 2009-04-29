@@ -55,9 +55,9 @@ AS_HELP_STRING([--with-coin-libdir=DIR], [search for CLP libraries in DIR]),
     LIBS="$lx_save_libs"
 
     if test x"$lx_clp_found" = x"yes"; then
-      AC_DEFINE([HAVE_CLP], [1], [Define to 1 if you have CLP.])
+      AC_DEFINE([LEMON_HAVE_CLP], [1], [Define to 1 if you have CLP.])
       lx_lp_found=yes
-      AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+      AC_DEFINE([LEMON_HAVE_LP], [1], [Define to 1 if you have any LP solver.])
       AC_MSG_RESULT([yes])
     else
       CLP_CXXFLAGS=""
@@ -115,11 +115,11 @@ AS_HELP_STRING([--with-coin-libdir=DIR], [search for CLP libraries in DIR]),
       LIBS="$lx_save_libs"
 
       if test x"$lx_cbc_found" = x"yes"; then
-        AC_DEFINE([HAVE_CBC], [1], [Define to 1 if you have CBC.])
+        AC_DEFINE([LEMON_HAVE_CBC], [1], [Define to 1 if you have CBC.])
         lx_lp_found=yes
-        AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+        AC_DEFINE([LEMON_HAVE_LP], [1], [Define to 1 if you have any LP solver.])
         lx_mip_found=yes
-        AC_DEFINE([HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
+        AC_DEFINE([LEMON_HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
         AC_MSG_RESULT([yes])
       else
         CBC_CXXFLAGS=""

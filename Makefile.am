@@ -11,11 +11,12 @@ EXTRA_DIST = \
 	m4/lx_check_cplex.m4 \
 	m4/lx_check_glpk.m4 \
 	m4/lx_check_soplex.m4 \
-	m4/lx_check_clp.m4 \
-	m4/lx_check_cbc.m4 \
+	m4/lx_check_coin.m4 \
 	CMakeLists.txt \
 	cmake/FindGhostscript.cmake \
+	cmake/FindCPLEX.cmake \
 	cmake/FindGLPK.cmake \
+	cmake/FindCOIN.cmake \
 	cmake/version.cmake.in \
 	cmake/version.cmake \
 	cmake/nsis/lemon.ico \

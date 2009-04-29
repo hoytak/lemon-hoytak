@@ -61,11 +61,11 @@ AS_HELP_STRING([--with-cplex-libdir=DIR], [search for CPLEX libraries in DIR]),
     LIBS="$lx_save_libs"
 
     if test x"$lx_cplex_found" = x"yes"; then
-      AC_DEFINE([HAVE_CPLEX], [1], [Define to 1 if you have CPLEX.])
+      AC_DEFINE([LEMON_HAVE_CPLEX], [1], [Define to 1 if you have CPLEX.])
       lx_lp_found=yes
-      AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+      AC_DEFINE([LEMON_HAVE_LP], [1], [Define to 1 if you have any LP solver.])
       lx_mip_found=yes
-      AC_DEFINE([HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
+      AC_DEFINE([LEMON_HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
       AC_MSG_RESULT([yes])
     else
       CPLEX_CFLAGS=""
