@@ -1370,6 +1370,7 @@ namespace lemon {
     typedef typename Graph::Node Node;
     typedef typename Graph::NodeIt NodeIt;
     typedef typename Graph::Arc Arc;
+    if (NodeIt(graph) == INVALID) return true;
     Dfs<Graph> dfs(graph);
     dfs.init();
     dfs.addSource(NodeIt(graph));
@@ -1545,17 +1546,16 @@ namespace lemon {
   /// \brief Returns true when there are not parallel edges in the graph.
   ///
   /// Returns true when there are not parallel edges in the graph.
-  template <typename Digraph>
-  bool parallelFree(const Digraph& digraph) {
-    typename Digraph::template NodeMap<bool> reached(digraph, false);
-    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        if (reached[digraph.target(a)]) return false;
-        reached.set(digraph.target(a), true);
+  template <typename Graph>
+  bool parallelFree(const Graph& graph) {
+    typename Graph::template NodeMap<int> reached(graph, 0);
+    int cnt = 1;
+    for (typename Graph::NodeIt n(graph); n != INVALID; ++n) {
+      for (typename Graph::OutArcIt a(graph, n); a != INVALID; ++a) {
+        if (reached[graph.target(a)] == cnt) return false;
+        reached[graph.target(a)] = cnt;
       }
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        reached.set(digraph.target(a), false);
-      }
+      ++cnt;
     }
     return true;
   }
@@ -1565,19 +1565,17 @@ namespace lemon {
   ///
   /// Returns true when there are not loop edges and parallel edges in
   /// the graph.
-  template <typename Digraph>
-  bool simpleDigraph(const Digraph& digraph) {
-    typename Digraph::template NodeMap<bool> reached(digraph, false);
-    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
-      reached.set(n, true);
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        if (reached[digraph.target(a)]) return false;
-        reached.set(digraph.target(a), true);
+  template <typename Graph>
+  bool simpleGraph(const Graph& graph) {
+    typename Graph::template NodeMap<int> reached(graph, 0);
+    int cnt = 1;
+    for (typename Graph::NodeIt n(graph); n != INVALID; ++n) {
+      reached[n] = cnt;
+      for (typename Graph::OutArcIt a(graph, n); a != INVALID; ++a) {
+        if (reached[graph.target(a)] == cnt) return false;
+        reached[graph.target(a)] = cnt;
       }
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        reached.set(digraph.target(a), false);
-      }
-      reached.set(n, false);
+      ++cnt;
     }
     return true;
   }
