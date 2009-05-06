@@ -244,10 +244,10 @@ namespace lemon {
   };
 
 
-  ///Check if the given graph is \e Eulerian
+  ///Check if the given graph is Eulerian
 
   /// \ingroup graph_properties
-  ///This function checks if the given graph is \e Eulerian.
+  ///This function checks if the given graph is Eulerian.
   ///It works for both directed and undirected graphs.
   ///
   ///By definition, a digraph is called \e Eulerian if
