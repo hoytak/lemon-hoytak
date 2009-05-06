@@ -9,6 +9,7 @@ check_PROGRAMS += \
 	test/adaptors_test \
 	test/bfs_test \
 	test/circulation_test \
+	test/connectivity_test \
 	test/counter_test \
 	test/dfs_test \
 	test/digraph_test \
@@ -54,6 +55,7 @@ test_adaptors_test_SOURCES = test/adaptors_test.cc
 test_bfs_test_SOURCES = test/bfs_test.cc
 test_circulation_test_SOURCES = test/circulation_test.cc
 test_counter_test_SOURCES = test/counter_test.cc
+test_connectivity_test_SOURCES = test/connectivity_test.cc
 test_dfs_test_SOURCES = test/dfs_test.cc
 test_digraph_test_SOURCES = test/digraph_test.cc
 test_dijkstra_test_SOURCES = test/dijkstra_test.cc
