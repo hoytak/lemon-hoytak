@@ -9,6 +9,7 @@ SET(TESTS
   adaptors_test
   bfs_test
   circulation_test
+  connectivity_test
   counter_test
   dfs_test
   digraph_test
