@@ -26,9 +26,10 @@
 #include <lemon/lp_base.h>
 
 // forward declaration
-#ifndef _GLP_PROB
+#if !defined _GLP_PROB && !defined GLP_PROB
 #define _GLP_PROB
-typedef struct { double _prob; } glp_prob;
+#define GLP_PROB
+typedef struct { double _opaque_prob; } glp_prob;
 /* LP/MIP problem object */
 #endif
 
