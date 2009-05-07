@@ -1839,31 +1839,31 @@ namespace lemon {
     typedef typename Digraph::Arc Edge;
     typedef typename Digraph::Node Node;
 
-    class Arc : public Edge {
+    class Arc {
       friend class UndirectorBase;
     protected:
+      Edge _edge;
       bool _forward;
 
-      Arc(const Edge& edge, bool forward) :
-        Edge(edge), _forward(forward) {}
+      Arc(const Edge& edge, bool forward) 
+        : _edge(edge), _forward(forward) {}
 
     public:
       Arc() {}
 
-      Arc(Invalid) : Edge(INVALID), _forward(true) {}
+      Arc(Invalid) : _edge(INVALID), _forward(true) {}
+
+      operator const Edge&() const { return _edge; }
 
       bool operator==(const Arc &other) const {
-        return _forward == other._forward &&
-          static_cast<const Edge&>(*this) == static_cast<const Edge&>(other);
+        return _forward == other._forward && _edge == other._edge;
       }
       bool operator!=(const Arc &other) const {
-        return _forward != other._forward ||
-          static_cast<const Edge&>(*this) != static_cast<const Edge&>(other);
+        return _forward != other._forward || _edge != other._edge;
       }
       bool operator<(const Arc &other) const {
         return _forward < other._forward ||
-          (_forward == other._forward &&
-           static_cast<const Edge&>(*this) < static_cast<const Edge&>(other));
+          (_forward == other._forward && _edge < other._edge);
       }
     };
 
@@ -1876,7 +1876,7 @@ namespace lemon {
     }
 
     void first(Arc& a) const {
-      _digraph->first(a);
+      _digraph->first(a._edge);
       a._forward = true;
     }
 
@@ -1884,7 +1884,7 @@ namespace lemon {
       if (a._forward) {
         a._forward = false;
       } else {
-        _digraph->next(a);
+        _digraph->next(a._edge);
         a._forward = true;
       }
     }
@@ -1898,48 +1898,48 @@ namespace lemon {
     }
 
     void firstOut(Arc& a, const Node& n) const {
-      _digraph->firstIn(a, n);
-      if( static_cast<const Edge&>(a) != INVALID ) {
+      _digraph->firstIn(a._edge, n);
+      if (a._edge != INVALID ) {
         a._forward = false;
       } else {
-        _digraph->firstOut(a, n);
+        _digraph->firstOut(a._edge, n);
         a._forward = true;
       }
     }
     void nextOut(Arc &a) const {
       if (!a._forward) {
-        Node n = _digraph->target(a);
-        _digraph->nextIn(a);
-        if (static_cast<const Edge&>(a) == INVALID ) {
-          _digraph->firstOut(a, n);
+        Node n = _digraph->target(a._edge);
+        _digraph->nextIn(a._edge);
+        if (a._edge == INVALID) {
+          _digraph->firstOut(a._edge, n);
           a._forward = true;
         }
       }
       else {
-        _digraph->nextOut(a);
+        _digraph->nextOut(a._edge);
       }
     }
 
     void firstIn(Arc &a, const Node &n) const {
-      _digraph->firstOut(a, n);
-      if (static_cast<const Edge&>(a) != INVALID ) {
+      _digraph->firstOut(a._edge, n);
+      if (a._edge != INVALID ) {
         a._forward = false;
       } else {
-        _digraph->firstIn(a, n);
+        _digraph->firstIn(a._edge, n);
         a._forward = true;
       }
     }
     void nextIn(Arc &a) const {
       if (!a._forward) {
-        Node n = _digraph->source(a);
-        _digraph->nextOut(a);
-        if( static_cast<const Edge&>(a) == INVALID ) {
-          _digraph->firstIn(a, n);
+        Node n = _digraph->source(a._edge);
+        _digraph->nextOut(a._edge);
+        if (a._edge == INVALID ) {
+          _digraph->firstIn(a._edge, n);
           a._forward = true;
         }
       }
       else {
-        _digraph->nextIn(a);
+        _digraph->nextIn(a._edge);
       }
     }
 
@@ -1972,18 +1972,15 @@ namespace lemon {
     }
 
     Node source(const Arc &a) const {
-      return a._forward ? _digraph->source(a) : _digraph->target(a);
+      return a._forward ? _digraph->source(a._edge) : _digraph->target(a._edge);
     }
 
     Node target(const Arc &a) const {
-      return a._forward ? _digraph->target(a) : _digraph->source(a);
+      return a._forward ? _digraph->target(a._edge) : _digraph->source(a._edge);
     }
 
     static Arc direct(const Edge &e, bool d) {
       return Arc(e, d);
-    }
-    Arc direct(const Edge &e, const Node& n) const {
-      return Arc(e, _digraph->source(e) == n);
     }
 
     static bool direction(const Arc &a) { return a._forward; }
