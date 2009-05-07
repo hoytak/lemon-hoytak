@@ -499,7 +499,7 @@ namespace lemon {
     ///
     /// This function runs the original Edmonds' algorithm.
     ///
-    /// \pre \ref Init(), \ref greedyInit() or \ref matchingInit() must be
+    /// \pre \ref init(), \ref greedyInit() or \ref matchingInit() must be
     /// called before using this function.
     void startSparse() {
       for(NodeIt n(_graph); n != INVALID; ++n) {
@@ -518,7 +518,7 @@ namespace lemon {
     /// This function runs Edmonds' algorithm with a heuristic of postponing
     /// shrinks, therefore resulting in a faster algorithm for dense graphs.
     ///
-    /// \pre \ref Init(), \ref greedyInit() or \ref matchingInit() must be
+    /// \pre \ref init(), \ref greedyInit() or \ref matchingInit() must be
     /// called before using this function.
     void startDense() {
       for(NodeIt n(_graph); n != INVALID; ++n) {

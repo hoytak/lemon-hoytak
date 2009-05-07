@@ -335,8 +335,13 @@ LEMON contains several algorithms for solving maximum flow problems:
 
 In most cases the \ref Preflow "Preflow" algorithm provides the
 fastest method for computing a maximum flow. All implementations
-provides functions to also query the minimum cut, which is the dual
-problem of the maximum flow.
+also provide functions to query the minimum cut, which is the dual
+problem of maximum flow.
+
+\ref Circulation is a preflow push-relabel algorithm implemented directly 
+for finding feasible circulations, which is a somewhat different problem,
+but it is strongly related to maximum flow.
+For more information, see \ref Circulation.
 */
 
 /**
@@ -541,10 +546,10 @@ The matching algorithms implemented in LEMON:
 /**
 @defgroup spantree Minimum Spanning Tree Algorithms
 @ingroup algs
-\brief Algorithms for finding a minimum cost spanning tree in a graph.
+\brief Algorithms for finding minimum cost spanning trees and arborescences.
 
-This group contains the algorithms for finding a minimum cost spanning
-tree in a graph.
+This group contains the algorithms for finding minimum cost spanning
+trees and arborescences.
 */
 
 /**
