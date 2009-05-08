@@ -6,6 +6,10 @@ HGROOT=`hg root`
 function hg_year() {
     if [ -n "$(hg st $1)" ]; then
         echo $YEAR
+    else
+        hg log -l 1 --template='{date|isodate}\n' $1 |
+        cut -d '-' -f 1
+    fi
 }
 
 # file enumaration modes
