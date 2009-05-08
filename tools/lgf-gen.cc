@@ -18,7 +18,7 @@
 
 /// \ingroup tools
 /// \file
-/// \brief Special plane digraph generator.
+/// \brief Special plane graph generator.
 ///
 /// Graph generator application for various types of plane graphs.
 ///
@@ -26,7 +26,7 @@
 /// \code
 ///   lgf-gen --help
 /// \endcode
-/// for more info on the usage.
+/// for more information on the usage.
 
 #include <algorithm>
 #include <set>
@@ -686,20 +686,21 @@ int main(int argc,const char **argv)
     .intOption("g", "Girth parameter (default is 10)", 10)
     .refOption("cities", "Number of cities (default is 1)", num_of_cities)
     .refOption("area", "Full relative area of the cities (default is 1)", area)
-    .refOption("disc", "Nodes are evenly distributed on a unit disc (default)",disc_d)
+    .refOption("disc", "Nodes are evenly distributed on a unit disc (default)",
+               disc_d)
     .optionGroup("dist", "disc")
-    .refOption("square", "Nodes are evenly distributed on a unit square", square_d)
+    .refOption("square", "Nodes are evenly distributed on a unit square",
+               square_d)
     .optionGroup("dist", "square")
-    .refOption("gauss",
-            "Nodes are located according to a two-dim gauss distribution",
-            gauss_d)
+    .refOption("gauss", "Nodes are located according to a two-dim Gauss "
+               "distribution", gauss_d)
     .optionGroup("dist", "gauss")
-//     .mandatoryGroup("dist")
     .onlyOneGroup("dist")
-    .boolOption("eps", "Also generate .eps output (prefix.eps)")
-    .boolOption("nonodes", "Draw the edges only in the generated .eps")
-    .boolOption("dir", "Directed digraph is generated (each arcs are replaced by two directed ones)")
-    .boolOption("2con", "Create a two connected planar digraph")
+    .boolOption("eps", "Also generate .eps output (<prefix>.eps)")
+    .boolOption("nonodes", "Draw only the edges in the generated .eps output")
+    .boolOption("dir", "Directed graph is generated (each edge is replaced by "
+                "two directed arcs)")
+    .boolOption("2con", "Create a two connected planar graph")
     .optionGroup("alg","2con")
     .boolOption("tree", "Create a min. cost spanning tree")
     .optionGroup("alg","tree")
@@ -707,7 +708,7 @@ int main(int argc,const char **argv)
     .optionGroup("alg","tsp")
     .boolOption("tsp2", "Create a TSP tour (tree based)")
     .optionGroup("alg","tsp2")
-    .boolOption("dela", "Delaunay triangulation digraph")
+    .boolOption("dela", "Delaunay triangulation graph")
     .optionGroup("alg","dela")
     .onlyOneGroup("alg")
     .boolOption("rand", "Use time seed for random number generator")
