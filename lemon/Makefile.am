@@ -111,7 +111,6 @@ lemon_HEADERS += \
 bits_HEADERS += \
 	lemon/bits/alteration_notifier.h \
 	lemon/bits/array_map.h \
-	lemon/bits/base_extender.h \
 	lemon/bits/bezier.h \
 	lemon/bits/default_map.h \
 	lemon/bits/edge_set_extender.h \
