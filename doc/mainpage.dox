@@ -23,8 +23,7 @@
 
 \subsection whatis What is LEMON
 
-LEMON stands for
-<b>L</b>ibrary of <b>E</b>fficient <b>M</b>odels
+LEMON stands for <b>L</b>ibrary for <b>E</b>fficient <b>M</b>odeling
 and <b>O</b>ptimization in <b>N</b>etworks.
 It is a C++ template
 library aimed at combinatorial optimization tasks which
