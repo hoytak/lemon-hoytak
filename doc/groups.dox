@@ -138,16 +138,6 @@ int algorithm1(const ListDigraph& g) {
 */
 
 /**
-@defgroup semi_adaptors Semi-Adaptor Classes for Graphs
-@ingroup graphs
-\brief Graph types between real graphs and graph adaptors.
-
-This group contains some graph types between real graphs and graph adaptors.
-These classes wrap graphs to give new functionality as the adaptors do it.
-On the other hand they are not light-weight structures as the adaptors.
-*/
-
-/**
 @defgroup maps Maps
 @ingroup datas
 \brief Map structures implemented in LEMON.
