@@ -310,8 +310,8 @@ namespace lemon {
 
       /// The directed arc type. It can be converted to the
       /// edge or it should be inherited from the undirected
-      /// arc.
-      class Arc : public Edge {
+      /// edge.
+      class Arc {
       public:
         /// Default constructor
 
@@ -322,7 +322,7 @@ namespace lemon {
 
         /// Copy constructor.
         ///
-        Arc(const Arc& e) : Edge(e) { }
+        Arc(const Arc&) { }
         /// Initialize the iterator to be invalid.
 
         /// Initialize the iterator to be invalid.
@@ -349,6 +349,8 @@ namespace lemon {
         /// ordering of the items.
         bool operator<(Arc) const { return false; }
 
+        /// Converison to Edge
+        operator Edge() const { return Edge(); }
       };
       /// This iterator goes through each directed arc.
 
