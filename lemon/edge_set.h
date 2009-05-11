@@ -22,7 +22,7 @@
 #include <lemon/core.h>
 #include <lemon/bits/edge_set_extender.h>
 
-/// \ingroup semi_adaptors
+/// \ingroup graphs
 /// \file
 /// \brief ArcSet and EdgeSet classes.
 ///
@@ -230,7 +230,7 @@ namespace lemon {
 
   };
 
-  /// \ingroup semi_adaptors
+  /// \ingroup graphs
   ///
   /// \brief Digraph using a node set of another digraph or graph and
   /// an own arc set.
@@ -654,7 +654,7 @@ namespace lemon {
 
   };
 
-  /// \ingroup semi_adaptors
+  /// \ingroup graphs
   ///
   /// \brief Graph using a node set of another digraph or graph and an
   /// own edge set.
@@ -913,7 +913,7 @@ namespace lemon {
   };
 
 
-  /// \ingroup semi_adaptors
+  /// \ingroup graphs
   ///
   /// \brief Digraph using a node set of another digraph or graph and
   /// an own arc set.
@@ -1257,7 +1257,7 @@ namespace lemon {
 
   };
 
-  /// \ingroup semi_adaptors
+  /// \ingroup graphs
   ///
   /// \brief Graph using a node set of another digraph or graph and an
   /// own edge set.
