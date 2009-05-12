@@ -1,6 +1,7 @@
 EXTRA_DIST += \
 	lemon/lemon.pc.in \
-	lemon/CMakeLists.txt
+	lemon/CMakeLists.txt \
+	lemon/config.h.cmake
 
 pkgconfig_DATA += lemon/lemon.pc
 
@@ -16,7 +17,7 @@ lemon_libemon_la_SOURCES = \
 	lemon/bits/windows.cc
 
 nodist_lemon_HEADERS = lemon/config.h	
-	
+
 lemon_libemon_la_CXXFLAGS = \
 	$(AM_CXXFLAGS) \
 	$(GLPK_CFLAGS) \
