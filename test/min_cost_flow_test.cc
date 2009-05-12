@@ -174,7 +174,7 @@ template < typename GR, typename LM, typename UM,
            typename CM, typename SM, typename FM, typename PM >
 bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
                      const CM& cost, const SM& supply, const FM& flow, 
-                     const PM& pi )
+                     const PM& pi, SupplyType type )
 {
   TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
@@ -193,10 +193,48 @@ bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
       sum += flow[e];
     for (InArcIt e(gr, n); e != INVALID; ++e)
       sum -= flow[e];
-    opt = (sum == supply[n]) || (pi[n] == 0);
+    if (type != LEQ) {
+      opt = (pi[n] <= 0) && (sum == supply[n] || pi[n] == 0);
+    } else {
+      opt = (pi[n] >= 0) && (sum == supply[n] || pi[n] == 0);
+    }
   }
   
   return opt;
+}
+
+// Check whether the dual cost is equal to the primal cost
+template < typename GR, typename LM, typename UM,
+           typename CM, typename SM, typename PM >
+bool checkDualCost( const GR& gr, const LM& lower, const UM& upper,
+                    const CM& cost, const SM& supply, const PM& pi,
+                    typename CM::Value total )
+{
+  TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+
+  typename CM::Value dual_cost = 0;
+  SM red_supply(gr);
+  for (NodeIt n(gr); n != INVALID; ++n) {
+    red_supply[n] = supply[n];
+  }
+  for (ArcIt a(gr); a != INVALID; ++a) {
+    if (lower[a] != 0) {
+      dual_cost += lower[a] * cost[a];
+      red_supply[gr.source(a)] -= lower[a];
+      red_supply[gr.target(a)] += lower[a];
+    }
+  }
+  
+  for (NodeIt n(gr); n != INVALID; ++n) {
+    dual_cost -= red_supply[n] * pi[n];
+  }
+  for (ArcIt a(gr); a != INVALID; ++a) {
+    typename CM::Value red_cost =
+      cost[a] + pi[gr.source(a)] - pi[gr.target(a)];
+    dual_cost -= (upper[a] - lower[a]) * std::max(-red_cost, 0);
+  }
+  
+  return dual_cost == total;
 }
 
 // Run a minimum cost flow algorithm and check the results
@@ -220,8 +258,10 @@ void checkMcf( const MCF& mcf, PT mcf_result,
     check(checkFlow(gr, lower, upper, supply, flow, type),
           "The flow is not feasible " + test_id);
     check(mcf.totalCost() == total, "The flow is not optimal " + test_id);
-    check(checkPotential(gr, lower, upper, cost, supply, flow, pi),
+    check(checkPotential(gr, lower, upper, cost, supply, flow, pi, type),
           "Wrong potentials " + test_id);
+    check(checkDualCost(gr, lower, upper, cost, supply, pi, total),
+          "Wrong dual cost " + test_id);
   }
 }
 
@@ -266,45 +306,56 @@ int main()
     .node("target", w)
     .run();
   
-  // Build a test digraph for testing negative costs
-  Digraph ngr;
-  Node n1 = ngr.addNode();
-  Node n2 = ngr.addNode();
-  Node n3 = ngr.addNode();
-  Node n4 = ngr.addNode();
-  Node n5 = ngr.addNode();
-  Node n6 = ngr.addNode();
-  Node n7 = ngr.addNode();
+  // Build test digraphs with negative costs
+  Digraph neg_gr;
+  Node n1 = neg_gr.addNode();
+  Node n2 = neg_gr.addNode();
+  Node n3 = neg_gr.addNode();
+  Node n4 = neg_gr.addNode();
+  Node n5 = neg_gr.addNode();
+  Node n6 = neg_gr.addNode();
+  Node n7 = neg_gr.addNode();
   
-  Arc a1 = ngr.addArc(n1, n2);
-  Arc a2 = ngr.addArc(n1, n3);
-  Arc a3 = ngr.addArc(n2, n4);
-  Arc a4 = ngr.addArc(n3, n4);
-  Arc a5 = ngr.addArc(n3, n2);
-  Arc a6 = ngr.addArc(n5, n3);
-  Arc a7 = ngr.addArc(n5, n6);
-  Arc a8 = ngr.addArc(n6, n7);
-  Arc a9 = ngr.addArc(n7, n5);
+  Arc a1 = neg_gr.addArc(n1, n2);
+  Arc a2 = neg_gr.addArc(n1, n3);
+  Arc a3 = neg_gr.addArc(n2, n4);
+  Arc a4 = neg_gr.addArc(n3, n4);
+  Arc a5 = neg_gr.addArc(n3, n2);
+  Arc a6 = neg_gr.addArc(n5, n3);
+  Arc a7 = neg_gr.addArc(n5, n6);
+  Arc a8 = neg_gr.addArc(n6, n7);
+  Arc a9 = neg_gr.addArc(n7, n5);
   
-  Digraph::ArcMap<int> nc(ngr), nl1(ngr, 0), nl2(ngr, 0);
-  ConstMap<Arc, int> nu1(std::numeric_limits<int>::max()), nu2(5000);
-  Digraph::NodeMap<int> ns(ngr, 0);
+  Digraph::ArcMap<int> neg_c(neg_gr), neg_l1(neg_gr, 0), neg_l2(neg_gr, 0);
+  ConstMap<Arc, int> neg_u1(std::numeric_limits<int>::max()), neg_u2(5000);
+  Digraph::NodeMap<int> neg_s(neg_gr, 0);
   
-  nl2[a7] =  1000;
-  nl2[a8] = -1000;
+  neg_l2[a7] =  1000;
+  neg_l2[a8] = -1000;
   
-  ns[n1] =  100;
-  ns[n4] = -100;
+  neg_s[n1] =  100;
+  neg_s[n4] = -100;
   
-  nc[a1] =  100;
-  nc[a2] =   30;
-  nc[a3] =   20;
-  nc[a4] =   80;
-  nc[a5] =   50;
-  nc[a6] =   10;
-  nc[a7] =   80;
-  nc[a8] =   30;
-  nc[a9] = -120;
+  neg_c[a1] =  100;
+  neg_c[a2] =   30;
+  neg_c[a3] =   20;
+  neg_c[a4] =   80;
+  neg_c[a5] =   50;
+  neg_c[a6] =   10;
+  neg_c[a7] =   80;
+  neg_c[a8] =   30;
+  neg_c[a9] = -120;
+
+  Digraph negs_gr;
+  Digraph::NodeMap<int> negs_s(negs_gr);
+  Digraph::ArcMap<int> negs_c(negs_gr);
+  ConstMap<Arc, int> negs_l(0), negs_u(1000);
+  n1 = negs_gr.addNode();
+  n2 = negs_gr.addNode();
+  negs_s[n1] = 100;
+  negs_s[n2] = -300;
+  negs_c[negs_gr.addArc(n1, n2)] = -1;
+
 
   // A. Test NetworkSimplex with the default pivot rule
   {
@@ -342,7 +393,7 @@ int main()
     mcf.supplyType(mcf.GEQ);
     checkMcf(mcf, mcf.lowerMap(l2).run(),
              gr, l2, u, c, s5, mcf.OPTIMAL, true,   4540, "#A11", GEQ);
-    mcf.supplyType(mcf.CARRY_SUPPLIES).supplyMap(s6);
+    mcf.supplyMap(s6);
     checkMcf(mcf, mcf.run(),
              gr, l2, u, c, s6, mcf.INFEASIBLE, false,  0, "#A12", GEQ);
 
@@ -353,20 +404,26 @@ int main()
              gr, l1, u, c, s6, mcf.OPTIMAL, true,   5080, "#A13", LEQ);
     checkMcf(mcf, mcf.lowerMap(l2).run(),
              gr, l2, u, c, s6, mcf.OPTIMAL, true,   5930, "#A14", LEQ);
-    mcf.supplyType(mcf.SATISFY_DEMANDS).supplyMap(s5);
+    mcf.supplyMap(s5);
     checkMcf(mcf, mcf.run(),
              gr, l2, u, c, s5, mcf.INFEASIBLE, false,  0, "#A15", LEQ);
 
     // Check negative costs
-    NetworkSimplex<Digraph> nmcf(ngr);
-    nmcf.lowerMap(nl1).costMap(nc).supplyMap(ns);
-    checkMcf(nmcf, nmcf.run(),
-      ngr, nl1, nu1, nc, ns, nmcf.UNBOUNDED, false,    0, "#A16");
-    checkMcf(nmcf, nmcf.upperMap(nu2).run(),
-      ngr, nl1, nu2, nc, ns, nmcf.OPTIMAL, true,  -40000, "#A17");
-    nmcf.reset().lowerMap(nl2).costMap(nc).supplyMap(ns);
-    checkMcf(nmcf, nmcf.run(),
-      ngr, nl2, nu1, nc, ns, nmcf.UNBOUNDED, false,    0, "#A18");
+    NetworkSimplex<Digraph> neg_mcf(neg_gr);
+    neg_mcf.lowerMap(neg_l1).costMap(neg_c).supplyMap(neg_s);
+    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l1, neg_u1,
+      neg_c, neg_s, neg_mcf.UNBOUNDED, false,    0, "#A16");
+    neg_mcf.upperMap(neg_u2);
+    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l1, neg_u2,
+      neg_c, neg_s, neg_mcf.OPTIMAL, true,  -40000, "#A17");
+    neg_mcf.reset().lowerMap(neg_l2).costMap(neg_c).supplyMap(neg_s);
+    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l2, neg_u1,
+      neg_c, neg_s, neg_mcf.UNBOUNDED, false,    0, "#A18");
+      
+    NetworkSimplex<Digraph> negs_mcf(negs_gr);
+    negs_mcf.costMap(negs_c).supplyMap(negs_s);
+    checkMcf(negs_mcf, negs_mcf.run(), negs_gr, negs_l, negs_u,
+      negs_c, negs_s, negs_mcf.OPTIMAL, true, -300, "#A19", GEQ);
   }
 
   // B. Test NetworkSimplex with each pivot rule
