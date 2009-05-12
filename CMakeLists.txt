@@ -18,10 +18,11 @@ FIND_PACKAGE(CPLEX)
 FIND_PACKAGE(COIN)
 
 IF(MSVC)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /wd4355 /wd4800 /wd4996")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /wd4355 /wd4503 /wd4800 /wd4996")
 # Suppressed warnings:
 # C4250: 'class1' : inherits 'class2::member' via dominance
 # C4355: 'this' : used in base member initializer list
+# C4503: 'function' : decorated name length exceeded, name was truncated
 # C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
 # C4996: 'function': was declared deprecated
 ENDIF(MSVC)
