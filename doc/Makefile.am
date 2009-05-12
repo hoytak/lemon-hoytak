@@ -8,6 +8,7 @@ EXTRA_DIST += \
 	doc/license.dox \
 	doc/mainpage.dox \
 	doc/migration.dox \
+	doc/min_cost_flow.dox \
 	doc/named-param.dox \
 	doc/namespaces.dox \
 	doc/html \

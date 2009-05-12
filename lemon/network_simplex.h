@@ -19,7 +19,7 @@
 #ifndef LEMON_NETWORK_SIMPLEX_H
 #define LEMON_NETWORK_SIMPLEX_H
 
-/// \ingroup min_cost_flow
+/// \ingroup min_cost_flow_algs
 ///
 /// \file
 /// \brief Network Simplex algorithm for finding a minimum cost flow.
@@ -33,7 +33,7 @@
 
 namespace lemon {
 
-  /// \addtogroup min_cost_flow
+  /// \addtogroup min_cost_flow_algs
   /// @{
 
   /// \brief Implementation of the primal Network Simplex algorithm
@@ -102,50 +102,16 @@ namespace lemon {
     /// i.e. the direction of the inequalities in the supply/demand
     /// constraints of the \ref min_cost_flow "minimum cost flow problem".
     ///
-    /// The default supply type is \c GEQ, since this form is supported
-    /// by other minimum cost flow algorithms and the \ref Circulation
-    /// algorithm, as well.
-    /// The \c LEQ problem type can be selected using the \ref supplyType()
-    /// function.
-    ///
-    /// Note that the equality form is a special case of both supply types.
+    /// The default supply type is \c GEQ, the \c LEQ type can be
+    /// selected using \ref supplyType().
+    /// The equality form is a special case of both supply types.
     enum SupplyType {
-
       /// This option means that there are <em>"greater or equal"</em>
-      /// supply/demand constraints in the definition, i.e. the exact
-      /// formulation of the problem is the following.
-      /**
-          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
-          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \geq
-              sup(u) \quad \forall u\in V \f]
-          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
-      */
-      /// It means that the total demand must be greater or equal to the 
-      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
-      /// negative) and all the supplies have to be carried out from 
-      /// the supply nodes, but there could be demands that are not 
-      /// satisfied.
+      /// supply/demand constraints in the definition of the problem.
       GEQ,
-      /// It is just an alias for the \c GEQ option.
-      CARRY_SUPPLIES = GEQ,
-
       /// This option means that there are <em>"less or equal"</em>
-      /// supply/demand constraints in the definition, i.e. the exact
-      /// formulation of the problem is the following.
-      /**
-          \f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
-          \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \leq
-              sup(u) \quad \forall u\in V \f]
-          \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
-      */
-      /// It means that the total demand must be less or equal to the 
-      /// total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
-      /// positive) and all the demands have to be satisfied, but there
-      /// could be supplies that are not carried out from the supply
-      /// nodes.
-      LEQ,
-      /// It is just an alias for the \c LEQ option.
-      SATISFY_DEMANDS = LEQ
+      /// supply/demand constraints in the definition of the problem.
+      LEQ
     };
     
     /// \brief Constants for selecting the pivot rule.
@@ -215,6 +181,8 @@ namespace lemon {
     const GR &_graph;
     int _node_num;
     int _arc_num;
+    int _all_arc_num;
+    int _search_arc_num;
 
     // Parameters of the problem
     bool _have_lower;
@@ -277,7 +245,7 @@ namespace lemon {
       const IntVector  &_state;
       const CostVector &_pi;
       int &_in_arc;
-      int _arc_num;
+      int _search_arc_num;
 
       // Pivot rule data
       int _next_arc;
@@ -288,13 +256,14 @@ namespace lemon {
       FirstEligiblePivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _search_arc_num(ns._search_arc_num),
+        _next_arc(0)
       {}
 
       // Find next entering arc
       bool findEnteringArc() {
         Cost c;
-        for (int e = _next_arc; e < _arc_num; ++e) {
+        for (int e = _next_arc; e < _search_arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < 0) {
             _in_arc = e;
@@ -328,7 +297,7 @@ namespace lemon {
       const IntVector  &_state;
       const CostVector &_pi;
       int &_in_arc;
-      int _arc_num;
+      int _search_arc_num;
 
     public:
 
@@ -336,13 +305,13 @@ namespace lemon {
       BestEligiblePivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns.in_arc), _arc_num(ns._arc_num)
+        _in_arc(ns.in_arc), _search_arc_num(ns._search_arc_num)
       {}
 
       // Find next entering arc
       bool findEnteringArc() {
         Cost c, min = 0;
-        for (int e = 0; e < _arc_num; ++e) {
+        for (int e = 0; e < _search_arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < min) {
             min = c;
@@ -367,7 +336,7 @@ namespace lemon {
       const IntVector  &_state;
       const CostVector &_pi;
       int &_in_arc;
-      int _arc_num;
+      int _search_arc_num;
 
       // Pivot rule data
       int _block_size;
@@ -379,14 +348,15 @@ namespace lemon {
       BlockSearchPivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _search_arc_num(ns._search_arc_num),
+        _next_arc(0)
       {
         // The main parameters of the pivot rule
-        const double BLOCK_SIZE_FACTOR = 2.0;
+        const double BLOCK_SIZE_FACTOR = 0.5;
         const int MIN_BLOCK_SIZE = 10;
 
         _block_size = std::max( int(BLOCK_SIZE_FACTOR *
-                                    std::sqrt(double(_arc_num))),
+                                    std::sqrt(double(_search_arc_num))),
                                 MIN_BLOCK_SIZE );
       }
 
@@ -395,7 +365,7 @@ namespace lemon {
         Cost c, min = 0;
         int cnt = _block_size;
         int e, min_arc = _next_arc;
-        for (e = _next_arc; e < _arc_num; ++e) {
+        for (e = _next_arc; e < _search_arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < min) {
             min = c;
@@ -440,7 +410,7 @@ namespace lemon {
       const IntVector  &_state;
       const CostVector &_pi;
       int &_in_arc;
-      int _arc_num;
+      int _search_arc_num;
 
       // Pivot rule data
       IntVector _candidates;
@@ -454,7 +424,8 @@ namespace lemon {
       CandidateListPivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns.in_arc), _arc_num(ns._arc_num), _next_arc(0)
+        _in_arc(ns.in_arc), _search_arc_num(ns._search_arc_num),
+        _next_arc(0)
       {
         // The main parameters of the pivot rule
         const double LIST_LENGTH_FACTOR = 1.0;
@@ -463,7 +434,7 @@ namespace lemon {
         const int MIN_MINOR_LIMIT = 3;
 
         _list_length = std::max( int(LIST_LENGTH_FACTOR *
-                                     std::sqrt(double(_arc_num))),
+                                     std::sqrt(double(_search_arc_num))),
                                  MIN_LIST_LENGTH );
         _minor_limit = std::max( int(MINOR_LIMIT_FACTOR * _list_length),
                                  MIN_MINOR_LIMIT );
@@ -500,7 +471,7 @@ namespace lemon {
         // Major iteration: build a new candidate list
         min = 0;
         _curr_length = 0;
-        for (e = _next_arc; e < _arc_num; ++e) {
+        for (e = _next_arc; e < _search_arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < 0) {
             _candidates[_curr_length++] = e;
@@ -546,7 +517,7 @@ namespace lemon {
       const IntVector  &_state;
       const CostVector &_pi;
       int &_in_arc;
-      int _arc_num;
+      int _search_arc_num;
 
       // Pivot rule data
       int _block_size, _head_length, _curr_length;
@@ -574,8 +545,8 @@ namespace lemon {
       AlteringListPivotRule(NetworkSimplex &ns) :
         _source(ns._source), _target(ns._target),
         _cost(ns._cost), _state(ns._state), _pi(ns._pi),
-        _in_arc(ns.in_arc), _arc_num(ns._arc_num),
-        _next_arc(0), _cand_cost(ns._arc_num), _sort_func(_cand_cost)
+        _in_arc(ns.in_arc), _search_arc_num(ns._search_arc_num),
+        _next_arc(0), _cand_cost(ns._search_arc_num), _sort_func(_cand_cost)
       {
         // The main parameters of the pivot rule
         const double BLOCK_SIZE_FACTOR = 1.5;
@@ -584,7 +555,7 @@ namespace lemon {
         const int MIN_HEAD_LENGTH = 3;
 
         _block_size = std::max( int(BLOCK_SIZE_FACTOR *
-                                    std::sqrt(double(_arc_num))),
+                                    std::sqrt(double(_search_arc_num))),
                                 MIN_BLOCK_SIZE );
         _head_length = std::max( int(HEAD_LENGTH_FACTOR * _block_size),
                                  MIN_HEAD_LENGTH );
@@ -610,7 +581,7 @@ namespace lemon {
         int last_arc = 0;
         int limit = _head_length;
 
-        for (int e = _next_arc; e < _arc_num; ++e) {
+        for (int e = _next_arc; e < _search_arc_num; ++e) {
           _cand_cost[e] = _state[e] *
             (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (_cand_cost[e] < 0) {
@@ -678,17 +649,17 @@ namespace lemon {
       _node_num = countNodes(_graph);
       _arc_num = countArcs(_graph);
       int all_node_num = _node_num + 1;
-      int all_arc_num = _arc_num + _node_num;
+      int max_arc_num = _arc_num + 2 * _node_num;
 
-      _source.resize(all_arc_num);
-      _target.resize(all_arc_num);
+      _source.resize(max_arc_num);
+      _target.resize(max_arc_num);
 
-      _lower.resize(all_arc_num);
-      _upper.resize(all_arc_num);
-      _cap.resize(all_arc_num);
-      _cost.resize(all_arc_num);
+      _lower.resize(_arc_num);
+      _upper.resize(_arc_num);
+      _cap.resize(max_arc_num);
+      _cost.resize(max_arc_num);
       _supply.resize(all_node_num);
-      _flow.resize(all_arc_num);
+      _flow.resize(max_arc_num);
       _pi.resize(all_node_num);
 
       _parent.resize(all_node_num);
@@ -698,7 +669,7 @@ namespace lemon {
       _rev_thread.resize(all_node_num);
       _succ_num.resize(all_node_num);
       _last_succ.resize(all_node_num);
-      _state.resize(all_arc_num);
+      _state.resize(max_arc_num);
 
       // Copy the graph (store the arcs in a mixed order)
       int i = 0;
@@ -1069,7 +1040,7 @@ namespace lemon {
       // Initialize artifical cost
       Cost ART_COST;
       if (std::numeric_limits<Cost>::is_exact) {
-        ART_COST = std::numeric_limits<Cost>::max() / 4 + 1;
+        ART_COST = std::numeric_limits<Cost>::max() / 2 + 1;
       } else {
         ART_COST = std::numeric_limits<Cost>::min();
         for (int i = 0; i != _arc_num; ++i) {
@@ -1093,28 +1064,120 @@ namespace lemon {
       _succ_num[_root] = _node_num + 1;
       _last_succ[_root] = _root - 1;
       _supply[_root] = -_sum_supply;
-      _pi[_root] = _sum_supply < 0 ? -ART_COST : ART_COST;
+      _pi[_root] = 0;
 
       // Add artificial arcs and initialize the spanning tree data structure
-      for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
-        _parent[u] = _root;
-        _pred[u] = e;
-        _thread[u] = u + 1;
-        _rev_thread[u + 1] = u;
-        _succ_num[u] = 1;
-        _last_succ[u] = u;
-        _cost[e] = ART_COST;
-        _cap[e] = INF;
-        _state[e] = STATE_TREE;
-        if (_supply[u] > 0 || (_supply[u] == 0 && _sum_supply <= 0)) {
-          _flow[e] = _supply[u];
-          _forward[u] = true;
-          _pi[u] = -ART_COST + _pi[_root];
-        } else {
-          _flow[e] = -_supply[u];
-          _forward[u] = false;
-          _pi[u] = ART_COST + _pi[_root];
+      if (_sum_supply == 0) {
+        // EQ supply constraints
+        _search_arc_num = _arc_num;
+        _all_arc_num = _arc_num + _node_num;
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          _parent[u] = _root;
+          _pred[u] = e;
+          _thread[u] = u + 1;
+          _rev_thread[u + 1] = u;
+          _succ_num[u] = 1;
+          _last_succ[u] = u;
+          _cap[e] = INF;
+          _state[e] = STATE_TREE;
+          if (_supply[u] >= 0) {
+            _forward[u] = true;
+            _pi[u] = 0;
+            _source[e] = u;
+            _target[e] = _root;
+            _flow[e] = _supply[u];
+            _cost[e] = 0;
+          } else {
+            _forward[u] = false;
+            _pi[u] = ART_COST;
+            _source[e] = _root;
+            _target[e] = u;
+            _flow[e] = -_supply[u];
+            _cost[e] = ART_COST;
+          }
         }
+      }
+      else if (_sum_supply > 0) {
+        // LEQ supply constraints
+        _search_arc_num = _arc_num + _node_num;
+        int f = _arc_num + _node_num;
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          _parent[u] = _root;
+          _thread[u] = u + 1;
+          _rev_thread[u + 1] = u;
+          _succ_num[u] = 1;
+          _last_succ[u] = u;
+          if (_supply[u] >= 0) {
+            _forward[u] = true;
+            _pi[u] = 0;
+            _pred[u] = e;
+            _source[e] = u;
+            _target[e] = _root;
+            _cap[e] = INF;
+            _flow[e] = _supply[u];
+            _cost[e] = 0;
+            _state[e] = STATE_TREE;
+          } else {
+            _forward[u] = false;
+            _pi[u] = ART_COST;
+            _pred[u] = f;
+            _source[f] = _root;
+            _target[f] = u;
+            _cap[f] = INF;
+            _flow[f] = -_supply[u];
+            _cost[f] = ART_COST;
+            _state[f] = STATE_TREE;
+            _source[e] = u;
+            _target[e] = _root;
+            _cap[e] = INF;
+            _flow[e] = 0;
+            _cost[e] = 0;
+            _state[e] = STATE_LOWER;
+            ++f;
+          }
+        }
+        _all_arc_num = f;
+      }
+      else {
+        // GEQ supply constraints
+        _search_arc_num = _arc_num + _node_num;
+        int f = _arc_num + _node_num;
+        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
+          _parent[u] = _root;
+          _thread[u] = u + 1;
+          _rev_thread[u + 1] = u;
+          _succ_num[u] = 1;
+          _last_succ[u] = u;
+          if (_supply[u] <= 0) {
+            _forward[u] = false;
+            _pi[u] = 0;
+            _pred[u] = e;
+            _source[e] = _root;
+            _target[e] = u;
+            _cap[e] = INF;
+            _flow[e] = -_supply[u];
+            _cost[e] = 0;
+            _state[e] = STATE_TREE;
+          } else {
+            _forward[u] = true;
+            _pi[u] = -ART_COST;
+            _pred[u] = f;
+            _source[f] = u;
+            _target[f] = _root;
+            _cap[f] = INF;
+            _flow[f] = _supply[u];
+            _state[f] = STATE_TREE;
+            _cost[f] = ART_COST;
+            _source[e] = _root;
+            _target[e] = u;
+            _cap[e] = INF;
+            _flow[e] = 0;
+            _cost[e] = 0;
+            _state[e] = STATE_LOWER;
+            ++f;
+          }
+        }
+        _all_arc_num = f;
       }
 
       return true;
@@ -1374,20 +1437,8 @@ namespace lemon {
       }
       
       // Check feasibility
-      if (_sum_supply < 0) {
-        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
-          if (_supply[u] >= 0 && _flow[e] != 0) return INFEASIBLE;
-        }
-      }
-      else if (_sum_supply > 0) {
-        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
-          if (_supply[u] <= 0 && _flow[e] != 0) return INFEASIBLE;
-        }
-      }
-      else {
-        for (int u = 0, e = _arc_num; u != _node_num; ++u, ++e) {
-          if (_flow[e] != 0) return INFEASIBLE;
-        }
+      for (int e = _search_arc_num; e != _all_arc_num; ++e) {
+        if (_flow[e] != 0) return INFEASIBLE;
       }
 
       // Transform the solution and the supply map to the original form
@@ -1398,6 +1449,30 @@ namespace lemon {
             _flow[i] += c;
             _supply[_source[i]] += c;
             _supply[_target[i]] -= c;
+          }
+        }
+      }
+      
+      // Shift potentials to meet the requirements of the GEQ/LEQ type
+      // optimality conditions
+      if (_sum_supply == 0) {
+        if (_stype == GEQ) {
+          Cost max_pot = std::numeric_limits<Cost>::min();
+          for (int i = 0; i != _node_num; ++i) {
+            if (_pi[i] > max_pot) max_pot = _pi[i];
+          }
+          if (max_pot > 0) {
+            for (int i = 0; i != _node_num; ++i)
+              _pi[i] -= max_pot;
+          }
+        } else {
+          Cost min_pot = std::numeric_limits<Cost>::max();
+          for (int i = 0; i != _node_num; ++i) {
+            if (_pi[i] < min_pot) min_pot = _pi[i];
+          }
+          if (min_pot < 0) {
+            for (int i = 0; i != _node_num; ++i)
+              _pi[i] -= min_pot;
           }
         }
       }

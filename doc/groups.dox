@@ -335,91 +335,16 @@ For more information, see \ref Circulation.
 */
 
 /**
-@defgroup min_cost_flow Minimum Cost Flow Algorithms
+@defgroup min_cost_flow_algs Minimum Cost Flow Algorithms
 @ingroup algs
 
 \brief Algorithms for finding minimum cost flows and circulations.
 
 This group contains the algorithms for finding minimum cost flows and
-circulations.
+circulations. For more information about this problem and its dual
+solution see \ref min_cost_flow "Minimum Cost Flow Problem".
 
-The \e minimum \e cost \e flow \e problem is to find a feasible flow of
-minimum total cost from a set of supply nodes to a set of demand nodes
-in a network with capacity constraints (lower and upper bounds)
-and arc costs.
-Formally, let \f$G=(V,A)\f$ be a digraph, \f$lower: A\rightarrow\mathbf{Z}\f$,
-\f$upper: A\rightarrow\mathbf{Z}\cup\{+\infty\}\f$ denote the lower and
-upper bounds for the flow values on the arcs, for which
-\f$lower(uv) \leq upper(uv)\f$ must hold for all \f$uv\in A\f$,
-\f$cost: A\rightarrow\mathbf{Z}\f$ denotes the cost per unit flow
-on the arcs and \f$sup: V\rightarrow\mathbf{Z}\f$ denotes the
-signed supply values of the nodes.
-If \f$sup(u)>0\f$, then \f$u\f$ is a supply node with \f$sup(u)\f$
-supply, if \f$sup(u)<0\f$, then \f$u\f$ is a demand node with
-\f$-sup(u)\f$ demand.
-A minimum cost flow is an \f$f: A\rightarrow\mathbf{Z}\f$ solution
-of the following optimization problem.
-
-\f[ \min\sum_{uv\in A} f(uv) \cdot cost(uv) \f]
-\f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \geq
-    sup(u) \quad \forall u\in V \f]
-\f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
-
-The sum of the supply values, i.e. \f$\sum_{u\in V} sup(u)\f$ must be
-zero or negative in order to have a feasible solution (since the sum
-of the expressions on the left-hand side of the inequalities is zero).
-It means that the total demand must be greater or equal to the total
-supply and all the supplies have to be carried out from the supply nodes,
-but there could be demands that are not satisfied.
-If \f$\sum_{u\in V} sup(u)\f$ is zero, then all the supply/demand
-constraints have to be satisfied with equality, i.e. all demands
-have to be satisfied and all supplies have to be used.
-
-If you need the opposite inequalities in the supply/demand constraints
-(i.e. the total demand is less than the total supply and all the demands
-have to be satisfied while there could be supplies that are not used),
-then you could easily transform the problem to the above form by reversing
-the direction of the arcs and taking the negative of the supply values
-(e.g. using \ref ReverseDigraph and \ref NegMap adaptors).
-However \ref NetworkSimplex algorithm also supports this form directly
-for the sake of convenience.
-
-A feasible solution for this problem can be found using \ref Circulation.
-
-Note that the above formulation is actually more general than the usual
-definition of the minimum cost flow problem, in which strict equalities
-are required in the supply/demand contraints, i.e.
-
-\f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) =
-    sup(u) \quad \forall u\in V. \f]
-
-However if the sum of the supply values is zero, then these two problems
-are equivalent. So if you need the equality form, you have to ensure this
-additional contraint for the algorithms.
-
-The dual solution of the minimum cost flow problem is represented by node 
-potentials \f$\pi: V\rightarrow\mathbf{Z}\f$.
-An \f$f: A\rightarrow\mathbf{Z}\f$ feasible solution of the problem
-is optimal if and only if for some \f$\pi: V\rightarrow\mathbf{Z}\f$
-node potentials the following \e complementary \e slackness optimality
-conditions hold.
-
- - For all \f$uv\in A\f$ arcs:
-   - if \f$cost^\pi(uv)>0\f$, then \f$f(uv)=lower(uv)\f$;
-   - if \f$lower(uv)<f(uv)<upper(uv)\f$, then \f$cost^\pi(uv)=0\f$;
-   - if \f$cost^\pi(uv)<0\f$, then \f$f(uv)=upper(uv)\f$.
- - For all \f$u\in V\f$ nodes:
-   - if \f$\sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \neq sup(u)\f$,
-     then \f$\pi(u)=0\f$.
- 
-Here \f$cost^\pi(uv)\f$ denotes the \e reduced \e cost of the arc
-\f$uv\in A\f$ with respect to the potential function \f$\pi\f$, i.e.
-\f[ cost^\pi(uv) = cost(uv) + \pi(u) - \pi(v).\f]
-
-All algorithms provide dual solution (node potentials) as well,
-if an optimal flow is found.
-
-LEMON contains several algorithms for solving minimum cost flow problems.
+LEMON contains several algorithms for this problem.
  - \ref NetworkSimplex Primal Network Simplex algorithm with various
    pivot strategies.
  - \ref CostScaling Push-Relabel and Augment-Relabel algorithms based on
@@ -428,10 +353,6 @@ LEMON contains several algorithms for solving minimum cost flow problems.
    capacity scaling.
  - \ref CancelAndTighten The Cancel and Tighten algorithm.
  - \ref CycleCanceling Cycle-Canceling algorithms.
-
-Most of these implementations support the general inequality form of the
-minimum cost flow problem, but CancelAndTighten and CycleCanceling
-only support the equality form due to the primal method they use.
 
 In general NetworkSimplex is the most efficient implementation,
 but in special cases other algorithms could be faster.
