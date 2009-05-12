@@ -93,22 +93,24 @@ public:
   struct Constraints {
     void constraints() {
       checkConcept<concepts::Digraph, GR>();
+      
+      const Constraints& me = *this;
 
-      MCF mcf(g);
+      MCF mcf(me.g);
       const MCF& const_mcf = mcf;
 
       b = mcf.reset()
-             .lowerMap(lower)
-             .upperMap(upper)
-             .costMap(cost)
-             .supplyMap(sup)
-             .stSupply(n, n, k)
+             .lowerMap(me.lower)
+             .upperMap(me.upper)
+             .costMap(me.cost)
+             .supplyMap(me.sup)
+             .stSupply(me.n, me.n, me.k)
              .run();
 
       c = const_mcf.totalCost();
       x = const_mcf.template totalCost<double>();
-      v = const_mcf.flow(a);
-      c = const_mcf.potential(n);
+      v = const_mcf.flow(me.a);
+      c = const_mcf.potential(me.n);
       const_mcf.flowMap(fm);
       const_mcf.potentialMap(pm);
     }
@@ -120,15 +122,16 @@ public:
     typedef concepts::ReadMap<Arc, Cost> CAM;
     typedef concepts::WriteMap<Arc, Value> FlowMap;
     typedef concepts::WriteMap<Node, Cost> PotMap;
+  
+    GR g;
+    VAM lower;
+    VAM upper;
+    CAM cost;
+    NM sup;
+    Node n;
+    Arc a;
+    Value k;
 
-    const GR &g;
-    const VAM &lower;
-    const VAM &upper;
-    const CAM &cost;
-    const NM &sup;
-    const Node &n;
-    const Arc &a;
-    const Value &k;
     FlowMap fm;
     PotMap pm;
     bool b;
