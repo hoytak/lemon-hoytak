@@ -71,6 +71,11 @@ namespace lemon {
       /// Assignment operator for the item.
       GraphItem& operator=(const GraphItem&) { return *this; }
 
+      /// \brief Assignment operator for INVALID.
+      ///
+      /// This operator makes the item invalid.
+      GraphItem& operator=(Invalid) { return *this; }
+
       /// \brief Equality operator.
       ///
       /// Equality operator.
@@ -96,6 +101,7 @@ namespace lemon {
       struct Constraints {
         void constraints() {
           _GraphItem i1;
+          i1=INVALID;
           _GraphItem i2 = i1;
           _GraphItem i3 = INVALID;
 
@@ -221,14 +227,7 @@ namespace lemon {
         /// Besides the core graph item functionality each arc should
         /// be convertible to the represented edge.
         Edge(const Arc&) {}
-
-        /// \brief Assign an arc to an edge.
-        ///
-        /// This function assigns an arc to an edge.
-        /// Besides the core graph item functionality each arc should
-        /// be convertible to the represented edge.
-        Edge& operator=(const Arc&) { return *this; }
-      };
+     };
 
       /// \brief Return one end node of an edge.
       ///
@@ -353,10 +352,12 @@ namespace lemon {
         void constraints() {
           checkConcept<Base, _Digraph >();
           typename _Digraph::Node node;
+          node=INVALID;
           int nid = digraph.id(node);
           nid = digraph.id(node);
           node = digraph.nodeFromId(nid);
           typename _Digraph::Arc arc;
+          arc=INVALID;
           int eid = digraph.id(arc);
           eid = digraph.id(arc);
           arc = digraph.arcFromId(eid);
