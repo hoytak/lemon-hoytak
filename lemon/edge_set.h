@@ -84,6 +84,12 @@ namespace lemon {
 
     ListArcSetBase() : first_arc(-1), first_free_arc(-1) {}
 
+    Node addNode() {
+      LEMON_ASSERT(false,
+        "This graph structure does not support node insertion");
+      return INVALID; // avoid warning
+    }
+
     Arc addArc(const Node& u, const Node& v) {
       int n;
       if (first_free_arc == -1) {
@@ -415,6 +421,12 @@ namespace lemon {
     };
 
     ListEdgeSetBase() : first_arc(-1), first_free_arc(-1) {}
+
+    Node addNode() {
+      LEMON_ASSERT(false,
+        "This graph structure does not support node insertion");
+      return INVALID; // avoid warning
+    }
 
     Edge addEdge(const Node& u, const Node& v) {
       int n;
@@ -816,6 +828,12 @@ namespace lemon {
 
     SmartArcSetBase() {}
 
+    Node addNode() {
+      LEMON_ASSERT(false,
+        "This graph structure does not support node insertion");
+      return INVALID; // avoid warning
+    }
+
     Arc addArc(const Node& u, const Node& v) {
       int n = arcs.size();
       arcs.push_back(ArcT());
@@ -1111,6 +1129,12 @@ namespace lemon {
     };
 
     SmartEdgeSetBase() {}
+
+    Node addNode() {
+      LEMON_ASSERT(false,
+        "This graph structure does not support node insertion");
+      return INVALID; // avoid warning
+    }
 
     Edge addEdge(const Node& u, const Node& v) {
       int n = arcs.size();
