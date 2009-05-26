@@ -35,7 +35,7 @@ IF(DOXYGEN_EXECUTABLE AND GHOSTSCRIPT_EXECUTABLE)
   IF(UNIX)
     INSTALL(
       DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
-      DESTINATION share/doc/lemon/docs
+      DESTINATION share/doc/lemon/html
       COMPONENT html_documentation
     )
   ELSEIF(WIN32)

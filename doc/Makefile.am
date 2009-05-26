@@ -91,19 +91,19 @@ update-external-tags:
 
 install-html-local: doc/html
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(htmldir)/docs
+	$(mkinstalldirs) $(DESTDIR)$(htmldir)/html
 	for p in doc/html/*.{html,css,png,map,gif,tag} ; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/docs/$$f"; \
-	  $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/docs/$$f; \
+	  echo " $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/html/$$f"; \
+	  $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/html/$$f; \
 	done
 
 uninstall-local:
 	@$(NORMAL_UNINSTALL)
 	for p in doc/html/*.{html,css,png,map,gif,tag} ; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(htmldir)/docs/$$f"; \
-	  rm -f $(DESTDIR)$(htmldir)/docs/$$f; \
+	  echo " rm -f $(DESTDIR)$(htmldir)/html/$$f"; \
+	  rm -f $(DESTDIR)$(htmldir)/html/$$f; \
 	done
 
 .PHONY: update-external-tags
