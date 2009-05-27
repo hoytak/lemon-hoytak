@@ -1,3 +1,6 @@
+EXTRA_DIST += \
+	tools/CMakeLists.txt
+
 if WANT_TOOLS
 
 bin_PROGRAMS += \
