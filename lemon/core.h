@@ -27,6 +27,16 @@
 #include <lemon/bits/traits.h>
 #include <lemon/assert.h>
 
+// Disable the following warnings when compiling with MSVC:
+// C4250: 'class1' : inherits 'class2::member' via dominance
+// C4355: 'this' : used in base member initializer list
+// C4503: 'function' : decorated name length exceeded, name was truncated
+// C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+// C4996: 'function': was declared deprecated
+#ifdef _MSC_VER
+#pragma warning( disable : 4250 4355 4503 4800 4996 )
+#endif
+
 ///\file
 ///\brief LEMON core utilities.
 ///
