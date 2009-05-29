@@ -1,3 +1,6 @@
+/* The version string */
+#undef LEMON_VERSION
+
 /* Define to 1 if you have long long */
 #undef LEMON_HAVE_LONG_LONG
 

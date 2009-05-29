@@ -19,6 +19,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
 AC_CONFIG_SRCDIR([lemon/list_graph.h])
 AC_CONFIG_HEADERS([config.h lemon/config.h])
 
+AC_DEFINE([LEMON_VERSION], [lemon_version()], [The version string])
+
 dnl Do compilation tests using the C++ compiler.
 AC_LANG([C++])
 
