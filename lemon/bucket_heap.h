@@ -29,6 +29,30 @@
 
 namespace lemon {
 
+  namespace _bucket_heap_bits {
+
+    template <bool minimize>
+    struct DirectionTraits {
+      static bool less(int left, int right) {
+        return left < right;
+      }
+      static void increase(int& value) {
+        ++value;
+      }
+    };
+
+    template <>
+    struct DirectionTraits<false> {
+      static bool less(int left, int right) {
+        return left > right;
+      }
+      static void increase(int& value) {
+        --value;
+      }
+    };
+
+  }
+
   /// \ingroup auxdat
   ///
   /// \brief A Bucket Heap implementation.
@@ -45,7 +69,7 @@ namespace lemon {
   /// to handle the cross references.
   /// \param minimize If the given parameter is true then the heap gives back
   /// the lowest priority.
-  template <typename _ItemIntMap, bool minimize = true >
+  template <typename _ItemIntMap, bool minimize = true>
   class BucketHeap {
 
   public:
@@ -57,6 +81,12 @@ namespace lemon {
     typedef std::pair<Item, Prio> Pair;
     /// \e
     typedef _ItemIntMap ItemIntMap;
+
+  private:
+
+    typedef _bucket_heap_bits::DirectionTraits<minimize> Direction;
+
+  public:
 
     /// \brief Type to represent the items states.
     ///
@@ -161,7 +191,7 @@ namespace lemon {
       index[i] = idx;
       data.push_back(BucketItem(i, p));
       lace(idx);
-      if (p < minimal) {
+      if (Direction::less(p, minimal)) {
         minimal = p;
       }
     }
@@ -172,7 +202,7 @@ namespace lemon {
     /// \pre The heap must be nonempty.
     Item top() const {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       return data[first[minimal]].item;
     }
@@ -183,7 +213,7 @@ namespace lemon {
     /// \pre The heap must be nonempty.
     Prio prio() const {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       return minimal;
     }
@@ -194,7 +224,7 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     void pop() {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       int idx = first[minimal];
       index[data[idx].item] = -2;
@@ -235,11 +265,11 @@ namespace lemon {
     void set(const Item &i, const Prio &p) {
       int idx = index[i];
       if (idx < 0) {
-        push(i,p);
-      } else if (p > data[idx].value) {
-        increase(i, p);
-      } else {
+        push(i, p);
+      } else if (Direction::less(p, data[idx].value)) {
         decrease(i, p);
+      } else {
+        increase(i, p);
       }
     }
 
@@ -254,7 +284,7 @@ namespace lemon {
       int idx = index[i];
       unlace(idx);
       data[idx].value = p;
-      if (p < minimal) {
+      if (Direction::less(p, minimal)) {
         minimal = p;
       }
       lace(idx);
@@ -328,193 +358,6 @@ namespace lemon {
 
   }; // class BucketHeap
 
-
-  template <typename _ItemIntMap>
-  class BucketHeap<_ItemIntMap, false> {
-
-  public:
-    typedef typename _ItemIntMap::Key Item;
-    typedef int Prio;
-    typedef std::pair<Item, Prio> Pair;
-    typedef _ItemIntMap ItemIntMap;
-
-    enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
-    };
-
-  public:
-
-    explicit BucketHeap(ItemIntMap &_index) : index(_index), maximal(-1) {}
-
-    int size() const { return data.size(); }
-    bool empty() const { return data.empty(); }
-
-    void clear() {
-      data.clear(); first.clear(); maximal = -1;
-    }
-
-  private:
-
-    void relocate_last(int idx) {
-      if (idx + 1 != int(data.size())) {
-        data[idx] = data.back();
-        if (data[idx].prev != -1) {
-          data[data[idx].prev].next = idx;
-        } else {
-          first[data[idx].value] = idx;
-        }
-        if (data[idx].next != -1) {
-          data[data[idx].next].prev = idx;
-        }
-        index[data[idx].item] = idx;
-      }
-      data.pop_back();
-    }
-
-    void unlace(int idx) {
-      if (data[idx].prev != -1) {
-        data[data[idx].prev].next = data[idx].next;
-      } else {
-        first[data[idx].value] = data[idx].next;
-      }
-      if (data[idx].next != -1) {
-        data[data[idx].next].prev = data[idx].prev;
-      }
-    }
-
-    void lace(int idx) {
-      if (int(first.size()) <= data[idx].value) {
-        first.resize(data[idx].value + 1, -1);
-      }
-      data[idx].next = first[data[idx].value];
-      if (data[idx].next != -1) {
-        data[data[idx].next].prev = idx;
-      }
-      first[data[idx].value] = idx;
-      data[idx].prev = -1;
-    }
-
-  public:
-
-    void push(const Pair& p) {
-      push(p.first, p.second);
-    }
-
-    void push(const Item &i, const Prio &p) {
-      int idx = data.size();
-      index[i] = idx;
-      data.push_back(BucketItem(i, p));
-      lace(idx);
-      if (data[idx].value > maximal) {
-        maximal = data[idx].value;
-      }
-    }
-
-    Item top() const {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      return data[first[maximal]].item;
-    }
-
-    Prio prio() const {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      return maximal;
-    }
-
-    void pop() {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      int idx = first[maximal];
-      index[data[idx].item] = -2;
-      unlace(idx);
-      relocate_last(idx);
-    }
-
-    void erase(const Item &i) {
-      int idx = index[i];
-      index[data[idx].item] = -2;
-      unlace(idx);
-      relocate_last(idx);
-    }
-
-    Prio operator[](const Item &i) const {
-      int idx = index[i];
-      return data[idx].value;
-    }
-
-    void set(const Item &i, const Prio &p) {
-      int idx = index[i];
-      if (idx < 0) {
-        push(i,p);
-      } else if (p > data[idx].value) {
-        decrease(i, p);
-      } else {
-        increase(i, p);
-      }
-    }
-
-    void decrease(const Item &i, const Prio &p) {
-      int idx = index[i];
-      unlace(idx);
-      data[idx].value = p;
-      if (p > maximal) {
-        maximal = p;
-      }
-      lace(idx);
-    }
-
-    void increase(const Item &i, const Prio &p) {
-      int idx = index[i];
-      unlace(idx);
-      data[idx].value = p;
-      lace(idx);
-    }
-
-    State state(const Item &i) const {
-      int idx = index[i];
-      if (idx >= 0) idx = 0;
-      return State(idx);
-    }
-
-    void state(const Item& i, State st) {
-      switch (st) {
-      case POST_HEAP:
-      case PRE_HEAP:
-        if (state(i) == IN_HEAP) {
-          erase(i);
-        }
-        index[i] = st;
-        break;
-      case IN_HEAP:
-        break;
-      }
-    }
-
-  private:
-
-    struct BucketItem {
-      BucketItem(const Item& _item, int _value)
-        : item(_item), value(_value) {}
-
-      Item item;
-      int value;
-
-      int prev, next;
-    };
-
-    ItemIntMap& index;
-    std::vector<int> first;
-    std::vector<BucketItem> data;
-    mutable int maximal;
-
-  }; // class BucketHeap
-
   /// \ingroup auxdat
   ///
   /// \brief A Simplified Bucket Heap implementation.
@@ -524,7 +367,7 @@ namespace lemon {
   /// and simplier data structure than the BucketHeap. The main
   /// difference is that the BucketHeap stores for every key a double
   /// linked list while this class stores just simple lists. In the
-  /// other way it does not supports erasing each elements just the
+  /// other way it does not support erasing each elements just the
   /// minimal and it does not supports key increasing, decreasing.
   ///
   /// \param _ItemIntMap A read and writable Item int map, used internally
@@ -541,6 +384,12 @@ namespace lemon {
     typedef int Prio;
     typedef std::pair<Item, Prio> Pair;
     typedef _ItemIntMap ItemIntMap;
+
+  private:
+
+    typedef _bucket_heap_bits::DirectionTraits<minimize> Direction;
+
+  public:
 
     /// \brief Type to represent the items states.
     ///
@@ -614,7 +463,7 @@ namespace lemon {
       if (p >= int(first.size())) first.resize(p + 1, -1);
       data[idx].next = first[p];
       first[p] = idx;
-      if (p < minimal) {
+      if (Direction::less(p, minimal)) {
         minimal = p;
       }
       ++num;
@@ -626,7 +475,7 @@ namespace lemon {
     /// \pre The heap must be nonempty.
     Item top() const {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       return data[first[minimal]].item;
     }
@@ -637,7 +486,7 @@ namespace lemon {
     /// \pre The heap must be nonempty.
     Prio prio() const {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       return minimal;
     }
@@ -648,7 +497,7 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     void pop() {
       while (first[minimal] == -1) {
-        ++minimal;
+        Direction::increase(minimal);
       }
       int idx = first[minimal];
       index[data[idx].item] = -2;
@@ -710,121 +559,6 @@ namespace lemon {
     mutable int minimal;
 
   }; // class SimpleBucketHeap
-
-  template <typename _ItemIntMap>
-  class SimpleBucketHeap<_ItemIntMap, false> {
-
-  public:
-    typedef typename _ItemIntMap::Key Item;
-    typedef int Prio;
-    typedef std::pair<Item, Prio> Pair;
-    typedef _ItemIntMap ItemIntMap;
-
-    enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
-    };
-
-  public:
-
-    explicit SimpleBucketHeap(ItemIntMap &_index)
-      : index(_index), free(-1), num(0), maximal(0) {}
-
-    int size() const { return num; }
-
-    bool empty() const { return num == 0; }
-
-    void clear() {
-      data.clear(); first.clear(); free = -1; num = 0; maximal = 0;
-    }
-
-    void push(const Pair& p) {
-      push(p.first, p.second);
-    }
-
-    void push(const Item &i, const Prio &p) {
-      int idx;
-      if (free == -1) {
-        idx = data.size();
-        data.push_back(BucketItem(i));
-      } else {
-        idx = free;
-        free = data[idx].next;
-        data[idx].item = i;
-      }
-      index[i] = idx;
-      if (p >= int(first.size())) first.resize(p + 1, -1);
-      data[idx].next = first[p];
-      first[p] = idx;
-      if (p > maximal) {
-        maximal = p;
-      }
-      ++num;
-    }
-
-    Item top() const {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      return data[first[maximal]].item;
-    }
-
-    Prio prio() const {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      return maximal;
-    }
-
-    void pop() {
-      while (first[maximal] == -1) {
-        --maximal;
-      }
-      int idx = first[maximal];
-      index[data[idx].item] = -2;
-      first[maximal] = data[idx].next;
-      data[idx].next = free;
-      free = idx;
-      --num;
-    }
-
-    Prio operator[](const Item &i) const {
-      for (int k = 0; k < first.size(); ++k) {
-        int idx = first[k];
-        while (idx != -1) {
-          if (data[idx].item == i) {
-            return k;
-          }
-          idx = data[idx].next;
-        }
-      }
-      return -1;
-    }
-
-    State state(const Item &i) const {
-      int idx = index[i];
-      if (idx >= 0) idx = 0;
-      return State(idx);
-    }
-
-  private:
-
-    struct BucketItem {
-      BucketItem(const Item& _item) : item(_item) {}
-
-      Item item;
-
-      int next;
-    };
-
-    ItemIntMap& index;
-    std::vector<int> first;
-    std::vector<BucketItem> data;
-    int free, num;
-    mutable int maximal;
-
-  };
 
 }
 
