@@ -36,87 +36,88 @@ namespace lemon {
   ///This class implements the \e Fibonacci \e heap data structure. A \e heap
   ///is a data structure for storing items with specified values called \e
   ///priorities in such a way that finding the item with minimum priority is
-  ///efficient. \c Compare specifies the ordering of the priorities. In a heap
+  ///efficient. \c CMP specifies the ordering of the priorities. In a heap
   ///one can change the priority of an item, add or erase an item, etc.
   ///
   ///The methods \ref increase and \ref erase are not efficient in a Fibonacci
   ///heap. In case of many calls to these operations, it is better to use a
   ///\ref BinHeap "binary heap".
   ///
-  ///\param _Prio Type of the priority of the items.
-  ///\param _ItemIntMap A read and writable Item int map, used internally
+  ///\param PRIO Type of the priority of the items.
+  ///\param IM A read and writable Item int map, used internally
   ///to handle the cross references.
-  ///\param _Compare A class for the ordering of the priorities. The
-  ///default is \c std::less<_Prio>.
+  ///\param CMP A class for the ordering of the priorities. The
+  ///default is \c std::less<PRIO>.
   ///
   ///\sa BinHeap
   ///\sa Dijkstra
 #ifdef DOXYGEN
-  template <typename _Prio,
-            typename _ItemIntMap,
-            typename _Compare>
+  template <typename PRIO, typename IM, typename CMP>
 #else
-  template <typename _Prio,
-            typename _ItemIntMap,
-            typename _Compare = std::less<_Prio> >
+  template <typename PRIO, typename IM, typename CMP = std::less<PRIO> >
 #endif
   class FibHeap {
   public:
     ///\e
-    typedef _ItemIntMap ItemIntMap;
+    typedef IM ItemIntMap;
     ///\e
-    typedef _Prio Prio;
+    typedef PRIO Prio;
     ///\e
     typedef typename ItemIntMap::Key Item;
     ///\e
     typedef std::pair<Item,Prio> Pair;
     ///\e
-    typedef _Compare Compare;
+    typedef CMP Compare;
 
   private:
-    class store;
+    class Store;
 
-    std::vector<store> container;
-    int minimum;
-    ItemIntMap &iimap;
-    Compare comp;
-    int num_items;
+    std::vector<Store> _data;
+    int _minimum;
+    ItemIntMap &_iim;
+    Compare _comp;
+    int _num;
 
   public:
-    ///Status of the nodes
+
+    /// \brief Type to represent the items states.
+    ///
+    /// Each Item element have a state associated to it. It may be "in heap",
+    /// "pre heap" or "post heap". The latter two are indifferent from the
+    /// heap's point of view, but may be useful to the user.
+    ///
+    /// The item-int map must be initialized in such way that it assigns
+    /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      ///The node is in the heap
-      IN_HEAP = 0,
-      ///The node has never been in the heap
-      PRE_HEAP = -1,
-      ///The node was in the heap but it got out of it
-      POST_HEAP = -2
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
     /// \brief The constructor
     ///
-    /// \c _iimap should be given to the constructor, since it is
+    /// \c map should be given to the constructor, since it is
     ///   used internally to handle the cross references.
-    explicit FibHeap(ItemIntMap &_iimap)
-      : minimum(0), iimap(_iimap), num_items() {}
+    explicit FibHeap(ItemIntMap &map)
+      : _minimum(0), _iim(map), _num() {}
 
     /// \brief The constructor
     ///
-    /// \c _iimap should be given to the constructor, since it is used
-    /// internally to handle the cross references. \c _comp is an
+    /// \c map should be given to the constructor, since it is used
+    /// internally to handle the cross references. \c comp is an
     /// object for ordering of the priorities.
-    FibHeap(ItemIntMap &_iimap, const Compare &_comp)
-      : minimum(0), iimap(_iimap), comp(_comp), num_items() {}
+    FibHeap(ItemIntMap &map, const Compare &comp)
+      : _minimum(0), _iim(map), _comp(comp), _num() {}
 
     /// \brief The number of items stored in the heap.
     ///
     /// Returns the number of items stored in the heap.
-    int size() const { return num_items; }
+    int size() const { return _num; }
 
     /// \brief Checks if the heap stores no items.
     ///
     ///   Returns \c true if and only if the heap stores no items.
-    bool empty() const { return num_items==0; }
+    bool empty() const { return _num==0; }
 
     /// \brief Make empty this heap.
     ///
@@ -125,7 +126,7 @@ namespace lemon {
     /// should first clear the heap and after that you should set the
     /// cross reference map for each item to \c PRE_HEAP.
     void clear() {
-      container.clear(); minimum = 0; num_items = 0;
+      _data.clear(); _minimum = 0; _num = 0;
     }
 
     /// \brief \c item gets to the heap with priority \c value independently
@@ -135,10 +136,10 @@ namespace lemon {
     /// stored in the heap and it calls \ref decrease(\c item, \c value) or
     /// \ref increase(\c item, \c value) otherwise.
     void set (const Item& item, const Prio& value) {
-      int i=iimap[item];
-      if ( i >= 0 && container[i].in ) {
-        if ( comp(value, container[i].prio) ) decrease(item, value);
-        if ( comp(container[i].prio, value) ) increase(item, value);
+      int i=_iim[item];
+      if ( i >= 0 && _data[i].in ) {
+        if ( _comp(value, _data[i].prio) ) decrease(item, value);
+        if ( _comp(_data[i].prio, value) ) increase(item, value);
       } else push(item, value);
     }
 
@@ -147,33 +148,33 @@ namespace lemon {
     /// Adds \c item to the heap with priority \c value.
     /// \pre \c item must not be stored in the heap.
     void push (const Item& item, const Prio& value) {
-      int i=iimap[item];
+      int i=_iim[item];
       if ( i < 0 ) {
-        int s=container.size();
-        iimap.set( item, s );
-        store st;
+        int s=_data.size();
+        _iim.set( item, s );
+        Store st;
         st.name=item;
-        container.push_back(st);
+        _data.push_back(st);
         i=s;
       } else {
-        container[i].parent=container[i].child=-1;
-        container[i].degree=0;
-        container[i].in=true;
-        container[i].marked=false;
+        _data[i].parent=_data[i].child=-1;
+        _data[i].degree=0;
+        _data[i].in=true;
+        _data[i].marked=false;
       }
 
-      if ( num_items ) {
-        container[container[minimum].right_neighbor].left_neighbor=i;
-        container[i].right_neighbor=container[minimum].right_neighbor;
-        container[minimum].right_neighbor=i;
-        container[i].left_neighbor=minimum;
-        if ( comp( value, container[minimum].prio) ) minimum=i;
+      if ( _num ) {
+        _data[_data[_minimum].right_neighbor].left_neighbor=i;
+        _data[i].right_neighbor=_data[_minimum].right_neighbor;
+        _data[_minimum].right_neighbor=i;
+        _data[i].left_neighbor=_minimum;
+        if ( _comp( value, _data[_minimum].prio) ) _minimum=i;
       } else {
-        container[i].right_neighbor=container[i].left_neighbor=i;
-        minimum=i;
+        _data[i].right_neighbor=_data[i].left_neighbor=i;
+        _minimum=i;
       }
-      container[i].prio=value;
-      ++num_items;
+      _data[i].prio=value;
+      ++_num;
     }
 
     /// \brief Returns the item with minimum priority relative to \c Compare.
@@ -181,20 +182,20 @@ namespace lemon {
     /// This method returns the item with minimum priority relative to \c
     /// Compare.
     /// \pre The heap must be nonempty.
-    Item top() const { return container[minimum].name; }
+    Item top() const { return _data[_minimum].name; }
 
     /// \brief Returns the minimum priority relative to \c Compare.
     ///
     /// It returns the minimum priority relative to \c Compare.
     /// \pre The heap must be nonempty.
-    const Prio& prio() const { return container[minimum].prio; }
+    const Prio& prio() const { return _data[_minimum].prio; }
 
     /// \brief Returns the priority of \c item.
     ///
     /// It returns the priority of \c item.
     /// \pre \c item must be in the heap.
     const Prio& operator[](const Item& item) const {
-      return container[iimap[item]].prio;
+      return _data[_iim[item]].prio;
     }
 
     /// \brief Deletes the item with minimum priority relative to \c Compare.
@@ -204,33 +205,33 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     void pop() {
       /*The first case is that there are only one root.*/
-      if ( container[minimum].left_neighbor==minimum ) {
-        container[minimum].in=false;
-        if ( container[minimum].degree!=0 ) {
-          makeroot(container[minimum].child);
-          minimum=container[minimum].child;
+      if ( _data[_minimum].left_neighbor==_minimum ) {
+        _data[_minimum].in=false;
+        if ( _data[_minimum].degree!=0 ) {
+          makeroot(_data[_minimum].child);
+          _minimum=_data[_minimum].child;
           balance();
         }
       } else {
-        int right=container[minimum].right_neighbor;
-        unlace(minimum);
-        container[minimum].in=false;
-        if ( container[minimum].degree > 0 ) {
-          int left=container[minimum].left_neighbor;
-          int child=container[minimum].child;
-          int last_child=container[child].left_neighbor;
+        int right=_data[_minimum].right_neighbor;
+        unlace(_minimum);
+        _data[_minimum].in=false;
+        if ( _data[_minimum].degree > 0 ) {
+          int left=_data[_minimum].left_neighbor;
+          int child=_data[_minimum].child;
+          int last_child=_data[child].left_neighbor;
 
           makeroot(child);
 
-          container[left].right_neighbor=child;
-          container[child].left_neighbor=left;
-          container[right].left_neighbor=last_child;
-          container[last_child].right_neighbor=right;
+          _data[left].right_neighbor=child;
+          _data[child].left_neighbor=left;
+          _data[right].left_neighbor=last_child;
+          _data[last_child].right_neighbor=right;
         }
-        minimum=right;
+        _minimum=right;
         balance();
       } // the case where there are more roots
-      --num_items;
+      --_num;
     }
 
     /// \brief Deletes \c item from the heap.
@@ -238,15 +239,15 @@ namespace lemon {
     /// This method deletes \c item from the heap, if \c item was already
     /// stored in the heap. It is quite inefficient in Fibonacci heaps.
     void erase (const Item& item) {
-      int i=iimap[item];
+      int i=_iim[item];
 
-      if ( i >= 0 && container[i].in ) {
-        if ( container[i].parent!=-1 ) {
-          int p=container[i].parent;
+      if ( i >= 0 && _data[i].in ) {
+        if ( _data[i].parent!=-1 ) {
+          int p=_data[i].parent;
           cut(i,p);
           cascade(p);
         }
-        minimum=i;     //As if its prio would be -infinity
+        _minimum=i;     //As if its prio would be -infinity
         pop();
       }
     }
@@ -257,15 +258,15 @@ namespace lemon {
     /// \pre \c item must be stored in the heap with priority at least \c
     ///   value relative to \c Compare.
     void decrease (Item item, const Prio& value) {
-      int i=iimap[item];
-      container[i].prio=value;
-      int p=container[i].parent;
+      int i=_iim[item];
+      _data[i].prio=value;
+      int p=_data[i].parent;
 
-      if ( p!=-1 && comp(value, container[p].prio) ) {
+      if ( p!=-1 && _comp(value, _data[p].prio) ) {
         cut(i,p);
         cascade(p);
       }
-      if ( comp(value, container[minimum].prio) ) minimum=i;
+      if ( _comp(value, _data[_minimum].prio) ) _minimum=i;
     }
 
     /// \brief Increases the priority of \c item to \c value.
@@ -289,9 +290,9 @@ namespace lemon {
     /// otherwise. In the latter case it is possible that \c item will
     /// get back to the heap again.
     State state(const Item &item) const {
-      int i=iimap[item];
+      int i=_iim[item];
       if( i>=0 ) {
-        if ( container[i].in ) i=0;
+        if ( _data[i].in ) i=0;
         else i=-2;
       }
       return State(i);
@@ -301,7 +302,7 @@ namespace lemon {
     ///
     /// Sets the state of the \c item in the heap. It can be used to
     /// manually clear the heap when it is important to achive the
-    /// better time complexity.
+    /// better time _complexity.
     /// \param i The item.
     /// \param st The state. It should not be \c IN_HEAP.
     void state(const Item& i, State st) {
@@ -311,7 +312,7 @@ namespace lemon {
         if (state(i) == IN_HEAP) {
           erase(i);
         }
-        iimap[i] = st;
+        _iim[i] = st;
         break;
       case IN_HEAP:
         break;
@@ -322,7 +323,7 @@ namespace lemon {
 
     void balance() {
 
-      int maxdeg=int( std::floor( 2.08*log(double(container.size()))))+1;
+      int maxdeg=int( std::floor( 2.08*log(double(_data.size()))))+1;
 
       std::vector<int> A(maxdeg,-1);
 
@@ -330,18 +331,18 @@ namespace lemon {
        *Recall that now minimum does not point to the minimum prio element.
        *We set minimum to this during balance().
        */
-      int anchor=container[minimum].left_neighbor;
-      int next=minimum;
+      int anchor=_data[_minimum].left_neighbor;
+      int next=_minimum;
       bool end=false;
 
       do {
         int active=next;
         if ( anchor==active ) end=true;
-        int d=container[active].degree;
-        next=container[active].right_neighbor;
+        int d=_data[active].degree;
+        next=_data[active].right_neighbor;
 
         while (A[d]!=-1) {
-          if( comp(container[active].prio, container[A[d]].prio) ) {
+          if( _comp(_data[active].prio, _data[A[d]].prio) ) {
             fuse(active,A[d]);
           } else {
             fuse(A[d],active);
@@ -354,21 +355,21 @@ namespace lemon {
       } while ( !end );
 
 
-      while ( container[minimum].parent >=0 )
-        minimum=container[minimum].parent;
-      int s=minimum;
-      int m=minimum;
+      while ( _data[_minimum].parent >=0 )
+        _minimum=_data[_minimum].parent;
+      int s=_minimum;
+      int m=_minimum;
       do {
-        if ( comp(container[s].prio, container[minimum].prio) ) minimum=s;
-        s=container[s].right_neighbor;
+        if ( _comp(_data[s].prio, _data[_minimum].prio) ) _minimum=s;
+        s=_data[s].right_neighbor;
       } while ( s != m );
     }
 
     void makeroot(int c) {
       int s=c;
       do {
-        container[s].parent=-1;
-        s=container[s].right_neighbor;
+        _data[s].parent=-1;
+        s=_data[s].right_neighbor;
       } while ( s != c );
     }
 
@@ -376,32 +377,32 @@ namespace lemon {
       /*
        *Replacing a from the children of b.
        */
-      --container[b].degree;
+      --_data[b].degree;
 
-      if ( container[b].degree !=0 ) {
-        int child=container[b].child;
+      if ( _data[b].degree !=0 ) {
+        int child=_data[b].child;
         if ( child==a )
-          container[b].child=container[child].right_neighbor;
+          _data[b].child=_data[child].right_neighbor;
         unlace(a);
       }
 
 
       /*Lacing a to the roots.*/
-      int right=container[minimum].right_neighbor;
-      container[minimum].right_neighbor=a;
-      container[a].left_neighbor=minimum;
-      container[a].right_neighbor=right;
-      container[right].left_neighbor=a;
+      int right=_data[_minimum].right_neighbor;
+      _data[_minimum].right_neighbor=a;
+      _data[a].left_neighbor=_minimum;
+      _data[a].right_neighbor=right;
+      _data[right].left_neighbor=a;
 
-      container[a].parent=-1;
-      container[a].marked=false;
+      _data[a].parent=-1;
+      _data[a].marked=false;
     }
 
     void cascade(int a) {
-      if ( container[a].parent!=-1 ) {
-        int p=container[a].parent;
+      if ( _data[a].parent!=-1 ) {
+        int p=_data[a].parent;
 
-        if ( container[a].marked==false ) container[a].marked=true;
+        if ( _data[a].marked==false ) _data[a].marked=true;
         else {
           cut(a,p);
           cascade(p);
@@ -413,38 +414,38 @@ namespace lemon {
       unlace(b);
 
       /*Lacing b under a.*/
-      container[b].parent=a;
+      _data[b].parent=a;
 
-      if (container[a].degree==0) {
-        container[b].left_neighbor=b;
-        container[b].right_neighbor=b;
-        container[a].child=b;
+      if (_data[a].degree==0) {
+        _data[b].left_neighbor=b;
+        _data[b].right_neighbor=b;
+        _data[a].child=b;
       } else {
-        int child=container[a].child;
-        int last_child=container[child].left_neighbor;
-        container[child].left_neighbor=b;
-        container[b].right_neighbor=child;
-        container[last_child].right_neighbor=b;
-        container[b].left_neighbor=last_child;
+        int child=_data[a].child;
+        int last_child=_data[child].left_neighbor;
+        _data[child].left_neighbor=b;
+        _data[b].right_neighbor=child;
+        _data[last_child].right_neighbor=b;
+        _data[b].left_neighbor=last_child;
       }
 
-      ++container[a].degree;
+      ++_data[a].degree;
 
-      container[b].marked=false;
+      _data[b].marked=false;
     }
 
     /*
      *It is invoked only if a has siblings.
      */
     void unlace(int a) {
-      int leftn=container[a].left_neighbor;
-      int rightn=container[a].right_neighbor;
-      container[leftn].right_neighbor=rightn;
-      container[rightn].left_neighbor=leftn;
+      int leftn=_data[a].left_neighbor;
+      int rightn=_data[a].right_neighbor;
+      _data[leftn].right_neighbor=rightn;
+      _data[rightn].left_neighbor=leftn;
     }
 
 
-    class store {
+    class Store {
       friend class FibHeap;
 
       Item name;
@@ -457,7 +458,7 @@ namespace lemon {
       bool in;
       Prio prio;
 
-      store() : parent(-1), child(-1), degree(), marked(false), in(true) {}
+      Store() : parent(-1), child(-1), degree(), marked(false), in(true) {}
     };
   };
 

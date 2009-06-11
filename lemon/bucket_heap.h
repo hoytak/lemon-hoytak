@@ -31,7 +31,7 @@ namespace lemon {
 
   namespace _bucket_heap_bits {
 
-    template <bool minimize>
+    template <bool MIN>
     struct DirectionTraits {
       static bool less(int left, int right) {
         return left < right;
@@ -65,26 +65,27 @@ namespace lemon {
   /// \f$ [0..C) \f$ range a list of items. So it should be used only when
   /// the priorities are small. It is not intended to use as dijkstra heap.
   ///
-  /// \param _ItemIntMap A read and writable Item int map, used internally
+  /// \param IM A read and write Item int map, used internally
   /// to handle the cross references.
-  /// \param minimize If the given parameter is true then the heap gives back
-  /// the lowest priority.
-  template <typename _ItemIntMap, bool minimize = true>
+  /// \param MIN If the given parameter is false then instead of the
+  /// minimum value the maximum can be retrivied with the top() and
+  /// prio() member functions.
+  template <typename IM, bool MIN = true>
   class BucketHeap {
 
   public:
     /// \e
-    typedef typename _ItemIntMap::Key Item;
+    typedef typename IM::Key Item;
     /// \e
     typedef int Prio;
     /// \e
     typedef std::pair<Item, Prio> Pair;
     /// \e
-    typedef _ItemIntMap ItemIntMap;
+    typedef IM ItemIntMap;
 
   private:
 
-    typedef _bucket_heap_bits::DirectionTraits<minimize> Direction;
+    typedef _bucket_heap_bits::DirectionTraits<MIN> Direction;
 
   public:
 
@@ -94,32 +95,32 @@ namespace lemon {
     /// "pre heap" or "post heap". The latter two are indifferent from the
     /// heap's point of view, but may be useful to the user.
     ///
-    /// The ItemIntMap \e should be initialized in such way that it maps
-    /// PRE_HEAP (-1) to any element to be put in the heap...
+    /// The item-int map must be initialized in such way that it assigns
+    /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
   public:
     /// \brief The constructor.
     ///
     /// The constructor.
-    /// \param _index should be given to the constructor, since it is used
+    /// \param map should be given to the constructor, since it is used
     /// internally to handle the cross references. The value of the map
     /// should be PRE_HEAP (-1) for each element.
-    explicit BucketHeap(ItemIntMap &_index) : index(_index), minimal(0) {}
+    explicit BucketHeap(ItemIntMap &map) : _iim(map), _minimum(0) {}
 
     /// The number of items stored in the heap.
     ///
     /// \brief Returns the number of items stored in the heap.
-    int size() const { return data.size(); }
+    int size() const { return _data.size(); }
 
     /// \brief Checks if the heap stores no items.
     ///
     /// Returns \c true if and only if the heap stores no items.
-    bool empty() const { return data.empty(); }
+    bool empty() const { return _data.empty(); }
 
     /// \brief Make empty this heap.
     ///
@@ -128,48 +129,48 @@ namespace lemon {
     /// should first clear the heap and after that you should set the
     /// cross reference map for each item to \c PRE_HEAP.
     void clear() {
-      data.clear(); first.clear(); minimal = 0;
+      _data.clear(); _first.clear(); _minimum = 0;
     }
 
   private:
 
     void relocate_last(int idx) {
-      if (idx + 1 < int(data.size())) {
-        data[idx] = data.back();
-        if (data[idx].prev != -1) {
-          data[data[idx].prev].next = idx;
+      if (idx + 1 < int(_data.size())) {
+        _data[idx] = _data.back();
+        if (_data[idx].prev != -1) {
+          _data[_data[idx].prev].next = idx;
         } else {
-          first[data[idx].value] = idx;
+          _first[_data[idx].value] = idx;
         }
-        if (data[idx].next != -1) {
-          data[data[idx].next].prev = idx;
+        if (_data[idx].next != -1) {
+          _data[_data[idx].next].prev = idx;
         }
-        index[data[idx].item] = idx;
+        _iim[_data[idx].item] = idx;
       }
-      data.pop_back();
+      _data.pop_back();
     }
 
     void unlace(int idx) {
-      if (data[idx].prev != -1) {
-        data[data[idx].prev].next = data[idx].next;
+      if (_data[idx].prev != -1) {
+        _data[_data[idx].prev].next = _data[idx].next;
       } else {
-        first[data[idx].value] = data[idx].next;
+        _first[_data[idx].value] = _data[idx].next;
       }
-      if (data[idx].next != -1) {
-        data[data[idx].next].prev = data[idx].prev;
+      if (_data[idx].next != -1) {
+        _data[_data[idx].next].prev = _data[idx].prev;
       }
     }
 
     void lace(int idx) {
-      if (int(first.size()) <= data[idx].value) {
-        first.resize(data[idx].value + 1, -1);
+      if (int(_first.size()) <= _data[idx].value) {
+        _first.resize(_data[idx].value + 1, -1);
       }
-      data[idx].next = first[data[idx].value];
-      if (data[idx].next != -1) {
-        data[data[idx].next].prev = idx;
+      _data[idx].next = _first[_data[idx].value];
+      if (_data[idx].next != -1) {
+        _data[_data[idx].next].prev = idx;
       }
-      first[data[idx].value] = idx;
-      data[idx].prev = -1;
+      _first[_data[idx].value] = idx;
+      _data[idx].prev = -1;
     }
 
   public:
@@ -187,12 +188,12 @@ namespace lemon {
     /// \param i The item to insert.
     /// \param p The priority of the item.
     void push(const Item &i, const Prio &p) {
-      int idx = data.size();
-      index[i] = idx;
-      data.push_back(BucketItem(i, p));
+      int idx = _data.size();
+      _iim[i] = idx;
+      _data.push_back(BucketItem(i, p));
       lace(idx);
-      if (Direction::less(p, minimal)) {
-        minimal = p;
+      if (Direction::less(p, _minimum)) {
+        _minimum = p;
       }
     }
 
@@ -201,10 +202,10 @@ namespace lemon {
     /// This method returns the item with minimum priority.
     /// \pre The heap must be nonempty.
     Item top() const {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      return data[first[minimal]].item;
+      return _data[_first[_minimum]].item;
     }
 
     /// \brief Returns the minimum priority.
@@ -212,10 +213,10 @@ namespace lemon {
     /// It returns the minimum priority.
     /// \pre The heap must be nonempty.
     Prio prio() const {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      return minimal;
+      return _minimum;
     }
 
     /// \brief Deletes the item with minimum priority.
@@ -223,11 +224,11 @@ namespace lemon {
     /// This method deletes the item with minimum priority from the heap.
     /// \pre The heap must be non-empty.
     void pop() {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      int idx = first[minimal];
-      index[data[idx].item] = -2;
+      int idx = _first[_minimum];
+      _iim[_data[idx].item] = -2;
       unlace(idx);
       relocate_last(idx);
     }
@@ -238,8 +239,8 @@ namespace lemon {
     /// already stored in the heap.
     /// \param i The item to erase.
     void erase(const Item &i) {
-      int idx = index[i];
-      index[data[idx].item] = -2;
+      int idx = _iim[i];
+      _iim[_data[idx].item] = -2;
       unlace(idx);
       relocate_last(idx);
     }
@@ -251,8 +252,8 @@ namespace lemon {
     /// \pre \c i must be in the heap.
     /// \param i The item.
     Prio operator[](const Item &i) const {
-      int idx = index[i];
-      return data[idx].value;
+      int idx = _iim[i];
+      return _data[idx].value;
     }
 
     /// \brief \c i gets to the heap with priority \c p independently
@@ -263,10 +264,10 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void set(const Item &i, const Prio &p) {
-      int idx = index[i];
+      int idx = _iim[i];
       if (idx < 0) {
         push(i, p);
-      } else if (Direction::less(p, data[idx].value)) {
+      } else if (Direction::less(p, _data[idx].value)) {
         decrease(i, p);
       } else {
         increase(i, p);
@@ -281,11 +282,11 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void decrease(const Item &i, const Prio &p) {
-      int idx = index[i];
+      int idx = _iim[i];
       unlace(idx);
-      data[idx].value = p;
-      if (Direction::less(p, minimal)) {
-        minimal = p;
+      _data[idx].value = p;
+      if (Direction::less(p, _minimum)) {
+        _minimum = p;
       }
       lace(idx);
     }
@@ -298,9 +299,9 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void increase(const Item &i, const Prio &p) {
-      int idx = index[i];
+      int idx = _iim[i];
       unlace(idx);
-      data[idx].value = p;
+      _data[idx].value = p;
       lace(idx);
     }
 
@@ -313,7 +314,7 @@ namespace lemon {
     /// get back to the heap again.
     /// \param i The item.
     State state(const Item &i) const {
-      int idx = index[i];
+      int idx = _iim[i];
       if (idx >= 0) idx = 0;
       return State(idx);
     }
@@ -332,7 +333,7 @@ namespace lemon {
         if (state(i) == IN_HEAP) {
           erase(i);
         }
-        index[i] = st;
+        _iim[i] = st;
         break;
       case IN_HEAP:
         break;
@@ -351,10 +352,10 @@ namespace lemon {
       int prev, next;
     };
 
-    ItemIntMap& index;
-    std::vector<int> first;
-    std::vector<BucketItem> data;
-    mutable int minimal;
+    ItemIntMap& _iim;
+    std::vector<int> _first;
+    std::vector<BucketItem> _data;
+    mutable int _minimum;
 
   }; // class BucketHeap
 
@@ -370,24 +371,25 @@ namespace lemon {
   /// other way it does not support erasing each elements just the
   /// minimal and it does not supports key increasing, decreasing.
   ///
-  /// \param _ItemIntMap A read and writable Item int map, used internally
+  /// \param IM A read and write Item int map, used internally
   /// to handle the cross references.
-  /// \param minimize If the given parameter is true then the heap gives back
-  /// the lowest priority.
+  /// \param MIN If the given parameter is false then instead of the
+  /// minimum value the maximum can be retrivied with the top() and
+  /// prio() member functions.
   ///
   /// \sa BucketHeap
-  template <typename _ItemIntMap, bool minimize = true >
+  template <typename IM, bool MIN = true >
   class SimpleBucketHeap {
 
   public:
-    typedef typename _ItemIntMap::Key Item;
+    typedef typename IM::Key Item;
     typedef int Prio;
     typedef std::pair<Item, Prio> Pair;
-    typedef _ItemIntMap ItemIntMap;
+    typedef IM ItemIntMap;
 
   private:
 
-    typedef _bucket_heap_bits::DirectionTraits<minimize> Direction;
+    typedef _bucket_heap_bits::DirectionTraits<MIN> Direction;
 
   public:
 
@@ -397,12 +399,12 @@ namespace lemon {
     /// "pre heap" or "post heap". The latter two are indifferent from the
     /// heap's point of view, but may be useful to the user.
     ///
-    /// The ItemIntMap \e should be initialized in such way that it maps
-    /// PRE_HEAP (-1) to any element to be put in the heap...
+    /// The item-int map must be initialized in such way that it assigns
+    /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
   public:
@@ -410,21 +412,21 @@ namespace lemon {
     /// \brief The constructor.
     ///
     /// The constructor.
-    /// \param _index should be given to the constructor, since it is used
+    /// \param map should be given to the constructor, since it is used
     /// internally to handle the cross references. The value of the map
     /// should be PRE_HEAP (-1) for each element.
-    explicit SimpleBucketHeap(ItemIntMap &_index)
-      : index(_index), free(-1), num(0), minimal(0) {}
+    explicit SimpleBucketHeap(ItemIntMap &map)
+      : _iim(map), _free(-1), _num(0), _minimum(0) {}
 
     /// \brief Returns the number of items stored in the heap.
     ///
     /// The number of items stored in the heap.
-    int size() const { return num; }
+    int size() const { return _num; }
 
     /// \brief Checks if the heap stores no items.
     ///
     /// Returns \c true if and only if the heap stores no items.
-    bool empty() const { return num == 0; }
+    bool empty() const { return _num == 0; }
 
     /// \brief Make empty this heap.
     ///
@@ -433,7 +435,7 @@ namespace lemon {
     /// should first clear the heap and after that you should set the
     /// cross reference map for each item to \c PRE_HEAP.
     void clear() {
-      data.clear(); first.clear(); free = -1; num = 0; minimal = 0;
+      _data.clear(); _first.clear(); _free = -1; _num = 0; _minimum = 0;
     }
 
     /// \brief Insert a pair of item and priority into the heap.
@@ -451,22 +453,22 @@ namespace lemon {
     /// \param p The priority of the item.
     void push(const Item &i, const Prio &p) {
       int idx;
-      if (free == -1) {
-        idx = data.size();
-        data.push_back(BucketItem(i));
+      if (_free == -1) {
+        idx = _data.size();
+        _data.push_back(BucketItem(i));
       } else {
-        idx = free;
-        free = data[idx].next;
-        data[idx].item = i;
+        idx = _free;
+        _free = _data[idx].next;
+        _data[idx].item = i;
       }
-      index[i] = idx;
-      if (p >= int(first.size())) first.resize(p + 1, -1);
-      data[idx].next = first[p];
-      first[p] = idx;
-      if (Direction::less(p, minimal)) {
-        minimal = p;
+      _iim[i] = idx;
+      if (p >= int(_first.size())) _first.resize(p + 1, -1);
+      _data[idx].next = _first[p];
+      _first[p] = idx;
+      if (Direction::less(p, _minimum)) {
+        _minimum = p;
       }
-      ++num;
+      ++_num;
     }
 
     /// \brief Returns the item with minimum priority.
@@ -474,10 +476,10 @@ namespace lemon {
     /// This method returns the item with minimum priority.
     /// \pre The heap must be nonempty.
     Item top() const {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      return data[first[minimal]].item;
+      return _data[_first[_minimum]].item;
     }
 
     /// \brief Returns the minimum priority.
@@ -485,10 +487,10 @@ namespace lemon {
     /// It returns the minimum priority.
     /// \pre The heap must be nonempty.
     Prio prio() const {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      return minimal;
+      return _minimum;
     }
 
     /// \brief Deletes the item with minimum priority.
@@ -496,15 +498,15 @@ namespace lemon {
     /// This method deletes the item with minimum priority from the heap.
     /// \pre The heap must be non-empty.
     void pop() {
-      while (first[minimal] == -1) {
-        Direction::increase(minimal);
+      while (_first[_minimum] == -1) {
+        Direction::increase(_minimum);
       }
-      int idx = first[minimal];
-      index[data[idx].item] = -2;
-      first[minimal] = data[idx].next;
-      data[idx].next = free;
-      free = idx;
-      --num;
+      int idx = _first[_minimum];
+      _iim[_data[idx].item] = -2;
+      _first[_minimum] = _data[idx].next;
+      _data[idx].next = _free;
+      _free = idx;
+      --_num;
     }
 
     /// \brief Returns the priority of \c i.
@@ -516,13 +518,13 @@ namespace lemon {
     /// \pre \c i must be in the heap.
     /// \param i The item.
     Prio operator[](const Item &i) const {
-      for (int k = 0; k < first.size(); ++k) {
-        int idx = first[k];
+      for (int k = 0; k < _first.size(); ++k) {
+        int idx = _first[k];
         while (idx != -1) {
-          if (data[idx].item == i) {
+          if (_data[idx].item == i) {
             return k;
           }
-          idx = data[idx].next;
+          idx = _data[idx].next;
         }
       }
       return -1;
@@ -537,7 +539,7 @@ namespace lemon {
     /// get back to the heap again.
     /// \param i The item.
     State state(const Item &i) const {
-      int idx = index[i];
+      int idx = _iim[i];
       if (idx >= 0) idx = 0;
       return State(idx);
     }
@@ -552,11 +554,11 @@ namespace lemon {
       int next;
     };
 
-    ItemIntMap& index;
-    std::vector<int> first;
-    std::vector<BucketItem> data;
-    int free, num;
-    mutable int minimal;
+    ItemIntMap& _iim;
+    std::vector<int> _first;
+    std::vector<BucketItem> _data;
+    int _free, _num;
+    mutable int _minimum;
 
   }; // class SimpleBucketHeap
 

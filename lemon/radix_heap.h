@@ -41,18 +41,18 @@ namespace lemon {
   /// item, but the priority cannot be decreased under the last removed
   /// item's priority.
   ///
-  /// \param _ItemIntMap A read and writable Item int map, used internally
+  /// \param IM A read and writable Item int map, used internally
   /// to handle the cross references.
   ///
   /// \see BinHeap
   /// \see Dijkstra
-  template <typename _ItemIntMap>
+  template <typename IM>
   class RadixHeap {
 
   public:
-    typedef typename _ItemIntMap::Key Item;
+    typedef typename IM::Key Item;
     typedef int Prio;
-    typedef _ItemIntMap ItemIntMap;
+    typedef IM ItemIntMap;
 
     /// \brief Exception thrown by RadixHeap.
     ///
@@ -99,7 +99,7 @@ namespace lemon {
     std::vector<RadixItem> data;
     std::vector<RadixBox> boxes;
 
-    ItemIntMap &iim;
+    ItemIntMap &_iim;
 
 
   public:
@@ -107,14 +107,14 @@ namespace lemon {
     ///
     /// The constructor.
     ///
-    /// \param _iim It should be given to the constructor, since it is used
+    /// \param map It should be given to the constructor, since it is used
     /// internally to handle the cross references. The value of the map
     /// should be PRE_HEAP (-1) for each element.
     ///
     /// \param minimal The initial minimal value of the heap.
     /// \param capacity It determines the initial capacity of the heap.
-    RadixHeap(ItemIntMap &_iim, int minimal = 0, int capacity = 0)
-      : iim(_iim) {
+    RadixHeap(ItemIntMap &map, int minimal = 0, int capacity = 0)
+      : _iim(map) {
       boxes.push_back(RadixBox(minimal, 1));
       boxes.push_back(RadixBox(minimal + 1, 1));
       while (lower(boxes.size() - 1, capacity + minimal - 1)) {
@@ -268,7 +268,7 @@ namespace lemon {
         if (data[index].next != -1) {
           data[data[index].next].prev = index;
         }
-        iim[data[index].item] = index;
+        _iim[data[index].item] = index;
       }
       data.pop_back();
     }
@@ -282,7 +282,7 @@ namespace lemon {
     /// \param p The priority of the item.
     void push(const Item &i, const Prio &p) {
       int n = data.size();
-      iim.set(i, n);
+      _iim.set(i, n);
       data.push_back(RadixItem(i, p));
       while (lower(boxes.size() - 1, p)) {
         extend();
@@ -316,7 +316,7 @@ namespace lemon {
     void pop() {
       moveDown();
       int index = boxes[0].first;
-      iim[data[index].item] = POST_HEAP;
+      _iim[data[index].item] = POST_HEAP;
       remove(index);
       relocate_last(index);
     }
@@ -327,8 +327,8 @@ namespace lemon {
     /// already stored in the heap.
     /// \param i The item to erase.
     void erase(const Item &i) {
-      int index = iim[i];
-      iim[i] = POST_HEAP;
+      int index = _iim[i];
+      _iim[i] = POST_HEAP;
       remove(index);
       relocate_last(index);
    }
@@ -339,7 +339,7 @@ namespace lemon {
     /// \pre \c i must be in the heap.
     /// \param i The item.
     Prio operator[](const Item &i) const {
-      int idx = iim[i];
+      int idx = _iim[i];
       return data[idx].prio;
     }
 
@@ -352,7 +352,7 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void set(const Item &i, const Prio &p) {
-      int idx = iim[i];
+      int idx = _iim[i];
       if( idx < 0 ) {
         push(i, p);
       }
@@ -374,7 +374,7 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void decrease(const Item &i, const Prio &p) {
-      int idx = iim[i];
+      int idx = _iim[i];
       data[idx].prio = p;
       bubble_down(idx);
     }
@@ -386,7 +386,7 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void increase(const Item &i, const Prio &p) {
-      int idx = iim[i];
+      int idx = _iim[i];
       data[idx].prio = p;
       bubble_up(idx);
     }
@@ -400,7 +400,7 @@ namespace lemon {
     /// get back to the heap again.
     /// \param i The item.
     State state(const Item &i) const {
-      int s = iim[i];
+      int s = _iim[i];
       if( s >= 0 ) s = 0;
       return State(s);
     }
@@ -419,7 +419,7 @@ namespace lemon {
         if (state(i) == IN_HEAP) {
           erase(i);
         }
-        iim[i] = st;
+        _iim[i] = st;
         break;
       case IN_HEAP:
         break;

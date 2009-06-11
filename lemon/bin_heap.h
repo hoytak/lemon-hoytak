@@ -33,23 +33,23 @@ namespace lemon {
   ///
   ///\brief A Binary Heap implementation.
   ///
-  ///This class implements the \e binary \e heap data structure. 
-  /// 
+  ///This class implements the \e binary \e heap data structure.
+  ///
   ///A \e heap is a data structure for storing items with specified values
   ///called \e priorities in such a way that finding the item with minimum
-  ///priority is efficient. \c Comp specifies the ordering of the priorities.
+  ///priority is efficient. \c CMP specifies the ordering of the priorities.
   ///In a heap one can change the priority of an item, add or erase an
   ///item, etc.
   ///
   ///\tparam PR Type of the priority of the items.
   ///\tparam IM A read and writable item map with int values, used internally
   ///to handle the cross references.
-  ///\tparam Comp A functor class for the ordering of the priorities.
+  ///\tparam CMP A functor class for the ordering of the priorities.
   ///The default is \c std::less<PR>.
   ///
   ///\sa FibHeap
   ///\sa Dijkstra
-  template <typename PR, typename IM, typename Comp = std::less<PR> >
+  template <typename PR, typename IM, typename CMP = std::less<PR> >
   class BinHeap {
 
   public:
@@ -62,7 +62,7 @@ namespace lemon {
     ///\e
     typedef std::pair<Item,Prio> Pair;
     ///\e
-    typedef Comp Compare;
+    typedef CMP Compare;
 
     /// \brief Type to represent the items states.
     ///
