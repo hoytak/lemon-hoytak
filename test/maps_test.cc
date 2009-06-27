@@ -349,5 +349,192 @@ int main()
       check(v1[i++] == *it, "Something is wrong with LoggerBoolMap");
   }
 
+  // Iterable bool map
+  {
+    typedef SmartGraph Graph;
+    typedef SmartGraph::Node Item;
+
+    typedef IterableBoolMap<SmartGraph, SmartGraph::Node> Ibm;
+    checkConcept<ReadWriteMap<Item, int>, Ibm>();
+
+    const int num = 10;
+    Graph g;
+    std::vector<Item> items;
+    for (int i = 0; i < num; ++i) {
+      items.push_back(g.addNode());
+    }
+
+    Ibm map1(g, true);
+    int n = 0;
+    for (Ibm::TrueIt it(map1); it != INVALID; ++it) {
+      check(map1[static_cast<Item>(it)], "Wrong TrueIt");
+      ++n;
+    }
+    check(n == num, "Wrong number");
+
+    n = 0;
+    for (Ibm::ItemIt it(map1, true); it != INVALID; ++it) {
+        check(map1[static_cast<Item>(it)], "Wrong ItemIt for true");
+        ++n;
+    }
+    check(n == num, "Wrong number");
+    check(Ibm::FalseIt(map1) == INVALID, "Wrong FalseIt");
+    check(Ibm::ItemIt(map1, false) == INVALID, "Wrong ItemIt for false");
+
+    map1[items[5]] = true;
+
+    n = 0;
+    for (Ibm::ItemIt it(map1, true); it != INVALID; ++it) {
+        check(map1[static_cast<Item>(it)], "Wrong ItemIt for true");
+        ++n;
+    }
+    check(n == num, "Wrong number");
+
+    map1[items[num / 2]] = false;
+    check(map1[items[num / 2]] == false, "Wrong map value");
+
+    n = 0;
+    for (Ibm::TrueIt it(map1); it != INVALID; ++it) {
+        check(map1[static_cast<Item>(it)], "Wrong TrueIt for true");
+        ++n;
+    }
+    check(n == num - 1, "Wrong number");
+
+    n = 0;
+    for (Ibm::FalseIt it(map1); it != INVALID; ++it) {
+        check(!map1[static_cast<Item>(it)], "Wrong FalseIt for true");
+        ++n;
+    }
+    check(n == 1, "Wrong number");
+
+    map1[items[0]] = false;
+    check(map1[items[0]] == false, "Wrong map value");
+
+    map1[items[num - 1]] = false;
+    check(map1[items[num - 1]] == false, "Wrong map value");
+
+    n = 0;
+    for (Ibm::TrueIt it(map1); it != INVALID; ++it) {
+        check(map1[static_cast<Item>(it)], "Wrong TrueIt for true");
+        ++n;
+    }
+    check(n == num - 3, "Wrong number");
+    check(map1.trueNum() == num - 3, "Wrong number");
+
+    n = 0;
+    for (Ibm::FalseIt it(map1); it != INVALID; ++it) {
+        check(!map1[static_cast<Item>(it)], "Wrong FalseIt for true");
+        ++n;
+    }
+    check(n == 3, "Wrong number");
+    check(map1.falseNum() == 3, "Wrong number");
+  }
+
+  // Iterable int map
+  {
+    typedef SmartGraph Graph;
+    typedef SmartGraph::Node Item;
+    typedef IterableIntMap<SmartGraph, SmartGraph::Node> Iim;
+
+    checkConcept<ReadWriteMap<Item, int>, Iim>();
+
+    const int num = 10;
+    Graph g;
+    std::vector<Item> items;
+    for (int i = 0; i < num; ++i) {
+      items.push_back(g.addNode());
+    }
+
+    Iim map1(g);
+    check(map1.size() == 0, "Wrong size");
+
+    for (int i = 0; i < num; ++i) {
+      map1[items[i]] = i;
+    }
+    check(map1.size() == num, "Wrong size");
+
+    for (int i = 0; i < num; ++i) {
+      Iim::ItemIt it(map1, i);
+      check(static_cast<Item>(it) == items[i], "Wrong value");
+      ++it;
+      check(static_cast<Item>(it) == INVALID, "Wrong value");
+    }
+
+    for (int i = 0; i < num; ++i) {
+      map1[items[i]] = i % 2;
+    }
+    check(map1.size() == 2, "Wrong size");
+
+    int n = 0;
+    for (Iim::ItemIt it(map1, 0); it != INVALID; ++it) {
+      check(map1[static_cast<Item>(it)] == 0, "Wrong Value");
+      ++n;
+    }
+    check(n == (num + 1) / 2, "Wrong number");
+
+    for (Iim::ItemIt it(map1, 1); it != INVALID; ++it) {
+      check(map1[static_cast<Item>(it)] == 1, "Wrong Value");
+      ++n;
+    }
+    check(n == num, "Wrong number");
+
+  }
+
+  // Iterable value map
+  {
+    typedef SmartGraph Graph;
+    typedef SmartGraph::Node Item;
+    typedef IterableValueMap<SmartGraph, SmartGraph::Node, double> Ivm;
+
+    checkConcept<ReadWriteMap<Item, double>, Ivm>();
+
+    const int num = 10;
+    Graph g;
+    std::vector<Item> items;
+    for (int i = 0; i < num; ++i) {
+      items.push_back(g.addNode());
+    }
+
+    Ivm map1(g, 0.0);
+    check(distance(map1.beginValue(), map1.endValue()) == 1, "Wrong size");
+    check(*map1.beginValue() == 0.0, "Wrong value");
+
+    for (int i = 0; i < num; ++i) {
+      map1.set(items[i], static_cast<double>(i));
+    }
+    check(distance(map1.beginValue(), map1.endValue()) == num, "Wrong size");
+
+    for (int i = 0; i < num; ++i) {
+      Ivm::ItemIt it(map1, static_cast<double>(i));
+      check(static_cast<Item>(it) == items[i], "Wrong value");
+      ++it;
+      check(static_cast<Item>(it) == INVALID, "Wrong value");
+    }
+
+    for (Ivm::ValueIterator vit = map1.beginValue();
+         vit != map1.endValue(); ++vit) {
+      check(map1[static_cast<Item>(Ivm::ItemIt(map1, *vit))] == *vit,
+            "Wrong ValueIterator");
+    }
+
+    for (int i = 0; i < num; ++i) {
+      map1.set(items[i], static_cast<double>(i % 2));
+    }
+    check(distance(map1.beginValue(), map1.endValue()) == 2, "Wrong size");
+
+    int n = 0;
+    for (Ivm::ItemIt it(map1, 0.0); it != INVALID; ++it) {
+      check(map1[static_cast<Item>(it)] == 0.0, "Wrong Value");
+      ++n;
+    }
+    check(n == (num + 1) / 2, "Wrong number");
+
+    for (Ivm::ItemIt it(map1, 1.0); it != INVALID; ++it) {
+      check(map1[static_cast<Item>(it)] == 1.0, "Wrong Value");
+      ++n;
+    }
+    check(n == num, "Wrong number");
+
+  }
   return 0;
 }
