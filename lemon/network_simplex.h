@@ -625,7 +625,11 @@ namespace lemon {
     /// The constructor of the class.
     ///
     /// \param graph The digraph the algorithm runs on.
-    NetworkSimplex(const GR& graph) :
+    /// \param arc_mixing Indicate if the arcs have to be stored in a
+    /// mixed order in the internal data structure. 
+    /// In special cases, it could lead to better overall performance,
+    /// but it is usually slower. Therefore it is disabled by default.
+    NetworkSimplex(const GR& graph, bool arc_mixing = false) :
       _graph(graph), _node_id(graph), _arc_id(graph),
       INF(std::numeric_limits<Value>::has_infinity ?
           std::numeric_limits<Value>::infinity() :
@@ -663,18 +667,29 @@ namespace lemon {
       _last_succ.resize(all_node_num);
       _state.resize(max_arc_num);
 
-      // Copy the graph (store the arcs in a mixed order)
+      // Copy the graph
       int i = 0;
       for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
         _node_id[n] = i;
       }
-      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
-      i = 0;
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        _arc_id[a] = i;
-        _source[i] = _node_id[_graph.source(a)];
-        _target[i] = _node_id[_graph.target(a)];
-        if ((i += k) >= _arc_num) i = (i % k) + 1;
+      if (arc_mixing) {
+        // Store the arcs in a mixed order
+        int k = std::max(int(std::sqrt(double(_arc_num))), 10);
+        int i = 0, j = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+          if ((i += k) >= _arc_num) i = ++j;
+        }
+      } else {
+        // Store the arcs in the original order
+        int i = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a, ++i) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+        }
       }
       
       // Initialize maps
