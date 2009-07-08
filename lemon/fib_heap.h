@@ -20,7 +20,7 @@
 #define LEMON_FIB_HEAP_H
 
 ///\file
-///\ingroup auxdat
+///\ingroup heaps
 ///\brief Fibonacci heap implementation.
 
 #include <vector>
@@ -30,7 +30,7 @@
 
 namespace lemon {
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
   /// \brief Fibonacci heap data structure.
   ///

@@ -19,7 +19,7 @@
 #ifndef LEMON_BUCKET_HEAP_H
 #define LEMON_BUCKET_HEAP_H
 
-///\ingroup auxdat
+///\ingroup heaps
 ///\file
 ///\brief Bucket heap implementation.
 
@@ -53,7 +53,7 @@ namespace lemon {
 
   }
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
   /// \brief Bucket heap data structure.
   ///
@@ -371,7 +371,7 @@ namespace lemon {
 
   }; // class BucketHeap
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
   /// \brief Simplified bucket heap data structure.
   ///

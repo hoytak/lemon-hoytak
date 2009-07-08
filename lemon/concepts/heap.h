@@ -36,7 +36,7 @@ namespace lemon {
     /// \brief The heap concept.
     ///
     /// This concept class describes the main interface of heaps.
-    /// The various heap structures are efficient
+    /// The various \ref heaps "heap structures" are efficient
     /// implementations of the abstract data type \e priority \e queue.
     /// They store items with specified values called \e priorities
     /// in such a way that finding and removing the item with minimum

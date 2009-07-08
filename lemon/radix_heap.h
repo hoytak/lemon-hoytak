@@ -19,7 +19,7 @@
 #ifndef LEMON_RADIX_HEAP_H
 #define LEMON_RADIX_HEAP_H
 
-///\ingroup auxdat
+///\ingroup heaps
 ///\file
 ///\brief Radix heap implementation.
 
@@ -29,7 +29,7 @@
 namespace lemon {
 
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
   /// \brief Radix heap data structure.
   ///

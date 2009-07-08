@@ -19,7 +19,7 @@
 #ifndef LEMON_BIN_HEAP_H
 #define LEMON_BIN_HEAP_H
 
-///\ingroup auxdat
+///\ingroup heaps
 ///\file
 ///\brief Binary heap implementation.
 
@@ -29,7 +29,7 @@
 
 namespace lemon {
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
   /// \brief Binary heap data structure.
   ///
