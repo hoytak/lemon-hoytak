@@ -142,7 +142,7 @@ namespace lemon {
 
   private:
 
-    void relocate_last(int idx) {
+    void relocateLast(int idx) {
       if (idx + 1 < int(_data.size())) {
         _data[idx] = _data.back();
         if (_data[idx].prev != -1) {
@@ -243,7 +243,7 @@ namespace lemon {
       int idx = _first[_minimum];
       _iim[_data[idx].item] = -2;
       unlace(idx);
-      relocate_last(idx);
+      relocateLast(idx);
     }
 
     /// \brief Remove the given item from the heap.
@@ -256,7 +256,7 @@ namespace lemon {
       int idx = _iim[i];
       _iim[_data[idx].item] = -2;
       unlace(idx);
-      relocate_last(idx);
+      relocateLast(idx);
     }
 
     /// \brief The priority of the given item.

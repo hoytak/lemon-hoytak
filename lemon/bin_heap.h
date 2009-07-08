@@ -124,12 +124,12 @@ namespace lemon {
   private:
     static int parent(int i) { return (i-1)/2; }
 
-    static int second_child(int i) { return 2*i+2; }
+    static int secondChild(int i) { return 2*i+2; }
     bool less(const Pair &p1, const Pair &p2) const {
       return _comp(p1.second, p2.second);
     }
 
-    int bubble_up(int hole, Pair p) {
+    int bubbleUp(int hole, Pair p) {
       int par = parent(hole);
       while( hole>0 && less(p,_data[par]) ) {
         move(_data[par],hole);
@@ -140,8 +140,8 @@ namespace lemon {
       return hole;
     }
 
-    int bubble_down(int hole, Pair p, int length) {
-      int child = second_child(hole);
+    int bubbleDown(int hole, Pair p, int length) {
+      int child = secondChild(hole);
       while(child < length) {
         if( less(_data[child-1], _data[child]) ) {
           --child;
@@ -150,7 +150,7 @@ namespace lemon {
           goto ok;
         move(_data[child], hole);
         hole = child;
-        child = second_child(hole);
+        child = secondChild(hole);
       }
       child--;
       if( child<length && less(_data[child], p) ) {
@@ -178,7 +178,7 @@ namespace lemon {
     void push(const Pair &p) {
       int n = _data.size();
       _data.resize(n+1);
-      bubble_up(n, p);
+      bubbleUp(n, p);
     }
 
     /// \brief Insert an item into the heap with the given priority.
@@ -214,7 +214,7 @@ namespace lemon {
       int n = _data.size()-1;
       _iim.set(_data[0].first, POST_HEAP);
       if (n > 0) {
-        bubble_down(0, _data[n], n);
+        bubbleDown(0, _data[n], n);
       }
       _data.pop_back();
     }
@@ -230,8 +230,8 @@ namespace lemon {
       int n = _data.size()-1;
       _iim.set(_data[h].first, POST_HEAP);
       if( h < n ) {
-        if ( bubble_up(h, _data[n]) == h) {
-          bubble_down(h, _data[n], n);
+        if ( bubbleUp(h, _data[n]) == h) {
+          bubbleDown(h, _data[n], n);
         }
       }
       _data.pop_back();
@@ -261,10 +261,10 @@ namespace lemon {
         push(i,p);
       }
       else if( _comp(p, _data[idx].second) ) {
-        bubble_up(idx, Pair(i,p));
+        bubbleUp(idx, Pair(i,p));
       }
       else {
-        bubble_down(idx, Pair(i,p), _data.size());
+        bubbleDown(idx, Pair(i,p), _data.size());
       }
     }
 
@@ -276,7 +276,7 @@ namespace lemon {
     /// \pre \e i must be stored in the heap with priority at least \e p.
     void decrease(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      bubble_up(idx, Pair(i,p));
+      bubbleUp(idx, Pair(i,p));
     }
 
     /// \brief Increase the priority of an item to the given value.
@@ -287,7 +287,7 @@ namespace lemon {
     /// \pre \e i must be stored in the heap with priority at most \e p.
     void increase(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      bubble_down(idx, Pair(i,p), _data.size());
+      bubbleDown(idx, Pair(i,p), _data.size());
     }
 
     /// \brief Return the state of an item.

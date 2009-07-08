@@ -58,10 +58,10 @@ namespace lemon {
     /// This exception is thrown when an item is inserted into a
     /// RadixHeap with a priority smaller than the last erased one.
     /// \see RadixHeap
-    class UnderFlowPriorityError : public Exception {
+    class PriorityUnderflowError : public Exception {
     public:
       virtual const char* what() const throw() {
-        return "lemon::RadixHeap::UnderFlowPriorityError";
+        return "lemon::RadixHeap::PriorityUnderflowError";
       }
     };
 
@@ -94,8 +94,8 @@ namespace lemon {
       RadixBox(int _min, int _size) : first(-1), min(_min), size(_size) {}
     };
 
-    std::vector<RadixItem> data;
-    std::vector<RadixBox> boxes;
+    std::vector<RadixItem> _data;
+    std::vector<RadixBox> _boxes;
 
     ItemIntMap &_iim;
 
@@ -112,9 +112,9 @@ namespace lemon {
     RadixHeap(ItemIntMap &map, int minimum = 0, int capacity = 0)
       : _iim(map)
     {
-      boxes.push_back(RadixBox(minimum, 1));
-      boxes.push_back(RadixBox(minimum + 1, 1));
-      while (lower(boxes.size() - 1, capacity + minimum - 1)) {
+      _boxes.push_back(RadixBox(minimum, 1));
+      _boxes.push_back(RadixBox(minimum + 1, 1));
+      while (lower(_boxes.size() - 1, capacity + minimum - 1)) {
         extend();
       }
     }
@@ -122,12 +122,12 @@ namespace lemon {
     /// \brief The number of items stored in the heap.
     ///
     /// This function returns the number of items stored in the heap.
-    int size() const { return data.size(); }
+    int size() const { return _data.size(); }
 
     /// \brief Check if the heap is empty.
     ///
     /// This function returns \c true if the heap is empty.
-    bool empty() const { return data.empty(); }
+    bool empty() const { return _data.empty(); }
 
     /// \brief Make the heap empty.
     ///
@@ -139,10 +139,10 @@ namespace lemon {
     /// \param minimum The minimum value of the heap.
     /// \param capacity The capacity of the heap.
     void clear(int minimum = 0, int capacity = 0) {
-      data.clear(); boxes.clear();
-      boxes.push_back(RadixBox(minimum, 1));
-      boxes.push_back(RadixBox(minimum + 1, 1));
-      while (lower(boxes.size() - 1, capacity + minimum - 1)) {
+      _data.clear(); _boxes.clear();
+      _boxes.push_back(RadixBox(minimum, 1));
+      _boxes.push_back(RadixBox(minimum + 1, 1));
+      while (lower(_boxes.size() - 1, capacity + minimum - 1)) {
         extend();
       }
     }
@@ -150,58 +150,58 @@ namespace lemon {
   private:
 
     bool upper(int box, Prio pr) {
-      return pr < boxes[box].min;
+      return pr < _boxes[box].min;
     }
 
     bool lower(int box, Prio pr) {
-      return pr >= boxes[box].min + boxes[box].size;
+      return pr >= _boxes[box].min + _boxes[box].size;
     }
 
     // Remove item from the box list
     void remove(int index) {
-      if (data[index].prev >= 0) {
-        data[data[index].prev].next = data[index].next;
+      if (_data[index].prev >= 0) {
+        _data[_data[index].prev].next = _data[index].next;
       } else {
-        boxes[data[index].box].first = data[index].next;
+        _boxes[_data[index].box].first = _data[index].next;
       }
-      if (data[index].next >= 0) {
-        data[data[index].next].prev = data[index].prev;
+      if (_data[index].next >= 0) {
+        _data[_data[index].next].prev = _data[index].prev;
       }
     }
 
     // Insert item into the box list
     void insert(int box, int index) {
-      if (boxes[box].first == -1) {
-        boxes[box].first = index;
-        data[index].next = data[index].prev = -1;
+      if (_boxes[box].first == -1) {
+        _boxes[box].first = index;
+        _data[index].next = _data[index].prev = -1;
       } else {
-        data[index].next = boxes[box].first;
-        data[boxes[box].first].prev = index;
-        data[index].prev = -1;
-        boxes[box].first = index;
+        _data[index].next = _boxes[box].first;
+        _data[_boxes[box].first].prev = index;
+        _data[index].prev = -1;
+        _boxes[box].first = index;
       }
-      data[index].box = box;
+      _data[index].box = box;
     }
 
     // Add a new box to the box list
     void extend() {
-      int min = boxes.back().min + boxes.back().size;
-      int bs = 2 * boxes.back().size;
-      boxes.push_back(RadixBox(min, bs));
+      int min = _boxes.back().min + _boxes.back().size;
+      int bs = 2 * _boxes.back().size;
+      _boxes.push_back(RadixBox(min, bs));
     }
 
     // Move an item up into the proper box.
-    void bubble_up(int index) {
-      if (!lower(data[index].box, data[index].prio)) return;
+    void bubbleUp(int index) {
+      if (!lower(_data[index].box, _data[index].prio)) return;
       remove(index);
-      int box = findUp(data[index].box, data[index].prio);
+      int box = findUp(_data[index].box, _data[index].prio);
       insert(box, index);
     }
 
     // Find up the proper box for the item with the given priority
     int findUp(int start, int pr) {
       while (lower(start, pr)) {
-        if (++start == int(boxes.size())) {
+        if (++start == int(_boxes.size())) {
           extend();
         }
       }
@@ -209,17 +209,17 @@ namespace lemon {
     }
 
     // Move an item down into the proper box
-    void bubble_down(int index) {
-      if (!upper(data[index].box, data[index].prio)) return;
+    void bubbleDown(int index) {
+      if (!upper(_data[index].box, _data[index].prio)) return;
       remove(index);
-      int box = findDown(data[index].box, data[index].prio);
+      int box = findDown(_data[index].box, _data[index].prio);
       insert(box, index);
     }
 
     // Find down the proper box for the item with the given priority
     int findDown(int start, int pr) {
       while (upper(start, pr)) {
-        if (--start < 0) throw UnderFlowPriorityError();
+        if (--start < 0) throw PriorityUnderflowError();
       }
       return start;
     }
@@ -227,15 +227,15 @@ namespace lemon {
     // Find the first non-empty box
     int findFirst() {
       int first = 0;
-      while (boxes[first].first == -1) ++first;
+      while (_boxes[first].first == -1) ++first;
       return first;
     }
 
     // Gives back the minimum priority of the given box
     int minValue(int box) {
-      int min = data[boxes[box].first].prio;
-      for (int k = boxes[box].first; k != -1; k = data[k].next) {
-        if (data[k].prio < min) min = data[k].prio;
+      int min = _data[_boxes[box].first].prio;
+      for (int k = _boxes[box].first; k != -1; k = _data[k].next) {
+        if (_data[k].prio < min) min = _data[k].prio;
       }
       return min;
     }
@@ -246,31 +246,31 @@ namespace lemon {
       if (box == 0) return;
       int min = minValue(box);
       for (int i = 0; i <= box; ++i) {
-        boxes[i].min = min;
-        min += boxes[i].size;
+        _boxes[i].min = min;
+        min += _boxes[i].size;
       }
-      int curr = boxes[box].first, next;
+      int curr = _boxes[box].first, next;
       while (curr != -1) {
-        next = data[curr].next;
-        bubble_down(curr);
+        next = _data[curr].next;
+        bubbleDown(curr);
         curr = next;
       }
     }
 
-    void relocate_last(int index) {
-      if (index != int(data.size()) - 1) {
-        data[index] = data.back();
-        if (data[index].prev != -1) {
-          data[data[index].prev].next = index;
+    void relocateLast(int index) {
+      if (index != int(_data.size()) - 1) {
+        _data[index] = _data.back();
+        if (_data[index].prev != -1) {
+          _data[_data[index].prev].next = index;
         } else {
-          boxes[data[index].box].first = index;
+          _boxes[_data[index].box].first = index;
         }
-        if (data[index].next != -1) {
-          data[data[index].next].prev = index;
+        if (_data[index].next != -1) {
+          _data[_data[index].next].prev = index;
         }
-        _iim[data[index].item] = index;
+        _iim[_data[index].item] = index;
       }
-      data.pop_back();
+      _data.pop_back();
     }
 
   public:
@@ -284,13 +284,13 @@ namespace lemon {
     /// \pre \e i must not be stored in the heap.
     /// \warning This method may throw an \c UnderFlowPriorityException.
     void push(const Item &i, const Prio &p) {
-      int n = data.size();
+      int n = _data.size();
       _iim.set(i, n);
-      data.push_back(RadixItem(i, p));
-      while (lower(boxes.size() - 1, p)) {
+      _data.push_back(RadixItem(i, p));
+      while (lower(_boxes.size() - 1, p)) {
         extend();
       }
-      int box = findDown(boxes.size() - 1, p);
+      int box = findDown(_boxes.size() - 1, p);
       insert(box, n);
     }
 
@@ -300,7 +300,7 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     Item top() const {
       const_cast<RadixHeap<ItemIntMap>&>(*this).moveDown();
-      return data[boxes[0].first].item;
+      return _data[_boxes[0].first].item;
     }
 
     /// \brief The minimum priority.
@@ -309,7 +309,7 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     Prio prio() const {
       const_cast<RadixHeap<ItemIntMap>&>(*this).moveDown();
-      return data[boxes[0].first].prio;
+      return _data[_boxes[0].first].prio;
      }
 
     /// \brief Remove the item having minimum priority.
@@ -318,10 +318,10 @@ namespace lemon {
     /// \pre The heap must be non-empty.
     void pop() {
       moveDown();
-      int index = boxes[0].first;
-      _iim[data[index].item] = POST_HEAP;
+      int index = _boxes[0].first;
+      _iim[_data[index].item] = POST_HEAP;
       remove(index);
-      relocate_last(index);
+      relocateLast(index);
     }
 
     /// \brief Remove the given item from the heap.
@@ -334,7 +334,7 @@ namespace lemon {
       int index = _iim[i];
       _iim[i] = POST_HEAP;
       remove(index);
-      relocate_last(index);
+      relocateLast(index);
    }
 
     /// \brief The priority of the given item.
@@ -344,7 +344,7 @@ namespace lemon {
     /// \pre \e i must be in the heap.
     Prio operator[](const Item &i) const {
       int idx = _iim[i];
-      return data[idx].prio;
+      return _data[idx].prio;
     }
 
     /// \brief Set the priority of an item or insert it, if it is
@@ -362,12 +362,12 @@ namespace lemon {
       if( idx < 0 ) {
         push(i, p);
       }
-      else if( p >= data[idx].prio ) {
-        data[idx].prio = p;
-        bubble_up(idx);
+      else if( p >= _data[idx].prio ) {
+        _data[idx].prio = p;
+        bubbleUp(idx);
       } else {
-        data[idx].prio = p;
-        bubble_down(idx);
+        _data[idx].prio = p;
+        bubbleDown(idx);
       }
     }
 
@@ -380,8 +380,8 @@ namespace lemon {
     /// \warning This method may throw an \c UnderFlowPriorityException.
     void decrease(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      data[idx].prio = p;
-      bubble_down(idx);
+      _data[idx].prio = p;
+      bubbleDown(idx);
     }
 
     /// \brief Increase the priority of an item to the given value.
@@ -392,8 +392,8 @@ namespace lemon {
     /// \pre \e i must be stored in the heap with priority at most \e p.
     void increase(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      data[idx].prio = p;
-      bubble_up(idx);
+      _data[idx].prio = p;
+      bubbleUp(idx);
     }
 
     /// \brief Return the state of an item.

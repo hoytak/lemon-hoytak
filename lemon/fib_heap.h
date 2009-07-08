@@ -188,7 +188,7 @@ namespace lemon {
       if ( _data[_minimum].left_neighbor==_minimum ) {
         _data[_minimum].in=false;
         if ( _data[_minimum].degree!=0 ) {
-          makeroot(_data[_minimum].child);
+          makeRoot(_data[_minimum].child);
           _minimum=_data[_minimum].child;
           balance();
         }
@@ -201,7 +201,7 @@ namespace lemon {
           int child=_data[_minimum].child;
           int last_child=_data[child].left_neighbor;
 
-          makeroot(child);
+          makeRoot(child);
 
           _data[left].right_neighbor=child;
           _data[child].left_neighbor=left;
@@ -372,7 +372,7 @@ namespace lemon {
       } while ( s != m );
     }
 
-    void makeroot(int c) {
+    void makeRoot(int c) {
       int s=c;
       do {
         _data[s].parent=-1;
