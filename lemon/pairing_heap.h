@@ -266,6 +266,8 @@ namespace lemon {
         minimum = container[minimum].child;
       }
 
+      if (minimum >= 0) container[minimum].left_child = false;
+
       --num_items;
     }
 

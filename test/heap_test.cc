@@ -222,16 +222,16 @@ int main() {
   }
 
   // PairingHeap
-//  {
-//    typedef PairingHeap<Prio, ItemIntMap> IntHeap;
-//    checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
-//    heapSortTest<IntHeap>();
-//    heapIncreaseTest<IntHeap>();
-//
-//    typedef PairingHeap<Prio, IntNodeMap > NodeHeap;
-//    checkConcept<Heap<Prio, IntNodeMap >, NodeHeap>();
-//    dijkstraHeapTest<NodeHeap>(digraph, length, source);
-//  }
+  {
+    typedef PairingHeap<Prio, ItemIntMap> IntHeap;
+    checkConcept<Heap<Prio, ItemIntMap>, IntHeap>();
+    heapSortTest<IntHeap>();
+    heapIncreaseTest<IntHeap>();
+
+    typedef PairingHeap<Prio, IntNodeMap > NodeHeap;
+    checkConcept<Heap<Prio, IntNodeMap >, NodeHeap>();
+    dijkstraHeapTest<NodeHeap>(digraph, length, source);
+  }
 
   // RadixHeap
   {
