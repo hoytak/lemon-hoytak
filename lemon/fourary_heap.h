@@ -165,14 +165,16 @@ namespace lemon {
     }
 
     void bubbleDown(int hole, Pair p, int length) {
-      int child = firstChild(hole);
-      while( child<length && length>1 ) {
-        child = findMin(child,length);
-        if( !less(_data[child], p) )
-          goto ok;
-        move(_data[child], hole);
-        hole = child;
-        child = firstChild(hole);
+      if( length>1 ) {
+        int child = firstChild(hole);
+        while( child<length ) {
+          child = findMin(child, length);
+          if( !less(_data[child], p) )
+            goto ok;
+          move(_data[child], hole);
+          hole = child;
+          child = firstChild(hole);
+        }
       }
     ok:
       move(p, hole);

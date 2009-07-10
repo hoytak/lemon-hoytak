@@ -208,23 +208,21 @@ namespace lemon {
     /// This function removes the item having minimum priority.
     /// \pre The heap must be non-empty.
     void pop() {
-      int TreeArray[_num_items];
-      int i=0, num_child=0, child_right = 0;
+      std::vector<int> trees;
+      int i=0, child_right = 0;
       _data[_min].in=false;
 
       if( -1!=_data[_min].child ) {
         i=_data[_min].child;
-        TreeArray[num_child] = i;
+        trees.push_back(i);
         _data[i].parent = -1;
         _data[_min].child = -1;
 
-        ++num_child;
         int ch=-1;
         while( _data[i].child!=-1 ) {
           ch=_data[i].child;
           if( _data[ch].left_child && i==_data[ch].parent ) {
-            i=ch;
-            //break;
+            break;
           } else {
             if( _data[ch].left_child ) {
               child_right=_data[ch].parent;
@@ -237,43 +235,39 @@ namespace lemon {
               _data[i].degree=0;
             }
             _data[child_right].parent = -1;
-            TreeArray[num_child] = child_right;
+            trees.push_back(child_right);
             i = child_right;
-            ++num_child;
           }
         }
 
+        int num_child = trees.size();
         int other;
         for( i=0; i<num_child-1; i+=2 ) {
-          if ( !_comp(_data[TreeArray[i]].prio,
-                     _data[TreeArray[i+1]].prio) ) {
-            other=TreeArray[i];
-            TreeArray[i]=TreeArray[i+1];
-            TreeArray[i+1]=other;
+          if ( !_comp(_data[trees[i]].prio, _data[trees[i+1]].prio) ) {
+            other=trees[i];
+            trees[i]=trees[i+1];
+            trees[i+1]=other;
           }
-          fuse( TreeArray[i], TreeArray[i+1] );
+          fuse( trees[i], trees[i+1] );
         }
 
         i = (0==(num_child % 2)) ? num_child-2 : num_child-1;
         while(i>=2) {
-          if ( _comp(_data[TreeArray[i]].prio,
-                    _data[TreeArray[i-2]].prio) ) {
-            other=TreeArray[i];
-            TreeArray[i]=TreeArray[i-2];
-            TreeArray[i-2]=other;
+          if ( _comp(_data[trees[i]].prio, _data[trees[i-2]].prio) ) {
+            other=trees[i];
+            trees[i]=trees[i-2];
+            trees[i-2]=other;
           }
-          fuse( TreeArray[i-2], TreeArray[i] );
+          fuse( trees[i-2], trees[i] );
           i-=2;
         }
-        _min = TreeArray[0];
+        _min = trees[0];
       }
-
-      if ( 0==num_child ) {
+      else {
         _min = _data[_min].child;
       }
 
       if (_min >= 0) _data[_min].left_child = false;
-
       --_num_items;
     }
 
