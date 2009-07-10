@@ -45,15 +45,20 @@ namespace lemon {
   /// \tparam PR Type of the priorities of the items.
   /// \tparam IM A read-writable item map with \c int values, used
   /// internally to handle the cross references.
+  /// \tparam K The degree of the heap, each node have at most \e K
+  /// children. The default is 16. Powers of two are suggested to use
+  /// so that the multiplications and divisions needed to traverse the
+  /// nodes of the heap could be performed faster.
   /// \tparam CMP A functor class for comparing the priorities.
   /// The default is \c std::less<PR>.
   ///
   ///\sa BinHeap
   ///\sa FouraryHeap
 #ifdef DOXYGEN
-  template <typename PR, typename IM, typename CMP>
+  template <typename PR, typename IM, int K, typename CMP>
 #else
-  template <typename PR, typename IM, typename CMP = std::less<PR> >
+  template <typename PR, typename IM, int K = 16,
+            typename CMP = std::less<PR> >
 #endif
   class KaryHeap {
   public:
@@ -86,7 +91,6 @@ namespace lemon {
     std::vector<Pair> _data;
     Compare _comp;
     ItemIntMap &_iim;
-    int _K;
 
   public:
     /// \brief Constructor.
@@ -95,7 +99,7 @@ namespace lemon {
     /// \param map A map that assigns \c int values to the items.
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
-    explicit KaryHeap(ItemIntMap &map, int K=32) : _iim(map), _K(K) {}
+    explicit KaryHeap(ItemIntMap &map) : _iim(map) {}
 
     /// \brief Constructor.
     ///
@@ -104,8 +108,8 @@ namespace lemon {
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
     /// \param comp The function object used for comparing the priorities.
-    KaryHeap(ItemIntMap &map, const Compare &comp, int K=32)
-      : _iim(map), _comp(comp), _K(K) {}
+    KaryHeap(ItemIntMap &map, const Compare &comp)
+      : _iim(map), _comp(comp) {}
 
     /// \brief The number of items stored in the heap.
     ///
@@ -127,8 +131,8 @@ namespace lemon {
     void clear() { _data.clear(); }
 
   private:
-    int parent(int i) { return (i-1)/_K; }
-    int firstChild(int i) { return _K*i+1; }
+    int parent(int i) { return (i-1)/K; }
+    int firstChild(int i) { return K*i+1; }
 
     bool less(const Pair &p1, const Pair &p2) const {
       return _comp(p1.second, p2.second);
@@ -136,7 +140,7 @@ namespace lemon {
 
     int findMin(const int child, const int length) {
       int min=child, i=1;
-      while( i<_K && child+i<length ) {
+      while( i<K && child+i<length ) {
         if( less(_data[child+i], _data[min]) )
           min=child+i;
         ++i;
