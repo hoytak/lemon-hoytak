@@ -138,16 +138,6 @@ namespace lemon {
       return _comp(p1.second, p2.second);
     }
 
-    int findMin(const int child, const int length) {
-      int min=child, i=1;
-      while( i<K && child+i<length ) {
-        if( less(_data[child+i], _data[min]) )
-          min=child+i;
-        ++i;
-      }
-      return min;
-    }
-
     void bubbleUp(int hole, Pair p) {
       int par = parent(hole);
       while( hole>0 && less(p,_data[par]) ) {
@@ -161,13 +151,28 @@ namespace lemon {
     void bubbleDown(int hole, Pair p, int length) {
       if( length>1 ) {
         int child = firstChild(hole);
-        while( child<length ) {
-          child = findMin(child, length);
-          if( !less(_data[child], p) )
+        while( child+K<=length ) {
+          int min=child;
+          for (int i=1; i<K; ++i) {
+            if( less(_data[child+i], _data[min]) )
+              min=child+i;
+          }
+          if( !less(_data[min], p) )
             goto ok;
-          move(_data[child], hole);
-          hole = child;
+          move(_data[min], hole);
+          hole = min;
           child = firstChild(hole);
+        }
+        if ( child<length ) {
+          int min = child;
+          while (++child < length) {
+            if( less(_data[child], _data[min]) )
+              min=child;
+          }
+          if( less(_data[min], p) ) {
+            move(_data[min], hole);
+            hole = min;
+          }
         }
       }
     ok:
