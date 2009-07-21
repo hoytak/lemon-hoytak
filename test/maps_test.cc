@@ -22,6 +22,7 @@
 #include <lemon/concept_check.h>
 #include <lemon/concepts/maps.h>
 #include <lemon/maps.h>
+#include <lemon/smart_graph.h>
 
 #include "test_tools.h"
 
@@ -355,7 +356,7 @@ int main()
     typedef SmartGraph::Node Item;
 
     typedef IterableBoolMap<SmartGraph, SmartGraph::Node> Ibm;
-    checkConcept<ReadWriteMap<Item, int>, Ibm>();
+    checkConcept<ReferenceMap<Item, bool, bool&, const bool&>, Ibm>();
 
     const int num = 10;
     Graph g;
@@ -436,7 +437,7 @@ int main()
     typedef SmartGraph::Node Item;
     typedef IterableIntMap<SmartGraph, SmartGraph::Node> Iim;
 
-    checkConcept<ReadWriteMap<Item, int>, Iim>();
+    checkConcept<ReferenceMap<Item, int, int&, const int&>, Iim>();
 
     const int num = 10;
     Graph g;
@@ -467,13 +468,13 @@ int main()
 
     int n = 0;
     for (Iim::ItemIt it(map1, 0); it != INVALID; ++it) {
-      check(map1[static_cast<Item>(it)] == 0, "Wrong Value");
+      check(map1[static_cast<Item>(it)] == 0, "Wrong value");
       ++n;
     }
     check(n == (num + 1) / 2, "Wrong number");
 
     for (Iim::ItemIt it(map1, 1); it != INVALID; ++it) {
-      check(map1[static_cast<Item>(it)] == 1, "Wrong Value");
+      check(map1[static_cast<Item>(it)] == 1, "Wrong value");
       ++n;
     }
     check(n == num, "Wrong number");
@@ -524,13 +525,13 @@ int main()
 
     int n = 0;
     for (Ivm::ItemIt it(map1, 0.0); it != INVALID; ++it) {
-      check(map1[static_cast<Item>(it)] == 0.0, "Wrong Value");
+      check(map1[static_cast<Item>(it)] == 0.0, "Wrong value");
       ++n;
     }
     check(n == (num + 1) / 2, "Wrong number");
 
     for (Ivm::ItemIt it(map1, 1.0); it != INVALID; ++it) {
-      check(map1[static_cast<Item>(it)] == 1.0, "Wrong Value");
+      check(map1[static_cast<Item>(it)] == 1.0, "Wrong value");
       ++n;
     }
     check(n == num, "Wrong number");

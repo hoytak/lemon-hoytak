@@ -22,15 +22,13 @@
 #include <iterator>
 #include <functional>
 #include <vector>
+#include <map>
 
 #include <lemon/core.h>
-#include <lemon/smart_graph.h>
 
 ///\file
 ///\ingroup maps
 ///\brief Miscellaneous property maps
-
-#include <map>
 
 namespace lemon {
 
@@ -1906,9 +1904,11 @@ namespace lemon {
   /// It wraps an arbitrary \ref concepts::ReadWriteMap "ReadWriteMap"
   /// and if a key is set to a new value then store it
   /// in the inverse map.
-  ///
   /// The values of the map can be accessed
   /// with stl compatible forward iterator.
+  ///
+  /// This type is not reference map, so it cannot be modified with
+  /// the subscription operator.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
@@ -2312,34 +2312,41 @@ namespace lemon {
     }
   };
 
-  /// \brief Dynamic iterable bool map.
+  /// \brief Dynamic iterable \c bool map.
   ///
-  /// This class provides a special graph map type which can store for
-  /// each graph item(node, arc, edge, etc.) a bool value. For both
-  /// the true and the false values it is possible to iterate on the
-  /// keys.
+  /// This class provides a special graph map type which can store a
+  /// \c bool value for graph items (\c Node, \c Arc or \c Edge).
+  /// For both \c true and \c false values it is possible to iterate on
+  /// the keys.
   ///
-  /// \param GR The graph type.
-  /// \param ITEM One of the graph's item types, the key of the map.
-  template <typename GR, typename ITEM>
+  /// This type is a reference map, so it can be modified with the
+  /// subscription operator.
+  ///
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see IterableIntMap, IterableValueMap
+  /// \see CrossRefMap
+  template <typename GR, typename K>
   class IterableBoolMap
-    : protected ItemSetTraits<GR, ITEM>::template Map<int>::Type {
+    : protected ItemSetTraits<GR, K>::template Map<int>::Type {
   private:
     typedef GR Graph;
 
-    typedef typename ItemSetTraits<Graph, ITEM>::ItemIt KeyIt;
-    typedef typename ItemSetTraits<GR, ITEM>::template Map<int>::Type Parent;
+    typedef typename ItemSetTraits<GR, K>::ItemIt KeyIt;
+    typedef typename ItemSetTraits<GR, K>::template Map<int>::Type Parent;
 
-    std::vector<ITEM> _array;
+    std::vector<K> _array;
     int _sep;
 
   public:
 
-    /// Indicates that the map if reference map.
+    /// Indicates that the map is reference map.
     typedef True ReferenceMapTag;
 
     /// The key type
-    typedef ITEM Key;
+    typedef K Key;
     /// The value type
     typedef bool Value;
     /// The const reference type.
@@ -2353,10 +2360,10 @@ namespace lemon {
 
   public:
 
-    /// \brief Refernce to the value of the map.
+    /// \brief Reference to the value of the map.
     ///
-    /// This class is similar to the bool type. It can be converted to
-    /// bool and it provides the same operators.
+    /// This class is similar to the \c bool type. It can be converted to
+    /// \c bool and it provides the same operators.
     class Reference {
       friend class IterableBoolMap;
     private:
@@ -2454,26 +2461,26 @@ namespace lemon {
       _sep = (value ? _array.size() : 0);
     }
 
-    /// \brief Returns the number of the keys mapped to true.
+    /// \brief Returns the number of the keys mapped to \c true.
     ///
-    /// Returns the number of the keys mapped to true.
+    /// Returns the number of the keys mapped to \c true.
     int trueNum() const {
       return _sep;
     }
 
-    /// \brief Returns the number of the keys mapped to false.
+    /// \brief Returns the number of the keys mapped to \c false.
     ///
-    /// Returns the number of the keys mapped to false.
+    /// Returns the number of the keys mapped to \c false.
     int falseNum() const {
       return _array.size() - _sep;
     }
 
-    /// \brief Iterator for the keys mapped to true.
+    /// \brief Iterator for the keys mapped to \c true.
     ///
-    /// Iterator for the keys mapped to true. It works
-    /// like a graph item iterator in the map, it can be converted
+    /// Iterator for the keys mapped to \c true. It works
+    /// like a graph item iterator, it can be converted to
     /// the key type of the map, incremented with \c ++ operator, and
-    /// if the iterator leave the last valid key it will be equal to
+    /// if the iterator leaves the last valid key, it will be equal to
     /// \c INVALID.
     class TrueIt : public Key {
     public:
@@ -2482,38 +2489,37 @@ namespace lemon {
       /// \brief Creates an iterator.
       ///
       /// Creates an iterator. It iterates on the
-      /// keys which mapped to true.
-      /// \param map The IterableIntMap
+      /// keys mapped to \c true.
+      /// \param map The IterableBoolMap.
       explicit TrueIt(const IterableBoolMap& map)
         : Parent(map._sep > 0 ? map._array[map._sep - 1] : INVALID),
           _map(&map) {}
 
       /// \brief Invalid constructor \& conversion.
       ///
-      /// This constructor initializes the key to be invalid.
+      /// This constructor initializes the iterator to be invalid.
       /// \sa Invalid for more details.
       TrueIt(Invalid) : Parent(INVALID), _map(0) {}
 
       /// \brief Increment operator.
       ///
-      /// Increment Operator.
+      /// Increment operator.
       TrueIt& operator++() {
         int pos = _map->position(*this);
         Parent::operator=(pos > 0 ? _map->_array[pos - 1] : INVALID);
         return *this;
       }
 
-
     private:
       const IterableBoolMap* _map;
     };
 
-    /// \brief Iterator for the keys mapped to false.
+    /// \brief Iterator for the keys mapped to \c false.
     ///
-    /// Iterator for the keys mapped to false. It works
-    /// like a graph item iterator in the map, it can be converted
+    /// Iterator for the keys mapped to \c false. It works
+    /// like a graph item iterator, it can be converted to
     /// the key type of the map, incremented with \c ++ operator, and
-    /// if the iterator leave the last valid key it will be equal to
+    /// if the iterator leaves the last valid key, it will be equal to
     /// \c INVALID.
     class FalseIt : public Key {
     public:
@@ -2522,21 +2528,21 @@ namespace lemon {
       /// \brief Creates an iterator.
       ///
       /// Creates an iterator. It iterates on the
-      /// keys which mapped to false.
-      /// \param map The IterableIntMap
+      /// keys mapped to \c false.
+      /// \param map The IterableBoolMap.
       explicit FalseIt(const IterableBoolMap& map)
         : Parent(map._sep < int(map._array.size()) ?
                  map._array.back() : INVALID), _map(&map) {}
 
       /// \brief Invalid constructor \& conversion.
       ///
-      /// This constructor initializes the key to be invalid.
+      /// This constructor initializes the iterator to be invalid.
       /// \sa Invalid for more details.
       FalseIt(Invalid) : Parent(INVALID), _map(0) {}
 
       /// \brief Increment operator.
       ///
-      /// Increment Operator.
+      /// Increment operator.
       FalseIt& operator++() {
         int pos = _map->position(*this);
         Parent::operator=(pos > _map->_sep ? _map->_array[pos - 1] : INVALID);
@@ -2550,20 +2556,20 @@ namespace lemon {
     /// \brief Iterator for the keys mapped to a given value.
     ///
     /// Iterator for the keys mapped to a given value. It works
-    /// like a graph item iterator in the map, it can be converted
+    /// like a graph item iterator, it can be converted to
     /// the key type of the map, incremented with \c ++ operator, and
-    /// if the iterator leave the last valid key it will be equal to
+    /// if the iterator leaves the last valid key, it will be equal to
     /// \c INVALID.
     class ItemIt : public Key {
     public:
       typedef Key Parent;
 
-      /// \brief Creates an iterator.
+      /// \brief Creates an iterator with a value.
       ///
-      /// Creates an iterator. It iterates on the
-      /// keys which mapped to false.
-      /// \param map The IterableIntMap
-      /// \param value Which elements should be iterated.
+      /// Creates an iterator with a value. It iterates on the
+      /// keys mapped to the given value.
+      /// \param map The IterableBoolMap.
+      /// \param value The value.
       ItemIt(const IterableBoolMap& map, bool value)
         : Parent(value ? 
                  (map._sep > 0 ?
@@ -2573,13 +2579,13 @@ namespace lemon {
 
       /// \brief Invalid constructor \& conversion.
       ///
-      /// This constructor initializes the key to be invalid.
+      /// This constructor initializes the iterator to be invalid.
       /// \sa Invalid for more details.
       ItemIt(Invalid) : Parent(INVALID), _map(0) {}
 
       /// \brief Increment operator.
       ///
-      /// Increment Operator.
+      /// Increment operator.
       ItemIt& operator++() {
         int pos = _map->position(*this);
         int _sep = pos >= _map->_sep ? _map->_sep : 0;
@@ -2673,30 +2679,35 @@ namespace lemon {
     };
   }
 
-  ///\ingroup graph_maps
-  ///
   /// \brief Dynamic iterable integer map.
   ///
-  /// This class provides a special graph map type which can store
-  /// for each graph item(node, edge, etc.) an integer value. For each
-  /// non negative value it is possible to iterate on the keys which
-  /// mapped to the given value.
+  /// This class provides a special graph map type which can store an
+  /// integer value for graph items (\c Node, \c Arc or \c Edge).
+  /// For each non-negative value it is possible to iterate on the keys
+  /// mapped to the value.
   ///
-  /// \note The size of the data structure depends on the highest
+  /// This type is a reference map, so it can be modified with the
+  /// subscription operator.
+  ///
+  /// \note The size of the data structure depends on the largest
   /// value in the map.
   ///
-  /// \param GR The graph type.
-  /// \param ITEM One of the graph's item type, the key of the map.
-  template <typename GR, typename ITEM>
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see IterableBoolMap, IterableValueMap
+  /// \see CrossRefMap
+  template <typename GR, typename K>
   class IterableIntMap
-    : protected ItemSetTraits<GR, ITEM>::
-        template Map<_maps_bits::IterableIntMapNode<ITEM> >::Type {
+    : protected ItemSetTraits<GR, K>::
+        template Map<_maps_bits::IterableIntMapNode<K> >::Type {
   public:
-    typedef typename ItemSetTraits<GR, ITEM>::
-      template Map<_maps_bits::IterableIntMapNode<ITEM> >::Type Parent;
+    typedef typename ItemSetTraits<GR, K>::
+      template Map<_maps_bits::IterableIntMapNode<K> >::Type Parent;
 
     /// The key type
-    typedef ITEM Key;
+    typedef K Key;
     /// The value type
     typedef int Value;
     /// The graph type
@@ -2704,7 +2715,7 @@ namespace lemon {
 
     /// \brief Constructor of the map.
     ///
-    /// Constructor of the map. It set all values to -1.
+    /// Constructor of the map. It sets all values to -1.
     explicit IterableIntMap(const Graph& graph)
       : Parent(graph) {}
 
@@ -2712,7 +2723,7 @@ namespace lemon {
     ///
     /// Constructor of the map with a given value.
     explicit IterableIntMap(const Graph& graph, int value)
-      : Parent(graph, _maps_bits::IterableIntMapNode<ITEM>(value)) {
+      : Parent(graph, _maps_bits::IterableIntMapNode<K>(value)) {
       if (value >= 0) {
         for (typename Parent::ItemIt it(*this); it != INVALID; ++it) {
           lace(it);
@@ -2754,13 +2765,13 @@ namespace lemon {
 
   public:
 
-    /// Indicates that the map if reference map.
+    /// Indicates that the map is reference map.
     typedef True ReferenceMapTag;
 
-    /// \brief Refernce to the value of the map.
+    /// \brief Reference to the value of the map.
     ///
-    /// This class is similar to the int type. It can
-    /// be converted to int and it has the same operators.
+    /// This class is similar to the \c int type. It can
+    /// be converted to \c int and it has the same operators.
     class Reference {
       friend class IterableIntMap;
     private:
@@ -2881,26 +2892,26 @@ namespace lemon {
     /// \brief Iterator for the keys with the same value.
     ///
     /// Iterator for the keys with the same value. It works
-    /// like a graph item iterator in the map, it can be converted
+    /// like a graph item iterator, it can be converted to
     /// the item type of the map, incremented with \c ++ operator, and
-    /// if the iterator leave the last valid item it will be equal to
+    /// if the iterator leaves the last valid item, it will be equal to
     /// \c INVALID.
-    class ItemIt : public ITEM {
+    class ItemIt : public Key {
     public:
-      typedef ITEM Parent;
+      typedef Key Parent;
 
       /// \brief Invalid constructor \& conversion.
       ///
-      /// This constructor initializes the item to be invalid.
+      /// This constructor initializes the iterator to be invalid.
       /// \sa Invalid for more details.
       ItemIt(Invalid) : Parent(INVALID), _map(0) {}
 
       /// \brief Creates an iterator with a value.
       ///
       /// Creates an iterator with a value. It iterates on the
-      /// keys which have the given value.
-      /// \param map The IterableIntMap
-      /// \param value The value
+      /// keys mapped to the given value.
+      /// \param map The IterableIntMap.
+      /// \param value The value.
       ItemIt(const IterableIntMap& map, int value) : _map(&map) {
         if (value < 0 || value >= int(_map->_first.size())) {
           Parent::operator=(INVALID);
@@ -2911,13 +2922,12 @@ namespace lemon {
 
       /// \brief Increment operator.
       ///
-      /// Increment Operator.
+      /// Increment operator.
       ItemIt& operator++() {
         Parent::operator=(_map->IterableIntMap::Parent::
                           operator[](static_cast<Parent&>(*this)).next);
         return *this;
       }
-
 
     private:
       const IterableIntMap* _map;
@@ -2943,7 +2953,7 @@ namespace lemon {
     }
 
   private:
-    std::vector<ITEM> _first;
+    std::vector<Key> _first;
   };
 
   namespace _maps_bits {
@@ -2955,49 +2965,52 @@ namespace lemon {
     };
   }
 
-  ///\ingroup graph_maps
-  ///
   /// \brief Dynamic iterable map for comparable values.
   ///
-  /// This class provides a special graph map type which can store
-  /// for each graph item(node, edge, etc.) a value. For each
-  /// value it is possible to iterate on the keys which mapped to the
-  /// given value. The type stores for each value a linked list with
+  /// This class provides a special graph map type which can store an
+  /// comparable value for graph items (\c Node, \c Arc or \c Edge).
+  /// For each value it is possible to iterate on the keys mapped to
+  /// the value.
+  ///
+  /// The map stores for each value a linked list with
   /// the items which mapped to the value, and the values are stored
   /// in balanced binary tree. The values of the map can be accessed
   /// with stl compatible forward iterator.
   ///
-  /// This type is not reference map so it cannot be modified with
+  /// This type is not reference map, so it cannot be modified with
   /// the subscription operator.
   ///
-  /// \see InvertableMap
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  /// \tparam V The value type of the map. It can be any comparable
+  /// value type.
   ///
-  /// \param GR The graph type.
-  /// \param ITEM One of the graph's item type, the key of the map.
-  /// \param VAL Any comparable value type.
-  template <typename GR, typename ITEM, typename VAL>
+  /// \see IterableBoolMap, IterableIntMap
+  /// \see CrossRefMap
+  template <typename GR, typename K, typename V>
   class IterableValueMap
-    : protected ItemSetTraits<GR, ITEM>::
-        template Map<_maps_bits::IterableValueMapNode<ITEM, VAL> >::Type {
+    : protected ItemSetTraits<GR, K>::
+        template Map<_maps_bits::IterableValueMapNode<K, V> >::Type {
   public:
-    typedef typename ItemSetTraits<GR, ITEM>::
-      template Map<_maps_bits::IterableValueMapNode<ITEM, VAL> >::Type Parent;
+    typedef typename ItemSetTraits<GR, K>::
+      template Map<_maps_bits::IterableValueMapNode<K, V> >::Type Parent;
 
     /// The key type
-    typedef ITEM Key;
+    typedef K Key;
     /// The value type
-    typedef VAL Value;
+    typedef V Value;
     /// The graph type
     typedef GR Graph;
 
   public:
 
-    /// \brief Constructor of the Map with a given value.
+    /// \brief Constructor of the map with a given value.
     ///
-    /// Constructor of the Map with a given value.
+    /// Constructor of the map with a given value.
     explicit IterableValueMap(const Graph& graph,
                               const Value& value = Value())
-      : Parent(graph, _maps_bits::IterableValueMapNode<ITEM, VAL>(value)) {
+      : Parent(graph, _maps_bits::IterableValueMapNode<K, V>(value)) {
       for (typename Parent::ItemIt it(*this); it != INVALID; ++it) {
         lace(it);
       }
@@ -3026,9 +3039,6 @@ namespace lemon {
       typename std::map<Value, Key>::iterator it = _first.find(node.value);
       if (it == _first.end()) {
         node.prev = node.next = INVALID;
-        if (node.next != INVALID) {
-          Parent::operator[](node.next).prev = key;
-        }
         _first.insert(std::make_pair(node.value, key));
       } else {
         node.prev = INVALID;
@@ -3046,8 +3056,7 @@ namespace lemon {
     ///
     /// This iterator is an stl compatible forward
     /// iterator on the values of the map. The values can
-    /// be accessed in the [beginValue, endValue) range.
-    ///
+    /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     class ValueIterator
       : public std::iterator<std::forward_iterator_tag, Value> {
       friend class IterableValueMap;
@@ -3079,7 +3088,7 @@ namespace lemon {
     ///
     /// Returns an stl compatible iterator to the
     /// first value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
     ValueIterator beginValue() const {
       return ValueIterator(_first.begin());
@@ -3089,7 +3098,7 @@ namespace lemon {
     ///
     /// Returns an stl compatible iterator after the
     /// last value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
     ValueIterator endValue() const {
       return ValueIterator(_first.end());
@@ -3114,17 +3123,17 @@ namespace lemon {
     /// \brief Iterator for the keys with the same value.
     ///
     /// Iterator for the keys with the same value. It works
-    /// like a graph item iterator in the map, it can be converted
+    /// like a graph item iterator, it can be converted to
     /// the item type of the map, incremented with \c ++ operator, and
-    /// if the iterator leave the last valid item it will be equal to
+    /// if the iterator leaves the last valid item, it will be equal to
     /// \c INVALID.
-    class ItemIt : public ITEM {
+    class ItemIt : public Key {
     public:
-      typedef ITEM Parent;
+      typedef Key Parent;
 
       /// \brief Invalid constructor \& conversion.
       ///
-      /// This constructor initializes the item to be invalid.
+      /// This constructor initializes the iterator to be invalid.
       /// \sa Invalid for more details.
       ItemIt(Invalid) : Parent(INVALID), _map(0) {}
 
