@@ -1826,7 +1826,7 @@ namespace lemon {
   /// Using this map you get access (i.e. can read) the inner id values of
   /// the items stored in the graph, which is returned by the \c id()
   /// function of the graph. This map can be inverted with its member
-  /// class \c InverseMap or with the \c operator() member.
+  /// class \c InverseMap or with the \c operator()() member.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
@@ -2033,6 +2033,14 @@ namespace lemon {
       typename Container::const_iterator it = _inv_map.find(val);
       return it != _inv_map.end() ? it->second : INVALID;
     }
+    
+    /// \brief Returns the number of items with the given value.
+    ///
+    /// This function returns the number of items with the given value
+    /// associated with it.
+    int count(const Value &val) const {
+      return _inv_map.count(val);
+    }
 
   protected:
 
@@ -2122,11 +2130,11 @@ namespace lemon {
 
   };
 
-  /// \brief Provides continuous and unique ID for the
+  /// \brief Provides continuous and unique id for the
   /// items of a graph.
   ///
   /// RangeIdMap provides a unique and continuous
-  /// ID for each item of a given type (\c Node, \c Arc or
+  /// id for each item of a given type (\c Node, \c Arc or
   /// \c Edge) in a graph. This id is
   ///  - \b unique: different items get different ids,
   ///  - \b continuous: the range of the ids is the set of integers
@@ -2137,7 +2145,7 @@ namespace lemon {
   /// Thus this id is not (necessarily) the same as what can get using
   /// the \c id() function of the graph or \ref IdMap.
   /// This map can be inverted with its member class \c InverseMap,
-  /// or with the \c operator() member.
+  /// or with the \c operator()() member.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
