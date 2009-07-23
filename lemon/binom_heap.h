@@ -79,9 +79,9 @@ namespace lemon {
     };
 
   private:
-    class store;
+    class Store;
 
-    std::vector<store> _data;
+    std::vector<Store> _data;
     int _min, _head;
     ItemIntMap &_iim;
     Compare _comp;
@@ -156,8 +156,9 @@ namespace lemon {
       if ( i<0 ) {
         int s=_data.size();
         _iim.set( item,s );
-        store st;
+        Store st;
         st.name=item;
+        st.prio=value;
         _data.push_back(st);
         i=s;
       }
@@ -165,14 +166,16 @@ namespace lemon {
         _data[i].parent=_data[i].right_neighbor=_data[i].child=-1;
         _data[i].degree=0;
         _data[i].in=true;
+        _data[i].prio=value;
       }
-      _data[i].prio=value;
 
-      if( 0==_num_items ) { _head=i; _min=i; }
-      else { merge(i); }
-
-      _min = findMin();
-
+      if( 0==_num_items ) {
+        _head=i;
+        _min=i;
+      } else {
+        merge(i);
+        if( _comp(_data[i].prio, _data[_min].prio) ) _min=i;
+      }
       ++_num_items;
     }
 
@@ -208,26 +211,23 @@ namespace lemon {
       if ( _data[_min].child!=-1 ) {
         int child=_data[_min].child;
         int neighb;
-        int prev=-1;
         while( child!=-1 ) {
           neighb=_data[child].right_neighbor;
           _data[child].parent=-1;
-          _data[child].right_neighbor=prev;
+          _data[child].right_neighbor=head_child;
           head_child=child;
-          prev=child;
           child=neighb;
         }
       }
 
-      // The first case is that there are only one root.
-      if ( -1==_data[_head].right_neighbor ) {
+      if ( _data[_head].right_neighbor==-1 ) {
+        // there was only one root
         _head=head_child;
       }
-      // The case where there are more roots.
       else {
+        // there were more roots
         if( _head!=_min )  { unlace(_min); }
         else { _head=_data[_head].right_neighbor; }
-
         merge(head_child);
       }
       _min=findMin();
@@ -256,73 +256,20 @@ namespace lemon {
     /// \pre \e item must be stored in the heap with priority at least \e value.
     void decrease (Item item, const Prio& value) {
       int i=_iim[item];
-
-      if( _comp( value,_data[i].prio ) ) {
-        _data[i].prio=value;
-
-        int p_loc=_data[i].parent, loc=i;
-        int parent, child, neighb;
-
-        while( -1!=p_loc && _comp(_data[loc].prio,_data[p_loc].prio) ) {
-
-          // parent set for other loc_child
-          child=_data[loc].child;
-          while( -1!=child ) {
-            _data[child].parent=p_loc;
-            child=_data[child].right_neighbor;
-          }
-
-          // parent set for other p_loc_child
-          child=_data[p_loc].child;
-          while( -1!=child ) {
-            _data[child].parent=loc;
-            child=_data[child].right_neighbor;
-          }
-
-          child=_data[p_loc].child;
-          _data[p_loc].child=_data[loc].child;
-          if( child==loc )
-            child=p_loc;
-          _data[loc].child=child;
-
-          // left_neighb set for p_loc
-          if( _data[loc].child!=p_loc ) {
-            while( _data[child].right_neighbor!=loc )
-              child=_data[child].right_neighbor;
-            _data[child].right_neighbor=p_loc;
-          }
-
-          // left_neighb set for loc
-          parent=_data[p_loc].parent;
-          if( -1!=parent ) child=_data[parent].child;
-          else child=_head;
-
-          if( child!=p_loc ) {
-            while( _data[child].right_neighbor!=p_loc )
-              child=_data[child].right_neighbor;
-            _data[child].right_neighbor=loc;
-          }
-
-          neighb=_data[p_loc].right_neighbor;
-          _data[p_loc].right_neighbor=_data[loc].right_neighbor;
-          _data[loc].right_neighbor=neighb;
-
-          _data[p_loc].parent=loc;
-          _data[loc].parent=parent;
-
-          if( -1!=parent && _data[parent].child==p_loc )
-            _data[parent].child=loc;
-
-          /*if new parent will be the first root*/
-          if( _head==p_loc )
-            _head=loc;
-
-          p_loc=_data[loc].parent;
-        }
+      int p=_data[i].parent;
+      _data[i].prio=value;
+      
+      while( p!=-1 && _comp(value, _data[p].prio) ) {
+        _data[i].name=_data[p].name;
+        _data[i].prio=_data[p].prio;
+        _data[p].name=item;
+        _data[p].prio=value;
+        _iim[_data[i].name]=i;
+        i=p;
+        p=_data[p].parent;
       }
-      if( _comp(value,_data[_min].prio) ) {
-        _min=i;
-      }
+      _iim[item]=i;
+      if ( _comp(value, _data[_min].prio) ) _min=i;
     }
 
     /// \brief Increase the priority of an item to the given value.
@@ -375,104 +322,87 @@ namespace lemon {
     }
 
   private:
+    
+    // Find the minimum of the roots
     int findMin() {
-      int min_loc=-1, min_val;
-      int x=_head;
-      if( x!=-1 ) {
-        min_val=_data[x].prio;
-        min_loc=x;
-        x=_data[x].right_neighbor;
-
-        while( x!=-1 ) {
+      if( _head!=-1 ) {
+        int min_loc=_head, min_val=_data[_head].prio;
+        for( int x=_data[_head].right_neighbor; x!=-1;
+             x=_data[x].right_neighbor ) {
           if( _comp( _data[x].prio,min_val ) ) {
             min_val=_data[x].prio;
             min_loc=x;
           }
-          x=_data[x].right_neighbor;
         }
+        return min_loc;
       }
-      return min_loc;
+      else return -1;
     }
 
+    // Merge the heap with another heap starting at the given position
     void merge(int a) {
-      interleave(a);
-
+      if( _head==-1 || a==-1 ) return;
+      if( _data[a].right_neighbor==-1 &&
+          _data[a].degree<=_data[_head].degree ) {
+        _data[a].right_neighbor=_head;
+        _head=a;
+      } else {
+        interleave(a);
+      }
+      if( _data[_head].right_neighbor==-1 ) return;
+      
       int x=_head;
-      if( -1!=x ) {
-        int x_prev=-1, x_next=_data[x].right_neighbor;
-        while( -1!=x_next ) {
-          if( _data[x].degree!=_data[x_next].degree || ( -1!=_data[x_next].right_neighbor && _data[_data[x_next].right_neighbor].degree==_data[x].degree ) ) {
-            x_prev=x;
+      int x_prev=-1, x_next=_data[x].right_neighbor;
+      while( x_next!=-1 ) {
+        if( _data[x].degree!=_data[x_next].degree ||
+            ( _data[x_next].right_neighbor!=-1 &&
+              _data[_data[x_next].right_neighbor].degree==_data[x].degree ) ) {
+          x_prev=x;
+          x=x_next;
+        }
+        else {
+          if( _comp(_data[x_next].prio,_data[x].prio) ) {
+            if( x_prev==-1 ) {
+              _head=x_next;
+            } else {
+              _data[x_prev].right_neighbor=x_next;
+            }
+            fuse(x,x_next);
             x=x_next;
           }
           else {
-            if( _comp(_data[x].prio,_data[x_next].prio) ) {
-              _data[x].right_neighbor=_data[x_next].right_neighbor;
-              fuse(x_next,x);
-            }
-            else {
-              if( -1==x_prev ) { _head=x_next; }
-              else {
-                _data[x_prev].right_neighbor=x_next;
-              }
-              fuse(x,x_next);
-              x=x_next;
-            }
+            _data[x].right_neighbor=_data[x_next].right_neighbor;
+            fuse(x_next,x);
           }
-          x_next=_data[x].right_neighbor;
         }
+        x_next=_data[x].right_neighbor;
       }
     }
 
+    // Interleave the elements of the given list into the list of the roots
     void interleave(int a) {
-      int other=-1, head_other=-1;
-
-      while( -1!=a || -1!=_head ) {
-        if( -1==a ) {
-          if( -1==head_other ) {
-            head_other=_head;
-          }
-          else {
-            _data[other].right_neighbor=_head;
-          }
-          _head=-1;
-        }
-        else if( -1==_head ) {
-          if( -1==head_other ) {
-            head_other=a;
-          }
-          else {
-            _data[other].right_neighbor=a;
-          }
-          a=-1;
+      int p=_head, q=a;
+      int curr=_data.size();
+      _data.push_back(Store());
+      
+      while( p!=-1 || q!=-1 ) {
+        if( q==-1 || ( p!=-1 && _data[p].degree<_data[q].degree ) ) {
+          _data[curr].right_neighbor=p;
+          curr=p;
+          p=_data[p].right_neighbor;
         }
         else {
-          if( _data[a].degree<_data[_head].degree ) {
-            if( -1==head_other ) {
-              head_other=a;
-            }
-            else {
-              _data[other].right_neighbor=a;
-            }
-            other=a;
-            a=_data[a].right_neighbor;
-          }
-          else {
-            if( -1==head_other ) {
-              head_other=_head;
-            }
-            else {
-              _data[other].right_neighbor=_head;
-            }
-            other=_head;
-            _head=_data[_head].right_neighbor;
-          }
+          _data[curr].right_neighbor=q;
+          curr=q;
+          q=_data[q].right_neighbor;
         }
       }
-      _head=head_other;
+      
+      _head=_data.back().right_neighbor;
+      _data.pop_back();
     }
 
-    // Lacing a under b
+    // Lace node a under node b
     void fuse(int a, int b) {
       _data[a].parent=b;
       _data[a].right_neighbor=_data[b].child;
@@ -481,7 +411,7 @@ namespace lemon {
       ++_data[b].degree;
     }
 
-    // It is invoked only if a has siblings.
+    // Unlace node a (if it has siblings)
     void unlace(int a) {
       int neighb=_data[a].right_neighbor;
       int other=_head;
@@ -493,7 +423,7 @@ namespace lemon {
 
   private:
 
-    class store {
+    class Store {
       friend class BinomHeap;
 
       Item name;
@@ -504,7 +434,8 @@ namespace lemon {
       bool in;
       Prio prio;
 
-      store() : parent(-1), right_neighbor(-1), child(-1), degree(0), in(true) {}
+      Store() : parent(-1), right_neighbor(-1), child(-1), degree(0),
+        in(true) {}
     };
   };
 
