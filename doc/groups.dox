@@ -375,7 +375,7 @@ outgoing arcs. Formally, there is a \f$G=(V,A)\f$ digraph, a
 cut is the \f$X\f$ solution of the next optimization problem:
 
 \f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}
-    \sum_{uv\in A, u\in X, v\not\in X}cap(uv) \f]
+    \sum_{uv\in A: u\in X, v\not\in X}cap(uv) \f]
 
 LEMON contains several algorithms related to minimum cut problems:
 
@@ -398,8 +398,8 @@ see the \ref max_flow "maximum flow problem".
 This group contains the algorithms for discovering the graph properties
 like connectivity, bipartiteness, euler property, simplicity etc.
 
-\image html edge_biconnected_components.png
-\image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
+\image html connected_components.png
+\image latex connected_components.eps "Connected components" width=\textwidth
 */
 
 /**

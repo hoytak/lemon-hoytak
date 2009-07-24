@@ -411,8 +411,8 @@ namespace lemon {
     ///\name Execution Control
     ///The simplest way to execute the DFS algorithm is to use one of the
     ///member functions called \ref run(Node) "run()".\n
-    ///If you need more control on the execution, first you have to call
-    ///\ref init(), then you can add a source node with \ref addSource()
+    ///If you need better control on the execution, you have to call
+    ///\ref init() first, then you can add a source node with \ref addSource()
     ///and perform the actual computation with \ref start().
     ///This procedure can be repeated if there are nodes that have not
     ///been reached.
@@ -1369,8 +1369,8 @@ namespace lemon {
     /// \name Execution Control
     /// The simplest way to execute the DFS algorithm is to use one of the
     /// member functions called \ref run(Node) "run()".\n
-    /// If you need more control on the execution, first you have to call
-    /// \ref init(), then you can add a source node with \ref addSource()
+    /// If you need better control on the execution, you have to call
+    /// \ref init() first, then you can add a source node with \ref addSource()
     /// and perform the actual computation with \ref start().
     /// This procedure can be repeated if there are nodes that have not
     /// been reached.
