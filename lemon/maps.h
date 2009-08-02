@@ -22,14 +22,13 @@
 #include <iterator>
 #include <functional>
 #include <vector>
+#include <map>
 
 #include <lemon/core.h>
 
 ///\file
 ///\ingroup maps
 ///\brief Miscellaneous property maps
-
-#include <map>
 
 namespace lemon {
 
@@ -1818,7 +1817,7 @@ namespace lemon {
   /// \brief Provides an immutable and unique id for each item in a graph.
   ///
   /// IdMap provides a unique and immutable id for each item of the
-  /// same type (\c Node, \c Arc or \c Edge) in a graph. This id is 
+  /// same type (\c Node, \c Arc or \c Edge) in a graph. This id is
   ///  - \b unique: different items get different ids,
   ///  - \b immutable: the id of an item does not change (even if you
   ///    delete other nodes).
@@ -2281,7 +2280,7 @@ namespace lemon {
     }
 
     /// \brief Gives back the item belonging to a \e RangeId
-    /// 
+    ///
     /// Gives back the item belonging to a \e RangeId.
     Item operator()(int id) const {
       return _inv_map[id];
@@ -2336,6 +2335,903 @@ namespace lemon {
     const InverseMap inverse() const {
       return InverseMap(*this);
     }
+  };
+
+  /// \brief Dynamic iterable \c bool map.
+  ///
+  /// This class provides a special graph map type which can store a
+  /// \c bool value for graph items (\c Node, \c Arc or \c Edge).
+  /// For both \c true and \c false values it is possible to iterate on
+  /// the keys.
+  ///
+  /// This type is a reference map, so it can be modified with the
+  /// subscription operator.
+  ///
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see IterableIntMap, IterableValueMap
+  /// \see CrossRefMap
+  template <typename GR, typename K>
+  class IterableBoolMap
+    : protected ItemSetTraits<GR, K>::template Map<int>::Type {
+  private:
+    typedef GR Graph;
+
+    typedef typename ItemSetTraits<GR, K>::ItemIt KeyIt;
+    typedef typename ItemSetTraits<GR, K>::template Map<int>::Type Parent;
+
+    std::vector<K> _array;
+    int _sep;
+
+  public:
+
+    /// Indicates that the map is reference map.
+    typedef True ReferenceMapTag;
+
+    /// The key type
+    typedef K Key;
+    /// The value type
+    typedef bool Value;
+    /// The const reference type.
+    typedef const Value& ConstReference;
+
+  private:
+
+    int position(const Key& key) const {
+      return Parent::operator[](key);
+    }
+
+  public:
+
+    /// \brief Reference to the value of the map.
+    ///
+    /// This class is similar to the \c bool type. It can be converted to
+    /// \c bool and it provides the same operators.
+    class Reference {
+      friend class IterableBoolMap;
+    private:
+      Reference(IterableBoolMap& map, const Key& key)
+        : _key(key), _map(map) {}
+    public:
+
+      Reference& operator=(const Reference& value) {
+        _map.set(_key, static_cast<bool>(value));
+         return *this;
+      }
+
+      operator bool() const {
+        return static_cast<const IterableBoolMap&>(_map)[_key];
+      }
+
+      Reference& operator=(bool value) {
+        _map.set(_key, value);
+        return *this;
+      }
+      Reference& operator&=(bool value) {
+        _map.set(_key, _map[_key] & value);
+        return *this;
+      }
+      Reference& operator|=(bool value) {
+        _map.set(_key, _map[_key] | value);
+        return *this;
+      }
+      Reference& operator^=(bool value) {
+        _map.set(_key, _map[_key] ^ value);
+        return *this;
+      }
+    private:
+      Key _key;
+      IterableBoolMap& _map;
+    };
+
+    /// \brief Constructor of the map with a default value.
+    ///
+    /// Constructor of the map with a default value.
+    explicit IterableBoolMap(const Graph& graph, bool def = false)
+      : Parent(graph) {
+      typename Parent::Notifier* nf = Parent::notifier();
+      Key it;
+      for (nf->first(it); it != INVALID; nf->next(it)) {
+        Parent::set(it, _array.size());
+        _array.push_back(it);
+      }
+      _sep = (def ? _array.size() : 0);
+    }
+
+    /// \brief Const subscript operator of the map.
+    ///
+    /// Const subscript operator of the map.
+    bool operator[](const Key& key) const {
+      return position(key) < _sep;
+    }
+
+    /// \brief Subscript operator of the map.
+    ///
+    /// Subscript operator of the map.
+    Reference operator[](const Key& key) {
+      return Reference(*this, key);
+    }
+
+    /// \brief Set operation of the map.
+    ///
+    /// Set operation of the map.
+    void set(const Key& key, bool value) {
+      int pos = position(key);
+      if (value) {
+        if (pos < _sep) return;
+        Key tmp = _array[_sep];
+        _array[_sep] = key;
+        Parent::set(key, _sep);
+        _array[pos] = tmp;
+        Parent::set(tmp, pos);
+        ++_sep;
+      } else {
+        if (pos >= _sep) return;
+        --_sep;
+        Key tmp = _array[_sep];
+        _array[_sep] = key;
+        Parent::set(key, _sep);
+        _array[pos] = tmp;
+        Parent::set(tmp, pos);
+      }
+    }
+
+    /// \brief Set all items.
+    ///
+    /// Set all items in the map.
+    /// \note Constant time operation.
+    void setAll(bool value) {
+      _sep = (value ? _array.size() : 0);
+    }
+
+    /// \brief Returns the number of the keys mapped to \c true.
+    ///
+    /// Returns the number of the keys mapped to \c true.
+    int trueNum() const {
+      return _sep;
+    }
+
+    /// \brief Returns the number of the keys mapped to \c false.
+    ///
+    /// Returns the number of the keys mapped to \c false.
+    int falseNum() const {
+      return _array.size() - _sep;
+    }
+
+    /// \brief Iterator for the keys mapped to \c true.
+    ///
+    /// Iterator for the keys mapped to \c true. It works
+    /// like a graph item iterator, it can be converted to
+    /// the key type of the map, incremented with \c ++ operator, and
+    /// if the iterator leaves the last valid key, it will be equal to
+    /// \c INVALID.
+    class TrueIt : public Key {
+    public:
+      typedef Key Parent;
+
+      /// \brief Creates an iterator.
+      ///
+      /// Creates an iterator. It iterates on the
+      /// keys mapped to \c true.
+      /// \param map The IterableBoolMap.
+      explicit TrueIt(const IterableBoolMap& map)
+        : Parent(map._sep > 0 ? map._array[map._sep - 1] : INVALID),
+          _map(&map) {}
+
+      /// \brief Invalid constructor \& conversion.
+      ///
+      /// This constructor initializes the iterator to be invalid.
+      /// \sa Invalid for more details.
+      TrueIt(Invalid) : Parent(INVALID), _map(0) {}
+
+      /// \brief Increment operator.
+      ///
+      /// Increment operator.
+      TrueIt& operator++() {
+        int pos = _map->position(*this);
+        Parent::operator=(pos > 0 ? _map->_array[pos - 1] : INVALID);
+        return *this;
+      }
+
+    private:
+      const IterableBoolMap* _map;
+    };
+
+    /// \brief Iterator for the keys mapped to \c false.
+    ///
+    /// Iterator for the keys mapped to \c false. It works
+    /// like a graph item iterator, it can be converted to
+    /// the key type of the map, incremented with \c ++ operator, and
+    /// if the iterator leaves the last valid key, it will be equal to
+    /// \c INVALID.
+    class FalseIt : public Key {
+    public:
+      typedef Key Parent;
+
+      /// \brief Creates an iterator.
+      ///
+      /// Creates an iterator. It iterates on the
+      /// keys mapped to \c false.
+      /// \param map The IterableBoolMap.
+      explicit FalseIt(const IterableBoolMap& map)
+        : Parent(map._sep < int(map._array.size()) ?
+                 map._array.back() : INVALID), _map(&map) {}
+
+      /// \brief Invalid constructor \& conversion.
+      ///
+      /// This constructor initializes the iterator to be invalid.
+      /// \sa Invalid for more details.
+      FalseIt(Invalid) : Parent(INVALID), _map(0) {}
+
+      /// \brief Increment operator.
+      ///
+      /// Increment operator.
+      FalseIt& operator++() {
+        int pos = _map->position(*this);
+        Parent::operator=(pos > _map->_sep ? _map->_array[pos - 1] : INVALID);
+        return *this;
+      }
+
+    private:
+      const IterableBoolMap* _map;
+    };
+
+    /// \brief Iterator for the keys mapped to a given value.
+    ///
+    /// Iterator for the keys mapped to a given value. It works
+    /// like a graph item iterator, it can be converted to
+    /// the key type of the map, incremented with \c ++ operator, and
+    /// if the iterator leaves the last valid key, it will be equal to
+    /// \c INVALID.
+    class ItemIt : public Key {
+    public:
+      typedef Key Parent;
+
+      /// \brief Creates an iterator with a value.
+      ///
+      /// Creates an iterator with a value. It iterates on the
+      /// keys mapped to the given value.
+      /// \param map The IterableBoolMap.
+      /// \param value The value.
+      ItemIt(const IterableBoolMap& map, bool value)
+        : Parent(value ? 
+                 (map._sep > 0 ?
+                  map._array[map._sep - 1] : INVALID) :
+                 (map._sep < int(map._array.size()) ?
+                  map._array.back() : INVALID)), _map(&map) {}
+
+      /// \brief Invalid constructor \& conversion.
+      ///
+      /// This constructor initializes the iterator to be invalid.
+      /// \sa Invalid for more details.
+      ItemIt(Invalid) : Parent(INVALID), _map(0) {}
+
+      /// \brief Increment operator.
+      ///
+      /// Increment operator.
+      ItemIt& operator++() {
+        int pos = _map->position(*this);
+        int _sep = pos >= _map->_sep ? _map->_sep : 0;
+        Parent::operator=(pos > _sep ? _map->_array[pos - 1] : INVALID);
+        return *this;
+      }
+
+    private:
+      const IterableBoolMap* _map;
+    };
+
+  protected:
+
+    virtual void add(const Key& key) {
+      Parent::add(key);
+      Parent::set(key, _array.size());
+      _array.push_back(key);
+    }
+
+    virtual void add(const std::vector<Key>& keys) {
+      Parent::add(keys);
+      for (int i = 0; i < int(keys.size()); ++i) {
+        Parent::set(keys[i], _array.size());
+        _array.push_back(keys[i]);
+      }
+    }
+
+    virtual void erase(const Key& key) {
+      int pos = position(key);
+      if (pos < _sep) {
+        --_sep;
+        Parent::set(_array[_sep], pos);
+        _array[pos] = _array[_sep];
+        Parent::set(_array.back(), _sep);
+        _array[_sep] = _array.back();
+        _array.pop_back();
+      } else {
+        Parent::set(_array.back(), pos);
+        _array[pos] = _array.back();
+        _array.pop_back();
+      }
+      Parent::erase(key);
+    }
+
+    virtual void erase(const std::vector<Key>& keys) {
+      for (int i = 0; i < int(keys.size()); ++i) {
+        int pos = position(keys[i]);
+        if (pos < _sep) {
+          --_sep;
+          Parent::set(_array[_sep], pos);
+          _array[pos] = _array[_sep];
+          Parent::set(_array.back(), _sep);
+          _array[_sep] = _array.back();
+          _array.pop_back();
+        } else {
+          Parent::set(_array.back(), pos);
+          _array[pos] = _array.back();
+          _array.pop_back();
+        }
+      }
+      Parent::erase(keys);
+    }
+
+    virtual void build() {
+      Parent::build();
+      typename Parent::Notifier* nf = Parent::notifier();
+      Key it;
+      for (nf->first(it); it != INVALID; nf->next(it)) {
+        Parent::set(it, _array.size());
+        _array.push_back(it);
+      }
+      _sep = 0;
+    }
+
+    virtual void clear() {
+      _array.clear();
+      _sep = 0;
+      Parent::clear();
+    }
+
+  };
+
+
+  namespace _maps_bits {
+    template <typename Item>
+    struct IterableIntMapNode {
+      IterableIntMapNode() : value(-1) {}
+      IterableIntMapNode(int _value) : value(_value) {}
+      Item prev, next;
+      int value;
+    };
+  }
+
+  /// \brief Dynamic iterable integer map.
+  ///
+  /// This class provides a special graph map type which can store an
+  /// integer value for graph items (\c Node, \c Arc or \c Edge).
+  /// For each non-negative value it is possible to iterate on the keys
+  /// mapped to the value.
+  ///
+  /// This type is a reference map, so it can be modified with the
+  /// subscription operator.
+  ///
+  /// \note The size of the data structure depends on the largest
+  /// value in the map.
+  ///
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see IterableBoolMap, IterableValueMap
+  /// \see CrossRefMap
+  template <typename GR, typename K>
+  class IterableIntMap
+    : protected ItemSetTraits<GR, K>::
+        template Map<_maps_bits::IterableIntMapNode<K> >::Type {
+  public:
+    typedef typename ItemSetTraits<GR, K>::
+      template Map<_maps_bits::IterableIntMapNode<K> >::Type Parent;
+
+    /// The key type
+    typedef K Key;
+    /// The value type
+    typedef int Value;
+    /// The graph type
+    typedef GR Graph;
+
+    /// \brief Constructor of the map.
+    ///
+    /// Constructor of the map. It sets all values to -1.
+    explicit IterableIntMap(const Graph& graph)
+      : Parent(graph) {}
+
+    /// \brief Constructor of the map with a given value.
+    ///
+    /// Constructor of the map with a given value.
+    explicit IterableIntMap(const Graph& graph, int value)
+      : Parent(graph, _maps_bits::IterableIntMapNode<K>(value)) {
+      if (value >= 0) {
+        for (typename Parent::ItemIt it(*this); it != INVALID; ++it) {
+          lace(it);
+        }
+      }
+    }
+
+  private:
+
+    void unlace(const Key& key) {
+      typename Parent::Value& node = Parent::operator[](key);
+      if (node.value < 0) return;
+      if (node.prev != INVALID) {
+        Parent::operator[](node.prev).next = node.next;
+      } else {
+        _first[node.value] = node.next;
+      }
+      if (node.next != INVALID) {
+        Parent::operator[](node.next).prev = node.prev;
+      }
+      while (!_first.empty() && _first.back() == INVALID) {
+        _first.pop_back();
+      }
+    }
+
+    void lace(const Key& key) {
+      typename Parent::Value& node = Parent::operator[](key);
+      if (node.value < 0) return;
+      if (node.value >= int(_first.size())) {
+        _first.resize(node.value + 1, INVALID);
+      }
+      node.prev = INVALID;
+      node.next = _first[node.value];
+      if (node.next != INVALID) {
+        Parent::operator[](node.next).prev = key;
+      }
+      _first[node.value] = key;
+    }
+
+  public:
+
+    /// Indicates that the map is reference map.
+    typedef True ReferenceMapTag;
+
+    /// \brief Reference to the value of the map.
+    ///
+    /// This class is similar to the \c int type. It can
+    /// be converted to \c int and it has the same operators.
+    class Reference {
+      friend class IterableIntMap;
+    private:
+      Reference(IterableIntMap& map, const Key& key)
+        : _key(key), _map(map) {}
+    public:
+
+      Reference& operator=(const Reference& value) {
+        _map.set(_key, static_cast<const int&>(value));
+         return *this;
+      }
+
+      operator const int&() const {
+        return static_cast<const IterableIntMap&>(_map)[_key];
+      }
+
+      Reference& operator=(int value) {
+        _map.set(_key, value);
+        return *this;
+      }
+      Reference& operator++() {
+        _map.set(_key, _map[_key] + 1);
+        return *this;
+      }
+      int operator++(int) {
+        int value = _map[_key];
+        _map.set(_key, value + 1);
+        return value;
+      }
+      Reference& operator--() {
+        _map.set(_key, _map[_key] - 1);
+        return *this;
+      }
+      int operator--(int) {
+        int value = _map[_key];
+        _map.set(_key, value - 1);
+        return value;
+      }
+      Reference& operator+=(int value) {
+        _map.set(_key, _map[_key] + value);
+        return *this;
+      }
+      Reference& operator-=(int value) {
+        _map.set(_key, _map[_key] - value);
+        return *this;
+      }
+      Reference& operator*=(int value) {
+        _map.set(_key, _map[_key] * value);
+        return *this;
+      }
+      Reference& operator/=(int value) {
+        _map.set(_key, _map[_key] / value);
+        return *this;
+      }
+      Reference& operator%=(int value) {
+        _map.set(_key, _map[_key] % value);
+        return *this;
+      }
+      Reference& operator&=(int value) {
+        _map.set(_key, _map[_key] & value);
+        return *this;
+      }
+      Reference& operator|=(int value) {
+        _map.set(_key, _map[_key] | value);
+        return *this;
+      }
+      Reference& operator^=(int value) {
+        _map.set(_key, _map[_key] ^ value);
+        return *this;
+      }
+      Reference& operator<<=(int value) {
+        _map.set(_key, _map[_key] << value);
+        return *this;
+      }
+      Reference& operator>>=(int value) {
+        _map.set(_key, _map[_key] >> value);
+        return *this;
+      }
+
+    private:
+      Key _key;
+      IterableIntMap& _map;
+    };
+
+    /// The const reference type.
+    typedef const Value& ConstReference;
+
+    /// \brief Gives back the maximal value plus one.
+    ///
+    /// Gives back the maximal value plus one.
+    int size() const {
+      return _first.size();
+    }
+
+    /// \brief Set operation of the map.
+    ///
+    /// Set operation of the map.
+    void set(const Key& key, const Value& value) {
+      unlace(key);
+      Parent::operator[](key).value = value;
+      lace(key);
+    }
+
+    /// \brief Const subscript operator of the map.
+    ///
+    /// Const subscript operator of the map.
+    const Value& operator[](const Key& key) const {
+      return Parent::operator[](key).value;
+    }
+
+    /// \brief Subscript operator of the map.
+    ///
+    /// Subscript operator of the map.
+    Reference operator[](const Key& key) {
+      return Reference(*this, key);
+    }
+
+    /// \brief Iterator for the keys with the same value.
+    ///
+    /// Iterator for the keys with the same value. It works
+    /// like a graph item iterator, it can be converted to
+    /// the item type of the map, incremented with \c ++ operator, and
+    /// if the iterator leaves the last valid item, it will be equal to
+    /// \c INVALID.
+    class ItemIt : public Key {
+    public:
+      typedef Key Parent;
+
+      /// \brief Invalid constructor \& conversion.
+      ///
+      /// This constructor initializes the iterator to be invalid.
+      /// \sa Invalid for more details.
+      ItemIt(Invalid) : Parent(INVALID), _map(0) {}
+
+      /// \brief Creates an iterator with a value.
+      ///
+      /// Creates an iterator with a value. It iterates on the
+      /// keys mapped to the given value.
+      /// \param map The IterableIntMap.
+      /// \param value The value.
+      ItemIt(const IterableIntMap& map, int value) : _map(&map) {
+        if (value < 0 || value >= int(_map->_first.size())) {
+          Parent::operator=(INVALID);
+        } else {
+          Parent::operator=(_map->_first[value]);
+        }
+      }
+
+      /// \brief Increment operator.
+      ///
+      /// Increment operator.
+      ItemIt& operator++() {
+        Parent::operator=(_map->IterableIntMap::Parent::
+                          operator[](static_cast<Parent&>(*this)).next);
+        return *this;
+      }
+
+    private:
+      const IterableIntMap* _map;
+    };
+
+  protected:
+
+    virtual void erase(const Key& key) {
+      unlace(key);
+      Parent::erase(key);
+    }
+
+    virtual void erase(const std::vector<Key>& keys) {
+      for (int i = 0; i < int(keys.size()); ++i) {
+        unlace(keys[i]);
+      }
+      Parent::erase(keys);
+    }
+
+    virtual void clear() {
+      _first.clear();
+      Parent::clear();
+    }
+
+  private:
+    std::vector<Key> _first;
+  };
+
+  namespace _maps_bits {
+    template <typename Item, typename Value>
+    struct IterableValueMapNode {
+      IterableValueMapNode(Value _value = Value()) : value(_value) {}
+      Item prev, next;
+      Value value;
+    };
+  }
+
+  /// \brief Dynamic iterable map for comparable values.
+  ///
+  /// This class provides a special graph map type which can store an
+  /// comparable value for graph items (\c Node, \c Arc or \c Edge).
+  /// For each value it is possible to iterate on the keys mapped to
+  /// the value.
+  ///
+  /// The map stores for each value a linked list with
+  /// the items which mapped to the value, and the values are stored
+  /// in balanced binary tree. The values of the map can be accessed
+  /// with stl compatible forward iterator.
+  ///
+  /// This type is not reference map, so it cannot be modified with
+  /// the subscription operator.
+  ///
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  /// \tparam V The value type of the map. It can be any comparable
+  /// value type.
+  ///
+  /// \see IterableBoolMap, IterableIntMap
+  /// \see CrossRefMap
+  template <typename GR, typename K, typename V>
+  class IterableValueMap
+    : protected ItemSetTraits<GR, K>::
+        template Map<_maps_bits::IterableValueMapNode<K, V> >::Type {
+  public:
+    typedef typename ItemSetTraits<GR, K>::
+      template Map<_maps_bits::IterableValueMapNode<K, V> >::Type Parent;
+
+    /// The key type
+    typedef K Key;
+    /// The value type
+    typedef V Value;
+    /// The graph type
+    typedef GR Graph;
+
+  public:
+
+    /// \brief Constructor of the map with a given value.
+    ///
+    /// Constructor of the map with a given value.
+    explicit IterableValueMap(const Graph& graph,
+                              const Value& value = Value())
+      : Parent(graph, _maps_bits::IterableValueMapNode<K, V>(value)) {
+      for (typename Parent::ItemIt it(*this); it != INVALID; ++it) {
+        lace(it);
+      }
+    }
+
+  protected:
+
+    void unlace(const Key& key) {
+      typename Parent::Value& node = Parent::operator[](key);
+      if (node.prev != INVALID) {
+        Parent::operator[](node.prev).next = node.next;
+      } else {
+        if (node.next != INVALID) {
+          _first[node.value] = node.next;
+        } else {
+          _first.erase(node.value);
+        }
+      }
+      if (node.next != INVALID) {
+        Parent::operator[](node.next).prev = node.prev;
+      }
+    }
+
+    void lace(const Key& key) {
+      typename Parent::Value& node = Parent::operator[](key);
+      typename std::map<Value, Key>::iterator it = _first.find(node.value);
+      if (it == _first.end()) {
+        node.prev = node.next = INVALID;
+        _first.insert(std::make_pair(node.value, key));
+      } else {
+        node.prev = INVALID;
+        node.next = it->second;
+        if (node.next != INVALID) {
+          Parent::operator[](node.next).prev = key;
+        }
+        it->second = key;
+      }
+    }
+
+  public:
+
+    /// \brief Forward iterator for values.
+    ///
+    /// This iterator is an stl compatible forward
+    /// iterator on the values of the map. The values can
+    /// be accessed in the <tt>[beginValue, endValue)</tt> range.
+    class ValueIterator
+      : public std::iterator<std::forward_iterator_tag, Value> {
+      friend class IterableValueMap;
+    private:
+      ValueIterator(typename std::map<Value, Key>::const_iterator _it)
+        : it(_it) {}
+    public:
+
+      ValueIterator() {}
+
+      ValueIterator& operator++() { ++it; return *this; }
+      ValueIterator operator++(int) {
+        ValueIterator tmp(*this);
+        operator++();
+        return tmp;
+      }
+
+      const Value& operator*() const { return it->first; }
+      const Value* operator->() const { return &(it->first); }
+
+      bool operator==(ValueIterator jt) const { return it == jt.it; }
+      bool operator!=(ValueIterator jt) const { return it != jt.it; }
+
+    private:
+      typename std::map<Value, Key>::const_iterator it;
+    };
+
+    /// \brief Returns an iterator to the first value.
+    ///
+    /// Returns an stl compatible iterator to the
+    /// first value of the map. The values of the
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
+    /// range.
+    ValueIterator beginValue() const {
+      return ValueIterator(_first.begin());
+    }
+
+    /// \brief Returns an iterator after the last value.
+    ///
+    /// Returns an stl compatible iterator after the
+    /// last value of the map. The values of the
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
+    /// range.
+    ValueIterator endValue() const {
+      return ValueIterator(_first.end());
+    }
+
+    /// \brief Set operation of the map.
+    ///
+    /// Set operation of the map.
+    void set(const Key& key, const Value& value) {
+      unlace(key);
+      Parent::operator[](key).value = value;
+      lace(key);
+    }
+
+    /// \brief Const subscript operator of the map.
+    ///
+    /// Const subscript operator of the map.
+    const Value& operator[](const Key& key) const {
+      return Parent::operator[](key).value;
+    }
+
+    /// \brief Iterator for the keys with the same value.
+    ///
+    /// Iterator for the keys with the same value. It works
+    /// like a graph item iterator, it can be converted to
+    /// the item type of the map, incremented with \c ++ operator, and
+    /// if the iterator leaves the last valid item, it will be equal to
+    /// \c INVALID.
+    class ItemIt : public Key {
+    public:
+      typedef Key Parent;
+
+      /// \brief Invalid constructor \& conversion.
+      ///
+      /// This constructor initializes the iterator to be invalid.
+      /// \sa Invalid for more details.
+      ItemIt(Invalid) : Parent(INVALID), _map(0) {}
+
+      /// \brief Creates an iterator with a value.
+      ///
+      /// Creates an iterator with a value. It iterates on the
+      /// keys which have the given value.
+      /// \param map The IterableValueMap
+      /// \param value The value
+      ItemIt(const IterableValueMap& map, const Value& value) : _map(&map) {
+        typename std::map<Value, Key>::const_iterator it =
+          map._first.find(value);
+        if (it == map._first.end()) {
+          Parent::operator=(INVALID);
+        } else {
+          Parent::operator=(it->second);
+        }
+      }
+
+      /// \brief Increment operator.
+      ///
+      /// Increment Operator.
+      ItemIt& operator++() {
+        Parent::operator=(_map->IterableValueMap::Parent::
+                          operator[](static_cast<Parent&>(*this)).next);
+        return *this;
+      }
+
+
+    private:
+      const IterableValueMap* _map;
+    };
+
+  protected:
+
+    virtual void add(const Key& key) {
+      Parent::add(key);
+      unlace(key);
+    }
+
+    virtual void add(const std::vector<Key>& keys) {
+      Parent::add(keys);
+      for (int i = 0; i < int(keys.size()); ++i) {
+        lace(keys[i]);
+      }
+    }
+
+    virtual void erase(const Key& key) {
+      unlace(key);
+      Parent::erase(key);
+    }
+
+    virtual void erase(const std::vector<Key>& keys) {
+      for (int i = 0; i < int(keys.size()); ++i) {
+        unlace(keys[i]);
+      }
+      Parent::erase(keys);
+    }
+
+    virtual void build() {
+      Parent::build();
+      for (typename Parent::ItemIt it(*this); it != INVALID; ++it) {
+        lace(it);
+      }
+    }
+
+    virtual void clear() {
+      _first.clear();
+      Parent::clear();
+    }
+
+  private:
+    std::map<Value, Key> _first;
   };
 
   /// \brief Map of the source nodes of arcs in a digraph.
@@ -2507,7 +3403,7 @@ namespace lemon {
   /// in constant time. On the other hand, the values are updated automatically
   /// whenever the digraph changes.
   ///
-  /// \warning Besides \c addNode() and \c addArc(), a digraph structure 
+  /// \warning Besides \c addNode() and \c addArc(), a digraph structure
   /// may provide alternative ways to modify the digraph.
   /// The correct behavior of InDegMap is not guarantied if these additional
   /// features are used. For example the functions
@@ -2523,7 +3419,7 @@ namespace lemon {
       ::ItemNotifier::ObserverBase {
 
   public:
-    
+
     /// The graph type of InDegMap
     typedef GR Graph;
     typedef GR Digraph;
@@ -2637,7 +3533,7 @@ namespace lemon {
   /// in constant time. On the other hand, the values are updated automatically
   /// whenever the digraph changes.
   ///
-  /// \warning Besides \c addNode() and \c addArc(), a digraph structure 
+  /// \warning Besides \c addNode() and \c addArc(), a digraph structure
   /// may provide alternative ways to modify the digraph.
   /// The correct behavior of OutDegMap is not guarantied if these additional
   /// features are used. For example the functions
