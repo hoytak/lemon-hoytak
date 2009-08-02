@@ -56,7 +56,7 @@ namespace lemon {
   /// its type definitions, or if you have to provide a writable map,
   /// but data written to it is not required (i.e. it will be sent to
   /// <tt>/dev/null</tt>).
-  /// It conforms the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+  /// It conforms to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
   ///
   /// \sa ConstMap
   template<typename K, typename V>
@@ -89,7 +89,7 @@ namespace lemon {
   /// value to each key.
   ///
   /// In other aspects it is equivalent to \c NullMap.
-  /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
+  /// So it conforms to the \ref concepts::ReadWriteMap "ReadWriteMap"
   /// concept, but it absorbs the data written to it.
   ///
   /// The simplest way of using this map is through the constMap()
@@ -158,7 +158,7 @@ namespace lemon {
   /// value to each key.
   ///
   /// In other aspects it is equivalent to \c NullMap.
-  /// So it conforms the \ref concepts::ReadWriteMap "ReadWriteMap"
+  /// So it conforms to the \ref concepts::ReadWriteMap "ReadWriteMap"
   /// concept, but it absorbs the data written to it.
   ///
   /// The simplest way of using this map is through the constMap()
@@ -232,7 +232,7 @@ namespace lemon {
   /// values to integer keys from the range <tt>[0..size-1]</tt>.
   /// It can be used with some data structures, for example
   /// \c UnionFind, \c BinHeap, when the used items are small
-  /// integers. This map conforms the \ref concepts::ReferenceMap
+  /// integers. This map conforms to the \ref concepts::ReferenceMap
   /// "ReferenceMap" concept.
   ///
   /// The simplest way of using this map is through the rangeMap()
@@ -340,7 +340,7 @@ namespace lemon {
   /// that you can specify a default value for the keys that are not
   /// stored actually. This value can be different from the default
   /// contructed value (i.e. \c %Value()).
-  /// This type conforms the \ref concepts::ReferenceMap "ReferenceMap"
+  /// This type conforms to the \ref concepts::ReferenceMap "ReferenceMap"
   /// concept.
   ///
   /// This map is useful if a default value should be assigned to most of
@@ -706,7 +706,7 @@ namespace lemon {
   /// "readable map" to another type using the default conversion.
   /// The \c Key type of it is inherited from \c M and the \c Value
   /// type is \c V.
-  /// This type conforms the \ref concepts::ReadMap "ReadMap" concept.
+  /// This type conforms to the \ref concepts::ReadMap "ReadMap" concept.
   ///
   /// The simplest way of using this map is through the convertMap()
   /// function.
@@ -1865,9 +1865,11 @@ namespace lemon {
 
   public:
 
-    /// \brief This class represents the inverse of its owner (IdMap).
+    /// \brief The inverse map type of IdMap.
     ///
-    /// This class represents the inverse of its owner (IdMap).
+    /// The inverse map type of IdMap. The subscript operator gives back
+    /// an item by its id.
+    /// This type conforms to the \ref concepts::ReadMap "ReadMap" concept.
     /// \see inverse()
     class InverseMap {
     public:
@@ -1882,9 +1884,9 @@ namespace lemon {
       /// Constructor for creating an id-to-item map.
       explicit InverseMap(const IdMap& map) : _graph(map._graph) {}
 
-      /// \brief Gives back the given item from its id.
+      /// \brief Gives back an item by its id.
       ///
-      /// Gives back the given item from its id.
+      /// Gives back an item by its id.
       Item operator[](int id) const { return _graph->fromId(id, Item());}
 
     private:
@@ -1903,8 +1905,17 @@ namespace lemon {
   /// This class provides simple invertable graph maps.
   /// It wraps a standard graph map (\c NodeMap, \c ArcMap or \c EdgeMap)
   /// and if a key is set to a new value, then stores it in the inverse map.
-  /// The values of the map can be accessed
-  /// with stl compatible forward iterator.
+  /// The graph items can be accessed by their values either using
+  /// \c InverseMap or \c operator()(), and the values of the map can be
+  /// accessed with an STL compatible forward iterator (\c ValueIterator).
+  /// 
+  /// This map is intended to be used when all associated values are
+  /// different (the map is actually invertable) or there are only a few
+  /// items with the same value.
+  /// Otherwise consider to use \c IterableValueMap, which is more 
+  /// suitable and more efficient for such cases. It provides iterators
+  /// to traverse the items with the same associated value, however
+  /// it does not have \c InverseMap.
   ///
   /// This type is not reference map, so it cannot be modified with
   /// the subscript operator.
@@ -1945,7 +1956,7 @@ namespace lemon {
 
     /// \brief Forward iterator for values.
     ///
-    /// This iterator is an stl compatible forward
+    /// This iterator is an STL compatible forward
     /// iterator on the values of the map. The values can
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     /// They are considered with multiplicity, so each value is
@@ -1958,19 +1969,26 @@ namespace lemon {
         : it(_it) {}
     public:
 
+      /// Constructor
       ValueIterator() {}
 
+      /// \e
       ValueIterator& operator++() { ++it; return *this; }
+      /// \e
       ValueIterator operator++(int) {
         ValueIterator tmp(*this);
         operator++();
         return tmp;
       }
 
+      /// \e
       const Value& operator*() const { return it->first; }
+      /// \e
       const Value* operator->() const { return &(it->first); }
 
+      /// \e
       bool operator==(ValueIterator jt) const { return it == jt.it; }
+      /// \e
       bool operator!=(ValueIterator jt) const { return it != jt.it; }
 
     private:
@@ -1979,7 +1997,7 @@ namespace lemon {
 
     /// \brief Returns an iterator to the first value.
     ///
-    /// Returns an stl compatible iterator to the
+    /// Returns an STL compatible iterator to the
     /// first value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
@@ -1989,7 +2007,7 @@ namespace lemon {
 
     /// \brief Returns an iterator after the last value.
     ///
-    /// Returns an stl compatible iterator after the
+    /// Returns an STL compatible iterator after the
     /// last value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
@@ -2090,10 +2108,12 @@ namespace lemon {
 
   public:
 
-    /// \brief The inverse map type.
+    /// \brief The inverse map type of CrossRefMap.
     ///
-    /// The inverse of this map. The subscript operator of the map
-    /// gives back the item that was last assigned to the value.
+    /// The inverse map type of CrossRefMap. The subscript operator gives
+    /// back an item by its value.
+    /// This type conforms to the \ref concepts::ReadMap "ReadMap" concept.
+    /// \see inverse()
     class InverseMap {
     public:
       /// \brief Constructor
@@ -2120,9 +2140,9 @@ namespace lemon {
       const CrossRefMap& _inverted;
     };
 
-    /// \brief It gives back the read-only inverse map.
+    /// \brief Gives back the inverse of the map.
     ///
-    /// It gives back the read-only inverse map.
+    /// Gives back the inverse of the CrossRefMap.
     InverseMap inverse() const {
       return InverseMap(*this);
     }
@@ -2272,16 +2292,16 @@ namespace lemon {
       _inv_map[pi] = q;
     }
 
-    /// \brief Gives back the \e RangeId of the item
+    /// \brief Gives back the \e range \e id of the item
     ///
-    /// Gives back the \e RangeId of the item.
+    /// Gives back the \e range \e id of the item.
     int operator[](const Item& item) const {
       return Map::operator[](item);
     }
 
-    /// \brief Gives back the item belonging to a \e RangeId
+    /// \brief Gives back the item belonging to a \e range \e id
     ///
-    /// Gives back the item belonging to a \e RangeId.
+    /// Gives back the item belonging to the given \e range \e id.
     Item operator()(int id) const {
       return _inv_map[id];
     }
@@ -2295,7 +2315,9 @@ namespace lemon {
 
     /// \brief The inverse map type of RangeIdMap.
     ///
-    /// The inverse map type of RangeIdMap.
+    /// The inverse map type of RangeIdMap. The subscript operator gives
+    /// back an item by its \e range \e id.
+    /// This type conforms to the \ref concepts::ReadMap "ReadMap" concept.
     class InverseMap {
     public:
       /// \brief Constructor
@@ -2313,7 +2335,7 @@ namespace lemon {
       /// \brief Subscript operator.
       ///
       /// Subscript operator. It gives back the item
-      /// that the descriptor currently belongs to.
+      /// that the given \e range \e id currently belongs to.
       Value operator[](const Key& key) const {
         return _inverted(key);
       }
@@ -2331,7 +2353,7 @@ namespace lemon {
 
     /// \brief Gives back the inverse of the map.
     ///
-    /// Gives back the inverse of the map.
+    /// Gives back the inverse of the RangeIdMap.
     const InverseMap inverse() const {
       return InverseMap(*this);
     }
@@ -2342,10 +2364,10 @@ namespace lemon {
   /// This class provides a special graph map type which can store a
   /// \c bool value for graph items (\c Node, \c Arc or \c Edge).
   /// For both \c true and \c false values it is possible to iterate on
-  /// the keys.
+  /// the keys mapped to the value.
   ///
   /// This type is a reference map, so it can be modified with the
-  /// subscription operator.
+  /// subscript operator.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
@@ -2711,8 +2733,13 @@ namespace lemon {
   /// For each non-negative value it is possible to iterate on the keys
   /// mapped to the value.
   ///
+  /// This map is intended to be used with small integer values, for which
+  /// it is efficient, and supports iteration only for non-negative values.
+  /// If you need large values and/or iteration for negative integers,
+  /// consider to use \ref IterableValueMap instead.
+  ///
   /// This type is a reference map, so it can be modified with the
-  /// subscription operator.
+  /// subscript operator.
   ///
   /// \note The size of the data structure depends on the largest
   /// value in the map.
@@ -2992,18 +3019,20 @@ namespace lemon {
 
   /// \brief Dynamic iterable map for comparable values.
   ///
-  /// This class provides a special graph map type which can store an
+  /// This class provides a special graph map type which can store a
   /// comparable value for graph items (\c Node, \c Arc or \c Edge).
   /// For each value it is possible to iterate on the keys mapped to
-  /// the value.
+  /// the value (\c ItemIt), and the values of the map can be accessed
+  /// with an STL compatible forward iterator (\c ValueIterator).
+  /// The map stores a linked list for each value, which contains
+  /// the items mapped to the value, and the used values are stored
+  /// in balanced binary tree (\c std::map).
   ///
-  /// The map stores for each value a linked list with
-  /// the items which mapped to the value, and the values are stored
-  /// in balanced binary tree. The values of the map can be accessed
-  /// with stl compatible forward iterator.
+  /// \ref IterableBoolMap and \ref IterableIntMap are similar classes
+  /// specialized for \c bool and \c int values, respectively.
   ///
   /// This type is not reference map, so it cannot be modified with
-  /// the subscription operator.
+  /// the subscript operator.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
@@ -3079,7 +3108,7 @@ namespace lemon {
 
     /// \brief Forward iterator for values.
     ///
-    /// This iterator is an stl compatible forward
+    /// This iterator is an STL compatible forward
     /// iterator on the values of the map. The values can
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     class ValueIterator
@@ -3090,19 +3119,26 @@ namespace lemon {
         : it(_it) {}
     public:
 
+      /// Constructor
       ValueIterator() {}
 
+      /// \e
       ValueIterator& operator++() { ++it; return *this; }
+      /// \e
       ValueIterator operator++(int) {
         ValueIterator tmp(*this);
         operator++();
         return tmp;
       }
 
+      /// \e
       const Value& operator*() const { return it->first; }
+      /// \e
       const Value* operator->() const { return &(it->first); }
 
+      /// \e
       bool operator==(ValueIterator jt) const { return it == jt.it; }
+      /// \e
       bool operator!=(ValueIterator jt) const { return it != jt.it; }
 
     private:
@@ -3111,7 +3147,7 @@ namespace lemon {
 
     /// \brief Returns an iterator to the first value.
     ///
-    /// Returns an stl compatible iterator to the
+    /// Returns an STL compatible iterator to the
     /// first value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
@@ -3121,7 +3157,7 @@ namespace lemon {
 
     /// \brief Returns an iterator after the last value.
     ///
-    /// Returns an stl compatible iterator after the
+    /// Returns an STL compatible iterator after the
     /// last value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
