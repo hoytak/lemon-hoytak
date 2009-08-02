@@ -1790,11 +1790,11 @@ namespace lemon {
   /// order of Dfs algorithm, as the following examples show.
   /// \code
   ///   std::vector<Node> v;
-  ///   dfs(g,s).processedMap(loggerBoolMap(std::back_inserter(v))).run();
+  ///   dfs(g).processedMap(loggerBoolMap(std::back_inserter(v))).run(s);
   /// \endcode
   /// \code
   ///   std::vector<Node> v(countNodes(g));
-  ///   dfs(g,s).processedMap(loggerBoolMap(v.begin())).run();
+  ///   dfs(g).processedMap(loggerBoolMap(v.begin())).run(s);
   /// \endcode
   ///
   /// \note The container of the iterator must contain enough space
