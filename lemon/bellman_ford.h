@@ -770,44 +770,34 @@ namespace lemon {
       return (*_dist)[v] != OperationTraits::infinity();
     }
 
-    // TODO: implement negative cycle
-//    /// \brief Gives back a negative cycle.
-//    ///    
-//    /// This function gives back a negative cycle.
-//    /// If the algorithm have not found yet negative cycle it will give back
-//    /// an empty path.
-//    Path negativeCycle() {
-//      typename Digraph::template NodeMap<int> state(*digraph, 0);
-//      for (ActiveIt it(*this); it != INVALID; ++it) {
-//        if (state[it] == 0) {
-//          for (Node t = it; predArc(t) != INVALID; t = predNode(t)) {
-//            if (state[t] == 0) {
-//              state[t] = 1;
-//            } else if (state[t] == 2) {
-//              break;
-//            } else {
-//              p.clear();
-//              typename Path::Builder b(p);
-//              b.setStartNode(t);
-//              b.pushFront(predArc(t));
-//              for(Node s = predNode(t); s != t; s = predNode(s)) {
-//                b.pushFront(predArc(s));
-//              }
-//              b.commit();
-//              return true;
-//            }
-//          }
-//          for (Node t = it; predArc(t) != INVALID; t = predNode(t)) {
-//            if (state[t] == 1) {
-//              state[t] = 2;
-//            } else {
-//              break;
-//            }
-//          }
-//        }
-//      }
-//      return false;
-//    }
+    /// \brief Gives back a negative cycle.
+    ///    
+    /// This function gives back a directed cycle with negative total
+    /// length if the algorithm has already found one.
+    /// Otherwise it gives back an empty path.
+    lemon::Path<Digraph> negativeCycle() {
+      typename Digraph::template NodeMap<int> state(*_gr, -1);
+      lemon::Path<Digraph> cycle;
+      for (int i = 0; i < int(_process.size()); ++i) {
+        if (state[_process[i]] != -1) continue;
+        for (Node v = _process[i]; (*_pred)[v] != INVALID;
+             v = _gr->source((*_pred)[v])) {
+          if (state[v] == i) {
+            cycle.addFront((*_pred)[v]);
+            for (Node u = _gr->source((*_pred)[v]); u != v;
+                 u = _gr->source((*_pred)[u])) {
+              cycle.addFront((*_pred)[u]);
+            }
+            return cycle;
+          }
+          else if (state[v] >= 0) {
+            break;
+          }
+          state[v] = i;
+        }
+      }
+      return cycle;
+    }
     
     ///@}
   };

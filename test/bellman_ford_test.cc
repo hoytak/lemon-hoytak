@@ -220,8 +220,64 @@ void checkBellmanFord() {
   }
 }
 
+void checkBellmanFordNegativeCycle() {
+  DIGRAPH_TYPEDEFS(SmartDigraph);
+
+  SmartDigraph gr;
+  IntArcMap length(gr);
+  
+  Node n1 = gr.addNode();
+  Node n2 = gr.addNode();
+  Node n3 = gr.addNode();
+  Node n4 = gr.addNode();
+  
+  Arc a1 = gr.addArc(n1, n2);
+  Arc a2 = gr.addArc(n2, n2);
+  
+  length[a1] = 2;
+  length[a2] = -1;
+  
+  {
+    BellmanFord<SmartDigraph, IntArcMap> bf(gr, length);
+    bf.run(n1);
+    StaticPath<SmartDigraph> p = bf.negativeCycle();
+    check(p.length() == 1 && p.front() == p.back() && p.front() == a2,
+          "Wrong negative cycle.");
+  }
+ 
+  length[a2] = 0;
+  
+  {
+    BellmanFord<SmartDigraph, IntArcMap> bf(gr, length);
+    bf.run(n1);
+    check(bf.negativeCycle().empty(),
+          "Negative cycle should not be found.");
+  }
+  
+  length[gr.addArc(n1, n3)] = 5;
+  length[gr.addArc(n4, n3)] = 1;
+  length[gr.addArc(n2, n4)] = 2;
+  length[gr.addArc(n3, n2)] = -4;
+  
+  {
+    BellmanFord<SmartDigraph, IntArcMap> bf(gr, length);
+    bf.init();
+    bf.addSource(n1);
+    for (int i = 0; i < 4; ++i) {
+      check(bf.negativeCycle().empty(),
+            "Negative cycle should not be found.");
+      bf.processNextRound();
+    }
+    StaticPath<SmartDigraph> p = bf.negativeCycle();
+    check(p.length() == 3, "Wrong negative cycle.");
+    check(length[p.nth(0)] + length[p.nth(1)] + length[p.nth(2)] == -1,
+          "Wrong negative cycle.");
+  }
+}
+
 int main() {
   checkBellmanFord<ListDigraph, int>();
   checkBellmanFord<SmartDigraph, double>();
+  checkBellmanFordNegativeCycle();
   return 0;
 }
