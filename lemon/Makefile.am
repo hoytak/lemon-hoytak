@@ -97,6 +97,7 @@ lemon_HEADERS += \
 	lemon/matching.h \
 	lemon/math.h \
 	lemon/min_cost_arborescence.h \
+	lemon/min_mean_cycle.h \
 	lemon/nauty_reader.h \
 	lemon/network_simplex.h \
 	lemon/path.h \
