@@ -122,7 +122,7 @@ namespace lemon {
     /// found cycle.
     ///
     /// If you don't call this function before calling \ref run() or
-    /// \ref init(), it will allocate a local \ref Path "path"
+    /// \ref findMinMean(), it will allocate a local \ref Path "path"
     /// structure. The destuctor deallocates this automatically
     /// allocated object, of course.
     ///
@@ -144,71 +144,45 @@ namespace lemon {
     /// \name Execution control
     /// The simplest way to execute the algorithm is to call the \ref run()
     /// function.\n
-    /// If you only need the minimum mean length, you may call \ref init()
-    /// and \ref findMinMean().
-    /// If you would like to run the algorithm again (e.g. the underlying
-    /// digraph and/or the arc lengths has been modified), you may not
-    /// create a new instance of the class, rather call \ref reset(),
-    /// \ref findMinMean() and \ref findCycle() instead.
+    /// If you only need the minimum mean length, you may call
+    /// \ref findMinMean().
 
     /// @{
 
     /// \brief Run the algorithm.
     ///
     /// This function runs the algorithm.
+    /// It can be called more than once (e.g. if the underlying digraph
+    /// and/or the arc lengths have been modified).
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
-    /// \note Apart from the return value, <tt>mmc.run()</tt> is just a
-    /// shortcut of the following code.
+    /// \note <tt>mmc.run()</tt> is just a shortcut of the following code.
     /// \code
-    ///   mmc.init();
-    ///   mmc.findMinMean();
-    ///   mmc.findCycle();
+    ///   return mmc.findMinMean() && mmc.findCycle();
     /// \endcode
     bool run() {
-      init();
       return findMinMean() && findCycle();
     }
 
-    /// \brief Initialize the internal data structures.
+    /// \brief Find the minimum cycle mean.
     ///
-    /// This function initializes the internal data structures.
+    /// This function finds the minimum mean length of the directed
+    /// cycles in the digraph.
     ///
-    /// \sa reset()
-    void init() {
+    /// \return \c true if a directed cycle exists in the digraph.
+    bool findMinMean() {
+      // Initialize
       _tol.epsilon(1e-6);
       if (!_cycle_path) {
         _local_path = true;
         _cycle_path = new Path;
       }
+      _cycle_path->clear();
       _cycle_found = false;
-      _comp_num = stronglyConnectedComponents(_gr, _comp);
-    }
 
-    /// \brief Reset the internal data structures.
-    ///
-    /// This function resets the internal data structures so that
-    /// findMinMean() and findCycle() can be called again (e.g. when the
-    /// underlying digraph and/or the arc lengths has been modified).
-    ///
-    /// \sa init()
-    void reset() {
-      if (_cycle_path) _cycle_path->clear();
-      _cycle_found = false;
-      _comp_num = stronglyConnectedComponents(_gr, _comp);
-    }
-
-    /// \brief Find the minimum cycle mean.
-    ///
-    /// This function computes all the required data and finds the
-    /// minimum mean length of the directed cycles in the digraph.
-    ///
-    /// \return \c true if a directed cycle exists in the digraph.
-    ///
-    /// \pre \ref init() must be called before using this function.
-    bool findMinMean() {
       // Find the minimum cycle mean in the components
+      _comp_num = stronglyConnectedComponents(_gr, _comp);
       for (int comp = 0; comp < _comp_num; ++comp) {
         if (!initCurrentComponent(comp)) continue;
         while (true) {
@@ -227,8 +201,7 @@ namespace lemon {
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
-    /// \pre \ref init() and \ref findMinMean() must be called before
-    /// using this function.
+    /// \pre \ref findMinMean() must be called before using this function.
     bool findCycle() {
       if (!_cycle_found) return false;
       _cycle_path->addBack(_policy[_cycle_node]);
@@ -242,7 +215,7 @@ namespace lemon {
     /// @}
 
     /// \name Query Functions
-    /// The result of the algorithm can be obtained using these
+    /// The results of the algorithm can be obtained using these
     /// functions.\n
     /// The algorithm should be executed before using them.
 
