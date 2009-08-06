@@ -253,9 +253,7 @@ namespace lemon {
     /// "addBack()" function of the given path structure.
     ///
     /// \return <tt>(*this)</tt>
-    ///
-    /// \sa cycle()
-    MinMeanCycle& cyclePath(Path &path) {
+    MinMeanCycle& cycle(Path &path) {
       if (_local_path) {
         delete _cycle_path;
         _local_path = false;
@@ -389,8 +387,6 @@ namespace lemon {
     ///
     /// \pre \ref run() or \ref findCycle() must be called before using
     /// this function.
-    ///
-    /// \sa cyclePath()
     const Path& cycle() const {
       return *_cycle_path;
     }
