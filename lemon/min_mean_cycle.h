@@ -32,6 +32,63 @@
 
 namespace lemon {
 
+  /// \brief Default traits class of MinMeanCycle class.
+  ///
+  /// Default traits class of MinMeanCycle class.
+  /// \tparam GR The type of the digraph.
+  /// \tparam LEN The type of the length map.
+  /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
+#ifdef DOXYGEN
+  template <typename GR, typename LEN>
+#else
+  template <typename GR, typename LEN,
+    bool integer = std::numeric_limits<typename LEN::Value>::is_integer>
+#endif
+  struct MinMeanCycleDefaultTraits
+  {
+    /// The type of the digraph
+    typedef GR Digraph;
+    /// The type of the length map
+    typedef LEN LengthMap;
+    /// The type of the arc lengths
+    typedef typename LengthMap::Value Value;
+
+    /// \brief The large value type used for internal computations
+    ///
+    /// The large value type used for internal computations.
+    /// It is \c long \c long if the \c Value type is integer,
+    /// otherwise it is \c double.
+    /// \c Value must be convertible to \c LargeValue.
+    typedef double LargeValue;
+
+    /// The tolerance type used for internal computations
+    typedef lemon::Tolerance<LargeValue> Tolerance;
+
+    /// \brief The path type of the found cycles
+    ///
+    /// The path type of the found cycles.
+    /// It must conform to the \ref lemon::concepts::Path "Path" concept
+    /// and it must have an \c addBack() function.
+    typedef lemon::Path<Digraph> Path;
+  };
+
+  // Default traits class for integer value types
+  template <typename GR, typename LEN>
+  struct MinMeanCycleDefaultTraits<GR, LEN, true>
+  {
+    typedef GR Digraph;
+    typedef LEN LengthMap;
+    typedef typename LengthMap::Value Value;
+#ifdef LEMON_HAVE_LONG_LONG
+    typedef long long LargeValue;
+#else
+    typedef long LargeValue;
+#endif
+    typedef lemon::Tolerance<LargeValue> Tolerance;
+    typedef lemon::Path<Digraph> Path;
+  };
+
+
   /// \addtogroup shortest_path
   /// @{
 
@@ -44,26 +101,44 @@ namespace lemon {
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default
   /// map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
-  ///
-  /// \warning \c LEN::Value must be convertible to \c double.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN>
+  template <typename GR, typename LEN, typename TR>
 #else
   template < typename GR,
-             typename LEN = typename GR::template ArcMap<int> >
+             typename LEN = typename GR::template ArcMap<int>,
+             typename TR = MinMeanCycleDefaultTraits<GR, LEN> >
 #endif
   class MinMeanCycle
   {
   public:
   
-    /// The type of the digraph the algorithm runs on
-    typedef GR Digraph;
+    /// The type of the digraph
+    typedef typename TR::Digraph Digraph;
     /// The type of the length map
-    typedef LEN LengthMap;
+    typedef typename TR::LengthMap LengthMap;
     /// The type of the arc lengths
-    typedef typename LengthMap::Value Value;
-    /// The type of the paths
-    typedef lemon::Path<Digraph> Path;
+    typedef typename TR::Value Value;
+
+    /// \brief The large value type
+    ///
+    /// The large value type used for internal computations.
+    /// Using the \ref MinMeanCycleDefaultTraits "default traits class",
+    /// it is \c long \c long if the \c Value type is integer,
+    /// otherwise it is \c double.
+    typedef typename TR::LargeValue LargeValue;
+
+    /// The tolerance type
+    typedef typename TR::Tolerance Tolerance;
+
+    /// \brief The path type of the found cycles
+    ///
+    /// The path type of the found cycles.
+    /// Using the \ref MinMeanCycleDefaultTraits "default traits class",
+    /// it is \ref lemon::Path "Path<Digraph>".
+    typedef typename TR::Path Path;
+
+    /// The \ref MinMeanCycleDefaultTraits "traits class" of the algorithm
+    typedef TR Traits;
 
   private:
 
@@ -76,7 +151,7 @@ namespace lemon {
 
     // Data for the found cycles
     bool _curr_found, _best_found;
-    Value _curr_length, _best_length;
+    LargeValue _curr_length, _best_length;
     int _curr_size, _best_size;
     Node _curr_node, _best_node;
 
@@ -87,7 +162,7 @@ namespace lemon {
     typename Digraph::template NodeMap<Arc> _policy;
     typename Digraph::template NodeMap<bool> _reached;
     typename Digraph::template NodeMap<int> _level;
-    typename Digraph::template NodeMap<double> _dist;
+    typename Digraph::template NodeMap<LargeValue> _dist;
 
     // Data for storing the strongly connected components
     int _comp_num;
@@ -99,8 +174,50 @@ namespace lemon {
     // Queue used for BFS search
     std::vector<Node> _queue;
     int _qfront, _qback;
+
+    Tolerance _tolerance;
+  
+  public:
+  
+    /// \name Named Template Parameters
+    /// @{
+
+    template <typename T>
+    struct SetLargeValueTraits : public Traits {
+      typedef T LargeValue;
+      typedef lemon::Tolerance<T> Tolerance;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c LargeValue type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting \c LargeValue
+    /// type. It is used for internal computations in the algorithm.
+    template <typename T>
+    struct SetLargeValue
+      : public MinMeanCycle<GR, LEN, SetLargeValueTraits<T> > {
+      typedef MinMeanCycle<GR, LEN, SetLargeValueTraits<T> > Create;
+    };
+
+    template <typename T>
+    struct SetPathTraits : public Traits {
+      typedef T Path;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c %Path type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting the \c %Path
+    /// type of the found cycles.
+    /// It must conform to the \ref lemon::concepts::Path "Path" concept
+    /// and it must have an \c addBack() function.
+    template <typename T>
+    struct SetPath
+      : public MinMeanCycle<GR, LEN, SetPathTraits<T> > {
+      typedef MinMeanCycle<GR, LEN, SetPathTraits<T> > Create;
+    };
     
-    Tolerance<double> _tol;
+    /// @}
 
   public:
 
@@ -235,7 +352,7 @@ namespace lemon {
     ///
     /// \pre \ref run() or \ref findMinMean() must be called before
     /// using this function.
-    Value cycleLength() const {
+    LargeValue cycleLength() const {
       return _best_length;
     }
 
@@ -284,7 +401,6 @@ namespace lemon {
 
     // Initialize
     void init() {
-      _tol.epsilon(1e-6);
       if (!_cycle_path) {
         _local_path = true;
         _cycle_path = new Path;
@@ -333,7 +449,7 @@ namespace lemon {
         return false;
       }
       for (int i = 0; i < int(_nodes->size()); ++i) {
-        _dist[(*_nodes)[i]] = std::numeric_limits<double>::max();
+        _dist[(*_nodes)[i]] = std::numeric_limits<LargeValue>::max();
       }
       Node u, v;
       Arc e;
@@ -356,7 +472,7 @@ namespace lemon {
       for (int i = 0; i < int(_nodes->size()); ++i) {
         _level[(*_nodes)[i]] = -1;
       }
-      Value clength;
+      LargeValue clength;
       int csize;
       Node u, v;
       _curr_found = false;
@@ -392,7 +508,6 @@ namespace lemon {
       for (int i = 0; i < int(_nodes->size()); ++i) {
         _reached[(*_nodes)[i]] = false;
       }
-      double curr_mean = double(_curr_length) / _curr_size;
       _qfront = _qback = 0;
       _queue[0] = _curr_node;
       _reached[_curr_node] = true;
@@ -406,7 +521,7 @@ namespace lemon {
           u = _gr.source(e);
           if (_policy[u] == e && !_reached[u]) {
             _reached[u] = true;
-            _dist[u] = _dist[v] + _length[e] - curr_mean;
+            _dist[u] = _dist[v] + _length[e] * _curr_size - _curr_length;
             _queue[++_qback] = u;
           }
         }
@@ -423,7 +538,7 @@ namespace lemon {
           if (!_reached[u]) {
             _reached[u] = true;
             _policy[u] = e;
-            _dist[u] = _dist[v] + _length[e] - curr_mean;
+            _dist[u] = _dist[v] + _length[e] * _curr_size - _curr_length;
             _queue[++_qback] = u;
           }
         }
@@ -436,8 +551,8 @@ namespace lemon {
         for (int j = 0; j < int(_in_arcs[v].size()); ++j) {
           e = _in_arcs[v][j];
           u = _gr.source(e);
-          double delta = _dist[v] + _length[e] - curr_mean;
-          if (_tol.less(delta, _dist[u])) {
+          LargeValue delta = _dist[v] + _length[e] * _curr_size - _curr_length;
+          if (_tolerance.less(delta, _dist[u])) {
             _dist[u] = delta;
             _policy[u] = e;
             improved = true;
