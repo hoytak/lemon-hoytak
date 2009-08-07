@@ -31,6 +31,7 @@ SET(TESTS
   matching_test
   min_cost_arborescence_test
   min_cost_flow_test
+  min_mean_cycle_test
   path_test
   preflow_test
   radix_sort_test

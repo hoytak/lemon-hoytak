@@ -25,6 +25,7 @@
 /// \brief Howard's algorithm for finding a minimum mean cycle.
 
 #include <vector>
+#include <limits>
 #include <lemon/core.h>
 #include <lemon/path.h>
 #include <lemon/tolerance.h>
