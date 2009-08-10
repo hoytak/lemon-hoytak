@@ -21,7 +21,7 @@
 
 #include <lemon/smart_graph.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/min_mean_cycle.h>
+#include <lemon/howard.h>
 #include <lemon/path.h>
 #include <lemon/concepts/digraph.h>
 #include <lemon/concept_check.h>
@@ -141,8 +141,8 @@ int main() {
   // Check the interface
   {
     typedef concepts::Digraph GR;
-    typedef MinMeanCycle<GR, concepts::ReadMap<GR::Arc, int> > IntMmcAlg;
-    typedef MinMeanCycle<GR, concepts::ReadMap<GR::Arc, float> > FloatMmcAlg;
+    typedef Howard<GR, concepts::ReadMap<GR::Arc, int> > IntMmcAlg;
+    typedef Howard<GR, concepts::ReadMap<GR::Arc, float> > FloatMmcAlg;
     
     checkConcept<MmcClassConcept<GR, int>, IntMmcAlg>();
     checkConcept<MmcClassConcept<GR, float>, FloatMmcAlg>();
@@ -174,10 +174,10 @@ int main() {
       arcMap("c4", c4).
       run();
 
-    checkMmcAlg<MinMeanCycle<GR, IntArcMap> >(gr, l1, c1,  6, 3);
-    checkMmcAlg<MinMeanCycle<GR, IntArcMap> >(gr, l2, c2,  5, 2);
-    checkMmcAlg<MinMeanCycle<GR, IntArcMap> >(gr, l3, c3,  0, 1);
-    checkMmcAlg<MinMeanCycle<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l4, c4, -1, 1);
   }
 
   return 0;

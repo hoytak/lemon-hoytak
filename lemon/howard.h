@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_MIN_MEAN_CYCLE_H
-#define LEMON_MIN_MEAN_CYCLE_H
+#ifndef LEMON_HOWARD_H
+#define LEMON_HOWARD_H
 
 /// \ingroup shortest_path
 ///
@@ -33,9 +33,9 @@
 
 namespace lemon {
 
-  /// \brief Default traits class of MinMeanCycle class.
+  /// \brief Default traits class of Howard class.
   ///
-  /// Default traits class of MinMeanCycle class.
+  /// Default traits class of Howard class.
   /// \tparam GR The type of the digraph.
   /// \tparam LEN The type of the length map.
   /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
@@ -45,7 +45,7 @@ namespace lemon {
   template <typename GR, typename LEN,
     bool integer = std::numeric_limits<typename LEN::Value>::is_integer>
 #endif
-  struct MinMeanCycleDefaultTraits
+  struct HowardDefaultTraits
   {
     /// The type of the digraph
     typedef GR Digraph;
@@ -75,7 +75,7 @@ namespace lemon {
 
   // Default traits class for integer value types
   template <typename GR, typename LEN>
-  struct MinMeanCycleDefaultTraits<GR, LEN, true>
+  struct HowardDefaultTraits<GR, LEN, true>
   {
     typedef GR Digraph;
     typedef LEN LengthMap;
@@ -96,8 +96,8 @@ namespace lemon {
   /// \brief Implementation of Howard's algorithm for finding a minimum
   /// mean cycle.
   ///
-  /// \ref MinMeanCycle implements Howard's algorithm for finding a
-  /// directed cycle of minimum mean length (cost) in a digraph.
+  /// This class implements Howard's policy iteration algorithm for finding
+  /// a directed cycle of minimum mean length (cost) in a digraph.
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default
@@ -107,9 +107,9 @@ namespace lemon {
 #else
   template < typename GR,
              typename LEN = typename GR::template ArcMap<int>,
-             typename TR = MinMeanCycleDefaultTraits<GR, LEN> >
+             typename TR = HowardDefaultTraits<GR, LEN> >
 #endif
-  class MinMeanCycle
+  class Howard
   {
   public:
   
@@ -123,7 +123,7 @@ namespace lemon {
     /// \brief The large value type
     ///
     /// The large value type used for internal computations.
-    /// Using the \ref MinMeanCycleDefaultTraits "default traits class",
+    /// Using the \ref HowardDefaultTraits "default traits class",
     /// it is \c long \c long if the \c Value type is integer,
     /// otherwise it is \c double.
     typedef typename TR::LargeValue LargeValue;
@@ -134,11 +134,11 @@ namespace lemon {
     /// \brief The path type of the found cycles
     ///
     /// The path type of the found cycles.
-    /// Using the \ref MinMeanCycleDefaultTraits "default traits class",
+    /// Using the \ref HowardDefaultTraits "default traits class",
     /// it is \ref lemon::Path "Path<Digraph>".
     typedef typename TR::Path Path;
 
-    /// The \ref MinMeanCycleDefaultTraits "traits class" of the algorithm
+    /// The \ref HowardDefaultTraits "traits class" of the algorithm
     typedef TR Traits;
 
   private:
@@ -196,8 +196,8 @@ namespace lemon {
     /// type. It is used for internal computations in the algorithm.
     template <typename T>
     struct SetLargeValue
-      : public MinMeanCycle<GR, LEN, SetLargeValueTraits<T> > {
-      typedef MinMeanCycle<GR, LEN, SetLargeValueTraits<T> > Create;
+      : public Howard<GR, LEN, SetLargeValueTraits<T> > {
+      typedef Howard<GR, LEN, SetLargeValueTraits<T> > Create;
     };
 
     template <typename T>
@@ -214,8 +214,8 @@ namespace lemon {
     /// and it must have an \c addBack() function.
     template <typename T>
     struct SetPath
-      : public MinMeanCycle<GR, LEN, SetPathTraits<T> > {
-      typedef MinMeanCycle<GR, LEN, SetPathTraits<T> > Create;
+      : public Howard<GR, LEN, SetPathTraits<T> > {
+      typedef Howard<GR, LEN, SetPathTraits<T> > Create;
     };
     
     /// @}
@@ -228,15 +228,15 @@ namespace lemon {
     ///
     /// \param digraph The digraph the algorithm runs on.
     /// \param length The lengths (costs) of the arcs.
-    MinMeanCycle( const Digraph &digraph,
-                  const LengthMap &length ) :
+    Howard( const Digraph &digraph,
+            const LengthMap &length ) :
       _gr(digraph), _length(length), _cycle_path(NULL), _local_path(false),
       _policy(digraph), _reached(digraph), _level(digraph), _dist(digraph),
       _comp(digraph), _in_arcs(digraph)
     {}
 
     /// Destructor.
-    ~MinMeanCycle() {
+    ~Howard() {
       if (_local_path) delete _cycle_path;
     }
 
@@ -254,7 +254,7 @@ namespace lemon {
     /// "addBack()" function of the given path structure.
     ///
     /// \return <tt>(*this)</tt>
-    MinMeanCycle& cycle(Path &path) {
+    Howard& cycle(Path &path) {
       if (_local_path) {
         delete _cycle_path;
         _local_path = false;
@@ -559,10 +559,10 @@ namespace lemon {
       return improved;
     }
 
-  }; //class MinMeanCycle
+  }; //class Howard
 
   ///@}
 
 } //namespace lemon
 
-#endif //LEMON_MIN_MEAN_CYCLE_H
+#endif //LEMON_HOWARD_H
