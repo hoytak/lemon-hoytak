@@ -83,6 +83,7 @@ lemon_HEADERS += \
 	lemon/gomory_hu.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
+	lemon/hartmann_orlin.h \
 	lemon/howard.h \
 	lemon/hypercube_graph.h \
 	lemon/karp.h \

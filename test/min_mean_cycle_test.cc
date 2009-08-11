@@ -26,6 +26,7 @@
 #include <lemon/concept_check.h>
 
 #include <lemon/karp.h>
+#include <lemon/hartmann_orlin.h>
 #include <lemon/howard.h>
 
 #include "test_tools.h"
@@ -150,6 +151,12 @@ int main() {
     checkConcept< MmcClassConcept<GR, float>,
                   Karp<GR, concepts::ReadMap<GR::Arc, float> > >();
     
+    // HartmannOrlin
+    checkConcept< MmcClassConcept<GR, int>,
+                  HartmannOrlin<GR, concepts::ReadMap<GR::Arc, int> > >();
+    checkConcept< MmcClassConcept<GR, float>,
+                  HartmannOrlin<GR, concepts::ReadMap<GR::Arc, float> > >();
+    
     // Howard
     checkConcept< MmcClassConcept<GR, int>,
                   Howard<GR, concepts::ReadMap<GR::Arc, int> > >();
@@ -188,6 +195,12 @@ int main() {
     checkMmcAlg<Karp<GR, IntArcMap> >(gr, l2, c2,  5, 2);
     checkMmcAlg<Karp<GR, IntArcMap> >(gr, l3, c3,  0, 1);
     checkMmcAlg<Karp<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+
+    // HartmannOrlin
+    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l4, c4, -1, 1);
 
     // Howard
     checkMmcAlg<Howard<GR, IntArcMap> >(gr, l1, c1,  6, 3);
