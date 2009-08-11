@@ -85,6 +85,7 @@ lemon_HEADERS += \
 	lemon/grid_graph.h \
 	lemon/howard.h \
 	lemon/hypercube_graph.h \
+	lemon/karp.h \
 	lemon/kruskal.h \
 	lemon/hao_orlin.h \
 	lemon/lgf_reader.h \

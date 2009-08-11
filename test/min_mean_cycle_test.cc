@@ -21,10 +21,12 @@
 
 #include <lemon/smart_graph.h>
 #include <lemon/lgf_reader.h>
-#include <lemon/howard.h>
 #include <lemon/path.h>
 #include <lemon/concepts/digraph.h>
 #include <lemon/concept_check.h>
+
+#include <lemon/karp.h>
+#include <lemon/howard.h>
 
 #include "test_tools.h"
 
@@ -141,16 +143,23 @@ int main() {
   // Check the interface
   {
     typedef concepts::Digraph GR;
-    typedef Howard<GR, concepts::ReadMap<GR::Arc, int> > IntMmcAlg;
-    typedef Howard<GR, concepts::ReadMap<GR::Arc, float> > FloatMmcAlg;
+
+    // Karp
+    checkConcept< MmcClassConcept<GR, int>,
+                  Karp<GR, concepts::ReadMap<GR::Arc, int> > >();
+    checkConcept< MmcClassConcept<GR, float>,
+                  Karp<GR, concepts::ReadMap<GR::Arc, float> > >();
     
-    checkConcept<MmcClassConcept<GR, int>, IntMmcAlg>();
-    checkConcept<MmcClassConcept<GR, float>, FloatMmcAlg>();
-  
-    if (IsSameType<IntMmcAlg::LargeValue, long_int>::result == 0)
-      check(false, "Wrong LargeValue type");
-    if (IsSameType<FloatMmcAlg::LargeValue, double>::result == 0)
-      check(false, "Wrong LargeValue type");
+    // Howard
+    checkConcept< MmcClassConcept<GR, int>,
+                  Howard<GR, concepts::ReadMap<GR::Arc, int> > >();
+    checkConcept< MmcClassConcept<GR, float>,
+                  Howard<GR, concepts::ReadMap<GR::Arc, float> > >();
+
+    if (IsSameType<Howard<GR, concepts::ReadMap<GR::Arc, int> >::LargeValue,
+          long_int>::result == 0) check(false, "Wrong LargeValue type");
+    if (IsSameType<Howard<GR, concepts::ReadMap<GR::Arc, float> >::LargeValue,
+          double>::result == 0) check(false, "Wrong LargeValue type");
   }
 
   // Run various tests
@@ -174,6 +183,13 @@ int main() {
       arcMap("c4", c4).
       run();
 
+    // Karp
+    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+
+    // Howard
     checkMmcAlg<Howard<GR, IntArcMap> >(gr, l1, c1,  6, 3);
     checkMmcAlg<Howard<GR, IntArcMap> >(gr, l2, c2,  5, 2);
     checkMmcAlg<Howard<GR, IntArcMap> >(gr, l3, c3,  0, 1);
