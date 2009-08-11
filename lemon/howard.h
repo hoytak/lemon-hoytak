@@ -178,6 +178,9 @@ namespace lemon {
 
     Tolerance _tolerance;
   
+    // Infinite constant
+    const LargeValue INF;
+
   public:
   
     /// \name Named Template Parameters
@@ -230,9 +233,13 @@ namespace lemon {
     /// \param length The lengths (costs) of the arcs.
     Howard( const Digraph &digraph,
             const LengthMap &length ) :
-      _gr(digraph), _length(length), _cycle_path(NULL), _local_path(false),
+      _gr(digraph), _length(length), _best_found(false),
+      _best_length(0), _best_size(1), _cycle_path(NULL), _local_path(false),
       _policy(digraph), _reached(digraph), _level(digraph), _dist(digraph),
-      _comp(digraph), _in_arcs(digraph)
+      _comp(digraph), _in_arcs(digraph),
+      INF(std::numeric_limits<LargeValue>::has_infinity ?
+          std::numeric_limits<LargeValue>::infinity() :
+          std::numeric_limits<LargeValue>::max())
     {}
 
     /// Destructor.
@@ -307,7 +314,7 @@ namespace lemon {
           if (!computeNodeDistances()) break;
         }
         // Update the best cycle (global minimum mean cycle)
-        if ( !_best_found || (_curr_found &&
+        if ( _curr_found && (!_best_found ||
              _curr_length * _best_size < _best_length * _curr_size) ) {
           _best_found = true;
           _best_length = _curr_length;
@@ -446,7 +453,7 @@ namespace lemon {
         return false;
       }
       for (int i = 0; i < int(_nodes->size()); ++i) {
-        _dist[(*_nodes)[i]] = std::numeric_limits<LargeValue>::max();
+        _dist[(*_nodes)[i]] = INF;
       }
       Node u, v;
       Arc e;

@@ -148,11 +148,10 @@ namespace lemon {
     // Data sturcture for path data
     struct PathData
     {
-      bool found;
       LargeValue dist;
       Arc pred;
-      PathData(bool f = false, LargeValue d = 0, Arc p = INVALID) :
-        found(f), dist(d), pred(p) {}
+      PathData(LargeValue d, Arc p = INVALID) :
+        dist(d), pred(p) {}
     };
 
     typedef typename Digraph::template NodeMap<std::vector<PathData> >
@@ -186,6 +185,9 @@ namespace lemon {
     std::vector<Node> _process;
 
     Tolerance _tolerance;
+    
+    // Infinite constant
+    const LargeValue INF;
 
   public:
 
@@ -241,7 +243,10 @@ namespace lemon {
           const LengthMap &length ) :
       _gr(digraph), _length(length), _comp(digraph), _out_arcs(digraph),
       _cycle_length(0), _cycle_size(1), _cycle_node(INVALID),
-      _cycle_path(NULL), _local_path(false), _data(digraph)
+      _cycle_path(NULL), _local_path(false), _data(digraph),
+      INF(std::numeric_limits<LargeValue>::has_infinity ?
+          std::numeric_limits<LargeValue>::infinity() :
+          std::numeric_limits<LargeValue>::max())
     {}
 
     /// Destructor.
@@ -458,7 +463,7 @@ namespace lemon {
         return false;
       }      
       for (int i = 0; i < n; ++i) {
-        _data[(*_nodes)[i]].resize(n + 1);
+        _data[(*_nodes)[i]].resize(n + 1, PathData(INF));
       }
       return true;
     }
@@ -468,7 +473,7 @@ namespace lemon {
     // node to node v containing exactly k arcs.
     void processRounds() {
       Node start = (*_nodes)[0];
-      _data[start][0] = PathData(true, 0);
+      _data[start][0] = PathData(0);
       _process.clear();
       _process.push_back(start);
 
@@ -493,12 +498,9 @@ namespace lemon {
           e = _out_arcs[u][j];
           v = _gr.target(e);
           d = _data[u][k-1].dist + _length[e];
-          if (!_data[v][k].found) {
-            next.push_back(v);
-            _data[v][k] = PathData(true, _data[u][k-1].dist + _length[e], e);
-          }
-          else if (_tolerance.less(d, _data[v][k].dist)) {
-            _data[v][k] = PathData(true, d, e);
+          if (_tolerance.less(d, _data[v][k].dist)) {
+            if (_data[v][k].dist == INF) next.push_back(v);
+            _data[v][k] = PathData(d, e);
           }
         }
       }
@@ -516,8 +518,8 @@ namespace lemon {
           e = _out_arcs[u][j];
           v = _gr.target(e);
           d = _data[u][k-1].dist + _length[e];
-          if (!_data[v][k].found || _tolerance.less(d, _data[v][k].dist)) {
-            _data[v][k] = PathData(true, d, e);
+          if (_tolerance.less(d, _data[v][k].dist)) {
+            _data[v][k] = PathData(d, e);
           }
         }
       }
@@ -528,12 +530,12 @@ namespace lemon {
       int n = _nodes->size();
       for (int i = 0; i < n; ++i) {
         Node u = (*_nodes)[i];
-        if (!_data[u][n].found) continue;
+        if (_data[u][n].dist == INF) continue;
         LargeValue length, max_length = 0;
         int size, max_size = 1;
         bool found_curr = false;
         for (int k = 0; k < n; ++k) {
-          if (!_data[u][k].found) continue;
+          if (_data[u][k].dist == INF) continue;
           length = _data[u][n].dist - _data[u][k].dist;
           size = n - k;
           if (!found_curr || length * max_size > max_length * size) {
