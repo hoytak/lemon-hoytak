@@ -19,7 +19,7 @@
 #ifndef LEMON_HARTMANN_ORLIN_H
 #define LEMON_HARTMANN_ORLIN_H
 
-/// \ingroup shortest_path
+/// \ingroup min_mean_cycle
 ///
 /// \file
 /// \brief Hartmann-Orlin's algorithm for finding a minimum mean cycle.
@@ -90,7 +90,7 @@ namespace lemon {
   };
 
 
-  /// \addtogroup shortest_path
+  /// \addtogroup min_mean_cycle
   /// @{
 
   /// \brief Implementation of the Hartmann-Orlin algorithm for finding
@@ -98,8 +98,9 @@ namespace lemon {
   ///
   /// This class implements the Hartmann-Orlin algorithm for finding
   /// a directed cycle of minimum mean length (cost) in a digraph.
-  /// It is an improved version of \ref Karp "Karp's original algorithm",
+  /// It is an improved version of \ref Karp "Karp"'s original algorithm,
   /// it applies an efficient early termination scheme.
+  /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default

@@ -19,7 +19,7 @@
 #ifndef LEMON_HOWARD_H
 #define LEMON_HOWARD_H
 
-/// \ingroup shortest_path
+/// \ingroup min_mean_cycle
 ///
 /// \file
 /// \brief Howard's algorithm for finding a minimum mean cycle.
@@ -90,7 +90,7 @@ namespace lemon {
   };
 
 
-  /// \addtogroup shortest_path
+  /// \addtogroup min_mean_cycle
   /// @{
 
   /// \brief Implementation of Howard's algorithm for finding a minimum
@@ -98,6 +98,9 @@ namespace lemon {
   ///
   /// This class implements Howard's policy iteration algorithm for finding
   /// a directed cycle of minimum mean length (cost) in a digraph.
+  /// This class provides the most efficient algorithm for the
+  /// minimum mean cycle problem, though the best known theoretical
+  /// bound on its running time is exponential.
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default

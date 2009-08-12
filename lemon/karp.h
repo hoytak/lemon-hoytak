@@ -19,7 +19,7 @@
 #ifndef LEMON_KARP_H
 #define LEMON_KARP_H
 
-/// \ingroup shortest_path
+/// \ingroup min_mean_cycle
 ///
 /// \file
 /// \brief Karp's algorithm for finding a minimum mean cycle.
@@ -90,7 +90,7 @@ namespace lemon {
   };
 
 
-  /// \addtogroup shortest_path
+  /// \addtogroup min_mean_cycle
   /// @{
 
   /// \brief Implementation of Karp's algorithm for finding a minimum
@@ -98,6 +98,7 @@ namespace lemon {
   ///
   /// This class implements Karp's algorithm for finding a directed
   /// cycle of minimum mean length (cost) in a digraph.
+  /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default
