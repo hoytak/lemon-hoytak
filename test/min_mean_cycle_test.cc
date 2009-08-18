@@ -78,6 +78,9 @@ struct MmcClassConcept
       MmcAlg mmc(me.g, me.length);
       const MmcAlg& const_mmc = mmc;
       
+      typename MmcAlg::Tolerance tol = const_mmc.tolerance();
+      mmc.tolerance(tol);
+      
       b = mmc.cycle(p).run();
       b = mmc.findMinMean();
       b = mmc.findCycle();
