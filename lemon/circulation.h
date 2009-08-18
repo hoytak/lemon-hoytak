@@ -450,9 +450,10 @@ template< typename GR,
       return *_level;
     }
 
-    /// \brief Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by the algorithm.
     ///
-    /// Sets the tolerance used by algorithm.
+    /// Sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
     Circulation& tolerance(const Tolerance& tolerance) {
       _tol = tolerance;
       return *this;
@@ -460,7 +461,8 @@ template< typename GR,
 
     /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns a const reference to the tolerance.
+    /// Returns a const reference to the tolerance object used by
+    /// the algorithm.
     const Tolerance& tolerance() const {
       return _tol;
     }
