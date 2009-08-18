@@ -76,7 +76,6 @@ lemon_HEADERS += \
 	lemon/lp_glpk.h \
 	lemon/lp_skeleton.h \
 	lemon/lp_soplex.h \
-	lemon/list_graph.h \
 	lemon/maps.h \
 	lemon/math.h \
 	lemon/max_matching.h \
