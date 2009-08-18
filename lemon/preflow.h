@@ -374,7 +374,7 @@ namespace lemon {
     /// \brief Sets the tolerance used by algorithm.
     ///
     /// Sets the tolerance used by algorithm.
-    Preflow& tolerance(const Tolerance& tolerance) const {
+    Preflow& tolerance(const Tolerance& tolerance) {
       _tolerance = tolerance;
       return *this;
     }
@@ -383,7 +383,7 @@ namespace lemon {
     ///
     /// Returns a const reference to the tolerance.
     const Tolerance& tolerance() const {
-      return tolerance;
+      return _tolerance;
     }
 
     /// \name Execution Control
