@@ -1902,12 +1902,13 @@ namespace lemon {
   /// \brief General cross reference graph map type.
 
   /// This class provides simple invertable graph maps.
-  /// It wraps an arbitrary \ref concepts::ReadWriteMap "ReadWriteMap"
-  /// and if a key is set to a new value then store it
-  /// in the inverse map.
-  ///
+  /// It wraps a standard graph map (\c NodeMap, \c ArcMap or \c EdgeMap)
+  /// and if a key is set to a new value, then stores it in the inverse map.
   /// The values of the map can be accessed
   /// with stl compatible forward iterator.
+  ///
+  /// This type is not reference map, so it cannot be modified with
+  /// the subscript operator.
   ///
   /// \tparam GR The graph type.
   /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
@@ -1923,7 +1924,7 @@ namespace lemon {
     typedef typename ItemSetTraits<GR, K>::
       template Map<V>::Type Map;
 
-    typedef std::map<V, K> Container;
+    typedef std::multimap<V, K> Container;
     Container _inv_map;
 
   public:
@@ -1948,6 +1949,8 @@ namespace lemon {
     /// This iterator is an stl compatible forward
     /// iterator on the values of the map. The values can
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
+    /// They are considered with multiplicity, so each value is
+    /// traversed for each item it is assigned to.
     class ValueIterator
       : public std::iterator<std::forward_iterator_tag, Value> {
       friend class CrossRefMap;
@@ -2000,11 +2003,15 @@ namespace lemon {
     /// Sets the value associated with the given key.
     void set(const Key& key, const Value& val) {
       Value oldval = Map::operator[](key);
-      typename Container::iterator it = _inv_map.find(oldval);
-      if (it != _inv_map.end() && it->second == key) {
-        _inv_map.erase(it);
+      typename Container::iterator it;
+      for (it = _inv_map.equal_range(oldval).first;
+           it != _inv_map.equal_range(oldval).second; ++it) {
+        if (it->second == key) {
+          _inv_map.erase(it);
+          break;
+        }
       }
-      _inv_map.insert(make_pair(val, key));
+      _inv_map.insert(std::make_pair(val, key));
       Map::set(key, val);
     }
 
@@ -2016,11 +2023,14 @@ namespace lemon {
       return Map::operator[](key);
     }
 
-    /// \brief Gives back the item by its value.
+    /// \brief Gives back an item by its value.
     ///
-    /// Gives back the item by its value.
-    Key operator()(const Value& key) const {
-      typename Container::const_iterator it = _inv_map.find(key);
+    /// This function gives back an item that is assigned to
+    /// the given value or \c INVALID if no such item exists.
+    /// If there are more items with the same associated value,
+    /// only one of them is returned.
+    Key operator()(const Value& val) const {
+      typename Container::const_iterator it = _inv_map.find(val);
       return it != _inv_map.end() ? it->second : INVALID;
     }
 
@@ -2032,9 +2042,13 @@ namespace lemon {
     /// \c AlterationNotifier.
     virtual void erase(const Key& key) {
       Value val = Map::operator[](key);
-      typename Container::iterator it = _inv_map.find(val);
-      if (it != _inv_map.end() && it->second == key) {
-        _inv_map.erase(it);
+      typename Container::iterator it;
+      for (it = _inv_map.equal_range(val).first;
+           it != _inv_map.equal_range(val).second; ++it) {
+        if (it->second == key) {
+          _inv_map.erase(it);
+          break;
+        }
       }
       Map::erase(key);
     }
@@ -2046,9 +2060,13 @@ namespace lemon {
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
         Value val = Map::operator[](keys[i]);
-        typename Container::iterator it = _inv_map.find(val);
-        if (it != _inv_map.end() && it->second == keys[i]) {
-          _inv_map.erase(it);
+        typename Container::iterator it;
+        for (it = _inv_map.equal_range(val).first;
+             it != _inv_map.equal_range(val).second; ++it) {
+          if (it->second == keys[i]) {
+            _inv_map.erase(it);
+            break;
+          }
         }
       }
       Map::erase(keys);
@@ -2084,8 +2102,9 @@ namespace lemon {
 
       /// \brief Subscript operator.
       ///
-      /// Subscript operator. It gives back the item
-      /// that was last assigned to the given value.
+      /// Subscript operator. It gives back an item
+      /// that is assigned to the given value or \c INVALID
+      /// if no such item exists.
       Value operator[](const Key& key) const {
         return _inverted(key);
       }

@@ -22,6 +22,7 @@
 #include <lemon/concept_check.h>
 #include <lemon/concepts/maps.h>
 #include <lemon/maps.h>
+#include <lemon/list_graph.h>
 
 #include "test_tools.h"
 
@@ -347,6 +348,40 @@ int main()
     for ( LoggerBoolMap<vec::iterator>::Iterator it = map2.begin();
           it != map2.end(); ++it )
       check(v1[i++] == *it, "Something is wrong with LoggerBoolMap");
+  }
+  
+  // CrossRefMap
+  {
+    typedef ListDigraph Graph;
+    DIGRAPH_TYPEDEFS(Graph);
+
+    checkConcept<ReadWriteMap<Node, int>,
+                 CrossRefMap<Graph, Node, int> >();
+    
+    Graph gr;
+    typedef CrossRefMap<Graph, Node, char> CRMap;
+    typedef CRMap::ValueIterator ValueIt;
+    CRMap map(gr);
+    
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    
+    map.set(n0, 'A');
+    map.set(n1, 'B');
+    map.set(n2, 'C');
+    map.set(n2, 'A');
+    map.set(n0, 'C');
+
+    check(map[n0] == 'C' && map[n1] == 'B' && map[n2] == 'A',
+          "Wrong CrossRefMap");
+    check(map('A') == n2 && map.inverse()['A'] == n2, "Wrong CrossRefMap");
+    check(map('B') == n1 && map.inverse()['B'] == n1, "Wrong CrossRefMap");
+    check(map('C') == n0 && map.inverse()['C'] == n0, "Wrong CrossRefMap");
+
+    ValueIt it = map.beginValue();
+    check(*it++ == 'A' && *it++ == 'B' && *it++ == 'C' &&
+          it == map.endValue(), "Wrong value iterator");
   }
 
   return 0;
