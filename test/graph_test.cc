@@ -38,6 +38,9 @@ void checkGraphBuild() {
   checkGraphEdgeList(G, 0);
   checkGraphArcList(G, 0);
 
+  G.reserveNode(3);
+  G.reserveEdge(3);
+
   Node
     n1 = G.addNode(),
     n2 = G.addNode(),

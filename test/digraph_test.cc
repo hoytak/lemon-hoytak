@@ -35,6 +35,9 @@ void checkDigraphBuild() {
   checkGraphNodeList(G, 0);
   checkGraphArcList(G, 0);
 
+  G.reserveNode(3);
+  G.reserveArc(4);
+
   Node
     n1 = G.addNode(),
     n2 = G.addNode(),

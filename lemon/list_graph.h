@@ -1311,6 +1311,26 @@ namespace lemon {
       Parent::clear();
     }
 
+    /// Reserve memory for nodes.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveEdge()
+    void reserveNode(int n) { nodes.reserve(n); };
+
+    /// Reserve memory for edges.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveNode()
+    void reserveEdge(int m) { arcs.reserve(2 * m); };
+
     /// \brief Class to make a snapshot of the graph and restore
     /// it later.
     ///
