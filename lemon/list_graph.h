@@ -32,6 +32,8 @@
 
 namespace lemon {
 
+  class ListDigraph;
+
   class ListDigraphBase {
 
   protected:
@@ -62,6 +64,7 @@ namespace lemon {
 
     class Node {
       friend class ListDigraphBase;
+      friend class ListDigraph;
     protected:
 
       int id;
@@ -77,6 +80,7 @@ namespace lemon {
 
     class Arc {
       friend class ListDigraphBase;
+      friend class ListDigraph;
     protected:
 
       int id;
@@ -467,18 +471,16 @@ namespace lemon {
     ///is also added.
     ///\return The newly created node.
     ///
-    ///\note \c ArcIt and \c OutArcIt iterators referencing the outgoing
-    ///arcs of node \c n are invalidated. Other iterators remain valid.
+    ///\note All iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
     Node split(Node n, bool connect = true) {
       Node b = addNode();
-      for(OutArcIt e(*this,n);e!=INVALID;) {
-        OutArcIt f=e;
-        ++f;
-        changeSource(e,b);
-        e=f;
+      nodes[b.id].first_out=nodes[n.id].first_out;
+      nodes[n.id].first_out=-1;
+      for(int i=nodes[b.id].first_out; i!=-1; i=arcs[i].next_out) {
+        arcs[i].source=b.id;
       }
       if (connect) addArc(n,b);
       return b;
