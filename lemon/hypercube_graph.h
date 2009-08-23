@@ -282,17 +282,20 @@ namespace lemon {
   ///
   /// \brief Hypercube graph class
   ///
-  /// This class implements a special graph type. The nodes of the graph
-  /// are indiced with integers with at most \c dim binary digits.
+  /// HypercubeGraph implements a special graph type. The nodes of the
+  /// graph are indexed with integers having at most \c dim binary digits.
   /// Two nodes are connected in the graph if and only if their indices
   /// differ only on one position in the binary form.
+  /// This class is completely static and it needs constant memory space.
+  /// Thus you can neither add nor delete nodes or edges.
+  ///
+  /// This type fully conforms to the \ref concepts::Graph "Graph concept".
+  /// Most of its member functions and nested classes are documented
+  /// only in the concept class.
   ///
   /// \note The type of the indices is chosen to \c int for efficiency
   /// reasons. Thus the maximum dimension of this implementation is 26
   /// (assuming that the size of \c int is 32 bit).
-  ///
-  /// This graph type fully conforms to the \ref concepts::Graph
-  /// "Graph concept".
   class HypercubeGraph : public ExtendedHypercubeGraphBase {
     typedef ExtendedHypercubeGraphBase Parent;
 
@@ -320,7 +323,7 @@ namespace lemon {
     /// \brief The dimension id of an edge.
     ///
     /// Gives back the dimension id of the given edge.
-    /// It is in the [0..dim-1] range.
+    /// It is in the range <tt>[0..dim-1]</tt>.
     int dimension(Edge edge) const {
       return Parent::dimension(edge);
     }
@@ -328,7 +331,7 @@ namespace lemon {
     /// \brief The dimension id of an arc.
     ///
     /// Gives back the dimension id of the given arc.
-    /// It is in the [0..dim-1] range.
+    /// It is in the range <tt>[0..dim-1]</tt>.
     int dimension(Arc arc) const {
       return Parent::dimension(arc);
     }

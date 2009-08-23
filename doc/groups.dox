@@ -636,8 +636,8 @@ The purpose of the classes in this group is fourfold.
 @ingroup concept
 \brief Skeleton and concept checking classes for graph structures
 
-This group contains the skeletons and concept checking classes of LEMON's
-graph structures and helper classes used to implement these.
+This group contains the skeletons and concept checking classes of
+graph structures.
 */
 
 /**
