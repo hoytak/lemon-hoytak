@@ -270,6 +270,13 @@ void checkFullGraph(int num) {
   GRAPH_TYPEDEFS(Graph);
 
   Graph G(num);
+  check(G.nodeNum() == num && G.edgeNum() == num * (num - 1) / 2,
+        "Wrong size");
+
+  G.resize(num);
+  check(G.nodeNum() == num && G.edgeNum() == num * (num - 1) / 2,
+        "Wrong size");
+
   checkGraphNodeList(G, num);
   checkGraphEdgeList(G, num * (num - 1) / 2);
 
@@ -414,6 +421,10 @@ void checkGridGraph(int width, int height) {
   check(G.width() == width, "Wrong column number");
   check(G.height() == height, "Wrong row number");
 
+  G.resize(width, height);
+  check(G.width() == width, "Wrong column number");
+  check(G.height() == height, "Wrong row number");
+
   for (int i = 0; i < width; ++i) {
     for (int j = 0; j < height; ++j) {
       check(G.col(G(i, j)) == i, "Wrong column");
@@ -489,6 +500,11 @@ void checkHypercubeGraph(int dim) {
   GRAPH_TYPEDEFS(HypercubeGraph);
 
   HypercubeGraph G(dim);
+  check(G.dimension() == dim, "Wrong dimension");
+
+  G.resize(dim);
+  check(G.dimension() == dim, "Wrong dimension");
+  
   checkGraphNodeList(G, 1 << dim);
   checkGraphEdgeList(G, dim * (1 << (dim-1)));
   checkGraphArcList(G, dim * (1 << dim));

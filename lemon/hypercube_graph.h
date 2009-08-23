@@ -287,7 +287,8 @@ namespace lemon {
   /// Two nodes are connected in the graph if and only if their indices
   /// differ only on one position in the binary form.
   /// This class is completely static and it needs constant memory space.
-  /// Thus you can neither add nor delete nodes or edges.
+  /// Thus you can neither add nor delete nodes or edges, however 
+  /// the structure can be resized using resize().
   ///
   /// This type fully conforms to the \ref concepts::Graph "Graph concept".
   /// Most of its member functions and nested classes are documented
@@ -305,6 +306,21 @@ namespace lemon {
     ///
     /// Constructs a hypercube graph with \c dim dimensions.
     HypercubeGraph(int dim) { construct(dim); }
+
+    /// \brief Resizes the graph
+    ///
+    /// This function resizes the graph. It fully destroys and
+    /// rebuilds the structure, therefore the maps of the graph will be
+    /// reallocated automatically and the previous values will be lost.
+    void resize(int dim) {
+      Parent::notifier(Arc()).clear();
+      Parent::notifier(Edge()).clear();
+      Parent::notifier(Node()).clear();
+      construct(dim);
+      Parent::notifier(Node()).build();
+      Parent::notifier(Edge()).build();
+      Parent::notifier(Arc()).build();
+    }
 
     /// \brief The number of dimensions.
     ///

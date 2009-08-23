@@ -378,7 +378,12 @@ void checkDigraphValidityErase() {
 void checkFullDigraph(int num) {
   typedef FullDigraph Digraph;
   DIGRAPH_TYPEDEFS(Digraph);
+
   Digraph G(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
+
+  G.resize(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
 
   checkGraphNodeList(G, num);
   checkGraphArcList(G, num * num);
