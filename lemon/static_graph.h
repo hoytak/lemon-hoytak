@@ -32,13 +32,13 @@ namespace lemon {
   public:
 
     StaticDigraphBase() 
-      : node_num(-1), arc_num(0), 
+      : built(false), node_num(0), arc_num(0), 
         node_first_out(NULL), node_first_in(NULL),
         arc_source(NULL), arc_target(NULL), 
         arc_next_in(NULL), arc_next_out(NULL) {}
     
     ~StaticDigraphBase() {
-      if (node_num != -1) {
+      if (built) {
         delete[] node_first_out;
         delete[] node_first_in;
         delete[] arc_source;
@@ -128,10 +128,8 @@ namespace lemon {
 
     typedef True BuildTag;
     
-    template <typename Digraph, typename NodeRefMap, typename ArcRefMap>
-    void build(const Digraph& digraph, NodeRefMap& nodeRef, ArcRefMap& arcRef) {
-
-      if (node_num != -1) {
+    void clear() {
+      if (built) {
         delete[] node_first_out;
         delete[] node_first_in;
         delete[] arc_source;
@@ -139,9 +137,17 @@ namespace lemon {
         delete[] arc_next_out;
         delete[] arc_next_in;
       }
-
+      built = false;
+      node_num = 0;
+      arc_num = 0;
+    }
+    
+    template <typename Digraph, typename NodeRefMap, typename ArcRefMap>
+    void build(const Digraph& digraph, NodeRefMap& nodeRef, ArcRefMap& arcRef) {
       typedef typename Digraph::Node GNode;
       typedef typename Digraph::Arc GArc;
+
+      built = true;
 
       node_num = countNodes(digraph);
       arc_num = countArcs(digraph);
@@ -205,7 +211,8 @@ namespace lemon {
       e.id = node_first_out[n.id + 1];
     }
 
-  private:
+  protected:
+    bool built;
     int node_num;
     int arc_num;
     int *node_first_out;
@@ -223,6 +230,15 @@ namespace lemon {
   public:
 
     typedef ExtendedStaticDigraphBase Parent;
+  
+  public:
+  
+    template <typename Digraph, typename NodeRefMap, typename ArcRefMap>
+    void build(const Digraph& digraph, NodeRefMap& nodeRef, ArcRefMap& arcRef) {
+      if (built) Parent::clear();
+      Parent::build(digraph, nodeRef, arcRef);
+    }
+  
 
   protected:
 
@@ -260,6 +276,22 @@ namespace lemon {
     private:
       Arc last;
     };
+
+    Node baseNode(const OutArcIt &arc) const {
+      return Parent::source(static_cast<const Arc&>(arc));
+    }
+
+    Node runningNode(const OutArcIt &arc) const {
+      return Parent::target(static_cast<const Arc&>(arc));
+    }
+
+    Node baseNode(const InArcIt &arc) const {
+      return Parent::target(static_cast<const Arc&>(arc));
+    }
+
+    Node runningNode(const InArcIt &arc) const {
+      return Parent::source(static_cast<const Arc&>(arc));
+    }
 
   };
 
