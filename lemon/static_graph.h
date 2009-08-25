@@ -226,6 +226,24 @@ namespace lemon {
   typedef DigraphExtender<StaticDigraphBase> ExtendedStaticDigraphBase;
 
 
+  /// \ingroup graphs
+  ///
+  /// \brief A static directed graph class.
+  ///
+  /// \ref StaticDigraph is a highly efficient digraph implementation,
+  /// but it is fully static.
+  /// It stores only two \c int values for each node and only four \c int
+  /// values for each arc. Moreover it provides faster item iteration than
+  /// \ref ListDigraph and \ref SmartDigraph, especially using \c OutArcIt
+  /// iterators, since its arcs are stored in an appropriate order.
+  /// However it only provides build() and clear() functions and does not
+  /// support any other modification of the digraph.
+  ///
+  /// This type fully conforms to the \ref concepts::Digraph "Digraph concept".
+  /// Most of its member functions and nested classes are documented
+  /// only in the concept class.
+  ///
+  /// \sa concepts::Digraph
   class StaticDigraph : public ExtendedStaticDigraphBase {
   public:
 
@@ -233,6 +251,37 @@ namespace lemon {
   
   public:
   
+    /// \brief Clear the digraph.
+    ///
+    /// This function erases all nodes and arcs from the digraph.
+    void clear() {
+      Parent::clear();
+    }
+    
+    /// \brief Build the digraph copying another digraph.
+    ///
+    /// This function builds the digraph copying another digraph of any
+    /// kind. It can be called more than once, but in such case, the whole
+    /// structure and all maps will be cleared and rebuilt.
+    ///
+    /// This method also makes possible to copy a digraph to a StaticDigraph
+    /// structure using \ref DigraphCopy.
+    /// 
+    /// \param digraph An existing digraph to be copied.
+    /// \param nodeRef The node references will be copied into this map.
+    /// Its key type must be \c Digraph::Node and its value type must be
+    /// \c StaticDigraph::Node.
+    /// It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap"
+    /// concept.
+    /// \param arcRef The arc references will be copied into this map.
+    /// Its key type must be \c Digraph::Arc and its value type must be
+    /// \c StaticDigraph::Arc.
+    /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
+    ///
+    /// \note If you do not need the arc references, then you could use
+    /// \ref NullMap for the last parameter. However the node references
+    /// are required by the function itself, thus they must be readable
+    /// from the map.
     template <typename Digraph, typename NodeRefMap, typename ArcRefMap>
     void build(const Digraph& digraph, NodeRefMap& nodeRef, ArcRefMap& arcRef) {
       if (built) Parent::clear();
