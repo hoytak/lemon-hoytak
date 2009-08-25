@@ -105,6 +105,7 @@ lemon_HEADERS += \
 	lemon/random.h \
 	lemon/smart_graph.h \
 	lemon/soplex.h \
+	lemon/static_graph.h \
 	lemon/suurballe.h \
 	lemon/time_measure.h \
 	lemon/tolerance.h \
