@@ -57,6 +57,7 @@ lemon_HEADERS += \
 	lemon/adaptors.h \
 	lemon/arg_parser.h \
 	lemon/assert.h \
+	lemon/bellman_ford.h \
 	lemon/bfs.h \
 	lemon/bin_heap.h \
 	lemon/bucket_heap.h \
