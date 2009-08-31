@@ -19,9 +19,9 @@
 #ifndef LEMON_RADIX_HEAP_H
 #define LEMON_RADIX_HEAP_H
 
-///\ingroup auxdat
+///\ingroup heaps
 ///\file
-///\brief Radix Heap implementation.
+///\brief Radix heap implementation.
 
 #include <vector>
 #include <lemon/error.h>
@@ -29,56 +29,54 @@
 namespace lemon {
 
 
-  /// \ingroup auxdata
+  /// \ingroup heaps
   ///
-  /// \brief A Radix Heap implementation.
+  /// \brief Radix heap data structure.
   ///
-  /// This class implements the \e radix \e heap data structure. A \e heap
-  /// is a data structure for storing items with specified values called \e
-  /// priorities in such a way that finding the item with minimum priority is
-  /// efficient. This heap type can store only items with \e int priority.
-  /// In a heap one can change the priority of an item, add or erase an
-  /// item, but the priority cannot be decreased under the last removed
-  /// item's priority.
+  /// This class implements the \e radix \e heap data structure.
+  /// It practically conforms to the \ref concepts::Heap "heap concept",
+  /// but it has some limitations due its special implementation.
+  /// The type of the priorities must be \c int and the priority of an
+  /// item cannot be decreased under the priority of the last removed item.
   ///
-  /// \param IM A read and writable Item int map, used internally
-  /// to handle the cross references.
-  ///
-  /// \see BinHeap
-  /// \see Dijkstra
+  /// \tparam IM A read-writable item map with \c int values, used
+  /// internally to handle the cross references.
   template <typename IM>
   class RadixHeap {
 
   public:
-    typedef typename IM::Key Item;
-    typedef int Prio;
+
+    /// Type of the item-int map.
     typedef IM ItemIntMap;
+    /// Type of the priorities.
+    typedef int Prio;
+    /// Type of the items stored in the heap.
+    typedef typename ItemIntMap::Key Item;
 
     /// \brief Exception thrown by RadixHeap.
     ///
-    /// This Exception is thrown when a smaller priority
-    /// is inserted into the \e RadixHeap then the last time erased.
+    /// This exception is thrown when an item is inserted into a
+    /// RadixHeap with a priority smaller than the last erased one.
     /// \see RadixHeap
-
-    class UnderFlowPriorityError : public Exception {
+    class PriorityUnderflowError : public Exception {
     public:
       virtual const char* what() const throw() {
-        return "lemon::RadixHeap::UnderFlowPriorityError";
+        return "lemon::RadixHeap::PriorityUnderflowError";
       }
     };
 
-    /// \brief Type to represent the items states.
+    /// \brief Type to represent the states of the items.
     ///
-    /// Each Item element have a state associated to it. It may be "in heap",
-    /// "pre heap" or "post heap". The latter two are indifferent from the
+    /// Each item has a state associated to it. It can be "in heap",
+    /// "pre-heap" or "post-heap". The latter two are indifferent from the
     /// heap's point of view, but may be useful to the user.
     ///
-    /// The ItemIntMap \e should be initialized in such way that it maps
-    /// PRE_HEAP (-1) to any element to be put in the heap...
+    /// The item-int map must be initialized in such way that it assigns
+    /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
   private:
@@ -96,52 +94,55 @@ namespace lemon {
       RadixBox(int _min, int _size) : first(-1), min(_min), size(_size) {}
     };
 
-    std::vector<RadixItem> data;
-    std::vector<RadixBox> boxes;
+    std::vector<RadixItem> _data;
+    std::vector<RadixBox> _boxes;
 
     ItemIntMap &_iim;
 
-
   public:
-    /// \brief The constructor.
+
+    /// \brief Constructor.
     ///
-    /// The constructor.
-    ///
-    /// \param map It should be given to the constructor, since it is used
-    /// internally to handle the cross references. The value of the map
-    /// should be PRE_HEAP (-1) for each element.
-    ///
-    /// \param minimal The initial minimal value of the heap.
-    /// \param capacity It determines the initial capacity of the heap.
-    RadixHeap(ItemIntMap &map, int minimal = 0, int capacity = 0)
-      : _iim(map) {
-      boxes.push_back(RadixBox(minimal, 1));
-      boxes.push_back(RadixBox(minimal + 1, 1));
-      while (lower(boxes.size() - 1, capacity + minimal - 1)) {
+    /// Constructor.
+    /// \param map A map that assigns \c int values to the items.
+    /// It is used internally to handle the cross references.
+    /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
+    /// \param minimum The initial minimum value of the heap.
+    /// \param capacity The initial capacity of the heap.
+    RadixHeap(ItemIntMap &map, int minimum = 0, int capacity = 0)
+      : _iim(map)
+    {
+      _boxes.push_back(RadixBox(minimum, 1));
+      _boxes.push_back(RadixBox(minimum + 1, 1));
+      while (lower(_boxes.size() - 1, capacity + minimum - 1)) {
         extend();
       }
     }
 
-    /// The number of items stored in the heap.
+    /// \brief The number of items stored in the heap.
     ///
-    /// \brief Returns the number of items stored in the heap.
-    int size() const { return data.size(); }
-    /// \brief Checks if the heap stores no items.
-    ///
-    /// Returns \c true if and only if the heap stores no items.
-    bool empty() const { return data.empty(); }
+    /// This function returns the number of items stored in the heap.
+    int size() const { return _data.size(); }
 
-    /// \brief Make empty this heap.
+    /// \brief Check if the heap is empty.
     ///
-    /// Make empty this heap. It does not change the cross reference
-    /// map.  If you want to reuse a heap what is not surely empty you
-    /// should first clear the heap and after that you should set the
-    /// cross reference map for each item to \c PRE_HEAP.
-    void clear(int minimal = 0, int capacity = 0) {
-      data.clear(); boxes.clear();
-      boxes.push_back(RadixBox(minimal, 1));
-      boxes.push_back(RadixBox(minimal + 1, 1));
-      while (lower(boxes.size() - 1, capacity + minimal - 1)) {
+    /// This function returns \c true if the heap is empty.
+    bool empty() const { return _data.empty(); }
+
+    /// \brief Make the heap empty.
+    ///
+    /// This functon makes the heap empty.
+    /// It does not change the cross reference map. If you want to reuse
+    /// a heap that is not surely empty, you should first clear it and
+    /// then you should set the cross reference map to \c PRE_HEAP
+    /// for each item.
+    /// \param minimum The minimum value of the heap.
+    /// \param capacity The capacity of the heap.
+    void clear(int minimum = 0, int capacity = 0) {
+      _data.clear(); _boxes.clear();
+      _boxes.push_back(RadixBox(minimum, 1));
+      _boxes.push_back(RadixBox(minimum + 1, 1));
+      while (lower(_boxes.size() - 1, capacity + minimum - 1)) {
         extend();
       }
     }
@@ -149,255 +150,259 @@ namespace lemon {
   private:
 
     bool upper(int box, Prio pr) {
-      return pr < boxes[box].min;
+      return pr < _boxes[box].min;
     }
 
     bool lower(int box, Prio pr) {
-      return pr >= boxes[box].min + boxes[box].size;
+      return pr >= _boxes[box].min + _boxes[box].size;
     }
 
-    /// \brief Remove item from the box list.
+    // Remove item from the box list
     void remove(int index) {
-      if (data[index].prev >= 0) {
-        data[data[index].prev].next = data[index].next;
+      if (_data[index].prev >= 0) {
+        _data[_data[index].prev].next = _data[index].next;
       } else {
-        boxes[data[index].box].first = data[index].next;
+        _boxes[_data[index].box].first = _data[index].next;
       }
-      if (data[index].next >= 0) {
-        data[data[index].next].prev = data[index].prev;
+      if (_data[index].next >= 0) {
+        _data[_data[index].next].prev = _data[index].prev;
       }
     }
 
-    /// \brief Insert item into the box list.
+    // Insert item into the box list
     void insert(int box, int index) {
-      if (boxes[box].first == -1) {
-        boxes[box].first = index;
-        data[index].next = data[index].prev = -1;
+      if (_boxes[box].first == -1) {
+        _boxes[box].first = index;
+        _data[index].next = _data[index].prev = -1;
       } else {
-        data[index].next = boxes[box].first;
-        data[boxes[box].first].prev = index;
-        data[index].prev = -1;
-        boxes[box].first = index;
+        _data[index].next = _boxes[box].first;
+        _data[_boxes[box].first].prev = index;
+        _data[index].prev = -1;
+        _boxes[box].first = index;
       }
-      data[index].box = box;
+      _data[index].box = box;
     }
 
-    /// \brief Add a new box to the box list.
+    // Add a new box to the box list
     void extend() {
-      int min = boxes.back().min + boxes.back().size;
-      int bs = 2 * boxes.back().size;
-      boxes.push_back(RadixBox(min, bs));
+      int min = _boxes.back().min + _boxes.back().size;
+      int bs = 2 * _boxes.back().size;
+      _boxes.push_back(RadixBox(min, bs));
     }
 
-    /// \brief Move an item up into the proper box.
-    void bubble_up(int index) {
-      if (!lower(data[index].box, data[index].prio)) return;
+    // Move an item up into the proper box.
+    void bubbleUp(int index) {
+      if (!lower(_data[index].box, _data[index].prio)) return;
       remove(index);
-      int box = findUp(data[index].box, data[index].prio);
+      int box = findUp(_data[index].box, _data[index].prio);
       insert(box, index);
     }
 
-    /// \brief Find up the proper box for the item with the given prio.
+    // Find up the proper box for the item with the given priority
     int findUp(int start, int pr) {
       while (lower(start, pr)) {
-        if (++start == int(boxes.size())) {
+        if (++start == int(_boxes.size())) {
           extend();
         }
       }
       return start;
     }
 
-    /// \brief Move an item down into the proper box.
-    void bubble_down(int index) {
-      if (!upper(data[index].box, data[index].prio)) return;
+    // Move an item down into the proper box
+    void bubbleDown(int index) {
+      if (!upper(_data[index].box, _data[index].prio)) return;
       remove(index);
-      int box = findDown(data[index].box, data[index].prio);
+      int box = findDown(_data[index].box, _data[index].prio);
       insert(box, index);
     }
 
-    /// \brief Find up the proper box for the item with the given prio.
+    // Find down the proper box for the item with the given priority
     int findDown(int start, int pr) {
       while (upper(start, pr)) {
-        if (--start < 0) throw UnderFlowPriorityError();
+        if (--start < 0) throw PriorityUnderflowError();
       }
       return start;
     }
 
-    /// \brief Find the first not empty box.
+    // Find the first non-empty box
     int findFirst() {
       int first = 0;
-      while (boxes[first].first == -1) ++first;
+      while (_boxes[first].first == -1) ++first;
       return first;
     }
 
-    /// \brief Gives back the minimal prio of the box.
+    // Gives back the minimum priority of the given box
     int minValue(int box) {
-      int min = data[boxes[box].first].prio;
-      for (int k = boxes[box].first; k != -1; k = data[k].next) {
-        if (data[k].prio < min) min = data[k].prio;
+      int min = _data[_boxes[box].first].prio;
+      for (int k = _boxes[box].first; k != -1; k = _data[k].next) {
+        if (_data[k].prio < min) min = _data[k].prio;
       }
       return min;
     }
 
-    /// \brief Rearrange the items of the heap and makes the
-    /// first box not empty.
+    // Rearrange the items of the heap and make the first box non-empty
     void moveDown() {
       int box = findFirst();
       if (box == 0) return;
       int min = minValue(box);
       for (int i = 0; i <= box; ++i) {
-        boxes[i].min = min;
-        min += boxes[i].size;
+        _boxes[i].min = min;
+        min += _boxes[i].size;
       }
-      int curr = boxes[box].first, next;
+      int curr = _boxes[box].first, next;
       while (curr != -1) {
-        next = data[curr].next;
-        bubble_down(curr);
+        next = _data[curr].next;
+        bubbleDown(curr);
         curr = next;
       }
     }
 
-    void relocate_last(int index) {
-      if (index != int(data.size()) - 1) {
-        data[index] = data.back();
-        if (data[index].prev != -1) {
-          data[data[index].prev].next = index;
+    void relocateLast(int index) {
+      if (index != int(_data.size()) - 1) {
+        _data[index] = _data.back();
+        if (_data[index].prev != -1) {
+          _data[_data[index].prev].next = index;
         } else {
-          boxes[data[index].box].first = index;
+          _boxes[_data[index].box].first = index;
         }
-        if (data[index].next != -1) {
-          data[data[index].next].prev = index;
+        if (_data[index].next != -1) {
+          _data[_data[index].next].prev = index;
         }
-        _iim[data[index].item] = index;
+        _iim[_data[index].item] = index;
       }
-      data.pop_back();
+      _data.pop_back();
     }
 
   public:
 
     /// \brief Insert an item into the heap with the given priority.
     ///
-    /// Adds \c i to the heap with priority \c p.
+    /// This function inserts the given item into the heap with the
+    /// given priority.
     /// \param i The item to insert.
     /// \param p The priority of the item.
+    /// \pre \e i must not be stored in the heap.
+    /// \warning This method may throw an \c UnderFlowPriorityException.
     void push(const Item &i, const Prio &p) {
-      int n = data.size();
+      int n = _data.size();
       _iim.set(i, n);
-      data.push_back(RadixItem(i, p));
-      while (lower(boxes.size() - 1, p)) {
+      _data.push_back(RadixItem(i, p));
+      while (lower(_boxes.size() - 1, p)) {
         extend();
       }
-      int box = findDown(boxes.size() - 1, p);
+      int box = findDown(_boxes.size() - 1, p);
       insert(box, n);
     }
 
-    /// \brief Returns the item with minimum priority.
+    /// \brief Return the item having minimum priority.
     ///
-    /// This method returns the item with minimum priority.
-    /// \pre The heap must be nonempty.
+    /// This function returns the item having minimum priority.
+    /// \pre The heap must be non-empty.
     Item top() const {
       const_cast<RadixHeap<ItemIntMap>&>(*this).moveDown();
-      return data[boxes[0].first].item;
+      return _data[_boxes[0].first].item;
     }
 
-    /// \brief Returns the minimum priority.
+    /// \brief The minimum priority.
     ///
-    /// It returns the minimum priority.
-    /// \pre The heap must be nonempty.
+    /// This function returns the minimum priority.
+    /// \pre The heap must be non-empty.
     Prio prio() const {
       const_cast<RadixHeap<ItemIntMap>&>(*this).moveDown();
-      return data[boxes[0].first].prio;
+      return _data[_boxes[0].first].prio;
      }
 
-    /// \brief Deletes the item with minimum priority.
+    /// \brief Remove the item having minimum priority.
     ///
-    /// This method deletes the item with minimum priority.
+    /// This function removes the item having minimum priority.
     /// \pre The heap must be non-empty.
     void pop() {
       moveDown();
-      int index = boxes[0].first;
-      _iim[data[index].item] = POST_HEAP;
+      int index = _boxes[0].first;
+      _iim[_data[index].item] = POST_HEAP;
       remove(index);
-      relocate_last(index);
+      relocateLast(index);
     }
 
-    /// \brief Deletes \c i from the heap.
+    /// \brief Remove the given item from the heap.
     ///
-    /// This method deletes item \c i from the heap, if \c i was
-    /// already stored in the heap.
-    /// \param i The item to erase.
+    /// This function removes the given item from the heap if it is
+    /// already stored.
+    /// \param i The item to delete.
+    /// \pre \e i must be in the heap.
     void erase(const Item &i) {
       int index = _iim[i];
       _iim[i] = POST_HEAP;
       remove(index);
-      relocate_last(index);
+      relocateLast(index);
    }
 
-    /// \brief Returns the priority of \c i.
+    /// \brief The priority of the given item.
     ///
-    /// This function returns the priority of item \c i.
-    /// \pre \c i must be in the heap.
+    /// This function returns the priority of the given item.
     /// \param i The item.
+    /// \pre \e i must be in the heap.
     Prio operator[](const Item &i) const {
       int idx = _iim[i];
-      return data[idx].prio;
+      return _data[idx].prio;
     }
 
-    /// \brief \c i gets to the heap with priority \c p independently
-    /// if \c i was already there.
+    /// \brief Set the priority of an item or insert it, if it is
+    /// not stored in the heap.
     ///
-    /// This method calls \ref push(\c i, \c p) if \c i is not stored
-    /// in the heap and sets the priority of \c i to \c p otherwise.
-    /// It may throw an \e UnderFlowPriorityException.
+    /// This method sets the priority of the given item if it is
+    /// already stored in the heap. Otherwise it inserts the given
+    /// item into the heap with the given priority.
     /// \param i The item.
     /// \param p The priority.
+    /// \pre \e i must be in the heap.
+    /// \warning This method may throw an \c UnderFlowPriorityException.
     void set(const Item &i, const Prio &p) {
       int idx = _iim[i];
       if( idx < 0 ) {
         push(i, p);
       }
-      else if( p >= data[idx].prio ) {
-        data[idx].prio = p;
-        bubble_up(idx);
+      else if( p >= _data[idx].prio ) {
+        _data[idx].prio = p;
+        bubbleUp(idx);
       } else {
-        data[idx].prio = p;
-        bubble_down(idx);
+        _data[idx].prio = p;
+        bubbleDown(idx);
       }
     }
 
-
-    /// \brief Decreases the priority of \c i to \c p.
+    /// \brief Decrease the priority of an item to the given value.
     ///
-    /// This method decreases the priority of item \c i to \c p.
-    /// \pre \c i must be stored in the heap with priority at least \c p, and
-    /// \c should be greater or equal to the last removed item's priority.
+    /// This function decreases the priority of an item to the given value.
     /// \param i The item.
     /// \param p The priority.
+    /// \pre \e i must be stored in the heap with priority at least \e p.
+    /// \warning This method may throw an \c UnderFlowPriorityException.
     void decrease(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      data[idx].prio = p;
-      bubble_down(idx);
+      _data[idx].prio = p;
+      bubbleDown(idx);
     }
 
-    /// \brief Increases the priority of \c i to \c p.
+    /// \brief Increase the priority of an item to the given value.
     ///
-    /// This method sets the priority of item \c i to \c p.
-    /// \pre \c i must be stored in the heap with priority at most \c p
+    /// This function increases the priority of an item to the given value.
     /// \param i The item.
     /// \param p The priority.
+    /// \pre \e i must be stored in the heap with priority at most \e p.
     void increase(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      data[idx].prio = p;
-      bubble_up(idx);
+      _data[idx].prio = p;
+      bubbleUp(idx);
     }
 
-    /// \brief Returns if \c item is in, has already been in, or has
-    /// never been in the heap.
+    /// \brief Return the state of an item.
     ///
-    /// This method returns PRE_HEAP if \c item has never been in the
-    /// heap, IN_HEAP if it is in the heap at the moment, and POST_HEAP
-    /// otherwise. In the latter case it is possible that \c item will
-    /// get back to the heap again.
+    /// This method returns \c PRE_HEAP if the given item has never
+    /// been in the heap, \c IN_HEAP if it is in the heap at the moment,
+    /// and \c POST_HEAP otherwise.
+    /// In the latter case it is possible that the item will get back
+    /// to the heap again.
     /// \param i The item.
     State state(const Item &i) const {
       int s = _iim[i];
@@ -405,11 +410,11 @@ namespace lemon {
       return State(s);
     }
 
-    /// \brief Sets the state of the \c item in the heap.
+    /// \brief Set the state of an item in the heap.
     ///
-    /// Sets the state of the \c item in the heap. It can be used to
-    /// manually clear the heap when it is important to achive the
-    /// better time complexity.
+    /// This function sets the state of the given item in the heap.
+    /// It can be used to manually clear the heap when it is important
+    /// to achive better time complexity.
     /// \param i The item.
     /// \param st The state. It should not be \c IN_HEAP.
     void state(const Item& i, State st) {

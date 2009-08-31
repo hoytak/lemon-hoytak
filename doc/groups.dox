@@ -226,14 +226,6 @@ class. We use the implicit minimum time map as the length map of the
 */
 
 /**
-@defgroup matrices Matrices
-@ingroup datas
-\brief Two dimensional data storages implemented in LEMON.
-
-This group contains two dimensional data storages implemented in LEMON.
-*/
-
-/**
 @defgroup paths Path Structures
 @ingroup datas
 \brief %Path structures implemented in LEMON.
@@ -246,7 +238,36 @@ assignment operators and copy constructors. This makes it easy and
 efficient to have e.g. the Dijkstra algorithm to store its result in
 any kind of path structure.
 
-\sa lemon::concepts::Path
+\sa \ref concepts::Path "Path concept"
+*/
+
+/**
+@defgroup heaps Heap Structures
+@ingroup datas
+\brief %Heap structures implemented in LEMON.
+
+This group contains the heap structures implemented in LEMON.
+
+LEMON provides several heap classes. They are efficient implementations
+of the abstract data type \e priority \e queue. They store items with
+specified values called \e priorities in such a way that finding and
+removing the item with minimum priority are efficient.
+The basic operations are adding and erasing items, changing the priority
+of an item, etc.
+
+Heaps are crucial in several algorithms, such as Dijkstra and Prim.
+The heap implementations have the same interface, thus any of them can be
+used easily in such algorithms.
+
+\sa \ref concepts::Heap "Heap concept"
+*/
+
+/**
+@defgroup matrices Matrices
+@ingroup datas
+\brief Two dimensional data storages implemented in LEMON.
+
+This group contains two dimensional data storages implemented in LEMON.
 */
 
 /**
