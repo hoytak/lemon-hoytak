@@ -104,6 +104,7 @@ lemon_HEADERS += \
 	lemon/network_simplex.h \
 	lemon/pairing_heap.h \
 	lemon/path.h \
+	lemon/planarity.h \
 	lemon/preflow.h \
 	lemon/radix_heap.h \
 	lemon/radix_sort.h \
