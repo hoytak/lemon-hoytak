@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_MAX_MATCHING_H
-#define LEMON_MAX_MATCHING_H
+#ifndef LEMON_MATCHING_H
+#define LEMON_MATCHING_H
 
 #include <vector>
 #include <queue>
@@ -41,7 +41,7 @@ namespace lemon {
   ///
   /// This class implements Edmonds' alternating forest matching algorithm
   /// for finding a maximum cardinality matching in a general undirected graph.
-  /// It can be started from an arbitrary initial matching 
+  /// It can be started from an arbitrary initial matching
   /// (the default is the empty one).
   ///
   /// The dual solution of the problem is a map of the nodes to
@@ -69,11 +69,11 @@ namespace lemon {
 
     ///\brief Status constants for Gallai-Edmonds decomposition.
     ///
-    ///These constants are used for indicating the Gallai-Edmonds 
+    ///These constants are used for indicating the Gallai-Edmonds
     ///decomposition of a graph. The nodes with status \c EVEN (or \c D)
     ///induce a subgraph with factor-critical components, the nodes with
     ///status \c ODD (or \c A) form the canonical barrier, and the nodes
-    ///with status \c MATCHED (or \c C) induce a subgraph having a 
+    ///with status \c MATCHED (or \c C) induce a subgraph having a
     ///perfect matching.
     enum Status {
       EVEN = 1,       ///< = 1. (\c D is an alias for \c EVEN.)
@@ -512,7 +512,7 @@ namespace lemon {
       }
     }
 
-    /// \brief Start Edmonds' algorithm with a heuristic improvement 
+    /// \brief Start Edmonds' algorithm with a heuristic improvement
     /// for dense graphs
     ///
     /// This function runs Edmonds' algorithm with a heuristic of postponing
@@ -534,8 +534,8 @@ namespace lemon {
 
     /// \brief Run Edmonds' algorithm
     ///
-    /// This function runs Edmonds' algorithm. An additional heuristic of 
-    /// postponing shrinks is used for relatively dense graphs 
+    /// This function runs Edmonds' algorithm. An additional heuristic of
+    /// postponing shrinks is used for relatively dense graphs
     /// (for which <tt>m>=2*n</tt> holds).
     void run() {
       if (countEdges(_graph) < 2 * countNodes(_graph)) {
@@ -556,7 +556,7 @@ namespace lemon {
 
     /// \brief Return the size (cardinality) of the matching.
     ///
-    /// This function returns the size (cardinality) of the current matching. 
+    /// This function returns the size (cardinality) of the current matching.
     /// After run() it returns the size of the maximum matching in the graph.
     int matchingSize() const {
       int size = 0;
@@ -570,7 +570,7 @@ namespace lemon {
 
     /// \brief Return \c true if the given edge is in the matching.
     ///
-    /// This function returns \c true if the given edge is in the current 
+    /// This function returns \c true if the given edge is in the current
     /// matching.
     bool matching(const Edge& edge) const {
       return edge == (*_matching)[_graph.u(edge)];
@@ -579,7 +579,7 @@ namespace lemon {
     /// \brief Return the matching arc (or edge) incident to the given node.
     ///
     /// This function returns the matching arc (or edge) incident to the
-    /// given node in the current matching or \c INVALID if the node is 
+    /// given node in the current matching or \c INVALID if the node is
     /// not covered by the matching.
     Arc matching(const Node& n) const {
       return (*_matching)[n];
@@ -595,7 +595,7 @@ namespace lemon {
 
     /// \brief Return the mate of the given node.
     ///
-    /// This function returns the mate of the given node in the current 
+    /// This function returns the mate of the given node in the current
     /// matching or \c INVALID if the node is not covered by the matching.
     Node mate(const Node& n) const {
       return (*_matching)[n] != INVALID ?
@@ -605,7 +605,7 @@ namespace lemon {
     /// @}
 
     /// \name Dual Solution
-    /// Functions to get the dual solution, i.e. the Gallai-Edmonds 
+    /// Functions to get the dual solution, i.e. the Gallai-Edmonds
     /// decomposition.
 
     /// @{
@@ -648,8 +648,8 @@ namespace lemon {
   /// on extensive use of priority queues and provides
   /// \f$O(nm\log n)\f$ time complexity.
   ///
-  /// The maximum weighted matching problem is to find a subset of the 
-  /// edges in an undirected graph with maximum overall weight for which 
+  /// The maximum weighted matching problem is to find a subset of the
+  /// edges in an undirected graph with maximum overall weight for which
   /// each node has at most one incident edge.
   /// It can be formulated with the following linear program.
   /// \f[ \sum_{e \in \delta(u)}x_e \le 1 \quad \forall u\in V\f]
@@ -673,16 +673,16 @@ namespace lemon {
   /** \f[\min \sum_{u \in V}y_u + \sum_{B \in \mathcal{O}}
       \frac{\vert B \vert - 1}{2}z_B\f] */
   ///
-  /// The algorithm can be executed with the run() function. 
+  /// The algorithm can be executed with the run() function.
   /// After it the matching (the primal solution) and the dual solution
-  /// can be obtained using the query functions and the 
-  /// \ref MaxWeightedMatching::BlossomIt "BlossomIt" nested class, 
-  /// which is able to iterate on the nodes of a blossom. 
+  /// can be obtained using the query functions and the
+  /// \ref MaxWeightedMatching::BlossomIt "BlossomIt" nested class,
+  /// which is able to iterate on the nodes of a blossom.
   /// If the value type is integer, then the dual solution is multiplied
   /// by \ref MaxWeightedMatching::dualScale "4".
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
-  /// \tparam WM The type edge weight map. The default type is 
+  /// \tparam WM The type edge weight map. The default type is
   /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<int>".
 #ifdef DOXYGEN
   template <typename GR, typename WM>
@@ -745,7 +745,7 @@ namespace lemon {
     typedef RangeMap<int> IntIntMap;
 
     enum Status {
-      EVEN = -1, MATCHED = 0, ODD = 1, UNMATCHED = -2
+      EVEN = -1, MATCHED = 0, ODD = 1
     };
 
     typedef HeapUnionFind<Value, IntNodeMap> BlossomSet;
@@ -844,9 +844,6 @@ namespace lemon {
     }
 
     void destroyStructures() {
-      _node_num = countNodes(_graph);
-      _blossom_num = _node_num * 3 / 2;
-
       if (_matching) {
         delete _matching;
       }
@@ -922,10 +919,6 @@ namespace lemon {
             if (_delta3->state(e) != _delta3->IN_HEAP && blossom != vb) {
               _delta3->push(e, rw / 2);
             }
-          } else if ((*_blossom_data)[vb].status == UNMATCHED) {
-            if (_delta3->state(e) != _delta3->IN_HEAP) {
-              _delta3->push(e, rw);
-            }
           } else {
             typename std::map<int, Arc>::iterator it =
               (*_node_data)[vi].heap_index.find(tree);
@@ -949,7 +942,7 @@ namespace lemon {
                   _delta2->push(vb, _blossom_set->classPrio(vb) -
                                (*_blossom_data)[vb].offset);
                 } else if ((*_delta2)[vb] > _blossom_set->classPrio(vb) -
-                           (*_blossom_data)[vb].offset){
+                           (*_blossom_data)[vb].offset) {
                   _delta2->decrease(vb, _blossom_set->classPrio(vb) -
                                    (*_blossom_data)[vb].offset);
                 }
@@ -968,7 +961,7 @@ namespace lemon {
       (*_blossom_data)[blossom].offset += _delta_sum;
       if (!_blossom_set->trivial(blossom)) {
         _delta4->push(blossom, (*_blossom_data)[blossom].pot / 2 +
-                     (*_blossom_data)[blossom].offset);
+                      (*_blossom_data)[blossom].offset);
       }
     }
 
@@ -1036,11 +1029,6 @@ namespace lemon {
                 }
               }
             }
-
-          } else if ((*_blossom_data)[vb].status == UNMATCHED) {
-            if (_delta3->state(e) == _delta3->IN_HEAP) {
-              _delta3->erase(e);
-            }
           } else {
 
             typename std::map<int, Arc>::iterator it =
@@ -1077,7 +1065,7 @@ namespace lemon {
       if (_blossom_set->classPrio(blossom) !=
           std::numeric_limits<Value>::max()) {
         _delta2->push(blossom, _blossom_set->classPrio(blossom) -
-                       (*_blossom_data)[blossom].offset);
+                      (*_blossom_data)[blossom].offset);
       }
 
       if (!_blossom_set->trivial(blossom)) {
@@ -1117,10 +1105,6 @@ namespace lemon {
             if (_delta3->state(e) != _delta3->IN_HEAP && blossom != vb) {
               _delta3->push(e, rw / 2);
             }
-          } else if ((*_blossom_data)[vb].status == UNMATCHED) {
-            if (_delta3->state(e) != _delta3->IN_HEAP) {
-              _delta3->push(e, rw);
-            }
           } else {
 
             typename std::map<int, Arc>::iterator it =
@@ -1155,101 +1139,6 @@ namespace lemon {
         }
       }
       (*_blossom_data)[blossom].offset = 0;
-    }
-
-
-    void matchedToUnmatched(int blossom) {
-      if (_delta2->state(blossom) == _delta2->IN_HEAP) {
-        _delta2->erase(blossom);
-      }
-
-      for (typename BlossomSet::ItemIt n(*_blossom_set, blossom);
-           n != INVALID; ++n) {
-        int ni = (*_node_index)[n];
-
-        _blossom_set->increase(n, std::numeric_limits<Value>::max());
-
-        (*_node_data)[ni].heap.clear();
-        (*_node_data)[ni].heap_index.clear();
-
-        for (OutArcIt e(_graph, n); e != INVALID; ++e) {
-          Node v = _graph.target(e);
-          int vb = _blossom_set->find(v);
-          int vi = (*_node_index)[v];
-
-          Value rw = (*_node_data)[ni].pot + (*_node_data)[vi].pot -
-            dualScale * _weight[e];
-
-          if ((*_blossom_data)[vb].status == EVEN) {
-            if (_delta3->state(e) != _delta3->IN_HEAP) {
-              _delta3->push(e, rw);
-            }
-          }
-        }
-      }
-    }
-
-    void unmatchedToMatched(int blossom) {
-      for (typename BlossomSet::ItemIt n(*_blossom_set, blossom);
-           n != INVALID; ++n) {
-        int ni = (*_node_index)[n];
-
-        for (InArcIt e(_graph, n); e != INVALID; ++e) {
-          Node v = _graph.source(e);
-          int vb = _blossom_set->find(v);
-          int vi = (*_node_index)[v];
-
-          Value rw = (*_node_data)[ni].pot + (*_node_data)[vi].pot -
-            dualScale * _weight[e];
-
-          if (vb == blossom) {
-            if (_delta3->state(e) == _delta3->IN_HEAP) {
-              _delta3->erase(e);
-            }
-          } else if ((*_blossom_data)[vb].status == EVEN) {
-
-            if (_delta3->state(e) == _delta3->IN_HEAP) {
-              _delta3->erase(e);
-            }
-
-            int vt = _tree_set->find(vb);
-
-            Arc r = _graph.oppositeArc(e);
-
-            typename std::map<int, Arc>::iterator it =
-              (*_node_data)[ni].heap_index.find(vt);
-
-            if (it != (*_node_data)[ni].heap_index.end()) {
-              if ((*_node_data)[ni].heap[it->second] > rw) {
-                (*_node_data)[ni].heap.replace(it->second, r);
-                (*_node_data)[ni].heap.decrease(r, rw);
-                it->second = r;
-              }
-            } else {
-              (*_node_data)[ni].heap.push(r, rw);
-              (*_node_data)[ni].heap_index.insert(std::make_pair(vt, r));
-            }
-
-            if ((*_blossom_set)[n] > (*_node_data)[ni].heap.prio()) {
-              _blossom_set->decrease(n, (*_node_data)[ni].heap.prio());
-
-              if (_delta2->state(blossom) != _delta2->IN_HEAP) {
-                _delta2->push(blossom, _blossom_set->classPrio(blossom) -
-                             (*_blossom_data)[blossom].offset);
-              } else if ((*_delta2)[blossom] > _blossom_set->classPrio(blossom)-
-                         (*_blossom_data)[blossom].offset){
-                _delta2->decrease(blossom, _blossom_set->classPrio(blossom) -
-                                 (*_blossom_data)[blossom].offset);
-              }
-            }
-
-          } else if ((*_blossom_data)[vb].status == UNMATCHED) {
-            if (_delta3->state(e) == _delta3->IN_HEAP) {
-              _delta3->erase(e);
-            }
-          }
-        }
-      }
     }
 
     void alternatePath(int even, int tree) {
@@ -1294,37 +1183,40 @@ namespace lemon {
       alternatePath(blossom, tree);
       destroyTree(tree);
 
-      (*_blossom_data)[blossom].status = UNMATCHED;
       (*_blossom_data)[blossom].base = node;
-      matchedToUnmatched(blossom);
+      (*_blossom_data)[blossom].next = INVALID;
     }
-
 
     void augmentOnEdge(const Edge& edge) {
 
       int left = _blossom_set->find(_graph.u(edge));
       int right = _blossom_set->find(_graph.v(edge));
 
-      if ((*_blossom_data)[left].status == EVEN) {
-        int left_tree = _tree_set->find(left);
-        alternatePath(left, left_tree);
-        destroyTree(left_tree);
-      } else {
-        (*_blossom_data)[left].status = MATCHED;
-        unmatchedToMatched(left);
-      }
+      int left_tree = _tree_set->find(left);
+      alternatePath(left, left_tree);
+      destroyTree(left_tree);
 
-      if ((*_blossom_data)[right].status == EVEN) {
-        int right_tree = _tree_set->find(right);
-        alternatePath(right, right_tree);
-        destroyTree(right_tree);
-      } else {
-        (*_blossom_data)[right].status = MATCHED;
-        unmatchedToMatched(right);
-      }
+      int right_tree = _tree_set->find(right);
+      alternatePath(right, right_tree);
+      destroyTree(right_tree);
 
       (*_blossom_data)[left].next = _graph.direct(edge, true);
       (*_blossom_data)[right].next = _graph.direct(edge, false);
+    }
+
+    void augmentOnArc(const Arc& arc) {
+
+      int left = _blossom_set->find(_graph.source(arc));
+      int right = _blossom_set->find(_graph.target(arc));
+
+      (*_blossom_data)[left].status = MATCHED;
+
+      int right_tree = _tree_set->find(right);
+      alternatePath(right, right_tree);
+      destroyTree(right_tree);
+
+      (*_blossom_data)[left].next = arc;
+      (*_blossom_data)[right].next = _graph.oppositeArc(arc);
     }
 
     void extendOnArc(const Arc& arc) {
@@ -1529,7 +1421,7 @@ namespace lemon {
           _tree_set->insert(sb, tree);
           (*_blossom_data)[sb].pred = pred;
           (*_blossom_data)[sb].next =
-                           _graph.oppositeArc((*_blossom_data)[tb].next);
+            _graph.oppositeArc((*_blossom_data)[tb].next);
 
           pred = (*_blossom_data)[ub].next;
 
@@ -1629,7 +1521,7 @@ namespace lemon {
       }
 
       for (int i = 0; i < int(blossoms.size()); ++i) {
-        if ((*_blossom_data)[blossoms[i]].status == MATCHED) {
+        if ((*_blossom_data)[blossoms[i]].next != INVALID) {
 
           Value offset = (*_blossom_data)[blossoms[i]].offset;
           (*_blossom_data)[blossoms[i]].pot += 2 * offset;
@@ -1757,11 +1649,10 @@ namespace lemon {
         Value d4 = !_delta4->empty() ?
           _delta4->prio() : std::numeric_limits<Value>::max();
 
-        _delta_sum = d1; OpType ot = D1;
+        _delta_sum = d3; OpType ot = D3;
+        if (d1 < _delta_sum) { _delta_sum = d1; ot = D1; }
         if (d2 < _delta_sum) { _delta_sum = d2; ot = D2; }
-        if (d3 < _delta_sum) { _delta_sum = d3; ot = D3; }
         if (d4 < _delta_sum) { _delta_sum = d4; ot = D4; }
-
 
         switch (ot) {
         case D1:
@@ -1775,8 +1666,13 @@ namespace lemon {
           {
             int blossom = _delta2->top();
             Node n = _blossom_set->classTop(blossom);
-            Arc e = (*_node_data)[(*_node_index)[n]].heap.top();
-            extendOnArc(e);
+            Arc a = (*_node_data)[(*_node_index)[n]].heap.top();
+            if ((*_blossom_data)[blossom].next == INVALID) {
+              augmentOnArc(a);
+              --unmatched;
+            } else {
+              extendOnArc(a);
+            }
           }
           break;
         case D3:
@@ -1789,20 +1685,8 @@ namespace lemon {
             if (left_blossom == right_blossom) {
               _delta3->pop();
             } else {
-              int left_tree;
-              if ((*_blossom_data)[left_blossom].status == EVEN) {
-                left_tree = _tree_set->find(left_blossom);
-              } else {
-                left_tree = -1;
-                ++unmatched;
-              }
-              int right_tree;
-              if ((*_blossom_data)[right_blossom].status == EVEN) {
-                right_tree = _tree_set->find(right_blossom);
-              } else {
-                right_tree = -1;
-                ++unmatched;
-              }
+              int left_tree = _tree_set->find(left_blossom);
+              int right_tree = _tree_set->find(right_blossom);
 
               if (left_tree == right_tree) {
                 shrinkOnEdge(e, left_tree);
@@ -1837,7 +1721,7 @@ namespace lemon {
     /// @}
 
     /// \name Primal Solution
-    /// Functions to get the primal solution, i.e. the maximum weighted 
+    /// Functions to get the primal solution, i.e. the maximum weighted
     /// matching.\n
     /// Either \ref run() or \ref start() function should be called before
     /// using them.
@@ -1856,7 +1740,7 @@ namespace lemon {
           sum += _weight[(*_matching)[n]];
         }
       }
-      return sum /= 2;
+      return sum / 2;
     }
 
     /// \brief Return the size (cardinality) of the matching.
@@ -1876,7 +1760,7 @@ namespace lemon {
 
     /// \brief Return \c true if the given edge is in the matching.
     ///
-    /// This function returns \c true if the given edge is in the found 
+    /// This function returns \c true if the given edge is in the found
     /// matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -1887,7 +1771,7 @@ namespace lemon {
     /// \brief Return the matching arc (or edge) incident to the given node.
     ///
     /// This function returns the matching arc (or edge) incident to the
-    /// given node in the found matching or \c INVALID if the node is 
+    /// given node in the found matching or \c INVALID if the node is
     /// not covered by the matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -1905,7 +1789,7 @@ namespace lemon {
 
     /// \brief Return the mate of the given node.
     ///
-    /// This function returns the mate of the given node in the found 
+    /// This function returns the mate of the given node in the found
     /// matching or \c INVALID if the node is not covered by the matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -1925,8 +1809,8 @@ namespace lemon {
 
     /// \brief Return the value of the dual solution.
     ///
-    /// This function returns the value of the dual solution. 
-    /// It should be equal to the primal value scaled by \ref dualScale 
+    /// This function returns the value of the dual solution.
+    /// It should be equal to the primal value scaled by \ref dualScale
     /// "dual scale".
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -1981,9 +1865,9 @@ namespace lemon {
 
     /// \brief Iterator for obtaining the nodes of a blossom.
     ///
-    /// This class provides an iterator for obtaining the nodes of the 
+    /// This class provides an iterator for obtaining the nodes of the
     /// given blossom. It lists a subset of the nodes.
-    /// Before using this iterator, you must allocate a 
+    /// Before using this iterator, you must allocate a
     /// MaxWeightedMatching class and execute it.
     class BlossomIt {
     public:
@@ -1992,8 +1876,8 @@ namespace lemon {
       ///
       /// Constructor to get the nodes of the given variable.
       ///
-      /// \pre Either \ref MaxWeightedMatching::run() "algorithm.run()" or 
-      /// \ref MaxWeightedMatching::start() "algorithm.start()" must be 
+      /// \pre Either \ref MaxWeightedMatching::run() "algorithm.run()" or
+      /// \ref MaxWeightedMatching::start() "algorithm.start()" must be
       /// called before initializing this iterator.
       BlossomIt(const MaxWeightedMatching& algorithm, int variable)
         : _algorithm(&algorithm)
@@ -2046,8 +1930,8 @@ namespace lemon {
   /// is based on extensive use of priority queues and provides
   /// \f$O(nm\log n)\f$ time complexity.
   ///
-  /// The maximum weighted perfect matching problem is to find a subset of 
-  /// the edges in an undirected graph with maximum overall weight for which 
+  /// The maximum weighted perfect matching problem is to find a subset of
+  /// the edges in an undirected graph with maximum overall weight for which
   /// each node has exactly one incident edge.
   /// It can be formulated with the following linear program.
   /// \f[ \sum_{e \in \delta(u)}x_e = 1 \quad \forall u\in V\f]
@@ -2070,16 +1954,16 @@ namespace lemon {
   /** \f[\min \sum_{u \in V}y_u + \sum_{B \in \mathcal{O}}
       \frac{\vert B \vert - 1}{2}z_B\f] */
   ///
-  /// The algorithm can be executed with the run() function. 
+  /// The algorithm can be executed with the run() function.
   /// After it the matching (the primal solution) and the dual solution
-  /// can be obtained using the query functions and the 
-  /// \ref MaxWeightedPerfectMatching::BlossomIt "BlossomIt" nested class, 
-  /// which is able to iterate on the nodes of a blossom. 
+  /// can be obtained using the query functions and the
+  /// \ref MaxWeightedPerfectMatching::BlossomIt "BlossomIt" nested class,
+  /// which is able to iterate on the nodes of a blossom.
   /// If the value type is integer, then the dual solution is multiplied
   /// by \ref MaxWeightedMatching::dualScale "4".
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
-  /// \tparam WM The type edge weight map. The default type is 
+  /// \tparam WM The type edge weight map. The default type is
   /// \ref concepts::Graph::EdgeMap "GR::EdgeMap<int>".
 #ifdef DOXYGEN
   template <typename GR, typename WM>
@@ -2233,9 +2117,6 @@ namespace lemon {
     }
 
     void destroyStructures() {
-      _node_num = countNodes(_graph);
-      _blossom_num = _node_num * 3 / 2;
-
       if (_matching) {
         delete _matching;
       }
@@ -2991,8 +2872,8 @@ namespace lemon {
         Value d4 = !_delta4->empty() ?
           _delta4->prio() : std::numeric_limits<Value>::max();
 
-        _delta_sum = d2; OpType ot = D2;
-        if (d3 < _delta_sum) { _delta_sum = d3; ot = D3; }
+        _delta_sum = d3; OpType ot = D3;
+        if (d2 < _delta_sum) { _delta_sum = d2; ot = D2; }
         if (d4 < _delta_sum) { _delta_sum = d4; ot = D4; }
 
         if (_delta_sum == std::numeric_limits<Value>::max()) {
@@ -3055,7 +2936,7 @@ namespace lemon {
     /// @}
 
     /// \name Primal Solution
-    /// Functions to get the primal solution, i.e. the maximum weighted 
+    /// Functions to get the primal solution, i.e. the maximum weighted
     /// perfect matching.\n
     /// Either \ref run() or \ref start() function should be called before
     /// using them.
@@ -3074,12 +2955,12 @@ namespace lemon {
           sum += _weight[(*_matching)[n]];
         }
       }
-      return sum /= 2;
+      return sum / 2;
     }
 
     /// \brief Return \c true if the given edge is in the matching.
     ///
-    /// This function returns \c true if the given edge is in the found 
+    /// This function returns \c true if the given edge is in the found
     /// matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -3090,7 +2971,7 @@ namespace lemon {
     /// \brief Return the matching arc (or edge) incident to the given node.
     ///
     /// This function returns the matching arc (or edge) incident to the
-    /// given node in the found matching or \c INVALID if the node is 
+    /// given node in the found matching or \c INVALID if the node is
     /// not covered by the matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -3108,7 +2989,7 @@ namespace lemon {
 
     /// \brief Return the mate of the given node.
     ///
-    /// This function returns the mate of the given node in the found 
+    /// This function returns the mate of the given node in the found
     /// matching or \c INVALID if the node is not covered by the matching.
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -3127,8 +3008,8 @@ namespace lemon {
 
     /// \brief Return the value of the dual solution.
     ///
-    /// This function returns the value of the dual solution. 
-    /// It should be equal to the primal value scaled by \ref dualScale 
+    /// This function returns the value of the dual solution.
+    /// It should be equal to the primal value scaled by \ref dualScale
     /// "dual scale".
     ///
     /// \pre Either run() or start() must be called before using this function.
@@ -3183,9 +3064,9 @@ namespace lemon {
 
     /// \brief Iterator for obtaining the nodes of a blossom.
     ///
-    /// This class provides an iterator for obtaining the nodes of the 
+    /// This class provides an iterator for obtaining the nodes of the
     /// given blossom. It lists a subset of the nodes.
-    /// Before using this iterator, you must allocate a 
+    /// Before using this iterator, you must allocate a
     /// MaxWeightedPerfectMatching class and execute it.
     class BlossomIt {
     public:
@@ -3194,8 +3075,8 @@ namespace lemon {
       ///
       /// Constructor to get the nodes of the given variable.
       ///
-      /// \pre Either \ref MaxWeightedPerfectMatching::run() "algorithm.run()" 
-      /// or \ref MaxWeightedPerfectMatching::start() "algorithm.start()" 
+      /// \pre Either \ref MaxWeightedPerfectMatching::run() "algorithm.run()"
+      /// or \ref MaxWeightedPerfectMatching::start() "algorithm.start()"
       /// must be called before initializing this iterator.
       BlossomIt(const MaxWeightedPerfectMatching& algorithm, int variable)
         : _algorithm(&algorithm)
@@ -3241,4 +3122,4 @@ namespace lemon {
 
 } //END OF NAMESPACE LEMON
 
-#endif //LEMON_MAX_MATCHING_H
+#endif //LEMON_MATCHING_H
