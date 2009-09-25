@@ -1899,6 +1899,14 @@ namespace lemon {
     InverseMap inverse() const { return InverseMap(*_graph);}
   };
 
+  /// \brief Returns an \c IdMap class.
+  ///
+  /// This function just returns an \c IdMap class.
+  /// \relates IdMap
+  template <typename K, typename GR>
+  inline IdMap<GR, K> idMap(const GR& graph) {
+    return IdMap<GR, K>(graph);
+  }
 
   /// \brief General cross reference graph map type.
 
@@ -2362,6 +2370,15 @@ namespace lemon {
     }
   };
 
+  /// \brief Returns a \c RangeIdMap class.
+  ///
+  /// This function just returns an \c RangeIdMap class.
+  /// \relates RangeIdMap
+  template <typename K, typename GR>
+  inline RangeIdMap<GR, K> rangeIdMap(const GR& graph) {
+    return RangeIdMap<GR, K>(graph);
+  }
+  
   /// \brief Dynamic iterable \c bool map.
   ///
   /// This class provides a special graph map type which can store a
