@@ -24,6 +24,8 @@
 #include <lemon/maps.h>
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
+#include <lemon/adaptors.h>
+#include <lemon/dfs.h>
 
 #include "test_tools.h"
 
@@ -61,6 +63,12 @@ typedef ReferenceMap<A, double, double&, const double&> DoubleRefMap;
 typedef ReadMap<A, bool> BoolMap;
 typedef ReadWriteMap<A, bool> BoolWriteMap;
 typedef ReferenceMap<A, bool, bool&, const bool&> BoolRefMap;
+
+template<typename Map1, typename Map2, typename ItemIt>
+void compareMap(const Map1& map1, const Map2& map2, ItemIt it) {
+  for (; it != INVALID; ++it)
+    check(map1[it] == map2[it], "The maps are not equal");
+}
 
 int main()
 {
@@ -353,6 +361,36 @@ int main()
     for ( LoggerBoolMap<vec::iterator>::Iterator it = map2.begin();
           it != map2.end(); ++it )
       check(v1[i++] == *it, "Something is wrong with LoggerBoolMap");
+    
+    typedef ListDigraph Graph;
+    DIGRAPH_TYPEDEFS(Graph);
+    Graph gr;
+
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    Node n3 = gr.addNode();
+    
+    gr.addArc(n3, n0);
+    gr.addArc(n3, n2);
+    gr.addArc(n0, n2);
+    gr.addArc(n2, n1);
+    gr.addArc(n0, n1);
+    
+    {
+      std::vector<Node> v;
+      dfs(gr).processedMap(loggerBoolMap(std::back_inserter(v))).run();
+
+      check(v.size()==4 && v[0]==n1 && v[1]==n2 && v[2]==n0 && v[3]==n3,
+            "Something is wrong with LoggerBoolMap");
+    }
+    {
+      std::vector<Node> v(countNodes(gr));
+      dfs(gr).processedMap(loggerBoolMap(v.begin())).run();
+      
+      check(v.size()==4 && v[0]==n1 && v[1]==n2 && v[2]==n0 && v[3]==n3,
+            "Something is wrong with LoggerBoolMap");
+    }
   }
   
   // IdMap, RangeIdMap
@@ -425,6 +463,53 @@ int main()
 
     check(nrmap.inverse()[0] == n2, "Wrong RangeIdMap::InverseMap");
     check(armap.inverse()[0] == a3, "Wrong RangeIdMap::InverseMap");
+  }
+  
+  // SourceMap, TargetMap, ForwardMap, BackwardMap, InDegMap, OutDegMap
+  {
+    typedef ListGraph Graph;
+    GRAPH_TYPEDEFS(Graph);
+    
+    checkConcept<ReadMap<Arc, Node>, SourceMap<Graph> >();
+    checkConcept<ReadMap<Arc, Node>, TargetMap<Graph> >();
+    checkConcept<ReadMap<Edge, Arc>, ForwardMap<Graph> >();
+    checkConcept<ReadMap<Edge, Arc>, BackwardMap<Graph> >();
+    checkConcept<ReadMap<Node, int>, InDegMap<Graph> >();
+    checkConcept<ReadMap<Node, int>, OutDegMap<Graph> >();
+
+    Graph gr;
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    
+    gr.addEdge(n0,n1);
+    gr.addEdge(n1,n2);
+    gr.addEdge(n0,n2);
+    gr.addEdge(n2,n1);
+    gr.addEdge(n1,n2);
+    gr.addEdge(n0,n1);
+    
+    for (EdgeIt e(gr); e != INVALID; ++e) {
+      check(forwardMap(gr)[e] == gr.direct(e, true), "Wrong ForwardMap");
+      check(backwardMap(gr)[e] == gr.direct(e, false), "Wrong BackwardMap");
+    }
+    
+    compareMap(sourceMap(orienter(gr, constMap<Edge, bool>(true))),
+               targetMap(orienter(gr, constMap<Edge, bool>(false))),
+               EdgeIt(gr));
+
+    typedef Orienter<Graph, const ConstMap<Edge, bool> > Digraph;
+    Digraph dgr(gr, constMap<Edge, bool>(true));
+    OutDegMap<Digraph> odm(dgr);
+    InDegMap<Digraph> idm(dgr);
+    
+    check(odm[n0] == 3 && odm[n1] == 2 && odm[n2] == 1, "Wrong OutDegMap");
+    check(idm[n0] == 0 && idm[n1] == 3 && idm[n2] == 3, "Wrong InDegMap");
+   
+    gr.addEdge(n2, n0);
+
+    check(odm[n0] == 3 && odm[n1] == 2 && odm[n2] == 2, "Wrong OutDegMap");
+    check(idm[n0] == 1 && idm[n1] == 3 && idm[n2] == 3, "Wrong InDegMap");
   }
   
   // CrossRefMap
