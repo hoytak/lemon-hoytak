@@ -81,6 +81,7 @@ lemon_HEADERS += \
 	lemon/euler.h \
 	lemon/fib_heap.h \
 	lemon/fourary_heap.h \
+	lemon/fractional_matching.h \
 	lemon/full_graph.h \
 	lemon/glpk.h \
 	lemon/gomory_hu.h \

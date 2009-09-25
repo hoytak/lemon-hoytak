@@ -21,6 +21,7 @@ SET(TESTS
   edge_set_test
   error_test
   euler_test
+  fractional_matching_test
   gomory_hu_test
   graph_copy_test
   graph_test
