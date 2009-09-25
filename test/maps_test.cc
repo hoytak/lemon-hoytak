@@ -526,7 +526,6 @@ int main()
     
     Graph gr;
     typedef CrossRefMap<Graph, Node, char> CRMap;
-    typedef CRMap::ValueIterator ValueIt;
     CRMap map(gr);
     
     Node n0 = gr.addNode();
@@ -546,7 +545,7 @@ int main()
     check(map.count('A') == 1 && map.count('B') == 1 && map.count('C') == 1,
           "Wrong CrossRefMap::count()");
     
-    ValueIt it = map.beginValue();
+    CRMap::ValueIt it = map.beginValue();
     check(*it++ == 'A' && *it++ == 'B' && *it++ == 'C' &&
           it == map.endValue(), "Wrong value iterator");
     
@@ -742,10 +741,10 @@ int main()
       check(static_cast<Item>(it) == INVALID, "Wrong value");
     }
 
-    for (Ivm::ValueIterator vit = map1.beginValue();
+    for (Ivm::ValueIt vit = map1.beginValue();
          vit != map1.endValue(); ++vit) {
       check(map1[static_cast<Item>(Ivm::ItemIt(map1, *vit))] == *vit,
-            "Wrong ValueIterator");
+            "Wrong ValueIt");
     }
 
     for (int i = 0; i < num; ++i) {

@@ -1907,7 +1907,7 @@ namespace lemon {
   /// and if a key is set to a new value, then stores it in the inverse map.
   /// The graph items can be accessed by their values either using
   /// \c InverseMap or \c operator()(), and the values of the map can be
-  /// accessed with an STL compatible forward iterator (\c ValueIterator).
+  /// accessed with an STL compatible forward iterator (\c ValueIt).
   /// 
   /// This map is intended to be used when all associated values are
   /// different (the map is actually invertable) or there are only a few
@@ -1961,22 +1961,22 @@ namespace lemon {
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     /// They are considered with multiplicity, so each value is
     /// traversed for each item it is assigned to.
-    class ValueIterator
+    class ValueIt
       : public std::iterator<std::forward_iterator_tag, Value> {
       friend class CrossRefMap;
     private:
-      ValueIterator(typename Container::const_iterator _it)
+      ValueIt(typename Container::const_iterator _it)
         : it(_it) {}
     public:
 
       /// Constructor
-      ValueIterator() {}
+      ValueIt() {}
 
       /// \e
-      ValueIterator& operator++() { ++it; return *this; }
+      ValueIt& operator++() { ++it; return *this; }
       /// \e
-      ValueIterator operator++(int) {
-        ValueIterator tmp(*this);
+      ValueIt operator++(int) {
+        ValueIt tmp(*this);
         operator++();
         return tmp;
       }
@@ -1987,13 +1987,16 @@ namespace lemon {
       const Value* operator->() const { return &(it->first); }
 
       /// \e
-      bool operator==(ValueIterator jt) const { return it == jt.it; }
+      bool operator==(ValueIt jt) const { return it == jt.it; }
       /// \e
-      bool operator!=(ValueIterator jt) const { return it != jt.it; }
+      bool operator!=(ValueIt jt) const { return it != jt.it; }
 
     private:
       typename Container::const_iterator it;
     };
+    
+    /// Alias for \c ValueIt
+    typedef ValueIt ValueIterator;
 
     /// \brief Returns an iterator to the first value.
     ///
@@ -2001,8 +2004,8 @@ namespace lemon {
     /// first value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
-    ValueIterator beginValue() const {
-      return ValueIterator(_inv_map.begin());
+    ValueIt beginValue() const {
+      return ValueIt(_inv_map.begin());
     }
 
     /// \brief Returns an iterator after the last value.
@@ -2011,8 +2014,8 @@ namespace lemon {
     /// last value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
-    ValueIterator endValue() const {
-      return ValueIterator(_inv_map.end());
+    ValueIt endValue() const {
+      return ValueIt(_inv_map.end());
     }
 
     /// \brief Sets the value associated with the given key.
@@ -3023,7 +3026,7 @@ namespace lemon {
   /// comparable value for graph items (\c Node, \c Arc or \c Edge).
   /// For each value it is possible to iterate on the keys mapped to
   /// the value (\c ItemIt), and the values of the map can be accessed
-  /// with an STL compatible forward iterator (\c ValueIterator).
+  /// with an STL compatible forward iterator (\c ValueIt).
   /// The map stores a linked list for each value, which contains
   /// the items mapped to the value, and the used values are stored
   /// in balanced binary tree (\c std::map).
@@ -3111,22 +3114,22 @@ namespace lemon {
     /// This iterator is an STL compatible forward
     /// iterator on the values of the map. The values can
     /// be accessed in the <tt>[beginValue, endValue)</tt> range.
-    class ValueIterator
+    class ValueIt
       : public std::iterator<std::forward_iterator_tag, Value> {
       friend class IterableValueMap;
     private:
-      ValueIterator(typename std::map<Value, Key>::const_iterator _it)
+      ValueIt(typename std::map<Value, Key>::const_iterator _it)
         : it(_it) {}
     public:
 
       /// Constructor
-      ValueIterator() {}
+      ValueIt() {}
 
       /// \e
-      ValueIterator& operator++() { ++it; return *this; }
+      ValueIt& operator++() { ++it; return *this; }
       /// \e
-      ValueIterator operator++(int) {
-        ValueIterator tmp(*this);
+      ValueIt operator++(int) {
+        ValueIt tmp(*this);
         operator++();
         return tmp;
       }
@@ -3137,9 +3140,9 @@ namespace lemon {
       const Value* operator->() const { return &(it->first); }
 
       /// \e
-      bool operator==(ValueIterator jt) const { return it == jt.it; }
+      bool operator==(ValueIt jt) const { return it == jt.it; }
       /// \e
-      bool operator!=(ValueIterator jt) const { return it != jt.it; }
+      bool operator!=(ValueIt jt) const { return it != jt.it; }
 
     private:
       typename std::map<Value, Key>::const_iterator it;
@@ -3151,8 +3154,8 @@ namespace lemon {
     /// first value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
-    ValueIterator beginValue() const {
-      return ValueIterator(_first.begin());
+    ValueIt beginValue() const {
+      return ValueIt(_first.begin());
     }
 
     /// \brief Returns an iterator after the last value.
@@ -3161,8 +3164,8 @@ namespace lemon {
     /// last value of the map. The values of the
     /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
-    ValueIterator endValue() const {
-      return ValueIterator(_first.end());
+    ValueIt endValue() const {
+      return ValueIt(_first.end());
     }
 
     /// \brief Set operation of the map.
@@ -3280,9 +3283,9 @@ namespace lemon {
   class SourceMap {
   public:
 
-    ///\e
+    /// The key type (the \c Arc type of the digraph).
     typedef typename GR::Arc Key;
-    ///\e
+    /// The value type (the \c Node type of the digraph).
     typedef typename GR::Node Value;
 
     /// \brief Constructor
@@ -3321,9 +3324,9 @@ namespace lemon {
   class TargetMap {
   public:
 
-    ///\e
+    /// The key type (the \c Arc type of the digraph).
     typedef typename GR::Arc Key;
-    ///\e
+    /// The value type (the \c Node type of the digraph).
     typedef typename GR::Node Value;
 
     /// \brief Constructor
@@ -3363,8 +3366,10 @@ namespace lemon {
   class ForwardMap {
   public:
 
-    typedef typename GR::Arc Value;
+    /// The key type (the \c Edge type of the digraph).
     typedef typename GR::Edge Key;
+    /// The value type (the \c Arc type of the digraph).
+    typedef typename GR::Arc Value;
 
     /// \brief Constructor
     ///
@@ -3403,8 +3408,10 @@ namespace lemon {
   class BackwardMap {
   public:
 
-    typedef typename GR::Arc Value;
+    /// The key type (the \c Edge type of the digraph).
     typedef typename GR::Edge Key;
+    /// The value type (the \c Arc type of the digraph).
+    typedef typename GR::Arc Value;
 
     /// \brief Constructor
     ///
