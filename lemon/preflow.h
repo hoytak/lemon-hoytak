@@ -104,7 +104,7 @@ namespace lemon {
   /// \e push-relabel algorithm producing a \ref max_flow
   /// "flow of maximum value" in a digraph.
   /// The preflow algorithms are the fastest known maximum
-  /// flow algorithms. The current implementation use a mixture of the
+  /// flow algorithms. The current implementation uses a mixture of the
   /// \e "highest label" and the \e "bound decrease" heuristics.
   /// The worst case time complexity of the algorithm is \f$O(n^2\sqrt{e})\f$.
   ///
@@ -378,19 +378,21 @@ namespace lemon {
       return *_level;
     }
 
-    /// \brief Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by the algorithm.
     ///
-    /// Sets the tolerance used by algorithm.
-    Preflow& tolerance(const Tolerance& tolerance) const {
+    /// Sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
+    Preflow& tolerance(const Tolerance& tolerance) {
       _tolerance = tolerance;
       return *this;
     }
 
     /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns a const reference to the tolerance.
+    /// Returns a const reference to the tolerance object used by
+    /// the algorithm.
     const Tolerance& tolerance() const {
-      return tolerance;
+      return _tolerance;
     }
 
     /// \name Execution Control

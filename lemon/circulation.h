@@ -457,19 +457,21 @@ template< typename GR,
       return *_level;
     }
 
-    /// \brief Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by the algorithm.
     ///
-    /// Sets the tolerance used by algorithm.
-    Circulation& tolerance(const Tolerance& tolerance) const {
+    /// Sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
+    Circulation& tolerance(const Tolerance& tolerance) {
       _tol = tolerance;
       return *this;
     }
 
     /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns a const reference to the tolerance.
+    /// Returns a const reference to the tolerance object used by
+    /// the algorithm.
     const Tolerance& tolerance() const {
-      return tolerance;
+      return _tol;
     }
 
     /// \name Execution Control
