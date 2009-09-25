@@ -161,8 +161,6 @@ namespace lemon {
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef std::vector<Arc> ArcVector;
-    typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
     typedef std::vector<Value> ValueVector;
@@ -685,17 +683,8 @@ namespace lemon {
         if ((i += k) >= _arc_num) i = (i % k) + 1;
       }
       
-      // Initialize maps
-      for (int i = 0; i != _node_num; ++i) {
-        _supply[i] = 0;
-      }
-      for (int i = 0; i != _arc_num; ++i) {
-        _lower[i] = 0;
-        _upper[i] = INF;
-        _cost[i] = 1;
-      }
-      _have_lower = false;
-      _stype = GEQ;
+      // Reset parameters
+      reset();
     }
 
     /// \name Parameters
@@ -768,7 +757,6 @@ namespace lemon {
     /// This function sets the supply values of the nodes.
     /// If neither this function nor \ref stSupply() is used before
     /// calling \ref run(), the supply of each node will be set to zero.
-    /// (It makes sense only if non-zero lower bounds are given.)
     ///
     /// \param map A node map storing the supply values.
     /// Its \c Value type must be convertible to the \c Value type
@@ -789,7 +777,6 @@ namespace lemon {
     /// and the required flow value.
     /// If neither this function nor \ref supplyMap() is used before
     /// calling \ref run(), the supply of each node will be set to zero.
-    /// (It makes sense only if non-zero lower bounds are given.)
     ///
     /// Using this function has the same effect as using \ref supplyMap()
     /// with such a map in which \c k is assigned to \c s, \c -k is
