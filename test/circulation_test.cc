@@ -87,6 +87,11 @@ void checkCirculationCompile()
     .upperMap(ucap)
     .supplyMap(supply)
     .flowMap(flow);
+  
+  const CirculationType::Elevator& elev = const_circ_test.elevator();
+  circ_test.elevator(const_cast<CirculationType::Elevator&>(elev));
+  CirculationType::Tolerance tol = const_circ_test.tolerance();
+  circ_test.tolerance(tol);
 
   circ_test.init();
   circ_test.greedyInit();

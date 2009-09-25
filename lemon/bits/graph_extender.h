@@ -604,7 +604,7 @@ namespace lemon {
       typedef MapExtender<DefaultMap<Graph, Node, _Value> > Parent;
 
     public:
-      NodeMap(const Graph& graph)
+      explicit NodeMap(const Graph& graph)
         : Parent(graph) {}
       NodeMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
@@ -628,7 +628,7 @@ namespace lemon {
       typedef MapExtender<DefaultMap<Graph, Arc, _Value> > Parent;
 
     public:
-      ArcMap(const Graph& graph)
+      explicit ArcMap(const Graph& graph)
         : Parent(graph) {}
       ArcMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
@@ -652,7 +652,7 @@ namespace lemon {
       typedef MapExtender<DefaultMap<Graph, Edge, _Value> > Parent;
 
     public:
-      EdgeMap(const Graph& graph)
+      explicit EdgeMap(const Graph& graph)
         : Parent(graph) {}
 
       EdgeMap(const Graph& graph, const _Value& value)

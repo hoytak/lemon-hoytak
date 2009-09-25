@@ -589,8 +589,8 @@ namespace lemon {
     ///\name Execution Control
     ///The simplest way to execute the %Dijkstra algorithm is to use
     ///one of the member functions called \ref run(Node) "run()".\n
-    ///If you need more control on the execution, first you have to call
-    ///\ref init(), then you can add several source nodes with
+    ///If you need better control on the execution, you have to call
+    ///\ref init() first, then you can add several source nodes with
     ///\ref addSource(). Finally the actual path computation can be
     ///performed with one of the \ref start() functions.
 

@@ -7,6 +7,7 @@ noinst_HEADERS += \
 
 check_PROGRAMS += \
 	test/adaptors_test \
+	test/bellman_ford_test \
 	test/bfs_test \
 	test/circulation_test \
 	test/connectivity_test \
@@ -52,6 +53,7 @@ TESTS += $(check_PROGRAMS)
 XFAIL_TESTS += test/test_tools_fail$(EXEEXT)
 
 test_adaptors_test_SOURCES = test/adaptors_test.cc
+test_bellman_ford_test_SOURCES = test/bellman_ford_test.cc
 test_bfs_test_SOURCES = test/bfs_test.cc
 test_circulation_test_SOURCES = test/circulation_test.cc
 test_counter_test_SOURCES = test/counter_test.cc
