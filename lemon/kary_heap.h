@@ -16,12 +16,12 @@
  *
  */
 
-#ifndef LEMON_BIN_HEAP_H
-#define LEMON_BIN_HEAP_H
+#ifndef LEMON_KARY_HEAP_H
+#define LEMON_KARY_HEAP_H
 
 ///\ingroup heaps
 ///\file
-///\brief Binary heap implementation.
+///\brief Fourary heap implementation.
 
 #include <vector>
 #include <utility>
@@ -31,24 +31,37 @@ namespace lemon {
 
   /// \ingroup heaps
   ///
-  /// \brief Binary heap data structure.
+  ///\brief K-ary heap data structure.
   ///
-  /// This class implements the \e binary \e heap data structure.
+  /// This class implements the \e K-ary \e heap data structure.
   /// It fully conforms to the \ref concepts::Heap "heap concept".
+  ///
+  /// The \ref KaryHeap "K-ary heap" is a generalization of the
+  /// \ref BinHeap "binary heap" structure, its nodes have at most
+  /// \c K children, instead of two.
+  /// \ref BinHeap and \ref FouraryHeap are specialized implementations
+  /// of this structure for <tt>K=2</tt> and <tt>K=4</tt>, respectively.
   ///
   /// \tparam PR Type of the priorities of the items.
   /// \tparam IM A read-writable item map with \c int values, used
   /// internally to handle the cross references.
+  /// \tparam K The degree of the heap, each node have at most \e K
+  /// children. The default is 16. Powers of two are suggested to use
+  /// so that the multiplications and divisions needed to traverse the
+  /// nodes of the heap could be performed faster.
   /// \tparam CMP A functor class for comparing the priorities.
   /// The default is \c std::less<PR>.
+  ///
+  ///\sa BinHeap
+  ///\sa FouraryHeap
 #ifdef DOXYGEN
-  template <typename PR, typename IM, typename CMP>
+  template <typename PR, typename IM, int K, typename CMP>
 #else
-  template <typename PR, typename IM, typename CMP = std::less<PR> >
+  template <typename PR, typename IM, int K = 16,
+            typename CMP = std::less<PR> >
 #endif
-  class BinHeap {
+  class KaryHeap {
   public:
-
     /// Type of the item-int map.
     typedef IM ItemIntMap;
     /// Type of the priorities.
@@ -80,14 +93,13 @@ namespace lemon {
     ItemIntMap &_iim;
 
   public:
-
     /// \brief Constructor.
     ///
     /// Constructor.
     /// \param map A map that assigns \c int values to the items.
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
-    explicit BinHeap(ItemIntMap &map) : _iim(map) {}
+    explicit KaryHeap(ItemIntMap &map) : _iim(map) {}
 
     /// \brief Constructor.
     ///
@@ -96,9 +108,8 @@ namespace lemon {
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
     /// \param comp The function object used for comparing the priorities.
-    BinHeap(ItemIntMap &map, const Compare &comp)
+    KaryHeap(ItemIntMap &map, const Compare &comp)
       : _iim(map), _comp(comp) {}
-
 
     /// \brief The number of items stored in the heap.
     ///
@@ -117,19 +128,17 @@ namespace lemon {
     /// a heap that is not surely empty, you should first clear it and
     /// then you should set the cross reference map to \c PRE_HEAP
     /// for each item.
-    void clear() {
-      _data.clear();
-    }
+    void clear() { _data.clear(); }
 
   private:
-    static int parent(int i) { return (i-1)/2; }
+    int parent(int i) { return (i-1)/K; }
+    int firstChild(int i) { return K*i+1; }
 
-    static int secondChild(int i) { return 2*i+2; }
     bool less(const Pair &p1, const Pair &p2) const {
       return _comp(p1.second, p2.second);
     }
 
-    int bubbleUp(int hole, Pair p) {
+    void bubbleUp(int hole, Pair p) {
       int par = parent(hole);
       while( hole>0 && less(p,_data[par]) ) {
         move(_data[par],hole);
@@ -137,29 +146,37 @@ namespace lemon {
         par = parent(hole);
       }
       move(p, hole);
-      return hole;
     }
 
-    int bubbleDown(int hole, Pair p, int length) {
-      int child = secondChild(hole);
-      while(child < length) {
-        if( less(_data[child-1], _data[child]) ) {
-          --child;
+    void bubbleDown(int hole, Pair p, int length) {
+      if( length>1 ) {
+        int child = firstChild(hole);
+        while( child+K<=length ) {
+          int min=child;
+          for (int i=1; i<K; ++i) {
+            if( less(_data[child+i], _data[min]) )
+              min=child+i;
+          }
+          if( !less(_data[min], p) )
+            goto ok;
+          move(_data[min], hole);
+          hole = min;
+          child = firstChild(hole);
         }
-        if( !less(_data[child], p) )
-          goto ok;
-        move(_data[child], hole);
-        hole = child;
-        child = secondChild(hole);
-      }
-      child--;
-      if( child<length && less(_data[child], p) ) {
-        move(_data[child], hole);
-        hole=child;
+        if ( child<length ) {
+          int min = child;
+          while (++child < length) {
+            if( less(_data[child], _data[min]) )
+              min=child;
+          }
+          if( less(_data[min], p) ) {
+            move(_data[min], hole);
+            hole = min;
+          }
+        }
       }
     ok:
       move(p, hole);
-      return hole;
     }
 
     void move(const Pair &p, int i) {
@@ -168,7 +185,6 @@ namespace lemon {
     }
 
   public:
-
     /// \brief Insert a pair of item and priority into the heap.
     ///
     /// This function inserts \c p.first to the heap with priority
@@ -194,17 +210,13 @@ namespace lemon {
     ///
     /// This function returns the item having minimum priority.
     /// \pre The heap must be non-empty.
-    Item top() const {
-      return _data[0].first;
-    }
+    Item top() const { return _data[0].first; }
 
     /// \brief The minimum priority.
     ///
     /// This function returns the minimum priority.
     /// \pre The heap must be non-empty.
-    Prio prio() const {
-      return _data[0].second;
-    }
+    Prio prio() const { return _data[0].second; }
 
     /// \brief Remove the item having minimum priority.
     ///
@@ -213,9 +225,7 @@ namespace lemon {
     void pop() {
       int n = _data.size()-1;
       _iim.set(_data[0].first, POST_HEAP);
-      if (n > 0) {
-        bubbleDown(0, _data[n], n);
-      }
+      if (n>0) bubbleDown(0, _data[n], n);
       _data.pop_back();
     }
 
@@ -229,10 +239,11 @@ namespace lemon {
       int h = _iim[i];
       int n = _data.size()-1;
       _iim.set(_data[h].first, POST_HEAP);
-      if( h < n ) {
-        if ( bubbleUp(h, _data[n]) == h) {
+      if( h<n ) {
+        if( less(_data[parent(h)], _data[n]) )
           bubbleDown(h, _data[n], n);
-        }
+        else
+          bubbleUp(h, _data[n]);
       }
       _data.pop_back();
     }
@@ -257,15 +268,12 @@ namespace lemon {
     /// \param p The priority.
     void set(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      if( idx < 0 ) {
+      if( idx<0 )
         push(i,p);
-      }
-      else if( _comp(p, _data[idx].second) ) {
+      else if( _comp(p, _data[idx].second) )
         bubbleUp(idx, Pair(i,p));
-      }
-      else {
+      else
         bubbleDown(idx, Pair(i,p), _data.size());
-      }
     }
 
     /// \brief Decrease the priority of an item to the given value.
@@ -300,8 +308,7 @@ namespace lemon {
     /// \param i The item.
     State state(const Item &i) const {
       int s = _iim[i];
-      if( s>=0 )
-        s=0;
+      if (s>=0) s=0;
       return State(s);
     }
 
@@ -314,15 +321,13 @@ namespace lemon {
     /// \param st The state. It should not be \c IN_HEAP.
     void state(const Item& i, State st) {
       switch (st) {
-      case POST_HEAP:
-      case PRE_HEAP:
-        if (state(i) == IN_HEAP) {
-          erase(i);
-        }
-        _iim[i] = st;
-        break;
-      case IN_HEAP:
-        break;
+        case POST_HEAP:
+        case PRE_HEAP:
+          if (state(i) == IN_HEAP) erase(i);
+          _iim[i] = st;
+          break;
+        case IN_HEAP:
+          break;
       }
     }
 
@@ -334,14 +339,14 @@ namespace lemon {
     /// heap and \c j will be in the heap with the same prioriority
     /// as item \c i had before.
     void replace(const Item& i, const Item& j) {
-      int idx = _iim[i];
+      int idx=_iim[i];
       _iim.set(i, _iim[j]);
       _iim.set(j, idx);
-      _data[idx].first = j;
+      _data[idx].first=j;
     }
 
-  }; // class BinHeap
+  }; // class KaryHeap
 
 } // namespace lemon
 
-#endif // LEMON_BIN_HEAP_H
+#endif // LEMON_KARY_HEAP_H

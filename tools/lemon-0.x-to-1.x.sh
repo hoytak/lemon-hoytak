@@ -35,10 +35,10 @@ do
         -e "s/IncEdgeIt/_In_cEd_geIt_label_/g"\
         -e "s/Edge\>/_Ar_c_label_/g"\
         -e "s/\<edge\>/_ar_c_label_/g"\
-        -e "s/_edge\>/_ar_c_label_/g"\
+        -e "s/_edge\>/__ar_c_label_/g"\
         -e "s/Edges\>/_Ar_c_label_s/g"\
         -e "s/\<edges\>/_ar_c_label_s/g"\
-        -e "s/_edges\>/_ar_c_label_s/g"\
+        -e "s/_edges\>/__ar_c_label_s/g"\
         -e "s/\([Ee]\)dge\([a-z]\)/_\1d_ge_label_\2/g"\
         -e "s/\([a-z]\)edge/\1_ed_ge_label_/g"\
         -e "s/Edge/_Ar_c_label_/g"\
@@ -68,6 +68,11 @@ do
         -e "s/_blu_e_label_/blue/g"\
         -e "s/_GR_APH_TY_PEDE_FS_label_/GRAPH_TYPEDEFS/g"\
         -e "s/_DIGR_APH_TY_PEDE_FS_label_/DIGRAPH_TYPEDEFS/g"\
+        -e "s/\<digraph_adaptor\.h\>/adaptors.h/g"\
+        -e "s/\<digraph_utils\.h\>/core.h/g"\
+        -e "s/\<digraph_reader\.h\>/lgf_reader.h/g"\
+        -e "s/\<digraph_writer\.h\>/lgf_writer.h/g"\
+        -e "s/\<topology\.h\>/connectivity.h/g"\
         -e "s/DigraphToEps/GraphToEps/g"\
         -e "s/digraphToEps/graphToEps/g"\
         -e "s/\<DefPredMap\>/SetPredMap/g"\
