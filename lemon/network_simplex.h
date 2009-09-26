@@ -362,33 +362,32 @@ namespace lemon {
       bool findEnteringArc() {
         Cost c, min = 0;
         int cnt = _block_size;
-        int e, min_arc = _next_arc;
+        int e;
         for (e = _next_arc; e < _search_arc_num; ++e) {
           c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (c < min) {
             min = c;
-            min_arc = e;
+            _in_arc = e;
           }
           if (--cnt == 0) {
-            if (min < 0) break;
+            if (min < 0) goto search_end;
             cnt = _block_size;
           }
         }
-        if (min == 0 || cnt > 0) {
-          for (e = 0; e < _next_arc; ++e) {
-            c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
-            if (c < min) {
-              min = c;
-              min_arc = e;
-            }
-            if (--cnt == 0) {
-              if (min < 0) break;
-              cnt = _block_size;
-            }
+        for (e = 0; e < _next_arc; ++e) {
+          c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
+          if (c < min) {
+            min = c;
+            _in_arc = e;
+          }
+          if (--cnt == 0) {
+            if (min < 0) goto search_end;
+            cnt = _block_size;
           }
         }
         if (min >= 0) return false;
-        _in_arc = min_arc;
+
+      search_end:
         _next_arc = e;
         return true;
       }
@@ -426,7 +425,7 @@ namespace lemon {
         _next_arc(0)
       {
         // The main parameters of the pivot rule
-        const double LIST_LENGTH_FACTOR = 1.0;
+        const double LIST_LENGTH_FACTOR = 0.25;
         const int MIN_LIST_LENGTH = 10;
         const double MINOR_LIMIT_FACTOR = 0.1;
         const int MIN_MINOR_LIMIT = 3;
@@ -443,7 +442,7 @@ namespace lemon {
       /// Find next entering arc
       bool findEnteringArc() {
         Cost min, c;
-        int e, min_arc = _next_arc;
+        int e;
         if (_curr_length > 0 && _minor_count < _minor_limit) {
           // Minor iteration: select the best eligible arc from the
           // current candidate list
@@ -454,16 +453,13 @@ namespace lemon {
             c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
             if (c < min) {
               min = c;
-              min_arc = e;
+              _in_arc = e;
             }
-            if (c >= 0) {
+            else if (c >= 0) {
               _candidates[i--] = _candidates[--_curr_length];
             }
           }
-          if (min < 0) {
-            _in_arc = min_arc;
-            return true;
-          }
+          if (min < 0) return true;
         }
 
         // Major iteration: build a new candidate list
@@ -475,27 +471,26 @@ namespace lemon {
             _candidates[_curr_length++] = e;
             if (c < min) {
               min = c;
-              min_arc = e;
+              _in_arc = e;
             }
-            if (_curr_length == _list_length) break;
+            if (_curr_length == _list_length) goto search_end;
           }
         }
-        if (_curr_length < _list_length) {
-          for (e = 0; e < _next_arc; ++e) {
-            c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
-            if (c < 0) {
-              _candidates[_curr_length++] = e;
-              if (c < min) {
-                min = c;
-                min_arc = e;
-              }
-              if (_curr_length == _list_length) break;
+        for (e = 0; e < _next_arc; ++e) {
+          c = _state[e] * (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
+          if (c < 0) {
+            _candidates[_curr_length++] = e;
+            if (c < min) {
+              min = c;
+              _in_arc = e;
             }
+            if (_curr_length == _list_length) goto search_end;
           }
         }
         if (_curr_length == 0) return false;
+      
+      search_end:        
         _minor_count = 1;
-        _in_arc = min_arc;
         _next_arc = e;
         return true;
       }
@@ -547,7 +542,7 @@ namespace lemon {
         _next_arc(0), _cand_cost(ns._search_arc_num), _sort_func(_cand_cost)
       {
         // The main parameters of the pivot rule
-        const double BLOCK_SIZE_FACTOR = 1.5;
+        const double BLOCK_SIZE_FACTOR = 1.0;
         const int MIN_BLOCK_SIZE = 10;
         const double HEAD_LENGTH_FACTOR = 0.1;
         const int MIN_HEAD_LENGTH = 3;
@@ -576,39 +571,35 @@ namespace lemon {
 
         // Extend the list
         int cnt = _block_size;
-        int last_arc = 0;
         int limit = _head_length;
 
-        for (int e = _next_arc; e < _search_arc_num; ++e) {
+        for (e = _next_arc; e < _search_arc_num; ++e) {
           _cand_cost[e] = _state[e] *
             (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
           if (_cand_cost[e] < 0) {
             _candidates[_curr_length++] = e;
-            last_arc = e;
           }
           if (--cnt == 0) {
-            if (_curr_length > limit) break;
+            if (_curr_length > limit) goto search_end;
             limit = 0;
             cnt = _block_size;
           }
         }
-        if (_curr_length <= limit) {
-          for (int e = 0; e < _next_arc; ++e) {
-            _cand_cost[e] = _state[e] *
-              (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
-            if (_cand_cost[e] < 0) {
-              _candidates[_curr_length++] = e;
-              last_arc = e;
-            }
-            if (--cnt == 0) {
-              if (_curr_length > limit) break;
-              limit = 0;
-              cnt = _block_size;
-            }
+        for (e = 0; e < _next_arc; ++e) {
+          _cand_cost[e] = _state[e] *
+            (_cost[e] + _pi[_source[e]] - _pi[_target[e]]);
+          if (_cand_cost[e] < 0) {
+            _candidates[_curr_length++] = e;
+          }
+          if (--cnt == 0) {
+            if (_curr_length > limit) goto search_end;
+            limit = 0;
+            cnt = _block_size;
           }
         }
         if (_curr_length == 0) return false;
-        _next_arc = last_arc + 1;
+        
+      search_end:
 
         // Make heap of the candidate list (approximating a partial sort)
         make_heap( _candidates.begin(), _candidates.begin() + _curr_length,
@@ -616,6 +607,7 @@ namespace lemon {
 
         // Pop the first element of the heap
         _in_arc = _candidates[0];
+        _next_arc = e;
         pop_heap( _candidates.begin(), _candidates.begin() + _curr_length,
                   _sort_func );
         _curr_length = std::min(_head_length, _curr_length - 1);
@@ -631,7 +623,11 @@ namespace lemon {
     /// The constructor of the class.
     ///
     /// \param graph The digraph the algorithm runs on.
-    NetworkSimplex(const GR& graph) :
+    /// \param arc_mixing Indicate if the arcs have to be stored in a
+    /// mixed order in the internal data structure. 
+    /// In special cases, it could lead to better overall performance,
+    /// but it is usually slower. Therefore it is disabled by default.
+    NetworkSimplex(const GR& graph, bool arc_mixing = false) :
       _graph(graph), _node_id(graph), _arc_id(graph),
       INF(std::numeric_limits<Value>::has_infinity ?
           std::numeric_limits<Value>::infinity() :
@@ -669,18 +665,29 @@ namespace lemon {
       _last_succ.resize(all_node_num);
       _state.resize(max_arc_num);
 
-      // Copy the graph (store the arcs in a mixed order)
+      // Copy the graph
       int i = 0;
       for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
         _node_id[n] = i;
       }
-      int k = std::max(int(std::sqrt(double(_arc_num))), 10);
-      i = 0;
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        _arc_id[a] = i;
-        _source[i] = _node_id[_graph.source(a)];
-        _target[i] = _node_id[_graph.target(a)];
-        if ((i += k) >= _arc_num) i = (i % k) + 1;
+      if (arc_mixing) {
+        // Store the arcs in a mixed order
+        int k = std::max(int(std::sqrt(double(_arc_num))), 10);
+        int i = 0, j = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+          if ((i += k) >= _arc_num) i = ++j;
+        }
+      } else {
+        // Store the arcs in the original order
+        int i = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a, ++i) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+        }
       }
       
       // Reset parameters
