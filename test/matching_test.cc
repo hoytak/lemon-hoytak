@@ -401,22 +401,46 @@ int main() {
     graphReader(graph, lgfs).
       edgeMap("weight", weight).run();
 
-    MaxMatching<SmartGraph> mm(graph);
-    mm.run();
-    checkMatching(graph, mm);
+    bool perfect;
+    {
+      MaxMatching<SmartGraph> mm(graph);
+      mm.run();
+      checkMatching(graph, mm);
+      perfect = 2 * mm.matchingSize() == countNodes(graph);
+    }
 
-    MaxWeightedMatching<SmartGraph> mwm(graph, weight);
-    mwm.run();
-    checkWeightedMatching(graph, weight, mwm);
+    {
+      MaxWeightedMatching<SmartGraph> mwm(graph, weight);
+      mwm.run();
+      checkWeightedMatching(graph, weight, mwm);
+    }
 
-    MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
-    bool perfect = mwpm.run();
+    {
+      MaxWeightedMatching<SmartGraph> mwm(graph, weight);
+      mwm.init();
+      mwm.start();
+      checkWeightedMatching(graph, weight, mwm);
+    }
 
-    check(perfect == (mm.matchingSize() * 2 == countNodes(graph)),
-          "Perfect matching found");
+    {
+      MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
+      bool result = mwpm.run();
+      
+      check(result == perfect, "Perfect matching found");
+      if (perfect) {
+        checkWeightedPerfectMatching(graph, weight, mwpm);
+      }
+    }
 
-    if (perfect) {
-      checkWeightedPerfectMatching(graph, weight, mwpm);
+    {
+      MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
+      mwpm.init();
+      bool result = mwpm.start();
+      
+      check(result == perfect, "Perfect matching found");
+      if (perfect) {
+        checkWeightedPerfectMatching(graph, weight, mwpm);
+      }
     }
   }
 

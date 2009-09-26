@@ -28,6 +28,7 @@
 #include <lemon/unionfind.h>
 #include <lemon/bin_heap.h>
 #include <lemon/maps.h>
+#include <lemon/fractional_matching.h>
 
 ///\ingroup matching
 ///\file
@@ -797,6 +798,10 @@ namespace lemon {
     BinHeap<Value, IntIntMap> *_delta4;
 
     Value _delta_sum;
+    int _unmatched;
+
+    typedef MaxWeightedFractionalMatching<Graph, WeightMap> FractionalMatching;
+    FractionalMatching *_fractional;
 
     void createStructures() {
       _node_num = countNodes(_graph);
@@ -1559,10 +1564,16 @@ namespace lemon {
         _delta3_index(0), _delta3(0),
         _delta4_index(0), _delta4(0),
 
-        _delta_sum() {}
+        _delta_sum(), _unmatched(0),
+
+        _fractional(0)
+    {}
 
     ~MaxWeightedMatching() {
       destroyStructures();
+      if (_fractional) {
+        delete _fractional;
+      }
     }
 
     /// \name Execution Control
@@ -1590,6 +1601,8 @@ namespace lemon {
         (*_delta2_index)[i] = _delta2->PRE_HEAP;
         (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
+
+      _unmatched = _node_num;
 
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -1625,18 +1638,155 @@ namespace lemon {
       }
     }
 
+    /// \brief Initialize the algorithm with fractional matching
+    ///
+    /// This function initializes the algorithm with a fractional
+    /// matching. This initialization is also called jumpstart heuristic.
+    void fractionalInit() {
+      createStructures();
+      
+      if (_fractional == 0) {
+        _fractional = new FractionalMatching(_graph, _weight, false);
+      }
+      _fractional->run();
+
+      for (ArcIt e(_graph); e != INVALID; ++e) {
+        (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
+      }
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        (*_delta1_index)[n] = _delta1->PRE_HEAP;
+      }
+      for (EdgeIt e(_graph); e != INVALID; ++e) {
+        (*_delta3_index)[e] = _delta3->PRE_HEAP;
+      }
+      for (int i = 0; i < _blossom_num; ++i) {
+        (*_delta2_index)[i] = _delta2->PRE_HEAP;
+        (*_delta4_index)[i] = _delta4->PRE_HEAP;
+      }
+
+      _unmatched = 0;
+
+      int index = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        Value pot = _fractional->nodeValue(n);
+        (*_node_index)[n] = index;
+        (*_node_data)[index].pot = pot;
+        int blossom =
+          _blossom_set->insert(n, std::numeric_limits<Value>::max());
+
+        (*_blossom_data)[blossom].status = MATCHED;
+        (*_blossom_data)[blossom].pred = INVALID;
+        (*_blossom_data)[blossom].next = _fractional->matching(n);
+        if (_fractional->matching(n) == INVALID) {
+          (*_blossom_data)[blossom].base = n;
+        }
+        (*_blossom_data)[blossom].pot = 0;
+        (*_blossom_data)[blossom].offset = 0;
+        ++index;
+      }
+
+      typename Graph::template NodeMap<bool> processed(_graph, false);
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        if (processed[n]) continue;
+        processed[n] = true;
+        if (_fractional->matching(n) == INVALID) continue;
+        int num = 1;
+        Node v = _graph.target(_fractional->matching(n));
+        while (n != v) {
+          processed[v] = true;
+          v = _graph.target(_fractional->matching(v));
+          ++num;
+        }
+
+        if (num % 2 == 1) {
+          std::vector<int> subblossoms(num);
+
+          subblossoms[--num] = _blossom_set->find(n);
+          _delta1->push(n, _fractional->nodeValue(n));
+          v = _graph.target(_fractional->matching(n));
+          while (n != v) {
+            subblossoms[--num] = _blossom_set->find(v);
+            _delta1->push(v, _fractional->nodeValue(v));
+            v = _graph.target(_fractional->matching(v));            
+          }
+          
+          int surface = 
+            _blossom_set->join(subblossoms.begin(), subblossoms.end());
+          (*_blossom_data)[surface].status = EVEN;
+          (*_blossom_data)[surface].pred = INVALID;
+          (*_blossom_data)[surface].next = INVALID;
+          (*_blossom_data)[surface].pot = 0;
+          (*_blossom_data)[surface].offset = 0;
+          
+          _tree_set->insert(surface);
+          ++_unmatched;
+        }
+      }
+
+      for (EdgeIt e(_graph); e != INVALID; ++e) {
+        int si = (*_node_index)[_graph.u(e)];
+        int sb = _blossom_set->find(_graph.u(e));
+        int ti = (*_node_index)[_graph.v(e)];
+        int tb = _blossom_set->find(_graph.v(e));
+        if ((*_blossom_data)[sb].status == EVEN &&
+            (*_blossom_data)[tb].status == EVEN && sb != tb) {
+          _delta3->push(e, ((*_node_data)[si].pot + (*_node_data)[ti].pot -
+                            dualScale * _weight[e]) / 2);
+        }
+      }
+
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        int nb = _blossom_set->find(n);
+        if ((*_blossom_data)[nb].status != MATCHED) continue;
+        int ni = (*_node_index)[n];
+
+        for (OutArcIt e(_graph, n); e != INVALID; ++e) {
+          Node v = _graph.target(e);
+          int vb = _blossom_set->find(v);
+          int vi = (*_node_index)[v];
+
+          Value rw = (*_node_data)[ni].pot + (*_node_data)[vi].pot -
+            dualScale * _weight[e];
+
+          if ((*_blossom_data)[vb].status == EVEN) {
+
+            int vt = _tree_set->find(vb);
+
+            typename std::map<int, Arc>::iterator it =
+              (*_node_data)[ni].heap_index.find(vt);
+
+            if (it != (*_node_data)[ni].heap_index.end()) {
+              if ((*_node_data)[ni].heap[it->second] > rw) {
+                (*_node_data)[ni].heap.replace(it->second, e);
+                (*_node_data)[ni].heap.decrease(e, rw);
+                it->second = e;
+              }
+            } else {
+              (*_node_data)[ni].heap.push(e, rw);
+              (*_node_data)[ni].heap_index.insert(std::make_pair(vt, e));
+            }
+          }
+        }
+            
+        if (!(*_node_data)[ni].heap.empty()) {
+          _blossom_set->decrease(n, (*_node_data)[ni].heap.prio());
+          _delta2->push(nb, _blossom_set->classPrio(nb));
+        }
+      }
+    }
+
     /// \brief Start the algorithm
     ///
     /// This function starts the algorithm.
     ///
-    /// \pre \ref init() must be called before using this function.
+    /// \pre \ref init() or \ref fractionalInit() must be called
+    /// before using this function.
     void start() {
       enum OpType {
         D1, D2, D3, D4
       };
 
-      int unmatched = _node_num;
-      while (unmatched > 0) {
+      while (_unmatched > 0) {
         Value d1 = !_delta1->empty() ?
           _delta1->prio() : std::numeric_limits<Value>::max();
 
@@ -1659,7 +1809,7 @@ namespace lemon {
           {
             Node n = _delta1->top();
             unmatchNode(n);
-            --unmatched;
+            --_unmatched;
           }
           break;
         case D2:
@@ -1669,7 +1819,7 @@ namespace lemon {
             Arc a = (*_node_data)[(*_node_index)[n]].heap.top();
             if ((*_blossom_data)[blossom].next == INVALID) {
               augmentOnArc(a);
-              --unmatched;
+              --_unmatched;
             } else {
               extendOnArc(a);
             }
@@ -1692,7 +1842,7 @@ namespace lemon {
                 shrinkOnEdge(e, left_tree);
               } else {
                 augmentOnEdge(e);
-                unmatched -= 2;
+                _unmatched -= 2;
               }
             }
           } break;
@@ -1710,11 +1860,11 @@ namespace lemon {
     ///
     /// \note mwm.run() is just a shortcut of the following code.
     /// \code
-    ///   mwm.init();
+    ///   mwm.fractionalInit();
     ///   mwm.start();
     /// \endcode
     void run() {
-      init();
+      fractionalInit();
       start();
     }
 
@@ -2074,6 +2224,11 @@ namespace lemon {
     BinHeap<Value, IntIntMap> *_delta4;
 
     Value _delta_sum;
+    int _unmatched;
+
+    typedef MaxWeightedPerfectFractionalMatching<Graph, WeightMap> 
+    FractionalMatching;
+    FractionalMatching *_fractional;
 
     void createStructures() {
       _node_num = countNodes(_graph);
@@ -2789,10 +2944,16 @@ namespace lemon {
         _delta3_index(0), _delta3(0),
         _delta4_index(0), _delta4(0),
 
-        _delta_sum() {}
+        _delta_sum(), _unmatched(0),
+
+        _fractional(0)
+    {}
 
     ~MaxWeightedPerfectMatching() {
       destroyStructures();
+      if (_fractional) {
+        delete _fractional;
+      }
     }
 
     /// \name Execution Control
@@ -2817,6 +2978,8 @@ namespace lemon {
         (*_delta2_index)[i] = _delta2->PRE_HEAP;
         (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
+
+      _unmatched = _node_num;
 
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -2851,18 +3014,152 @@ namespace lemon {
       }
     }
 
+    /// \brief Initialize the algorithm with fractional matching
+    ///
+    /// This function initializes the algorithm with a fractional
+    /// matching. This initialization is also called jumpstart heuristic.
+    void fractionalInit() {
+      createStructures();
+      
+      if (_fractional == 0) {
+        _fractional = new FractionalMatching(_graph, _weight, false);
+      }
+      if (!_fractional->run()) {
+        _unmatched = -1;
+        return;
+      }
+
+      for (ArcIt e(_graph); e != INVALID; ++e) {
+        (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
+      }
+      for (EdgeIt e(_graph); e != INVALID; ++e) {
+        (*_delta3_index)[e] = _delta3->PRE_HEAP;
+      }
+      for (int i = 0; i < _blossom_num; ++i) {
+        (*_delta2_index)[i] = _delta2->PRE_HEAP;
+        (*_delta4_index)[i] = _delta4->PRE_HEAP;
+      }
+
+      _unmatched = 0;
+
+      int index = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        Value pot = _fractional->nodeValue(n);
+        (*_node_index)[n] = index;
+        (*_node_data)[index].pot = pot;
+        int blossom =
+          _blossom_set->insert(n, std::numeric_limits<Value>::max());
+
+        (*_blossom_data)[blossom].status = MATCHED;
+        (*_blossom_data)[blossom].pred = INVALID;
+        (*_blossom_data)[blossom].next = _fractional->matching(n);
+        (*_blossom_data)[blossom].pot = 0;
+        (*_blossom_data)[blossom].offset = 0;
+        ++index;
+      }
+
+      typename Graph::template NodeMap<bool> processed(_graph, false);
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        if (processed[n]) continue;
+        processed[n] = true;
+        if (_fractional->matching(n) == INVALID) continue;
+        int num = 1;
+        Node v = _graph.target(_fractional->matching(n));
+        while (n != v) {
+          processed[v] = true;
+          v = _graph.target(_fractional->matching(v));
+          ++num;
+        }
+
+        if (num % 2 == 1) {
+          std::vector<int> subblossoms(num);
+
+          subblossoms[--num] = _blossom_set->find(n);
+          v = _graph.target(_fractional->matching(n));
+          while (n != v) {
+            subblossoms[--num] = _blossom_set->find(v);
+            v = _graph.target(_fractional->matching(v));            
+          }
+          
+          int surface = 
+            _blossom_set->join(subblossoms.begin(), subblossoms.end());
+          (*_blossom_data)[surface].status = EVEN;
+          (*_blossom_data)[surface].pred = INVALID;
+          (*_blossom_data)[surface].next = INVALID;
+          (*_blossom_data)[surface].pot = 0;
+          (*_blossom_data)[surface].offset = 0;
+          
+          _tree_set->insert(surface);
+          ++_unmatched;
+        }
+      }
+
+      for (EdgeIt e(_graph); e != INVALID; ++e) {
+        int si = (*_node_index)[_graph.u(e)];
+        int sb = _blossom_set->find(_graph.u(e));
+        int ti = (*_node_index)[_graph.v(e)];
+        int tb = _blossom_set->find(_graph.v(e));
+        if ((*_blossom_data)[sb].status == EVEN &&
+            (*_blossom_data)[tb].status == EVEN && sb != tb) {
+          _delta3->push(e, ((*_node_data)[si].pot + (*_node_data)[ti].pot -
+                            dualScale * _weight[e]) / 2);
+        }
+      }
+
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        int nb = _blossom_set->find(n);
+        if ((*_blossom_data)[nb].status != MATCHED) continue;
+        int ni = (*_node_index)[n];
+
+        for (OutArcIt e(_graph, n); e != INVALID; ++e) {
+          Node v = _graph.target(e);
+          int vb = _blossom_set->find(v);
+          int vi = (*_node_index)[v];
+
+          Value rw = (*_node_data)[ni].pot + (*_node_data)[vi].pot -
+            dualScale * _weight[e];
+
+          if ((*_blossom_data)[vb].status == EVEN) {
+
+            int vt = _tree_set->find(vb);
+
+            typename std::map<int, Arc>::iterator it =
+              (*_node_data)[ni].heap_index.find(vt);
+
+            if (it != (*_node_data)[ni].heap_index.end()) {
+              if ((*_node_data)[ni].heap[it->second] > rw) {
+                (*_node_data)[ni].heap.replace(it->second, e);
+                (*_node_data)[ni].heap.decrease(e, rw);
+                it->second = e;
+              }
+            } else {
+              (*_node_data)[ni].heap.push(e, rw);
+              (*_node_data)[ni].heap_index.insert(std::make_pair(vt, e));
+            }
+          }
+        }
+            
+        if (!(*_node_data)[ni].heap.empty()) {
+          _blossom_set->decrease(n, (*_node_data)[ni].heap.prio());
+          _delta2->push(nb, _blossom_set->classPrio(nb));
+        }
+      }
+    }
+
     /// \brief Start the algorithm
     ///
     /// This function starts the algorithm.
     ///
-    /// \pre \ref init() must be called before using this function.
+    /// \pre \ref init() or \ref fractionalInit() must be called before
+    /// using this function.
     bool start() {
       enum OpType {
         D2, D3, D4
       };
 
-      int unmatched = _node_num;
-      while (unmatched > 0) {
+      if (_unmatched == -1) return false;
+
+      while (_unmatched > 0) {
         Value d2 = !_delta2->empty() ?
           _delta2->prio() : std::numeric_limits<Value>::max();
 
@@ -2906,7 +3203,7 @@ namespace lemon {
                 shrinkOnEdge(e, left_tree);
               } else {
                 augmentOnEdge(e);
-                unmatched -= 2;
+                _unmatched -= 2;
               }
             }
           } break;
@@ -2925,11 +3222,11 @@ namespace lemon {
     ///
     /// \note mwpm.run() is just a shortcut of the following code.
     /// \code
-    ///   mwpm.init();
+    ///   mwpm.fractionalInit();
     ///   mwpm.start();
     /// \endcode
     bool run() {
-      init();
+      fractionalInit();
       return start();
     }
 
