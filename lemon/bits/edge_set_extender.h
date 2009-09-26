@@ -537,7 +537,7 @@ namespace lemon {
       typedef MapExtender<DefaultMap<Graph, Arc, _Value> > Parent;
 
     public:
-      ArcMap(const Graph& _g) 
+      explicit ArcMap(const Graph& _g) 
 	: Parent(_g) {}
       ArcMap(const Graph& _g, const _Value& _v) 
 	: Parent(_g, _v) {}
@@ -561,7 +561,7 @@ namespace lemon {
       typedef MapExtender<DefaultMap<Graph, Edge, _Value> > Parent;
 
     public:
-      EdgeMap(const Graph& _g) 
+      explicit EdgeMap(const Graph& _g) 
 	: Parent(_g) {}
 
       EdgeMap(const Graph& _g, const _Value& _v) 
