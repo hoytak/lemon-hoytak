@@ -22,7 +22,10 @@
 #include <lemon/concept_check.h>
 #include <lemon/concepts/maps.h>
 #include <lemon/maps.h>
+#include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
+#include <lemon/adaptors.h>
+#include <lemon/dfs.h>
 
 #include "test_tools.h"
 
@@ -60,6 +63,12 @@ typedef ReferenceMap<A, double, double&, const double&> DoubleRefMap;
 typedef ReadMap<A, bool> BoolMap;
 typedef ReadWriteMap<A, bool> BoolWriteMap;
 typedef ReferenceMap<A, bool, bool&, const bool&> BoolRefMap;
+
+template<typename Map1, typename Map2, typename ItemIt>
+void compareMap(const Map1& map1, const Map2& map2, ItemIt it) {
+  for (; it != INVALID; ++it)
+    check(map1[it] == map2[it], "The maps are not equal");
+}
 
 int main()
 {
@@ -329,6 +338,10 @@ int main()
   // LoggerBoolMap
   {
     typedef std::vector<int> vec;
+    checkConcept<WriteMap<int, bool>, LoggerBoolMap<vec::iterator> >();
+    checkConcept<WriteMap<int, bool>,
+                 LoggerBoolMap<std::back_insert_iterator<vec> > >();
+
     vec v1;
     vec v2(10);
     LoggerBoolMap<std::back_insert_iterator<vec> >
@@ -348,6 +361,222 @@ int main()
     for ( LoggerBoolMap<vec::iterator>::Iterator it = map2.begin();
           it != map2.end(); ++it )
       check(v1[i++] == *it, "Something is wrong with LoggerBoolMap");
+    
+    typedef ListDigraph Graph;
+    DIGRAPH_TYPEDEFS(Graph);
+    Graph gr;
+
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    Node n3 = gr.addNode();
+    
+    gr.addArc(n3, n0);
+    gr.addArc(n3, n2);
+    gr.addArc(n0, n2);
+    gr.addArc(n2, n1);
+    gr.addArc(n0, n1);
+    
+    {
+      std::vector<Node> v;
+      dfs(gr).processedMap(loggerBoolMap(std::back_inserter(v))).run();
+
+      check(v.size()==4 && v[0]==n1 && v[1]==n2 && v[2]==n0 && v[3]==n3,
+            "Something is wrong with LoggerBoolMap");
+    }
+    {
+      std::vector<Node> v(countNodes(gr));
+      dfs(gr).processedMap(loggerBoolMap(v.begin())).run();
+      
+      check(v.size()==4 && v[0]==n1 && v[1]==n2 && v[2]==n0 && v[3]==n3,
+            "Something is wrong with LoggerBoolMap");
+    }
+  }
+  
+  // IdMap, RangeIdMap
+  {
+    typedef ListDigraph Graph;
+    DIGRAPH_TYPEDEFS(Graph);
+
+    checkConcept<ReadMap<Node, int>, IdMap<Graph, Node> >();
+    checkConcept<ReadMap<Arc, int>, IdMap<Graph, Arc> >();
+    checkConcept<ReadMap<Node, int>, RangeIdMap<Graph, Node> >();
+    checkConcept<ReadMap<Arc, int>, RangeIdMap<Graph, Arc> >();
+    
+    Graph gr;
+    IdMap<Graph, Node> nmap(gr);
+    IdMap<Graph, Arc> amap(gr);
+    RangeIdMap<Graph, Node> nrmap(gr);
+    RangeIdMap<Graph, Arc> armap(gr);
+    
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    
+    Arc a0 = gr.addArc(n0, n1);
+    Arc a1 = gr.addArc(n0, n2);
+    Arc a2 = gr.addArc(n2, n1);
+    Arc a3 = gr.addArc(n2, n0);
+    
+    check(nmap[n0] == gr.id(n0) && nmap(gr.id(n0)) == n0, "Wrong IdMap");
+    check(nmap[n1] == gr.id(n1) && nmap(gr.id(n1)) == n1, "Wrong IdMap");
+    check(nmap[n2] == gr.id(n2) && nmap(gr.id(n2)) == n2, "Wrong IdMap");
+
+    check(amap[a0] == gr.id(a0) && amap(gr.id(a0)) == a0, "Wrong IdMap");
+    check(amap[a1] == gr.id(a1) && amap(gr.id(a1)) == a1, "Wrong IdMap");
+    check(amap[a2] == gr.id(a2) && amap(gr.id(a2)) == a2, "Wrong IdMap");
+    check(amap[a3] == gr.id(a3) && amap(gr.id(a3)) == a3, "Wrong IdMap");
+
+    check(nmap.inverse()[gr.id(n0)] == n0, "Wrong IdMap::InverseMap");
+    check(amap.inverse()[gr.id(a0)] == a0, "Wrong IdMap::InverseMap");
+    
+    check(nrmap.size() == 3 && armap.size() == 4,
+          "Wrong RangeIdMap::size()");
+
+    check(nrmap[n0] == 0 && nrmap(0) == n0, "Wrong RangeIdMap");
+    check(nrmap[n1] == 1 && nrmap(1) == n1, "Wrong RangeIdMap");
+    check(nrmap[n2] == 2 && nrmap(2) == n2, "Wrong RangeIdMap");
+    
+    check(armap[a0] == 0 && armap(0) == a0, "Wrong RangeIdMap");
+    check(armap[a1] == 1 && armap(1) == a1, "Wrong RangeIdMap");
+    check(armap[a2] == 2 && armap(2) == a2, "Wrong RangeIdMap");
+    check(armap[a3] == 3 && armap(3) == a3, "Wrong RangeIdMap");
+
+    check(nrmap.inverse()[0] == n0, "Wrong RangeIdMap::InverseMap");
+    check(armap.inverse()[0] == a0, "Wrong RangeIdMap::InverseMap");
+    
+    gr.erase(n1);
+    
+    if (nrmap[n0] == 1) nrmap.swap(n0, n2);
+    nrmap.swap(n2, n0);
+    if (armap[a1] == 1) armap.swap(a1, a3);
+    armap.swap(a3, a1);
+    
+    check(nrmap.size() == 2 && armap.size() == 2,
+          "Wrong RangeIdMap::size()");
+
+    check(nrmap[n0] == 1 && nrmap(1) == n0, "Wrong RangeIdMap");
+    check(nrmap[n2] == 0 && nrmap(0) == n2, "Wrong RangeIdMap");
+    
+    check(armap[a1] == 1 && armap(1) == a1, "Wrong RangeIdMap");
+    check(armap[a3] == 0 && armap(0) == a3, "Wrong RangeIdMap");
+
+    check(nrmap.inverse()[0] == n2, "Wrong RangeIdMap::InverseMap");
+    check(armap.inverse()[0] == a3, "Wrong RangeIdMap::InverseMap");
+  }
+  
+  // SourceMap, TargetMap, ForwardMap, BackwardMap, InDegMap, OutDegMap
+  {
+    typedef ListGraph Graph;
+    GRAPH_TYPEDEFS(Graph);
+    
+    checkConcept<ReadMap<Arc, Node>, SourceMap<Graph> >();
+    checkConcept<ReadMap<Arc, Node>, TargetMap<Graph> >();
+    checkConcept<ReadMap<Edge, Arc>, ForwardMap<Graph> >();
+    checkConcept<ReadMap<Edge, Arc>, BackwardMap<Graph> >();
+    checkConcept<ReadMap<Node, int>, InDegMap<Graph> >();
+    checkConcept<ReadMap<Node, int>, OutDegMap<Graph> >();
+
+    Graph gr;
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    
+    gr.addEdge(n0,n1);
+    gr.addEdge(n1,n2);
+    gr.addEdge(n0,n2);
+    gr.addEdge(n2,n1);
+    gr.addEdge(n1,n2);
+    gr.addEdge(n0,n1);
+    
+    for (EdgeIt e(gr); e != INVALID; ++e) {
+      check(forwardMap(gr)[e] == gr.direct(e, true), "Wrong ForwardMap");
+      check(backwardMap(gr)[e] == gr.direct(e, false), "Wrong BackwardMap");
+    }
+    
+    compareMap(sourceMap(orienter(gr, constMap<Edge, bool>(true))),
+               targetMap(orienter(gr, constMap<Edge, bool>(false))),
+               EdgeIt(gr));
+
+    typedef Orienter<Graph, const ConstMap<Edge, bool> > Digraph;
+    Digraph dgr(gr, constMap<Edge, bool>(true));
+    OutDegMap<Digraph> odm(dgr);
+    InDegMap<Digraph> idm(dgr);
+    
+    check(odm[n0] == 3 && odm[n1] == 2 && odm[n2] == 1, "Wrong OutDegMap");
+    check(idm[n0] == 0 && idm[n1] == 3 && idm[n2] == 3, "Wrong InDegMap");
+   
+    gr.addEdge(n2, n0);
+
+    check(odm[n0] == 3 && odm[n1] == 2 && odm[n2] == 2, "Wrong OutDegMap");
+    check(idm[n0] == 1 && idm[n1] == 3 && idm[n2] == 3, "Wrong InDegMap");
+  }
+  
+  // CrossRefMap
+  {
+    typedef ListDigraph Graph;
+    DIGRAPH_TYPEDEFS(Graph);
+
+    checkConcept<ReadWriteMap<Node, int>,
+                 CrossRefMap<Graph, Node, int> >();
+    checkConcept<ReadWriteMap<Node, bool>,
+                 CrossRefMap<Graph, Node, bool> >();
+    checkConcept<ReadWriteMap<Node, double>,
+                 CrossRefMap<Graph, Node, double> >();
+    
+    Graph gr;
+    typedef CrossRefMap<Graph, Node, char> CRMap;
+    CRMap map(gr);
+    
+    Node n0 = gr.addNode();
+    Node n1 = gr.addNode();
+    Node n2 = gr.addNode();
+    
+    map.set(n0, 'A');
+    map.set(n1, 'B');
+    map.set(n2, 'C');
+    
+    check(map[n0] == 'A' && map('A') == n0 && map.inverse()['A'] == n0,
+          "Wrong CrossRefMap");
+    check(map[n1] == 'B' && map('B') == n1 && map.inverse()['B'] == n1,
+          "Wrong CrossRefMap");
+    check(map[n2] == 'C' && map('C') == n2 && map.inverse()['C'] == n2,
+          "Wrong CrossRefMap");
+    check(map.count('A') == 1 && map.count('B') == 1 && map.count('C') == 1,
+          "Wrong CrossRefMap::count()");
+    
+    CRMap::ValueIt it = map.beginValue();
+    check(*it++ == 'A' && *it++ == 'B' && *it++ == 'C' &&
+          it == map.endValue(), "Wrong value iterator");
+    
+    map.set(n2, 'A');
+
+    check(map[n0] == 'A' && map[n1] == 'B' && map[n2] == 'A',
+          "Wrong CrossRefMap");
+    check(map('A') == n0 && map.inverse()['A'] == n0, "Wrong CrossRefMap");
+    check(map('B') == n1 && map.inverse()['B'] == n1, "Wrong CrossRefMap");
+    check(map('C') == INVALID && map.inverse()['C'] == INVALID,
+          "Wrong CrossRefMap");
+    check(map.count('A') == 2 && map.count('B') == 1 && map.count('C') == 0,
+          "Wrong CrossRefMap::count()");
+
+    it = map.beginValue();
+    check(*it++ == 'A' && *it++ == 'A' && *it++ == 'B' &&
+          it == map.endValue(), "Wrong value iterator");
+
+    map.set(n0, 'C');
+
+    check(map[n0] == 'C' && map[n1] == 'B' && map[n2] == 'A',
+          "Wrong CrossRefMap");
+    check(map('A') == n2 && map.inverse()['A'] == n2, "Wrong CrossRefMap");
+    check(map('B') == n1 && map.inverse()['B'] == n1, "Wrong CrossRefMap");
+    check(map('C') == n0 && map.inverse()['C'] == n0, "Wrong CrossRefMap");
+    check(map.count('A') == 1 && map.count('B') == 1 && map.count('C') == 1,
+          "Wrong CrossRefMap::count()");
+
+    it = map.beginValue();
+    check(*it++ == 'A' && *it++ == 'B' && *it++ == 'C' &&
+          it == map.endValue(), "Wrong value iterator");
   }
 
   // CrossRefMap
@@ -546,10 +775,10 @@ int main()
       check(static_cast<Item>(it) == INVALID, "Wrong value");
     }
 
-    for (Ivm::ValueIterator vit = map1.beginValue();
+    for (Ivm::ValueIt vit = map1.beginValue();
          vit != map1.endValue(); ++vit) {
       check(map1[static_cast<Item>(Ivm::ItemIt(map1, *vit))] == *vit,
-            "Wrong ValueIterator");
+            "Wrong ValueIt");
     }
 
     for (int i = 0; i < num; ++i) {

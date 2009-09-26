@@ -280,6 +280,28 @@ order to make it easier to implement combinatorial algorithms.
 */
 
 /**
+@defgroup geomdat Geometric Data Structures
+@ingroup auxdat
+\brief Geometric data structures implemented in LEMON.
+
+This group contains geometric data structures implemented in LEMON.
+
+ - \ref lemon::dim2::Point "dim2::Point" implements a two dimensional
+   vector with the usual operations.
+ - \ref lemon::dim2::Box "dim2::Box" can be used to determine the
+   rectangular bounding box of a set of \ref lemon::dim2::Point
+   "dim2::Point"'s.
+*/
+
+/**
+@defgroup matrices Matrices
+@ingroup auxdat
+\brief Two dimensional data storages implemented in LEMON.
+
+This group contains two dimensional data storages implemented in LEMON.
+*/
+
+/**
 @defgroup algs Algorithms
 \brief This group contains the several algorithms
 implemented in LEMON.
@@ -316,6 +338,15 @@ This group contains the algorithms for finding shortest paths in digraphs.
    not contain directed cycles with negative total length.
  - \ref Suurballe A successive shortest path algorithm for finding
    arc-disjoint paths between two nodes having minimum total length.
+*/
+
+/**
+@defgroup spantree Minimum Spanning Tree Algorithms
+@ingroup algs
+\brief Algorithms for finding minimum cost spanning trees and arborescences.
+
+This group contains the algorithms for finding minimum cost spanning
+trees and arborescences.
 */
 
 /**
@@ -396,7 +427,7 @@ outgoing arcs. Formally, there is a \f$G=(V,A)\f$ digraph, a
 cut is the \f$X\f$ solution of the next optimization problem:
 
 \f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}
-    \sum_{uv\in A, u\in X, v\not\in X}cap(uv) \f]
+    \sum_{uv\in A: u\in X, v\not\in X}cap(uv) \f]
 
 LEMON contains several algorithms related to minimum cut problems:
 
@@ -409,30 +440,6 @@ LEMON contains several algorithms related to minimum cut problems:
 
 If you want to find minimum cut just between two distinict nodes,
 see the \ref max_flow "maximum flow problem".
-*/
-
-/**
-@defgroup graph_properties Connectivity and Other Graph Properties
-@ingroup algs
-\brief Algorithms for discovering the graph properties
-
-This group contains the algorithms for discovering the graph properties
-like connectivity, bipartiteness, euler property, simplicity etc.
-
-\image html edge_biconnected_components.png
-\image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
-*/
-
-/**
-@defgroup planar Planarity Embedding and Drawing
-@ingroup algs
-\brief Algorithms for planarity checking, embedding and drawing
-
-This group contains the algorithms for planarity checking,
-embedding and drawing.
-
-\image html planar.png
-\image latex planar.eps "Plane graph" width=\textwidth
 */
 
 /**
@@ -476,21 +483,27 @@ The matching algorithms implemented in LEMON:
 */
 
 /**
-@defgroup spantree Minimum Spanning Tree Algorithms
+@defgroup graph_properties Connectivity and Other Graph Properties
 @ingroup algs
-\brief Algorithms for finding minimum cost spanning trees and arborescences.
+\brief Algorithms for discovering the graph properties
 
-This group contains the algorithms for finding minimum cost spanning
-trees and arborescences.
+This group contains the algorithms for discovering the graph properties
+like connectivity, bipartiteness, euler property, simplicity etc.
+
+\image html connected_components.png
+\image latex connected_components.eps "Connected components" width=\textwidth
 */
 
 /**
-@defgroup auxalg Auxiliary Algorithms
+@defgroup planar Planarity Embedding and Drawing
 @ingroup algs
-\brief Auxiliary algorithms implemented in LEMON.
+\brief Algorithms for planarity checking, embedding and drawing
 
-This group contains some algorithms implemented in LEMON
-in order to make it easier to implement complex algorithms.
+This group contains the algorithms for planarity checking,
+embedding and drawing.
+
+\image html planar.png
+\image latex planar.eps "Plane graph" width=\textwidth
 */
 
 /**
@@ -500,6 +513,15 @@ in order to make it easier to implement complex algorithms.
 
 This group contains the approximation and heuristic algorithms
 implemented in LEMON.
+*/
+
+/**
+@defgroup auxalg Auxiliary Algorithms
+@ingroup algs
+\brief Auxiliary algorithms implemented in LEMON.
+
+This group contains some algorithms implemented in LEMON
+in order to make it easier to implement complex algorithms.
 */
 
 /**
@@ -608,7 +630,7 @@ graph exporting tools.
 */
 
 /**
-@defgroup dimacs_group DIMACS format
+@defgroup dimacs_group DIMACS Format
 @ingroup io_group
 \brief Read and write files in DIMACS format
 
@@ -670,6 +692,15 @@ This group contains the skeletons and concept checking classes of maps.
 */
 
 /**
+@defgroup tools Standalone Utility Applications
+
+Some utility applications are listed here.
+
+The standard compilation procedure (<tt>./configure;make</tt>) will compile
+them, as well.
+*/
+
+/**
 \anchor demoprograms
 
 @defgroup demos Demo Programs
@@ -679,15 +710,6 @@ the \c demo subdirectory of the source tree.
 
 In order to compile them, use the <tt>make demo</tt> or the
 <tt>make check</tt> commands.
-*/
-
-/**
-@defgroup tools Standalone Utility Applications
-
-Some utility applications are listed here.
-
-The standard compilation procedure (<tt>./configure;make</tt>) will compile
-them, as well.
 */
 
 }
