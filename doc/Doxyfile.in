@@ -91,7 +91,8 @@ INPUT                  = "@abs_top_srcdir@/doc" \
                          "@abs_top_srcdir@/lemon/concepts" \
                          "@abs_top_srcdir@/demo" \
                          "@abs_top_srcdir@/tools" \
-                         "@abs_top_srcdir@/test/test_tools.h"
+                         "@abs_top_srcdir@/test/test_tools.h" \
+                         "@abs_top_builddir@/doc/references.dox"
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cc \
