@@ -116,20 +116,20 @@ namespace lemon {
     void first(Arc& arc) const {
       int n;
       for(n = first_node;
-          n!=-1 && nodes[n].first_in == -1;
+          n != -1 && nodes[n].first_out == -1;
           n = nodes[n].next) {}
-      arc.id = (n == -1) ? -1 : nodes[n].first_in;
+      arc.id = (n == -1) ? -1 : nodes[n].first_out;
     }
 
     void next(Arc& arc) const {
-      if (arcs[arc.id].next_in != -1) {
-        arc.id = arcs[arc.id].next_in;
+      if (arcs[arc.id].next_out != -1) {
+        arc.id = arcs[arc.id].next_out;
       } else {
         int n;
-        for(n = nodes[arcs[arc.id].target].next;
-            n!=-1 && nodes[n].first_in == -1;
+        for(n = nodes[arcs[arc.id].source].next;
+            n != -1 && nodes[n].first_out == -1;
             n = nodes[n].next) {}
-        arc.id = (n == -1) ? -1 : nodes[n].first_in;
+        arc.id = (n == -1) ? -1 : nodes[n].first_out;
       }
     }
 
