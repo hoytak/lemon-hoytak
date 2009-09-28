@@ -23,6 +23,7 @@
 /// \file
 /// \brief Bellman-Ford algorithm.
 
+#include <lemon/list_graph.h>
 #include <lemon/bits/path_dump.h>
 #include <lemon/core.h>
 #include <lemon/error.h>
@@ -775,7 +776,7 @@ namespace lemon {
     /// This function gives back a directed cycle with negative total
     /// length if the algorithm has already found one.
     /// Otherwise it gives back an empty path.
-    lemon::Path<Digraph> negativeCycle() {
+    lemon::Path<Digraph> negativeCycle() const {
       typename Digraph::template NodeMap<int> state(*_gr, -1);
       lemon::Path<Digraph> cycle;
       for (int i = 0; i < int(_process.size()); ++i) {

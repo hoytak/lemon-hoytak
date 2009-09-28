@@ -96,6 +96,7 @@ void checkBellmanFordCompile()
     d  = const_bf_test.distMap();
     p  = const_bf_test.predMap();
     pp = const_bf_test.path(t);
+    pp = const_bf_test.negativeCycle();
     
     for (BF::ActiveIt it(const_bf_test); it != INVALID; ++it) {}
   }
@@ -132,6 +133,7 @@ void checkBellmanFordCompile()
     s  = bf_test.predNode(t);
     b  = bf_test.reached(t);
     pp = bf_test.path(t);
+    pp = bf_test.negativeCycle();
   }
 }
 
