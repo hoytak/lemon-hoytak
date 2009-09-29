@@ -751,6 +751,9 @@ namespace lemon {
       ///
       /// This function undos the changes until the last snapshot
       /// created by save() or Snapshot(ListDigraph&).
+      ///
+      /// \warning This method invalidates the snapshot, i.e. repeated
+      /// restoring is not supported unless you call save() again.
       void restore() {
         detach();
         for(std::list<Arc>::iterator it = added_arcs.begin();
@@ -1550,6 +1553,9 @@ namespace lemon {
       ///
       /// This function undos the changes until the last snapshot
       /// created by save() or Snapshot(ListGraph&).
+      ///
+      /// \warning This method invalidates the snapshot, i.e. repeated
+      /// restoring is not supported unless you call save() again.
       void restore() {
         detach();
         for(std::list<Edge>::iterator it = added_edges.begin();

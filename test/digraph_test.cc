@@ -286,6 +286,14 @@ void checkDigraphSnapshot() {
   G.addArc(G.addNode(), G.addNode());
 
   snapshot.restore();
+  snapshot.save(G);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 4);
+
+  G.addArc(G.addNode(), G.addNode());
+
+  snapshot.restore();
 
   checkGraphNodeList(G, 4);
   checkGraphArcList(G, 4);

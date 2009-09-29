@@ -259,6 +259,15 @@ void checkGraphSnapshot() {
   G.addEdge(G.addNode(), G.addNode());
 
   snapshot.restore();
+  snapshot.save(G);
+
+  checkGraphNodeList(G, 4);
+  checkGraphEdgeList(G, 3);
+  checkGraphArcList(G, 6);
+  
+  G.addEdge(G.addNode(), G.addNode());
+
+  snapshot.restore();
 
   checkGraphNodeList(G, 4);
   checkGraphEdgeList(G, 3);
