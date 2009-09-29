@@ -92,12 +92,12 @@ namespace lemon {
     void firstIn(Arc& e, const Node& n) const { e.id = node_first_in[n.id]; }
     void nextIn(Arc& e) const { e.id = arc_next_in[e.id]; }
 
-    int id(const Node& n) const { return n.id; }
-    Node nodeFromId(int id) const { return Node(id); }
+    static int id(const Node& n) { return n.id; }
+    static Node nodeFromId(int id) { return Node(id); }
     int maxNodeId() const { return node_num - 1; }
 
-    int id(const Arc& e) const { return e.id; }
-    Arc arcFromId(int id) const { return Arc(id); }
+    static int id(const Arc& e) { return e.id; }
+    static Arc arcFromId(int id) { return Arc(id); }
     int maxArcId() const { return arc_num - 1; }
 
     typedef True NodeNumTag;
@@ -268,25 +268,25 @@ namespace lemon {
     ///
     /// This function returns the node with the given index.
     /// \sa index()
-    Node node(int ix) const { return Parent::nodeFromId(ix); }
+    static Node node(int ix) { return Parent::nodeFromId(ix); }
 
     /// \brief The arc with the given index.
     ///
     /// This function returns the arc with the given index.
     /// \sa index()
-    Arc arc(int ix) const { return Parent::arcFromId(ix); }
+    static Arc arc(int ix) { return Parent::arcFromId(ix); }
 
     /// \brief The index of the given node.
     ///
     /// This function returns the index of the the given node.
     /// \sa node()
-    int index(Node node) const { return Parent::id(node); }
+    static int index(Node node) { return Parent::id(node); }
 
     /// \brief The index of the given arc.
     ///
     /// This function returns the index of the the given arc.
     /// \sa arc()
-    int index(Arc arc) const { return Parent::id(arc); }
+    static int index(Arc arc) { return Parent::id(arc); }
 
     /// \brief Number of nodes.
     ///

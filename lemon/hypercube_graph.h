@@ -262,7 +262,7 @@ namespace lemon {
       return arc._id >> _dim;
     }
 
-    int index(Node node) const {
+    static int index(Node node) {
       return node._id;
     }
 
@@ -337,7 +337,7 @@ namespace lemon {
     ///
     /// Gives back the index of the given node.
     /// The lower bits of the integer describes the node.
-    int index(Node node) const {
+    static int index(Node node) {
       return Parent::index(node);
     }
 

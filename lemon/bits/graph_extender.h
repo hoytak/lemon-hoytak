@@ -56,11 +56,11 @@ namespace lemon {
       return Parent::maxArcId();
     }
 
-    Node fromId(int id, Node) const {
+    static Node fromId(int id, Node) {
       return Parent::nodeFromId(id);
     }
 
-    Arc fromId(int id, Arc) const {
+    static Arc fromId(int id, Arc) {
       return Parent::arcFromId(id);
     }
 
@@ -355,15 +355,15 @@ namespace lemon {
       return Parent::maxEdgeId();
     }
 
-    Node fromId(int id, Node) const {
+    static Node fromId(int id, Node) {
       return Parent::nodeFromId(id);
     }
 
-    Arc fromId(int id, Arc) const {
+    static Arc fromId(int id, Arc) {
       return Parent::arcFromId(id);
     }
 
-    Edge fromId(int id, Edge) const {
+    static Edge fromId(int id, Edge) {
       return Parent::edgeFromId(id);
     }
 

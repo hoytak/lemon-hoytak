@@ -867,7 +867,7 @@ namespace lemon {
       arc.id = arcs.size() - 1;
     }
 
-    void next(Arc& arc) const {
+    static void next(Arc& arc) {
       --arc.id;
     }
 
@@ -1173,7 +1173,7 @@ namespace lemon {
       arc.id = arcs.size() - 1;
     }
 
-    void next(Arc& arc) const {
+    static void next(Arc& arc) {
       --arc.id;
     }
 
@@ -1181,7 +1181,7 @@ namespace lemon {
       arc.id = arcs.size() / 2 - 1;
     }
 
-    void next(Edge& arc) const {
+    static void next(Edge& arc) {
       --arc.id;
     }
 
