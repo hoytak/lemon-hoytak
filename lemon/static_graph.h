@@ -197,6 +197,47 @@ namespace lemon {
       }
       node_first_out[node_num] = arc_num;
     }
+    
+    template <typename ArcListIterator>
+    void build(int n, ArcListIterator first, ArcListIterator last) {
+      built = true;
+
+      node_num = n;
+      arc_num = std::distance(first, last);
+
+      node_first_out = new int[node_num + 1];
+      node_first_in = new int[node_num];
+
+      arc_source = new int[arc_num];
+      arc_target = new int[arc_num];
+      arc_next_out = new int[arc_num];
+      arc_next_in = new int[arc_num];
+      
+      for (int i = 0; i != node_num; ++i) {
+        node_first_in[i] = -1;
+      }      
+      
+      int arc_index = 0;
+      for (int i = 0; i != node_num; ++i) {
+        node_first_out[i] = arc_index;
+        for ( ; first != last && (*first).first == i; ++first) {
+          int j = (*first).second;
+          LEMON_ASSERT(j >= 0 && j < node_num,
+            "Wrong arc list for StaticDigraph::build()");
+          arc_source[arc_index] = i;
+          arc_target[arc_index] = j;
+          arc_next_in[arc_index] = node_first_in[j];
+          node_first_in[j] = arc_index;
+          arc_next_out[arc_index] = arc_index + 1;
+          ++arc_index;
+        }
+        if (arc_index > node_first_out[i])
+          arc_next_out[arc_index - 1] = -1;
+      }
+      LEMON_ASSERT(first == last,
+        "Wrong arc list for StaticDigraph::build()");
+      node_first_out[node_num] = arc_num;
+    }
 
   protected:
 
@@ -328,6 +369,44 @@ namespace lemon {
       Parent::build(digraph, nodeRef, arcRef);
     }
   
+    /// \brief Build the digraph from an arc list.
+    ///
+    /// This function builds the digraph from the given arc list.
+    /// It can be called more than once, but in such case, the whole
+    /// structure and all maps will be cleared and rebuilt.
+    ///
+    /// The list of the arcs must be given in the range <tt>[begin, end)</tt>
+    /// specified by STL compatible itartors whose \c value_type must be
+    /// <tt>std::pair<int,int></tt>.
+    /// Each arc must be specified by a pair of integer indices
+    /// from the range <tt>[0..n-1]</tt>. <i>The pairs must be in a
+    /// non-decreasing order with respect to their first values.</i>
+    /// If the k-th pair in the list is <tt>(i,j)</tt>, then
+    /// <tt>arc(k-1)</tt> will connect <tt>node(i)</tt> to <tt>node(j)</tt>.
+    ///
+    /// \param n The number of nodes.
+    /// \param begin An iterator pointing to the beginning of the arc list.
+    /// \param end An iterator pointing to the end of the arc list.
+    ///
+    /// For example, a simple digraph can be constructed like this.
+    /// \code
+    ///   std::vector<std::pair<int,int> > arcs;
+    ///   arcs.push_back(std::make_pair(0,1));
+    ///   arcs.push_back(std::make_pair(0,2));
+    ///   arcs.push_back(std::make_pair(1,3));
+    ///   arcs.push_back(std::make_pair(1,2));
+    ///   arcs.push_back(std::make_pair(3,0));
+    ///   StaticDigraph gr;
+    ///   gr.build(4, arcs.begin(), arcs.end());
+    /// \endcode
+    template <typename ArcListIterator>
+    void build(int n, ArcListIterator begin, ArcListIterator end) {
+      if (built) Parent::clear();
+      StaticDigraphBase::build(n, begin, end);
+      notifier(Node()).build();
+      notifier(Arc()).build();
+    }
+
     /// \brief Clear the digraph.
     ///
     /// This function erases all nodes and arcs from the digraph.
