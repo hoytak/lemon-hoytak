@@ -239,6 +239,14 @@ namespace lemon {
   /// However it only provides build() and clear() functions and does not
   /// support any other modification of the digraph.
   ///
+  /// Since this digraph structure is completely static, its nodes and arcs
+  /// can be indexed with integers from the ranges <tt>[0..nodeNum()-1]</tt>
+  /// and <tt>[0..arcNum()-1]</tt>, respectively. 
+  /// The index of an item is the same as its ID, it can be obtained
+  /// using the corresponding \ref index() or \ref concepts::Digraph::id()
+  /// "id()" function. A node or arc with a certain index can be obtained
+  /// using node() or arc().
+  ///
   /// This type fully conforms to the \ref concepts::Digraph "Digraph concept".
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
@@ -251,13 +259,45 @@ namespace lemon {
   
   public:
   
-    /// \brief Clear the digraph.
+    /// \brief Constructor
     ///
-    /// This function erases all nodes and arcs from the digraph.
-    void clear() {
-      Parent::clear();
-    }
-    
+    /// Default constructor.
+    StaticDigraph() : Parent() {}
+
+    /// \brief The node with the given index.
+    ///
+    /// This function returns the node with the given index.
+    /// \sa index()
+    Node node(int ix) const { return Parent::nodeFromId(ix); }
+
+    /// \brief The arc with the given index.
+    ///
+    /// This function returns the arc with the given index.
+    /// \sa index()
+    Arc arc(int ix) const { return Parent::arcFromId(ix); }
+
+    /// \brief The index of the given node.
+    ///
+    /// This function returns the index of the the given node.
+    /// \sa node()
+    int index(Node node) const { return Parent::id(node); }
+
+    /// \brief The index of the given arc.
+    ///
+    /// This function returns the index of the the given arc.
+    /// \sa arc()
+    int index(Arc arc) const { return Parent::id(arc); }
+
+    /// \brief Number of nodes.
+    ///
+    /// This function returns the number of nodes.
+    int nodeNum() const { return node_num; }
+
+    /// \brief Number of arcs.
+    ///
+    /// This function returns the number of arcs.
+    int arcNum() const { return arc_num; }
+
     /// \brief Build the digraph copying another digraph.
     ///
     /// This function builds the digraph copying another digraph of any
@@ -288,6 +328,12 @@ namespace lemon {
       Parent::build(digraph, nodeRef, arcRef);
     }
   
+    /// \brief Clear the digraph.
+    ///
+    /// This function erases all nodes and arcs from the digraph.
+    void clear() {
+      Parent::clear();
+    }
 
   protected:
 

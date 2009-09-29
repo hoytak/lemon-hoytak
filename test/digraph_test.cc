@@ -445,6 +445,11 @@ void checkStaticDigraph() {
   checkArcIds(G);
   checkGraphNodeMap(G);
   checkGraphArcMap(G);
+  
+  int n = G.nodeNum();
+  int m = G.arcNum();
+  check(G.index(G.node(n-1)) == n-1, "Wrong index.");
+  check(G.index(G.arc(m-1)) == m-1, "Wrong index.");
 }
 
 void checkFullDigraph(int num) {
