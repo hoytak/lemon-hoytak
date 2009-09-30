@@ -94,6 +94,11 @@ void checkPreflowCompile()
             ::Create PreflowType;
   PreflowType preflow_test(g, cap, n, n);
   const PreflowType& const_preflow_test = preflow_test;
+  
+  const PreflowType::Elevator& elev = const_preflow_test.elevator();
+  preflow_test.elevator(const_cast<PreflowType::Elevator&>(elev));
+  PreflowType::Tolerance tol = const_preflow_test.tolerance();
+  preflow_test.tolerance(tol);
 
   preflow_test
     .capacityMap(cap)

@@ -359,10 +359,10 @@ namespace lemon {
     /// This example counts the nodes in the minimum cut separating \c s from
     /// \c t.
     /// \code
-    /// GomoruHu<Graph> gom(g, capacities);
+    /// GomoryHu<Graph> gom(g, capacities);
     /// gom.run();
     /// int cnt=0;
-    /// for(GomoruHu<Graph>::MinCutNodeIt n(gom,s,t); n!=INVALID; ++n) ++cnt;
+    /// for(GomoryHu<Graph>::MinCutNodeIt n(gom,s,t); n!=INVALID; ++n) ++cnt;
     /// \endcode
     class MinCutNodeIt
     {
@@ -456,10 +456,10 @@ namespace lemon {
     /// This example computes the value of the minimum cut separating \c s from
     /// \c t.
     /// \code
-    /// GomoruHu<Graph> gom(g, capacities);
+    /// GomoryHu<Graph> gom(g, capacities);
     /// gom.run();
     /// int value=0;
-    /// for(GomoruHu<Graph>::MinCutEdgeIt e(gom,s,t); e!=INVALID; ++e)
+    /// for(GomoryHu<Graph>::MinCutEdgeIt e(gom,s,t); e!=INVALID; ++e)
     ///   value+=capacities[e];
     /// \endcode
     /// The result will be the same as the value returned by
