@@ -86,6 +86,10 @@ data_rex = re.compile('\s*(\w*)\s*=\s*([^,]*),?')
 
 url_rex = re.compile('\\\url\{([^}]*)\}')
 
+#
+# styles for html formatting
+#
+divstyle = 'margin-top: -4ex; margin-left: 8em;'
 
 #
 # return the string parameter without braces
@@ -284,7 +288,7 @@ def bibtexdecoder(filecont_source):
             entry = []
             entrytype = pubtype_rex.sub('\g<1>',line)
             entrytype = string.lower(entrytype)
-            # entryid   = pubtype_rex.sub('\g<2>', line)
+            entryid   = pubtype_rex.sub('\g<2>', line)
 
         # end entry if just a }
         elif endtype_rex.match(line):
@@ -379,6 +383,7 @@ def bibtexdecoder(filecont_source):
                 bibkey = entrycont['key']
             entry.insert(0, sortkey)
             entry.insert(1, bibkey)
+            entry.insert(2, entryid)
            
             # add the entry to the file contents
             filecont.append(entry)
@@ -439,6 +444,7 @@ def bibtexdecoder(filecont_source):
     for entry in filecont:
         # generate output key form the bibtex key
         bibkey = entry[1]
+        entryid = entry[2]
         if keytable[bibkey] == 1:
             outkey = bibkey
         else:
@@ -446,13 +452,11 @@ def bibtexdecoder(filecont_source):
         counttable[bibkey] += 1
         
         # append the entry code to the output
-        file.append('<tr valign="top">\n' + \
-                    '<td>[' + outkey + ']</td>')
-        file.append('<td>')
-        file.append('\\anchor ' + outkey)
-        for line in entry[2:]:
+        file.append('\\section ' + entryid + ' [' + outkey + ']')
+        file.append('<div style="' + divstyle + '">')
+        for line in entry[3:]:
             file.append(line)
-        file.append('</td>\n</tr>')
+        file.append('</div>')
         file.append('')
 
     return file
@@ -780,12 +784,8 @@ def filehandler(filepath):
     print '/**'
     print '\page references References'
     print
-    print '<table border="0" cellspacing="5px" width="100%">'
-    print
     for line in outdata:
         print line
-    print '</table>'
-    print
     print '*/'
 
 
