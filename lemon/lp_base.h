@@ -943,6 +943,14 @@ namespace lemon {
     virtual int _addCol() = 0;
     virtual int _addRow() = 0;
 
+    virtual int _addRow(Value l, ExprIterator b, ExprIterator e, Value u) {
+      int row = _addRow();
+      _setRowCoeffs(row, b, e);
+      _setRowLowerBound(row, l);
+      _setRowUpperBound(row, u);
+      return row;
+    }
+
     virtual void _eraseCol(int col) = 0;
     virtual void _eraseRow(int row) = 0;
 
@@ -1207,8 +1215,10 @@ namespace lemon {
     ///\param u is the upper bound (\ref INF means no bound)
     ///\return The created row.
     Row addRow(Value l,const Expr &e, Value u) {
-      Row r=addRow();
-      row(r,l,e,u);
+      Row r;
+      e.simplify();
+      r._id = _addRowId(_addRow(l - *e, ExprIterator(e.comps.begin(), cols),
+                                ExprIterator(e.comps.end(), cols), u - *e));
       return r;
     }
 
@@ -1217,8 +1227,12 @@ namespace lemon {
     ///\param c is a linear expression (see \ref Constr)
     ///\return The created row.
     Row addRow(const Constr &c) {
-      Row r=addRow();
-      row(r,c);
+      Row r;
+      c.expr().simplify();
+      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound():-INF, 
+                                ExprIterator(c.expr().comps.begin(), cols),
+                                ExprIterator(c.expr().comps.end(), cols),
+                                c.upperBounded()?c.upperBound():INF));
       return r;
     }
     ///Erase a column (i.e a variable) from the LP

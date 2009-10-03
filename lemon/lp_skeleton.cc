@@ -32,6 +32,11 @@ namespace lemon {
     return ++row_num;
   }
 
+  int SkeletonSolverBase::_addRow(Value, ExprIterator, ExprIterator, Value)
+  {
+    return ++row_num;
+  }
+
   void SkeletonSolverBase::_eraseCol(int) {}
   void SkeletonSolverBase::_eraseRow(int) {}
 

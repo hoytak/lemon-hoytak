@@ -111,6 +111,39 @@ namespace lemon {
     return i;
   }
 
+  int CplexBase::_addRow(Value lb, ExprIterator b, 
+                         ExprIterator e, Value ub) {
+    int i = CPXgetnumrows(cplexEnv(), _prob);
+    if (lb == -INF) {
+      const char s = 'L';
+      CPXnewrows(cplexEnv(), _prob, 1, &ub, &s, 0, 0);
+    } else if (ub == INF) {
+      const char s = 'G';
+      CPXnewrows(cplexEnv(), _prob, 1, &lb, &s, 0, 0);
+    } else if (lb == ub){
+      const char s = 'E';
+      CPXnewrows(cplexEnv(), _prob, 1, &lb, &s, 0, 0);
+    } else {
+      const char s = 'R';
+      double len = ub - lb;
+      CPXnewrows(cplexEnv(), _prob, 1, &lb, &s, &len, 0);
+    }
+
+    std::vector<int> indices;
+    std::vector<int> rowlist;
+    std::vector<Value> values;
+
+    for(ExprIterator it=b; it!=e; ++it) {
+      indices.push_back(it->first);
+      values.push_back(it->second);
+      rowlist.push_back(i);
+    }
+
+    CPXchgcoeflist(cplexEnv(), _prob, values.size(),
+                   &rowlist.front(), &indices.front(), &values.front());
+
+    return i;
+  }
 
   void CplexBase::_eraseCol(int i) {
     CPXdelcols(cplexEnv(), _prob, i, i);
