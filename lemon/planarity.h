@@ -137,395 +137,395 @@ namespace lemon {
       typename Graph::Arc prev, next;
     };
 
+    template <typename Graph>
+    class PlanarityChecking {
+    private:
+      
+      TEMPLATE_GRAPH_TYPEDEFS(Graph);
+
+      const Graph& _graph;
+
+    private:
+      
+      typedef typename Graph::template NodeMap<Arc> PredMap;
+      
+      typedef typename Graph::template EdgeMap<bool> TreeMap;
+      
+      typedef typename Graph::template NodeMap<int> OrderMap;
+      typedef std::vector<Node> OrderList;
+
+      typedef typename Graph::template NodeMap<int> LowMap;
+      typedef typename Graph::template NodeMap<int> AncestorMap;
+
+      typedef _planarity_bits::NodeDataNode<Graph> NodeDataNode;
+      typedef std::vector<NodeDataNode> NodeData;
+
+      typedef _planarity_bits::ChildListNode<Graph> ChildListNode;
+      typedef typename Graph::template NodeMap<ChildListNode> ChildLists;
+
+      typedef typename Graph::template NodeMap<std::list<int> > MergeRoots;
+
+      typedef typename Graph::template NodeMap<bool> EmbedArc;
+
+    public:
+
+      PlanarityChecking(const Graph& graph) : _graph(graph) {}
+
+      bool run() {
+        typedef _planarity_bits::PlanarityVisitor<Graph> Visitor;
+
+        PredMap pred_map(_graph, INVALID);
+        TreeMap tree_map(_graph, false);
+
+        OrderMap order_map(_graph, -1);
+        OrderList order_list;
+
+        AncestorMap ancestor_map(_graph, -1);
+        LowMap low_map(_graph, -1);
+
+        Visitor visitor(_graph, pred_map, tree_map,
+                        order_map, order_list, ancestor_map, low_map);
+        DfsVisit<Graph, Visitor> visit(_graph, visitor);
+        visit.run();
+
+        ChildLists child_lists(_graph);
+        createChildLists(tree_map, order_map, low_map, child_lists);
+
+        NodeData node_data(2 * order_list.size());
+
+        EmbedArc embed_arc(_graph, false);
+
+        MergeRoots merge_roots(_graph);
+
+        for (int i = order_list.size() - 1; i >= 0; --i) {
+
+          Node node = order_list[i];
+
+          Node source = node;
+          for (OutArcIt e(_graph, node); e != INVALID; ++e) {
+            Node target = _graph.target(e);
+
+            if (order_map[source] < order_map[target] && tree_map[e]) {
+              initFace(target, node_data, order_map, order_list);
+            }
+          }
+
+          for (OutArcIt e(_graph, node); e != INVALID; ++e) {
+            Node target = _graph.target(e);
+
+            if (order_map[source] < order_map[target] && !tree_map[e]) {
+              embed_arc[target] = true;
+              walkUp(target, source, i, pred_map, low_map,
+                     order_map, order_list, node_data, merge_roots);
+            }
+          }
+
+          for (typename MergeRoots::Value::iterator it =
+                 merge_roots[node].begin(); 
+               it != merge_roots[node].end(); ++it) {
+            int rn = *it;
+            walkDown(rn, i, node_data, order_list, child_lists,
+                     ancestor_map, low_map, embed_arc, merge_roots);
+          }
+          merge_roots[node].clear();
+
+          for (OutArcIt e(_graph, node); e != INVALID; ++e) {
+            Node target = _graph.target(e);
+
+            if (order_map[source] < order_map[target] && !tree_map[e]) {
+              if (embed_arc[target]) {
+                return false;
+              }
+            }
+          }
+        }
+
+        return true;
+      }
+
+    private:
+
+      void createChildLists(const TreeMap& tree_map, const OrderMap& order_map,
+                            const LowMap& low_map, ChildLists& child_lists) {
+
+        for (NodeIt n(_graph); n != INVALID; ++n) {
+          Node source = n;
+
+          std::vector<Node> targets;
+          for (OutArcIt e(_graph, n); e != INVALID; ++e) {
+            Node target = _graph.target(e);
+
+            if (order_map[source] < order_map[target] && tree_map[e]) {
+              targets.push_back(target);
+            }
+          }
+
+          if (targets.size() == 0) {
+            child_lists[source].first = INVALID;
+          } else if (targets.size() == 1) {
+            child_lists[source].first = targets[0];
+            child_lists[targets[0]].prev = INVALID;
+            child_lists[targets[0]].next = INVALID;
+          } else {
+            radixSort(targets.begin(), targets.end(), mapToFunctor(low_map));
+            for (int i = 1; i < int(targets.size()); ++i) {
+              child_lists[targets[i]].prev = targets[i - 1];
+              child_lists[targets[i - 1]].next = targets[i];
+            }
+            child_lists[targets.back()].next = INVALID;
+            child_lists[targets.front()].prev = INVALID;
+            child_lists[source].first = targets.front();
+          }
+        }
+      }
+
+      void walkUp(const Node& node, Node root, int rorder,
+                  const PredMap& pred_map, const LowMap& low_map,
+                  const OrderMap& order_map, const OrderList& order_list,
+                  NodeData& node_data, MergeRoots& merge_roots) {
+
+        int na, nb;
+        bool da, db;
+
+        na = nb = order_map[node];
+        da = true; db = false;
+
+        while (true) {
+
+          if (node_data[na].visited == rorder) break;
+          if (node_data[nb].visited == rorder) break;
+
+          node_data[na].visited = rorder;
+          node_data[nb].visited = rorder;
+
+          int rn = -1;
+
+          if (na >= int(order_list.size())) {
+            rn = na;
+          } else if (nb >= int(order_list.size())) {
+            rn = nb;
+          }
+
+          if (rn == -1) {
+            int nn;
+
+            nn = da ? node_data[na].prev : node_data[na].next;
+            da = node_data[nn].prev != na;
+            na = nn;
+
+            nn = db ? node_data[nb].prev : node_data[nb].next;
+            db = node_data[nn].prev != nb;
+            nb = nn;
+
+          } else {
+
+            Node rep = order_list[rn - order_list.size()];
+            Node parent = _graph.source(pred_map[rep]);
+
+            if (low_map[rep] < rorder) {
+              merge_roots[parent].push_back(rn);
+            } else {
+              merge_roots[parent].push_front(rn);
+            }
+
+            if (parent != root) {
+              na = nb = order_map[parent];
+              da = true; db = false;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+
+      void walkDown(int rn, int rorder, NodeData& node_data,
+                    OrderList& order_list, ChildLists& child_lists,
+                    AncestorMap& ancestor_map, LowMap& low_map,
+                    EmbedArc& embed_arc, MergeRoots& merge_roots) {
+
+        std::vector<std::pair<int, bool> > merge_stack;
+
+        for (int di = 0; di < 2; ++di) {
+          bool rd = di == 0;
+          int pn = rn;
+          int n = rd ? node_data[rn].next : node_data[rn].prev;
+
+          while (n != rn) {
+
+            Node node = order_list[n];
+
+            if (embed_arc[node]) {
+
+              // Merging components on the critical path
+              while (!merge_stack.empty()) {
+
+                // Component root
+                int cn = merge_stack.back().first;
+                bool cd = merge_stack.back().second;
+                merge_stack.pop_back();
+
+                // Parent of component
+                int dn = merge_stack.back().first;
+                bool dd = merge_stack.back().second;
+                merge_stack.pop_back();
+
+                Node parent = order_list[dn];
+
+                // Erasing from merge_roots
+                merge_roots[parent].pop_front();
+
+                Node child = order_list[cn - order_list.size()];
+
+                // Erasing from child_lists
+                if (child_lists[child].prev != INVALID) {
+                  child_lists[child_lists[child].prev].next =
+                    child_lists[child].next;
+                } else {
+                  child_lists[parent].first = child_lists[child].next;
+                }
+
+                if (child_lists[child].next != INVALID) {
+                  child_lists[child_lists[child].next].prev =
+                    child_lists[child].prev;
+                }
+
+                // Merging external faces
+                {
+                  int en = cn;
+                  cn = cd ? node_data[cn].prev : node_data[cn].next;
+                  cd = node_data[cn].next == en;
+
+                }
+
+                if (cd) node_data[cn].next = dn; else node_data[cn].prev = dn;
+                if (dd) node_data[dn].prev = cn; else node_data[dn].next = cn;
+
+              }
+
+              bool d = pn == node_data[n].prev;
+
+              if (node_data[n].prev == node_data[n].next &&
+                  node_data[n].inverted) {
+                d = !d;
+              }
+
+              // Embedding arc into external face
+              if (rd) node_data[rn].next = n; else node_data[rn].prev = n;
+              if (d) node_data[n].prev = rn; else node_data[n].next = rn;
+              pn = rn;
+
+              embed_arc[order_list[n]] = false;
+            }
+
+            if (!merge_roots[node].empty()) {
+
+              bool d = pn == node_data[n].prev;
+
+              merge_stack.push_back(std::make_pair(n, d));
+
+              int rn = merge_roots[node].front();
+
+              int xn = node_data[rn].next;
+              Node xnode = order_list[xn];
+
+              int yn = node_data[rn].prev;
+              Node ynode = order_list[yn];
+
+              bool rd;
+              if (!external(xnode, rorder, child_lists, 
+                            ancestor_map, low_map)) {
+                rd = true;
+              } else if (!external(ynode, rorder, child_lists,
+                                   ancestor_map, low_map)) {
+                rd = false;
+              } else if (pertinent(xnode, embed_arc, merge_roots)) {
+                rd = true;
+              } else {
+                rd = false;
+              }
+
+              merge_stack.push_back(std::make_pair(rn, rd));
+
+              pn = rn;
+              n = rd ? xn : yn;
+
+            } else if (!external(node, rorder, child_lists,
+                                 ancestor_map, low_map)) {
+              int nn = (node_data[n].next != pn ?
+                        node_data[n].next : node_data[n].prev);
+
+              bool nd = n == node_data[nn].prev;
+
+              if (nd) node_data[nn].prev = pn;
+              else node_data[nn].next = pn;
+
+              if (n == node_data[pn].prev) node_data[pn].prev = nn;
+              else node_data[pn].next = nn;
+
+              node_data[nn].inverted =
+                (node_data[nn].prev == node_data[nn].next && nd != rd);
+
+              n = nn;
+            }
+            else break;
+
+          }
+
+          if (!merge_stack.empty() || n == rn) {
+            break;
+          }
+        }
+      }
+
+      void initFace(const Node& node, NodeData& node_data,
+                    const OrderMap& order_map, const OrderList& order_list) {
+        int n = order_map[node];
+        int rn = n + order_list.size();
+
+        node_data[n].next = node_data[n].prev = rn;
+        node_data[rn].next = node_data[rn].prev = n;
+
+        node_data[n].visited = order_list.size();
+        node_data[rn].visited = order_list.size();
+
+      }
+
+      bool external(const Node& node, int rorder,
+                    ChildLists& child_lists, AncestorMap& ancestor_map,
+                    LowMap& low_map) {
+        Node child = child_lists[node].first;
+
+        if (child != INVALID) {
+          if (low_map[child] < rorder) return true;
+        }
+
+        if (ancestor_map[node] < rorder) return true;
+
+        return false;
+      }
+
+      bool pertinent(const Node& node, const EmbedArc& embed_arc,
+                     const MergeRoots& merge_roots) {
+        return !merge_roots[node].empty() || embed_arc[node];
+      }
+
+    };
+
   }
 
   /// \ingroup planar
   ///
   /// \brief Planarity checking of an undirected simple graph
   ///
-  /// This class implements the Boyer-Myrvold algorithm for planarity
-  /// checking of an undirected graph. This class is a simplified
+  /// This function implements the Boyer-Myrvold algorithm for
+  /// planarity checking of an undirected graph. It is a simplified
   /// version of the PlanarEmbedding algorithm class because neither
   /// the embedding nor the kuratowski subdivisons are not computed.
-  template <typename Graph>
-  class PlanarityChecking {
-  private:
-
-    TEMPLATE_GRAPH_TYPEDEFS(Graph);
-
-    const Graph& _graph;
-
-  private:
-
-    typedef typename Graph::template NodeMap<Arc> PredMap;
-
-    typedef typename Graph::template EdgeMap<bool> TreeMap;
-
-    typedef typename Graph::template NodeMap<int> OrderMap;
-    typedef std::vector<Node> OrderList;
-
-    typedef typename Graph::template NodeMap<int> LowMap;
-    typedef typename Graph::template NodeMap<int> AncestorMap;
-
-    typedef _planarity_bits::NodeDataNode<Graph> NodeDataNode;
-    typedef std::vector<NodeDataNode> NodeData;
-
-    typedef _planarity_bits::ChildListNode<Graph> ChildListNode;
-    typedef typename Graph::template NodeMap<ChildListNode> ChildLists;
-
-    typedef typename Graph::template NodeMap<std::list<int> > MergeRoots;
-
-    typedef typename Graph::template NodeMap<bool> EmbedArc;
-
-  public:
-
-    /// \brief Constructor
-    ///
-    /// \note The graph should be simple, i.e. parallel and loop arc
-    /// free.
-    PlanarityChecking(const Graph& graph) : _graph(graph) {}
-
-    /// \brief Runs the algorithm.
-    ///
-    /// Runs the algorithm.
-    /// \return %True when the graph is planar.
-    bool run() {
-      typedef _planarity_bits::PlanarityVisitor<Graph> Visitor;
-
-      PredMap pred_map(_graph, INVALID);
-      TreeMap tree_map(_graph, false);
-
-      OrderMap order_map(_graph, -1);
-      OrderList order_list;
-
-      AncestorMap ancestor_map(_graph, -1);
-      LowMap low_map(_graph, -1);
-
-      Visitor visitor(_graph, pred_map, tree_map,
-                      order_map, order_list, ancestor_map, low_map);
-      DfsVisit<Graph, Visitor> visit(_graph, visitor);
-      visit.run();
-
-      ChildLists child_lists(_graph);
-      createChildLists(tree_map, order_map, low_map, child_lists);
-
-      NodeData node_data(2 * order_list.size());
-
-      EmbedArc embed_arc(_graph, false);
-
-      MergeRoots merge_roots(_graph);
-
-      for (int i = order_list.size() - 1; i >= 0; --i) {
-
-        Node node = order_list[i];
-
-        Node source = node;
-        for (OutArcIt e(_graph, node); e != INVALID; ++e) {
-          Node target = _graph.target(e);
-
-          if (order_map[source] < order_map[target] && tree_map[e]) {
-            initFace(target, node_data, order_map, order_list);
-          }
-        }
-
-        for (OutArcIt e(_graph, node); e != INVALID; ++e) {
-          Node target = _graph.target(e);
-
-          if (order_map[source] < order_map[target] && !tree_map[e]) {
-            embed_arc[target] = true;
-            walkUp(target, source, i, pred_map, low_map,
-                   order_map, order_list, node_data, merge_roots);
-          }
-        }
-
-        for (typename MergeRoots::Value::iterator it =
-               merge_roots[node].begin(); it != merge_roots[node].end(); ++it) {
-          int rn = *it;
-          walkDown(rn, i, node_data, order_list, child_lists,
-                   ancestor_map, low_map, embed_arc, merge_roots);
-        }
-        merge_roots[node].clear();
-
-        for (OutArcIt e(_graph, node); e != INVALID; ++e) {
-          Node target = _graph.target(e);
-
-          if (order_map[source] < order_map[target] && !tree_map[e]) {
-            if (embed_arc[target]) {
-              return false;
-            }
-          }
-        }
-      }
-
-      return true;
-    }
-
-  private:
-
-    void createChildLists(const TreeMap& tree_map, const OrderMap& order_map,
-                          const LowMap& low_map, ChildLists& child_lists) {
-
-      for (NodeIt n(_graph); n != INVALID; ++n) {
-        Node source = n;
-
-        std::vector<Node> targets;
-        for (OutArcIt e(_graph, n); e != INVALID; ++e) {
-          Node target = _graph.target(e);
-
-          if (order_map[source] < order_map[target] && tree_map[e]) {
-            targets.push_back(target);
-          }
-        }
-
-        if (targets.size() == 0) {
-          child_lists[source].first = INVALID;
-        } else if (targets.size() == 1) {
-          child_lists[source].first = targets[0];
-          child_lists[targets[0]].prev = INVALID;
-          child_lists[targets[0]].next = INVALID;
-        } else {
-          radixSort(targets.begin(), targets.end(), mapToFunctor(low_map));
-          for (int i = 1; i < int(targets.size()); ++i) {
-            child_lists[targets[i]].prev = targets[i - 1];
-            child_lists[targets[i - 1]].next = targets[i];
-          }
-          child_lists[targets.back()].next = INVALID;
-          child_lists[targets.front()].prev = INVALID;
-          child_lists[source].first = targets.front();
-        }
-      }
-    }
-
-    void walkUp(const Node& node, Node root, int rorder,
-                const PredMap& pred_map, const LowMap& low_map,
-                const OrderMap& order_map, const OrderList& order_list,
-                NodeData& node_data, MergeRoots& merge_roots) {
-
-      int na, nb;
-      bool da, db;
-
-      na = nb = order_map[node];
-      da = true; db = false;
-
-      while (true) {
-
-        if (node_data[na].visited == rorder) break;
-        if (node_data[nb].visited == rorder) break;
-
-        node_data[na].visited = rorder;
-        node_data[nb].visited = rorder;
-
-        int rn = -1;
-
-        if (na >= int(order_list.size())) {
-          rn = na;
-        } else if (nb >= int(order_list.size())) {
-          rn = nb;
-        }
-
-        if (rn == -1) {
-          int nn;
-
-          nn = da ? node_data[na].prev : node_data[na].next;
-          da = node_data[nn].prev != na;
-          na = nn;
-
-          nn = db ? node_data[nb].prev : node_data[nb].next;
-          db = node_data[nn].prev != nb;
-          nb = nn;
-
-        } else {
-
-          Node rep = order_list[rn - order_list.size()];
-          Node parent = _graph.source(pred_map[rep]);
-
-          if (low_map[rep] < rorder) {
-            merge_roots[parent].push_back(rn);
-          } else {
-            merge_roots[parent].push_front(rn);
-          }
-
-          if (parent != root) {
-            na = nb = order_map[parent];
-            da = true; db = false;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    void walkDown(int rn, int rorder, NodeData& node_data,
-                  OrderList& order_list, ChildLists& child_lists,
-                  AncestorMap& ancestor_map, LowMap& low_map,
-                  EmbedArc& embed_arc, MergeRoots& merge_roots) {
-
-      std::vector<std::pair<int, bool> > merge_stack;
-
-      for (int di = 0; di < 2; ++di) {
-        bool rd = di == 0;
-        int pn = rn;
-        int n = rd ? node_data[rn].next : node_data[rn].prev;
-
-        while (n != rn) {
-
-          Node node = order_list[n];
-
-          if (embed_arc[node]) {
-
-            // Merging components on the critical path
-            while (!merge_stack.empty()) {
-
-              // Component root
-              int cn = merge_stack.back().first;
-              bool cd = merge_stack.back().second;
-              merge_stack.pop_back();
-
-              // Parent of component
-              int dn = merge_stack.back().first;
-              bool dd = merge_stack.back().second;
-              merge_stack.pop_back();
-
-              Node parent = order_list[dn];
-
-              // Erasing from merge_roots
-              merge_roots[parent].pop_front();
-
-              Node child = order_list[cn - order_list.size()];
-
-              // Erasing from child_lists
-              if (child_lists[child].prev != INVALID) {
-                child_lists[child_lists[child].prev].next =
-                  child_lists[child].next;
-              } else {
-                child_lists[parent].first = child_lists[child].next;
-              }
-
-              if (child_lists[child].next != INVALID) {
-                child_lists[child_lists[child].next].prev =
-                  child_lists[child].prev;
-              }
-
-              // Merging external faces
-              {
-                int en = cn;
-                cn = cd ? node_data[cn].prev : node_data[cn].next;
-                cd = node_data[cn].next == en;
-
-              }
-
-              if (cd) node_data[cn].next = dn; else node_data[cn].prev = dn;
-              if (dd) node_data[dn].prev = cn; else node_data[dn].next = cn;
-
-            }
-
-            bool d = pn == node_data[n].prev;
-
-            if (node_data[n].prev == node_data[n].next &&
-                node_data[n].inverted) {
-              d = !d;
-            }
-
-            // Embedding arc into external face
-            if (rd) node_data[rn].next = n; else node_data[rn].prev = n;
-            if (d) node_data[n].prev = rn; else node_data[n].next = rn;
-            pn = rn;
-
-            embed_arc[order_list[n]] = false;
-          }
-
-          if (!merge_roots[node].empty()) {
-
-            bool d = pn == node_data[n].prev;
-
-            merge_stack.push_back(std::make_pair(n, d));
-
-            int rn = merge_roots[node].front();
-
-            int xn = node_data[rn].next;
-            Node xnode = order_list[xn];
-
-            int yn = node_data[rn].prev;
-            Node ynode = order_list[yn];
-
-            bool rd;
-            if (!external(xnode, rorder, child_lists, ancestor_map, low_map)) {
-              rd = true;
-            } else if (!external(ynode, rorder, child_lists,
-                                 ancestor_map, low_map)) {
-              rd = false;
-            } else if (pertinent(xnode, embed_arc, merge_roots)) {
-              rd = true;
-            } else {
-              rd = false;
-            }
-
-            merge_stack.push_back(std::make_pair(rn, rd));
-
-            pn = rn;
-            n = rd ? xn : yn;
-
-          } else if (!external(node, rorder, child_lists,
-                               ancestor_map, low_map)) {
-            int nn = (node_data[n].next != pn ?
-                      node_data[n].next : node_data[n].prev);
-
-            bool nd = n == node_data[nn].prev;
-
-            if (nd) node_data[nn].prev = pn;
-            else node_data[nn].next = pn;
-
-            if (n == node_data[pn].prev) node_data[pn].prev = nn;
-            else node_data[pn].next = nn;
-
-            node_data[nn].inverted =
-              (node_data[nn].prev == node_data[nn].next && nd != rd);
-
-            n = nn;
-          }
-          else break;
-
-        }
-
-        if (!merge_stack.empty() || n == rn) {
-          break;
-        }
-      }
-    }
-
-    void initFace(const Node& node, NodeData& node_data,
-                  const OrderMap& order_map, const OrderList& order_list) {
-      int n = order_map[node];
-      int rn = n + order_list.size();
-
-      node_data[n].next = node_data[n].prev = rn;
-      node_data[rn].next = node_data[rn].prev = n;
-
-      node_data[n].visited = order_list.size();
-      node_data[rn].visited = order_list.size();
-
-    }
-
-    bool external(const Node& node, int rorder,
-                  ChildLists& child_lists, AncestorMap& ancestor_map,
-                  LowMap& low_map) {
-      Node child = child_lists[node].first;
-
-      if (child != INVALID) {
-        if (low_map[child] < rorder) return true;
-      }
-
-      if (ancestor_map[node] < rorder) return true;
-
-      return false;
-    }
-
-    bool pertinent(const Node& node, const EmbedArc& embed_arc,
-                   const MergeRoots& merge_roots) {
-      return !merge_roots[node].empty() || embed_arc[node];
-    }
-
-  };
+  template <typename GR>
+  bool checkPlanarity(const GR& graph) {
+    _planarity_bits::PlanarityChecking<GR> pc(graph);
+    return pc.run();
+  }
 
   /// \ingroup planar
   ///
@@ -712,7 +712,7 @@ namespace lemon {
     ///
     /// The returned map contains the successor of each arc in the
     /// graph.
-    const EmbeddingMap& embedding() const {
+    const EmbeddingMap& embeddingMap() const {
       return _embedding;
     }
 

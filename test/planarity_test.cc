@@ -239,15 +239,18 @@ int main() {
     check(simpleGraph(graph), "Test graphs must be simple");
 
     PE pe(graph);
-    if (pe.run()) {
+    bool planar = pe.run();
+    check(checkPlanarity(graph) == planar, "Planarity checking failed");
+
+    if (planar) {
       checkEmbedding(graph, pe);
 
       PlanarDrawing<Graph> pd(graph);
-      pd.run(pe.embedding());
+      pd.run(pe.embeddingMap());
       checkDrawing(graph, pd);
 
       PlanarColoring<Graph> pc(graph);
-      pc.runFiveColoring(pe.embedding());
+      pc.runFiveColoring(pe.embeddingMap());
       checkColoring(graph, pc, 5);
 
     } else {
