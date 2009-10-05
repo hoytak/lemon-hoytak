@@ -47,6 +47,9 @@ augment_config LEMON_INSTALL_PREFIX /usr/local \
 augment_config COIN_OR_PREFIX /usr/local/coin-or \
     "# COIN-OR installation root prefix (used for CLP/CBC)"
 
+augment_config SOPLEX_PREFIX /usr/local/soplex \
+    "# Soplex build prefix"
+
 
 function ask() {
 echo -n "$1 [$2]? "
@@ -99,13 +102,27 @@ fi
 
 cxx_flags="CXXFLAGS=-ggdb$opt_flags$werror_flags"
 
-if yesorno "Use COIN" "n"
-then
-    coin_flag="--with-coin=$COIN_OR_PREFIX"
+if [ -f ${COIN_OR_PREFIX}/include/coin/config_coinutils.h ]; then
+    if yesorno "Use COIN-OR (CBC/CLP)" "n"
+    then
+        coin_flag="--with-coin=$COIN_OR_PREFIX"
+    else
+        coin_flag=""
+    fi
 else
-    coin_flag=""
+    coin_flag=""        
 fi
 
+if [ -f ${SOPLEX_PREFIX}/src/soplex.h ]; then
+    if yesorno "Use Soplex" "n"
+    then
+        soplex_flag="--with-soplex=$SOPLEX_PREFIX"
+    else
+        soplex_flag=""
+    fi
+else
+    soplex_flag=""
+fi
 
 if [ "x$AUTORE" == "xyes" ]; then
     autoreconf -vif;
@@ -113,4 +130,5 @@ fi
 ${CONFIGURE_PATH}/configure --prefix=$LEMON_INSTALL_PREFIX \
 "$cxx_flags" \
 $coin_flag \
+$soplex_flag \
 $*
