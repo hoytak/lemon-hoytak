@@ -316,7 +316,8 @@ implemented in LEMON.
 \brief Common graph search algorithms.
 
 This group contains the common graph search algorithms, namely
-\e breadth-first \e search (BFS) and \e depth-first \e search (DFS).
+\e breadth-first \e search (BFS) and \e depth-first \e search (DFS)
+\ref clrs01algorithms.
 */
 
 /**
@@ -324,7 +325,8 @@ This group contains the common graph search algorithms, namely
 @ingroup algs
 \brief Algorithms for finding shortest paths.
 
-This group contains the algorithms for finding shortest paths in digraphs.
+This group contains the algorithms for finding shortest paths in digraphs
+\ref clrs01algorithms.
 
  - \ref Dijkstra algorithm for finding shortest paths from a source node
    when all arc lengths are non-negative.
@@ -346,7 +348,7 @@ This group contains the algorithms for finding shortest paths in digraphs.
 \brief Algorithms for finding minimum cost spanning trees and arborescences.
 
 This group contains the algorithms for finding minimum cost spanning
-trees and arborescences.
+trees and arborescences \ref clrs01algorithms.
 */
 
 /**
@@ -355,7 +357,7 @@ trees and arborescences.
 \brief Algorithms for finding maximum flows.
 
 This group contains the algorithms for finding maximum flows and
-feasible circulations.
+feasible circulations \ref clrs01algorithms, \ref amo93networkflows.
 
 The \e maximum \e flow \e problem is to find a flow of maximum value between
 a single source and a single target. Formally, there is a \f$G=(V,A)\f$
@@ -370,12 +372,16 @@ following optimization problem.
 \f[ 0 \leq f(uv) \leq cap(uv) \quad \forall uv\in A \f]
 
 LEMON contains several algorithms for solving maximum flow problems:
-- \ref EdmondsKarp Edmonds-Karp algorithm.
-- \ref Preflow Goldberg-Tarjan's preflow push-relabel algorithm.
-- \ref DinitzSleatorTarjan Dinitz's blocking flow algorithm with dynamic trees.
-- \ref GoldbergTarjan Preflow push-relabel algorithm with dynamic trees.
+- \ref EdmondsKarp Edmonds-Karp algorithm
+  \ref edmondskarp72theoretical.
+- \ref Preflow Goldberg-Tarjan's preflow push-relabel algorithm
+  \ref goldberg88newapproach.
+- \ref DinitzSleatorTarjan Dinitz's blocking flow algorithm with dynamic trees
+  \ref dinic70algorithm, \ref sleator83dynamic.
+- \ref GoldbergTarjan !Preflow push-relabel algorithm with dynamic trees
+  \ref goldberg88newapproach, \ref sleator83dynamic.
 
-In most cases the \ref Preflow "Preflow" algorithm provides the
+In most cases the \ref Preflow algorithm provides the
 fastest method for computing a maximum flow. All implementations
 also provide functions to query the minimum cut, which is the dual
 problem of maximum flow.
@@ -393,18 +399,22 @@ For more information, see \ref Circulation.
 \brief Algorithms for finding minimum cost flows and circulations.
 
 This group contains the algorithms for finding minimum cost flows and
-circulations. For more information about this problem and its dual
-solution see \ref min_cost_flow "Minimum Cost Flow Problem".
+circulations \ref amo93networkflows. For more information about this
+problem and its dual solution, see \ref min_cost_flow
+"Minimum Cost Flow Problem".
 
 LEMON contains several algorithms for this problem.
  - \ref NetworkSimplex Primal Network Simplex algorithm with various
-   pivot strategies.
+   pivot strategies \ref dantzig63linearprog, \ref kellyoneill91netsimplex.
  - \ref CostScaling Push-Relabel and Augment-Relabel algorithms based on
-   cost scaling.
+   cost scaling \ref goldberg90approximation, \ref goldberg97efficient,
+   \ref bunnagel98efficient.
  - \ref CapacityScaling Successive Shortest %Path algorithm with optional
-   capacity scaling.
- - \ref CancelAndTighten The Cancel and Tighten algorithm.
- - \ref CycleCanceling Cycle-Canceling algorithms.
+   capacity scaling \ref edmondskarp72theoretical.
+ - \ref CancelAndTighten The Cancel and Tighten algorithm
+   \ref goldberg89cyclecanceling.
+ - \ref CycleCanceling Cycle-Canceling algorithms
+   \ref klein67primal, \ref goldberg89cyclecanceling.
 
 In general NetworkSimplex is the most efficient implementation,
 but in special cases other algorithms could be faster.
@@ -534,13 +544,16 @@ implemented in LEMON.
 */
 
 /**
-@defgroup lp_group Lp and Mip Solvers
+@defgroup lp_group LP and MIP Solvers
 @ingroup gen_opt_group
-\brief Lp and Mip solver interfaces for LEMON.
+\brief LP and MIP solver interfaces for LEMON.
 
-This group contains Lp and Mip solver interfaces for LEMON. The
-various LP solvers could be used in the same manner with this
-interface.
+This group contains LP and MIP solver interfaces for LEMON.
+Various LP solvers could be used in the same manner with this
+high-level interface.
+
+The currently supported solvers are \ref glpk, \ref clp, \ref cbc,
+\ref cplex, \ref soplex.
 */
 
 /**

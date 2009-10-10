@@ -150,15 +150,25 @@
 
 %%%%% Maximum flow algorithms %%%%%
 
-@inproceedings{goldberg86newapproach,
+@article{edmondskarp72theoretical,
+  author =       {Jack Edmonds and Richard M. Karp},
+  title =        {Theoretical improvements in algorithmic efficiency
+                  for network flow problems},
+  journal =      {Journal of the ACM},
+  year =         1972,
+  volume =       19,
+  number =       2,
+  pages =        {248-264}
+}
+
+@article{goldberg88newapproach,
   author =       {Andrew V. Goldberg and Robert E. Tarjan},
   title =        {A new approach to the maximum flow problem},
-  booktitle =    {STOC '86: Proceedings of the Eighteenth Annual ACM
-                  Symposium on Theory of Computing},
-  year =         1986,
-  publisher =    {ACM Press},
-  address =      {New York, NY},
-  pages =        {136-146}
+  journal =      {Journal of the ACM},
+  year =         1988,
+  volume =       35,
+  number =       4,
+  pages =        {921-940}
 }
 
 @article{dinic70algorithm,
@@ -229,42 +239,18 @@
   pages =        {205-220}
 }
 
-@inproceedings{goldberg88cyclecanceling,
+@article{goldberg89cyclecanceling,
   author =       {Andrew V. Goldberg and Robert E. Tarjan},
   title =        {Finding minimum-cost circulations by canceling
                   negative cycles},
-  booktitle =    {STOC '88: Proceedings of the Twentieth Annual ACM
-                  Symposium on Theory of Computing},
-  year =         1988,
-  publisher =    {ACM Press},
-  address =      {New York, NY},
-  pages =        {388-397}
-}
-
-@article{edmondskarp72theoretical,
-  author =       {Jack Edmonds and Richard M. Karp},
-  title =        {Theoretical improvements in algorithmic efficiency
-                  for network flow problems},
   journal =      {Journal of the ACM},
-  year =         1972,
-  volume =       19,
-  number =       2,
-  pages =        {248-264}
+  year =         1989,
+  volume =       36,
+  number =       4,
+  pages =        {873-886}
 }
 
-@inproceedings{goldberg87approximation,
-  author =       {Andrew V. Goldberg and Robert E. Tarjan},
-  title =        {Solving minimum-cost flow problems by successive
-                  approximation},
-  booktitle =    {STOC '87: Proceedings of the Nineteenth Annual ACM
-                  Symposium on Theory of Computing},
-  year =         1987,
-  publisher =    {ACM Press},
-  address =      {New York, NY},
-  pages =        {7-18}
-}
-
-@article{goldberg90finding,
+@article{goldberg90approximation,
   author =       {Andrew V. Goldberg and Robert E. Tarjan},
   title =        {Finding Minimum-Cost Circulations by Successive
                   Approximation},
@@ -297,6 +283,13 @@
   pages =        {157-174}
 }
 
+@book{dantzig63linearprog,
+  author =       {George B. Dantzig},
+  title =        {Linear Programming and Extensions},
+  publisher =    {Princeton University Press},
+  year =         1963
+}
+
 @mastersthesis{kellyoneill91netsimplex,
   author =       {Damian J. Kelly and Garrett M. O'Neill},
   title =        {The Minimum Cost Flow Problem and The Network
@@ -305,26 +298,4 @@
   address =      {Dublin, Ireland},
   year =         1991,
   month =        sep,
-}
-
-@techreport{lobel96networksimplex,
-  author =       {Andreas L{\"o}bel},
-  title =        {Solving large-scale real-world minimum-cost flow
-                  problems by a network simplex method},
-  institution =  {Konrad-Zuse-Zentrum fur Informationstechnik Berlin
-                  ({ZIB})},
-  address =      {Berlin, Germany},
-  year =         1996,
-  number =       {SC 96-7}
-}
-
-@article{frangioni06computational,
-  author =       {Antonio Frangioni and Antonio Manca},
-  title =        {A Computational Study of Cost Reoptimization for
-                  Min-Cost Flow Problems},
-  journal =      {INFORMS Journal On Computing},
-  year =         2006,
-  volume =       18,
-  number =       1,
-  pages =        {61-70}
 }
