@@ -70,7 +70,7 @@ valid_name_chars = '[\w\-:]'
 #
 author_rex = re.compile('\s+and\s+')
 rembraces_rex = re.compile('[{}]')
-capitalize_rex = re.compile('({\w*})')
+capitalize_rex = re.compile('({[^}]*})')
 
 # used by bibtexkeywords(data)
 keywords_rex = re.compile('[,;]')
@@ -363,6 +363,8 @@ def bibtexdecoder(filecont_source):
                     entry.append(entrycont['year'] + '.')
             if entrycont.has_key('note') and (entrycont['note'] != ''):
                 entry.append(entrycont['note'] + '.')
+            if entrycont.has_key('url') and (entrycont['url'] != ''):
+                entry.append(entrycont['url'] + '.')
 
             # generate keys for sorting and for the output
             sortkey = ''
@@ -410,6 +412,9 @@ def bibtexdecoder(filecont_source):
                 field = field_rex.sub('\g<1>', line)
                 field = string.lower(field)
                 data =  data_rex.sub('\g<2>', line)
+
+            if field == 'url':
+                data = '\\url{' + data.strip() + '}'
             
             if field in ('author', 'editor'):
                 entrycont[field] = bibtexauthor(data)
