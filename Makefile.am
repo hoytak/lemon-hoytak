@@ -17,6 +17,7 @@ EXTRA_DIST = \
 	cmake/FindCPLEX.cmake \
 	cmake/FindGLPK.cmake \
 	cmake/FindCOIN.cmake \
+	cmake/LEMONConfig.cmake.in \
 	cmake/version.cmake.in \
 	cmake/version.cmake \
 	cmake/nsis/lemon.ico \
