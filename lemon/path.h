@@ -1015,18 +1015,20 @@ namespace lemon {
 
   /// \brief The source of a path
   ///
-  /// This function returns the source of the given path.
+  /// This function returns the source node of the given path.
+  /// If the path is empty, then it returns \c INVALID.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathSource(const Digraph& digraph, const Path& path) {
-    return digraph.source(path.front());
+    return path.empty() ? INVALID : digraph.source(path.front());
   }
 
   /// \brief The target of a path
   ///
-  /// This function returns the target of the given path.
+  /// This function returns the target node of the given path.
+  /// If the path is empty, then it returns \c INVALID.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathTarget(const Digraph& digraph, const Path& path) {
-    return digraph.target(path.back());
+    return path.empty() ? INVALID : digraph.target(path.back());
   }
 
   /// \brief Class which helps to iterate through the nodes of a path
