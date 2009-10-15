@@ -520,7 +520,7 @@ namespace lemon {
     ///
     /// \pre \ref run() or \ref findPaths() must be called before using
     /// this function.
-    Path path(int i) const {
+    const Path& path(int i) const {
       return paths[i];
     }
 
