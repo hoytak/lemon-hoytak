@@ -55,7 +55,7 @@ namespace lemon {
   /// \tparam LEN The type of the length map.
   /// The default value is <tt>GR::ArcMap<int></tt>.
   ///
-  /// \warning Length values should be \e non-negative \e integers.
+  /// \warning Length values should be \e non-negative.
   ///
   /// \note For finding node-disjoint paths this algorithm can be used
   /// along with the \ref SplitNodes adaptor.
@@ -252,10 +252,7 @@ namespace lemon {
                const LengthMap &length ) :
       _graph(graph), _length(length), _flow(0), _local_flow(false),
       _potential(0), _local_potential(false), _pred(graph)
-    {
-      LEMON_ASSERT(std::numeric_limits<Length>::is_integer,
-        "The length type of Suurballe must be integer");
-    }
+    {}
 
     /// Destructor.
     ~Suurballe() {
