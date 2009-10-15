@@ -457,7 +457,8 @@ see the \ref max_flow "maximum flow problem".
 @ingroup algs
 \brief Algorithms for finding minimum mean cycles.
 
-This group contains the algorithms for finding minimum mean cycles.
+This group contains the algorithms for finding minimum mean cycles
+\ref clrs01algorithms, \ref amo93networkflows.
 
 The \e minimum \e mean \e cycle \e problem is to find a directed cycle
 of minimum mean length (cost) in a digraph.
@@ -473,10 +474,12 @@ arc lengths uniformly by \f$\epsilon\f$ results in a conservative length
 function.
 
 LEMON contains three algorithms for solving the minimum mean cycle problem:
-- \ref Karp "Karp"'s original algorithm.
+- \ref Karp "Karp"'s original algorithm \ref amo93networkflows,
+  \ref dasdan98minmeancycle.
 - \ref HartmannOrlin "Hartmann-Orlin"'s algorithm, which is an improved
-  version of Karp's algorithm.
-- \ref Howard "Howard"'s policy iteration algorithm.
+  version of Karp's algorithm \ref dasdan98minmeancycle.
+- \ref Howard "Howard"'s policy iteration algorithm
+  \ref dasdan98minmeancycle.
 
 In practice, the Howard algorithm proved to be by far the most efficient
 one, though the best known theoretical bound on its running time is

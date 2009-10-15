@@ -97,7 +97,8 @@ namespace lemon {
   /// mean cycle.
   ///
   /// This class implements Karp's algorithm for finding a directed
-  /// cycle of minimum mean length (cost) in a digraph.
+  /// cycle of minimum mean length (cost) in a digraph
+  /// \ref amo93networkflows, \ref dasdan98minmeancycle.
   /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
