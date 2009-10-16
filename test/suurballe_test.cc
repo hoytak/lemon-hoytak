@@ -101,6 +101,9 @@ void checkSuurballeCompile()
   k = suurb_test.run(n, n);
   k = suurb_test.run(n, n, k);
   suurb_test.init(n);
+  suurb_test.fullInit(n);
+  suurb_test.start(n);
+  suurb_test.start(n, k);
   k = suurb_test.findFlow(n);
   k = suurb_test.findFlow(n, k);
   suurb_test.findPaths();

@@ -29,6 +29,7 @@
 #include <lemon/bin_heap.h>
 #include <lemon/path.h>
 #include <lemon/list_graph.h>
+#include <lemon/dijkstra.h>
 #include <lemon/maps.h>
 
 namespace lemon {
@@ -97,6 +98,9 @@ namespace lemon {
 
   private:
 
+    typedef typename Digraph::template NodeMap<int> HeapCrossRef;
+    typedef BinHeap<Length, HeapCrossRef> Heap;
+
     // ResidualDijkstra is a special implementation of the
     // Dijkstra algorithm for finding shortest paths in the
     // residual network with respect to the reduced arc lengths
@@ -104,9 +108,6 @@ namespace lemon {
     // distance of the nodes.
     class ResidualDijkstra
     {
-      typedef typename Digraph::template NodeMap<int> HeapCrossRef;
-      typedef BinHeap<Length, HeapCrossRef> Heap;
-
     private:
 
       const Digraph &_graph;
@@ -278,6 +279,11 @@ namespace lemon {
 
     // The pred arc map
     PredMap _pred;
+    
+    // Data for full init
+    PotentialMap *_init_dist;
+    PredMap *_init_pred;
+    bool _full_init;
 
   public:
 
@@ -290,13 +296,16 @@ namespace lemon {
     Suurballe( const Digraph &graph,
                const LengthMap &length ) :
       _graph(graph), _length(length), _flow(0), _local_flow(false),
-      _potential(0), _local_potential(false), _pred(graph)
+      _potential(0), _local_potential(false), _pred(graph),
+      _init_dist(0), _init_pred(0)
     {}
 
     /// Destructor.
     ~Suurballe() {
       if (_local_flow) delete _flow;
       if (_local_potential) delete _potential;
+      delete _init_dist;
+      delete _init_pred;
     }
 
     /// \brief Set the flow map.
@@ -341,10 +350,13 @@ namespace lemon {
 
     /// \name Execution Control
     /// The simplest way to execute the algorithm is to call the run()
-    /// function.
-    /// \n
+    /// function.\n
+    /// If you need to execute the algorithm many times using the same
+    /// source node, then you may call fullInit() once and start()
+    /// for each target node.\n
     /// If you only need the flow that is the union of the found
-    /// arc-disjoint paths, you may call init() and findFlow().
+    /// arc-disjoint paths, then you may call findFlow() instead of
+    /// start().
 
     /// @{
 
@@ -364,19 +376,17 @@ namespace lemon {
     /// just a shortcut of the following code.
     /// \code
     ///   s.init(s);
-    ///   s.findFlow(t, k);
-    ///   s.findPaths();
+    ///   s.start(t, k);
     /// \endcode
     int run(const Node& s, const Node& t, int k = 2) {
       init(s);
-      findFlow(t, k);
-      findPaths();
+      start(t, k);
       return _path_num;
     }
 
     /// \brief Initialize the algorithm.
     ///
-    /// This function initializes the algorithm.
+    /// This function initializes the algorithm with the given source node.
     ///
     /// \param s The source node.
     void init(const Node& s) {
@@ -391,8 +401,63 @@ namespace lemon {
         _potential = new PotentialMap(_graph);
         _local_potential = true;
       }
-      for (ArcIt e(_graph); e != INVALID; ++e) (*_flow)[e] = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n) (*_potential)[n] = 0;
+      _full_init = false;
+    }
+
+    /// \brief Initialize the algorithm and perform Dijkstra.
+    ///
+    /// This function initializes the algorithm and performs a full
+    /// Dijkstra search from the given source node. It makes consecutive
+    /// executions of \ref start() "start(t, k)" faster, since they
+    /// have to perform %Dijkstra only k-1 times.
+    ///
+    /// This initialization is usually worth using instead of \ref init()
+    /// if the algorithm is executed many times using the same source node.
+    ///
+    /// \param s The source node.
+    void fullInit(const Node& s) {
+      // Initialize maps
+      init(s);
+      if (!_init_dist) {
+        _init_dist = new PotentialMap(_graph);
+      }
+      if (!_init_pred) {
+        _init_pred = new PredMap(_graph);
+      }
+
+      // Run a full Dijkstra
+      typename Dijkstra<Digraph, LengthMap>
+        ::template SetStandardHeap<Heap>
+        ::template SetDistMap<PotentialMap>
+        ::template SetPredMap<PredMap>
+        ::Create dijk(_graph, _length);
+      dijk.distMap(*_init_dist).predMap(*_init_pred);
+      dijk.run(s);
+      
+      _full_init = true;
+    }
+
+    /// \brief Execute the algorithm.
+    ///
+    /// This function executes the algorithm.
+    ///
+    /// \param t The target node.
+    /// \param k The number of paths to be found.
+    ///
+    /// \return \c k if there are at least \c k arc-disjoint paths from
+    /// \c s to \c t in the digraph. Otherwise it returns the number of
+    /// arc-disjoint paths found.
+    ///
+    /// \note Apart from the return value, <tt>s.start(t, k)</tt> is
+    /// just a shortcut of the following code.
+    /// \code
+    ///   s.findFlow(t, k);
+    ///   s.findPaths();
+    /// \endcode
+    int start(const Node& t, int k = 2) {
+      findFlow(t, k);
+      findPaths();
+      return _path_num;
     }
 
     /// \brief Execute the algorithm to find an optimal flow.
@@ -412,9 +477,30 @@ namespace lemon {
     int findFlow(const Node& t, int k = 2) {
       _t = t;
       ResidualDijkstra dijkstra(*this);
+      
+      // Initialization
+      for (ArcIt e(_graph); e != INVALID; ++e) {
+        (*_flow)[e] = 0;
+      }
+      if (_full_init) {
+        for (NodeIt n(_graph); n != INVALID; ++n) {
+          (*_potential)[n] = (*_init_dist)[n];
+        }
+        Node u = _t;
+        Arc e;
+        while ((e = (*_init_pred)[u]) != INVALID) {
+          (*_flow)[e] = 1;
+          u = _graph.source(e);
+        }        
+        _path_num = 1;
+      } else {
+        for (NodeIt n(_graph); n != INVALID; ++n) {
+          (*_potential)[n] = 0;
+        }
+        _path_num = 0;
+      }
 
       // Find shortest paths
-      _path_num = 0;
       while (_path_num < k) {
         // Run Dijkstra
         if (!dijkstra.run(_path_num)) break;
