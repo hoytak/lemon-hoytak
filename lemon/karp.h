@@ -69,7 +69,7 @@ namespace lemon {
     ///
     /// The path type of the found cycles.
     /// It must conform to the \ref lemon::concepts::Path "Path" concept
-    /// and it must have an \c addBack() function.
+    /// and it must have an \c addFront() function.
     typedef lemon::Path<Digraph> Path;
   };
 
