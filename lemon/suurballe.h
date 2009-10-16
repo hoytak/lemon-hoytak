@@ -34,6 +34,49 @@
 
 namespace lemon {
 
+  /// \brief Default traits class of Suurballe algorithm.
+  ///
+  /// Default traits class of Suurballe algorithm.
+  /// \tparam GR The digraph type the algorithm runs on.
+  /// \tparam LEN The type of the length map.
+  /// The default value is <tt>GR::ArcMap<int></tt>.
+#ifdef DOXYGEN
+  template <typename GR, typename LEN>
+#else
+  template < typename GR,
+             typename LEN = typename GR::template ArcMap<int> >
+#endif
+  struct SuurballeDefaultTraits
+  {
+    /// The type of the digraph.
+    typedef GR Digraph;
+    /// The type of the length map.
+    typedef LEN LengthMap;
+    /// The type of the lengths.
+    typedef typename LEN::Value Length;
+    /// The type of the flow map.
+    typedef typename GR::template ArcMap<int> FlowMap;
+    /// The type of the potential map.
+    typedef typename GR::template NodeMap<Length> PotentialMap;
+
+    /// \brief The path type
+    ///
+    /// The type used for storing the found arc-disjoint paths.
+    /// It must conform to the \ref lemon::concepts::Path "Path" concept
+    /// and it must have an \c addBack() function.
+    typedef lemon::Path<Digraph> Path;
+    
+    /// The cross reference type used for the heap.
+    typedef typename GR::template NodeMap<int> HeapCrossRef;
+
+    /// \brief The heap type used for internal Dijkstra computations.
+    ///
+    /// The type of the heap used for internal Dijkstra computations.
+    /// It must conform to the \ref lemon::concepts::Heap "Heap" concept
+    /// and its priority type must be \c Length.
+    typedef BinHeap<Length, HeapCrossRef> Heap;
+  };
+
   /// \addtogroup shortest_path
   /// @{
 
@@ -61,10 +104,11 @@ namespace lemon {
   /// \note For finding \e node-disjoint paths, this algorithm can be used
   /// along with the \ref SplitNodes adaptor.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN>
+  template <typename GR, typename LEN, typename TR>
 #else
   template < typename GR,
-             typename LEN = typename GR::template ArcMap<int> >
+             typename LEN = typename GR::template ArcMap<int>,
+             typename TR = SuurballeDefaultTraits<GR, LEN> >
 #endif
   class Suurballe
   {
@@ -75,31 +119,28 @@ namespace lemon {
 
   public:
 
-    /// The type of the digraph the algorithm runs on.
-    typedef GR Digraph;
+    /// The type of the digraph.
+    typedef typename TR::Digraph Digraph;
     /// The type of the length map.
-    typedef LEN LengthMap;
+    typedef typename TR::LengthMap LengthMap;
     /// The type of the lengths.
-    typedef typename LengthMap::Value Length;
-#ifdef DOXYGEN
-    /// The type of the flow map.
-    typedef GR::ArcMap<int> FlowMap;
-    /// The type of the potential map.
-    typedef GR::NodeMap<Length> PotentialMap;
-#else
-    /// The type of the flow map.
-    typedef typename Digraph::template ArcMap<int> FlowMap;
-    /// The type of the potential map.
-    typedef typename Digraph::template NodeMap<Length> PotentialMap;
-#endif
+    typedef typename TR::Length Length;
 
+    /// The type of the flow map.
+    typedef typename TR::FlowMap FlowMap;
+    /// The type of the potential map.
+    typedef typename TR::PotentialMap PotentialMap;
     /// The type of the path structures.
-    typedef SimplePath<GR> Path;
+    typedef typename TR::Path Path;
+    /// The cross reference type used for the heap.
+    typedef typename TR::HeapCrossRef HeapCrossRef;
+    /// The heap type used for internal Dijkstra computations.
+    typedef typename TR::Heap Heap;
+
+    /// The \ref SuurballeDefaultTraits "traits class" of the algorithm.
+    typedef TR Traits;
 
   private:
-
-    typedef typename Digraph::template NodeMap<int> HeapCrossRef;
-    typedef BinHeap<Length, HeapCrossRef> Heap;
 
     // ResidualDijkstra is a special implementation of the
     // Dijkstra algorithm for finding shortest paths in the
@@ -253,6 +294,83 @@ namespace lemon {
       }
 
     }; //class ResidualDijkstra
+
+  public:
+
+    /// \name Named Template Parameters
+    /// @{
+
+    template <typename T>
+    struct SetFlowMapTraits : public Traits {
+      typedef T FlowMap;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c FlowMap type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting
+    /// \c FlowMap type.
+    template <typename T>
+    struct SetFlowMap
+      : public Suurballe<GR, LEN, SetFlowMapTraits<T> > {
+      typedef Suurballe<GR, LEN, SetFlowMapTraits<T> > Create;
+    };
+
+    template <typename T>
+    struct SetPotentialMapTraits : public Traits {
+      typedef T PotentialMap;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c PotentialMap type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting
+    /// \c PotentialMap type.
+    template <typename T>
+    struct SetPotentialMap
+      : public Suurballe<GR, LEN, SetPotentialMapTraits<T> > {
+      typedef Suurballe<GR, LEN, SetPotentialMapTraits<T> > Create;
+    };
+
+    template <typename T>
+    struct SetPathTraits : public Traits {
+      typedef T Path;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c %Path type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting \c %Path type.
+    /// It must conform to the \ref lemon::concepts::Path "Path" concept
+    /// and it must have an \c addBack() function.
+    template <typename T>
+    struct SetPath
+      : public Suurballe<GR, LEN, SetPathTraits<T> > {
+      typedef Suurballe<GR, LEN, SetPathTraits<T> > Create;
+    };
+    
+    template <typename H, typename CR>
+    struct SetHeapTraits : public Traits {
+      typedef H Heap;
+      typedef CR HeapCrossRef;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c Heap and \c HeapCrossRef types.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting \c Heap
+    /// and \c HeapCrossRef types with automatic allocation. 
+    /// They will be used for internal Dijkstra computations.
+    /// The heap type must conform to the \ref lemon::concepts::Heap "Heap"
+    /// concept and its priority type must be \c Length.
+    template <typename H,
+              typename CR = typename Digraph::template NodeMap<int> >
+    struct SetHeap
+      : public Suurballe<GR, LEN, SetHeapTraits<H, CR> > {
+      typedef Suurballe<GR, LEN, SetHeapTraits<H, CR> > Create;
+    };
+
+    /// @}
 
   private:
 

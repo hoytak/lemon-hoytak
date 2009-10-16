@@ -23,6 +23,7 @@
 #include <lemon/path.h>
 #include <lemon/suurballe.h>
 #include <lemon/concepts/digraph.h>
+#include <lemon/concepts/heap.h>
 
 #include "test_tools.h"
 
@@ -81,7 +82,13 @@ void checkSuurballeCompile()
   typedef Digraph::Arc Arc;
   typedef concepts::ReadMap<Arc, VType> LengthMap;
   
-  typedef Suurballe<Digraph, LengthMap> SuurballeType;
+  typedef Suurballe<Digraph, LengthMap> ST;
+  typedef Suurballe<Digraph, LengthMap>
+    ::SetFlowMap<ST::FlowMap>
+    ::SetPotentialMap<ST::PotentialMap>
+    ::SetPath<SimplePath<Digraph> >
+    ::SetHeap<concepts::Heap<VType, Digraph::NodeMap<int> > >
+    ::Create SuurballeType;
 
   Digraph g;
   Node n;
