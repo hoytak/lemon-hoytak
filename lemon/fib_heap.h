@@ -20,53 +20,49 @@
 #define LEMON_FIB_HEAP_H
 
 ///\file
-///\ingroup auxdat
-///\brief Fibonacci Heap implementation.
+///\ingroup heaps
+///\brief Fibonacci heap implementation.
 
 #include <vector>
+#include <utility>
 #include <functional>
 #include <lemon/math.h>
 
 namespace lemon {
 
-  /// \ingroup auxdat
+  /// \ingroup heaps
   ///
-  ///\brief Fibonacci Heap.
+  /// \brief Fibonacci heap data structure.
   ///
-  ///This class implements the \e Fibonacci \e heap data structure. A \e heap
-  ///is a data structure for storing items with specified values called \e
-  ///priorities in such a way that finding the item with minimum priority is
-  ///efficient. \c CMP specifies the ordering of the priorities. In a heap
-  ///one can change the priority of an item, add or erase an item, etc.
+  /// This class implements the \e Fibonacci \e heap data structure.
+  /// It fully conforms to the \ref concepts::Heap "heap concept".
   ///
-  ///The methods \ref increase and \ref erase are not efficient in a Fibonacci
-  ///heap. In case of many calls to these operations, it is better to use a
-  ///\ref BinHeap "binary heap".
+  /// The methods \ref increase() and \ref erase() are not efficient in a
+  /// Fibonacci heap. In case of many calls of these operations, it is
+  /// better to use other heap structure, e.g. \ref BinHeap "binary heap".
   ///
-  ///\param PRIO Type of the priority of the items.
-  ///\param IM A read and writable Item int map, used internally
-  ///to handle the cross references.
-  ///\param CMP A class for the ordering of the priorities. The
-  ///default is \c std::less<PRIO>.
-  ///
-  ///\sa BinHeap
-  ///\sa Dijkstra
+  /// \tparam PR Type of the priorities of the items.
+  /// \tparam IM A read-writable item map with \c int values, used
+  /// internally to handle the cross references.
+  /// \tparam CMP A functor class for comparing the priorities.
+  /// The default is \c std::less<PR>.
 #ifdef DOXYGEN
-  template <typename PRIO, typename IM, typename CMP>
+  template <typename PR, typename IM, typename CMP>
 #else
-  template <typename PRIO, typename IM, typename CMP = std::less<PRIO> >
+  template <typename PR, typename IM, typename CMP = std::less<PR> >
 #endif
   class FibHeap {
   public:
-    ///\e
+
+    /// Type of the item-int map.
     typedef IM ItemIntMap;
-    ///\e
-    typedef PRIO Prio;
-    ///\e
+    /// Type of the priorities.
+    typedef PR Prio;
+    /// Type of the items stored in the heap.
     typedef typename ItemIntMap::Key Item;
-    ///\e
+    /// Type of the item-priority pairs.
     typedef std::pair<Item,Prio> Pair;
-    ///\e
+    /// Functor type for comparing the priorities.
     typedef CMP Compare;
 
   private:
@@ -80,10 +76,10 @@ namespace lemon {
 
   public:
 
-    /// \brief Type to represent the items states.
+    /// \brief Type to represent the states of the items.
     ///
-    /// Each Item element have a state associated to it. It may be "in heap",
-    /// "pre heap" or "post heap". The latter two are indifferent from the
+    /// Each item has a state associated to it. It can be "in heap",
+    /// "pre-heap" or "post-heap". The latter two are indifferent from the
     /// heap's point of view, but may be useful to the user.
     ///
     /// The item-int map must be initialized in such way that it assigns
@@ -94,60 +90,54 @@ namespace lemon {
       POST_HEAP = -2  ///< = -2.
     };
 
-    /// \brief The constructor
+    /// \brief Constructor.
     ///
-    /// \c map should be given to the constructor, since it is
-    ///   used internally to handle the cross references.
+    /// Constructor.
+    /// \param map A map that assigns \c int values to the items.
+    /// It is used internally to handle the cross references.
+    /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
     explicit FibHeap(ItemIntMap &map)
       : _minimum(0), _iim(map), _num() {}
 
-    /// \brief The constructor
+    /// \brief Constructor.
     ///
-    /// \c map should be given to the constructor, since it is used
-    /// internally to handle the cross references. \c comp is an
-    /// object for ordering of the priorities.
+    /// Constructor.
+    /// \param map A map that assigns \c int values to the items.
+    /// It is used internally to handle the cross references.
+    /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
+    /// \param comp The function object used for comparing the priorities.
     FibHeap(ItemIntMap &map, const Compare &comp)
       : _minimum(0), _iim(map), _comp(comp), _num() {}
 
     /// \brief The number of items stored in the heap.
     ///
-    /// Returns the number of items stored in the heap.
+    /// This function returns the number of items stored in the heap.
     int size() const { return _num; }
 
-    /// \brief Checks if the heap stores no items.
+    /// \brief Check if the heap is empty.
     ///
-    ///   Returns \c true if and only if the heap stores no items.
+    /// This function returns \c true if the heap is empty.
     bool empty() const { return _num==0; }
 
-    /// \brief Make empty this heap.
+    /// \brief Make the heap empty.
     ///
-    /// Make empty this heap. It does not change the cross reference
-    /// map.  If you want to reuse a heap what is not surely empty you
-    /// should first clear the heap and after that you should set the
-    /// cross reference map for each item to \c PRE_HEAP.
+    /// This functon makes the heap empty.
+    /// It does not change the cross reference map. If you want to reuse
+    /// a heap that is not surely empty, you should first clear it and
+    /// then you should set the cross reference map to \c PRE_HEAP
+    /// for each item.
     void clear() {
       _data.clear(); _minimum = 0; _num = 0;
     }
 
-    /// \brief \c item gets to the heap with priority \c value independently
-    /// if \c item was already there.
+    /// \brief Insert an item into the heap with the given priority.
     ///
-    /// This method calls \ref push(\c item, \c value) if \c item is not
-    /// stored in the heap and it calls \ref decrease(\c item, \c value) or
-    /// \ref increase(\c item, \c value) otherwise.
-    void set (const Item& item, const Prio& value) {
-      int i=_iim[item];
-      if ( i >= 0 && _data[i].in ) {
-        if ( _comp(value, _data[i].prio) ) decrease(item, value);
-        if ( _comp(_data[i].prio, value) ) increase(item, value);
-      } else push(item, value);
-    }
-
-    /// \brief Adds \c item to the heap with priority \c value.
-    ///
-    /// Adds \c item to the heap with priority \c value.
-    /// \pre \c item must not be stored in the heap.
-    void push (const Item& item, const Prio& value) {
+    /// This function inserts the given item into the heap with the
+    /// given priority.
+    /// \param item The item to insert.
+    /// \param prio The priority of the item.
+    /// \pre \e item must not be stored in the heap.
+    void push (const Item& item, const Prio& prio) {
       int i=_iim[item];
       if ( i < 0 ) {
         int s=_data.size();
@@ -168,47 +158,37 @@ namespace lemon {
         _data[i].right_neighbor=_data[_minimum].right_neighbor;
         _data[_minimum].right_neighbor=i;
         _data[i].left_neighbor=_minimum;
-        if ( _comp( value, _data[_minimum].prio) ) _minimum=i;
+        if ( _comp( prio, _data[_minimum].prio) ) _minimum=i;
       } else {
         _data[i].right_neighbor=_data[i].left_neighbor=i;
         _minimum=i;
       }
-      _data[i].prio=value;
+      _data[i].prio=prio;
       ++_num;
     }
 
-    /// \brief Returns the item with minimum priority relative to \c Compare.
+    /// \brief Return the item having minimum priority.
     ///
-    /// This method returns the item with minimum priority relative to \c
-    /// Compare.
-    /// \pre The heap must be nonempty.
+    /// This function returns the item having minimum priority.
+    /// \pre The heap must be non-empty.
     Item top() const { return _data[_minimum].name; }
 
-    /// \brief Returns the minimum priority relative to \c Compare.
+    /// \brief The minimum priority.
     ///
-    /// It returns the minimum priority relative to \c Compare.
-    /// \pre The heap must be nonempty.
-    const Prio& prio() const { return _data[_minimum].prio; }
+    /// This function returns the minimum priority.
+    /// \pre The heap must be non-empty.
+    Prio prio() const { return _data[_minimum].prio; }
 
-    /// \brief Returns the priority of \c item.
+    /// \brief Remove the item having minimum priority.
     ///
-    /// It returns the priority of \c item.
-    /// \pre \c item must be in the heap.
-    const Prio& operator[](const Item& item) const {
-      return _data[_iim[item]].prio;
-    }
-
-    /// \brief Deletes the item with minimum priority relative to \c Compare.
-    ///
-    /// This method deletes the item with minimum priority relative to \c
-    /// Compare from the heap.
+    /// This function removes the item having minimum priority.
     /// \pre The heap must be non-empty.
     void pop() {
       /*The first case is that there are only one root.*/
       if ( _data[_minimum].left_neighbor==_minimum ) {
         _data[_minimum].in=false;
         if ( _data[_minimum].degree!=0 ) {
-          makeroot(_data[_minimum].child);
+          makeRoot(_data[_minimum].child);
           _minimum=_data[_minimum].child;
           balance();
         }
@@ -221,7 +201,7 @@ namespace lemon {
           int child=_data[_minimum].child;
           int last_child=_data[child].left_neighbor;
 
-          makeroot(child);
+          makeRoot(child);
 
           _data[left].right_neighbor=child;
           _data[child].left_neighbor=left;
@@ -234,10 +214,12 @@ namespace lemon {
       --_num;
     }
 
-    /// \brief Deletes \c item from the heap.
+    /// \brief Remove the given item from the heap.
     ///
-    /// This method deletes \c item from the heap, if \c item was already
-    /// stored in the heap. It is quite inefficient in Fibonacci heaps.
+    /// This function removes the given item from the heap if it is
+    /// already stored.
+    /// \param item The item to delete.
+    /// \pre \e item must be in the heap.
     void erase (const Item& item) {
       int i=_iim[item];
 
@@ -252,43 +234,68 @@ namespace lemon {
       }
     }
 
-    /// \brief Decreases the priority of \c item to \c value.
+    /// \brief The priority of the given item.
     ///
-    /// This method decreases the priority of \c item to \c value.
-    /// \pre \c item must be stored in the heap with priority at least \c
-    ///   value relative to \c Compare.
-    void decrease (Item item, const Prio& value) {
+    /// This function returns the priority of the given item.
+    /// \param item The item.
+    /// \pre \e item must be in the heap.
+    Prio operator[](const Item& item) const {
+      return _data[_iim[item]].prio;
+    }
+
+    /// \brief Set the priority of an item or insert it, if it is
+    /// not stored in the heap.
+    ///
+    /// This method sets the priority of the given item if it is
+    /// already stored in the heap. Otherwise it inserts the given
+    /// item into the heap with the given priority.
+    /// \param item The item.
+    /// \param prio The priority.
+    void set (const Item& item, const Prio& prio) {
       int i=_iim[item];
-      _data[i].prio=value;
+      if ( i >= 0 && _data[i].in ) {
+        if ( _comp(prio, _data[i].prio) ) decrease(item, prio);
+        if ( _comp(_data[i].prio, prio) ) increase(item, prio);
+      } else push(item, prio);
+    }
+
+    /// \brief Decrease the priority of an item to the given value.
+    ///
+    /// This function decreases the priority of an item to the given value.
+    /// \param item The item.
+    /// \param prio The priority.
+    /// \pre \e item must be stored in the heap with priority at least \e prio.
+    void decrease (const Item& item, const Prio& prio) {
+      int i=_iim[item];
+      _data[i].prio=prio;
       int p=_data[i].parent;
 
-      if ( p!=-1 && _comp(value, _data[p].prio) ) {
+      if ( p!=-1 && _comp(prio, _data[p].prio) ) {
         cut(i,p);
         cascade(p);
       }
-      if ( _comp(value, _data[_minimum].prio) ) _minimum=i;
+      if ( _comp(prio, _data[_minimum].prio) ) _minimum=i;
     }
 
-    /// \brief Increases the priority of \c item to \c value.
+    /// \brief Increase the priority of an item to the given value.
     ///
-    /// This method sets the priority of \c item to \c value. Though
-    /// there is no precondition on the priority of \c item, this
-    /// method should be used only if it is indeed necessary to increase
-    /// (relative to \c Compare) the priority of \c item, because this
-    /// method is inefficient.
-    void increase (Item item, const Prio& value) {
+    /// This function increases the priority of an item to the given value.
+    /// \param item The item.
+    /// \param prio The priority.
+    /// \pre \e item must be stored in the heap with priority at most \e prio.
+    void increase (const Item& item, const Prio& prio) {
       erase(item);
-      push(item, value);
+      push(item, prio);
     }
 
-
-    /// \brief Returns if \c item is in, has already been in, or has never
-    /// been in the heap.
+    /// \brief Return the state of an item.
     ///
-    /// This method returns PRE_HEAP if \c item has never been in the
-    /// heap, IN_HEAP if it is in the heap at the moment, and POST_HEAP
-    /// otherwise. In the latter case it is possible that \c item will
-    /// get back to the heap again.
+    /// This method returns \c PRE_HEAP if the given item has never
+    /// been in the heap, \c IN_HEAP if it is in the heap at the moment,
+    /// and \c POST_HEAP otherwise.
+    /// In the latter case it is possible that the item will get back
+    /// to the heap again.
+    /// \param item The item.
     State state(const Item &item) const {
       int i=_iim[item];
       if( i>=0 ) {
@@ -298,11 +305,11 @@ namespace lemon {
       return State(i);
     }
 
-    /// \brief Sets the state of the \c item in the heap.
+    /// \brief Set the state of an item in the heap.
     ///
-    /// Sets the state of the \c item in the heap. It can be used to
-    /// manually clear the heap when it is important to achive the
-    /// better time _complexity.
+    /// This function sets the state of the given item in the heap.
+    /// It can be used to manually clear the heap when it is important
+    /// to achive better time complexity.
     /// \param i The item.
     /// \param st The state. It should not be \c IN_HEAP.
     void state(const Item& i, State st) {
@@ -365,7 +372,7 @@ namespace lemon {
       } while ( s != m );
     }
 
-    void makeroot(int c) {
+    void makeRoot(int c) {
       int s=c;
       do {
         _data[s].parent=-1;

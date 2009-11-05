@@ -50,7 +50,8 @@ void solveAndCheck(MipSolver& mip, MipSolver::ProblemType stat,
 
   if (stat ==  MipSolver::OPTIMAL) {
     std::ostringstream sbuf;
-    buf << "Wrong optimal value: the right optimum is " << exp_opt;
+    sbuf << "Wrong optimal value ("<< mip.solValue()
+         <<" instead of " << exp_opt << ")";
     check(std::abs(mip.solValue()-exp_opt) < 1e-3, sbuf.str());
     //+ecvt(exp_opt,2)
   }

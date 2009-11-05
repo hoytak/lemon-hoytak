@@ -88,7 +88,7 @@ AS_HELP_STRING([--with-coin-libdir=DIR], [search for CLP libraries in DIR]),
       elif test x"$with_coin" != x"yes"; then
         CBC_LDFLAGS="-L$with_coin/lib"
       fi
-      CBC_LIBS="-lOsi -lCbc -lOsiCbc -lCbcSolver -lClp -lOsiClp -lCoinUtils -lVol -lOsiVol -lCgl -lm -llapack -lblas"
+      CBC_LIBS="-lOsi -lCbc -lCbcSolver -lClp -lOsiClp -lCoinUtils -lVol -lOsiVol -lCgl -lm -llapack -lblas"
 
       lx_save_cxxflags="$CXXFLAGS"
       lx_save_ldflags="$LDFLAGS"

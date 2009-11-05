@@ -36,6 +36,9 @@ void checkDigraphBuild() {
   checkGraphNodeList(G, 0);
   checkGraphArcList(G, 0);
 
+  G.reserveNode(3);
+  G.reserveArc(4);
+
   Node
     n1 = G.addNode(),
     n2 = G.addNode(),
@@ -284,6 +287,14 @@ void checkDigraphSnapshot() {
   G.addArc(G.addNode(), G.addNode());
 
   snapshot.restore();
+  snapshot.save(G);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 4);
+
+  G.addArc(G.addNode(), G.addNode());
+
+  snapshot.restore();
 
   checkGraphNodeList(G, 4);
   checkGraphArcList(G, 4);
@@ -487,7 +498,12 @@ void checkStaticDigraph() {
 void checkFullDigraph(int num) {
   typedef FullDigraph Digraph;
   DIGRAPH_TYPEDEFS(Digraph);
+
   Digraph G(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
+
+  G.resize(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
 
   checkGraphNodeList(G, num);
   checkGraphArcList(G, num * num);
