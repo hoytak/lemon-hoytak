@@ -226,14 +226,6 @@ class. We use the implicit minimum time map as the length map of the
 */
 
 /**
-@defgroup matrices Matrices
-@ingroup datas
-\brief Two dimensional data storages implemented in LEMON.
-
-This group contains two dimensional data storages implemented in LEMON.
-*/
-
-/**
 @defgroup paths Path Structures
 @ingroup datas
 \brief %Path structures implemented in LEMON.
@@ -246,7 +238,36 @@ assignment operators and copy constructors. This makes it easy and
 efficient to have e.g. the Dijkstra algorithm to store its result in
 any kind of path structure.
 
-\sa lemon::concepts::Path
+\sa \ref concepts::Path "Path concept"
+*/
+
+/**
+@defgroup heaps Heap Structures
+@ingroup datas
+\brief %Heap structures implemented in LEMON.
+
+This group contains the heap structures implemented in LEMON.
+
+LEMON provides several heap classes. They are efficient implementations
+of the abstract data type \e priority \e queue. They store items with
+specified values called \e priorities in such a way that finding and
+removing the item with minimum priority are efficient.
+The basic operations are adding and erasing items, changing the priority
+of an item, etc.
+
+Heaps are crucial in several algorithms, such as Dijkstra and Prim.
+The heap implementations have the same interface, thus any of them can be
+used easily in such algorithms.
+
+\sa \ref concepts::Heap "Heap concept"
+*/
+
+/**
+@defgroup matrices Matrices
+@ingroup datas
+\brief Two dimensional data storages implemented in LEMON.
+
+This group contains two dimensional data storages implemented in LEMON.
 */
 
 /**
@@ -256,6 +277,28 @@ any kind of path structure.
 
 This group contains some data structures implemented in LEMON in
 order to make it easier to implement combinatorial algorithms.
+*/
+
+/**
+@defgroup geomdat Geometric Data Structures
+@ingroup auxdat
+\brief Geometric data structures implemented in LEMON.
+
+This group contains geometric data structures implemented in LEMON.
+
+ - \ref lemon::dim2::Point "dim2::Point" implements a two dimensional
+   vector with the usual operations.
+ - \ref lemon::dim2::Box "dim2::Box" can be used to determine the
+   rectangular bounding box of a set of \ref lemon::dim2::Point
+   "dim2::Point"'s.
+*/
+
+/**
+@defgroup matrices Matrices
+@ingroup auxdat
+\brief Two dimensional data storages implemented in LEMON.
+
+This group contains two dimensional data storages implemented in LEMON.
 */
 
 /**
@@ -273,7 +316,8 @@ implemented in LEMON.
 \brief Common graph search algorithms.
 
 This group contains the common graph search algorithms, namely
-\e breadth-first \e search (BFS) and \e depth-first \e search (DFS).
+\e breadth-first \e search (BFS) and \e depth-first \e search (DFS)
+\ref clrs01algorithms.
 */
 
 /**
@@ -281,7 +325,8 @@ This group contains the common graph search algorithms, namely
 @ingroup algs
 \brief Algorithms for finding shortest paths.
 
-This group contains the algorithms for finding shortest paths in digraphs.
+This group contains the algorithms for finding shortest paths in digraphs
+\ref clrs01algorithms.
 
  - \ref Dijkstra algorithm for finding shortest paths from a source node
    when all arc lengths are non-negative.
@@ -298,12 +343,21 @@ This group contains the algorithms for finding shortest paths in digraphs.
 */
 
 /**
+@defgroup spantree Minimum Spanning Tree Algorithms
+@ingroup algs
+\brief Algorithms for finding minimum cost spanning trees and arborescences.
+
+This group contains the algorithms for finding minimum cost spanning
+trees and arborescences \ref clrs01algorithms.
+*/
+
+/**
 @defgroup max_flow Maximum Flow Algorithms
 @ingroup algs
 \brief Algorithms for finding maximum flows.
 
 This group contains the algorithms for finding maximum flows and
-feasible circulations.
+feasible circulations \ref clrs01algorithms, \ref amo93networkflows.
 
 The \e maximum \e flow \e problem is to find a flow of maximum value between
 a single source and a single target. Formally, there is a \f$G=(V,A)\f$
@@ -318,12 +372,16 @@ following optimization problem.
 \f[ 0 \leq f(uv) \leq cap(uv) \quad \forall uv\in A \f]
 
 LEMON contains several algorithms for solving maximum flow problems:
-- \ref EdmondsKarp Edmonds-Karp algorithm.
-- \ref Preflow Goldberg-Tarjan's preflow push-relabel algorithm.
-- \ref DinitzSleatorTarjan Dinitz's blocking flow algorithm with dynamic trees.
-- \ref GoldbergTarjan Preflow push-relabel algorithm with dynamic trees.
+- \ref EdmondsKarp Edmonds-Karp algorithm
+  \ref edmondskarp72theoretical.
+- \ref Preflow Goldberg-Tarjan's preflow push-relabel algorithm
+  \ref goldberg88newapproach.
+- \ref DinitzSleatorTarjan Dinitz's blocking flow algorithm with dynamic trees
+  \ref dinic70algorithm, \ref sleator83dynamic.
+- \ref GoldbergTarjan !Preflow push-relabel algorithm with dynamic trees
+  \ref goldberg88newapproach, \ref sleator83dynamic.
 
-In most cases the \ref Preflow "Preflow" algorithm provides the
+In most cases the \ref Preflow algorithm provides the
 fastest method for computing a maximum flow. All implementations
 also provide functions to query the minimum cut, which is the dual
 problem of maximum flow.
@@ -341,18 +399,22 @@ For more information, see \ref Circulation.
 \brief Algorithms for finding minimum cost flows and circulations.
 
 This group contains the algorithms for finding minimum cost flows and
-circulations. For more information about this problem and its dual
-solution see \ref min_cost_flow "Minimum Cost Flow Problem".
+circulations \ref amo93networkflows. For more information about this
+problem and its dual solution, see \ref min_cost_flow
+"Minimum Cost Flow Problem".
 
 LEMON contains several algorithms for this problem.
  - \ref NetworkSimplex Primal Network Simplex algorithm with various
-   pivot strategies.
+   pivot strategies \ref dantzig63linearprog, \ref kellyoneill91netsimplex.
  - \ref CostScaling Push-Relabel and Augment-Relabel algorithms based on
-   cost scaling.
+   cost scaling \ref goldberg90approximation, \ref goldberg97efficient,
+   \ref bunnagel98efficient.
  - \ref CapacityScaling Successive Shortest %Path algorithm with optional
-   capacity scaling.
- - \ref CancelAndTighten The Cancel and Tighten algorithm.
- - \ref CycleCanceling Cycle-Canceling algorithms.
+   capacity scaling \ref edmondskarp72theoretical.
+ - \ref CancelAndTighten The Cancel and Tighten algorithm
+   \ref goldberg89cyclecanceling.
+ - \ref CycleCanceling Cycle-Canceling algorithms
+   \ref klein67primal, \ref goldberg89cyclecanceling.
 
 In general NetworkSimplex is the most efficient implementation,
 but in special cases other algorithms could be faster.
@@ -375,7 +437,7 @@ outgoing arcs. Formally, there is a \f$G=(V,A)\f$ digraph, a
 cut is the \f$X\f$ solution of the next optimization problem:
 
 \f[ \min_{X \subset V, X\not\in \{\emptyset, V\}}
-    \sum_{uv\in A, u\in X, v\not\in X}cap(uv) \f]
+    \sum_{uv\in A: u\in X, v\not\in X}cap(uv) \f]
 
 LEMON contains several algorithms related to minimum cut problems:
 
@@ -425,30 +487,6 @@ applied early termination scheme.
 */
 
 /**
-@defgroup graph_properties Connectivity and Other Graph Properties
-@ingroup algs
-\brief Algorithms for discovering the graph properties
-
-This group contains the algorithms for discovering the graph properties
-like connectivity, bipartiteness, euler property, simplicity etc.
-
-\image html edge_biconnected_components.png
-\image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
-*/
-
-/**
-@defgroup planar Planarity Embedding and Drawing
-@ingroup algs
-\brief Algorithms for planarity checking, embedding and drawing
-
-This group contains the algorithms for planarity checking,
-embedding and drawing.
-
-\image html planar.png
-\image latex planar.eps "Plane graph" width=\textwidth
-*/
-
-/**
 @defgroup matching Matching Algorithms
 @ingroup algs
 \brief Algorithms for finding matchings in graphs and bipartite graphs.
@@ -489,21 +527,27 @@ The matching algorithms implemented in LEMON:
 */
 
 /**
-@defgroup spantree Minimum Spanning Tree Algorithms
+@defgroup graph_properties Connectivity and Other Graph Properties
 @ingroup algs
-\brief Algorithms for finding minimum cost spanning trees and arborescences.
+\brief Algorithms for discovering the graph properties
 
-This group contains the algorithms for finding minimum cost spanning
-trees and arborescences.
+This group contains the algorithms for discovering the graph properties
+like connectivity, bipartiteness, euler property, simplicity etc.
+
+\image html connected_components.png
+\image latex connected_components.eps "Connected components" width=\textwidth
 */
 
 /**
-@defgroup auxalg Auxiliary Algorithms
+@defgroup planar Planarity Embedding and Drawing
 @ingroup algs
-\brief Auxiliary algorithms implemented in LEMON.
+\brief Algorithms for planarity checking, embedding and drawing
 
-This group contains some algorithms implemented in LEMON
-in order to make it easier to implement complex algorithms.
+This group contains the algorithms for planarity checking,
+embedding and drawing.
+
+\image html planar.png
+\image latex planar.eps "Plane graph" width=\textwidth
 */
 
 /**
@@ -516,6 +560,15 @@ implemented in LEMON.
 */
 
 /**
+@defgroup auxalg Auxiliary Algorithms
+@ingroup algs
+\brief Auxiliary algorithms implemented in LEMON.
+
+This group contains some algorithms implemented in LEMON
+in order to make it easier to implement complex algorithms.
+*/
+
+/**
 @defgroup gen_opt_group General Optimization Tools
 \brief This group contains some general optimization frameworks
 implemented in LEMON.
@@ -525,13 +578,16 @@ implemented in LEMON.
 */
 
 /**
-@defgroup lp_group Lp and Mip Solvers
+@defgroup lp_group LP and MIP Solvers
 @ingroup gen_opt_group
-\brief Lp and Mip solver interfaces for LEMON.
+\brief LP and MIP solver interfaces for LEMON.
 
-This group contains Lp and Mip solver interfaces for LEMON. The
-various LP solvers could be used in the same manner with this
-interface.
+This group contains LP and MIP solver interfaces for LEMON.
+Various LP solvers could be used in the same manner with this
+high-level interface.
+
+The currently supported solvers are \ref glpk, \ref clp, \ref cbc,
+\ref cplex, \ref soplex.
 */
 
 /**
@@ -621,7 +677,7 @@ graph exporting tools.
 */
 
 /**
-@defgroup dimacs_group DIMACS format
+@defgroup dimacs_group DIMACS Format
 @ingroup io_group
 \brief Read and write files in DIMACS format
 
@@ -670,8 +726,8 @@ The purpose of the classes in this group is fourfold.
 @ingroup concept
 \brief Skeleton and concept checking classes for graph structures
 
-This group contains the skeletons and concept checking classes of LEMON's
-graph structures and helper classes used to implement these.
+This group contains the skeletons and concept checking classes of
+graph structures.
 */
 
 /**
@@ -680,6 +736,15 @@ graph structures and helper classes used to implement these.
 \brief Skeleton and concept checking classes for maps
 
 This group contains the skeletons and concept checking classes of maps.
+*/
+
+/**
+@defgroup tools Standalone Utility Applications
+
+Some utility applications are listed here.
+
+The standard compilation procedure (<tt>./configure;make</tt>) will compile
+them, as well.
 */
 
 /**
@@ -692,15 +757,6 @@ the \c demo subdirectory of the source tree.
 
 In order to compile them, use the <tt>make demo</tt> or the
 <tt>make check</tt> commands.
-*/
-
-/**
-@defgroup tools Standalone Utility Applications
-
-Some utility applications are listed here.
-
-The standard compilation procedure (<tt>./configure;make</tt>) will compile
-them, as well.
 */
 
 }

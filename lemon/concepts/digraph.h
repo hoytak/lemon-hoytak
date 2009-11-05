@@ -35,46 +35,40 @@ namespace lemon {
     ///
     /// \brief Class describing the concept of directed graphs.
     ///
-    /// This class describes the \ref concept "concept" of the
-    /// immutable directed digraphs.
+    /// This class describes the common interface of all directed
+    /// graphs (digraphs).
     ///
-    /// Note that actual digraph implementation like @ref ListDigraph or
-    /// @ref SmartDigraph may have several additional functionality.
+    /// Like all concept classes, it only provides an interface
+    /// without any sensible implementation. So any general algorithm for
+    /// directed graphs should compile with this class, but it will not
+    /// run properly, of course.
+    /// An actual digraph implementation like \ref ListDigraph or
+    /// \ref SmartDigraph may have additional functionality.
     ///
-    /// \sa concept
+    /// \sa Graph
     class Digraph {
     private:
-      ///Digraphs are \e not copy constructible. Use DigraphCopy() instead.
-
-      ///Digraphs are \e not copy constructible. Use DigraphCopy() instead.
-      ///
-      Digraph(const Digraph &) {};
-      ///\brief Assignment of \ref Digraph "Digraph"s to another ones are
-      ///\e not allowed. Use DigraphCopy() instead.
-
-      ///Assignment of \ref Digraph "Digraph"s to another ones are
-      ///\e not allowed.  Use DigraphCopy() instead.
-
+      /// Diraphs are \e not copy constructible. Use DigraphCopy instead.
+      Digraph(const Digraph &) {}
+      /// \brief Assignment of a digraph to another one is \e not allowed.
+      /// Use DigraphCopy instead.
       void operator=(const Digraph &) {}
+
     public:
-      ///\e
-
-      /// Defalult constructor.
-
-      /// Defalult constructor.
-      ///
+      /// Default constructor.
       Digraph() { }
-      /// Class for identifying a node of the digraph
+
+      /// The node type of the digraph
 
       /// This class identifies a node of the digraph. It also serves
       /// as a base class of the node iterators,
-      /// thus they will convert to this type.
+      /// thus they convert to this type.
       class Node {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the object to an undefined value.
         Node() { }
         /// Copy constructor.
 
@@ -82,40 +76,39 @@ namespace lemon {
         ///
         Node(const Node&) { }
 
-        /// Invalid constructor \& conversion.
+        /// %Invalid constructor \& conversion.
 
-        /// This constructor initializes the iterator to be invalid.
+        /// Initializes the object to be invalid.
         /// \sa Invalid for more details.
         Node(Invalid) { }
         /// Equality operator
 
+        /// Equality operator.
+        ///
         /// Two iterators are equal if and only if they point to the
-        /// same object or both are invalid.
+        /// same object or both are \c INVALID.
         bool operator==(Node) const { return true; }
 
         /// Inequality operator
 
-        /// \sa operator==(Node n)
-        ///
+        /// Inequality operator.
         bool operator!=(Node) const { return true; }
 
         /// Artificial ordering operator.
 
-        /// To allow the use of digraph descriptors as key type in std::map or
-        /// similar associative container we require this.
+        /// Artificial ordering operator.
         ///
-        /// \note This operator only have to define some strict ordering of
-        /// the items; this order has nothing to do with the iteration
-        /// ordering of the items.
+        /// \note This operator only has to define some strict ordering of
+        /// the nodes; this order has nothing to do with the iteration
+        /// ordering of the nodes.
         bool operator<(Node) const { return false; }
-
       };
 
-      /// This iterator goes through each node.
+      /// Iterator class for the nodes.
 
-      /// This iterator goes through each node.
+      /// This iterator goes through each node of the digraph.
       /// Its usage is quite simple, for example you can count the number
-      /// of nodes in digraph \c g of type \c Digraph like this:
+      /// of nodes in a digraph \c g of type \c %Digraph like this:
       ///\code
       /// int count=0;
       /// for (Digraph::NodeIt n(g); n!=INVALID; ++n) ++count;
@@ -124,30 +117,28 @@ namespace lemon {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the iterator to an undefined value.
         NodeIt() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
         NodeIt(const NodeIt& n) : Node(n) { }
-        /// Invalid constructor \& conversion.
+        /// %Invalid constructor \& conversion.
 
-        /// Initialize the iterator to be invalid.
+        /// Initializes the iterator to be invalid.
         /// \sa Invalid for more details.
         NodeIt(Invalid) { }
         /// Sets the iterator to the first node.
 
-        /// Sets the iterator to the first node of \c g.
+        /// Sets the iterator to the first node of the given digraph.
         ///
-        NodeIt(const Digraph&) { }
-        /// Node -> NodeIt conversion.
+        explicit NodeIt(const Digraph&) { }
+        /// Sets the iterator to the given node.
 
-        /// Sets the iterator to the node of \c the digraph pointed by
-        /// the trivial iterator.
-        /// This feature necessitates that each time we
-        /// iterate the arc-set, the iteration order is the same.
+        /// Sets the iterator to the given node of the given digraph.
+        ///
         NodeIt(const Digraph&, const Node&) { }
         /// Next node.
 
@@ -157,7 +148,7 @@ namespace lemon {
       };
 
 
-      /// Class for identifying an arc of the digraph
+      /// The arc type of the digraph
 
       /// This class identifies an arc of the digraph. It also serves
       /// as a base class of the arc iterators,
@@ -166,207 +157,214 @@ namespace lemon {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the object to an undefined value.
         Arc() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
         Arc(const Arc&) { }
-        /// Initialize the iterator to be invalid.
+        /// %Invalid constructor \& conversion.
 
-        /// Initialize the iterator to be invalid.
-        ///
+        /// Initializes the object to be invalid.
+        /// \sa Invalid for more details.
         Arc(Invalid) { }
         /// Equality operator
 
+        /// Equality operator.
+        ///
         /// Two iterators are equal if and only if they point to the
-        /// same object or both are invalid.
+        /// same object or both are \c INVALID.
         bool operator==(Arc) const { return true; }
         /// Inequality operator
 
-        /// \sa operator==(Arc n)
-        ///
+        /// Inequality operator.
         bool operator!=(Arc) const { return true; }
 
         /// Artificial ordering operator.
 
-        /// To allow the use of digraph descriptors as key type in std::map or
-        /// similar associative container we require this.
+        /// Artificial ordering operator.
         ///
-        /// \note This operator only have to define some strict ordering of
-        /// the items; this order has nothing to do with the iteration
-        /// ordering of the items.
+        /// \note This operator only has to define some strict ordering of
+        /// the arcs; this order has nothing to do with the iteration
+        /// ordering of the arcs.
         bool operator<(Arc) const { return false; }
       };
 
-      /// This iterator goes trough the outgoing arcs of a node.
+      /// Iterator class for the outgoing arcs of a node.
 
       /// This iterator goes trough the \e outgoing arcs of a certain node
       /// of a digraph.
       /// Its usage is quite simple, for example you can count the number
       /// of outgoing arcs of a node \c n
-      /// in digraph \c g of type \c Digraph as follows.
+      /// in a digraph \c g of type \c %Digraph as follows.
       ///\code
       /// int count=0;
-      /// for (Digraph::OutArcIt e(g, n); e!=INVALID; ++e) ++count;
+      /// for (Digraph::OutArcIt a(g, n); a!=INVALID; ++a) ++count;
       ///\endcode
-
       class OutArcIt : public Arc {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the iterator to an undefined value.
         OutArcIt() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
         OutArcIt(const OutArcIt& e) : Arc(e) { }
-        /// Initialize the iterator to be invalid.
+        /// %Invalid constructor \& conversion.
 
-        /// Initialize the iterator to be invalid.
-        ///
+        /// Initializes the iterator to be invalid.
+        /// \sa Invalid for more details.
         OutArcIt(Invalid) { }
-        /// This constructor sets the iterator to the first outgoing arc.
+        /// Sets the iterator to the first outgoing arc.
 
-        /// This constructor sets the iterator to the first outgoing arc of
-        /// the node.
+        /// Sets the iterator to the first outgoing arc of the given node.
+        ///
         OutArcIt(const Digraph&, const Node&) { }
-        /// Arc -> OutArcIt conversion
+        /// Sets the iterator to the given arc.
 
-        /// Sets the iterator to the value of the trivial iterator.
-        /// This feature necessitates that each time we
-        /// iterate the arc-set, the iteration order is the same.
+        /// Sets the iterator to the given arc of the given digraph.
+        ///
         OutArcIt(const Digraph&, const Arc&) { }
-        ///Next outgoing arc
+        /// Next outgoing arc
 
         /// Assign the iterator to the next
         /// outgoing arc of the corresponding node.
         OutArcIt& operator++() { return *this; }
       };
 
-      /// This iterator goes trough the incoming arcs of a node.
+      /// Iterator class for the incoming arcs of a node.
 
       /// This iterator goes trough the \e incoming arcs of a certain node
       /// of a digraph.
       /// Its usage is quite simple, for example you can count the number
-      /// of outgoing arcs of a node \c n
-      /// in digraph \c g of type \c Digraph as follows.
+      /// of incoming arcs of a node \c n
+      /// in a digraph \c g of type \c %Digraph as follows.
       ///\code
       /// int count=0;
-      /// for(Digraph::InArcIt e(g, n); e!=INVALID; ++e) ++count;
+      /// for(Digraph::InArcIt a(g, n); a!=INVALID; ++a) ++count;
       ///\endcode
-
       class InArcIt : public Arc {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the iterator to an undefined value.
         InArcIt() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
         InArcIt(const InArcIt& e) : Arc(e) { }
-        /// Initialize the iterator to be invalid.
+        /// %Invalid constructor \& conversion.
 
-        /// Initialize the iterator to be invalid.
-        ///
+        /// Initializes the iterator to be invalid.
+        /// \sa Invalid for more details.
         InArcIt(Invalid) { }
-        /// This constructor sets the iterator to first incoming arc.
+        /// Sets the iterator to the first incoming arc.
 
-        /// This constructor set the iterator to the first incoming arc of
-        /// the node.
+        /// Sets the iterator to the first incoming arc of the given node.
+        ///
         InArcIt(const Digraph&, const Node&) { }
-        /// Arc -> InArcIt conversion
+        /// Sets the iterator to the given arc.
 
-        /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we
-        /// iterate the arc-set, the iteration order is the same.
+        /// Sets the iterator to the given arc of the given digraph.
+        ///
         InArcIt(const Digraph&, const Arc&) { }
         /// Next incoming arc
 
-        /// Assign the iterator to the next inarc of the corresponding node.
-        ///
+        /// Assign the iterator to the next
+        /// incoming arc of the corresponding node.
         InArcIt& operator++() { return *this; }
       };
-      /// This iterator goes through each arc.
 
-      /// This iterator goes through each arc of a digraph.
+      /// Iterator class for the arcs.
+
+      /// This iterator goes through each arc of the digraph.
       /// Its usage is quite simple, for example you can count the number
-      /// of arcs in a digraph \c g of type \c Digraph as follows:
+      /// of arcs in a digraph \c g of type \c %Digraph as follows:
       ///\code
       /// int count=0;
-      /// for(Digraph::ArcIt e(g); e!=INVALID; ++e) ++count;
+      /// for(Digraph::ArcIt a(g); a!=INVALID; ++a) ++count;
       ///\endcode
       class ArcIt : public Arc {
       public:
         /// Default constructor
 
-        /// @warning The default constructor sets the iterator
-        /// to an undefined value.
+        /// Default constructor.
+        /// \warning It sets the iterator to an undefined value.
         ArcIt() { }
         /// Copy constructor.
 
         /// Copy constructor.
         ///
         ArcIt(const ArcIt& e) : Arc(e) { }
-        /// Initialize the iterator to be invalid.
+        /// %Invalid constructor \& conversion.
 
-        /// Initialize the iterator to be invalid.
-        ///
+        /// Initializes the iterator to be invalid.
+        /// \sa Invalid for more details.
         ArcIt(Invalid) { }
-        /// This constructor sets the iterator to the first arc.
+        /// Sets the iterator to the first arc.
 
-        /// This constructor sets the iterator to the first arc of \c g.
-        ///@param g the digraph
-        ArcIt(const Digraph& g) { ignore_unused_variable_warning(g); }
-        /// Arc -> ArcIt conversion
+        /// Sets the iterator to the first arc of the given digraph.
+        ///
+        explicit ArcIt(const Digraph& g) { ignore_unused_variable_warning(g); }
+        /// Sets the iterator to the given arc.
 
-        /// Sets the iterator to the value of the trivial iterator \c e.
-        /// This feature necessitates that each time we
-        /// iterate the arc-set, the iteration order is the same.
+        /// Sets the iterator to the given arc of the given digraph.
+        ///
         ArcIt(const Digraph&, const Arc&) { }
-        ///Next arc
+        /// Next arc
 
         /// Assign the iterator to the next arc.
+        ///
         ArcIt& operator++() { return *this; }
       };
-      ///Gives back the target node of an arc.
 
-      ///Gives back the target node of an arc.
+      /// \brief The source node of the arc.
       ///
-      Node target(Arc) const { return INVALID; }
-      ///Gives back the source node of an arc.
-
-      ///Gives back the source node of an arc.
-      ///
+      /// Returns the source node of the given arc.
       Node source(Arc) const { return INVALID; }
 
-      /// \brief Returns the ID of the node.
+      /// \brief The target node of the arc.
+      ///
+      /// Returns the target node of the given arc.
+      Node target(Arc) const { return INVALID; }
+
+      /// \brief The ID of the node.
+      ///
+      /// Returns the ID of the given node.
       int id(Node) const { return -1; }
 
-      /// \brief Returns the ID of the arc.
+      /// \brief The ID of the arc.
+      ///
+      /// Returns the ID of the given arc.
       int id(Arc) const { return -1; }
 
-      /// \brief Returns the node with the given ID.
+      /// \brief The node with the given ID.
       ///
-      /// \pre The argument should be a valid node ID in the graph.
+      /// Returns the node with the given ID.
+      /// \pre The argument should be a valid node ID in the digraph.
       Node nodeFromId(int) const { return INVALID; }
 
-      /// \brief Returns the arc with the given ID.
+      /// \brief The arc with the given ID.
       ///
-      /// \pre The argument should be a valid arc ID in the graph.
+      /// Returns the arc with the given ID.
+      /// \pre The argument should be a valid arc ID in the digraph.
       Arc arcFromId(int) const { return INVALID; }
 
-      /// \brief Returns an upper bound on the node IDs.
+      /// \brief An upper bound on the node IDs.
+      ///
+      /// Returns an upper bound on the node IDs.
       int maxNodeId() const { return -1; }
 
-      /// \brief Returns an upper bound on the arc IDs.
+      /// \brief An upper bound on the arc IDs.
+      ///
+      /// Returns an upper bound on the arc IDs.
       int maxArcId() const { return -1; }
 
       void first(Node&) const {}
@@ -392,45 +390,46 @@ namespace lemon {
       // Dummy parameter.
       int maxId(Arc) const { return -1; }
 
-      /// \brief The base node of the iterator.
+      /// \brief The opposite node on the arc.
       ///
-      /// Gives back the base node of the iterator.
-      /// It is always the target of the pointed arc.
-      Node baseNode(const InArcIt&) const { return INVALID; }
-
-      /// \brief The running node of the iterator.
-      ///
-      /// Gives back the running node of the iterator.
-      /// It is always the source of the pointed arc.
-      Node runningNode(const InArcIt&) const { return INVALID; }
+      /// Returns the opposite node on the given arc.
+      Node oppositeNode(Node, Arc) const { return INVALID; }
 
       /// \brief The base node of the iterator.
       ///
-      /// Gives back the base node of the iterator.
-      /// It is always the source of the pointed arc.
-      Node baseNode(const OutArcIt&) const { return INVALID; }
+      /// Returns the base node of the given outgoing arc iterator
+      /// (i.e. the source node of the corresponding arc).
+      Node baseNode(OutArcIt) const { return INVALID; }
 
       /// \brief The running node of the iterator.
       ///
-      /// Gives back the running node of the iterator.
-      /// It is always the target of the pointed arc.
-      Node runningNode(const OutArcIt&) const { return INVALID; }
+      /// Returns the running node of the given outgoing arc iterator
+      /// (i.e. the target node of the corresponding arc).
+      Node runningNode(OutArcIt) const { return INVALID; }
 
-      /// \brief The opposite node on the given arc.
+      /// \brief The base node of the iterator.
       ///
-      /// Gives back the opposite node on the given arc.
-      Node oppositeNode(const Node&, const Arc&) const { return INVALID; }
+      /// Returns the base node of the given incomming arc iterator
+      /// (i.e. the target node of the corresponding arc).
+      Node baseNode(InArcIt) const { return INVALID; }
 
-      /// \brief Reference map of the nodes to type \c T.
+      /// \brief The running node of the iterator.
       ///
-      /// Reference map of the nodes to type \c T.
+      /// Returns the running node of the given incomming arc iterator
+      /// (i.e. the source node of the corresponding arc).
+      Node runningNode(InArcIt) const { return INVALID; }
+
+      /// \brief Standard graph map type for the nodes.
+      ///
+      /// Standard graph map type for the nodes.
+      /// It conforms to the ReferenceMap concept.
       template<class T>
       class NodeMap : public ReferenceMap<Node, T, T&, const T&> {
       public:
 
-        ///\e
-        NodeMap(const Digraph&) { }
-        ///\e
+        /// Constructor
+        explicit NodeMap(const Digraph&) { }
+        /// Constructor with given initial value
         NodeMap(const Digraph&, T) { }
 
       private:
@@ -445,17 +444,19 @@ namespace lemon {
         }
       };
 
-      /// \brief Reference map of the arcs to type \c T.
+      /// \brief Standard graph map type for the arcs.
       ///
-      /// Reference map of the arcs to type \c T.
+      /// Standard graph map type for the arcs.
+      /// It conforms to the ReferenceMap concept.
       template<class T>
       class ArcMap : public ReferenceMap<Arc, T, T&, const T&> {
       public:
 
-        ///\e
-        ArcMap(const Digraph&) { }
-        ///\e
+        /// Constructor
+        explicit ArcMap(const Digraph&) { }
+        /// Constructor with given initial value
         ArcMap(const Digraph&, T) { }
+
       private:
         ///Copy constructor
         ArcMap(const ArcMap& em) :

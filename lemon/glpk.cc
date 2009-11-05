@@ -59,6 +59,42 @@ namespace lemon {
     return i;
   }
 
+  int GlpkBase::_addRow(Value lo, ExprIterator b, 
+                        ExprIterator e, Value up) {
+    int i = glp_add_rows(lp, 1);
+
+    if (lo == -INF) {
+      if (up == INF) {
+        glp_set_row_bnds(lp, i, GLP_FR, lo, up);
+      } else {
+        glp_set_row_bnds(lp, i, GLP_UP, lo, up);
+      }    
+    } else {
+      if (up == INF) {
+        glp_set_row_bnds(lp, i, GLP_LO, lo, up);
+      } else if (lo != up) {        
+        glp_set_row_bnds(lp, i, GLP_DB, lo, up);
+      } else {
+        glp_set_row_bnds(lp, i, GLP_FX, lo, up);
+      }
+    }
+
+    std::vector<int> indexes;
+    std::vector<Value> values;
+
+    indexes.push_back(0);
+    values.push_back(0);
+
+    for(ExprIterator it = b; it != e; ++it) {
+      indexes.push_back(it->first);
+      values.push_back(it->second);
+    }
+
+    glp_set_mat_row(lp, i, values.size() - 1,
+                    &indexes.front(), &values.front());
+    return i;
+  }
+
   void GlpkBase::_eraseCol(int i) {
     int ca[2];
     ca[1] = i;

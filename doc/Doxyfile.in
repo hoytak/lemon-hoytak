@@ -1,4 +1,4 @@
-# Doxyfile 1.5.7.1
+# Doxyfile 1.5.9
 
 #---------------------------------------------------------------------------
 # Project related configuration options
@@ -21,7 +21,6 @@ SHORT_NAMES            = YES
 JAVADOC_AUTOBRIEF      = NO
 QT_AUTOBRIEF           = NO
 MULTILINE_CPP_IS_BRIEF = NO
-DETAILS_AT_TOP         = YES
 INHERIT_DOCS           = NO
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
@@ -91,7 +90,8 @@ INPUT                  = "@abs_top_srcdir@/doc" \
                          "@abs_top_srcdir@/lemon/concepts" \
                          "@abs_top_srcdir@/demo" \
                          "@abs_top_srcdir@/tools" \
-                         "@abs_top_srcdir@/test/test_tools.h"
+                         "@abs_top_srcdir@/test/test_tools.h" \
+                         "@abs_top_builddir@/doc/references.dox"
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cc \
@@ -223,7 +223,7 @@ PREDEFINED             = DOXYGEN
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
-# Configuration::additions related to external references   
+# Options related to the search engine   
 #---------------------------------------------------------------------------
 TAGFILES               = "@abs_top_srcdir@/doc/libstdc++.tag = http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/  "
 GENERATE_TAGFILE       = html/lemon.tag

@@ -9,6 +9,7 @@ LINK_DIRECTORIES(
 
 SET(TESTS
   adaptors_test
+  bellman_ford_test
   bfs_test
   circulation_test
   connectivity_test
