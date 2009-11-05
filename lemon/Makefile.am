@@ -86,7 +86,10 @@ lemon_HEADERS += \
 	lemon/gomory_hu.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
+	lemon/hartmann_orlin.h \
+	lemon/howard.h \
 	lemon/hypercube_graph.h \
+	lemon/karp.h \
 	lemon/kary_heap.h \
 	lemon/kruskal.h \
 	lemon/hao_orlin.h \
@@ -110,6 +113,7 @@ lemon_HEADERS += \
 	lemon/random.h \
 	lemon/smart_graph.h \
 	lemon/soplex.h \
+	lemon/static_graph.h \
 	lemon/suurballe.h \
 	lemon/time_measure.h \
 	lemon/tolerance.h \

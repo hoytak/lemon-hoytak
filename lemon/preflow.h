@@ -102,7 +102,8 @@ namespace lemon {
   ///
   /// This class provides an implementation of Goldberg-Tarjan's \e preflow
   /// \e push-relabel algorithm producing a \ref max_flow
-  /// "flow of maximum value" in a digraph.
+  /// "flow of maximum value" in a digraph \ref clrs01algorithms,
+  /// \ref amo93networkflows, \ref goldberg88newapproach.
   /// The preflow algorithms are the fastest known maximum
   /// flow algorithms. The current implementation uses a mixture of the
   /// \e "highest label" and the \e "bound decrease" heuristics.

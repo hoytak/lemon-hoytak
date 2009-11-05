@@ -41,6 +41,7 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
 AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
+AC_CHECK_PROG([python_found],[python],[yes],[no])
 AC_CHECK_PROG([gs_found],[gs],[yes],[no])
 
 dnl Detect Intel compiler.

@@ -26,7 +26,7 @@ namespace lemon {
 The \e minimum \e cost \e flow \e problem is to find a feasible flow of
 minimum total cost from a set of supply nodes to a set of demand nodes
 in a network with capacity constraints (lower and upper bounds)
-and arc costs.
+and arc costs \ref amo93networkflows.
 
 Formally, let \f$G=(V,A)\f$ be a digraph, \f$lower: A\rightarrow\mathbf{R}\f$,
 \f$upper: A\rightarrow\mathbf{R}\cup\{+\infty\}\f$ denote the lower and
