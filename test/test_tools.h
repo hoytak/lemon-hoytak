@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -37,10 +37,14 @@
 ///\code check(0==1,"This is obviously false.");\endcode will
 ///print something like this (and then exits).
 ///\verbatim file_name.cc:123: error: This is obviously false. \endverbatim
-#define check(rc, msg) \
-  if(!(rc)) { \
-    std::cerr << __FILE__ ":" << __LINE__ << ": error: " << msg << std::endl; \
-    abort(); \
-  } else { } \
+#define check(rc, msg)                                                  \
+  {                                                                     \
+    if(!(rc)) {                                                         \
+      std::cerr << __FILE__ ":" << __LINE__ << ": error: "              \
+                << msg << std::endl;                                    \
+      abort();                                                          \
+    } else { }                                                          \
+  }                                                                     \
+    
 
 #endif

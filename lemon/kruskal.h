@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -248,11 +248,11 @@ namespace lemon {
 
   /// \ingroup spantree
   ///
-  /// \brief Kruskal algorithm to find a minimum cost spanning tree of
+  /// \brief Kruskal's algorithm for finding a minimum cost spanning tree of
   /// a graph.
   ///
   /// This function runs Kruskal's algorithm to find a minimum cost
-  /// spanning tree.
+  /// spanning tree of a graph.
   /// Due to some C++ hacking, it accepts various input and output types.
   ///
   /// \param g The graph the algorithm runs on.
@@ -264,17 +264,17 @@ namespace lemon {
   /// \param in This object is used to describe the arc/edge costs.
   /// It can be one of the following choices.
   /// - An STL compatible 'Forward Container' with
-  /// <tt>std::pair<GR::Arc,X></tt> or
-  /// <tt>std::pair<GR::Edge,X></tt> as its <tt>value_type</tt>, where
-  /// \c X is the type of the costs. The pairs indicates the arcs/edges
+  /// <tt>std::pair<GR::Arc,C></tt> or
+  /// <tt>std::pair<GR::Edge,C></tt> as its <tt>value_type</tt>, where
+  /// \c C is the type of the costs. The pairs indicates the arcs/edges
   /// along with the assigned cost. <em>They must be in a
   /// cost-ascending order.</em>
   /// - Any readable arc/edge map. The values of the map indicate the
   /// arc/edge costs.
   ///
   /// \retval out Here we also have a choice.
-  /// - It can be a writable \c bool arc/edge map. After running the
-  /// algorithm it will contain the found minimum cost spanning
+  /// - It can be a writable arc/edge map with \c bool value type. After
+  /// running the algorithm it will contain the found minimum cost spanning
   /// tree: the value of an arc/edge will be set to \c true if it belongs
   /// to the tree, otherwise it will be set to \c false. The value of
   /// each arc/edge will be set exactly once.
@@ -301,8 +301,8 @@ namespace lemon {
   /// forest is calculated instead of a spanning tree.
 
 #ifdef DOXYGEN
-  template <class Graph, class In, class Out>
-  Value kruskal(GR const& g, const In& in, Out& out)
+  template <typename Graph, typename In, typename Out>
+  Value kruskal(const Graph& g, const In& in, Out& out)
 #else
   template <class Graph, class In, class Out>
   inline typename _kruskal_bits::KruskalValueSelector<In>::Value
@@ -312,8 +312,6 @@ namespace lemon {
     return _kruskal_bits::KruskalInputSelector<Graph, In, Out>::
       kruskal(graph, in, out);
   }
-
-
 
 
   template <class Graph, class In, class Out>

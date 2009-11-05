@@ -1,6 +1,6 @@
-==================================================================
-LEMON - a Library of Efficient Models and Optimization in Networks
-==================================================================
+=====================================================================
+LEMON - a Library for Efficient Modeling and Optimization in Networks
+=====================================================================
 
 LEMON is an open source library written in C++. It provides
 easy-to-use implementations of common data structures and algorithms

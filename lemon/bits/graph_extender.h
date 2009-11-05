@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -29,17 +29,18 @@
 
 //\ingroup graphbits
 //\file
-//\brief Extenders for the digraph types
+//\brief Extenders for the graph types
 namespace lemon {
 
   // \ingroup graphbits
   //
-  // \brief Extender for the Digraphs
+  // \brief Extender for the digraph implementations
   template <typename Base>
   class DigraphExtender : public Base {
+    typedef Base Parent;
+
   public:
 
-    typedef Base Parent;
     typedef DigraphExtender Digraph;
 
     // Base extensions
@@ -55,11 +56,11 @@ namespace lemon {
       return Parent::maxArcId();
     }
 
-    Node fromId(int id, Node) const {
+    static Node fromId(int id, Node) {
       return Parent::nodeFromId(id);
     }
 
-    Arc fromId(int id, Arc) const {
+    static Arc fromId(int id, Arc) {
       return Parent::arcFromId(id);
     }
 
@@ -218,10 +219,9 @@ namespace lemon {
     template <typename _Value>
     class NodeMap
       : public MapExtender<DefaultMap<Digraph, Node, _Value> > {
-    public:
-      typedef DigraphExtender Digraph;
       typedef MapExtender<DefaultMap<Digraph, Node, _Value> > Parent;
 
+    public:
       explicit NodeMap(const Digraph& digraph)
         : Parent(digraph) {}
       NodeMap(const Digraph& digraph, const _Value& value)
@@ -243,10 +243,9 @@ namespace lemon {
     template <typename _Value>
     class ArcMap
       : public MapExtender<DefaultMap<Digraph, Arc, _Value> > {
-    public:
-      typedef DigraphExtender Digraph;
       typedef MapExtender<DefaultMap<Digraph, Arc, _Value> > Parent;
 
+    public:
       explicit ArcMap(const Digraph& digraph)
         : Parent(digraph) {}
       ArcMap(const Digraph& digraph, const _Value& value)
@@ -330,9 +329,10 @@ namespace lemon {
   // \brief Extender for the Graphs
   template <typename Base>
   class GraphExtender : public Base {
+    typedef Base Parent;
+
   public:
 
-    typedef Base Parent;
     typedef GraphExtender Graph;
 
     typedef True UndirectedTag;
@@ -355,15 +355,15 @@ namespace lemon {
       return Parent::maxEdgeId();
     }
 
-    Node fromId(int id, Node) const {
+    static Node fromId(int id, Node) {
       return Parent::nodeFromId(id);
     }
 
-    Arc fromId(int id, Arc) const {
+    static Arc fromId(int id, Arc) {
       return Parent::arcFromId(id);
     }
 
-    Edge fromId(int id, Edge) const {
+    static Edge fromId(int id, Edge) {
       return Parent::edgeFromId(id);
     }
 
@@ -601,11 +601,10 @@ namespace lemon {
     template <typename _Value>
     class NodeMap
       : public MapExtender<DefaultMap<Graph, Node, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Node, _Value> > Parent;
 
-      NodeMap(const Graph& graph)
+    public:
+      explicit NodeMap(const Graph& graph)
         : Parent(graph) {}
       NodeMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
@@ -626,11 +625,10 @@ namespace lemon {
     template <typename _Value>
     class ArcMap
       : public MapExtender<DefaultMap<Graph, Arc, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Arc, _Value> > Parent;
 
-      ArcMap(const Graph& graph)
+    public:
+      explicit ArcMap(const Graph& graph)
         : Parent(graph) {}
       ArcMap(const Graph& graph, const _Value& value)
         : Parent(graph, value) {}
@@ -651,11 +649,10 @@ namespace lemon {
     template <typename _Value>
     class EdgeMap
       : public MapExtender<DefaultMap<Graph, Edge, _Value> > {
-    public:
-      typedef GraphExtender Graph;
       typedef MapExtender<DefaultMap<Graph, Edge, _Value> > Parent;
 
-      EdgeMap(const Graph& graph)
+    public:
+      explicit EdgeMap(const Graph& graph)
         : Parent(graph) {}
 
       EdgeMap(const Graph& graph, const _Value& value)

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -55,6 +55,15 @@ namespace lemon {
   /// 1/sqrt(2)
   const long double SQRT1_2 = 0.7071067811865475244008443621048490L;
 
+  ///Check whether the parameter is NaN or not
+  
+  ///This function checks whether the parameter is NaN or not.
+  ///Is should be equivalent with std::isnan(), but it is not
+  ///provided by all compilers.
+  inline bool isNaN(double v)
+    {
+      return v!=v;
+    }
 
   /// @}
 

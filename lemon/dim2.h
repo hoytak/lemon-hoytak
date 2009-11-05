@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -21,16 +21,9 @@
 
 #include <iostream>
 
-///\ingroup misc
+///\ingroup geomdat
 ///\file
 ///\brief A simple two dimensional vector and a bounding box implementation
-///
-/// The class \ref lemon::dim2::Point "dim2::Point" implements
-/// a two dimensional vector with the usual operations.
-///
-/// The class \ref lemon::dim2::Box "dim2::Box" can be used to determine
-/// the rectangular bounding box of a set of
-/// \ref lemon::dim2::Point "dim2::Point"'s.
 
 namespace lemon {
 
@@ -40,7 +33,7 @@ namespace lemon {
   ///tools for handling two dimensional coordinates
   namespace dim2 {
 
-  /// \addtogroup misc
+  /// \addtogroup geomdat
   /// @{
 
   /// Two dimensional vector (plain vector)

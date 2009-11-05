@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -60,48 +60,94 @@ void checkDijkstraCompile()
   typedef Digraph::Arc Arc;
 
   Digraph G;
-  Node s, t;
+  Node s, t, n;
   Arc e;
   VType l;
+  int i;
   bool b;
   DType::DistMap d(G);
   DType::PredMap p(G);
   LengthMap length;
   Path<Digraph> pp;
+  concepts::ReadMap<Node,bool> nm;
 
   {
     DType dijkstra_test(G,length);
+    const DType& const_dijkstra_test = dijkstra_test;
 
     dijkstra_test.run(s);
     dijkstra_test.run(s,t);
 
-    l  = dijkstra_test.dist(t);
-    e  = dijkstra_test.predArc(t);
-    s  = dijkstra_test.predNode(t);
-    b  = dijkstra_test.reached(t);
-    d  = dijkstra_test.distMap();
-    p  = dijkstra_test.predMap();
-    pp = dijkstra_test.path(t);
+    dijkstra_test.init();
+    dijkstra_test.addSource(s);
+    dijkstra_test.addSource(s, 1);
+    n = dijkstra_test.processNextNode();
+    n = const_dijkstra_test.nextNode();
+    b = const_dijkstra_test.emptyQueue();
+    i = const_dijkstra_test.queueSize();
+    
+    dijkstra_test.start();
+    dijkstra_test.start(t);
+    dijkstra_test.start(nm);
+
+    l  = const_dijkstra_test.dist(t);
+    e  = const_dijkstra_test.predArc(t);
+    s  = const_dijkstra_test.predNode(t);
+    b  = const_dijkstra_test.reached(t);
+    b  = const_dijkstra_test.processed(t);
+    d  = const_dijkstra_test.distMap();
+    p  = const_dijkstra_test.predMap();
+    pp = const_dijkstra_test.path(t);
+    l  = const_dijkstra_test.currentDist(t);
   }
   {
     DType
       ::SetPredMap<concepts::ReadWriteMap<Node,Arc> >
       ::SetDistMap<concepts::ReadWriteMap<Node,VType> >
-      ::SetProcessedMap<concepts::WriteMap<Node,bool> >
       ::SetStandardProcessedMap
+      ::SetProcessedMap<concepts::WriteMap<Node,bool> >
       ::SetOperationTraits<DijkstraDefaultOperationTraits<VType> >
       ::SetHeap<BinHeap<VType, concepts::ReadWriteMap<Node,int> > >
       ::SetStandardHeap<BinHeap<VType, concepts::ReadWriteMap<Node,int> > >
+      ::SetHeap<BinHeap<VType, concepts::ReadWriteMap<Node,int> >, 
+                concepts::ReadWriteMap<Node,int> >
       ::Create dijkstra_test(G,length);
+
+    LengthMap length_map;
+    concepts::ReadWriteMap<Node,Arc> pred_map;
+    concepts::ReadWriteMap<Node,VType> dist_map;
+    concepts::WriteMap<Node,bool> processed_map;
+    concepts::ReadWriteMap<Node,int> heap_cross_ref;
+    BinHeap<VType, concepts::ReadWriteMap<Node,int> > heap(heap_cross_ref);
+    
+    dijkstra_test
+      .lengthMap(length_map)
+      .predMap(pred_map)
+      .distMap(dist_map)
+      .processedMap(processed_map)
+      .heap(heap, heap_cross_ref);
 
     dijkstra_test.run(s);
     dijkstra_test.run(s,t);
+
+    dijkstra_test.addSource(s);
+    dijkstra_test.addSource(s, 1);
+    n = dijkstra_test.processNextNode();
+    n = dijkstra_test.nextNode();
+    b = dijkstra_test.emptyQueue();
+    i = dijkstra_test.queueSize();
+    
+    dijkstra_test.start();
+    dijkstra_test.start(t);
+    dijkstra_test.start(nm);
 
     l  = dijkstra_test.dist(t);
     e  = dijkstra_test.predArc(t);
     s  = dijkstra_test.predNode(t);
     b  = dijkstra_test.reached(t);
+    b  = dijkstra_test.processed(t);
     pp = dijkstra_test.path(t);
+    l  = dijkstra_test.currentDist(t);
   }
 
 }
