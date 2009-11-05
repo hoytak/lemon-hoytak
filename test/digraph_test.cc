@@ -441,6 +441,38 @@ void checkStaticDigraph() {
 
   checkGraphConArcList(G, 4);
 
+  std::vector<std::pair<int,int> > arcs;
+  arcs.push_back(std::make_pair(0,1));
+  arcs.push_back(std::make_pair(0,2));
+  arcs.push_back(std::make_pair(1,3));
+  arcs.push_back(std::make_pair(1,2));
+  arcs.push_back(std::make_pair(3,0));
+  arcs.push_back(std::make_pair(3,3));
+  arcs.push_back(std::make_pair(4,2));
+  arcs.push_back(std::make_pair(4,3));
+  arcs.push_back(std::make_pair(4,1));
+
+  G.build(6, arcs.begin(), arcs.end());
+  
+  checkGraphNodeList(G, 6);
+  checkGraphArcList(G, 9);
+
+  checkGraphOutArcList(G, G.node(0), 2);
+  checkGraphOutArcList(G, G.node(1), 2);
+  checkGraphOutArcList(G, G.node(2), 0);
+  checkGraphOutArcList(G, G.node(3), 2);
+  checkGraphOutArcList(G, G.node(4), 3);
+  checkGraphOutArcList(G, G.node(5), 0);
+
+  checkGraphInArcList(G, G.node(0), 1);
+  checkGraphInArcList(G, G.node(1), 2);
+  checkGraphInArcList(G, G.node(2), 3);
+  checkGraphInArcList(G, G.node(3), 3);
+  checkGraphInArcList(G, G.node(4), 0);
+  checkGraphInArcList(G, G.node(5), 0);
+
+  checkGraphConArcList(G, 9);
+
   checkNodeIds(G);
   checkArcIds(G);
   checkGraphNodeMap(G);
