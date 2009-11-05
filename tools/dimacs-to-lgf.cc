@@ -24,11 +24,10 @@
 /// (LGF).
 ///
 /// See
-/// \verbatim
-///  dimacs-to-lgf --help
-/// \endverbatim
-/// for more info on usage.
-///
+/// \code
+///   dimacs-to-lgf --help
+/// \endcode
+/// for more info on the usage.
 
 #include <iostream>
 #include <fstream>
@@ -96,7 +95,7 @@ int main(int argc, const char *argv[]) {
         Digraph digraph;
         DoubleArcMap lower(digraph), capacity(digraph), cost(digraph);
         DoubleNodeMap supply(digraph);
-        readDimacsMin(is, digraph, lower, capacity, cost, supply, desc);
+        readDimacsMin(is, digraph, lower, capacity, cost, supply, 0, desc);
         DigraphWriter<Digraph>(digraph, os).
           nodeMap("supply", supply).
           arcMap("lower", lower).
@@ -111,7 +110,7 @@ int main(int argc, const char *argv[]) {
         Digraph digraph;
         Node s, t;
         DoubleArcMap capacity(digraph);
-        readDimacsMax(is, digraph, capacity, s, t, desc);
+        readDimacsMax(is, digraph, capacity, s, t, 0, desc);
         DigraphWriter<Digraph>(digraph, os).
           arcMap("capacity", capacity).
           node("source", s).

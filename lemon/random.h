@@ -77,7 +77,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #else
-#include <windows.h>
+#include <lemon/bits/windows.h>
 #endif
 
 ///\ingroup misc
@@ -344,18 +344,8 @@ namespace lemon {
       }
     };
 
-    template <typename Result, int exp, bool pos = (exp >= 0)>
-    struct ShiftMultiplier {
-      static const Result multiplier() {
-        Result res = ShiftMultiplier<Result, exp / 2>::multiplier();
-        res *= res;
-        if ((exp & 1) == 1) res *= static_cast<Result>(2.0);
-        return res;
-      }
-    };
-
     template <typename Result, int exp>
-    struct ShiftMultiplier<Result, exp, false> {
+    struct ShiftMultiplier {
       static const Result multiplier() {
         Result res = ShiftMultiplier<Result, exp / 2>::multiplier();
         res *= res;
@@ -365,35 +355,35 @@ namespace lemon {
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, 0, true> {
+    struct ShiftMultiplier<Result, 0> {
       static const Result multiplier() {
         return static_cast<Result>(1.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -20, true> {
+    struct ShiftMultiplier<Result, 20> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/1048576.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -32, true> {
+    struct ShiftMultiplier<Result, 32> {
       static const Result multiplier() {
-        return static_cast<Result>(1.0/424967296.0);
+        return static_cast<Result>(1.0/4294967296.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -53, true> {
+    struct ShiftMultiplier<Result, 53> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/9007199254740992.0);
       }
     };
 
     template <typename Result>
-    struct ShiftMultiplier<Result, -64, true> {
+    struct ShiftMultiplier<Result, 64> {
       static const Result multiplier() {
         return static_cast<Result>(1.0/18446744073709551616.0);
       }
@@ -413,7 +403,7 @@ namespace lemon {
       static const int bits = std::numeric_limits<Word>::digits;
 
       static Result convert(RandomCore<Word>& rnd) {
-        return Shifting<Result, - shift - rest>::
+        return Shifting<Result, shift + rest>::
           shift(static_cast<Result>(rnd() >> (bits - rest)));
       }
     };
@@ -423,7 +413,7 @@ namespace lemon {
       static const int bits = std::numeric_limits<Word>::digits;
 
       static Result convert(RandomCore<Word>& rnd) {
-        return Shifting<Result, - shift - bits>::
+        return Shifting<Result, shift + bits>::
           shift(static_cast<Result>(rnd())) +
           RealConversion<Result, Word, rest-bits, shift + bits>::
           convert(rnd);
@@ -613,7 +603,7 @@ namespace lemon {
     /// By default, this function calls the \c seedFromFile() member
     /// function with the <tt>/dev/urandom</tt> file. If it does not success,
     /// it uses the \c seedFromTime().
-    /// \return Currently always true.
+    /// \return Currently always \c true.
     bool seed() {
 #ifndef WIN32
       if (seedFromFile("/dev/urandom", 0)) return true;
@@ -634,7 +624,7 @@ namespace lemon {
     /// entropy).
     /// \param file The source file
     /// \param offset The offset, from the file read.
-    /// \return True when the seeding successes.
+    /// \return \c true when the seeding successes.
 #ifndef WIN32
     bool seedFromFile(const std::string& file = "/dev/urandom", int offset = 0)
 #else
@@ -655,23 +645,21 @@ namespace lemon {
     /// Seding from process id and time. This function uses the
     /// current process id and the current time for initialize the
     /// random sequence.
-    /// \return Currently always true.
+    /// \return Currently always \c true.
     bool seedFromTime() {
 #ifndef WIN32
       timeval tv;
       gettimeofday(&tv, 0);
       seed(getpid() + tv.tv_sec + tv.tv_usec);
 #else
-      FILETIME time;
-      GetSystemTimeAsFileTime(&time);
-      seed(GetCurrentProcessId() + time.dwHighDateTime + time.dwLowDateTime);
+      seed(bits::getWinRndSeed());
 #endif
       return true;
     }
 
     /// @}
 
-    ///\name Uniform distributions
+    ///\name Uniform Distributions
     ///
     /// @{
 
@@ -774,7 +762,7 @@ namespace lemon {
 
     /// @}
 
-    ///\name Non-uniform distributions
+    ///\name Non-uniform Distributions
     ///
     ///@{
 
@@ -950,7 +938,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Two dimensional distributions
+    ///\name Two Dimensional Distributions
     ///
     ///@{
 

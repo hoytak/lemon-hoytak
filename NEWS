@@ -1,3 +1,97 @@
+2009-05-13 Version 1.1 released
+
+        This is the second stable release of the 1.x series. It
+        features a better coverage of the tools available in the 0.x
+        series, a thoroughly reworked LP/MIP interface plus various
+        improvements in the existing tools.
+
+        * Much improved M$ Windows support
+          * Various improvements in the CMAKE build system
+          * Compilation warnings are fixed/suppressed
+        * Support IBM xlC compiler
+        * New algorithms
+          * Connectivity related algorithms (#61)
+          * Euler walks (#65)
+          * Preflow push-relabel max. flow algorithm (#176)
+          * Circulation algorithm (push-relabel based) (#175)
+          * Suurballe algorithm (#47)
+          * Gomory-Hu algorithm (#66)
+          * Hao-Orlin algorithm (#58)
+          * Edmond's maximum cardinality and weighted matching algorithms
+            in general graphs (#48,#265)
+          * Minimum cost arborescence/branching (#60)
+          * Network Simplex min. cost flow algorithm (#234)
+        * New data structures
+          * Full graph structure (#57)
+          * Grid graph structure (#57)
+          * Hypercube graph structure (#57)
+          * Graph adaptors (#67)
+          * ArcSet and EdgeSet classes (#67)
+          * Elevator class (#174)
+        * Other new tools
+          * LP/MIP interface (#44)
+            * Support for GLPK, CPLEX, Soplex, COIN-OR CLP and CBC
+          * Reader for the Nauty file format (#55)
+          * DIMACS readers (#167)
+          * Radix sort algorithms (#72)
+          * RangeIdMap and CrossRefMap (#160)
+        * New command line tools
+          * DIMACS to LGF converter (#182)
+          * lgf-gen - a graph generator (#45)
+          * DIMACS solver utility (#226)
+        * Other code improvements
+          * Lognormal distribution added to Random (#102)
+          * Better (i.e. O(1) time) item counting in SmartGraph (#3)
+          * The standard maps of graphs are guaranteed to be
+            reference maps (#190)
+        * Miscellaneous
+          * Various doc improvements
+          * Improved 0.x -> 1.x converter script
+
+        * Several bugfixes (compared to release 1.0):
+          #170: Bugfix SmartDigraph::split()
+          #171: Bugfix in SmartGraph::restoreSnapshot()
+          #172: Extended test cases for graphs and digraphs
+          #173: Bugfix in Random
+                * operator()s always return a double now
+                * the faulty real<Num>(Num) and real<Num>(Num,Num)
+                  have been removed
+          #187: Remove DijkstraWidestPathOperationTraits
+          #61:  Bugfix in DfsVisit
+          #193: Bugfix in GraphReader::skipSection()
+          #195: Bugfix in ConEdgeIt()
+          #197: Bugfix in heap unionfind
+                * This bug affects Edmond's general matching algorithms
+          #207: Fix 'make install' without 'make html' using CMAKE
+          #208: Suppress or fix VS2008 compilation warnings
+          ----: Update the LEMON icon
+          ----: Enable the component-based installer
+                (in installers made by CPACK)
+          ----: Set the proper version for CMAKE in the tarballs
+                (made by autotools)
+          ----: Minor clarification in the LICENSE file
+          ----: Add missing unistd.h include to time_measure.h
+          #204: Compilation bug fixed in graph_to_eps.h with VS2005
+          #214,#215: windows.h should never be included by lemon headers
+          #230: Build systems check the availability of 'long long' type
+          #229: Default implementation of Tolerance<> is used for integer types
+          #211,#212: Various fixes for compiling on AIX
+          ----: Improvements in CMAKE config
+                - docs is installed in share/doc/
+                - detects newer versions of Ghostscript
+          #239: Fix missing 'inline' specifier in time_measure.h
+          #274,#280: Install lemon/config.h
+          #275: Prefix macro names with LEMON_ in lemon/config.h
+          ----: Small script for making the release tarballs added
+          ----: Minor improvement in unify-sources.sh (a76f55d7d397)
+
+2009-03-27 LEMON joins to the COIN-OR initiative
+
+        COIN-OR (Computational Infrastructure for Operations Research,
+        http://www.coin-or.org) project is an initiative to spur the
+        development of open-source software for the operations research
+        community.
+
 2008-10-13 Version 1.0 released
 
 	This is the first stable release of LEMON. Compared to the 0.x

@@ -205,11 +205,11 @@ namespace lemon {
   /// the identity function instead.
   ///
   /// This is a special quick sort algorithm where the pivot
-  /// values to split the items are choosen to be \f$ 2^k \f$ for each \c k.
-  /// Therefore, the time complexity of the
-  /// algorithm is \f$ O(\log(c)n) \f$ and it uses \f$ O(\log(c)) \f$,
-  /// additional space, where \c c is the maximal value and \c n is the
-  /// number of the items in the container.
+  /// values to split the items are choosen to be 2<sup>k</sup>
+  /// for each \c k.
+  /// Therefore, the time complexity of the algorithm is O(log(c)*n) and
+  /// it uses O(log(c)) additional space, where \c c is the maximal value
+  /// and \c n is the number of the items in the container.
   ///
   /// \param first The begin of the given range.
   /// \param last The end of the given range.
@@ -430,10 +430,10 @@ namespace lemon {
   /// bytes of the integer number. The algorithm sorts the items
   /// byte-by-byte. First, it counts how many times a byte value occurs
   /// in the container, then it copies the corresponding items to
-  /// another container in asceding order in \c O(n) time.
+  /// another container in asceding order in O(n) time.
   ///
-  /// The time complexity of the algorithm is \f$ O(\log(c)n) \f$ and
-  /// it uses \f$ O(n) \f$, additional space, where \c c is the
+  /// The time complexity of the algorithm is O(log(c)*n) and
+  /// it uses O(n) additional space, where \c c is the
   /// maximal value and \c n is the number of the items in the
   /// container.
   ///

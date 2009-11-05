@@ -19,6 +19,7 @@
 #ifndef LEMON_BITS_DEFAULT_MAP_H
 #define LEMON_BITS_DEFAULT_MAP_H
 
+#include <lemon/config.h>
 #include <lemon/bits/array_map.h>
 #include <lemon/bits/vector_map.h>
 //#include <lemon/bits/debug_map.h>
@@ -96,7 +97,7 @@ namespace lemon {
   };
 
 
-#if defined __GNUC__ && !defined __STRICT_ANSI__
+#if defined LEMON_HAVE_LONG_LONG
 
   // long long
   template <typename _Graph, typename _Item>
@@ -152,15 +153,16 @@ namespace lemon {
   template <typename _Graph, typename _Item, typename _Value>
   class DefaultMap
     : public DefaultMapSelector<_Graph, _Item, _Value>::Map {
-  public:
     typedef typename DefaultMapSelector<_Graph, _Item, _Value>::Map Parent;
-    typedef DefaultMap<_Graph, _Item, _Value> Map;
 
-    typedef typename Parent::Graph Graph;
+  public:
+    typedef DefaultMap<_Graph, _Item, _Value> Map;
+    
+    typedef typename Parent::GraphType GraphType;
     typedef typename Parent::Value Value;
 
-    explicit DefaultMap(const Graph& graph) : Parent(graph) {}
-    DefaultMap(const Graph& graph, const Value& value)
+    explicit DefaultMap(const GraphType& graph) : Parent(graph) {}
+    DefaultMap(const GraphType& graph, const Value& value)
       : Parent(graph, value) {}
 
     DefaultMap& operator=(const DefaultMap& cmap) {

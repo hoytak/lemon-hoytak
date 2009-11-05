@@ -23,7 +23,7 @@
 #include<lemon/core.h>
 namespace lemon {
 
-  float Tolerance<float>::def_epsilon = 1e-4;
+  float Tolerance<float>::def_epsilon = static_cast<float>(1e-4);
   double Tolerance<double>::def_epsilon = 1e-10;
   long double Tolerance<long double>::def_epsilon = 1e-14;
 

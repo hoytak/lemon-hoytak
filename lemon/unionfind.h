@@ -51,11 +51,13 @@ namespace lemon {
   ///
   /// \pre You need to add all the elements by the \ref insert()
   /// method.
-  template <typename _ItemIntMap>
+  template <typename IM>
   class UnionFind {
   public:
 
-    typedef _ItemIntMap ItemIntMap;
+    ///\e
+    typedef IM ItemIntMap;
+    ///\e
     typedef typename ItemIntMap::Key Item;
 
   private:
@@ -170,11 +172,13 @@ namespace lemon {
   /// \pre You need to add all the elements by the \ref insert()
   /// method.
   ///
-  template <typename _ItemIntMap>
+  template <typename IM>
   class UnionFindEnum {
   public:
 
-    typedef _ItemIntMap ItemIntMap;
+    ///\e
+    typedef IM ItemIntMap;
+    ///\e
     typedef typename ItemIntMap::Key Item;
 
   private:
@@ -627,11 +631,13 @@ namespace lemon {
   ///
   /// \pre You need to add all the elements by the \ref insert()
   /// method.
-  template <typename _ItemIntMap>
+  template <typename IM>
   class ExtendFindEnum {
   public:
 
-    typedef _ItemIntMap ItemIntMap;
+    ///\e
+    typedef IM ItemIntMap;
+    ///\e
     typedef typename ItemIntMap::Key Item;
 
   private:
@@ -948,18 +954,18 @@ namespace lemon {
   ///
   /// \pre You need to add all the elements by the \ref insert()
   /// method.
-  ///
-  template <typename _Value, typename _ItemIntMap,
-            typename _Comp = std::less<_Value> >
+  template <typename V, typename IM, typename Comp = std::less<V> >
   class HeapUnionFind {
   public:
 
-    typedef _Value Value;
-    typedef typename _ItemIntMap::Key Item;
-
-    typedef _ItemIntMap ItemIntMap;
-
-    typedef _Comp Comp;
+    ///\e
+    typedef V Value;
+    ///\e
+    typedef typename IM::Key Item;
+    ///\e
+    typedef IM ItemIntMap;
+    ///\e
+    typedef Comp Compare;
 
   private:
 
@@ -1601,7 +1607,7 @@ namespace lemon {
 
     /// \brief Gives back the priority of the current item.
     ///
-    /// \return Gives back the priority of the current item.
+    /// Gives back the priority of the current item.
     const Value& operator[](const Item& item) const {
       return nodes[index[item]].prio;
     }
@@ -1646,7 +1652,7 @@ namespace lemon {
 
     /// \brief Gives back the minimum priority of the class.
     ///
-    /// \return Gives back the minimum priority of the class.
+    /// Gives back the minimum priority of the class.
     const Value& classPrio(int cls) const {
       return nodes[~(classes[cls].parent)].prio;
     }
@@ -1660,9 +1666,9 @@ namespace lemon {
 
     /// \brief Gives back a representant item of the class.
     ///
+    /// Gives back a representant item of the class.
     /// The representant is indpendent from the priorities of the
     /// items.
-    /// \return Gives back a representant item of the class.
     const Item& classRep(int id) const {
       int parent = classes[id].parent;
       return nodes[parent >= 0 ? classes[id].depth : leftNode(id)].item;

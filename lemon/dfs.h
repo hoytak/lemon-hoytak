@@ -47,13 +47,13 @@ namespace lemon {
     ///
     ///The type of the map that stores the predecessor
     ///arcs of the %DFS paths.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
-    ///Instantiates a PredMap.
+    ///Instantiates a \c PredMap.
 
-    ///This function instantiates a PredMap.
+    ///This function instantiates a \ref PredMap.
     ///\param g is the digraph, to which we would like to define the
-    ///PredMap.
+    ///\ref PredMap.
     static PredMap *createPredMap(const Digraph &g)
     {
       return new PredMap(g);
@@ -62,13 +62,14 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
+    ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
-    ///Instantiates a ProcessedMap.
+    ///Instantiates a \c ProcessedMap.
 
-    ///This function instantiates a ProcessedMap.
+    ///This function instantiates a \ref ProcessedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the ProcessedMap
+    ///we would like to define the \ref ProcessedMap.
 #ifdef DOXYGEN
     static ProcessedMap *createProcessedMap(const Digraph &g)
 #else
@@ -81,13 +82,13 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
-    ///Instantiates a ReachedMap.
+    ///Instantiates a \c ReachedMap.
 
-    ///This function instantiates a ReachedMap.
+    ///This function instantiates a \ref ReachedMap.
     ///\param g is the digraph, to which
-    ///we would like to define the ReachedMap.
+    ///we would like to define the \ref ReachedMap.
     static ReachedMap *createReachedMap(const Digraph &g)
     {
       return new ReachedMap(g);
@@ -96,13 +97,13 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
 
     ///The type of the map that stores the distances of the nodes.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<int> DistMap;
-    ///Instantiates a DistMap.
+    ///Instantiates a \c DistMap.
 
-    ///This function instantiates a DistMap.
+    ///This function instantiates a \ref DistMap.
     ///\param g is the digraph, to which we would like to define the
-    ///DistMap.
+    ///\ref DistMap.
     static DistMap *createDistMap(const Digraph &g)
     {
       return new DistMap(g);
@@ -206,7 +207,7 @@ namespace lemon {
 
     typedef Dfs Create;
 
-    ///\name Named template parameters
+    ///\name Named Template Parameters
 
     ///@{
 
@@ -220,11 +221,11 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///PredMap type.
+    ///\c PredMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///PredMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///\c PredMap type.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetPredMap : public Dfs<Digraph, SetPredMapTraits<T> > {
       typedef Dfs<Digraph, SetPredMapTraits<T> > Create;
@@ -240,11 +241,11 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///DistMap type.
+    ///\c DistMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///DistMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///\c DistMap type.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetDistMap : public Dfs< Digraph, SetDistMapTraits<T> > {
       typedef Dfs<Digraph, SetDistMapTraits<T> > Create;
@@ -260,11 +261,11 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ReachedMap type.
+    ///\c ReachedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ReachedMap type.
-    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///\c ReachedMap type.
+    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     template <class T>
     struct SetReachedMap : public Dfs< Digraph, SetReachedMapTraits<T> > {
       typedef Dfs< Digraph, SetReachedMapTraits<T> > Create;
@@ -280,11 +281,11 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type.
+    ///\c ProcessedMap type.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///\c ProcessedMap type.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetProcessedMap : public Dfs< Digraph, SetProcessedMapTraits<T> > {
       typedef Dfs< Digraph, SetProcessedMapTraits<T> > Create;
@@ -298,10 +299,10 @@ namespace lemon {
       }
     };
     ///\brief \ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///\c ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///
     ///\ref named-templ-param "Named parameter" for setting
-    ///ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
+    ///\c ProcessedMap type to be <tt>Digraph::NodeMap<bool></tt>.
     ///If you don't set it explicitly, it will be automatically allocated.
     struct SetStandardProcessedMap :
       public Dfs< Digraph, SetStandardProcessedMapTraits > {
@@ -411,8 +412,8 @@ namespace lemon {
     ///\name Execution Control
     ///The simplest way to execute the DFS algorithm is to use one of the
     ///member functions called \ref run(Node) "run()".\n
-    ///If you need more control on the execution, first you have to call
-    ///\ref init(), then you can add a source node with \ref addSource()
+    ///If you need better control on the execution, you have to call
+    ///\ref init() first, then you can add a source node with \ref addSource()
     ///and perform the actual computation with \ref start().
     ///This procedure can be repeated if there are nodes that have not
     ///been reached.
@@ -669,9 +670,9 @@ namespace lemon {
 
     ///@{
 
-    ///The DFS path to a node.
+    ///The DFS path to the given node.
 
-    ///Returns the DFS path to a node.
+    ///Returns the DFS path to the given node from the root(s).
     ///
     ///\warning \c t should be reached from the root(s).
     ///
@@ -679,9 +680,9 @@ namespace lemon {
     ///must be called before using this function.
     Path path(Node t) const { return Path(*G, *_pred, t); }
 
-    ///The distance of a node from the root(s).
+    ///The distance of the given node from the root(s).
 
-    ///Returns the distance of a node from the root(s).
+    ///Returns the distance of the given node from the root(s).
     ///
     ///\warning If node \c v is not reached from the root(s), then
     ///the return value of this function is undefined.
@@ -690,7 +691,7 @@ namespace lemon {
     ///must be called before using this function.
     int dist(Node v) const { return (*_dist)[v]; }
 
-    ///Returns the 'previous arc' of the %DFS tree for a node.
+    ///Returns the 'previous arc' of the %DFS tree for the given node.
 
     ///This function returns the 'previous arc' of the %DFS tree for the
     ///node \c v, i.e. it returns the last arc of a %DFS path from a
@@ -698,21 +699,21 @@ namespace lemon {
     ///root(s) or if \c v is a root.
     ///
     ///The %DFS tree used here is equal to the %DFS tree used in
-    ///\ref predNode().
+    ///\ref predNode() and \ref predMap().
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     Arc predArc(Node v) const { return (*_pred)[v];}
 
-    ///Returns the 'previous node' of the %DFS tree.
+    ///Returns the 'previous node' of the %DFS tree for the given node.
 
     ///This function returns the 'previous node' of the %DFS
     ///tree for the node \c v, i.e. it returns the last but one node
-    ///from a %DFS path from a root to \c v. It is \c INVALID
+    ///of a %DFS path from a root to \c v. It is \c INVALID
     ///if \c v is not reached from the root(s) or if \c v is a root.
     ///
     ///The %DFS tree used here is equal to the %DFS tree used in
-    ///\ref predArc().
+    ///\ref predArc() and \ref predMap().
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
@@ -733,13 +734,13 @@ namespace lemon {
     ///predecessor arcs.
     ///
     ///Returns a const reference to the node map that stores the predecessor
-    ///arcs, which form the DFS tree.
+    ///arcs, which form the DFS tree (forest).
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
 
-    ///Checks if a node is reached from the root(s).
+    ///Checks if the given node. node is reached from the root(s).
 
     ///Returns \c true if \c v is reached from the root(s).
     ///
@@ -765,7 +766,7 @@ namespace lemon {
     ///
     ///The type of the map that stores the predecessor
     ///arcs of the %DFS paths.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
     ///Instantiates a PredMap.
 
@@ -780,7 +781,7 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     ///By default it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
@@ -800,7 +801,7 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
     ///Instantiates a ReachedMap.
 
@@ -815,7 +816,7 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
 
     ///The type of the map that stores the distances of the nodes.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<int> DistMap;
     ///Instantiates a DistMap.
 
@@ -830,18 +831,14 @@ namespace lemon {
     ///The type of the DFS paths.
 
     ///The type of the DFS paths.
-    ///It must meet the \ref concepts::Path "Path" concept.
+    ///It must conform to the \ref concepts::Path "Path" concept.
     typedef lemon::Path<Digraph> Path;
   };
 
   /// Default traits class used by DfsWizard
 
-  /// To make it easier to use Dfs algorithm
-  /// we have created a wizard class.
-  /// This \ref DfsWizard class needs default traits,
-  /// as well as the \ref Dfs class.
-  /// The \ref DfsWizardBase is a class to be the default traits of the
-  /// \ref DfsWizard class.
+  /// Default traits class used by DfsWizard.
+  /// \tparam GR The type of the digraph.
   template<class GR>
   class DfsWizardBase : public DfsWizardDefaultTraits<GR>
   {
@@ -869,7 +866,7 @@ namespace lemon {
     public:
     /// Constructor.
 
-    /// This constructor does not require parameters, therefore it initiates
+    /// This constructor does not require parameters, it initiates
     /// all of the attributes to \c 0.
     DfsWizardBase() : _g(0), _reached(0), _processed(0), _pred(0),
                       _dist(0), _path(0), _di(0) {}
@@ -899,7 +896,6 @@ namespace lemon {
   {
     typedef TR Base;
 
-    ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
 
     typedef typename Digraph::Node Node;
@@ -907,16 +903,10 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::OutArcIt OutArcIt;
 
-    ///\brief The type of the map that stores the predecessor
-    ///arcs of the DFS paths.
     typedef typename TR::PredMap PredMap;
-    ///\brief The type of the map that stores the distances of the nodes.
     typedef typename TR::DistMap DistMap;
-    ///\brief The type of the map that indicates which nodes are reached.
     typedef typename TR::ReachedMap ReachedMap;
-    ///\brief The type of the map that indicates which nodes are processed.
     typedef typename TR::ProcessedMap ProcessedMap;
-    ///The type of the DFS paths
     typedef typename TR::Path Path;
 
   public:
@@ -999,11 +989,12 @@ namespace lemon {
       static PredMap *createPredMap(const Digraph &) { return 0; };
       SetPredMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting PredMap object.
+
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///the predecessor map.
     ///
-    ///\ref named-func-param "Named parameter"
-    ///for setting PredMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that stores the predecessor arcs of the nodes.
     template<class T>
     DfsWizard<SetPredMapBase<T> > predMap(const T &t)
     {
@@ -1017,11 +1008,12 @@ namespace lemon {
       static ReachedMap *createReachedMap(const Digraph &) { return 0; };
       SetReachedMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting ReachedMap object.
+
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///the reached map.
     ///
-    /// \ref named-func-param "Named parameter"
-    ///for setting ReachedMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that indicates which nodes are reached.
     template<class T>
     DfsWizard<SetReachedMapBase<T> > reachedMap(const T &t)
     {
@@ -1035,11 +1027,13 @@ namespace lemon {
       static DistMap *createDistMap(const Digraph &) { return 0; };
       SetDistMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting DistMap object.
+
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///the distance map.
     ///
-    /// \ref named-func-param "Named parameter"
-    ///for setting DistMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that stores the distances of the nodes calculated
+    ///by the algorithm.
     template<class T>
     DfsWizard<SetDistMapBase<T> > distMap(const T &t)
     {
@@ -1053,11 +1047,12 @@ namespace lemon {
       static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
       SetProcessedMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting ProcessedMap object.
+
+    ///\brief \ref named-func-param "Named parameter" for setting
+    ///the processed map.
     ///
-    /// \ref named-func-param "Named parameter"
-    ///for setting ProcessedMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that indicates which nodes are processed.
     template<class T>
     DfsWizard<SetProcessedMapBase<T> > processedMap(const T &t)
     {
@@ -1126,9 +1121,9 @@ namespace lemon {
   ///
   /// This class defines the interface of the DfsVisit events, and
   /// it could be the base of a real visitor class.
-  template <typename _Digraph>
+  template <typename GR>
   struct DfsVisitor {
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
     /// \brief Called for the source node of the DFS.
@@ -1164,9 +1159,9 @@ namespace lemon {
     void backtrack(const Arc& arc) {}
   };
 #else
-  template <typename _Digraph>
+  template <typename GR>
   struct DfsVisitor {
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::Node Node;
     void start(const Node&) {}
@@ -1199,16 +1194,16 @@ namespace lemon {
   ///
   /// Default traits class of DfsVisit class.
   /// \tparam _Digraph The type of the digraph the algorithm runs on.
-  template<class _Digraph>
+  template<class GR>
   struct DfsVisitDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
-    typedef _Digraph Digraph;
+    typedef GR Digraph;
 
     /// \brief The type of the map that indicates which nodes are reached.
     ///
     /// The type of the map that indicates which nodes are reached.
-    /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    /// It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
 
     /// \brief Instantiates a ReachedMap.
@@ -1224,12 +1219,12 @@ namespace lemon {
 
   /// \ingroup search
   ///
-  /// \brief %DFS algorithm class with visitor interface.
+  /// \brief DFS algorithm class with visitor interface.
   ///
-  /// This class provides an efficient implementation of the %DFS algorithm
+  /// This class provides an efficient implementation of the DFS algorithm
   /// with visitor interface.
   ///
-  /// The %DfsVisit class provides an alternative interface to the Dfs
+  /// The DfsVisit class provides an alternative interface to the Dfs
   /// class. It works with callback mechanism, the DfsVisit object calls
   /// the member functions of the \c Visitor class on every DFS event.
   ///
@@ -1238,37 +1233,37 @@ namespace lemon {
   /// events of the DFS algorithm. Otherwise consider to use Dfs or dfs()
   /// instead.
   ///
-  /// \tparam _Digraph The type of the digraph the algorithm runs on.
-  /// The default value is
-  /// \ref ListDigraph. The value of _Digraph is not used directly by
-  /// \ref DfsVisit, it is only passed to \ref DfsVisitDefaultTraits.
-  /// \tparam _Visitor The Visitor type that is used by the algorithm.
-  /// \ref DfsVisitor "DfsVisitor<_Digraph>" is an empty visitor, which
+  /// \tparam GR The type of the digraph the algorithm runs on.
+  /// The default type is \ref ListDigraph.
+  /// The value of GR is not used directly by \ref DfsVisit,
+  /// it is only passed to \ref DfsVisitDefaultTraits.
+  /// \tparam VS The Visitor type that is used by the algorithm.
+  /// \ref DfsVisitor "DfsVisitor<GR>" is an empty visitor, which
   /// does not observe the DFS events. If you want to observe the DFS
   /// events, you should implement your own visitor class.
-  /// \tparam _Traits Traits class to set various data types used by the
+  /// \tparam TR Traits class to set various data types used by the
   /// algorithm. The default traits class is
-  /// \ref DfsVisitDefaultTraits "DfsVisitDefaultTraits<_Digraph>".
+  /// \ref DfsVisitDefaultTraits "DfsVisitDefaultTraits<GR>".
   /// See \ref DfsVisitDefaultTraits for the documentation of
   /// a DFS visit traits class.
 #ifdef DOXYGEN
-  template <typename _Digraph, typename _Visitor, typename _Traits>
+  template <typename GR, typename VS, typename TR>
 #else
-  template <typename _Digraph = ListDigraph,
-            typename _Visitor = DfsVisitor<_Digraph>,
-            typename _Traits = DfsVisitDefaultTraits<_Digraph> >
+  template <typename GR = ListDigraph,
+            typename VS = DfsVisitor<GR>,
+            typename TR = DfsVisitDefaultTraits<GR> >
 #endif
   class DfsVisit {
   public:
 
     ///The traits class.
-    typedef _Traits Traits;
+    typedef TR Traits;
 
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
 
     ///The visitor type used by the algorithm.
-    typedef _Visitor Visitor;
+    typedef VS Visitor;
 
     ///The type of the map that indicates which nodes are reached.
     typedef typename Traits::ReachedMap ReachedMap;
@@ -1369,8 +1364,8 @@ namespace lemon {
     /// \name Execution Control
     /// The simplest way to execute the DFS algorithm is to use one of the
     /// member functions called \ref run(Node) "run()".\n
-    /// If you need more control on the execution, first you have to call
-    /// \ref init(), then you can add a source node with \ref addSource()
+    /// If you need better control on the execution, you have to call
+    /// \ref init() first, then you can add a source node with \ref addSource()
     /// and perform the actual computation with \ref start().
     /// This procedure can be repeated if there are nodes that have not
     /// been reached.
@@ -1620,7 +1615,7 @@ namespace lemon {
 
     ///@{
 
-    /// \brief Checks if a node is reached from the root(s).
+    /// \brief Checks if the given node is reached from the root(s).
     ///
     /// Returns \c true if \c v is reached from the root(s).
     ///

@@ -5,6 +5,12 @@ Since you are reading this I assume you already obtained one of the release
 tarballs and successfully extracted it. The latest version of LEMON is
 available at our web page (http://lemon.cs.elte.hu/).
 
+LEMON provides two different build environments, one is based on "autotool",
+while the other is based on "cmake". This file contains instructions only for
+the former one, which is the recommended build environment on Linux, Mac OSX
+and other unices or if you use Cygwin on Windows. For cmake installation
+instructions visit http://lemon.cs.elte.hu.
+
 In order to install LEMON from the extracted source tarball you have to
 issue the following commands:
 
@@ -21,8 +27,8 @@ issue the following commands:
    3. `make'
 
       This command compiles the non-template part of LEMON into libemon.a
-      file. It also compiles the programs in the tools and demo subdirectories
-      when enabled.
+      file. It also compiles the programs in the tools subdirectory by
+      default.
 
    4. `make check'
 
@@ -68,14 +74,6 @@ CXXFLAGS='flags'
 --prefix=PREFIX
 
   Set the installation prefix to PREFIX. By default it is /usr/local.
-
---enable-demo
-
-   Build the examples in the demo subdirectory.
-
---disable-demo
-
-   Do not build the examples in the demo subdirectory (default).
 
 --enable-tools
 
@@ -152,3 +150,26 @@ CXXFLAGS='flags'
 --without-soplex
 
    Disable SoPlex support.
+
+--with-coin[=PREFIX]
+
+   Enable support for COIN-OR solvers (CLP and CBC). You should
+   specify the prefix too. (by default, COIN-OR tools install
+   themselves to the source code directory). This command enables the
+   solvers that are actually found.
+
+--with-coin-includedir=DIR
+
+   The directory where the COIN-OR header files are located. This is
+   only useful when the COIN-OR headers and libraries are not under
+   the same prefix (which is unlikely).
+
+--with-coin-libdir=DIR
+
+   The directory where the COIN-OR libraries are located. This is only
+   useful when the COIN-OR headers and libraries are not under the
+   same prefix (which is unlikely).
+
+--without-coin
+
+   Disable COIN-OR support.

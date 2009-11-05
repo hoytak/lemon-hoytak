@@ -16,16 +16,22 @@
  *
  */
 
-#ifndef LEMON_LP_SKELETON
-#define LEMON_LP_SKELETON
+#ifndef LEMON_LP_SKELETON_H
+#define LEMON_LP_SKELETON_H
 
 #include <lemon/lp_base.h>
 
 ///\file
-///\brief A skeleton file to implement LP solver interfaces
+///\brief Skeleton file to implement LP/MIP solver interfaces
+///  
+///The classes in this file do nothing, but they can serve as skeletons when
+///implementing an interface to new solvers.
 namespace lemon {
 
-  ///A skeleton class to implement LP solver interfaces
+  ///A skeleton class to implement LP/MIP solver base interface
+  
+  ///This class does nothing, but it can serve as a skeleton when
+  ///implementing an interface to new solvers.
   class SkeletonSolverBase : public virtual LpBase {
     int col_num,row_num;
 
@@ -38,6 +44,8 @@ namespace lemon {
     virtual int _addCol();
     /// \e
     virtual int _addRow();
+    /// \e
+    virtual int _addRow(Value l, ExprIterator b, ExprIterator e, Value u);
     /// \e
     virtual void _eraseCol(int i);
     /// \e
@@ -134,16 +142,24 @@ namespace lemon {
     ///\e
     virtual void _clear();
 
+    ///\e
+    virtual void _messageLevel(MessageLevel);
   };
 
-  /// \brief Interface for a skeleton LP solver
+  /// \brief Skeleton class for an LP solver interface
   ///
-  /// This class implements an interface for a skeleton LP solver.
-  ///\ingroup lp_group
-  class LpSkeleton : public SkeletonSolverBase, public LpSolver {
-  public:
-    LpSkeleton() : SkeletonSolverBase(), LpSolver() {}
+  ///This class does nothing, but it can serve as a skeleton when
+  ///implementing an interface to new solvers.
 
+  ///\ingroup lp_group
+  class LpSkeleton : public LpSolver, public SkeletonSolverBase {
+  public:
+    ///\e
+    LpSkeleton() : LpSolver(), SkeletonSolverBase() {}
+    ///\e
+    virtual LpSkeleton* newSolver() const;
+    ///\e
+    virtual LpSkeleton* cloneSolver() const;
   protected:
 
     ///\e
@@ -173,57 +189,41 @@ namespace lemon {
     virtual VarStatus _getRowStatus(int i) const;
 
     ///\e
-    virtual LpSkeleton* _newSolver() const;
-    ///\e
-    virtual LpSkeleton* _cloneSolver() const;
-    ///\e
     virtual const char* _solverName() const;
 
   };
 
-  /// \brief Interface for a skeleton MIP solver
+  /// \brief Skeleton class for a MIP solver interface
   ///
-  /// This class implements an interface for a skeleton MIP solver.
+  ///This class does nothing, but it can serve as a skeleton when
+  ///implementing an interface to new solvers.
   ///\ingroup lp_group
-  class MipSkeleton : public SkeletonSolverBase, public MipSolver {
+  class MipSkeleton : public MipSolver, public SkeletonSolverBase {
   public:
-    MipSkeleton() : SkeletonSolverBase(), MipSolver() {}
+    ///\e
+    MipSkeleton() : MipSolver(), SkeletonSolverBase() {}
+    ///\e
+    virtual MipSkeleton* newSolver() const;
+    ///\e
+    virtual MipSkeleton* cloneSolver() const;
 
   protected:
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual SolveExitStatus _solve();
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual Value _getSol(int i) const;
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual Value _getSolValue() const;
 
     ///\e
-
-    ///\bug Wrong interface
-    ///
     virtual ProblemType _getType() const;
 
     ///\e
-    virtual MipSkeleton* _newSolver() const;
-
-    ///\e
-    virtual MipSkeleton* _cloneSolver() const;
-    ///\e
     virtual const char* _solverName() const;
-
   };
 
 } //namespace lemon
 
-#endif // LEMON_LP_SKELETON
+#endif

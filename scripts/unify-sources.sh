@@ -1,7 +1,30 @@
 #!/bin/bash
+#
+# This file is a part of LEMON, a generic C++ optimization library.
+#
+# Copyright (C) 2003-2009
+# Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+# (Egervary Research Group on Combinatorial Optimization, EGRES).
+#
+# Permission to use, modify and distribute this software is granted
+# provided that this copyright notice appears in all copies. For
+# precise terms see the accompanying LICENSE file.
+#
+# This software is provided "AS IS" with no warranty of any kind,
+# express or implied, and with no claim as to its suitability for any
+# purpose.
 
-YEAR=`date +2003-%Y`
+YEAR=`date +%Y`
 HGROOT=`hg root`
+
+function hg_year() {
+    if [ -n "$(hg st $1)" ]; then
+        echo $YEAR
+    else
+        hg log -l 1 --template='{date|isodate}\n' $1 |
+        cut -d '-' -f 1
+    fi
+}
 
 # file enumaration modes
 
@@ -88,7 +111,12 @@ function update_end() {
 function check_action() {
     if [ "$3" == 'tabs' ]
     then
-        PATTERN=$(echo -e '\t')
+        if echo $2 | grep -q -v -E 'Makefile\.am$'
+        then
+            PATTERN=$(echo -e '\t')
+        else
+            PATTERN='        '
+        fi
     elif [ "$3" == 'trailing spaces' ]
     then
         PATTERN='\ +$'
@@ -186,7 +214,7 @@ function header_check() {
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) "$YEAR"
+ * Copyright (C) 2003-"$(hg_year $1)"
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *

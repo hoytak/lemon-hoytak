@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -18,17 +18,18 @@
 
 #include "test_tools.h"
 
-
-#ifdef HAVE_CONFIG_H
 #include <lemon/config.h>
-#endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
 #include <lemon/cplex.h>
 #endif
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
 #include <lemon/glpk.h>
+#endif
+
+#ifdef LEMON_HAVE_CBC
+#include <lemon/cbc.h>
 #endif
 
 
@@ -49,7 +50,8 @@ void solveAndCheck(MipSolver& mip, MipSolver::ProblemType stat,
 
   if (stat ==  MipSolver::OPTIMAL) {
     std::ostringstream sbuf;
-    buf << "Wrong optimal value: the right optimum is " << exp_opt;
+    sbuf << "Wrong optimal value ("<< mip.solValue()
+         <<" instead of " << exp_opt << ")";
     check(std::abs(mip.solValue()-exp_opt) < 1e-3, sbuf.str());
     //+ecvt(exp_opt,2)
   }
@@ -57,12 +59,11 @@ void solveAndCheck(MipSolver& mip, MipSolver::ProblemType stat,
 
 void aTest(MipSolver& mip)
 {
- //The following example is very simple
+  //The following example is very simple
 
 
   typedef MipSolver::Row Row;
   typedef MipSolver::Col Col;
-
 
 
   Col x1 = mip.addCol();
@@ -74,22 +75,23 @@ void aTest(MipSolver& mip)
 
   mip.max();
 
-
   //Unconstrained optimization
   mip.solve();
   //Check it out!
 
   //Constraints
-  mip.addRow(2*x1+x2 <=2);
-  mip.addRow(x1-2*x2 <=0);
+  mip.addRow(2 * x1 + x2 <= 2);
+  Row y2 = mip.addRow(x1 - 2 * x2 <= 0);
 
   //Nonnegativity of the variable x1
   mip.colLowerBound(x1, 0);
+
 
   //Maximization of x1
   //over the triangle with vertices (0,0),(4/5,2/5),(0,2)
   double expected_opt=4.0/5.0;
   solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
+
 
   //Restrict x2 to integer
   mip.colType(x2,MipSolver::INTEGER);
@@ -102,32 +104,53 @@ void aTest(MipSolver& mip)
   expected_opt=0;
   solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
-
+  //Erase a variable
+  mip.erase(x2);
+  mip.rowUpperBound(y2, 8);
+  expected_opt=1;
+  solveAndCheck(mip, MipSolver::OPTIMAL, expected_opt);
 
 }
 
 
+template<class MIP>
+void cloneTest()
+{
+
+  MIP* mip = new MIP();
+  MIP* mipnew = mip->newSolver();
+  MIP* mipclone = mip->cloneSolver();
+  delete mip;
+  delete mipnew;
+  delete mipclone;
+}
+
 int main()
 {
 
-#ifdef HAVE_GLPK
+#ifdef LEMON_HAVE_GLPK
   {
     GlpkMip mip1;
     aTest(mip1);
+    cloneTest<GlpkMip>();
   }
 #endif
 
-#ifdef HAVE_CPLEX
+#ifdef LEMON_HAVE_CPLEX
   try {
     CplexMip mip2;
     aTest(mip2);
+    cloneTest<CplexMip>();
   } catch (CplexEnv::LicenseError& error) {
-#ifdef LEMON_FORCE_CPLEX_CHECK
     check(false, error.what());
-#else
-    std::cerr << error.what() << std::endl;
-    std::cerr << "Cplex license check failed, lp check skipped" << std::endl;
+  }
 #endif
+
+#ifdef LEMON_HAVE_CBC
+  {
+    CbcMip mip1;
+    aTest(mip1);
+    cloneTest<CbcMip>();
   }
 #endif
 

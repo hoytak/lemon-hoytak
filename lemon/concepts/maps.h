@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_CONCEPT_MAPS_H
-#define LEMON_CONCEPT_MAPS_H
+#ifndef LEMON_CONCEPTS_MAPS_H
+#define LEMON_CONCEPTS_MAPS_H
 
 #include <lemon/core.h>
 #include <lemon/concept_check.h>
@@ -182,7 +182,8 @@ namespace lemon {
 
       template<typename _ReferenceMap>
       struct Constraints {
-        void constraints() {
+        typename enable_if<typename _ReferenceMap::ReferenceMapTag, void>::type
+        constraints() {
           checkConcept<ReadWriteMap<K, T>, _ReferenceMap >();
           ref = m[key];
           m[key] = val;
@@ -213,4 +214,4 @@ namespace lemon {
 
 } //namespace lemon
 
-#endif // LEMON_CONCEPT_MAPS_H
+#endif

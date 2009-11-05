@@ -20,7 +20,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     if test x"$with_soplex_includedir" != x"no"; then
       SOPLEX_CXXFLAGS="-I$with_soplex_includedir"
     elif test x"$with_soplex" != x"yes"; then
-      SOPLEX_CXXFLAGS="-I$with_soplex/include"
+      SOPLEX_CXXFLAGS="-I$with_soplex/src"
     fi
 
     if test x"$with_soplex_libdir" != x"no"; then
@@ -38,7 +38,7 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     LIBS="$SOPLEX_LIBS"
 
     lx_soplex_test_prog='
-      #include <soplex/soplex.h>
+      #include <soplex.h>
 
       int main(int argc, char** argv)
       {
@@ -55,9 +55,9 @@ AS_HELP_STRING([--with-soplex-libdir=DIR], [search for SOPLEX libraries in DIR])
     LIBS="$lx_save_libs"
 
     if test x"$lx_soplex_found" = x"yes"; then
-      AC_DEFINE([HAVE_SOPLEX], [1], [Define to 1 if you have SOPLEX.])
+      AC_DEFINE([LEMON_HAVE_SOPLEX], [1], [Define to 1 if you have SOPLEX.])
       lx_lp_found=yes
-      AC_DEFINE([HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+      AC_DEFINE([LEMON_HAVE_LP], [1], [Define to 1 if you have any LP solver.])
       AC_MSG_RESULT([yes])
     else
       SOPLEX_CXXFLAGS=""

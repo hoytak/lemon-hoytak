@@ -8,6 +8,7 @@ EXTRA_DIST += \
 	doc/license.dox \
 	doc/mainpage.dox \
 	doc/migration.dox \
+	doc/min_cost_flow.dox \
 	doc/named-param.dox \
 	doc/namespaces.dox \
 	doc/html \
@@ -21,8 +22,17 @@ DOC_EPS_IMAGES18 = \
 	nodeshape_3.eps \
 	nodeshape_4.eps
 
+DOC_EPS_IMAGES27 = \
+	bipartite_matching.eps \
+	bipartite_partitions.eps \
+	connected_components.eps \
+	edge_biconnected_components.eps \
+	node_biconnected_components.eps \
+	strongly_connected_components.eps
+
 DOC_EPS_IMAGES = \
-	$(DOC_EPS_IMAGES18)
+	$(DOC_EPS_IMAGES18) \
+	$(DOC_EPS_IMAGES27)
 
 DOC_PNG_IMAGES = \
 	$(DOC_EPS_IMAGES:%.eps=doc/gen-images/%.png)
@@ -45,7 +55,30 @@ $(DOC_EPS_IMAGES18:%.eps=doc/gen-images/%.png): doc/gen-images/%.png: doc/images
 	  exit 1; \
 	fi
 
-html-local: $(DOC_PNG_IMAGES)
+$(DOC_EPS_IMAGES27:%.eps=doc/gen-images/%.png): doc/gen-images/%.png: doc/images/%.eps
+	-mkdir doc/gen-images
+	if test ${gs_found} = yes; then \
+	  $(GS_COMMAND) -sDEVICE=pngalpha -r27 -sOutputFile=$@ $<; \
+	else \
+	  echo; \
+	  echo "Ghostscript not found."; \
+	  echo; \
+	  exit 1; \
+	fi
+
+references.dox: doc/references.bib
+	if test ${python_found} = yes; then \
+	  cd doc; \
+	  python @abs_top_srcdir@/scripts/bib2dox.py @abs_top_builddir@/$< >$@; \
+	  cd ..; \
+	else \
+	  echo; \
+	  echo "Python not found."; \
+	  echo; \
+	  exit 1; \
+	fi
+
+html-local: $(DOC_PNG_IMAGES) references.dox
 	if test ${doxygen_found} = yes; then \
 	  cd doc; \
 	  doxygen Doxyfile; \
@@ -70,19 +103,19 @@ update-external-tags:
 
 install-html-local: doc/html
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(htmldir)/docs
+	$(mkinstalldirs) $(DESTDIR)$(htmldir)/html
 	for p in doc/html/*.{html,css,png,map,gif,tag} ; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/docs/$$f"; \
-	  $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/docs/$$f; \
+	  echo " $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/html/$$f"; \
+	  $(INSTALL_DATA) $$p $(DESTDIR)$(htmldir)/html/$$f; \
 	done
 
 uninstall-local:
 	@$(NORMAL_UNINSTALL)
 	for p in doc/html/*.{html,css,png,map,gif,tag} ; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(htmldir)/docs/$$f"; \
-	  rm -f $(DESTDIR)$(htmldir)/docs/$$f; \
+	  echo " rm -f $(DESTDIR)$(htmldir)/html/$$f"; \
+	  rm -f $(DESTDIR)$(htmldir)/html/$$f; \
 	done
 
 .PHONY: update-external-tags

@@ -24,11 +24,9 @@
 ///\brief Tools for measuring cpu usage
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <cmath>
+#include <lemon/bits/windows.h>
 #else
+#include <unistd.h>
 #include <sys/times.h>
 #include <sys/time.h>
 #endif
@@ -87,26 +85,7 @@ namespace lemon {
       cutime=ts.tms_cutime/tck;
       cstime=ts.tms_cstime/tck;
 #else
-      static const double ch = 4294967296.0e-7;
-      static const double cl = 1.0e-7;
-
-      FILETIME system;
-      GetSystemTimeAsFileTime(&system);
-      rtime = ch * system.dwHighDateTime + cl * system.dwLowDateTime;
-
-      FILETIME create, exit, kernel, user;
-      if (GetProcessTimes(GetCurrentProcess(),&create, &exit, &kernel, &user)) {
-        utime = ch * user.dwHighDateTime + cl * user.dwLowDateTime;
-        stime = ch * kernel.dwHighDateTime + cl * kernel.dwLowDateTime;
-        cutime = 0;
-        cstime = 0;
-      } else {
-        rtime = 0;
-        utime = 0;
-        stime = 0;
-        cutime = 0;
-        cstime = 0;
-      }
+      bits::getWinProcTimes(rtime, utime, stime, cutime, cstime);
 #endif
     }
 
@@ -223,7 +202,7 @@ namespace lemon {
     double realTime() const {return rtime;}
   };
 
-  TimeStamp operator*(double b,const TimeStamp &t)
+  inline TimeStamp operator*(double b,const TimeStamp &t)
   {
     return t*b;
   }
@@ -308,7 +287,7 @@ namespace lemon {
     ///
     Timer(bool run=true) :_running(run) {_reset();}
 
-    ///\name Control the state of the timer
+    ///\name Control the State of the Timer
     ///Basically a Timer can be either running or stopped,
     ///but it provides a bit finer control on the execution.
     ///The \ref lemon::Timer "Timer" also counts the number of
@@ -416,7 +395,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Query Functions for the ellapsed time
+    ///\name Query Functions for the Ellapsed Time
 
     ///@{
 

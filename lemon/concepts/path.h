@@ -21,8 +21,8 @@
 ///\brief Classes for representing paths in digraphs.
 ///
 
-#ifndef LEMON_CONCEPT_PATH_H
-#define LEMON_CONCEPT_PATH_H
+#ifndef LEMON_CONCEPTS_PATH_H
+#define LEMON_CONCEPTS_PATH_H
 
 #include <lemon/core.h>
 #include <lemon/concept_check.h>
@@ -38,19 +38,19 @@ namespace lemon {
     ///
     /// A skeleton structure for representing directed paths in a
     /// digraph.
-    /// \tparam _Digraph The digraph type in which the path is.
+    /// \tparam GR The digraph type in which the path is.
     ///
     /// In a sense, the path can be treated as a list of arcs. The
     /// lemon path type stores just this list. As a consequence it
     /// cannot enumerate the nodes in the path and the zero length
     /// paths cannot store the source.
     ///
-    template <typename _Digraph>
+    template <typename GR>
     class Path {
     public:
 
       /// Type of the underlying digraph.
-      typedef _Digraph Digraph;
+      typedef GR Digraph;
       /// Arc type of the underlying digraph.
       typedef typename Digraph::Arc Arc;
 
@@ -205,18 +205,17 @@ namespace lemon {
     /// LEMON such algorithms gives back a path dumper what can
     /// assigned to a real path and the dumpers can be implemented as
     /// an adaptor class to the predecessor map.
-
-    /// \tparam _Digraph  The digraph type in which the path is.
+    ///
+    /// \tparam GR The digraph type in which the path is.
     ///
     /// The paths can be constructed from any path type by a
     /// template constructor or a template assignment operator.
-    ///
-    template <typename _Digraph>
+    template <typename GR>
     class PathDumper {
     public:
 
       /// Type of the underlying digraph.
-      typedef _Digraph Digraph;
+      typedef GR Digraph;
       /// Arc type of the underlying digraph.
       typedef typename Digraph::Arc Arc;
 
@@ -305,4 +304,4 @@ namespace lemon {
 
 } // namespace lemon
 
-#endif // LEMON_CONCEPT_PATH_H
+#endif

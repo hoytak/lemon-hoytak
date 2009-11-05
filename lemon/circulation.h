@@ -21,6 +21,7 @@
 
 #include <lemon/tolerance.h>
 #include <lemon/elevator.h>
+#include <limits>
 
 ///\ingroup max_flow
 ///\file
@@ -31,52 +32,56 @@ namespace lemon {
   /// \brief Default traits class of Circulation class.
   ///
   /// Default traits class of Circulation class.
-  /// \tparam _Diraph Digraph type.
-  /// \tparam _LCapMap Lower bound capacity map type.
-  /// \tparam _UCapMap Upper bound capacity map type.
-  /// \tparam _DeltaMap Delta map type.
-  template <typename _Diraph, typename _LCapMap,
-            typename _UCapMap, typename _DeltaMap>
+  ///
+  /// \tparam GR Type of the digraph the algorithm runs on.
+  /// \tparam LM The type of the lower bound map.
+  /// \tparam UM The type of the upper bound (capacity) map.
+  /// \tparam SM The type of the supply map.
+  template <typename GR, typename LM,
+            typename UM, typename SM>
   struct CirculationDefaultTraits {
 
     /// \brief The type of the digraph the algorithm runs on.
-    typedef _Diraph Digraph;
+    typedef GR Digraph;
 
-    /// \brief The type of the map that stores the circulation lower
-    /// bound.
+    /// \brief The type of the lower bound map.
     ///
-    /// The type of the map that stores the circulation lower bound.
-    /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef _LCapMap LCapMap;
+    /// The type of the map that stores the lower bounds on the arcs.
+    /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
+    typedef LM LowerMap;
 
-    /// \brief The type of the map that stores the circulation upper
-    /// bound.
+    /// \brief The type of the upper bound (capacity) map.
     ///
-    /// The type of the map that stores the circulation upper bound.
-    /// It must meet the \ref concepts::ReadMap "ReadMap" concept.
-    typedef _UCapMap UCapMap;
+    /// The type of the map that stores the upper bounds (capacities)
+    /// on the arcs.
+    /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
+    typedef UM UpperMap;
 
-    /// \brief The type of the map that stores the lower bound for
-    /// the supply of the nodes.
+    /// \brief The type of supply map.
     ///
-    /// The type of the map that stores the lower bound for the supply
-    /// of the nodes. It must meet the \ref concepts::ReadMap "ReadMap"
-    /// concept.
-    typedef _DeltaMap DeltaMap;
+    /// The type of the map that stores the signed supply values of the 
+    /// nodes. 
+    /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
+    typedef SM SupplyMap;
 
-    /// \brief The type of the flow values.
-    typedef typename DeltaMap::Value Value;
+    /// \brief The type of the flow and supply values.
+    typedef typename SupplyMap::Value Value;
 
     /// \brief The type of the map that stores the flow values.
     ///
     /// The type of the map that stores the flow values.
-    /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    /// It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap"
+    /// concept.
+#ifdef DOXYGEN
+    typedef GR::ArcMap<Value> FlowMap;
+#else
     typedef typename Digraph::template ArcMap<Value> FlowMap;
+#endif
 
     /// \brief Instantiates a FlowMap.
     ///
     /// This function instantiates a \ref FlowMap.
-    /// \param digraph The digraph, to which we would like to define
+    /// \param digraph The digraph for which we would like to define
     /// the flow map.
     static FlowMap* createFlowMap(const Digraph& digraph) {
       return new FlowMap(digraph);
@@ -86,14 +91,17 @@ namespace lemon {
     ///
     /// The elevator type used by the algorithm.
     ///
-    /// \sa Elevator
-    /// \sa LinkedElevator
+    /// \sa Elevator, LinkedElevator
+#ifdef DOXYGEN
+    typedef lemon::Elevator<GR, GR::Node> Elevator;
+#else
     typedef lemon::Elevator<Digraph, typename Digraph::Node> Elevator;
+#endif
 
     /// \brief Instantiates an Elevator.
     ///
     /// This function instantiates an \ref Elevator.
-    /// \param digraph The digraph, to which we would like to define
+    /// \param digraph The digraph for which we would like to define
     /// the elevator.
     /// \param max_level The maximum level of the elevator.
     static Elevator* createElevator(const Digraph& digraph, int max_level) {
@@ -111,73 +119,90 @@ namespace lemon {
      \brief Push-relabel algorithm for the network circulation problem.
 
      \ingroup max_flow
-     This class implements a push-relabel algorithm for the network
-     circulation problem.
+     This class implements a push-relabel algorithm for the \e network
+     \e circulation problem.
      It is to find a feasible circulation when lower and upper bounds
-     are given for the flow values on the arcs and lower bounds
-     are given for the supply values of the nodes.
+     are given for the flow values on the arcs and lower bounds are
+     given for the difference between the outgoing and incoming flow
+     at the nodes.
 
      The exact formulation of this problem is the following.
-     Let \f$G=(V,A)\f$ be a digraph,
-     \f$lower, upper: A\rightarrow\mathbf{R}^+_0\f$,
-     \f$delta: V\rightarrow\mathbf{R}\f$. Find a feasible circulation
-     \f$f: A\rightarrow\mathbf{R}^+_0\f$ so that
-     \f[ \sum_{a\in\delta_{out}(v)} f(a) - \sum_{a\in\delta_{in}(v)} f(a)
-     \geq delta(v) \quad \forall v\in V, \f]
-     \f[ lower(a)\leq f(a) \leq upper(a) \quad \forall a\in A. \f]
-     \note \f$delta(v)\f$ specifies a lower bound for the supply of node
-     \f$v\f$. It can be either positive or negative, however note that
-     \f$\sum_{v\in V}delta(v)\f$ should be zero or negative in order to
-     have a feasible solution.
+     Let \f$G=(V,A)\f$ be a digraph, \f$lower: A\rightarrow\mathbf{R}\f$
+     \f$upper: A\rightarrow\mathbf{R}\cup\{\infty\}\f$ denote the lower and
+     upper bounds on the arcs, for which \f$lower(uv) \leq upper(uv)\f$
+     holds for all \f$uv\in A\f$, and \f$sup: V\rightarrow\mathbf{R}\f$
+     denotes the signed supply values of the nodes.
+     If \f$sup(u)>0\f$, then \f$u\f$ is a supply node with \f$sup(u)\f$
+     supply, if \f$sup(u)<0\f$, then \f$u\f$ is a demand node with
+     \f$-sup(u)\f$ demand.
+     A feasible circulation is an \f$f: A\rightarrow\mathbf{R}\f$
+     solution of the following problem.
 
-     \note A special case of this problem is when
-     \f$\sum_{v\in V}delta(v) = 0\f$. Then the supply of each node \f$v\f$
-     will be \e equal \e to \f$delta(v)\f$, if a circulation can be found.
-     Thus a feasible solution for the
-     \ref min_cost_flow "minimum cost flow" problem can be calculated
-     in this way.
+     \f[ \sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu)
+     \geq sup(u) \quad \forall u\in V, \f]
+     \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A. \f]
+     
+     The sum of the supply values, i.e. \f$\sum_{u\in V} sup(u)\f$ must be
+     zero or negative in order to have a feasible solution (since the sum
+     of the expressions on the left-hand side of the inequalities is zero).
+     It means that the total demand must be greater or equal to the total
+     supply and all the supplies have to be carried out from the supply nodes,
+     but there could be demands that are not satisfied.
+     If \f$\sum_{u\in V} sup(u)\f$ is zero, then all the supply/demand
+     constraints have to be satisfied with equality, i.e. all demands
+     have to be satisfied and all supplies have to be used.
+     
+     If you need the opposite inequalities in the supply/demand constraints
+     (i.e. the total demand is less than the total supply and all the demands
+     have to be satisfied while there could be supplies that are not used),
+     then you could easily transform the problem to the above form by reversing
+     the direction of the arcs and taking the negative of the supply values
+     (e.g. using \ref ReverseDigraph and \ref NegMap adaptors).
 
-     \tparam _Digraph The type of the digraph the algorithm runs on.
-     \tparam _LCapMap The type of the lower bound capacity map. The default
-     map type is \ref concepts::Digraph::ArcMap "_Digraph::ArcMap<int>".
-     \tparam _UCapMap The type of the upper bound capacity map. The default
-     map type is \c _LCapMap.
-     \tparam _DeltaMap The type of the map that stores the lower bound
-     for the supply of the nodes. The default map type is
-     \c _Digraph::ArcMap<_UCapMap::Value>.
+     This algorithm either calculates a feasible circulation, or provides
+     a \ref barrier() "barrier", which prooves that a feasible soultion
+     cannot exist.
+
+     Note that this algorithm also provides a feasible solution for the
+     \ref min_cost_flow "minimum cost flow problem".
+
+     \tparam GR The type of the digraph the algorithm runs on.
+     \tparam LM The type of the lower bound map. The default
+     map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+     \tparam UM The type of the upper bound (capacity) map.
+     The default map type is \c LM.
+     \tparam SM The type of the supply map. The default map type is
+     \ref concepts::Digraph::NodeMap "GR::NodeMap<UM::Value>".
   */
 #ifdef DOXYGEN
-template< typename _Digraph,
-          typename _LCapMap,
-          typename _UCapMap,
-          typename _DeltaMap,
-          typename _Traits >
+template< typename GR,
+          typename LM,
+          typename UM,
+          typename SM,
+          typename TR >
 #else
-template< typename _Digraph,
-          typename _LCapMap = typename _Digraph::template ArcMap<int>,
-          typename _UCapMap = _LCapMap,
-          typename _DeltaMap = typename _Digraph::
-                               template NodeMap<typename _UCapMap::Value>,
-          typename _Traits=CirculationDefaultTraits<_Digraph, _LCapMap,
-                                                    _UCapMap, _DeltaMap> >
+template< typename GR,
+          typename LM = typename GR::template ArcMap<int>,
+          typename UM = LM,
+          typename SM = typename GR::template NodeMap<typename UM::Value>,
+          typename TR = CirculationDefaultTraits<GR, LM, UM, SM> >
 #endif
   class Circulation {
   public:
 
     ///The \ref CirculationDefaultTraits "traits class" of the algorithm.
-    typedef _Traits Traits;
+    typedef TR Traits;
     ///The type of the digraph the algorithm runs on.
     typedef typename Traits::Digraph Digraph;
-    ///The type of the flow values.
+    ///The type of the flow and supply values.
     typedef typename Traits::Value Value;
 
-    /// The type of the lower bound capacity map.
-    typedef typename Traits::LCapMap LCapMap;
-    /// The type of the upper bound capacity map.
-    typedef typename Traits::UCapMap UCapMap;
-    /// \brief The type of the map that stores the lower bound for
-    /// the supply of the nodes.
-    typedef typename Traits::DeltaMap DeltaMap;
+    ///The type of the lower bound map.
+    typedef typename Traits::LowerMap LowerMap;
+    ///The type of the upper bound (capacity) map.
+    typedef typename Traits::UpperMap UpperMap;
+    ///The type of the supply map.
+    typedef typename Traits::SupplyMap SupplyMap;
     ///The type of the flow map.
     typedef typename Traits::FlowMap FlowMap;
 
@@ -193,9 +218,9 @@ template< typename _Digraph,
     const Digraph &_g;
     int _node_num;
 
-    const LCapMap *_lo;
-    const UCapMap *_up;
-    const DeltaMap *_delta;
+    const LowerMap *_lo;
+    const UpperMap *_up;
+    const SupplyMap *_supply;
 
     FlowMap *_flow;
     bool _local_flow;
@@ -217,9 +242,9 @@ template< typename _Digraph,
 
     ///@{
 
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMapTraits : public Traits {
-      typedef _FlowMap FlowMap;
+      typedef T FlowMap;
       static FlowMap *createFlowMap(const Digraph&) {
         LEMON_ASSERT(false, "FlowMap is not initialized");
         return 0; // ignore warnings
@@ -231,17 +256,17 @@ template< typename _Digraph,
     ///
     /// \ref named-templ-param "Named parameter" for setting FlowMap
     /// type.
-    template <typename _FlowMap>
+    template <typename T>
     struct SetFlowMap
-      : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           SetFlowMapTraits<_FlowMap> > {
-      typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          SetFlowMapTraits<_FlowMap> > Create;
+      : public Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                           SetFlowMapTraits<T> > {
+      typedef Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                          SetFlowMapTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph&, int) {
         LEMON_ASSERT(false, "Elevator is not initialized");
         return 0; // ignore warnings
@@ -257,17 +282,17 @@ template< typename _Digraph,
     /// \ref elevator(Elevator&) "elevator()" function before calling
     /// \ref run() or \ref init().
     /// \sa SetStandardElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetElevator
-      : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                           SetElevatorTraits<_Elevator> > {
-      typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                          SetElevatorTraits<_Elevator> > Create;
+      : public Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                           SetElevatorTraits<T> > {
+      typedef Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                          SetElevatorTraits<T> > Create;
     };
 
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevatorTraits : public Traits {
-      typedef _Elevator Elevator;
+      typedef T Elevator;
       static Elevator *createElevator(const Digraph& digraph, int max_level) {
         return new Elevator(digraph, max_level);
       }
@@ -285,12 +310,12 @@ template< typename _Digraph,
     /// algorithm with the \ref elevator(Elevator&) "elevator()" function
     /// before calling \ref run() or \ref init().
     /// \sa SetElevator
-    template <typename _Elevator>
+    template <typename T>
     struct SetStandardElevator
-      : public Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                       SetStandardElevatorTraits<_Elevator> > {
-      typedef Circulation<Digraph, LCapMap, UCapMap, DeltaMap,
-                      SetStandardElevatorTraits<_Elevator> > Create;
+      : public Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                       SetStandardElevatorTraits<T> > {
+      typedef Circulation<Digraph, LowerMap, UpperMap, SupplyMap,
+                      SetStandardElevatorTraits<T> > Create;
     };
 
     /// @}
@@ -301,18 +326,20 @@ template< typename _Digraph,
 
   public:
 
-    /// The constructor of the class.
+    /// Constructor.
 
     /// The constructor of the class.
-    /// \param g The digraph the algorithm runs on.
-    /// \param lo The lower bound capacity of the arcs.
-    /// \param up The upper bound capacity of the arcs.
-    /// \param delta The lower bound for the supply of the nodes.
-    Circulation(const Digraph &g,const LCapMap &lo,
-                const UCapMap &up,const DeltaMap &delta)
-      : _g(g), _node_num(),
-        _lo(&lo),_up(&up),_delta(&delta),_flow(0),_local_flow(false),
-        _level(0), _local_level(false), _excess(0), _el() {}
+    ///
+    /// \param graph The digraph the algorithm runs on.
+    /// \param lower The lower bounds for the flow values on the arcs.
+    /// \param upper The upper bounds (capacities) for the flow values 
+    /// on the arcs.
+    /// \param supply The signed supply values of the nodes.
+    Circulation(const Digraph &graph, const LowerMap &lower,
+                const UpperMap &upper, const SupplyMap &supply)
+      : _g(graph), _lo(&lower), _up(&upper), _supply(&supply),
+        _flow(NULL), _local_flow(false), _level(NULL), _local_level(false),
+        _excess(NULL) {}
 
     /// Destructor.
     ~Circulation() {
@@ -321,6 +348,13 @@ template< typename _Digraph,
 
 
   private:
+
+    bool checkBoundMaps() {
+      for (ArcIt e(_g);e!=INVALID;++e) {
+        if (_tol.less((*_up)[e], (*_lo)[e])) return false;
+      }
+      return true;
+    }
 
     void createStructures() {
       _node_num = _el = countNodes(_g);
@@ -352,30 +386,30 @@ template< typename _Digraph,
 
   public:
 
-    /// Sets the lower bound capacity map.
+    /// Sets the lower bound map.
 
-    /// Sets the lower bound capacity map.
+    /// Sets the lower bound map.
     /// \return <tt>(*this)</tt>
-    Circulation& lowerCapMap(const LCapMap& map) {
+    Circulation& lowerMap(const LowerMap& map) {
       _lo = &map;
       return *this;
     }
 
-    /// Sets the upper bound capacity map.
+    /// Sets the upper bound (capacity) map.
 
-    /// Sets the upper bound capacity map.
+    /// Sets the upper bound (capacity) map.
     /// \return <tt>(*this)</tt>
-    Circulation& upperCapMap(const LCapMap& map) {
+    Circulation& upperMap(const UpperMap& map) {
       _up = &map;
       return *this;
     }
 
-    /// Sets the lower bound map for the supply of the nodes.
+    /// Sets the supply map.
 
-    /// Sets the lower bound map for the supply of the nodes.
+    /// Sets the supply map.
     /// \return <tt>(*this)</tt>
-    Circulation& deltaMap(const DeltaMap& map) {
-      _delta = &map;
+    Circulation& supplyMap(const SupplyMap& map) {
+      _supply = &map;
       return *this;
     }
 
@@ -423,25 +457,27 @@ template< typename _Digraph,
       return *_level;
     }
 
-    /// \brief Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by the algorithm.
     ///
-    /// Sets the tolerance used by algorithm.
-    Circulation& tolerance(const Tolerance& tolerance) const {
+    /// Sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
+    Circulation& tolerance(const Tolerance& tolerance) {
       _tol = tolerance;
       return *this;
     }
 
     /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns a const reference to the tolerance.
+    /// Returns a const reference to the tolerance object used by
+    /// the algorithm.
     const Tolerance& tolerance() const {
-      return tolerance;
+      return _tol;
     }
 
     /// \name Execution Control
     /// The simplest way to execute the algorithm is to call \ref run().\n
-    /// If you need more control on the initial solution or the execution,
-    /// first you have to call one of the \ref init() functions, then
+    /// If you need better control on the initial solution or the execution,
+    /// you have to call one of the \ref init() functions first, then
     /// the \ref start() function.
 
     ///@{
@@ -452,16 +488,19 @@ template< typename _Digraph,
     /// to the lower bound.
     void init()
     {
+      LEMON_DEBUG(checkBoundMaps(),
+        "Upper bounds must be greater or equal to the lower bounds");
+
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
-        _excess->set(n, (*_delta)[n]);
+        (*_excess)[n] = (*_supply)[n];
       }
 
       for (ArcIt e(_g);e!=INVALID;++e) {
         _flow->set(e, (*_lo)[e]);
-        _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_flow)[e]);
-        _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_flow)[e]);
+        (*_excess)[_g.target(e)] += (*_flow)[e];
+        (*_excess)[_g.source(e)] -= (*_flow)[e];
       }
 
       // global relabeling tested, but in general case it provides
@@ -481,26 +520,29 @@ template< typename _Digraph,
     /// to construct the initial solution.
     void greedyInit()
     {
+      LEMON_DEBUG(checkBoundMaps(),
+        "Upper bounds must be greater or equal to the lower bounds");
+
       createStructures();
 
       for(NodeIt n(_g);n!=INVALID;++n) {
-        _excess->set(n, (*_delta)[n]);
+        (*_excess)[n] = (*_supply)[n];
       }
 
       for (ArcIt e(_g);e!=INVALID;++e) {
-        if (!_tol.positive((*_excess)[_g.target(e)] + (*_up)[e])) {
+        if (!_tol.less(-(*_excess)[_g.target(e)], (*_up)[e])) {
           _flow->set(e, (*_up)[e]);
-          _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_up)[e]);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_up)[e]);
-        } else if (_tol.positive((*_excess)[_g.target(e)] + (*_lo)[e])) {
+          (*_excess)[_g.target(e)] += (*_up)[e];
+          (*_excess)[_g.source(e)] -= (*_up)[e];
+        } else if (_tol.less(-(*_excess)[_g.target(e)], (*_lo)[e])) {
           _flow->set(e, (*_lo)[e]);
-          _excess->set(_g.target(e), (*_excess)[_g.target(e)] + (*_lo)[e]);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - (*_lo)[e]);
+          (*_excess)[_g.target(e)] += (*_lo)[e];
+          (*_excess)[_g.source(e)] -= (*_lo)[e];
         } else {
           Value fc = -(*_excess)[_g.target(e)];
           _flow->set(e, fc);
-          _excess->set(_g.target(e), 0);
-          _excess->set(_g.source(e), (*_excess)[_g.source(e)] - fc);
+          (*_excess)[_g.target(e)] = 0;
+          (*_excess)[_g.source(e)] -= fc;
         }
       }
 
@@ -539,16 +581,16 @@ template< typename _Digraph,
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
               _flow->set(e, (*_flow)[e] + exc);
-              _excess->set(v, (*_excess)[v] + exc);
+              (*_excess)[v] += exc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
-              _excess->set(act,0);
+              (*_excess)[act] = 0;
               _level->deactivate(act);
               goto next_l;
             }
             else {
               _flow->set(e, (*_up)[e]);
-              _excess->set(v, (*_excess)[v] + fc);
+              (*_excess)[v] += fc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
               exc-=fc;
@@ -563,16 +605,16 @@ template< typename _Digraph,
           if((*_level)[v]<actlevel) {
             if(!_tol.less(fc, exc)) {
               _flow->set(e, (*_flow)[e] - exc);
-              _excess->set(v, (*_excess)[v] + exc);
+              (*_excess)[v] += exc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
-              _excess->set(act,0);
+              (*_excess)[act] = 0;
               _level->deactivate(act);
               goto next_l;
             }
             else {
               _flow->set(e, (*_lo)[e]);
-              _excess->set(v, (*_excess)[v] + fc);
+              (*_excess)[v] += fc;
               if(!_level->active(v) && _tol.positive((*_excess)[v]))
                 _level->activate(v);
               exc-=fc;
@@ -581,7 +623,7 @@ template< typename _Digraph,
           else if((*_level)[v]<mlevel) mlevel=(*_level)[v];
         }
 
-        _excess->set(act, exc);
+        (*_excess)[act] = exc;
         if(!_tol.positive(exc)) _level->deactivate(act);
         else if(mlevel==_node_num) {
           _level->liftHighestActiveToTop();
@@ -628,9 +670,9 @@ template< typename _Digraph,
 
     ///@{
 
-    /// \brief Returns the flow on the given arc.
+    /// \brief Returns the flow value on the given arc.
     ///
-    /// Returns the flow on the given arc.
+    /// Returns the flow value on the given arc.
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
@@ -653,8 +695,8 @@ template< typename _Digraph,
 
        Barrier is a set \e B of nodes for which
 
-       \f[ \sum_{a\in\delta_{out}(B)} upper(a) -
-           \sum_{a\in\delta_{in}(B)} lower(a) < \sum_{v\in B}delta(v) \f]
+       \f[ \sum_{uv\in A: u\in B} upper(uv) -
+           \sum_{uv\in A: v\in B} lower(uv) < \sum_{v\in B} sup(v) \f]
 
        holds. The existence of a set with this property prooves that a
        feasible circualtion cannot exist.
@@ -684,7 +726,7 @@ template< typename _Digraph,
     /// empty set, so \c bar[v] will be \c false for all nodes \c v.
     ///
     /// \note This function calls \ref barrier() for each node,
-    /// so it runs in \f$O(n)\f$ time.
+    /// so it runs in O(n) time.
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
@@ -717,7 +759,7 @@ template< typename _Digraph,
         if((*_flow)[e]<(*_lo)[e]||(*_flow)[e]>(*_up)[e]) return false;
       for(NodeIt n(_g);n!=INVALID;++n)
         {
-          Value dif=-(*_delta)[n];
+          Value dif=-(*_supply)[n];
           for(InArcIt e(_g,n);e!=INVALID;++e) dif-=(*_flow)[e];
           for(OutArcIt e(_g,n);e!=INVALID;++e) dif+=(*_flow)[e];
           if(_tol.negative(dif)) return false;
@@ -733,14 +775,20 @@ template< typename _Digraph,
     bool checkBarrier() const
     {
       Value delta=0;
+      Value inf_cap = std::numeric_limits<Value>::has_infinity ?
+        std::numeric_limits<Value>::infinity() :
+        std::numeric_limits<Value>::max();
       for(NodeIt n(_g);n!=INVALID;++n)
         if(barrier(n))
-          delta-=(*_delta)[n];
+          delta-=(*_supply)[n];
       for(ArcIt e(_g);e!=INVALID;++e)
         {
           Node s=_g.source(e);
           Node t=_g.target(e);
-          if(barrier(s)&&!barrier(t)) delta+=(*_up)[e];
+          if(barrier(s)&&!barrier(t)) {
+            if (_tol.less(inf_cap - (*_up)[e], delta)) return false;
+            delta+=(*_up)[e];
+          }
           else if(barrier(t)&&!barrier(s)) delta-=(*_lo)[e];
         }
       return _tol.negative(delta);

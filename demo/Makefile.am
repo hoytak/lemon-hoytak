@@ -1,16 +1,17 @@
-EXTRA_DIST += \
-	demo/CMakeLists.txt \
-	demo/digraph.lgf
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
-if WANT_DEMO
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir)
+LDADD = $(top_builddir)/lemon/libemon.la
 
-noinst_PROGRAMS += \
-	demo/arg_parser_demo \
-	demo/graph_to_eps_demo \
-	demo/lgf_demo
+EXTRA_DIST = \
+	CMakeLists.txt \
+	digraph.lgf
 
-endif WANT_DEMO
+noinst_PROGRAMS = \
+	arg_parser_demo \
+	graph_to_eps_demo \
+	lgf_demo
 
-demo_arg_parser_demo_SOURCES = demo/arg_parser_demo.cc
-demo_graph_to_eps_demo_SOURCES = demo/graph_to_eps_demo.cc
-demo_lgf_demo_SOURCES = demo/lgf_demo.cc
+arg_parser_demo_SOURCES = arg_parser_demo.cc
+graph_to_eps_demo_SOURCES = graph_to_eps_demo.cc
+lgf_demo_SOURCES = lgf_demo.cc

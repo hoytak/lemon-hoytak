@@ -24,7 +24,7 @@ namespace lemon {
   ClpLp::ClpLp() {
     _prob = new ClpSimplex();
     _init_temporals();
-    messageLevel(MESSAGE_NO_OUTPUT);
+    messageLevel(MESSAGE_NOTHING);
   }
 
   ClpLp::ClpLp(const ClpLp& other) {
@@ -32,7 +32,7 @@ namespace lemon {
     rows = other.rows;
     cols = other.cols;
     _init_temporals();
-    messageLevel(MESSAGE_NO_OUTPUT);
+    messageLevel(MESSAGE_NOTHING);
   }
 
   ClpLp::~ClpLp() {
@@ -56,12 +56,12 @@ namespace lemon {
     }
   }
 
-  ClpLp* ClpLp::_newSolver() const {
+  ClpLp* ClpLp::newSolver() const {
     ClpLp* newlp = new ClpLp;
     return newlp;
   }
 
-  ClpLp* ClpLp::_cloneSolver() const {
+  ClpLp* ClpLp::cloneSolver() const {
     ClpLp* copylp = new ClpLp(*this);
     return copylp;
   }
@@ -75,6 +75,19 @@ namespace lemon {
 
   int ClpLp::_addRow() {
     _prob->addRow(0, 0, 0, -COIN_DBL_MAX, COIN_DBL_MAX);
+    return _prob->numberRows() - 1;
+  }
+
+  int ClpLp::_addRow(Value l, ExprIterator b, ExprIterator e, Value u) {
+    std::vector<int> indexes;
+    std::vector<Value> values;
+
+    for(ExprIterator it = b; it != e; ++it) {
+      indexes.push_back(it->first);
+      values.push_back(it->second);
+    }
+
+    _prob->addRow(values.size(), &indexes.front(), &values.front(), l, u);
     return _prob->numberRows() - 1;
   }
 
@@ -430,8 +443,24 @@ namespace lemon {
     _clear_temporals();
   }
 
-  void ClpLp::messageLevel(MessageLevel m) {
-    _prob->setLogLevel(static_cast<int>(m));
+  void ClpLp::_messageLevel(MessageLevel level) {
+    switch (level) {
+    case MESSAGE_NOTHING:
+      _prob->setLogLevel(0);
+      break;
+    case MESSAGE_ERROR:
+      _prob->setLogLevel(1);
+      break;
+    case MESSAGE_WARNING:
+      _prob->setLogLevel(2);
+      break;
+    case MESSAGE_NORMAL:
+      _prob->setLogLevel(3);
+      break;
+    case MESSAGE_VERBOSE:
+      _prob->setLogLevel(4);
+      break;
+    }
   }
 
 } //END OF NAMESPACE LEMON

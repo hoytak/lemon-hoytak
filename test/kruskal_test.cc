@@ -99,16 +99,16 @@ int main() {
   check(kruskal(G, edge_cost_map, tree_map)==10,
         "Total cost should be 10");
 
-  edge_cost_map.set(e1, -10);
-  edge_cost_map.set(e2, -9);
-  edge_cost_map.set(e3, -8);
-  edge_cost_map.set(e4, -7);
-  edge_cost_map.set(e5, -6);
-  edge_cost_map.set(e6, -5);
-  edge_cost_map.set(e7, -4);
-  edge_cost_map.set(e8, -3);
-  edge_cost_map.set(e9, -2);
-  edge_cost_map.set(e10, -1);
+  edge_cost_map[e1] = -10;
+  edge_cost_map[e2] = -9;
+  edge_cost_map[e3] = -8;
+  edge_cost_map[e4] = -7;
+  edge_cost_map[e5] = -6;
+  edge_cost_map[e6] = -5;
+  edge_cost_map[e7] = -4;
+  edge_cost_map[e8] = -3;
+  edge_cost_map[e9] = -2;
+  edge_cost_map[e10] = -1;
 
   vector<Edge> tree_edge_vec(5);
 

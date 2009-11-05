@@ -32,7 +32,7 @@
 #include <stack>
 #include <functional>
 
-/// \ingroup connectivity
+/// \ingroup graph_properties
 /// \file
 /// \brief Connectivity algorithms
 ///
@@ -40,14 +40,18 @@
 
 namespace lemon {
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check whether the given undirected graph is connected.
+  /// \brief Check whether an undirected graph is connected.
   ///
-  /// Check whether the given undirected graph is connected.
-  /// \param graph The undirected graph.
-  /// \return %True when there is path between any two nodes in the graph.
+  /// This function checks whether the given undirected graph is connected,
+  /// i.e. there is a path between any two nodes in the graph.
+  ///
+  /// \return \c true if the graph is connected.
   /// \note By definition, the empty graph is connected.
+  ///
+  /// \see countConnectedComponents(), connectedComponents()
+  /// \see stronglyConnected()
   template <typename Graph>
   bool connected(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -63,16 +67,22 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Count the number of connected components of an undirected graph
   ///
-  /// Count the number of connected components of an undirected graph
+  /// This function counts the number of connected components of the given
+  /// undirected graph.
   ///
-  /// \param graph The graph. It must be undirected.
-  /// \return The number of components
+  /// The connected components are the classes of an equivalence relation
+  /// on the nodes of an undirected graph. Two nodes are in the same class
+  /// if they are connected with a path.
+  ///
+  /// \return The number of connected components.
   /// \note By definition, the empty graph consists
   /// of zero connected components.
+  ///
+  /// \see connected(), connectedComponents()
   template <typename Graph>
   int countConnectedComponents(const Graph &graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -105,19 +115,30 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the connected components of an undirected graph
   ///
-  /// Find the connected components of an undirected graph.
+  /// This function finds the connected components of the given undirected
+  /// graph.
   ///
-  /// \param graph The graph. It must be undirected.
+  /// The connected components are the classes of an equivalence relation
+  /// on the nodes of an undirected graph. Two nodes are in the same class
+  /// if they are connected with a path.
+  ///
+  /// \image html connected_components.png
+  /// \image latex connected_components.eps "Connected components" width=\textwidth
+  ///
+  /// \param graph The undirected graph.
   /// \retval compMap A writable node map. The values will be set from 0 to
-  /// the number of the connected components minus one. Each values of the map
-  /// will be set exactly once, the values of a certain component will be
+  /// the number of the connected components minus one. Each value of the map
+  /// will be set exactly once, and the values of a certain component will be
   /// set continuously.
-  /// \return The number of components
+  /// \return The number of connected components.
+  /// \note By definition, the empty graph consists
+  /// of zero connected components.
   ///
+  /// \see connected(), countConnectedComponents()
   template <class Graph, class NodeMap>
   int connectedComponents(const Graph &graph, NodeMap &compMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -227,17 +248,19 @@ namespace lemon {
   }
 
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check whether the given directed graph is strongly connected.
+  /// \brief Check whether a directed graph is strongly connected.
   ///
-  /// Check whether the given directed graph is strongly connected. The
-  /// graph is strongly connected when any two nodes of the graph are
+  /// This function checks whether the given directed graph is strongly
+  /// connected, i.e. any two nodes of the digraph are
   /// connected with directed paths in both direction.
-  /// \return %False when the graph is not strongly connected.
-  /// \see connected
   ///
-  /// \note By definition, the empty graph is strongly connected.
+  /// \return \c true if the digraph is strongly connected.
+  /// \note By definition, the empty digraph is strongly connected.
+  /// 
+  /// \see countStronglyConnectedComponents(), stronglyConnectedComponents()
+  /// \see connected()
   template <typename Digraph>
   bool stronglyConnected(const Digraph& digraph) {
     checkConcept<concepts::Digraph, Digraph>();
@@ -268,7 +291,7 @@ namespace lemon {
     typedef typename RDigraph::NodeIt RNodeIt;
     RDigraph rdigraph(digraph);
 
-    typedef DfsVisitor<Digraph> RVisitor;
+    typedef DfsVisitor<RDigraph> RVisitor;
     RVisitor rvisitor;
 
     DfsVisit<RDigraph, RVisitor> rdfs(rdigraph, rvisitor);
@@ -285,20 +308,24 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Count the strongly connected components of a directed graph
+  /// \brief Count the number of strongly connected components of a 
+  /// directed graph
   ///
-  /// Count the strongly connected components of a directed graph.
+  /// This function counts the number of strongly connected components of
+  /// the given directed graph.
+  ///
   /// The strongly connected components are the classes of an
-  /// equivalence relation on the nodes of the graph. Two nodes are in
+  /// equivalence relation on the nodes of a digraph. Two nodes are in
   /// the same class if they are connected with directed paths in both
   /// direction.
   ///
-  /// \param digraph The graph.
-  /// \return The number of components
-  /// \note By definition, the empty graph has zero
+  /// \return The number of strongly connected components.
+  /// \note By definition, the empty digraph has zero
   /// strongly connected components.
+  ///
+  /// \see stronglyConnected(), stronglyConnectedComponents()
   template <typename Digraph>
   int countStronglyConnectedComponents(const Digraph& digraph) {
     checkConcept<concepts::Digraph, Digraph>();
@@ -349,25 +376,33 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the strongly connected components of a directed graph
   ///
-  /// Find the strongly connected components of a directed graph.  The
-  /// strongly connected components are the classes of an equivalence
-  /// relation on the nodes of the graph. Two nodes are in
-  /// relationship when there are directed paths between them in both
-  /// direction. In addition, the numbering of components will satisfy
-  /// that there is no arc going from a higher numbered component to
-  /// a lower.
+  /// This function finds the strongly connected components of the given
+  /// directed graph. In addition, the numbering of the components will
+  /// satisfy that there is no arc going from a higher numbered component
+  /// to a lower one (i.e. it provides a topological order of the components).
+  ///
+  /// The strongly connected components are the classes of an
+  /// equivalence relation on the nodes of a digraph. Two nodes are in
+  /// the same class if they are connected with directed paths in both
+  /// direction.
+  ///
+  /// \image html strongly_connected_components.png
+  /// \image latex strongly_connected_components.eps "Strongly connected components" width=\textwidth
   ///
   /// \param digraph The digraph.
   /// \retval compMap A writable node map. The values will be set from 0 to
   /// the number of the strongly connected components minus one. Each value
-  /// of the map will be set exactly once, the values of a certain component
-  /// will be set continuously.
-  /// \return The number of components
+  /// of the map will be set exactly once, and the values of a certain
+  /// component will be set continuously.
+  /// \return The number of strongly connected components.
+  /// \note By definition, the empty digraph has zero
+  /// strongly connected components.
   ///
+  /// \see stronglyConnected(), countStronglyConnectedComponents()
   template <typename Digraph, typename NodeMap>
   int stronglyConnectedComponents(const Digraph& digraph, NodeMap& compMap) {
     checkConcept<concepts::Digraph, Digraph>();
@@ -416,23 +451,28 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Find the cut arcs of the strongly connected components.
   ///
-  /// Find the cut arcs of the strongly connected components.
-  /// The strongly connected components are the classes of an equivalence
-  /// relation on the nodes of the graph. Two nodes are in relationship
-  /// when there are directed paths between them in both direction.
+  /// This function finds the cut arcs of the strongly connected components
+  /// of the given digraph.
+  ///
+  /// The strongly connected components are the classes of an
+  /// equivalence relation on the nodes of a digraph. Two nodes are in
+  /// the same class if they are connected with directed paths in both
+  /// direction.
   /// The strongly connected components are separated by the cut arcs.
   ///
-  /// \param graph The graph.
-  /// \retval cutMap A writable node map. The values will be set true when the
-  /// arc is a cut arc.
+  /// \param digraph The digraph.
+  /// \retval cutMap A writable arc map. The values will be set to \c true
+  /// for the cut arcs (exactly once for each cut arc), and will not be
+  /// changed for other arcs.
+  /// \return The number of cut arcs.
   ///
-  /// \return The number of cut arcs
+  /// \see stronglyConnected(), stronglyConnectedComponents()
   template <typename Digraph, typename ArcMap>
-  int stronglyConnectedCutArcs(const Digraph& graph, ArcMap& cutMap) {
+  int stronglyConnectedCutArcs(const Digraph& digraph, ArcMap& cutMap) {
     checkConcept<concepts::Digraph, Digraph>();
     typedef typename Digraph::Node Node;
     typedef typename Digraph::Arc Arc;
@@ -444,13 +484,13 @@ namespace lemon {
     typedef std::vector<Node> Container;
     typedef typename Container::iterator Iterator;
 
-    Container nodes(countNodes(graph));
+    Container nodes(countNodes(digraph));
     typedef LeaveOrderVisitor<Digraph, Iterator> Visitor;
     Visitor visitor(nodes.begin());
 
-    DfsVisit<Digraph, Visitor> dfs(graph, visitor);
+    DfsVisit<Digraph, Visitor> dfs(digraph, visitor);
     dfs.init();
-    for (NodeIt it(graph); it != INVALID; ++it) {
+    for (NodeIt it(digraph); it != INVALID; ++it) {
       if (!dfs.reached(it)) {
         dfs.addSource(it);
         dfs.start();
@@ -460,14 +500,14 @@ namespace lemon {
     typedef typename Container::reverse_iterator RIterator;
     typedef ReverseDigraph<const Digraph> RDigraph;
 
-    RDigraph rgraph(graph);
+    RDigraph rdigraph(digraph);
 
     int cutNum = 0;
 
     typedef StronglyConnectedCutArcsVisitor<RDigraph, ArcMap> RVisitor;
-    RVisitor rvisitor(rgraph, cutMap, cutNum);
+    RVisitor rvisitor(rdigraph, cutMap, cutNum);
 
-    DfsVisit<RDigraph, RVisitor> rdfs(rgraph, rvisitor);
+    DfsVisit<RDigraph, RVisitor> rdfs(rdigraph, rvisitor);
 
     rdfs.init();
     for (RIterator it = nodes.rbegin(); it != nodes.rend(); ++it) {
@@ -700,32 +740,37 @@ namespace lemon {
   template <typename Graph>
   int countBiNodeConnectedComponents(const Graph& graph);
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Checks the graph is bi-node-connected.
+  /// \brief Check whether an undirected graph is bi-node-connected.
   ///
-  /// This function checks that the undirected graph is bi-node-connected
-  /// graph. The graph is bi-node-connected if any two undirected edge is
-  /// on same circle.
+  /// This function checks whether the given undirected graph is 
+  /// bi-node-connected, i.e. any two edges are on same circle.
   ///
-  /// \param graph The graph.
-  /// \return %True when the graph bi-node-connected.
+  /// \return \c true if the graph bi-node-connected.
+  /// \note By definition, the empty graph is bi-node-connected.
+  ///
+  /// \see countBiNodeConnectedComponents(), biNodeConnectedComponents()
   template <typename Graph>
   bool biNodeConnected(const Graph& graph) {
     return countBiNodeConnectedComponents(graph) <= 1;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Count the biconnected components.
+  /// \brief Count the number of bi-node-connected components of an 
+  /// undirected graph.
   ///
-  /// This function finds the bi-node-connected components in an undirected
-  /// graph. The biconnected components are the classes of an equivalence
-  /// relation on the undirected edges. Two undirected edge is in relationship
-  /// when they are on same circle.
+  /// This function counts the number of bi-node-connected components of
+  /// the given undirected graph.
   ///
-  /// \param graph The graph.
-  /// \return The number of components.
+  /// The bi-node-connected components are the classes of an equivalence
+  /// relation on the edges of a undirected graph. Two edges are in the
+  /// same class if they are on same circle.
+  ///
+  /// \return The number of bi-node-connected components.
+  ///
+  /// \see biNodeConnected(), biNodeConnectedComponents()
   template <typename Graph>
   int countBiNodeConnectedComponents(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -750,22 +795,28 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Find the bi-node-connected components.
+  /// \brief Find the bi-node-connected components of an undirected graph.
   ///
-  /// This function finds the bi-node-connected components in an undirected
-  /// graph. The bi-node-connected components are the classes of an equivalence
-  /// relation on the undirected edges. Two undirected edge are in relationship
-  /// when they are on same circle.
+  /// This function finds the bi-node-connected components of the given
+  /// undirected graph.
   ///
-  /// \param graph The graph.
-  /// \retval compMap A writable uedge map. The values will be set from 0
-  /// to the number of the biconnected components minus one. Each values
-  /// of the map will be set exactly once, the values of a certain component
-  /// will be set continuously.
-  /// \return The number of components.
+  /// The bi-node-connected components are the classes of an equivalence
+  /// relation on the edges of a undirected graph. Two edges are in the
+  /// same class if they are on same circle.
   ///
+  /// \image html node_biconnected_components.png
+  /// \image latex node_biconnected_components.eps "bi-node-connected components" width=\textwidth
+  ///
+  /// \param graph The undirected graph.
+  /// \retval compMap A writable edge map. The values will be set from 0
+  /// to the number of the bi-node-connected components minus one. Each
+  /// value of the map will be set exactly once, and the values of a 
+  /// certain component will be set continuously.
+  /// \return The number of bi-node-connected components.
+  ///
+  /// \see biNodeConnected(), countBiNodeConnectedComponents()
   template <typename Graph, typename EdgeMap>
   int biNodeConnectedComponents(const Graph& graph,
                                 EdgeMap& compMap) {
@@ -793,20 +844,27 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Find the bi-node-connected cut nodes.
+  /// \brief Find the bi-node-connected cut nodes in an undirected graph.
   ///
-  /// This function finds the bi-node-connected cut nodes in an undirected
-  /// graph. The bi-node-connected components are the classes of an equivalence
-  /// relation on the undirected edges. Two undirected edges are in
-  /// relationship when they are on same circle. The biconnected components
-  /// are separted by nodes which are the cut nodes of the components.
+  /// This function finds the bi-node-connected cut nodes in the given
+  /// undirected graph.
   ///
-  /// \param graph The graph.
-  /// \retval cutMap A writable edge map. The values will be set true when
-  /// the node separate two or more components.
+  /// The bi-node-connected components are the classes of an equivalence
+  /// relation on the edges of a undirected graph. Two edges are in the
+  /// same class if they are on same circle.
+  /// The bi-node-connected components are separted by the cut nodes of
+  /// the components.
+  ///
+  /// \param graph The undirected graph.
+  /// \retval cutMap A writable node map. The values will be set to 
+  /// \c true for the nodes that separate two or more components
+  /// (exactly once for each cut node), and will not be changed for
+  /// other nodes.
   /// \return The number of the cut nodes.
+  ///
+  /// \see biNodeConnected(), biNodeConnectedComponents()
   template <typename Graph, typename NodeMap>
   int biNodeConnectedCutNodes(const Graph& graph, NodeMap& cutMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -1023,32 +1081,39 @@ namespace lemon {
   template <typename Graph>
   int countBiEdgeConnectedComponents(const Graph& graph);
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Checks that the graph is bi-edge-connected.
+  /// \brief Check whether an undirected graph is bi-edge-connected.
   ///
-  /// This function checks that the graph is bi-edge-connected. The undirected
-  /// graph is bi-edge-connected when any two nodes are connected with two
-  /// edge-disjoint paths.
+  /// This function checks whether the given undirected graph is 
+  /// bi-edge-connected, i.e. any two nodes are connected with at least
+  /// two edge-disjoint paths.
   ///
-  /// \param graph The undirected graph.
-  /// \return The number of components.
+  /// \return \c true if the graph is bi-edge-connected.
+  /// \note By definition, the empty graph is bi-edge-connected.
+  ///
+  /// \see countBiEdgeConnectedComponents(), biEdgeConnectedComponents()
   template <typename Graph>
   bool biEdgeConnected(const Graph& graph) {
     return countBiEdgeConnectedComponents(graph) <= 1;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Count the bi-edge-connected components.
+  /// \brief Count the number of bi-edge-connected components of an
+  /// undirected graph.
   ///
-  /// This function count the bi-edge-connected components in an undirected
-  /// graph. The bi-edge-connected components are the classes of an equivalence
-  /// relation on the nodes. Two nodes are in relationship when they are
-  /// connected with at least two edge-disjoint paths.
+  /// This function counts the number of bi-edge-connected components of
+  /// the given undirected graph.
   ///
-  /// \param graph The undirected graph.
-  /// \return The number of components.
+  /// The bi-edge-connected components are the classes of an equivalence
+  /// relation on the nodes of an undirected graph. Two nodes are in the
+  /// same class if they are connected with at least two edge-disjoint
+  /// paths.
+  ///
+  /// \return The number of bi-edge-connected components.
+  ///
+  /// \see biEdgeConnected(), biEdgeConnectedComponents()
   template <typename Graph>
   int countBiEdgeConnectedComponents(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -1073,22 +1138,29 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Find the bi-edge-connected components.
+  /// \brief Find the bi-edge-connected components of an undirected graph.
   ///
-  /// This function finds the bi-edge-connected components in an undirected
-  /// graph. The bi-edge-connected components are the classes of an equivalence
-  /// relation on the nodes. Two nodes are in relationship when they are
-  /// connected at least two edge-disjoint paths.
+  /// This function finds the bi-edge-connected components of the given
+  /// undirected graph.
   ///
-  /// \param graph The graph.
+  /// The bi-edge-connected components are the classes of an equivalence
+  /// relation on the nodes of an undirected graph. Two nodes are in the
+  /// same class if they are connected with at least two edge-disjoint
+  /// paths.
+  ///
+  /// \image html edge_biconnected_components.png
+  /// \image latex edge_biconnected_components.eps "bi-edge-connected components" width=\textwidth
+  ///
+  /// \param graph The undirected graph.
   /// \retval compMap A writable node map. The values will be set from 0 to
-  /// the number of the biconnected components minus one. Each values
-  /// of the map will be set exactly once, the values of a certain component
-  /// will be set continuously.
-  /// \return The number of components.
+  /// the number of the bi-edge-connected components minus one. Each value
+  /// of the map will be set exactly once, and the values of a certain
+  /// component will be set continuously.
+  /// \return The number of bi-edge-connected components.
   ///
+  /// \see biEdgeConnected(), countBiEdgeConnectedComponents()
   template <typename Graph, typename NodeMap>
   int biEdgeConnectedComponents(const Graph& graph, NodeMap& compMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -1115,21 +1187,27 @@ namespace lemon {
     return compNum;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Find the bi-edge-connected cut edges.
+  /// \brief Find the bi-edge-connected cut edges in an undirected graph.
   ///
-  /// This function finds the bi-edge-connected components in an undirected
-  /// graph. The bi-edge-connected components are the classes of an equivalence
-  /// relation on the nodes. Two nodes are in relationship when they are
-  /// connected with at least two edge-disjoint paths. The bi-edge-connected
-  /// components are separted by edges which are the cut edges of the
-  /// components.
+  /// This function finds the bi-edge-connected cut edges in the given
+  /// undirected graph. 
   ///
-  /// \param graph The graph.
-  /// \retval cutMap A writable node map. The values will be set true when the
-  /// edge is a cut edge.
+  /// The bi-edge-connected components are the classes of an equivalence
+  /// relation on the nodes of an undirected graph. Two nodes are in the
+  /// same class if they are connected with at least two edge-disjoint
+  /// paths.
+  /// The bi-edge-connected components are separted by the cut edges of
+  /// the components.
+  ///
+  /// \param graph The undirected graph.
+  /// \retval cutMap A writable edge map. The values will be set to \c true
+  /// for the cut edges (exactly once for each cut edge), and will not be
+  /// changed for other edges.
   /// \return The number of cut edges.
+  ///
+  /// \see biEdgeConnected(), biEdgeConnectedComponents()
   template <typename Graph, typename EdgeMap>
   int biEdgeConnectedCutEdges(const Graph& graph, EdgeMap& cutMap) {
     checkConcept<concepts::Graph, Graph>();
@@ -1179,21 +1257,64 @@ namespace lemon {
 
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
+  ///
+  /// \brief Check whether a digraph is DAG.
+  ///
+  /// This function checks whether the given digraph is DAG, i.e.
+  /// \e Directed \e Acyclic \e Graph.
+  /// \return \c true if there is no directed cycle in the digraph.
+  /// \see acyclic()
+  template <typename Digraph>
+  bool dag(const Digraph& digraph) {
+
+    checkConcept<concepts::Digraph, Digraph>();
+
+    typedef typename Digraph::Node Node;
+    typedef typename Digraph::NodeIt NodeIt;
+    typedef typename Digraph::Arc Arc;
+
+    typedef typename Digraph::template NodeMap<bool> ProcessedMap;
+
+    typename Dfs<Digraph>::template SetProcessedMap<ProcessedMap>::
+      Create dfs(digraph);
+
+    ProcessedMap processed(digraph);
+    dfs.processedMap(processed);
+
+    dfs.init();
+    for (NodeIt it(digraph); it != INVALID; ++it) {
+      if (!dfs.reached(it)) {
+        dfs.addSource(it);
+        while (!dfs.emptyQueue()) {
+          Arc arc = dfs.nextArc();
+          Node target = digraph.target(arc);
+          if (dfs.reached(target) && !processed[target]) {
+            return false;
+          }
+          dfs.processNextArc();
+        }
+      }
+    }
+    return true;
+  }
+
+  /// \ingroup graph_properties
   ///
   /// \brief Sort the nodes of a DAG into topolgical order.
   ///
-  /// Sort the nodes of a DAG into topolgical order.
+  /// This function sorts the nodes of the given acyclic digraph (DAG)
+  /// into topolgical order.
   ///
-  /// \param graph The graph. It must be directed and acyclic.
+  /// \param digraph The digraph, which must be DAG.
   /// \retval order A writable node map. The values will be set from 0 to
-  /// the number of the nodes in the graph minus one. Each values of the map
-  /// will be set exactly once, the values  will be set descending order.
+  /// the number of the nodes in the digraph minus one. Each value of the
+  /// map will be set exactly once, and the values will be set descending
+  /// order.
   ///
-  /// \see checkedTopologicalSort
-  /// \see dag
+  /// \see dag(), checkedTopologicalSort()
   template <typename Digraph, typename NodeMap>
-  void topologicalSort(const Digraph& graph, NodeMap& order) {
+  void topologicalSort(const Digraph& digraph, NodeMap& order) {
     using namespace _connectivity_bits;
 
     checkConcept<concepts::Digraph, Digraph>();
@@ -1204,13 +1325,13 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
 
     TopologicalSortVisitor<Digraph, NodeMap>
-      visitor(order, countNodes(graph));
+      visitor(order, countNodes(digraph));
 
     DfsVisit<Digraph, TopologicalSortVisitor<Digraph, NodeMap> >
-      dfs(graph, visitor);
+      dfs(digraph, visitor);
 
     dfs.init();
-    for (NodeIt it(graph); it != INVALID; ++it) {
+    for (NodeIt it(digraph); it != INVALID; ++it) {
       if (!dfs.reached(it)) {
         dfs.addSource(it);
         dfs.start();
@@ -1218,22 +1339,22 @@ namespace lemon {
     }
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
   /// \brief Sort the nodes of a DAG into topolgical order.
   ///
-  /// Sort the nodes of a DAG into topolgical order. It also checks
-  /// that the given graph is DAG.
+  /// This function sorts the nodes of the given acyclic digraph (DAG)
+  /// into topolgical order and also checks whether the given digraph
+  /// is DAG.
   ///
-  /// \param digraph The graph. It must be directed and acyclic.
-  /// \retval order A readable - writable node map. The values will be set
-  /// from 0 to the number of the nodes in the graph minus one. Each values
-  /// of the map will be set exactly once, the values will be set descending
-  /// order.
-  /// \return %False when the graph is not DAG.
+  /// \param digraph The digraph.
+  /// \retval order A readable and writable node map. The values will be
+  /// set from 0 to the number of the nodes in the digraph minus one. 
+  /// Each value of the map will be set exactly once, and the values will
+  /// be set descending order.
+  /// \return \c false if the digraph is not DAG.
   ///
-  /// \see topologicalSort
-  /// \see dag
+  /// \see dag(), topologicalSort()
   template <typename Digraph, typename NodeMap>
   bool checkedTopologicalSort(const Digraph& digraph, NodeMap& order) {
     using namespace _connectivity_bits;
@@ -1273,56 +1394,13 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check that the given directed graph is a DAG.
+  /// \brief Check whether an undirected graph is acyclic.
   ///
-  /// Check that the given directed graph is a DAG. The DAG is
-  /// an Directed Acyclic Digraph.
-  /// \return %False when the graph is not DAG.
-  /// \see acyclic
-  template <typename Digraph>
-  bool dag(const Digraph& digraph) {
-
-    checkConcept<concepts::Digraph, Digraph>();
-
-    typedef typename Digraph::Node Node;
-    typedef typename Digraph::NodeIt NodeIt;
-    typedef typename Digraph::Arc Arc;
-
-    typedef typename Digraph::template NodeMap<bool> ProcessedMap;
-
-    typename Dfs<Digraph>::template SetProcessedMap<ProcessedMap>::
-      Create dfs(digraph);
-
-    ProcessedMap processed(digraph);
-    dfs.processedMap(processed);
-
-    dfs.init();
-    for (NodeIt it(digraph); it != INVALID; ++it) {
-      if (!dfs.reached(it)) {
-        dfs.addSource(it);
-        while (!dfs.emptyQueue()) {
-          Arc edge = dfs.nextArc();
-          Node target = digraph.target(edge);
-          if (dfs.reached(target) && !processed[target]) {
-            return false;
-          }
-          dfs.processNextArc();
-        }
-      }
-    }
-    return true;
-  }
-
-  /// \ingroup connectivity
-  ///
-  /// \brief Check that the given undirected graph is acyclic.
-  ///
-  /// Check that the given undirected graph acyclic.
-  /// \param graph The undirected graph.
-  /// \return %True when there is no circle in the graph.
-  /// \see dag
+  /// This function checks whether the given undirected graph is acyclic.
+  /// \return \c true if there is no cycle in the graph.
+  /// \see dag()
   template <typename Graph>
   bool acyclic(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
@@ -1335,11 +1413,11 @@ namespace lemon {
       if (!dfs.reached(it)) {
         dfs.addSource(it);
         while (!dfs.emptyQueue()) {
-          Arc edge = dfs.nextArc();
-          Node source = graph.source(edge);
-          Node target = graph.target(edge);
+          Arc arc = dfs.nextArc();
+          Node source = graph.source(arc);
+          Node target = graph.target(arc);
           if (dfs.reached(target) &&
-              dfs.predArc(source) != graph.oppositeArc(edge)) {
+              dfs.predArc(source) != graph.oppositeArc(arc)) {
             return false;
           }
           dfs.processNextArc();
@@ -1349,28 +1427,29 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check that the given undirected graph is tree.
+  /// \brief Check whether an undirected graph is tree.
   ///
-  /// Check that the given undirected graph is tree.
-  /// \param graph The undirected graph.
-  /// \return %True when the graph is acyclic and connected.
+  /// This function checks whether the given undirected graph is tree.
+  /// \return \c true if the graph is acyclic and connected.
+  /// \see acyclic(), connected()
   template <typename Graph>
   bool tree(const Graph& graph) {
     checkConcept<concepts::Graph, Graph>();
     typedef typename Graph::Node Node;
     typedef typename Graph::NodeIt NodeIt;
     typedef typename Graph::Arc Arc;
+    if (NodeIt(graph) == INVALID) return true;
     Dfs<Graph> dfs(graph);
     dfs.init();
     dfs.addSource(NodeIt(graph));
     while (!dfs.emptyQueue()) {
-      Arc edge = dfs.nextArc();
-      Node source = graph.source(edge);
-      Node target = graph.target(edge);
+      Arc arc = dfs.nextArc();
+      Node source = graph.source(arc);
+      Node target = graph.target(arc);
       if (dfs.reached(target) &&
-          dfs.predArc(source) != graph.oppositeArc(edge)) {
+          dfs.predArc(source) != graph.oppositeArc(arc)) {
         return false;
       }
       dfs.processNextArc();
@@ -1441,17 +1520,16 @@ namespace lemon {
     };
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check if the given undirected graph is bipartite or not
+  /// \brief Check whether an undirected graph is bipartite.
   ///
-  /// The function checks if the given undirected \c graph graph is bipartite
-  /// or not. The \ref Bfs algorithm is used to calculate the result.
-  /// \param graph The undirected graph.
-  /// \return %True if \c graph is bipartite, %false otherwise.
-  /// \sa bipartitePartitions
+  /// The function checks whether the given undirected graph is bipartite.
+  /// \return \c true if the graph is bipartite.
+  ///
+  /// \see bipartitePartitions()
   template<typename Graph>
-  inline bool bipartite(const Graph &graph){
+  bool bipartite(const Graph &graph){
     using namespace _connectivity_bits;
 
     checkConcept<concepts::Graph, Graph>();
@@ -1478,23 +1556,29 @@ namespace lemon {
     return true;
   }
 
-  /// \ingroup connectivity
+  /// \ingroup graph_properties
   ///
-  /// \brief Check if the given undirected graph is bipartite or not
+  /// \brief Find the bipartite partitions of an undirected graph.
   ///
-  /// The function checks if the given undirected graph is bipartite
-  /// or not. The  \ref  Bfs  algorithm  is   used  to  calculate the result.
-  /// During the execution, the \c partMap will be set as the two
-  /// partitions of the graph.
+  /// This function checks whether the given undirected graph is bipartite
+  /// and gives back the bipartite partitions.
+  ///
+  /// \image html bipartite_partitions.png
+  /// \image latex bipartite_partitions.eps "Bipartite partititions" width=\textwidth
+  ///
   /// \param graph The undirected graph.
-  /// \retval partMap A writable bool map of nodes. It will be set as the
-  /// two partitions of the graph.
-  /// \return %True if \c graph is bipartite, %false otherwise.
+  /// \retval partMap A writable node map of \c bool (or convertible) value
+  /// type. The values will be set to \c true for one component and
+  /// \c false for the other one.
+  /// \return \c true if the graph is bipartite, \c false otherwise.
+  ///
+  /// \see bipartite()
   template<typename Graph, typename NodeMap>
-  inline bool bipartitePartitions(const Graph &graph, NodeMap &partMap){
+  bool bipartitePartitions(const Graph &graph, NodeMap &partMap){
     using namespace _connectivity_bits;
 
     checkConcept<concepts::Graph, Graph>();
+    checkConcept<concepts::WriteMap<typename Graph::Node, bool>, NodeMap>();
 
     typedef typename Graph::Node Node;
     typedef typename Graph::NodeIt NodeIt;
@@ -1519,53 +1603,59 @@ namespace lemon {
     return true;
   }
 
-  /// \brief Returns true when there are not loop edges in the graph.
+  /// \ingroup graph_properties
   ///
-  /// Returns true when there are not loop edges in the graph.
-  template <typename Digraph>
-  bool loopFree(const Digraph& digraph) {
-    for (typename Digraph::ArcIt it(digraph); it != INVALID; ++it) {
-      if (digraph.source(it) == digraph.target(it)) return false;
+  /// \brief Check whether the given graph contains no loop arcs/edges.
+  ///
+  /// This function returns \c true if there are no loop arcs/edges in
+  /// the given graph. It works for both directed and undirected graphs.
+  template <typename Graph>
+  bool loopFree(const Graph& graph) {
+    for (typename Graph::ArcIt it(graph); it != INVALID; ++it) {
+      if (graph.source(it) == graph.target(it)) return false;
     }
     return true;
   }
 
-  /// \brief Returns true when there are not parallel edges in the graph.
+  /// \ingroup graph_properties
   ///
-  /// Returns true when there are not parallel edges in the graph.
-  template <typename Digraph>
-  bool parallelFree(const Digraph& digraph) {
-    typename Digraph::template NodeMap<bool> reached(digraph, false);
-    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        if (reached[digraph.target(a)]) return false;
-        reached.set(digraph.target(a), true);
+  /// \brief Check whether the given graph contains no parallel arcs/edges.
+  ///
+  /// This function returns \c true if there are no parallel arcs/edges in
+  /// the given graph. It works for both directed and undirected graphs.
+  template <typename Graph>
+  bool parallelFree(const Graph& graph) {
+    typename Graph::template NodeMap<int> reached(graph, 0);
+    int cnt = 1;
+    for (typename Graph::NodeIt n(graph); n != INVALID; ++n) {
+      for (typename Graph::OutArcIt a(graph, n); a != INVALID; ++a) {
+        if (reached[graph.target(a)] == cnt) return false;
+        reached[graph.target(a)] = cnt;
       }
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        reached.set(digraph.target(a), false);
-      }
+      ++cnt;
     }
     return true;
   }
 
-  /// \brief Returns true when there are not loop edges and parallel
-  /// edges in the graph.
+  /// \ingroup graph_properties
   ///
-  /// Returns true when there are not loop edges and parallel edges in
-  /// the graph.
-  template <typename Digraph>
-  bool simpleDigraph(const Digraph& digraph) {
-    typename Digraph::template NodeMap<bool> reached(digraph, false);
-    for (typename Digraph::NodeIt n(digraph); n != INVALID; ++n) {
-      reached.set(n, true);
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        if (reached[digraph.target(a)]) return false;
-        reached.set(digraph.target(a), true);
+  /// \brief Check whether the given graph is simple.
+  ///
+  /// This function returns \c true if the given graph is simple, i.e.
+  /// it contains no loop arcs/edges and no parallel arcs/edges.
+  /// The function works for both directed and undirected graphs.
+  /// \see loopFree(), parallelFree()
+  template <typename Graph>
+  bool simpleGraph(const Graph& graph) {
+    typename Graph::template NodeMap<int> reached(graph, 0);
+    int cnt = 1;
+    for (typename Graph::NodeIt n(graph); n != INVALID; ++n) {
+      reached[n] = cnt;
+      for (typename Graph::OutArcIt a(graph, n); a != INVALID; ++a) {
+        if (reached[graph.target(a)] == cnt) return false;
+        reached[graph.target(a)] = cnt;
       }
-      for (typename Digraph::OutArcIt a(digraph, n); a != INVALID; ++a) {
-        reached.set(digraph.target(a), false);
-      }
-      reached.set(n, false);
+      ++cnt;
     }
     return true;
   }

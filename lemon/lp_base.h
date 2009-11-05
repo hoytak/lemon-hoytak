@@ -52,12 +52,12 @@ namespace lemon {
 
     ///Possible outcomes of an LP solving procedure
     enum SolveExitStatus {
-      ///This means that the problem has been successfully solved: either
+      /// = 0. It means that the problem has been successfully solved: either
       ///an optimal solution has been found or infeasibility/unboundedness
       ///has been proved.
       SOLVED = 0,
-      ///Any other case (including the case when some user specified
-      ///limit has been exceeded)
+      /// = 1. Any other case (including the case when some user specified
+      ///limit has been exceeded).
       UNSOLVED = 1
     };
 
@@ -68,6 +68,21 @@ namespace lemon {
       /// Maximization
       MAX
     };
+
+    ///Enum for \c messageLevel() parameter
+    enum MessageLevel {
+      /// No output (default value).
+      MESSAGE_NOTHING,
+      /// Error messages only.
+      MESSAGE_ERROR,
+      /// Warnings.
+      MESSAGE_WARNING,
+      /// Normal output.
+      MESSAGE_NORMAL,
+      /// Verbose output.
+      MESSAGE_VERBOSE
+    };
+    
 
     ///The floating point type used by the solver
     typedef double Value;
@@ -597,11 +612,11 @@ namespace lemon {
       const Value &upperBound() const { return _ub; }
       ///Is the constraint lower bounded?
       bool lowerBounded() const {
-        return _lb != -INF && !std::isnan(_lb);
+        return _lb != -INF && !isNaN(_lb);
       }
       ///Is the constraint upper bounded?
       bool upperBounded() const {
-        return _ub != INF && !std::isnan(_ub);
+        return _ub != INF && !isNaN(_ub);
       }
 
     };
@@ -918,8 +933,6 @@ namespace lemon {
   protected:
 
     //Abstract virtual functions
-    virtual LpBase* _newSolver() const = 0;
-    virtual LpBase* _cloneSolver() const = 0;
 
     virtual int _addColId(int col) { return cols.addIndex(col); }
     virtual int _addRowId(int row) { return rows.addIndex(row); }
@@ -929,6 +942,14 @@ namespace lemon {
 
     virtual int _addCol() = 0;
     virtual int _addRow() = 0;
+
+    virtual int _addRow(Value l, ExprIterator b, ExprIterator e, Value u) {
+      int row = _addRow();
+      _setRowCoeffs(row, b, e);
+      _setRowLowerBound(row, l);
+      _setRowUpperBound(row, u);
+      return row;
+    }
 
     virtual void _eraseCol(int col) = 0;
     virtual void _eraseRow(int row) = 0;
@@ -975,6 +996,8 @@ namespace lemon {
 
     virtual const char* _solverName() const = 0;
 
+    virtual void _messageLevel(MessageLevel level) = 0;
+
     //Own protected stuff
 
     //Constant component of the objective function
@@ -987,15 +1010,10 @@ namespace lemon {
     /// Virtual destructor
     virtual ~LpBase() {}
 
-    ///Creates a new LP problem
-    LpBase* newSolver() {return _newSolver();}
-    ///Makes a copy of the LP problem
-    LpBase* cloneSolver() {return _cloneSolver();}
-
     ///Gives back the name of the solver.
     const char* solverName() const {return _solverName();}
 
-    ///\name Build up and modify the LP
+    ///\name Build Up and Modify the LP
 
     ///@{
 
@@ -1067,8 +1085,8 @@ namespace lemon {
     ///a better one.
     void col(Col c, const DualExpr &e) {
       e.simplify();
-      _setColCoeffs(cols(id(c)), ExprIterator(e.comps.begin(), cols),
-                    ExprIterator(e.comps.end(), cols));
+      _setColCoeffs(cols(id(c)), ExprIterator(e.comps.begin(), rows),
+                    ExprIterator(e.comps.end(), rows));
     }
 
     ///Get a column (i.e a dual constraint) of the LP
@@ -1197,8 +1215,10 @@ namespace lemon {
     ///\param u is the upper bound (\ref INF means no bound)
     ///\return The created row.
     Row addRow(Value l,const Expr &e, Value u) {
-      Row r=addRow();
-      row(r,l,e,u);
+      Row r;
+      e.simplify();
+      r._id = _addRowId(_addRow(l - *e, ExprIterator(e.comps.begin(), cols),
+                                ExprIterator(e.comps.end(), cols), u - *e));
       return r;
     }
 
@@ -1207,8 +1227,12 @@ namespace lemon {
     ///\param c is a linear expression (see \ref Constr)
     ///\return The created row.
     Row addRow(const Constr &c) {
-      Row r=addRow();
-      row(r,c);
+      Row r;
+      c.expr().simplify();
+      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound():-INF, 
+                                ExprIterator(c.expr().comps.begin(), cols),
+                                ExprIterator(c.expr().comps.end(), cols),
+                                c.upperBounded()?c.upperBound():INF));
       return r;
     }
     ///Erase a column (i.e a variable) from the LP
@@ -1383,26 +1407,26 @@ namespace lemon {
     template<class T>
     void colUpperBound(T &t, Value value) { return 0;}
 #else
-    template<class T>
-    typename enable_if<typename T::value_type::LpCol,void>::type
-    colUpperBound(T &t, Value value,dummy<0> = 0) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T1>
+    typename enable_if<typename T1::value_type::LpCol,void>::type
+    colUpperBound(T1 &t, Value value,dummy<0> = 0) {
+      for(typename T1::iterator i=t.begin();i!=t.end();++i) {
         colUpperBound(*i, value);
       }
     }
-    template<class T>
-    typename enable_if<typename T::value_type::second_type::LpCol,
+    template<class T1>
+    typename enable_if<typename T1::value_type::second_type::LpCol,
                        void>::type
-    colUpperBound(T &t, Value value,dummy<1> = 1) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    colUpperBound(T1 &t, Value value,dummy<1> = 1) {
+      for(typename T1::iterator i=t.begin();i!=t.end();++i) {
         colUpperBound(i->second, value);
       }
     }
-    template<class T>
-    typename enable_if<typename T::MapIt::Value::LpCol,
+    template<class T1>
+    typename enable_if<typename T1::MapIt::Value::LpCol,
                        void>::type
-    colUpperBound(T &t, Value value,dummy<2> = 2) {
-      for(typename T::MapIt i(t); i!=INVALID; ++i){
+    colUpperBound(T1 &t, Value value,dummy<2> = 2) {
+      for(typename T1::MapIt i(t); i!=INVALID; ++i){
         colUpperBound(*i, value);
       }
     }
@@ -1432,24 +1456,24 @@ namespace lemon {
     template<class T>
     void colBounds(T &t, Value lower, Value upper) { return 0;}
 #else
-    template<class T>
-    typename enable_if<typename T::value_type::LpCol,void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<0> = 0) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T2>
+    typename enable_if<typename T2::value_type::LpCol,void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<0> = 0) {
+      for(typename T2::iterator i=t.begin();i!=t.end();++i) {
         colBounds(*i, lower, upper);
       }
     }
-    template<class T>
-    typename enable_if<typename T::value_type::second_type::LpCol, void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<1> = 1) {
-      for(typename T::iterator i=t.begin();i!=t.end();++i) {
+    template<class T2>
+    typename enable_if<typename T2::value_type::second_type::LpCol, void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<1> = 1) {
+      for(typename T2::iterator i=t.begin();i!=t.end();++i) {
         colBounds(i->second, lower, upper);
       }
     }
-    template<class T>
-    typename enable_if<typename T::MapIt::Value::LpCol, void>::type
-    colBounds(T &t, Value lower, Value upper,dummy<2> = 2) {
-      for(typename T::MapIt i(t); i!=INVALID; ++i){
+    template<class T2>
+    typename enable_if<typename T2::MapIt::Value::LpCol, void>::type
+    colBounds(T2 &t, Value lower, Value upper,dummy<2> = 2) {
+      for(typename T2::MapIt i(t); i!=INVALID; ++i){
         colBounds(*i, lower, upper);
       }
     }
@@ -1533,6 +1557,9 @@ namespace lemon {
 
     ///Clears the problem
     void clear() { _clear(); }
+
+    /// Sets the message level of the solver
+    void messageLevel(MessageLevel level) { _messageLevel(level); }
 
     ///@}
 
@@ -1666,7 +1693,7 @@ namespace lemon {
   inline LpBase::Constr operator<=(const LpBase::Value &n,
                                    const LpBase::Constr &c) {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isNaN(tmp.lowerBound()), "Wrong LP constraint");
     tmp.lowerBound()=n;
     return tmp;
   }
@@ -1678,7 +1705,7 @@ namespace lemon {
                                    const LpBase::Value &n)
   {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isNaN(tmp.upperBound()), "Wrong LP constraint");
     tmp.upperBound()=n;
     return tmp;
   }
@@ -1690,7 +1717,7 @@ namespace lemon {
   inline LpBase::Constr operator>=(const LpBase::Value &n,
                                    const LpBase::Constr &c) {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.upperBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isNaN(tmp.upperBound()), "Wrong LP constraint");
     tmp.upperBound()=n;
     return tmp;
   }
@@ -1702,7 +1729,7 @@ namespace lemon {
                                    const LpBase::Value &n)
   {
     LpBase::Constr tmp(c);
-    LEMON_ASSERT(std::isnan(tmp.lowerBound()), "Wrong LP constraint");
+    LEMON_ASSERT(isNaN(tmp.lowerBound()), "Wrong LP constraint");
     tmp.lowerBound()=n;
     return tmp;
   }
@@ -1775,15 +1802,15 @@ namespace lemon {
 
     /// The problem types for primal and dual problems
     enum ProblemType {
-      ///Feasible solution hasn't been found (but may exist).
+      /// = 0. Feasible solution hasn't been found (but may exist).
       UNDEFINED = 0,
-      ///The problem has no feasible solution
+      /// = 1. The problem has no feasible solution.
       INFEASIBLE = 1,
-      ///Feasible solution found
+      /// = 2. Feasible solution found.
       FEASIBLE = 2,
-      ///Optimal solution exists and found
+      /// = 3. Optimal solution exists and found.
       OPTIMAL = 3,
-      ///The cost function is unbounded
+      /// = 4. The cost function is unbounded.
       UNBOUNDED = 4
     };
 
@@ -1821,6 +1848,11 @@ namespace lemon {
 
   public:
 
+    ///Allocate a new LP problem instance
+    virtual LpSolver* newSolver() const = 0;
+    ///Make a copy of the LP problem
+    virtual LpSolver* cloneSolver() const = 0;
+
     ///\name Solve the LP
 
     ///@{
@@ -1834,7 +1866,7 @@ namespace lemon {
 
     ///@}
 
-    ///\name Obtain the solution
+    ///\name Obtain the Solution
 
     ///@{
 
@@ -1935,13 +1967,8 @@ namespace lemon {
     Value primal() const { return _getPrimalValue()+obj_const_comp;}
     ///@}
 
-    LpSolver* newSolver() {return _newSolver();}
-    LpSolver* cloneSolver() {return _cloneSolver();}
-
   protected:
 
-    virtual LpSolver* _newSolver() const = 0;
-    virtual LpSolver* _cloneSolver() const = 0;
   };
 
 
@@ -1961,19 +1988,23 @@ namespace lemon {
 
     /// The problem types for MIP problems
     enum ProblemType {
-      ///Feasible solution hasn't been found (but may exist).
+      /// = 0. Feasible solution hasn't been found (but may exist).
       UNDEFINED = 0,
-      ///The problem has no feasible solution
+      /// = 1. The problem has no feasible solution.
       INFEASIBLE = 1,
-      ///Feasible solution found
+      /// = 2. Feasible solution found.
       FEASIBLE = 2,
-      ///Optimal solution exists and found
+      /// = 3. Optimal solution exists and found.
       OPTIMAL = 3,
-      ///The cost function is unbounded
-      ///
-      ///The Mip or at least the relaxed problem is unbounded
+      /// = 4. The cost function is unbounded.
+      ///The Mip or at least the relaxed problem is unbounded.
       UNBOUNDED = 4
     };
+
+    ///Allocate a new MIP problem instance
+    virtual MipSolver* newSolver() const = 0;
+    ///Make a copy of the MIP problem
+    virtual MipSolver* cloneSolver() const = 0;
 
     ///\name Solve the MIP
 
@@ -1988,14 +2019,14 @@ namespace lemon {
 
     ///@}
 
-    ///\name Setting column type
+    ///\name Set Column Type
     ///@{
 
     ///Possible variable (column) types (e.g. real, integer, binary etc.)
     enum ColTypes {
-      ///Continuous variable (default)
+      /// = 0. Continuous variable (default).
       REAL = 0,
-      ///Integer variable
+      /// = 1. Integer variable.
       INTEGER = 1
     };
 
@@ -2016,7 +2047,7 @@ namespace lemon {
     }
     ///@}
 
-    ///\name Obtain the solution
+    ///\name Obtain the Solution
 
     ///@{
 
@@ -2062,15 +2093,6 @@ namespace lemon {
     virtual Value _getSol(int i) const = 0;
     virtual Value _getSolValue() const = 0;
 
-  public:
-
-    MipSolver* newSolver() {return _newSolver();}
-    MipSolver* cloneSolver() {return _cloneSolver();}
-
-  protected:
-
-    virtual MipSolver* _newSolver() const = 0;
-    virtual MipSolver* _cloneSolver() const = 0;
   };
 
 

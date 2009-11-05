@@ -73,16 +73,18 @@ namespace lemon {
     SoplexLp(const SoplexLp&);
     /// \e
     ~SoplexLp();
+    /// \e
+    virtual SoplexLp* newSolver() const;
+    /// \e
+    virtual SoplexLp* cloneSolver() const;
 
   protected:
-
-    virtual SoplexLp* _newSolver() const;
-    virtual SoplexLp* _cloneSolver() const;
 
     virtual const char* _solverName() const;
 
     virtual int _addCol();
     virtual int _addRow();
+    virtual int _addRow(Value l, ExprIterator b, ExprIterator e, Value u);
 
     virtual void _eraseCol(int i);
     virtual void _eraseRow(int i);
@@ -142,6 +144,11 @@ namespace lemon {
     virtual ProblemType _getDualType() const;
 
     virtual void _clear();
+
+    void _messageLevel(MessageLevel m);
+    void _applyMessageLevel();
+
+    int _message_level;
 
   };
 

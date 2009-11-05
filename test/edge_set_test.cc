@@ -33,7 +33,7 @@
 using namespace lemon;
 
 void checkSmartArcSet() {
-  checkConcept<concepts::Digraph, SmartArcSet<concepts::Digraph> >();
+  checkConcept<concepts::Digraph, SmartArcSet<ListDigraph> >();
 
   typedef ListDigraph Digraph;
   typedef SmartArcSet<Digraph> ArcSet;
@@ -99,7 +99,7 @@ void checkSmartArcSet() {
 }
 
 void checkListArcSet() {
-  checkConcept<concepts::Digraph, SmartArcSet<concepts::Digraph> >();
+  checkConcept<concepts::Digraph, SmartArcSet<ListDigraph> >();
 
   typedef ListDigraph Digraph;
   typedef ListArcSet<Digraph> ArcSet;
@@ -179,7 +179,7 @@ void checkListArcSet() {
 }
 
 void checkSmartEdgeSet() {
-  checkConcept<concepts::Digraph, SmartEdgeSet<concepts::Digraph> >();
+  checkConcept<concepts::Digraph, SmartEdgeSet<ListDigraph> >();
 
   typedef ListDigraph Digraph;
   typedef SmartEdgeSet<Digraph> EdgeSet;
@@ -263,7 +263,7 @@ void checkSmartEdgeSet() {
 }
 
 void checkListEdgeSet() {
-  checkConcept<concepts::Digraph, ListEdgeSet<concepts::Digraph> >();
+  checkConcept<concepts::Digraph, ListEdgeSet<ListDigraph> >();
 
   typedef ListDigraph Digraph;
   typedef ListEdgeSet<Digraph> EdgeSet;

@@ -18,59 +18,86 @@
 
 #include <lemon/counter.h>
 #include <vector>
+#include <sstream>
+
+#include "test/test_tools.h"
 
 using namespace lemon;
 
 template <typename T>
 void bubbleSort(std::vector<T>& v) {
-  Counter op("Bubble Sort - Operations: ");
-  Counter::NoSubCounter as(op, "Assignments: ");
-  Counter::NoSubCounter co(op, "Comparisons: ");
-  for (int i = v.size()-1; i > 0; --i) {
-    for (int j = 0; j < i; ++j) {
-      if (v[j] > v[j+1]) {
-        T tmp = v[j];
-        v[j] = v[j+1];
-        v[j+1] = tmp;
-        as += 3;
+  std::stringstream s1, s2, s3;
+  {
+    Counter op("Bubble Sort - Operations: ", s1);
+    Counter::SubCounter as(op, "Assignments: ", s2);
+    Counter::SubCounter co(op, "Comparisons: ", s3);
+    for (int i = v.size()-1; i > 0; --i) {
+      for (int j = 0; j < i; ++j) {
+        if (v[j] > v[j+1]) {
+          T tmp = v[j];
+          v[j] = v[j+1];
+          v[j+1] = tmp;
+          as += 3;
+        }
+        ++co;
       }
-      ++co;
     }
   }
+  check(s1.str() == "Bubble Sort - Operations: 102\n", "Wrong counter");
+  check(s2.str() == "Assignments: 57\n", "Wrong subcounter");
+  check(s3.str() == "Comparisons: 45\n", "Wrong subcounter");
 }
 
 template <typename T>
 void insertionSort(std::vector<T>& v) {
-  Counter op("Insertion Sort - Operations: ");
-  Counter::NoSubCounter as(op, "Assignments: ");
-  Counter::NoSubCounter co(op, "Comparisons: ");
-  for (int i = 1; i < int(v.size()); ++i) {
-    T value = v[i];
-    ++as;
-    int j = i;
-    while (j > 0 && v[j-1] > value) {
-      v[j] = v[j-1];
-      --j;
-      ++co; ++as;
+  std::stringstream s1, s2, s3;
+  {
+    Counter op("Insertion Sort - Operations: ", s1);
+    Counter::SubCounter as(op, "Assignments: ", s2);
+    Counter::SubCounter co(op, "Comparisons: ", s3);
+    for (int i = 1; i < int(v.size()); ++i) {
+      T value = v[i];
+      ++as;
+      int j = i;
+      while (j > 0 && v[j-1] > value) {
+        v[j] = v[j-1];
+        --j;
+        ++co; ++as;
+      }
+      v[j] = value;
+      ++as;
     }
-    v[j] = value;
-    ++as;
   }
+  check(s1.str() == "Insertion Sort - Operations: 56\n", "Wrong counter");
+  check(s2.str() == "Assignments: 37\n", "Wrong subcounter");
+  check(s3.str() == "Comparisons: 19\n", "Wrong subcounter");
 }
 
 template <typename MyCounter>
-void counterTest() {
-  MyCounter c("Main Counter: ");
-  c++;
-  typename MyCounter::SubCounter d(c, "SubCounter: ");
-  d++;
-  typename MyCounter::SubCounter::NoSubCounter e(d, "SubSubCounter: ");
-  e++;
-  d+=3;
-  c-=4;
-  e-=2;
-  c.reset(2);
-  c.reset();
+void counterTest(bool output) {
+  std::stringstream s1, s2, s3;
+  {
+    MyCounter c("Main Counter: ", s1);
+    c++;
+    typename MyCounter::SubCounter d(c, "SubCounter: ", s2);
+    d++;
+    typename MyCounter::SubCounter::NoSubCounter e(d, "SubSubCounter: ", s3);
+    e++;
+    d+=3;
+    c-=4;
+    e-=2;
+    c.reset(2);
+    c.reset();
+  }
+  if (output) {
+    check(s1.str() == "Main Counter: 3\n", "Wrong Counter");
+    check(s2.str() == "SubCounter: 3\n", "Wrong SubCounter");
+    check(s3.str() == "", "Wrong NoSubCounter");
+  } else {
+    check(s1.str() == "", "Wrong NoCounter");
+    check(s2.str() == "", "Wrong SubCounter");
+    check(s3.str() == "", "Wrong NoSubCounter");
+  }
 }
 
 void init(std::vector<int>& v) {
@@ -80,8 +107,8 @@ void init(std::vector<int>& v) {
 
 int main()
 {
-  counterTest<Counter>();
-  counterTest<NoCounter>();
+  counterTest<Counter>(true);
+  counterTest<NoCounter>(false);
 
   std::vector<int> x(10);
   init(x); bubbleSort(x);
