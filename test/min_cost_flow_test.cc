@@ -24,8 +24,12 @@
 #include <lemon/lgf_reader.h>
 
 #include <lemon/network_simplex.h>
+#include <lemon/capacity_scaling.h>
+#include <lemon/cost_scaling.h>
+#include <lemon/cycle_canceling.h>
 
 #include <lemon/concepts/digraph.h>
+#include <lemon/concepts/heap.h>
 #include <lemon/concept_check.h>
 
 #include "test_tools.h"
@@ -457,6 +461,45 @@ int main()
                   NetworkSimplex<GR, int, double> >();
   }
 
+  // Check the interface of CapacityScaling
+  {
+    typedef concepts::Digraph GR;
+    checkConcept< McfClassConcept<GR, int, int>,
+                  CapacityScaling<GR> >();
+    checkConcept< McfClassConcept<GR, double, double>,
+                  CapacityScaling<GR, double> >();
+    checkConcept< McfClassConcept<GR, int, double>,
+                  CapacityScaling<GR, int, double> >();
+    typedef CapacityScaling<GR>::
+      SetHeap<concepts::Heap<int, RangeMap<int> > >::Create CAS;
+    checkConcept< McfClassConcept<GR, int, int>, CAS >();
+  }
+
+  // Check the interface of CostScaling
+  {
+    typedef concepts::Digraph GR;
+    checkConcept< McfClassConcept<GR, int, int>,
+                  CostScaling<GR> >();
+    checkConcept< McfClassConcept<GR, double, double>,
+                  CostScaling<GR, double> >();
+    checkConcept< McfClassConcept<GR, int, double>,
+                  CostScaling<GR, int, double> >();
+    typedef CostScaling<GR>::
+      SetLargeCost<double>::Create COS;
+    checkConcept< McfClassConcept<GR, int, int>, COS >();
+  }
+
+  // Check the interface of CycleCanceling
+  {
+    typedef concepts::Digraph GR;
+    checkConcept< McfClassConcept<GR, int, int>,
+                  CycleCanceling<GR> >();
+    checkConcept< McfClassConcept<GR, double, double>,
+                  CycleCanceling<GR, double> >();
+    checkConcept< McfClassConcept<GR, int, double>,
+                  CycleCanceling<GR, int, double> >();
+  }
+
   // Test NetworkSimplex
   { 
     typedef NetworkSimplex<Digraph> MCF;
@@ -470,6 +513,29 @@ int main()
     runMcfLeqTests<MCF>(MCF::CANDIDATE_LIST, "NS-CL");
     runMcfGeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL", true);
     runMcfLeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL");
+  }
+  
+  // Test CapacityScaling
+  {
+    typedef CapacityScaling<Digraph> MCF;
+    runMcfGeqTests<MCF>(0, "SSP");
+    runMcfGeqTests<MCF>(2, "CAS");
+  }
+
+  // Test CostScaling
+  {
+    typedef CostScaling<Digraph> MCF;
+    runMcfGeqTests<MCF>(MCF::PUSH, "COS-PR");
+    runMcfGeqTests<MCF>(MCF::AUGMENT, "COS-AR");
+    runMcfGeqTests<MCF>(MCF::PARTIAL_AUGMENT, "COS-PAR");
+  }
+
+  // Test CycleCanceling
+  {
+    typedef CycleCanceling<Digraph> MCF;
+    runMcfGeqTests<MCF>(MCF::SIMPLE_CYCLE_CANCELING, "SCC");
+    runMcfGeqTests<MCF>(MCF::MINIMUM_MEAN_CYCLE_CANCELING, "MMCC");
+    runMcfGeqTests<MCF>(MCF::CANCEL_AND_TIGHTEN, "CAT");
   }
 
   return 0;
