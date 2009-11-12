@@ -205,12 +205,12 @@ namespace lemon {
   private:
   
     template <typename KT, typename VT>
-    class VectorMap {
+    class StaticVectorMap {
     public:
       typedef KT Key;
       typedef VT Value;
       
-      VectorMap(std::vector<Value>& v) : _v(v) {}
+      StaticVectorMap(std::vector<Value>& v) : _v(v) {}
       
       const Value& operator[](const Key& key) const {
         return _v[StaticDigraph::id(key)];
@@ -228,8 +228,8 @@ namespace lemon {
       std::vector<Value>& _v;
     };
 
-    typedef VectorMap<StaticDigraph::Node, LargeCost> LargeCostNodeMap;
-    typedef VectorMap<StaticDigraph::Arc, LargeCost> LargeCostArcMap;
+    typedef StaticVectorMap<StaticDigraph::Node, LargeCost> LargeCostNodeMap;
+    typedef StaticVectorMap<StaticDigraph::Arc, LargeCost> LargeCostArcMap;
 
   private:
 

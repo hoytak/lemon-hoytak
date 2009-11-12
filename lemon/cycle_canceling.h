@@ -152,12 +152,12 @@ namespace lemon {
   private:
   
     template <typename KT, typename VT>
-    class VectorMap {
+    class StaticVectorMap {
     public:
       typedef KT Key;
       typedef VT Value;
       
-      VectorMap(std::vector<Value>& v) : _v(v) {}
+      StaticVectorMap(std::vector<Value>& v) : _v(v) {}
       
       const Value& operator[](const Key& key) const {
         return _v[StaticDigraph::id(key)];
@@ -175,8 +175,8 @@ namespace lemon {
       std::vector<Value>& _v;
     };
 
-    typedef VectorMap<StaticDigraph::Node, Cost> CostNodeMap;
-    typedef VectorMap<StaticDigraph::Arc, Cost> CostArcMap;
+    typedef StaticVectorMap<StaticDigraph::Node, Cost> CostNodeMap;
+    typedef StaticVectorMap<StaticDigraph::Arc, Cost> CostArcMap;
 
   private:
 
@@ -800,9 +800,9 @@ namespace lemon {
       const int BF_FIRST_LIMIT  = 2;
       const double BF_LIMIT_FACTOR = 1.5;
       
-      typedef VectorMap<StaticDigraph::Arc, Value> FilterMap;
+      typedef StaticVectorMap<StaticDigraph::Arc, Value> FilterMap;
       typedef FilterArcs<StaticDigraph, FilterMap> ResDigraph;
-      typedef VectorMap<StaticDigraph::Node, StaticDigraph::Arc> PredMap;
+      typedef StaticVectorMap<StaticDigraph::Node, StaticDigraph::Arc> PredMap;
       typedef typename BellmanFord<ResDigraph, CostArcMap>
         ::template SetDistMap<CostNodeMap>
         ::template SetPredMap<PredMap>::Create BF;
