@@ -173,7 +173,7 @@ namespace lemon {
     IntVector _deficit_nodes;
 
     Value _delta;
-    int _phase_num;
+    int _factor;
     IntVector _pred;
 
   public:
@@ -513,12 +513,11 @@ namespace lemon {
     /// \ref reset() is called, thus only the modified parameters
     /// have to be set again. See \ref reset() for examples.
     /// However the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies the digraph.
+    /// class have been constructed, since it copies and extends the graph.
     ///
-    /// \param scaling Enable or disable capacity scaling.
-    /// If the maximum upper bound and/or the amount of total supply
-    /// is rather small, the algorithm could be slightly faster without
-    /// scaling.
+    /// \param factor The capacity scaling factor. It must be larger than
+    /// one to use scaling. If it is less or equal to one, then scaling
+    /// will be disabled.
     ///
     /// \return \c INFEASIBLE if no feasible flow exists,
     /// \n \c OPTIMAL if the problem has optimal solution
@@ -531,8 +530,9 @@ namespace lemon {
     /// these cases.
     ///
     /// \see ProblemType
-    ProblemType run(bool scaling = true) {
-      ProblemType pt = init(scaling);
+    ProblemType run(int factor = 4) {
+      _factor = factor;
+      ProblemType pt = init();
       if (pt != OPTIMAL) return pt;
       return start();
     }
@@ -546,7 +546,7 @@ namespace lemon {
     /// It is useful for multiple run() calls. If this function is not
     /// used, all the parameters given before are kept for the next
     /// \ref run() call.
-    /// However the underlying digraph must not be modified after this
+    /// However, the underlying digraph must not be modified after this
     /// class have been constructed, since it copies and extends the graph.
     ///
     /// For example,
@@ -677,7 +677,7 @@ namespace lemon {
   private:
 
     // Initialize the algorithm
-    ProblemType init(bool scaling) {
+    ProblemType init() {
       if (_node_num == 0) return INFEASIBLE;
 
       // Check the sum of supply values
@@ -758,7 +758,7 @@ namespace lemon {
       }
 
       // Initialize delta value
-      if (scaling) {
+      if (_factor > 1) {
         // With scaling
         Value max_sup = 0, max_dem = 0;
         for (int i = 0; i != _node_num; ++i) {
@@ -770,9 +770,7 @@ namespace lemon {
           if (_res_cap[j] > max_cap) max_cap = _res_cap[j];
         }
         max_sup = std::min(std::min(max_sup, max_dem), max_cap);
-        _phase_num = 0;
-        for (_delta = 1; 2 * _delta <= max_sup; _delta *= 2)
-          ++_phase_num;
+        for (_delta = 1; 2 * _delta <= max_sup; _delta *= 2) ;
       } else {
         // Without scaling
         _delta = 1;
@@ -811,8 +809,6 @@ namespace lemon {
     ProblemType startWithScaling() {
       // Perform capacity scaling phases
       int s, t;
-      int phase_cnt = 0;
-      int factor = 4;
       ResidualDijkstra _dijkstra(*this);
       while (true) {
         // Saturate all arcs not satisfying the optimality condition
@@ -887,8 +883,7 @@ namespace lemon {
         }
 
         if (_delta == 1) break;
-        if (++phase_cnt == _phase_num / 4) factor = 2;
-        _delta = _delta <= factor ? 1 : _delta / factor;
+        _delta = _delta <= _factor ? 1 : _delta / _factor;
       }
 
       return OPTIMAL;

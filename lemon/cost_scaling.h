@@ -110,6 +110,10 @@ namespace lemon {
   /// be integer.
   /// \warning This algorithm does not support negative costs for such
   /// arcs that have infinite upper bound.
+  ///
+  /// \note %CostScaling provides three different internal methods,
+  /// from which the most efficient one is used by default.
+  /// For more information, see \ref Method.
 #ifdef DOXYGEN
   template <typename GR, typename V, typename C, typename TR>
 #else
@@ -157,6 +161,33 @@ namespace lemon {
       /// over the feasible flows, but this algroithm cannot handle
       /// these cases.
       UNBOUNDED
+    };
+
+    /// \brief Constants for selecting the internal method.
+    ///
+    /// Enum type containing constants for selecting the internal method
+    /// for the \ref run() function.
+    ///
+    /// \ref CostScaling provides three internal methods that differ mainly
+    /// in their base operations, which are used in conjunction with the
+    /// relabel operation.
+    /// By default, the so called \ref PARTIAL_AUGMENT
+    /// "Partial Augment-Relabel" method is used, which proved to be
+    /// the most efficient and the most robust on various test inputs.
+    /// However, the other methods can be selected using the \ref run()
+    /// function with the proper parameter.
+    enum Method {
+      /// Local push operations are used, i.e. flow is moved only on one
+      /// admissible arc at once.
+      PUSH,
+      /// Augment operations are used, i.e. flow is moved on admissible
+      /// paths from a node with excess to a node with deficit.
+      AUGMENT,
+      /// Partial augment operations are used, i.e. flow is moved on 
+      /// admissible paths started from a node with excess, but the
+      /// lengths of these paths are limited. This method can be viewed
+      /// as a combined version of the previous two operations.
+      PARTIAL_AUGMENT
     };
 
   private:
@@ -505,13 +536,12 @@ namespace lemon {
     /// that have been given are kept for the next call, unless
     /// \ref reset() is called, thus only the modified parameters
     /// have to be set again. See \ref reset() for examples.
-    /// However the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies the digraph.
+    /// However, the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
     ///
-    /// \param partial_augment By default the algorithm performs
-    /// partial augment and relabel operations in the cost scaling
-    /// phases. Set this parameter to \c false for using local push and
-    /// relabel operations instead.
+    /// \param method The internal method that will be used in the
+    /// algorithm. For more information, see \ref Method.
+    /// \param factor The cost scaling factor. It must be larger than one.
     ///
     /// \return \c INFEASIBLE if no feasible flow exists,
     /// \n \c OPTIMAL if the problem has optimal solution
@@ -523,11 +553,12 @@ namespace lemon {
     /// bounded over the feasible flows, but this algroithm cannot handle
     /// these cases.
     ///
-    /// \see ProblemType
-    ProblemType run(bool partial_augment = true) {
+    /// \see ProblemType, Method
+    ProblemType run(Method method = PARTIAL_AUGMENT, int factor = 8) {
+      _alpha = factor;
       ProblemType pt = init();
       if (pt != OPTIMAL) return pt;
-      start(partial_augment);
+      start(method);
       return OPTIMAL;
     }
 
@@ -681,9 +712,6 @@ namespace lemon {
     ProblemType init() {
       if (_res_node_num == 0) return INFEASIBLE;
 
-      // Scaling factor
-      _alpha = 8;
-
       // Check the sum of supply values
       _sum_supply = 0;
       for (int i = 0; i != _root; ++i) {
@@ -817,12 +845,21 @@ namespace lemon {
     }
 
     // Execute the algorithm and transform the results
-    void start(bool partial_augment) {
+    void start(Method method) {
+      // Maximum path length for partial augment
+      const int MAX_PATH_LENGTH = 4;
+      
       // Execute the algorithm
-      if (partial_augment) {
-        startPartialAugment();
-      } else {
-        startPushRelabel();
+      switch (method) {
+        case PUSH:
+          startPush();
+          break;
+        case AUGMENT:
+          startAugment();
+          break;
+        case PARTIAL_AUGMENT:
+          startAugment(MAX_PATH_LENGTH);
+          break;
       }
 
       // Compute node potentials for the original costs
@@ -851,14 +888,11 @@ namespace lemon {
       }
     }
 
-    /// Execute the algorithm performing partial augmentation and
-    /// relabel operations
-    void startPartialAugment() {
+    /// Execute the algorithm performing augment and relabel operations
+    void startAugment(int max_length = std::numeric_limits<int>::max()) {
       // Paramters for heuristics
       const int BF_HEURISTIC_EPSILON_BOUND = 1000;
       const int BF_HEURISTIC_BOUND_FACTOR  = 3;
-      // Maximum augment path length
-      const int MAX_PATH_LENGTH = 4;
 
       // Perform cost scaling phases
       IntVector pred_arc(_res_node_num);
@@ -925,7 +959,7 @@ namespace lemon {
           // Find an augmenting path from the start node
           int tip = start;
           while (_excess[tip] >= 0 &&
-                 int(path_nodes.size()) <= MAX_PATH_LENGTH) {
+                 int(path_nodes.size()) <= max_length) {
             int u;
             LargeCost min_red_cost, rc;
             int last_out = _sum_supply < 0 ?
@@ -984,7 +1018,7 @@ namespace lemon {
     }
 
     /// Execute the algorithm performing push and relabel operations
-    void startPushRelabel() {
+    void startPush() {
       // Paramters for heuristics
       const int BF_HEURISTIC_EPSILON_BOUND = 1000;
       const int BF_HEURISTIC_BOUND_FACTOR  = 3;
