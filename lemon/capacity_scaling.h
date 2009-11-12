@@ -133,7 +133,7 @@ namespace lemon {
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
     typedef std::vector<int> IntVector;
-    typedef std::vector<bool> BoolVector;
+    typedef std::vector<char> BoolVector;
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
 
@@ -196,6 +196,7 @@ namespace lemon {
     private:
 
       int _node_num;
+      bool _geq;
       const IntVector &_first_out;
       const IntVector &_target;
       const CostVector &_cost;
@@ -210,10 +211,10 @@ namespace lemon {
     public:
 
       ResidualDijkstra(CapacityScaling& cs) :
-        _node_num(cs._node_num), _first_out(cs._first_out), 
-        _target(cs._target), _cost(cs._cost), _res_cap(cs._res_cap),
-        _excess(cs._excess), _pi(cs._pi), _pred(cs._pred),
-        _dist(cs._node_num)
+        _node_num(cs._node_num), _geq(cs._sum_supply < 0),
+        _first_out(cs._first_out), _target(cs._target), _cost(cs._cost),
+        _res_cap(cs._res_cap), _excess(cs._excess), _pi(cs._pi),
+        _pred(cs._pred), _dist(cs._node_num)
       {}
 
       int run(int s, Value delta = 1) {
@@ -232,7 +233,8 @@ namespace lemon {
           heap.pop();
 
           // Traverse outgoing residual arcs
-          for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
+          int last_out = _geq ? _first_out[u+1] : _first_out[u+1] - 1;
+          for (int a = _first_out[u]; a != last_out; ++a) {
             if (_res_cap[a] < delta) continue;
             v = _target[a];
             switch (heap.state(v)) {
@@ -687,22 +689,25 @@ namespace lemon {
       }
       if (_sum_supply > 0) return INFEASIBLE;
       
-      // Initialize maps
+      // Initialize vectors
       for (int i = 0; i != _root; ++i) {
         _pi[i] = 0;
         _excess[i] = _supply[i];
       }
 
       // Remove non-zero lower bounds
+      const Value MAX = std::numeric_limits<Value>::max();
+      int last_out;
       if (_have_lower) {
         for (int i = 0; i != _root; ++i) {
-          for (int j = _first_out[i]; j != _first_out[i+1]; ++j) {
+          last_out = _first_out[i+1];
+          for (int j = _first_out[i]; j != last_out; ++j) {
             if (_forward[j]) {
               Value c = _lower[j];
               if (c >= 0) {
-                _res_cap[j] = _upper[j] < INF ? _upper[j] - c : INF;
+                _res_cap[j] = _upper[j] < MAX ? _upper[j] - c : INF;
               } else {
-                _res_cap[j] = _upper[j] < INF + c ? _upper[j] - c : INF;
+                _res_cap[j] = _upper[j] < MAX + c ? _upper[j] - c : INF;
               }
               _excess[i] -= c;
               _excess[_target[j]] += c;
@@ -718,15 +723,16 @@ namespace lemon {
       }
 
       // Handle negative costs
-      for (int u = 0; u != _root; ++u) {
-        for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
-          Value rc = _res_cap[a];
-          if (_cost[a] < 0 && rc > 0) {
-            if (rc == INF) return UNBOUNDED;
-            _excess[u] -= rc;
-            _excess[_target[a]] += rc;
-            _res_cap[a] = 0;
-            _res_cap[_reverse[a]] += rc;
+      for (int i = 0; i != _root; ++i) {
+        last_out = _first_out[i+1] - 1;
+        for (int j = _first_out[i]; j != last_out; ++j) {
+          Value rc = _res_cap[j];
+          if (_cost[j] < 0 && rc > 0) {
+            if (rc >= MAX) return UNBOUNDED;
+            _excess[i] -= rc;
+            _excess[_target[j]] += rc;
+            _res_cap[j] = 0;
+            _res_cap[_reverse[j]] += rc;
           }
         }
       }
@@ -736,24 +742,21 @@ namespace lemon {
         _pi[_root] = 0;
         _excess[_root] = -_sum_supply;
         for (int a = _first_out[_root]; a != _res_arc_num; ++a) {
-          int u = _target[a];
-          if (_excess[u] < 0) {
-            _res_cap[a] = -_excess[u] + 1;
-          } else {
-            _res_cap[a] = 1;
-          }
-          _res_cap[_reverse[a]] = 0;
+          int ra = _reverse[a];
+          _res_cap[a] = -_sum_supply + 1;
+          _res_cap[ra] = 0;
           _cost[a] = 0;
-          _cost[_reverse[a]] = 0;
+          _cost[ra] = 0;
         }
       } else {
         _pi[_root] = 0;
         _excess[_root] = 0;
         for (int a = _first_out[_root]; a != _res_arc_num; ++a) {
+          int ra = _reverse[a];
           _res_cap[a] = 1;
-          _res_cap[_reverse[a]] = 0;
+          _res_cap[ra] = 0;
           _cost[a] = 0;
-          _cost[_reverse[a]] = 0;
+          _cost[ra] = 0;
         }
       }
 
@@ -762,8 +765,9 @@ namespace lemon {
         // With scaling
         Value max_sup = 0, max_dem = 0;
         for (int i = 0; i != _node_num; ++i) {
-          if ( _excess[i] > max_sup) max_sup =  _excess[i];
-          if (-_excess[i] > max_dem) max_dem = -_excess[i];
+          Value ex = _excess[i];
+          if ( ex > max_sup) max_sup =  ex;
+          if (-ex > max_dem) max_dem = -ex;
         }
         Value max_cap = 0;
         for (int j = 0; j != _res_arc_num; ++j) {
@@ -789,7 +793,8 @@ namespace lemon {
 
       // Handle non-zero lower bounds
       if (_have_lower) {
-        for (int j = 0; j != _res_arc_num - _node_num + 1; ++j) {
+        int limit = _first_out[_root];
+        for (int j = 0; j != limit; ++j) {
           if (!_forward[j]) _res_cap[j] += _lower[j];
         }
       }
@@ -812,8 +817,11 @@ namespace lemon {
       ResidualDijkstra _dijkstra(*this);
       while (true) {
         // Saturate all arcs not satisfying the optimality condition
+        int last_out;
         for (int u = 0; u != _node_num; ++u) {
-          for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
+          last_out = _sum_supply < 0 ?
+            _first_out[u+1] : _first_out[u+1] - 1;
+          for (int a = _first_out[u]; a != last_out; ++a) {
             int v = _target[a];
             Cost c = _cost[a] + _pi[u] - _pi[v];
             Value rc = _res_cap[a];
@@ -830,8 +838,9 @@ namespace lemon {
         _excess_nodes.clear();
         _deficit_nodes.clear();
         for (int u = 0; u != _node_num; ++u) {
-          if (_excess[u] >=  _delta) _excess_nodes.push_back(u);
-          if (_excess[u] <= -_delta) _deficit_nodes.push_back(u);
+          Value ex = _excess[u];
+          if (ex >=  _delta) _excess_nodes.push_back(u);
+          if (ex <= -_delta) _deficit_nodes.push_back(u);
         }
         int next_node = 0, next_def_node = 0;
 

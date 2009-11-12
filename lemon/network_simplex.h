@@ -164,7 +164,7 @@ namespace lemon {
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
     typedef std::vector<int> IntVector;
-    typedef std::vector<bool> BoolVector;
+    typedef std::vector<char> CharVector;
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
 
@@ -212,8 +212,8 @@ namespace lemon {
     IntVector _succ_num;
     IntVector _last_succ;
     IntVector _dirty_revs;
-    BoolVector _forward;
-    IntVector _state;
+    CharVector _forward;
+    CharVector _state;
     int _root;
 
     // Temporary data used in the current pivot iteration
@@ -221,6 +221,8 @@ namespace lemon {
     int first, second, right, last;
     int stem, par_stem, new_stem;
     Value delta;
+    
+    const Value MAX;
 
   public:
   
@@ -242,7 +244,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const IntVector  &_state;
+      const CharVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -294,7 +296,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const IntVector  &_state;
+      const CharVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -333,7 +335,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const IntVector  &_state;
+      const CharVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -406,7 +408,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const IntVector  &_state;
+      const CharVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -509,7 +511,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const IntVector  &_state;
+      const CharVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -631,9 +633,9 @@ namespace lemon {
     /// but it is usually slower. Therefore it is disabled by default.
     NetworkSimplex(const GR& graph, bool arc_mixing = false) :
       _graph(graph), _node_id(graph), _arc_id(graph),
+      MAX(std::numeric_limits<Value>::max()),
       INF(std::numeric_limits<Value>::has_infinity ?
-          std::numeric_limits<Value>::infinity() :
-          std::numeric_limits<Value>::max())
+          std::numeric_limits<Value>::infinity() : MAX)
     {
       // Check the value types
       LEMON_ASSERT(std::numeric_limits<Value>::is_signed,
@@ -1020,9 +1022,9 @@ namespace lemon {
         for (int i = 0; i != _arc_num; ++i) {
           Value c = _lower[i];
           if (c >= 0) {
-            _cap[i] = _upper[i] < INF ? _upper[i] - c : INF;
+            _cap[i] = _upper[i] < MAX ? _upper[i] - c : INF;
           } else {
-            _cap[i] = _upper[i] < INF + c ? _upper[i] - c : INF;
+            _cap[i] = _upper[i] < MAX + c ? _upper[i] - c : INF;
           }
           _supply[_source[i]] -= c;
           _supply[_target[i]] += c;
@@ -1214,7 +1216,7 @@ namespace lemon {
       for (int u = first; u != join; u = _parent[u]) {
         e = _pred[u];
         d = _forward[u] ?
-          _flow[e] : (_cap[e] == INF ? INF : _cap[e] - _flow[e]);
+          _flow[e] : (_cap[e] >= MAX ? INF : _cap[e] - _flow[e]);
         if (d < delta) {
           delta = d;
           u_out = u;
@@ -1225,7 +1227,7 @@ namespace lemon {
       for (int u = second; u != join; u = _parent[u]) {
         e = _pred[u];
         d = _forward[u] ? 
-          (_cap[e] == INF ? INF : _cap[e] - _flow[e]) : _flow[e];
+          (_cap[e] >= MAX ? INF : _cap[e] - _flow[e]) : _flow[e];
         if (d <= delta) {
           delta = d;
           u_out = u;
@@ -1424,7 +1426,7 @@ namespace lemon {
       while (pivot.findEnteringArc()) {
         findJoinNode();
         bool change = findLeavingArc();
-        if (delta >= INF) return UNBOUNDED;
+        if (delta >= MAX) return UNBOUNDED;
         changeFlow(change);
         if (change) {
           updateTreeStructure();
