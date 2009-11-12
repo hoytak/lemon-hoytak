@@ -32,6 +32,7 @@
 
 using namespace lemon;
 
+// Test networks
 char test_lgf[] =
   "@nodes\n"
   "label  sup1 sup2 sup3 sup4 sup5 sup6\n"
@@ -76,12 +77,65 @@ char test_lgf[] =
   "source 1\n"
   "target 12\n";
 
+char test_neg1_lgf[] =
+  "@nodes\n"
+  "label   sup\n"
+  "    1   100\n"
+  "    2     0\n"
+  "    3     0\n"
+  "    4  -100\n"
+  "    5     0\n"
+  "    6     0\n"
+  "    7     0\n"
+  "@arcs\n"
+  "      cost   low1   low2\n"
+  "1 2    100      0      0\n"
+  "1 3     30      0      0\n"
+  "2 4     20      0      0\n"
+  "3 4     80      0      0\n"
+  "3 2     50      0      0\n"
+  "5 3     10      0      0\n"
+  "5 6     80      0   1000\n"
+  "6 7     30      0  -1000\n"
+  "7 5   -120      0      0\n";
+  
+char test_neg2_lgf[] =
+  "@nodes\n"
+  "label   sup\n"
+  "    1   100\n"
+  "    2  -300\n"
+  "@arcs\n"
+  "      cost\n"
+  "1 2     -1\n";
+
+
+// Test data
+typedef ListDigraph Digraph;
+DIGRAPH_TYPEDEFS(ListDigraph);
+
+Digraph gr;
+Digraph::ArcMap<int> c(gr), l1(gr), l2(gr), l3(gr), u(gr);
+Digraph::NodeMap<int> s1(gr), s2(gr), s3(gr), s4(gr), s5(gr), s6(gr);
+ConstMap<Arc, int> cc(1), cu(std::numeric_limits<int>::max());
+Node v, w;
+
+Digraph neg1_gr;
+Digraph::ArcMap<int> neg1_c(neg1_gr), neg1_l1(neg1_gr), neg1_l2(neg1_gr);
+ConstMap<Arc, int> neg1_u1(std::numeric_limits<int>::max()), neg1_u2(5000);
+Digraph::NodeMap<int> neg1_s(neg1_gr);
+
+Digraph neg2_gr;
+Digraph::ArcMap<int> neg2_c(neg2_gr);
+ConstMap<Arc, int> neg2_l(0), neg2_u(1000);
+Digraph::NodeMap<int> neg2_s(neg2_gr);
+
 
 enum SupplyType {
   EQ,
   GEQ,
   LEQ
 };
+
 
 // Check the interface of an MCF algorithm
 template <typename GR, typename Value, typename Cost>
@@ -268,30 +322,99 @@ void checkMcf( const MCF& mcf, PT mcf_result,
   }
 }
 
+template < typename MCF, typename Param >
+void runMcfGeqTests( Param param,
+                     const std::string &test_str = "",
+                     bool full_neg_cost_support = false )
+{
+  MCF mcf1(gr), mcf2(neg1_gr), mcf3(neg2_gr);
+  
+  // Basic tests
+  mcf1.upperMap(u).costMap(c).supplyMap(s1);
+  checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s1,
+           mcf1.OPTIMAL, true,     5240, test_str + "-1");
+  mcf1.stSupply(v, w, 27);
+  checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s2,
+           mcf1.OPTIMAL, true,     7620, test_str + "-2");
+  mcf1.lowerMap(l2).supplyMap(s1);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s1,
+           mcf1.OPTIMAL, true,     5970, test_str + "-3");
+  mcf1.stSupply(v, w, 27);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s2,
+           mcf1.OPTIMAL, true,     8010, test_str + "-4");
+  mcf1.reset().supplyMap(s1);
+  checkMcf(mcf1, mcf1.run(param), gr, l1, cu, cc, s1,
+           mcf1.OPTIMAL, true,       74, test_str + "-5");
+  mcf1.lowerMap(l2).stSupply(v, w, 27);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, cu, cc, s2,
+           mcf1.OPTIMAL, true,       94, test_str + "-6");
+  mcf1.reset();
+  checkMcf(mcf1, mcf1.run(param), gr, l1, cu, cc, s3,
+           mcf1.OPTIMAL, true,        0, test_str + "-7");
+  mcf1.lowerMap(l2).upperMap(u);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, cc, s3,
+           mcf1.INFEASIBLE, false,    0, test_str + "-8");
+  mcf1.lowerMap(l3).upperMap(u).costMap(c).supplyMap(s4);
+  checkMcf(mcf1, mcf1.run(param), gr, l3, u, c, s4,
+           mcf1.OPTIMAL, true,     6360, test_str + "-9");
+
+  // Tests for the GEQ form
+  mcf1.reset().upperMap(u).costMap(c).supplyMap(s5);
+  checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s5,
+           mcf1.OPTIMAL, true,     3530, test_str + "-10", GEQ);
+  mcf1.lowerMap(l2);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s5,
+           mcf1.OPTIMAL, true,     4540, test_str + "-11", GEQ);
+  mcf1.supplyMap(s6);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s6,
+           mcf1.INFEASIBLE, false,    0, test_str + "-12", GEQ);
+
+  // Tests with negative costs
+  mcf2.lowerMap(neg1_l1).costMap(neg1_c).supplyMap(neg1_s);
+  checkMcf(mcf2, mcf2.run(param), neg1_gr, neg1_l1, neg1_u1, neg1_c, neg1_s,
+           mcf2.UNBOUNDED, false,     0, test_str + "-13");
+  mcf2.upperMap(neg1_u2);
+  checkMcf(mcf2, mcf2.run(param), neg1_gr, neg1_l1, neg1_u2, neg1_c, neg1_s,
+           mcf2.OPTIMAL, true,   -40000, test_str + "-14");
+  mcf2.reset().lowerMap(neg1_l2).costMap(neg1_c).supplyMap(neg1_s);
+  checkMcf(mcf2, mcf2.run(param), neg1_gr, neg1_l2, neg1_u1, neg1_c, neg1_s,
+           mcf2.UNBOUNDED, false,     0, test_str + "-15");
+
+  mcf3.costMap(neg2_c).supplyMap(neg2_s);
+  if (full_neg_cost_support) {
+    checkMcf(mcf3, mcf3.run(param), neg2_gr, neg2_l, neg2_u, neg2_c, neg2_s,
+             mcf3.OPTIMAL, true,   -300, test_str + "-16", GEQ);
+  } else {
+    checkMcf(mcf3, mcf3.run(param), neg2_gr, neg2_l, neg2_u, neg2_c, neg2_s,
+             mcf3.UNBOUNDED, false,   0, test_str + "-17", GEQ);
+  }
+  mcf3.upperMap(neg2_u);
+  checkMcf(mcf3, mcf3.run(param), neg2_gr, neg2_l, neg2_u, neg2_c, neg2_s,
+           mcf3.OPTIMAL, true,     -300, test_str + "-18", GEQ);
+}
+
+template < typename MCF, typename Param >
+void runMcfLeqTests( Param param,
+                     const std::string &test_str = "" )
+{
+  // Tests for the LEQ form
+  MCF mcf1(gr);
+  mcf1.supplyType(mcf1.LEQ);
+  mcf1.upperMap(u).costMap(c).supplyMap(s6);
+  checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s6,
+           mcf1.OPTIMAL, true,   5080, test_str + "-19", LEQ);
+  mcf1.lowerMap(l2);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s6,
+           mcf1.OPTIMAL, true,   5930, test_str + "-20", LEQ);
+  mcf1.supplyMap(s5);
+  checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s5,
+           mcf1.INFEASIBLE, false,  0, test_str + "-21", LEQ);
+}
+
+
 int main()
 {
-  // Check the interfaces
-  {
-    typedef concepts::Digraph GR;
-    checkConcept< McfClassConcept<GR, int, int>,
-                  NetworkSimplex<GR> >();
-    checkConcept< McfClassConcept<GR, double, double>,
-                  NetworkSimplex<GR, double> >();
-    checkConcept< McfClassConcept<GR, int, double>,
-                  NetworkSimplex<GR, int, double> >();
-  }
-
-  // Run various MCF tests
-  typedef ListDigraph Digraph;
-  DIGRAPH_TYPEDEFS(ListDigraph);
-
-  // Read the test digraph
-  Digraph gr;
-  Digraph::ArcMap<int> c(gr), l1(gr), l2(gr), l3(gr), u(gr);
-  Digraph::NodeMap<int> s1(gr), s2(gr), s3(gr), s4(gr), s5(gr), s6(gr);
-  ConstMap<Arc, int> cc(1), cu(std::numeric_limits<int>::max());
-  Node v, w;
-
+  // Read the test networks
   std::istringstream input(test_lgf);
   DigraphReader<Digraph>(gr, input)
     .arcMap("cost", c)
@@ -309,141 +432,44 @@ int main()
     .node("target", w)
     .run();
   
-  // Build test digraphs with negative costs
-  Digraph neg_gr;
-  Node n1 = neg_gr.addNode();
-  Node n2 = neg_gr.addNode();
-  Node n3 = neg_gr.addNode();
-  Node n4 = neg_gr.addNode();
-  Node n5 = neg_gr.addNode();
-  Node n6 = neg_gr.addNode();
-  Node n7 = neg_gr.addNode();
+  std::istringstream neg_inp1(test_neg1_lgf);
+  DigraphReader<Digraph>(neg1_gr, neg_inp1)
+    .arcMap("cost", neg1_c)
+    .arcMap("low1", neg1_l1)
+    .arcMap("low2", neg1_l2)
+    .nodeMap("sup", neg1_s)
+    .run();
   
-  Arc a1 = neg_gr.addArc(n1, n2);
-  Arc a2 = neg_gr.addArc(n1, n3);
-  Arc a3 = neg_gr.addArc(n2, n4);
-  Arc a4 = neg_gr.addArc(n3, n4);
-  Arc a5 = neg_gr.addArc(n3, n2);
-  Arc a6 = neg_gr.addArc(n5, n3);
-  Arc a7 = neg_gr.addArc(n5, n6);
-  Arc a8 = neg_gr.addArc(n6, n7);
-  Arc a9 = neg_gr.addArc(n7, n5);
+  std::istringstream neg_inp2(test_neg2_lgf);
+  DigraphReader<Digraph>(neg2_gr, neg_inp2)
+    .arcMap("cost", neg2_c)
+    .nodeMap("sup", neg2_s)
+    .run();
   
-  Digraph::ArcMap<int> neg_c(neg_gr), neg_l1(neg_gr, 0), neg_l2(neg_gr, 0);
-  ConstMap<Arc, int> neg_u1(std::numeric_limits<int>::max()), neg_u2(5000);
-  Digraph::NodeMap<int> neg_s(neg_gr, 0);
-  
-  neg_l2[a7] =  1000;
-  neg_l2[a8] = -1000;
-  
-  neg_s[n1] =  100;
-  neg_s[n4] = -100;
-  
-  neg_c[a1] =  100;
-  neg_c[a2] =   30;
-  neg_c[a3] =   20;
-  neg_c[a4] =   80;
-  neg_c[a5] =   50;
-  neg_c[a6] =   10;
-  neg_c[a7] =   80;
-  neg_c[a8] =   30;
-  neg_c[a9] = -120;
-
-  Digraph negs_gr;
-  Digraph::NodeMap<int> negs_s(negs_gr);
-  Digraph::ArcMap<int> negs_c(negs_gr);
-  ConstMap<Arc, int> negs_l(0), negs_u(1000);
-  n1 = negs_gr.addNode();
-  n2 = negs_gr.addNode();
-  negs_s[n1] = 100;
-  negs_s[n2] = -300;
-  negs_c[negs_gr.addArc(n1, n2)] = -1;
-
-
-  // A. Test NetworkSimplex with the default pivot rule
+  // Check the interface of NetworkSimplex
   {
-    NetworkSimplex<Digraph> mcf(gr);
-
-    // Check the equality form
-    mcf.upperMap(u).costMap(c);
-    checkMcf(mcf, mcf.supplyMap(s1).run(),
-             gr, l1, u, c, s1, mcf.OPTIMAL, true,   5240, "#A1");
-    checkMcf(mcf, mcf.stSupply(v, w, 27).run(),
-             gr, l1, u, c, s2, mcf.OPTIMAL, true,   7620, "#A2");
-    mcf.lowerMap(l2);
-    checkMcf(mcf, mcf.supplyMap(s1).run(),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#A3");
-    checkMcf(mcf, mcf.stSupply(v, w, 27).run(),
-             gr, l2, u, c, s2, mcf.OPTIMAL, true,   8010, "#A4");
-    mcf.reset();
-    checkMcf(mcf, mcf.supplyMap(s1).run(),
-             gr, l1, cu, cc, s1, mcf.OPTIMAL, true,   74, "#A5");
-    checkMcf(mcf, mcf.lowerMap(l2).stSupply(v, w, 27).run(),
-             gr, l2, cu, cc, s2, mcf.OPTIMAL, true,   94, "#A6");
-    mcf.reset();
-    checkMcf(mcf, mcf.run(),
-             gr, l1, cu, cc, s3, mcf.OPTIMAL, true,    0, "#A7");
-    checkMcf(mcf, mcf.lowerMap(l2).upperMap(u).run(),
-             gr, l2, u, cc, s3, mcf.INFEASIBLE, false, 0, "#A8");
-    mcf.reset().lowerMap(l3).upperMap(u).costMap(c).supplyMap(s4);
-    checkMcf(mcf, mcf.run(),
-             gr, l3, u, c, s4, mcf.OPTIMAL, true,   6360, "#A9");
-
-    // Check the GEQ form
-    mcf.reset().upperMap(u).costMap(c).supplyMap(s5);
-    checkMcf(mcf, mcf.run(),
-             gr, l1, u, c, s5, mcf.OPTIMAL, true,   3530, "#A10", GEQ);
-    mcf.supplyType(mcf.GEQ);
-    checkMcf(mcf, mcf.lowerMap(l2).run(),
-             gr, l2, u, c, s5, mcf.OPTIMAL, true,   4540, "#A11", GEQ);
-    mcf.supplyMap(s6);
-    checkMcf(mcf, mcf.run(),
-             gr, l2, u, c, s6, mcf.INFEASIBLE, false,  0, "#A12", GEQ);
-
-    // Check the LEQ form
-    mcf.reset().supplyType(mcf.LEQ);
-    mcf.upperMap(u).costMap(c).supplyMap(s6);
-    checkMcf(mcf, mcf.run(),
-             gr, l1, u, c, s6, mcf.OPTIMAL, true,   5080, "#A13", LEQ);
-    checkMcf(mcf, mcf.lowerMap(l2).run(),
-             gr, l2, u, c, s6, mcf.OPTIMAL, true,   5930, "#A14", LEQ);
-    mcf.supplyMap(s5);
-    checkMcf(mcf, mcf.run(),
-             gr, l2, u, c, s5, mcf.INFEASIBLE, false,  0, "#A15", LEQ);
-
-    // Check negative costs
-    NetworkSimplex<Digraph> neg_mcf(neg_gr);
-    neg_mcf.lowerMap(neg_l1).costMap(neg_c).supplyMap(neg_s);
-    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l1, neg_u1,
-      neg_c, neg_s, neg_mcf.UNBOUNDED, false,    0, "#A16");
-    neg_mcf.upperMap(neg_u2);
-    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l1, neg_u2,
-      neg_c, neg_s, neg_mcf.OPTIMAL, true,  -40000, "#A17");
-    neg_mcf.reset().lowerMap(neg_l2).costMap(neg_c).supplyMap(neg_s);
-    checkMcf(neg_mcf, neg_mcf.run(), neg_gr, neg_l2, neg_u1,
-      neg_c, neg_s, neg_mcf.UNBOUNDED, false,    0, "#A18");
-      
-    NetworkSimplex<Digraph> negs_mcf(negs_gr);
-    negs_mcf.costMap(negs_c).supplyMap(negs_s);
-    checkMcf(negs_mcf, negs_mcf.run(), negs_gr, negs_l, negs_u,
-      negs_c, negs_s, negs_mcf.OPTIMAL, true, -300, "#A19", GEQ);
+    typedef concepts::Digraph GR;
+    checkConcept< McfClassConcept<GR, int, int>,
+                  NetworkSimplex<GR> >();
+    checkConcept< McfClassConcept<GR, double, double>,
+                  NetworkSimplex<GR, double> >();
+    checkConcept< McfClassConcept<GR, int, double>,
+                  NetworkSimplex<GR, int, double> >();
   }
 
-  // B. Test NetworkSimplex with each pivot rule
-  {
-    NetworkSimplex<Digraph> mcf(gr);
-    mcf.supplyMap(s1).costMap(c).upperMap(u).lowerMap(l2);
-
-    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::FIRST_ELIGIBLE),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#B1");
-    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::BEST_ELIGIBLE),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#B2");
-    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::BLOCK_SEARCH),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#B3");
-    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::CANDIDATE_LIST),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#B4");
-    checkMcf(mcf, mcf.run(NetworkSimplex<Digraph>::ALTERING_LIST),
-             gr, l2, u, c, s1, mcf.OPTIMAL, true,   5970, "#B5");
+  // Test NetworkSimplex
+  { 
+    typedef NetworkSimplex<Digraph> MCF;
+    runMcfGeqTests<MCF>(MCF::FIRST_ELIGIBLE, "NS-FE", true);
+    runMcfLeqTests<MCF>(MCF::FIRST_ELIGIBLE, "NS-FE");
+    runMcfGeqTests<MCF>(MCF::BEST_ELIGIBLE,  "NS-BE", true);
+    runMcfLeqTests<MCF>(MCF::BEST_ELIGIBLE,  "NS-BE");
+    runMcfGeqTests<MCF>(MCF::BLOCK_SEARCH,   "NS-BS", true);
+    runMcfLeqTests<MCF>(MCF::BLOCK_SEARCH,   "NS-BS");
+    runMcfGeqTests<MCF>(MCF::CANDIDATE_LIST, "NS-CL", true);
+    runMcfLeqTests<MCF>(MCF::CANDIDATE_LIST, "NS-CL");
+    runMcfGeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL", true);
+    runMcfLeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL");
   }
 
   return 0;
