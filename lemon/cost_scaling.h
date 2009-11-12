@@ -712,7 +712,7 @@ namespace lemon {
 
     // Initialize the algorithm
     ProblemType init() {
-      if (_res_node_num == 0) return INFEASIBLE;
+      if (_res_node_num <= 1) return INFEASIBLE;
 
       // Check the sum of supply values
       _sum_supply = 0;
