@@ -62,6 +62,7 @@ lemon_HEADERS += \
 	lemon/bin_heap.h \
 	lemon/binom_heap.h \
 	lemon/bucket_heap.h \
+	lemon/capacity_scaling.h \
 	lemon/cbc.h \
 	lemon/circulation.h \
 	lemon/clp.h \
