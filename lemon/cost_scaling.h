@@ -40,9 +40,9 @@ namespace lemon {
   ///
   /// Default traits class of CostScaling algorithm.
   /// \tparam GR Digraph type.
-  /// \tparam V The value type used for flow amounts, capacity bounds
+  /// \tparam V The number type used for flow amounts, capacity bounds
   /// and supply values. By default it is \c int.
-  /// \tparam C The value type used for costs and potentials.
+  /// \tparam C The number type used for costs and potentials.
   /// By default it is the same as \c V.
 #ifdef DOXYGEN
   template <typename GR, typename V = int, typename C = V>
@@ -101,12 +101,12 @@ namespace lemon {
   /// specified, then default values will be used.
   ///
   /// \tparam GR The digraph type the algorithm runs on.
-  /// \tparam V The value type used for flow amounts, capacity bounds
+  /// \tparam V The number type used for flow amounts, capacity bounds
   /// and supply values in the algorithm. By default it is \c int.
-  /// \tparam C The value type used for costs and potentials in the
+  /// \tparam C The number type used for costs and potentials in the
   /// algorithm. By default it is the same as \c V.
   ///
-  /// \warning Both value types must be signed and all input data must
+  /// \warning Both number types must be signed and all input data must
   /// be integer.
   /// \warning This algorithm does not support negative costs for such
   /// arcs that have infinite upper bound.
@@ -157,7 +157,7 @@ namespace lemon {
       OPTIMAL,
       /// The digraph contains an arc of negative cost and infinite
       /// upper bound. It means that the objective function is unbounded
-      /// on that arc, however note that it could actually be bounded
+      /// on that arc, however, note that it could actually be bounded
       /// over the feasible flows, but this algroithm cannot handle
       /// these cases.
       UNBOUNDED
@@ -325,7 +325,7 @@ namespace lemon {
           std::numeric_limits<Value>::infinity() :
           std::numeric_limits<Value>::max())
     {
-      // Check the value types
+      // Check the number types
       LEMON_ASSERT(std::numeric_limits<Value>::is_signed,
         "The flow type of CostScaling must be signed");
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
@@ -433,7 +433,7 @@ namespace lemon {
     /// This function sets the upper bounds (capacities) on the arcs.
     /// If it is not used before calling \ref run(), the upper bounds
     /// will be set to \ref INF on all arcs (i.e. the flow value will be
-    /// unbounded from above on each arc).
+    /// unbounded from above).
     ///
     /// \param map An arc map storing the upper bounds.
     /// Its \c Value type must be convertible to the \c Value type
@@ -549,7 +549,7 @@ namespace lemon {
     /// optimal flow and node potentials (primal and dual solutions),
     /// \n \c UNBOUNDED if the digraph contains an arc of negative cost
     /// and infinite upper bound. It means that the objective function
-    /// is unbounded on that arc, however note that it could actually be
+    /// is unbounded on that arc, however, note that it could actually be
     /// bounded over the feasible flows, but this algroithm cannot handle
     /// these cases.
     ///
@@ -571,7 +571,7 @@ namespace lemon {
     /// It is useful for multiple run() calls. If this function is not
     /// used, all the parameters given before are kept for the next
     /// \ref run() call.
-    /// However the underlying digraph must not be modified after this
+    /// However, the underlying digraph must not be modified after this
     /// class have been constructed, since it copies and extends the graph.
     ///
     /// For example,
