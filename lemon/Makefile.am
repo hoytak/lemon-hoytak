@@ -69,8 +69,9 @@ lemon_HEADERS += \
 	lemon/color.h \
 	lemon/concept_check.h \
 	lemon/connectivity.h \
-	lemon/counter.h \
 	lemon/core.h \
+	lemon/cost_scaling.h \
+	lemon/counter.h \
 	lemon/cplex.h \
 	lemon/dfs.h \
 	lemon/dijkstra.h \
