@@ -19,395 +19,416 @@
 #ifndef LEMON_CAPACITY_SCALING_H
 #define LEMON_CAPACITY_SCALING_H
 
-/// \ingroup min_cost_flow
+/// \ingroup min_cost_flow_algs
 ///
 /// \file
-/// \brief Capacity scaling algorithm for finding a minimum cost flow.
+/// \brief Capacity Scaling algorithm for finding a minimum cost flow.
 
 #include <vector>
+#include <limits>
+#include <lemon/core.h>
 #include <lemon/bin_heap.h>
 
 namespace lemon {
 
-  /// \addtogroup min_cost_flow
+  /// \addtogroup min_cost_flow_algs
   /// @{
 
-  /// \brief Implementation of the capacity scaling algorithm for
-  /// finding a minimum cost flow.
+  /// \brief Implementation of the Capacity Scaling algorithm for
+  /// finding a \ref min_cost_flow "minimum cost flow".
   ///
   /// \ref CapacityScaling implements the capacity scaling version
-  /// of the successive shortest path algorithm for finding a minimum
-  /// cost flow.
+  /// of the successive shortest path algorithm for finding a
+  /// \ref min_cost_flow "minimum cost flow". It is an efficient dual
+  /// solution method.
   ///
-  /// \tparam Digraph The digraph type the algorithm runs on.
-  /// \tparam LowerMap The type of the lower bound map.
-  /// \tparam CapacityMap The type of the capacity (upper bound) map.
-  /// \tparam CostMap The type of the cost (length) map.
-  /// \tparam SupplyMap The type of the supply map.
+  /// Most of the parameters of the problem (except for the digraph)
+  /// can be given using separate functions, and the algorithm can be
+  /// executed using the \ref run() function. If some parameters are not
+  /// specified, then default values will be used.
   ///
-  /// \warning
-  /// - Arc capacities and costs should be \e non-negative \e integers.
-  /// - Supply values should be \e signed \e integers.
-  /// - The value types of the maps should be convertible to each other.
-  /// - \c CostMap::Value must be signed type.
+  /// \tparam GR The digraph type the algorithm runs on.
+  /// \tparam V The value type used for flow amounts, capacity bounds
+  /// and supply values in the algorithm. By default it is \c int.
+  /// \tparam C The value type used for costs and potentials in the
+  /// algorithm. By default it is the same as \c V.
   ///
-  /// \author Peter Kovacs
-  template < typename Digraph,
-             typename LowerMap = typename Digraph::template ArcMap<int>,
-             typename CapacityMap = typename Digraph::template ArcMap<int>,
-             typename CostMap = typename Digraph::template ArcMap<int>,
-             typename SupplyMap = typename Digraph::template NodeMap<int> >
+  /// \warning Both value types must be signed and all input data must
+  /// be integer.
+  /// \warning This algorithm does not support negative costs for such
+  /// arcs that have infinite upper bound.
+  template <typename GR, typename V = int, typename C = V>
   class CapacityScaling
   {
-    TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
+  public:
 
-    typedef typename CapacityMap::Value Capacity;
-    typedef typename CostMap::Value Cost;
-    typedef typename SupplyMap::Value Supply;
-    typedef typename Digraph::template ArcMap<Capacity> CapacityArcMap;
-    typedef typename Digraph::template NodeMap<Supply> SupplyNodeMap;
-    typedef typename Digraph::template NodeMap<Arc> PredMap;
+    /// The type of the flow amounts, capacity bounds and supply values
+    typedef V Value;
+    /// The type of the arc costs
+    typedef C Cost;
 
   public:
 
-    /// The type of the flow map.
-    typedef typename Digraph::template ArcMap<Capacity> FlowMap;
-    /// The type of the potential map.
-    typedef typename Digraph::template NodeMap<Cost> PotentialMap;
+    /// \brief Problem type constants for the \c run() function.
+    ///
+    /// Enum type containing the problem type constants that can be
+    /// returned by the \ref run() function of the algorithm.
+    enum ProblemType {
+      /// The problem has no feasible solution (flow).
+      INFEASIBLE,
+      /// The problem has optimal solution (i.e. it is feasible and
+      /// bounded), and the algorithm has found optimal flow and node
+      /// potentials (primal and dual solutions).
+      OPTIMAL,
+      /// The digraph contains an arc of negative cost and infinite
+      /// upper bound. It means that the objective function is unbounded
+      /// on that arc, however note that it could actually be bounded
+      /// over the feasible flows, but this algroithm cannot handle
+      /// these cases.
+      UNBOUNDED
+    };
+  
+  private:
+
+    TEMPLATE_DIGRAPH_TYPEDEFS(GR);
+
+    typedef std::vector<Arc> ArcVector;
+    typedef std::vector<Node> NodeVector;
+    typedef std::vector<int> IntVector;
+    typedef std::vector<bool> BoolVector;
+    typedef std::vector<Value> ValueVector;
+    typedef std::vector<Cost> CostVector;
 
   private:
 
-    /// \brief Special implementation of the \ref Dijkstra algorithm
-    /// for finding shortest paths in the residual network.
+    // Data related to the underlying digraph
+    const GR &_graph;
+    int _node_num;
+    int _arc_num;
+    int _res_arc_num;
+    int _root;
+
+    // Parameters of the problem
+    bool _have_lower;
+    Value _sum_supply;
+
+    // Data structures for storing the digraph
+    IntNodeMap _node_id;
+    IntArcMap _arc_idf;
+    IntArcMap _arc_idb;
+    IntVector _first_out;
+    BoolVector _forward;
+    IntVector _source;
+    IntVector _target;
+    IntVector _reverse;
+
+    // Node and arc data
+    ValueVector _lower;
+    ValueVector _upper;
+    CostVector _cost;
+    ValueVector _supply;
+
+    ValueVector _res_cap;
+    CostVector _pi;
+    ValueVector _excess;
+    IntVector _excess_nodes;
+    IntVector _deficit_nodes;
+
+    Value _delta;
+    int _phase_num;
+    IntVector _pred;
+
+  public:
+  
+    /// \brief Constant for infinite upper bounds (capacities).
     ///
-    /// \ref ResidualDijkstra is a special implementation of the
-    /// \ref Dijkstra algorithm for finding shortest paths in the
-    /// residual network of the digraph with respect to the reduced arc
-    /// costs and modifying the node potentials according to the
-    /// distance of the nodes.
+    /// Constant for infinite upper bounds (capacities).
+    /// It is \c std::numeric_limits<Value>::infinity() if available,
+    /// \c std::numeric_limits<Value>::max() otherwise.
+    const Value INF;
+
+  private:
+
+    // Special implementation of the Dijkstra algorithm for finding
+    // shortest paths in the residual network of the digraph with
+    // respect to the reduced arc costs and modifying the node
+    // potentials according to the found distance labels.
     class ResidualDijkstra
     {
-      typedef typename Digraph::template NodeMap<int> HeapCrossRef;
+      typedef RangeMap<int> HeapCrossRef;
       typedef BinHeap<Cost, HeapCrossRef> Heap;
 
     private:
 
-      // The digraph the algorithm runs on
-      const Digraph &_graph;
-
-      // The main maps
-      const FlowMap &_flow;
-      const CapacityArcMap &_res_cap;
-      const CostMap &_cost;
-      const SupplyNodeMap &_excess;
-      PotentialMap &_potential;
-
-      // The distance map
-      PotentialMap _dist;
-      // The pred arc map
-      PredMap &_pred;
-      // The processed (i.e. permanently labeled) nodes
-      std::vector<Node> _proc_nodes;
-
+      int _node_num;
+      const IntVector &_first_out;
+      const IntVector &_target;
+      const CostVector &_cost;
+      const ValueVector &_res_cap;
+      const ValueVector &_excess;
+      CostVector &_pi;
+      IntVector &_pred;
+      
+      IntVector _proc_nodes;
+      CostVector _dist;
+      
     public:
 
-      /// Constructor.
-      ResidualDijkstra( const Digraph &digraph,
-                        const FlowMap &flow,
-                        const CapacityArcMap &res_cap,
-                        const CostMap &cost,
-                        const SupplyMap &excess,
-                        PotentialMap &potential,
-                        PredMap &pred ) :
-        _graph(digraph), _flow(flow), _res_cap(res_cap), _cost(cost),
-        _excess(excess), _potential(potential), _dist(digraph),
-        _pred(pred)
+      ResidualDijkstra(CapacityScaling& cs) :
+        _node_num(cs._node_num), _first_out(cs._first_out), 
+        _target(cs._target), _cost(cs._cost), _res_cap(cs._res_cap),
+        _excess(cs._excess), _pi(cs._pi), _pred(cs._pred),
+        _dist(cs._node_num)
       {}
 
-      /// Run the algorithm from the given source node.
-      Node run(Node s, Capacity delta = 1) {
-        HeapCrossRef heap_cross_ref(_graph, Heap::PRE_HEAP);
+      int run(int s, Value delta = 1) {
+        HeapCrossRef heap_cross_ref(_node_num, Heap::PRE_HEAP);
         Heap heap(heap_cross_ref);
         heap.push(s, 0);
-        _pred[s] = INVALID;
+        _pred[s] = -1;
         _proc_nodes.clear();
 
-        // Processing nodes
+        // Process nodes
         while (!heap.empty() && _excess[heap.top()] > -delta) {
-          Node u = heap.top(), v;
-          Cost d = heap.prio() + _potential[u], nd;
+          int u = heap.top(), v;
+          Cost d = heap.prio() + _pi[u], dn;
           _dist[u] = heap.prio();
-          heap.pop();
           _proc_nodes.push_back(u);
+          heap.pop();
 
-          // Traversing outgoing arcs
-          for (OutArcIt e(_graph, u); e != INVALID; ++e) {
-            if (_res_cap[e] >= delta) {
-              v = _graph.target(e);
-              switch(heap.state(v)) {
+          // Traverse outgoing residual arcs
+          for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
+            if (_res_cap[a] < delta) continue;
+            v = _target[a];
+            switch (heap.state(v)) {
               case Heap::PRE_HEAP:
-                heap.push(v, d + _cost[e] - _potential[v]);
-                _pred[v] = e;
+                heap.push(v, d + _cost[a] - _pi[v]);
+                _pred[v] = a;
                 break;
               case Heap::IN_HEAP:
-                nd = d + _cost[e] - _potential[v];
-                if (nd < heap[v]) {
-                  heap.decrease(v, nd);
-                  _pred[v] = e;
+                dn = d + _cost[a] - _pi[v];
+                if (dn < heap[v]) {
+                  heap.decrease(v, dn);
+                  _pred[v] = a;
                 }
                 break;
               case Heap::POST_HEAP:
                 break;
-              }
-            }
-          }
-
-          // Traversing incoming arcs
-          for (InArcIt e(_graph, u); e != INVALID; ++e) {
-            if (_flow[e] >= delta) {
-              v = _graph.source(e);
-              switch(heap.state(v)) {
-              case Heap::PRE_HEAP:
-                heap.push(v, d - _cost[e] - _potential[v]);
-                _pred[v] = e;
-                break;
-              case Heap::IN_HEAP:
-                nd = d - _cost[e] - _potential[v];
-                if (nd < heap[v]) {
-                  heap.decrease(v, nd);
-                  _pred[v] = e;
-                }
-                break;
-              case Heap::POST_HEAP:
-                break;
-              }
             }
           }
         }
-        if (heap.empty()) return INVALID;
+        if (heap.empty()) return -1;
 
-        // Updating potentials of processed nodes
-        Node t = heap.top();
-        Cost t_dist = heap.prio();
-        for (int i = 0; i < int(_proc_nodes.size()); ++i)
-          _potential[_proc_nodes[i]] += _dist[_proc_nodes[i]] - t_dist;
+        // Update potentials of processed nodes
+        int t = heap.top();
+        Cost dt = heap.prio();
+        for (int i = 0; i < int(_proc_nodes.size()); ++i) {
+          _pi[_proc_nodes[i]] += _dist[_proc_nodes[i]] - dt;
+        }
 
         return t;
       }
 
     }; //class ResidualDijkstra
 
-  private:
-
-    // The digraph the algorithm runs on
-    const Digraph &_graph;
-    // The original lower bound map
-    const LowerMap *_lower;
-    // The modified capacity map
-    CapacityArcMap _capacity;
-    // The original cost map
-    const CostMap &_cost;
-    // The modified supply map
-    SupplyNodeMap _supply;
-    bool _valid_supply;
-
-    // Arc map of the current flow
-    FlowMap *_flow;
-    bool _local_flow;
-    // Node map of the current potentials
-    PotentialMap *_potential;
-    bool _local_potential;
-
-    // The residual capacity map
-    CapacityArcMap _res_cap;
-    // The excess map
-    SupplyNodeMap _excess;
-    // The excess nodes (i.e. nodes with positive excess)
-    std::vector<Node> _excess_nodes;
-    // The deficit nodes (i.e. nodes with negative excess)
-    std::vector<Node> _deficit_nodes;
-
-    // The delta parameter used for capacity scaling
-    Capacity _delta;
-    // The maximum number of phases
-    int _phase_num;
-
-    // The pred arc map
-    PredMap _pred;
-    // Implementation of the Dijkstra algorithm for finding augmenting
-    // shortest paths in the residual network
-    ResidualDijkstra *_dijkstra;
-
   public:
 
-    /// \brief General constructor (with lower bounds).
+    /// \brief Constructor.
     ///
-    /// General constructor (with lower bounds).
+    /// The constructor of the class.
     ///
-    /// \param digraph The digraph the algorithm runs on.
-    /// \param lower The lower bounds of the arcs.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param supply The supply values of the nodes (signed).
-    CapacityScaling( const Digraph &digraph,
-                     const LowerMap &lower,
-                     const CapacityMap &capacity,
-                     const CostMap &cost,
-                     const SupplyMap &supply ) :
-      _graph(digraph), _lower(&lower), _capacity(digraph), _cost(cost),
-      _supply(digraph), _flow(NULL), _local_flow(false),
-      _potential(NULL), _local_potential(false),
-      _res_cap(digraph), _excess(digraph), _pred(digraph), _dijkstra(NULL)
+    /// \param graph The digraph the algorithm runs on.
+    CapacityScaling(const GR& graph) :
+      _graph(graph), _node_id(graph), _arc_idf(graph), _arc_idb(graph),
+      INF(std::numeric_limits<Value>::has_infinity ?
+          std::numeric_limits<Value>::infinity() :
+          std::numeric_limits<Value>::max())
     {
-      Supply sum = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n) {
-        _supply[n] = supply[n];
-        _excess[n] = supply[n];
-        sum += supply[n];
+      // Check the value types
+      LEMON_ASSERT(std::numeric_limits<Value>::is_signed,
+        "The flow type of CapacityScaling must be signed");
+      LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
+        "The cost type of CapacityScaling must be signed");
+
+      // Resize vectors
+      _node_num = countNodes(_graph);
+      _arc_num = countArcs(_graph);
+      _res_arc_num = 2 * (_arc_num + _node_num);
+      _root = _node_num;
+      ++_node_num;
+
+      _first_out.resize(_node_num + 1);
+      _forward.resize(_res_arc_num);
+      _source.resize(_res_arc_num);
+      _target.resize(_res_arc_num);
+      _reverse.resize(_res_arc_num);
+
+      _lower.resize(_res_arc_num);
+      _upper.resize(_res_arc_num);
+      _cost.resize(_res_arc_num);
+      _supply.resize(_node_num);
+      
+      _res_cap.resize(_res_arc_num);
+      _pi.resize(_node_num);
+      _excess.resize(_node_num);
+      _pred.resize(_node_num);
+
+      // Copy the graph
+      int i = 0, j = 0, k = 2 * _arc_num + _node_num - 1;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _node_id[n] = i;
       }
-      _valid_supply = sum == 0;
+      i = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _first_out[i] = j;
+        for (OutArcIt a(_graph, n); a != INVALID; ++a, ++j) {
+          _arc_idf[a] = j;
+          _forward[j] = true;
+          _source[j] = i;
+          _target[j] = _node_id[_graph.runningNode(a)];
+        }
+        for (InArcIt a(_graph, n); a != INVALID; ++a, ++j) {
+          _arc_idb[a] = j;
+          _forward[j] = false;
+          _source[j] = i;
+          _target[j] = _node_id[_graph.runningNode(a)];
+        }
+        _forward[j] = false;
+        _source[j] = i;
+        _target[j] = _root;
+        _reverse[j] = k;
+        _forward[k] = true;
+        _source[k] = _root;
+        _target[k] = i;
+        _reverse[k] = j;
+        ++j; ++k;
+      }
+      _first_out[i] = j;
+      _first_out[_node_num] = k;
       for (ArcIt a(_graph); a != INVALID; ++a) {
-        _capacity[a] = capacity[a];
-        _res_cap[a] = capacity[a];
+        int fi = _arc_idf[a];
+        int bi = _arc_idb[a];
+        _reverse[fi] = bi;
+        _reverse[bi] = fi;
       }
-
-      // Remove non-zero lower bounds
-      typename LowerMap::Value lcap;
-      for (ArcIt e(_graph); e != INVALID; ++e) {
-        if ((lcap = lower[e]) != 0) {
-          _capacity[e] -= lcap;
-          _res_cap[e] -= lcap;
-          _supply[_graph.source(e)] -= lcap;
-          _supply[_graph.target(e)] += lcap;
-          _excess[_graph.source(e)] -= lcap;
-          _excess[_graph.target(e)] += lcap;
-        }
-      }
-    }
-/*
-    /// \brief General constructor (without lower bounds).
-    ///
-    /// General constructor (without lower bounds).
-    ///
-    /// \param digraph The digraph the algorithm runs on.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param supply The supply values of the nodes (signed).
-    CapacityScaling( const Digraph &digraph,
-                     const CapacityMap &capacity,
-                     const CostMap &cost,
-                     const SupplyMap &supply ) :
-      _graph(digraph), _lower(NULL), _capacity(capacity), _cost(cost),
-      _supply(supply), _flow(NULL), _local_flow(false),
-      _potential(NULL), _local_potential(false),
-      _res_cap(capacity), _excess(supply), _pred(digraph), _dijkstra(NULL)
-    {
-      // Check the sum of supply values
-      Supply sum = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n) sum += _supply[n];
-      _valid_supply = sum == 0;
+      
+      // Reset parameters
+      reset();
     }
 
-    /// \brief Simple constructor (with lower bounds).
-    ///
-    /// Simple constructor (with lower bounds).
-    ///
-    /// \param digraph The digraph the algorithm runs on.
-    /// \param lower The lower bounds of the arcs.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param s The source node.
-    /// \param t The target node.
-    /// \param flow_value The required amount of flow from node \c s
-    /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    CapacityScaling( const Digraph &digraph,
-                     const LowerMap &lower,
-                     const CapacityMap &capacity,
-                     const CostMap &cost,
-                     Node s, Node t,
-                     Supply flow_value ) :
-      _graph(digraph), _lower(&lower), _capacity(capacity), _cost(cost),
-      _supply(digraph, 0), _flow(NULL), _local_flow(false),
-      _potential(NULL), _local_potential(false),
-      _res_cap(capacity), _excess(digraph, 0), _pred(digraph), _dijkstra(NULL)
-    {
-      // Remove non-zero lower bounds
-      _supply[s] = _excess[s] =  flow_value;
-      _supply[t] = _excess[t] = -flow_value;
-      typename LowerMap::Value lcap;
-      for (ArcIt e(_graph); e != INVALID; ++e) {
-        if ((lcap = lower[e]) != 0) {
-          _capacity[e] -= lcap;
-          _res_cap[e] -= lcap;
-          _supply[_graph.source(e)] -= lcap;
-          _supply[_graph.target(e)] += lcap;
-          _excess[_graph.source(e)] -= lcap;
-          _excess[_graph.target(e)] += lcap;
-        }
-      }
-      _valid_supply = true;
-    }
+    /// \name Parameters
+    /// The parameters of the algorithm can be specified using these
+    /// functions.
 
-    /// \brief Simple constructor (without lower bounds).
-    ///
-    /// Simple constructor (without lower bounds).
-    ///
-    /// \param digraph The digraph the algorithm runs on.
-    /// \param capacity The capacities (upper bounds) of the arcs.
-    /// \param cost The cost (length) values of the arcs.
-    /// \param s The source node.
-    /// \param t The target node.
-    /// \param flow_value The required amount of flow from node \c s
-    /// to node \c t (i.e. the supply of \c s and the demand of \c t).
-    CapacityScaling( const Digraph &digraph,
-                     const CapacityMap &capacity,
-                     const CostMap &cost,
-                     Node s, Node t,
-                     Supply flow_value ) :
-      _graph(digraph), _lower(NULL), _capacity(capacity), _cost(cost),
-      _supply(digraph, 0), _flow(NULL), _local_flow(false),
-      _potential(NULL), _local_potential(false),
-      _res_cap(capacity), _excess(digraph, 0), _pred(digraph), _dijkstra(NULL)
-    {
-      _supply[s] = _excess[s] =  flow_value;
-      _supply[t] = _excess[t] = -flow_value;
-      _valid_supply = true;
-    }
-*/
-    /// Destructor.
-    ~CapacityScaling() {
-      if (_local_flow) delete _flow;
-      if (_local_potential) delete _potential;
-      delete _dijkstra;
-    }
+    /// @{
 
-    /// \brief Set the flow map.
+    /// \brief Set the lower bounds on the arcs.
     ///
-    /// Set the flow map.
+    /// This function sets the lower bounds on the arcs.
+    /// If it is not used before calling \ref run(), the lower bounds
+    /// will be set to zero on all arcs.
     ///
-    /// \return \c (*this)
-    CapacityScaling& flowMap(FlowMap &map) {
-      if (_local_flow) {
-        delete _flow;
-        _local_flow = false;
+    /// \param map An arc map storing the lower bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template <typename LowerMap>
+    CapacityScaling& lowerMap(const LowerMap& map) {
+      _have_lower = true;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _lower[_arc_idf[a]] = map[a];
+        _lower[_arc_idb[a]] = map[a];
       }
-      _flow = &map;
       return *this;
     }
 
-    /// \brief Set the potential map.
+    /// \brief Set the upper bounds (capacities) on the arcs.
     ///
-    /// Set the potential map.
+    /// This function sets the upper bounds (capacities) on the arcs.
+    /// If it is not used before calling \ref run(), the upper bounds
+    /// will be set to \ref INF on all arcs (i.e. the flow value will be
+    /// unbounded from above on each arc).
     ///
-    /// \return \c (*this)
-    CapacityScaling& potentialMap(PotentialMap &map) {
-      if (_local_potential) {
-        delete _potential;
-        _local_potential = false;
+    /// \param map An arc map storing the upper bounds.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename UpperMap>
+    CapacityScaling& upperMap(const UpperMap& map) {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _upper[_arc_idf[a]] = map[a];
       }
-      _potential = &map;
       return *this;
     }
+
+    /// \brief Set the costs of the arcs.
+    ///
+    /// This function sets the costs of the arcs.
+    /// If it is not used before calling \ref run(), the costs
+    /// will be set to \c 1 on all arcs.
+    ///
+    /// \param map An arc map storing the costs.
+    /// Its \c Value type must be convertible to the \c Cost type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename CostMap>
+    CapacityScaling& costMap(const CostMap& map) {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        _cost[_arc_idf[a]] =  map[a];
+        _cost[_arc_idb[a]] = -map[a];
+      }
+      return *this;
+    }
+
+    /// \brief Set the supply values of the nodes.
+    ///
+    /// This function sets the supply values of the nodes.
+    /// If neither this function nor \ref stSupply() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    ///
+    /// \param map A node map storing the supply values.
+    /// Its \c Value type must be convertible to the \c Value type
+    /// of the algorithm.
+    ///
+    /// \return <tt>(*this)</tt>
+    template<typename SupplyMap>
+    CapacityScaling& supplyMap(const SupplyMap& map) {
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        _supply[_node_id[n]] = map[n];
+      }
+      return *this;
+    }
+
+    /// \brief Set single source and target nodes and a supply value.
+    ///
+    /// This function sets a single source node and a single target node
+    /// and the required flow value.
+    /// If neither this function nor \ref supplyMap() is used before
+    /// calling \ref run(), the supply of each node will be set to zero.
+    ///
+    /// Using this function has the same effect as using \ref supplyMap()
+    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// assigned to \c t and all other nodes have zero supply value.
+    ///
+    /// \param s The source node.
+    /// \param t The target node.
+    /// \param k The required amount of flow from node \c s to node \c t
+    /// (i.e. the supply of \c s and the demand of \c t).
+    ///
+    /// \return <tt>(*this)</tt>
+    CapacityScaling& stSupply(const Node& s, const Node& t, Value k) {
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      _supply[_node_id[s]] =  k;
+      _supply[_node_id[t]] = -k;
+      return *this;
+    }
+    
+    /// @}
 
     /// \name Execution control
 
@@ -416,15 +437,88 @@ namespace lemon {
     /// \brief Run the algorithm.
     ///
     /// This function runs the algorithm.
+    /// The paramters can be specified using functions \ref lowerMap(),
+    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply().
+    /// For example,
+    /// \code
+    ///   CapacityScaling<ListDigraph> cs(graph);
+    ///   cs.lowerMap(lower).upperMap(upper).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
+    ///
+    /// This function can be called more than once. All the parameters
+    /// that have been given are kept for the next call, unless
+    /// \ref reset() is called, thus only the modified parameters
+    /// have to be set again. See \ref reset() for examples.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies the digraph.
     ///
     /// \param scaling Enable or disable capacity scaling.
-    /// If the maximum arc capacity and/or the amount of total supply
+    /// If the maximum upper bound and/or the amount of total supply
     /// is rather small, the algorithm could be slightly faster without
     /// scaling.
     ///
-    /// \return \c true if a feasible flow can be found.
-    bool run(bool scaling = true) {
-      return init(scaling) && start();
+    /// \return \c INFEASIBLE if no feasible flow exists,
+    /// \n \c OPTIMAL if the problem has optimal solution
+    /// (i.e. it is feasible and bounded), and the algorithm has found
+    /// optimal flow and node potentials (primal and dual solutions),
+    /// \n \c UNBOUNDED if the digraph contains an arc of negative cost
+    /// and infinite upper bound. It means that the objective function
+    /// is unbounded on that arc, however note that it could actually be
+    /// bounded over the feasible flows, but this algroithm cannot handle
+    /// these cases.
+    ///
+    /// \see ProblemType
+    ProblemType run(bool scaling = true) {
+      ProblemType pt = init(scaling);
+      if (pt != OPTIMAL) return pt;
+      return start();
+    }
+
+    /// \brief Reset all the parameters that have been given before.
+    ///
+    /// This function resets all the paramaters that have been given
+    /// before using functions \ref lowerMap(), \ref upperMap(),
+    /// \ref costMap(), \ref supplyMap(), \ref stSupply().
+    ///
+    /// It is useful for multiple run() calls. If this function is not
+    /// used, all the parameters given before are kept for the next
+    /// \ref run() call.
+    /// However the underlying digraph must not be modified after this
+    /// class have been constructed, since it copies and extends the graph.
+    ///
+    /// For example,
+    /// \code
+    ///   CapacityScaling<ListDigraph> cs(graph);
+    ///
+    ///   // First run
+    ///   cs.lowerMap(lower).upperMap(upper).costMap(cost)
+    ///     .supplyMap(sup).run();
+    ///
+    ///   // Run again with modified cost map (reset() is not called,
+    ///   // so only the cost map have to be set again)
+    ///   cost[e] += 100;
+    ///   cs.costMap(cost).run();
+    ///
+    ///   // Run again from scratch using reset()
+    ///   // (the lower bounds will be set to zero on all arcs)
+    ///   cs.reset();
+    ///   cs.upperMap(capacity).costMap(cost)
+    ///     .supplyMap(sup).run();
+    /// \endcode
+    ///
+    /// \return <tt>(*this)</tt>
+    CapacityScaling& reset() {
+      for (int i = 0; i != _node_num; ++i) {
+        _supply[i] = 0;
+      }
+      for (int j = 0; j != _res_arc_num; ++j) {
+        _lower[j] = 0;
+        _upper[j] = INF;
+        _cost[j] = _forward[j] ? 1 : -1;
+      }
+      _have_lower = false;
+      return *this;
     }
 
     /// @}
@@ -432,97 +526,186 @@ namespace lemon {
     /// \name Query Functions
     /// The results of the algorithm can be obtained using these
     /// functions.\n
-    /// \ref lemon::CapacityScaling::run() "run()" must be called before
-    /// using them.
+    /// The \ref run() function must be called before using them.
 
     /// @{
 
-    /// \brief Return a const reference to the arc map storing the
-    /// found flow.
+    /// \brief Return the total cost of the found flow.
     ///
-    /// Return a const reference to the arc map storing the found flow.
+    /// This function returns the total cost of the found flow.
+    /// Its complexity is O(e).
+    ///
+    /// \note The return type of the function can be specified as a
+    /// template parameter. For example,
+    /// \code
+    ///   cs.totalCost<double>();
+    /// \endcode
+    /// It is useful if the total cost cannot be stored in the \c Cost
+    /// type of the algorithm, which is the default return type of the
+    /// function.
     ///
     /// \pre \ref run() must be called before using this function.
-    const FlowMap& flowMap() const {
-      return *_flow;
+    template <typename Number>
+    Number totalCost() const {
+      Number c = 0;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        int i = _arc_idb[a];
+        c += static_cast<Number>(_res_cap[i]) *
+             (-static_cast<Number>(_cost[i]));
+      }
+      return c;
     }
 
-    /// \brief Return a const reference to the node map storing the
-    /// found potentials (the dual solution).
-    ///
-    /// Return a const reference to the node map storing the found
-    /// potentials (the dual solution).
-    ///
-    /// \pre \ref run() must be called before using this function.
-    const PotentialMap& potentialMap() const {
-      return *_potential;
+#ifndef DOXYGEN
+    Cost totalCost() const {
+      return totalCost<Cost>();
     }
+#endif
 
     /// \brief Return the flow on the given arc.
     ///
-    /// Return the flow on the given arc.
+    /// This function returns the flow on the given arc.
     ///
     /// \pre \ref run() must be called before using this function.
-    Capacity flow(const Arc& arc) const {
-      return (*_flow)[arc];
+    Value flow(const Arc& a) const {
+      return _res_cap[_arc_idb[a]];
     }
 
-    /// \brief Return the potential of the given node.
+    /// \brief Return the flow map (the primal solution).
     ///
-    /// Return the potential of the given node.
+    /// This function copies the flow value on each arc into the given
+    /// map. The \c Value type of the algorithm must be convertible to
+    /// the \c Value type of the map.
     ///
     /// \pre \ref run() must be called before using this function.
-    Cost potential(const Node& node) const {
-      return (*_potential)[node];
+    template <typename FlowMap>
+    void flowMap(FlowMap &map) const {
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        map.set(a, _res_cap[_arc_idb[a]]);
+      }
     }
 
-    /// \brief Return the total cost of the found flow.
+    /// \brief Return the potential (dual value) of the given node.
     ///
-    /// Return the total cost of the found flow. The complexity of the
-    /// function is \f$ O(e) \f$.
+    /// This function returns the potential (dual value) of the
+    /// given node.
     ///
     /// \pre \ref run() must be called before using this function.
-    Cost totalCost() const {
-      Cost c = 0;
-      for (ArcIt e(_graph); e != INVALID; ++e)
-        c += (*_flow)[e] * _cost[e];
-      return c;
+    Cost potential(const Node& n) const {
+      return _pi[_node_id[n]];
+    }
+
+    /// \brief Return the potential map (the dual solution).
+    ///
+    /// This function copies the potential (dual value) of each node
+    /// into the given map.
+    /// The \c Cost type of the algorithm must be convertible to the
+    /// \c Value type of the map.
+    ///
+    /// \pre \ref run() must be called before using this function.
+    template <typename PotentialMap>
+    void potentialMap(PotentialMap &map) const {
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        map.set(n, _pi[_node_id[n]]);
+      }
     }
 
     /// @}
 
   private:
 
-    /// Initialize the algorithm.
-    bool init(bool scaling) {
-      if (!_valid_supply) return false;
+    // Initialize the algorithm
+    ProblemType init(bool scaling) {
+      if (_node_num == 0) return INFEASIBLE;
 
-      // Initializing maps
-      if (!_flow) {
-        _flow = new FlowMap(_graph);
-        _local_flow = true;
+      // Check the sum of supply values
+      _sum_supply = 0;
+      for (int i = 0; i != _root; ++i) {
+        _sum_supply += _supply[i];
       }
-      if (!_potential) {
-        _potential = new PotentialMap(_graph);
-        _local_potential = true;
+      if (_sum_supply > 0) return INFEASIBLE;
+      
+      // Initialize maps
+      for (int i = 0; i != _root; ++i) {
+        _pi[i] = 0;
+        _excess[i] = _supply[i];
       }
-      for (ArcIt e(_graph); e != INVALID; ++e) (*_flow)[e] = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n) (*_potential)[n] = 0;
 
-      _dijkstra = new ResidualDijkstra( _graph, *_flow, _res_cap, _cost,
-                                        _excess, *_potential, _pred );
+      // Remove non-zero lower bounds
+      if (_have_lower) {
+        for (int i = 0; i != _root; ++i) {
+          for (int j = _first_out[i]; j != _first_out[i+1]; ++j) {
+            if (_forward[j]) {
+              Value c = _lower[j];
+              if (c >= 0) {
+                _res_cap[j] = _upper[j] < INF ? _upper[j] - c : INF;
+              } else {
+                _res_cap[j] = _upper[j] < INF + c ? _upper[j] - c : INF;
+              }
+              _excess[i] -= c;
+              _excess[_target[j]] += c;
+            } else {
+              _res_cap[j] = 0;
+            }
+          }
+        }
+      } else {
+        for (int j = 0; j != _res_arc_num; ++j) {
+          _res_cap[j] = _forward[j] ? _upper[j] : 0;
+        }
+      }
 
-      // Initializing delta value
+      // Handle negative costs
+      for (int u = 0; u != _root; ++u) {
+        for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
+          Value rc = _res_cap[a];
+          if (_cost[a] < 0 && rc > 0) {
+            if (rc == INF) return UNBOUNDED;
+            _excess[u] -= rc;
+            _excess[_target[a]] += rc;
+            _res_cap[a] = 0;
+            _res_cap[_reverse[a]] += rc;
+          }
+        }
+      }
+      
+      // Handle GEQ supply type
+      if (_sum_supply < 0) {
+        _pi[_root] = 0;
+        _excess[_root] = -_sum_supply;
+        for (int a = _first_out[_root]; a != _res_arc_num; ++a) {
+          int u = _target[a];
+          if (_excess[u] < 0) {
+            _res_cap[a] = -_excess[u] + 1;
+          } else {
+            _res_cap[a] = 1;
+          }
+          _res_cap[_reverse[a]] = 0;
+          _cost[a] = 0;
+          _cost[_reverse[a]] = 0;
+        }
+      } else {
+        _pi[_root] = 0;
+        _excess[_root] = 0;
+        for (int a = _first_out[_root]; a != _res_arc_num; ++a) {
+          _res_cap[a] = 1;
+          _res_cap[_reverse[a]] = 0;
+          _cost[a] = 0;
+          _cost[_reverse[a]] = 0;
+        }
+      }
+
+      // Initialize delta value
       if (scaling) {
         // With scaling
-        Supply max_sup = 0, max_dem = 0;
-        for (NodeIt n(_graph); n != INVALID; ++n) {
-          if ( _supply[n] > max_sup) max_sup =  _supply[n];
-          if (-_supply[n] > max_dem) max_dem = -_supply[n];
+        Value max_sup = 0, max_dem = 0;
+        for (int i = 0; i != _node_num; ++i) {
+          if ( _excess[i] > max_sup) max_sup =  _excess[i];
+          if (-_excess[i] > max_dem) max_dem = -_excess[i];
         }
-        Capacity max_cap = 0;
-        for (ArcIt e(_graph); e != INVALID; ++e) {
-          if (_capacity[e] > max_cap) max_cap = _capacity[e];
+        Value max_cap = 0;
+        for (int j = 0; j != _res_arc_num; ++j) {
+          if (_res_cap[j] > max_cap) max_cap = _res_cap[j];
         }
         max_sup = std::min(std::min(max_sup, max_dem), max_cap);
         _phase_num = 0;
@@ -533,53 +716,70 @@ namespace lemon {
         _delta = 1;
       }
 
-      return true;
+      return OPTIMAL;
     }
 
-    bool start() {
+    ProblemType start() {
+      // Execute the algorithm
+      ProblemType pt;
       if (_delta > 1)
-        return startWithScaling();
+        pt = startWithScaling();
       else
-        return startWithoutScaling();
+        pt = startWithoutScaling();
+
+      // Handle non-zero lower bounds
+      if (_have_lower) {
+        for (int j = 0; j != _res_arc_num - _node_num + 1; ++j) {
+          if (!_forward[j]) _res_cap[j] += _lower[j];
+        }
+      }
+
+      // Shift potentials if necessary
+      Cost pr = _pi[_root];
+      if (_sum_supply < 0 || pr > 0) {
+        for (int i = 0; i != _node_num; ++i) {
+          _pi[i] -= pr;
+        }        
+      }
+      
+      return pt;
     }
 
-    /// Execute the capacity scaling algorithm.
-    bool startWithScaling() {
-      // Processing capacity scaling phases
-      Node s, t;
+    // Execute the capacity scaling algorithm
+    ProblemType startWithScaling() {
+      // Process capacity scaling phases
+      int s, t;
       int phase_cnt = 0;
       int factor = 4;
+      ResidualDijkstra _dijkstra(*this);
       while (true) {
-        // Saturating all arcs not satisfying the optimality condition
-        for (ArcIt e(_graph); e != INVALID; ++e) {
-          Node u = _graph.source(e), v = _graph.target(e);
-          Cost c = _cost[e] + (*_potential)[u] - (*_potential)[v];
-          if (c < 0 && _res_cap[e] >= _delta) {
-            _excess[u] -= _res_cap[e];
-            _excess[v] += _res_cap[e];
-            (*_flow)[e] = _capacity[e];
-            _res_cap[e] = 0;
-          }
-          else if (c > 0 && (*_flow)[e] >= _delta) {
-            _excess[u] += (*_flow)[e];
-            _excess[v] -= (*_flow)[e];
-            (*_flow)[e] = 0;
-            _res_cap[e] = _capacity[e];
+        // Saturate all arcs not satisfying the optimality condition
+        for (int u = 0; u != _node_num; ++u) {
+          for (int a = _first_out[u]; a != _first_out[u+1]; ++a) {
+            int v = _target[a];
+            Cost c = _cost[a] + _pi[u] - _pi[v];
+            Value rc = _res_cap[a];
+            if (c < 0 && rc >= _delta) {
+              _excess[u] -= rc;
+              _excess[v] += rc;
+              _res_cap[a] = 0;
+              _res_cap[_reverse[a]] += rc;
+            }
           }
         }
 
-        // Finding excess nodes and deficit nodes
+        // Find excess nodes and deficit nodes
         _excess_nodes.clear();
         _deficit_nodes.clear();
-        for (NodeIt n(_graph); n != INVALID; ++n) {
-          if (_excess[n] >=  _delta) _excess_nodes.push_back(n);
-          if (_excess[n] <= -_delta) _deficit_nodes.push_back(n);
+        for (int u = 0; u != _node_num; ++u) {
+          if (_excess[u] >=  _delta) _excess_nodes.push_back(u);
+          if (_excess[u] <= -_delta) _deficit_nodes.push_back(u);
         }
         int next_node = 0, next_def_node = 0;
 
-        // Finding augmenting shortest paths
+        // Find augmenting shortest paths
         while (next_node < int(_excess_nodes.size())) {
-          // Checking deficit nodes
+          // Check deficit nodes
           if (_delta > 1) {
             bool delta_deficit = false;
             for ( ; next_def_node < int(_deficit_nodes.size());
@@ -592,44 +792,31 @@ namespace lemon {
             if (!delta_deficit) break;
           }
 
-          // Running Dijkstra
+          // Run Dijkstra in the residual network
           s = _excess_nodes[next_node];
-          if ((t = _dijkstra->run(s, _delta)) == INVALID) {
+          if ((t = _dijkstra.run(s, _delta)) == -1) {
             if (_delta > 1) {
               ++next_node;
               continue;
             }
-            return false;
+            return INFEASIBLE;
           }
 
-          // Augmenting along a shortest path from s to t.
-          Capacity d = std::min(_excess[s], -_excess[t]);
-          Node u = t;
-          Arc e;
+          // Augment along a shortest path from s to t
+          Value d = std::min(_excess[s], -_excess[t]);
+          int u = t;
+          int a;
           if (d > _delta) {
-            while ((e = _pred[u]) != INVALID) {
-              Capacity rc;
-              if (u == _graph.target(e)) {
-                rc = _res_cap[e];
-                u = _graph.source(e);
-              } else {
-                rc = (*_flow)[e];
-                u = _graph.target(e);
-              }
-              if (rc < d) d = rc;
+            while ((a = _pred[u]) != -1) {
+              if (_res_cap[a] < d) d = _res_cap[a];
+              u = _source[a];
             }
           }
           u = t;
-          while ((e = _pred[u]) != INVALID) {
-            if (u == _graph.target(e)) {
-              (*_flow)[e] += d;
-              _res_cap[e] -= d;
-              u = _graph.source(e);
-            } else {
-              (*_flow)[e] -= d;
-              _res_cap[e] += d;
-              u = _graph.target(e);
-            }
+          while ((a = _pred[u]) != -1) {
+            _res_cap[a] -= d;
+            _res_cap[_reverse[a]] += d;
+            u = _source[a];
           }
           _excess[s] -= d;
           _excess[t] += d;
@@ -638,74 +825,54 @@ namespace lemon {
         }
 
         if (_delta == 1) break;
-        if (++phase_cnt > _phase_num / 4) factor = 2;
+        if (++phase_cnt == _phase_num / 4) factor = 2;
         _delta = _delta <= factor ? 1 : _delta / factor;
       }
 
-      // Handling non-zero lower bounds
-      if (_lower) {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          (*_flow)[e] += (*_lower)[e];
-      }
-      return true;
+      return OPTIMAL;
     }
 
-    /// Execute the successive shortest path algorithm.
-    bool startWithoutScaling() {
-      // Finding excess nodes
-      for (NodeIt n(_graph); n != INVALID; ++n)
-        if (_excess[n] > 0) _excess_nodes.push_back(n);
-      if (_excess_nodes.size() == 0) return true;
+    // Execute the successive shortest path algorithm
+    ProblemType startWithoutScaling() {
+      // Find excess nodes
+      _excess_nodes.clear();
+      for (int i = 0; i != _node_num; ++i) {
+        if (_excess[i] > 0) _excess_nodes.push_back(i);
+      }
+      if (_excess_nodes.size() == 0) return OPTIMAL;
       int next_node = 0;
 
-      // Finding shortest paths
-      Node s, t;
+      // Find shortest paths
+      int s, t;
+      ResidualDijkstra _dijkstra(*this);
       while ( _excess[_excess_nodes[next_node]] > 0 ||
               ++next_node < int(_excess_nodes.size()) )
       {
-        // Running Dijkstra
+        // Run Dijkstra in the residual network
         s = _excess_nodes[next_node];
-        if ((t = _dijkstra->run(s)) == INVALID) return false;
+        if ((t = _dijkstra.run(s)) == -1) return INFEASIBLE;
 
-        // Augmenting along a shortest path from s to t
-        Capacity d = std::min(_excess[s], -_excess[t]);
-        Node u = t;
-        Arc e;
+        // Augment along a shortest path from s to t
+        Value d = std::min(_excess[s], -_excess[t]);
+        int u = t;
+        int a;
         if (d > 1) {
-          while ((e = _pred[u]) != INVALID) {
-            Capacity rc;
-            if (u == _graph.target(e)) {
-              rc = _res_cap[e];
-              u = _graph.source(e);
-            } else {
-              rc = (*_flow)[e];
-              u = _graph.target(e);
-            }
-            if (rc < d) d = rc;
+          while ((a = _pred[u]) != -1) {
+            if (_res_cap[a] < d) d = _res_cap[a];
+            u = _source[a];
           }
         }
         u = t;
-        while ((e = _pred[u]) != INVALID) {
-          if (u == _graph.target(e)) {
-            (*_flow)[e] += d;
-            _res_cap[e] -= d;
-            u = _graph.source(e);
-          } else {
-            (*_flow)[e] -= d;
-            _res_cap[e] += d;
-            u = _graph.target(e);
-          }
+        while ((a = _pred[u]) != -1) {
+          _res_cap[a] -= d;
+          _res_cap[_reverse[a]] += d;
+          u = _source[a];
         }
         _excess[s] -= d;
         _excess[t] += d;
       }
 
-      // Handling non-zero lower bounds
-      if (_lower) {
-        for (ArcIt e(_graph); e != INVALID; ++e)
-          (*_flow)[e] += (*_lower)[e];
-      }
-      return true;
+      return OPTIMAL;
     }
 
   }; //class CapacityScaling
