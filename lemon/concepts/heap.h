@@ -88,7 +88,11 @@ namespace lemon {
       /// \c Item. It is used internally by the heap implementations to
       /// handle the cross references. The assigned value must be
       /// \c PRE_HEAP (<tt>-1</tt>) for each item.
+#ifdef DOXYGEN
       explicit Heap(ItemIntMap &map) {}
+#else
+      explicit Heap(ItemIntMap&) {}
+#endif      
 
       /// \brief Constructor.
       ///
@@ -98,7 +102,11 @@ namespace lemon {
       /// handle the cross references. The assigned value must be
       /// \c PRE_HEAP (<tt>-1</tt>) for each item.
       /// \param comp The function object used for comparing the priorities.
+#ifdef DOXYGEN
       explicit Heap(ItemIntMap &map, const CMP &comp) {}
+#else
+      explicit Heap(ItemIntMap&, const CMP&) {}
+#endif      
 
       /// \brief The number of items stored in the heap.
       ///
@@ -126,19 +134,23 @@ namespace lemon {
       /// \param i The item to insert.
       /// \param p The priority of the item.
       /// \pre \e i must not be stored in the heap.
+#ifdef DOXYGEN
       void push(const Item &i, const Prio &p) {}
+#else
+      void push(const Item&, const Prio&) {}
+#endif      
 
       /// \brief Return the item having minimum priority.
       ///
       /// This function returns the item having minimum priority.
       /// \pre The heap must be non-empty.
-      Item top() const {}
+      Item top() const { return Item(); }
 
       /// \brief The minimum priority.
       ///
       /// This function returns the minimum priority.
       /// \pre The heap must be non-empty.
-      Prio prio() const {}
+      Prio prio() const { return Prio(); }
 
       /// \brief Remove the item having minimum priority.
       ///
@@ -152,14 +164,22 @@ namespace lemon {
       /// already stored.
       /// \param i The item to delete.
       /// \pre \e i must be in the heap.
+#ifdef DOXYGEN
       void erase(const Item &i) {}
+#else
+      void erase(const Item&) {}
+#endif      
 
       /// \brief The priority of the given item.
       ///
       /// This function returns the priority of the given item.
       /// \param i The item.
       /// \pre \e i must be in the heap.
+#ifdef DOXYGEN
       Prio operator[](const Item &i) const {}
+#else
+      Prio operator[](const Item&) const { return Prio(); }
+#endif      
 
       /// \brief Set the priority of an item or insert it, if it is
       /// not stored in the heap.
@@ -170,7 +190,11 @@ namespace lemon {
       ///
       /// \param i The item.
       /// \param p The priority.
+#ifdef DOXYGEN
       void set(const Item &i, const Prio &p) {}
+#else
+      void set(const Item&, const Prio&) {}
+#endif      
 
       /// \brief Decrease the priority of an item to the given value.
       ///
@@ -178,7 +202,11 @@ namespace lemon {
       /// \param i The item.
       /// \param p The priority.
       /// \pre \e i must be stored in the heap with priority at least \e p.
+#ifdef DOXYGEN
       void decrease(const Item &i, const Prio &p) {}
+#else
+      void decrease(const Item&, const Prio&) {}
+#endif      
 
       /// \brief Increase the priority of an item to the given value.
       ///
@@ -186,7 +214,11 @@ namespace lemon {
       /// \param i The item.
       /// \param p The priority.
       /// \pre \e i must be stored in the heap with priority at most \e p.
+#ifdef DOXYGEN
       void increase(const Item &i, const Prio &p) {}
+#else
+      void increase(const Item&, const Prio&) {}
+#endif      
 
       /// \brief Return the state of an item.
       ///
@@ -196,7 +228,11 @@ namespace lemon {
       /// In the latter case it is possible that the item will get back
       /// to the heap again.
       /// \param i The item.
+#ifdef DOXYGEN
       State state(const Item &i) const {}
+#else
+      State state(const Item&) const { return PRE_HEAP; }
+#endif      
 
       /// \brief Set the state of an item in the heap.
       ///
@@ -205,7 +241,11 @@ namespace lemon {
       /// to achive better time complexity.
       /// \param i The item.
       /// \param st The state. It should not be \c IN_HEAP.
+#ifdef DOXYGEN
       void state(const Item& i, State st) {}
+#else
+      void state(const Item&, State) {}
+#endif      
 
 
       template <typename _Heap>
