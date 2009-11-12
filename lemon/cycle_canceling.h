@@ -45,7 +45,9 @@ namespace lemon {
   /// finding a \ref min_cost_flow "minimum cost flow".
   ///
   /// \ref CycleCanceling implements three different cycle-canceling
-  /// algorithms for finding a \ref min_cost_flow "minimum cost flow".
+  /// algorithms for finding a \ref min_cost_flow "minimum cost flow"
+  /// \ref amo93networkflows, \ref klein67primal,
+  /// \ref goldberg89cyclecanceling.
   /// The most efficent one (both theoretically and practically)
   /// is the \ref CANCEL_AND_TIGHTEN "Cancel and Tighten" algorithm,
   /// thus it is the default method.
@@ -124,12 +126,14 @@ namespace lemon {
       /// number for detecting negative cycles in the residual network.
       SIMPLE_CYCLE_CANCELING,
       /// The "Minimum Mean Cycle-Canceling" algorithm, which is a
-      /// well-known strongly polynomial method. It improves along a
+      /// well-known strongly polynomial method
+      /// \ref goldberg89cyclecanceling. It improves along a
       /// \ref min_mean_cycle "minimum mean cycle" in each iteration.
       /// Its running time complexity is O(n<sup>2</sup>m<sup>3</sup>log(n)).
       MINIMUM_MEAN_CYCLE_CANCELING,
       /// The "Cancel And Tighten" algorithm, which can be viewed as an
-      /// improved version of the previous method.
+      /// improved version of the previous method
+      /// \ref goldberg89cyclecanceling.
       /// It is faster both in theory and in practice, its running time
       /// complexity is O(n<sup>2</sup>m<sup>2</sup>log(n)).
       CANCEL_AND_TIGHTEN
