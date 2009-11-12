@@ -31,6 +31,33 @@
 
 namespace lemon {
 
+  /// \brief Default traits class of CapacityScaling algorithm.
+  ///
+  /// Default traits class of CapacityScaling algorithm.
+  /// \tparam GR Digraph type.
+  /// \tparam V The value type used for flow amounts, capacity bounds
+  /// and supply values. By default it is \c int.
+  /// \tparam C The value type used for costs and potentials.
+  /// By default it is the same as \c V.
+  template <typename GR, typename V = int, typename C = V>
+  struct CapacityScalingDefaultTraits
+  {
+    /// The type of the digraph
+    typedef GR Digraph;
+    /// The type of the flow amounts, capacity bounds and supply values
+    typedef V Value;
+    /// The type of the arc costs
+    typedef C Cost;
+
+    /// \brief The type of the heap used for internal Dijkstra computations.
+    ///
+    /// The type of the heap used for internal Dijkstra computations.
+    /// It must conform to the \ref lemon::concepts::Heap "Heap" concept,
+    /// its priority type must be \c Cost and its cross reference type
+    /// must be \ref RangeMap "RangeMap<int>".
+    typedef BinHeap<Cost, RangeMap<int> > Heap;
+  };
+
   /// \addtogroup min_cost_flow_algs
   /// @{
 
@@ -57,15 +84,28 @@ namespace lemon {
   /// be integer.
   /// \warning This algorithm does not support negative costs for such
   /// arcs that have infinite upper bound.
-  template <typename GR, typename V = int, typename C = V>
+#ifdef DOXYGEN
+  template <typename GR, typename V, typename C, typename TR>
+#else
+  template < typename GR, typename V = int, typename C = V,
+             typename TR = CapacityScalingDefaultTraits<GR, V, C> >
+#endif
   class CapacityScaling
   {
   public:
 
+    /// The type of the digraph
+    typedef typename TR::Digraph Digraph;
     /// The type of the flow amounts, capacity bounds and supply values
-    typedef V Value;
+    typedef typename TR::Value Value;
     /// The type of the arc costs
-    typedef C Cost;
+    typedef typename TR::Cost Cost;
+
+    /// The type of the heap used for internal Dijkstra computations
+    typedef typename TR::Heap Heap;
+
+    /// The \ref CapacityScalingDefaultTraits "traits class" of the algorithm
+    typedef TR Traits;
 
   public:
 
@@ -92,8 +132,6 @@ namespace lemon {
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
-    typedef std::vector<Arc> ArcVector;
-    typedef std::vector<Node> NodeVector;
     typedef std::vector<int> IntVector;
     typedef std::vector<bool> BoolVector;
     typedef std::vector<Value> ValueVector;
@@ -155,9 +193,6 @@ namespace lemon {
     // potentials according to the found distance labels.
     class ResidualDijkstra
     {
-      typedef RangeMap<int> HeapCrossRef;
-      typedef BinHeap<Cost, HeapCrossRef> Heap;
-
     private:
 
       int _node_num;
@@ -182,7 +217,7 @@ namespace lemon {
       {}
 
       int run(int s, Value delta = 1) {
-        HeapCrossRef heap_cross_ref(_node_num, Heap::PRE_HEAP);
+        RangeMap<int> heap_cross_ref(_node_num, Heap::PRE_HEAP);
         Heap heap(heap_cross_ref);
         heap.push(s, 0);
         _pred[s] = -1;
@@ -230,6 +265,32 @@ namespace lemon {
       }
 
     }; //class ResidualDijkstra
+
+  public:
+
+    /// \name Named Template Parameters
+    /// @{
+
+    template <typename T>
+    struct SetHeapTraits : public Traits {
+      typedef T Heap;
+    };
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
+    /// \c Heap type.
+    ///
+    /// \ref named-templ-param "Named parameter" for setting \c Heap
+    /// type, which is used for internal Dijkstra computations.
+    /// It must conform to the \ref lemon::concepts::Heap "Heap" concept,
+    /// its priority type must be \c Cost and its cross reference type
+    /// must be \ref RangeMap "RangeMap<int>".
+    template <typename T>
+    struct SetHeap
+      : public CapacityScaling<GR, V, C, SetHeapTraits<T> > {
+      typedef  CapacityScaling<GR, V, C, SetHeapTraits<T> > Create;
+    };
+
+    /// @}
 
   public:
 
@@ -431,6 +492,7 @@ namespace lemon {
     /// @}
 
     /// \name Execution control
+    /// The algorithm can be executed using \ref run().
 
     /// @{
 
@@ -747,7 +809,7 @@ namespace lemon {
 
     // Execute the capacity scaling algorithm
     ProblemType startWithScaling() {
-      // Process capacity scaling phases
+      // Perform capacity scaling phases
       int s, t;
       int phase_cnt = 0;
       int factor = 4;
