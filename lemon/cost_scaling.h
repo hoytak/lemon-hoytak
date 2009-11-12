@@ -90,8 +90,10 @@ namespace lemon {
   /// finding a \ref min_cost_flow "minimum cost flow".
   ///
   /// \ref CostScaling implements a cost scaling algorithm that performs
-  /// push/augment and relabel operations for finding a minimum cost
-  /// flow. It is an efficient primal-dual solution method, which
+  /// push/augment and relabel operations for finding a \ref min_cost_flow
+  /// "minimum cost flow" \ref amo93networkflows, \ref goldberg90approximation,
+  /// \ref goldberg97efficient, \ref bunnagel98efficient. 
+  /// It is a highly efficient primal-dual solution method, which
   /// can be viewed as the generalization of the \ref Preflow
   /// "preflow push-relabel" algorithm for the maximum flow problem.
   ///

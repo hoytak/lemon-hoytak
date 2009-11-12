@@ -406,15 +406,13 @@ problem and its dual solution, see \ref min_cost_flow
 LEMON contains several algorithms for this problem.
  - \ref NetworkSimplex Primal Network Simplex algorithm with various
    pivot strategies \ref dantzig63linearprog, \ref kellyoneill91netsimplex.
- - \ref CostScaling Push-Relabel and Augment-Relabel algorithms based on
-   cost scaling \ref goldberg90approximation, \ref goldberg97efficient,
+ - \ref CostScaling Cost Scaling algorithm based on push/augment and
+   relabel operations \ref goldberg90approximation, \ref goldberg97efficient,
    \ref bunnagel98efficient.
- - \ref CapacityScaling Successive Shortest %Path algorithm with optional
-   capacity scaling \ref edmondskarp72theoretical.
- - \ref CancelAndTighten The Cancel and Tighten algorithm
-   \ref goldberg89cyclecanceling.
- - \ref CycleCanceling Cycle-Canceling algorithms
-   \ref klein67primal, \ref goldberg89cyclecanceling.
+ - \ref CapacityScaling Capacity Scaling algorithm based on the successive
+   shortest path method \ref edmondskarp72theoretical.
+ - \ref CycleCanceling Cycle-Canceling algorithms, two of which are
+   strongly polynomial \ref klein67primal, \ref goldberg89cyclecanceling.
 
 In general NetworkSimplex is the most efficient implementation,
 but in special cases other algorithms could be faster.
