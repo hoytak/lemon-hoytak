@@ -80,36 +80,36 @@ namespace lemon {
       typedef Item Parent;
       typedef typename Map::Value Value;
 
-      MapIt() {}
+      MapIt() : map(NULL) {}
 
-      MapIt(Invalid i) : Parent(i) { }
+      MapIt(Invalid i) : Parent(i), map(NULL) {}
 
-      explicit MapIt(Map& _map) : map(_map) {
-        map.notifier()->first(*this);
+      explicit MapIt(Map& _map) : map(&_map) {
+        map->notifier()->first(*this);
       }
 
       MapIt(const Map& _map, const Item& item)
-        : Parent(item), map(_map) {}
+        : Parent(item), map(&_map) {}
 
       MapIt& operator++() {
-        map.notifier()->next(*this);
+        map->notifier()->next(*this);
         return *this;
       }
 
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-        return map[*this];
+        return (*map)[*this];
       }
 
       typename MapTraits<Map>::ReturnValue operator*() {
-        return map[*this];
+        return (*map)[*this];
       }
 
       void set(const Value& value) {
-        map.set(*this, value);
+        map->set(*this, value);
       }
 
     protected:
-      Map& map;
+      Map* map;
 
     };
 
@@ -120,19 +120,19 @@ namespace lemon {
 
       typedef typename Map::Value Value;
 
-      ConstMapIt() {}
+      ConstMapIt() : map(NULL) {}
 
-      ConstMapIt(Invalid i) : Parent(i) { }
+      ConstMapIt(Invalid i) : Parent(i), map(NULL) {}
 
-      explicit ConstMapIt(Map& _map) : map(_map) {
-        map.notifier()->first(*this);
+      explicit ConstMapIt(Map& _map) : map(&_map) {
+        map->notifier()->first(*this);
       }
 
       ConstMapIt(const Map& _map, const Item& item)
         : Parent(item), map(_map) {}
 
       ConstMapIt& operator++() {
-        map.notifier()->next(*this);
+        map->notifier()->next(*this);
         return *this;
       }
 
@@ -141,7 +141,7 @@ namespace lemon {
       }
 
     protected:
-      const Map& map;
+      const Map* map;
     };
 
     class ItemIt : public Item {
@@ -149,24 +149,24 @@ namespace lemon {
 
       typedef Item Parent;
 
-      ItemIt() {}
+      ItemIt() : map(NULL) {}
 
-      ItemIt(Invalid i) : Parent(i) { }
+      ItemIt(Invalid i) : Parent(i), map(NULL) {}
 
-      explicit ItemIt(Map& _map) : map(_map) {
-        map.notifier()->first(*this);
+      explicit ItemIt(Map& _map) : map(&_map) {
+        map->notifier()->first(*this);
       }
 
       ItemIt(const Map& _map, const Item& item)
-        : Parent(item), map(_map) {}
+        : Parent(item), map(&_map) {}
 
       ItemIt& operator++() {
-        map.notifier()->next(*this);
+        map->notifier()->next(*this);
         return *this;
       }
 
     protected:
-      const Map& map;
+      const Map* map;
 
     };
   };
@@ -224,36 +224,36 @@ namespace lemon {
       typedef Item Parent;
       typedef typename Map::Value Value;
 
-      MapIt() {}
+      MapIt() : map(NULL) {}
 
-      MapIt(Invalid i) : Parent(i) { }
+      MapIt(Invalid i) : Parent(i), map(NULL) { }
 
-      explicit MapIt(Map& _map) : map(_map) {
-        map.graph.first(*this);
+      explicit MapIt(Map& _map) : map(&_map) {
+        map->graph.first(*this);
       }
 
       MapIt(const Map& _map, const Item& item)
-        : Parent(item), map(_map) {}
+        : Parent(item), map(&_map) {}
 
       MapIt& operator++() {
-        map.graph.next(*this);
+        map->graph.next(*this);
         return *this;
       }
 
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-        return map[*this];
+        return (*map)[*this];
       }
 
       typename MapTraits<Map>::ReturnValue operator*() {
-        return map[*this];
+        return (*map)[*this];
       }
 
       void set(const Value& value) {
-        map.set(*this, value);
+        map->set(*this, value);
       }
 
     protected:
-      Map& map;
+      Map* map;
 
     };
 
@@ -264,28 +264,28 @@ namespace lemon {
 
       typedef typename Map::Value Value;
 
-      ConstMapIt() {}
+      ConstMapIt() : map(NULL) {}
 
-      ConstMapIt(Invalid i) : Parent(i) { }
+      ConstMapIt(Invalid i) : Parent(i), map(NULL) { }
 
-      explicit ConstMapIt(Map& _map) : map(_map) {
-        map.graph.first(*this);
+      explicit ConstMapIt(Map& _map) : map(&_map) {
+        map->graph.first(*this);
       }
 
       ConstMapIt(const Map& _map, const Item& item)
-        : Parent(item), map(_map) {}
+        : Parent(item), map(&_map) {}
 
       ConstMapIt& operator++() {
-        map.graph.next(*this);
+        map->graph.next(*this);
         return *this;
       }
 
       typename MapTraits<Map>::ConstReturnValue operator*() const {
-        return map[*this];
+        return (*map)[*this];
       }
 
     protected:
-      const Map& map;
+      const Map* map;
     };
 
     class ItemIt : public Item {
@@ -293,24 +293,24 @@ namespace lemon {
 
       typedef Item Parent;
 
-      ItemIt() {}
+      ItemIt() : map(NULL) {}
 
-      ItemIt(Invalid i) : Parent(i) { }
+      ItemIt(Invalid i) : Parent(i), map(NULL) { }
 
-      explicit ItemIt(Map& _map) : map(_map) {
-        map.graph.first(*this);
+      explicit ItemIt(Map& _map) : map(&_map) {
+        map->graph.first(*this);
       }
 
       ItemIt(const Map& _map, const Item& item)
-        : Parent(item), map(_map) {}
+        : Parent(item), map(&_map) {}
 
       ItemIt& operator++() {
-        map.graph.next(*this);
+        map->graph.next(*this);
         return *this;
       }
 
     protected:
-      const Map& map;
+      const Map* map;
 
     };
 
