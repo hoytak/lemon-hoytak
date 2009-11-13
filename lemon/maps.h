@@ -3764,6 +3764,293 @@ namespace lemon {
     return PotentialDifferenceMap<GR, POT>(gr, potential);
   }
 
+
+  /// \brief Copy the values of a graph map to another map.
+  ///
+  /// This function copies the values of a graph map to another graph map.
+  /// \c To::Key must be equal or convertible to \c From::Key and
+  /// \c From::Value must be equal or convertible to \c To::Value.
+  ///
+  /// For example, an edge map of \c int value type can be copied to
+  /// an arc map of \c double value type in an undirected graph, but
+  /// an arc map cannot be copied to an edge map.
+  /// Note that even a \ref ConstMap can be copied to a standard graph map,
+  /// but \ref mapFill() can also be used for this purpose.
+  ///
+  /// \param gr The graph for which the maps are defined.
+  /// \param from The map from which the values have to be copied.
+  /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
+  /// \param to The map to which the values have to be copied.
+  /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
+  template <typename GR, typename From, typename To>
+  void mapCopy(const GR& gr, const From& from, To& to) {
+    typedef typename To::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+    
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      to.set(it, from[it]);
+    }
+  }
+
+  /// \brief Compare two graph maps.
+  ///
+  /// This function compares the values of two graph maps. It returns 
+  /// \c true if the maps assign the same value for all items in the graph.
+  /// The \c Key type of the maps (\c Node, \c Arc or \c Edge) must be equal
+  /// and their \c Value types must be comparable using \c %operator==().
+  ///
+  /// \param gr The graph for which the maps are defined.
+  /// \param map1 The first map.
+  /// \param map2 The second map.
+  template <typename GR, typename Map1, typename Map2>
+  bool mapCompare(const GR& gr, const Map1& map1, const Map2& map2) {
+    typedef typename Map2::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+    
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (!(map1[it] == map2[it])) return false;
+    }
+    return true;
+  }
+
+  /// \brief Return an item having minimum value of a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// minimum value of the given graph map.
+  /// If the item set is empty, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  template <typename GR, typename Map>
+  typename Map::Key mapMin(const GR& gr, const Map& map) {
+    return mapMin(gr, map, std::less<typename Map::Value>());
+  }
+
+  /// \brief Return an item having minimum value of a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// minimum value of the given graph map.
+  /// If the item set is empty, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param comp Comparison function object.
+  template <typename GR, typename Map, typename Comp>
+  typename Map::Key mapMin(const GR& gr, const Map& map, const Comp& comp) {
+    typedef typename Map::Key Item;
+    typedef typename Map::Value Value;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    ItemIt min_item(gr);
+    if (min_item == INVALID) return INVALID;
+    Value min = map[min_item];
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (comp(map[it], min)) {
+        min = map[it];
+        min_item = it;
+      }
+    }
+    return min_item;
+  }
+
+  /// \brief Return an item having maximum value of a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// maximum value of the given graph map.
+  /// If the item set is empty, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  template <typename GR, typename Map>
+  typename Map::Key mapMax(const GR& gr, const Map& map) {
+    return mapMax(gr, map, std::less<typename Map::Value>());
+  }
+
+  /// \brief Return an item having maximum value of a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// maximum value of the given graph map.
+  /// If the item set is empty, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param comp Comparison function object.
+  template <typename GR, typename Map, typename Comp>
+  typename Map::Key mapMax(const GR& gr, const Map& map, const Comp& comp) {
+    typedef typename Map::Key Item;
+    typedef typename Map::Value Value;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    ItemIt max_item(gr);
+    if (max_item == INVALID) return INVALID;
+    Value max = map[max_item];
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (comp(max, map[it])) {
+        max = map[it];
+        max_item = it;
+      }
+    }
+    return max_item;
+  }
+
+  /// \brief Return the minimum value of a graph map.
+  ///
+  /// This function returns the minimum value of the given graph map.
+  /// The corresponding item set of the graph must not be empty.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  template <typename GR, typename Map>
+  typename Map::Value mapMinValue(const GR& gr, const Map& map) {
+    return map[mapMin(gr, map, std::less<typename Map::Value>())];
+  }
+
+  /// \brief Return the minimum value of a graph map.
+  ///
+  /// This function returns the minimum value of the given graph map.
+  /// The corresponding item set of the graph must not be empty.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param comp Comparison function object.
+  template <typename GR, typename Map, typename Comp>
+  typename Map::Value
+  mapMinValue(const GR& gr, const Map& map, const Comp& comp) {
+    return map[mapMin(gr, map, comp)];
+  }
+
+  /// \brief Return the maximum value of a graph map.
+  ///
+  /// This function returns the maximum value of the given graph map.
+  /// The corresponding item set of the graph must not be empty.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  template <typename GR, typename Map>
+  typename Map::Value mapMaxValue(const GR& gr, const Map& map) {
+    return map[mapMax(gr, map, std::less<typename Map::Value>())];
+  }
+
+  /// \brief Return the maximum value of a graph map.
+  ///
+  /// This function returns the maximum value of the given graph map.
+  /// The corresponding item set of the graph must not be empty.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param comp Comparison function object.
+  template <typename GR, typename Map, typename Comp>
+  typename Map::Value
+  mapMaxValue(const GR& gr, const Map& map, const Comp& comp) {
+    return map[mapMax(gr, map, comp)];
+  }
+
+  /// \brief Return an item having a specified value in a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// the specified assigned value in the given graph map.
+  /// If no such item exists, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param val The value that have to be found.
+  template <typename GR, typename Map>
+  typename Map::Key
+  mapFind(const GR& gr, const Map& map, const typename Map::Value& val) {
+    typedef typename Map::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (map[it] == val) return it;
+    }
+    return INVALID;
+  }
+
+  /// \brief Return an item having value for which a certain predicate is
+  /// true in a graph map.
+  ///
+  /// This function returns an item (\c Node, \c Arc or \c Edge) having
+  /// such assigned value for which the specified predicate is true
+  /// in the given graph map.
+  /// If no such item exists, it returns \c INVALID.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param pred The predicate function object.
+  template <typename GR, typename Map, typename Pred>
+  typename Map::Key
+  mapFindIf(const GR& gr, const Map& map, const Pred& pred) {
+    typedef typename Map::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (pred(map[it])) return it;
+    }
+    return INVALID;
+  }
+
+  /// \brief Return the number of items having a specified value in a
+  /// graph map.
+  ///
+  /// This function returns the number of items (\c Node, \c Arc or \c Edge)
+  /// having the specified assigned value in the given graph map.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param val The value that have to be counted.
+  template <typename GR, typename Map>
+  int mapCount(const GR& gr, const Map& map, const typename Map::Value& val) {
+    typedef typename Map::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    int cnt = 0;
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (map[it] == val) ++cnt;
+    }
+    return cnt;
+  }
+
+  /// \brief Return the number of items having values for which a certain
+  /// predicate is true in a graph map.
+  ///
+  /// This function returns the number of items (\c Node, \c Arc or \c Edge)
+  /// having such assigned values for which the specified predicate is true
+  /// in the given graph map.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map.
+  /// \param pred The predicate function object.
+  template <typename GR, typename Map, typename Pred>
+  int mapCountIf(const GR& gr, const Map& map, const Pred& pred) {
+    typedef typename Map::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    int cnt = 0;
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      if (pred(map[it])) ++cnt;
+    }
+    return cnt;
+  }
+
+  /// \brief Fill a graph map with a certain value.
+  ///
+  /// This function sets the specified value for all items (\c Node,
+  /// \c Arc or \c Edge) in the given graph map.
+  ///
+  /// \param gr The graph for which the map is defined.
+  /// \param map The graph map. It must conform to the
+  /// \ref concepts::WriteMap "WriteMap" concept.
+  /// \param val The value.
+  template <typename GR, typename Map>
+  void mapFill(const GR& gr, Map& map, const typename Map::Value& val) {
+    typedef typename Map::Key Item;
+    typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
+
+    for (ItemIt it(gr); it != INVALID; ++it) {
+      map.set(it, val);
+    }
+  }
+
   /// @}
 }
 
