@@ -107,7 +107,7 @@ namespace lemon {
       /// Iterator class for the nodes.
 
       /// This iterator goes through each node of the digraph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of nodes in a digraph \c g of type \c %Digraph like this:
       ///\code
       /// int count=0;
@@ -196,7 +196,7 @@ namespace lemon {
 
       /// This iterator goes trough the \e outgoing arcs of a certain node
       /// of a digraph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of outgoing arcs of a node \c n
       /// in a digraph \c g of type \c %Digraph as follows.
       ///\code
@@ -241,7 +241,7 @@ namespace lemon {
 
       /// This iterator goes trough the \e incoming arcs of a certain node
       /// of a digraph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of incoming arcs of a node \c n
       /// in a digraph \c g of type \c %Digraph as follows.
       ///\code
@@ -285,7 +285,7 @@ namespace lemon {
       /// Iterator class for the arcs.
 
       /// This iterator goes through each arc of the digraph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of arcs in a digraph \c g of type \c %Digraph as follows:
       ///\code
       /// int count=0;

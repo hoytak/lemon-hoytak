@@ -391,7 +391,7 @@ namespace lemon {
     /// This function changes the target node of the given arc \c a to \c n.
     ///
     ///\note \c ArcIt and \c OutArcIt iterators referencing the changed
-    ///arc remain valid, however \c InArcIt iterators are invalidated.
+    ///arc remain valid, but \c InArcIt iterators are invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
@@ -403,7 +403,7 @@ namespace lemon {
     /// This function changes the source node of the given arc \c a to \c n.
     ///
     ///\note \c InArcIt iterators referencing the changed arc remain
-    ///valid, however \c ArcIt and \c OutArcIt iterators are invalidated.
+    ///valid, but \c ArcIt and \c OutArcIt iterators are invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
@@ -549,7 +549,7 @@ namespace lemon {
     /// \warning Node and arc deletions and other modifications (e.g.
     /// reversing, contracting, splitting arcs or nodes) cannot be
     /// restored. These events invalidate the snapshot.
-    /// However the arcs and nodes that were added to the digraph after
+    /// However, the arcs and nodes that were added to the digraph after
     /// making the current snapshot can be removed without invalidating it.
     class Snapshot {
     protected:
@@ -1267,7 +1267,7 @@ namespace lemon {
     /// This function changes the second node of the given edge \c e to \c n.
     ///
     ///\note \c EdgeIt iterators referencing the changed edge remain
-    ///valid, however \c ArcIt iterators referencing the changed edge and
+    ///valid, but \c ArcIt iterators referencing the changed edge and
     ///all other iterators whose base node is the changed node are also
     ///invalidated.
     ///
@@ -1351,7 +1351,7 @@ namespace lemon {
     /// \warning Node and edge deletions and other modifications
     /// (e.g. changing the end-nodes of edges or contracting nodes)
     /// cannot be restored. These events invalidate the snapshot.
-    /// However the edges and nodes that were added to the graph after
+    /// However, the edges and nodes that were added to the graph after
     /// making the current snapshot can be removed without invalidating it.
     class Snapshot {
     protected:

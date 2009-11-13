@@ -299,7 +299,7 @@ namespace lemon {
     ///
     /// \ref named-templ-param "Named parameter" for setting
     /// \c OperationTraits type.
-    /// For more information see \ref BellmanFordDefaultOperationTraits.
+    /// For more information, see \ref BellmanFordDefaultOperationTraits.
     template <class T>
     struct SetOperationTraits
       : public BellmanFord< Digraph, LengthMap, SetOperationTraitsTraits<T> > {
@@ -717,7 +717,7 @@ namespace lemon {
     /// is not reached from the root(s) or if \c v is a root.
     ///
     /// The shortest path tree used here is equal to the shortest path
-    /// tree used in \ref predNode() and \predMap().
+    /// tree used in \ref predNode() and \ref predMap().
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
@@ -732,7 +732,7 @@ namespace lemon {
     /// is not reached from the root(s) or if \c v is a root.
     ///
     /// The shortest path tree used here is equal to the shortest path
-    /// tree used in \ref predArc() and \predMap().
+    /// tree used in \ref predArc() and \ref predMap().
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.

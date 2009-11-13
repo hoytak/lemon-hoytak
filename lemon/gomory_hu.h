@@ -294,11 +294,9 @@ namespace lemon {
     ///
     /// \pre \ref run() must be called before using this function.
     template <typename CutMap>
-    Value minCutMap(const Node& s, ///< 
+    Value minCutMap(const Node& s,
                     const Node& t,
-                    ///< 
                     CutMap& cutMap
-                    ///< 
                     ) const {
       Node sn = s, tn = t;
       bool s_root=false;
@@ -394,7 +392,7 @@ namespace lemon {
                    /// MinCutNodeIt(gomory, t, s, false);
                    /// \endcode
                    /// does not necessarily give the same set of nodes.
-                   /// However it is ensured that
+                   /// However, it is ensured that
                    /// \code
                    /// MinCutNodeIt(gomory, s, t, true);
                    /// \endcode

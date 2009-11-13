@@ -48,7 +48,7 @@ namespace lemon {
   /// In general this class is the fastest implementation available
   /// in LEMON for the minimum cost flow problem.
   /// Moreover it supports both directions of the supply/demand inequality
-  /// constraints. For more information see \ref SupplyType.
+  /// constraints. For more information, see \ref SupplyType.
   ///
   /// Most of the parameters of the problem (except for the digraph)
   /// can be given using separate functions, and the algorithm can be
@@ -57,16 +57,16 @@ namespace lemon {
   ///
   /// \tparam GR The digraph type the algorithm runs on.
   /// \tparam V The value type used for flow amounts, capacity bounds
-  /// and supply values in the algorithm. By default it is \c int.
+  /// and supply values in the algorithm. By default, it is \c int.
   /// \tparam C The value type used for costs and potentials in the
-  /// algorithm. By default it is the same as \c V.
+  /// algorithm. By default, it is the same as \c V.
   ///
   /// \warning Both value types must be signed and all input data must
   /// be integer.
   ///
   /// \note %NetworkSimplex provides five different pivot rule
   /// implementations, from which the most efficient one is used
-  /// by default. For more information see \ref PivotRule.
+  /// by default. For more information, see \ref PivotRule.
   template <typename GR, typename V = int, typename C = V>
   class NetworkSimplex
   {
@@ -122,35 +122,35 @@ namespace lemon {
     /// \ref NetworkSimplex provides five different pivot rule
     /// implementations that significantly affect the running time
     /// of the algorithm.
-    /// By default \ref BLOCK_SEARCH "Block Search" is used, which
+    /// By default, \ref BLOCK_SEARCH "Block Search" is used, which
     /// proved to be the most efficient and the most robust on various
     /// test inputs according to our benchmark tests.
-    /// However another pivot rule can be selected using the \ref run()
+    /// However, another pivot rule can be selected using the \ref run()
     /// function with the proper parameter.
     enum PivotRule {
 
-      /// The First Eligible pivot rule.
+      /// The \e First \e Eligible pivot rule.
       /// The next eligible arc is selected in a wraparound fashion
       /// in every iteration.
       FIRST_ELIGIBLE,
 
-      /// The Best Eligible pivot rule.
+      /// The \e Best \e Eligible pivot rule.
       /// The best eligible arc is selected in every iteration.
       BEST_ELIGIBLE,
 
-      /// The Block Search pivot rule.
+      /// The \e Block \e Search pivot rule.
       /// A specified number of arcs are examined in every iteration
       /// in a wraparound fashion and the best eligible arc is selected
       /// from this block.
       BLOCK_SEARCH,
 
-      /// The Candidate List pivot rule.
+      /// The \e Candidate \e List pivot rule.
       /// In a major iteration a candidate list is built from eligible arcs
       /// in a wraparound fashion and in the following minor iterations
       /// the best eligible arc is selected from this list.
       CANDIDATE_LIST,
 
-      /// The Altering Candidate List pivot rule.
+      /// The \e Altering \e Candidate \e List pivot rule.
       /// It is a modified version of the Candidate List method.
       /// It keeps only the several best eligible arcs from the former
       /// candidate list and extends this list in every iteration.
@@ -810,7 +810,7 @@ namespace lemon {
     /// If it is not used before calling \ref run(), the \ref GEQ supply
     /// type will be used.
     ///
-    /// For more information see \ref SupplyType.
+    /// For more information, see \ref SupplyType.
     ///
     /// \return <tt>(*this)</tt>
     NetworkSimplex& supplyType(SupplyType supply_type) {
@@ -842,11 +842,11 @@ namespace lemon {
     /// that have been given are kept for the next call, unless
     /// \ref reset() is called, thus only the modified parameters
     /// have to be set again. See \ref reset() for examples.
-    /// However the underlying digraph must not be modified after this
+    /// However, the underlying digraph must not be modified after this
     /// class have been constructed, since it copies and extends the graph.
     ///
     /// \param pivot_rule The pivot rule that will be used during the
-    /// algorithm. For more information see \ref PivotRule.
+    /// algorithm. For more information, see \ref PivotRule.
     ///
     /// \return \c INFEASIBLE if no feasible flow exists,
     /// \n \c OPTIMAL if the problem has optimal solution
@@ -871,7 +871,7 @@ namespace lemon {
     /// It is useful for multiple run() calls. If this function is not
     /// used, all the parameters given before are kept for the next
     /// \ref run() call.
-    /// However the underlying digraph must not be modified after this
+    /// However, the underlying digraph must not be modified after this
     /// class have been constructed, since it copies and extends the graph.
     ///
     /// For example,

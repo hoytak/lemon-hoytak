@@ -140,7 +140,7 @@ namespace lemon {
       /// Iterator class for the nodes.
 
       /// This iterator goes through each node of the graph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of nodes in a graph \c g of type \c %Graph like this:
       ///\code
       /// int count=0;
@@ -228,7 +228,7 @@ namespace lemon {
       /// Iterator class for the edges.
 
       /// This iterator goes through each edge of the graph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of edges in a graph \c g of type \c %Graph as follows:
       ///\code
       /// int count=0;
@@ -272,7 +272,7 @@ namespace lemon {
 
       /// This iterator goes trough the incident undirected edges
       /// of a certain node of a graph.
-      /// Its usage is quite simple, for example you can compute the
+      /// Its usage is quite simple, for example, you can compute the
       /// degree (i.e. the number of incident edges) of a node \c n
       /// in a graph \c g of type \c %Graph as follows.
       ///
@@ -369,7 +369,7 @@ namespace lemon {
       /// Iterator class for the arcs.
 
       /// This iterator goes through each directed arc of the graph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of arcs in a graph \c g of type \c %Graph as follows:
       ///\code
       /// int count=0;
@@ -413,7 +413,7 @@ namespace lemon {
 
       /// This iterator goes trough the \e outgoing directed arcs of a
       /// certain node of a graph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of outgoing arcs of a node \c n
       /// in a graph \c g of type \c %Graph as follows.
       ///\code
@@ -461,7 +461,7 @@ namespace lemon {
 
       /// This iterator goes trough the \e incoming directed arcs of a
       /// certain node of a graph.
-      /// Its usage is quite simple, for example you can count the number
+      /// Its usage is quite simple, for example, you can count the number
       /// of incoming arcs of a node \c n
       /// in a graph \c g of type \c %Graph as follows.
       ///\code
@@ -587,7 +587,7 @@ namespace lemon {
       ///
       /// Returns the first node of the given edge.
       ///
-      /// Edges don't have source and target nodes, however methods
+      /// Edges don't have source and target nodes, however, methods
       /// u() and v() are used to query the two end-nodes of an edge.
       /// The orientation of an edge that arises this way is called
       /// the inherent direction, it is used to define the default
@@ -600,7 +600,7 @@ namespace lemon {
       ///
       /// Returns the second node of the given edge.
       ///
-      /// Edges don't have source and target nodes, however methods
+      /// Edges don't have source and target nodes, however, methods
       /// u() and v() are used to query the two end-nodes of an edge.
       /// The orientation of an edge that arises this way is called
       /// the inherent direction, it is used to define the default

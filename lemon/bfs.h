@@ -63,7 +63,7 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \c ProcessedMap.
 
@@ -852,7 +852,7 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
 

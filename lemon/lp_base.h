@@ -146,7 +146,7 @@ namespace lemon {
 
     ///Iterator for iterate over the columns of an LP problem
 
-    /// Its usage is quite simple, for example you can count the number
+    /// Its usage is quite simple, for example, you can count the number
     /// of columns in an LP \c lp:
     ///\code
     /// int count=0;
@@ -241,7 +241,7 @@ namespace lemon {
 
     ///Iterator for iterate over the rows of an LP problem
 
-    /// Its usage is quite simple, for example you can count the number
+    /// Its usage is quite simple, for example, you can count the number
     /// of rows in an LP \c lp:
     ///\code
     /// int count=0;

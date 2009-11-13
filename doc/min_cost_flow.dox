@@ -78,7 +78,7 @@ the following \e complementary \e slackness optimality conditions hold.
    - if \f$lower(uv)<f(uv)<upper(uv)\f$, then \f$cost^\pi(uv)=0\f$;
    - if \f$cost^\pi(uv)<0\f$, then \f$f(uv)=upper(uv)\f$.
  - For all \f$u\in V\f$ nodes:
-   - \f$\pi(u)<=0\f$;
+   - \f$\pi(u)\leq 0\f$;
    - if \f$\sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \neq sup(u)\f$,
      then \f$\pi(u)=0\f$.
  
@@ -145,7 +145,7 @@ node potentials the following conditions hold.
    - if \f$lower(uv)<f(uv)<upper(uv)\f$, then \f$cost^\pi(uv)=0\f$;
    - if \f$cost^\pi(uv)<0\f$, then \f$f(uv)=upper(uv)\f$.
  - For all \f$u\in V\f$ nodes:
-   - \f$\pi(u)>=0\f$;
+   - \f$\pi(u)\geq 0\f$;
    - if \f$\sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \neq sup(u)\f$,
      then \f$\pi(u)=0\f$.
 

@@ -375,7 +375,7 @@ namespace lemon {
 
     ///This function returns the number of stop() exections that is
     ///necessary to really stop the timer.
-    ///For example the timer
+    ///For example, the timer
     ///is running if and only if the return value is \c true
     ///(i.e. greater than
     ///zero).

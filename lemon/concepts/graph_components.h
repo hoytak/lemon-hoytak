@@ -18,7 +18,7 @@
 
 ///\ingroup graph_concepts
 ///\file
-///\brief The concept of graph components.
+///\brief The concepts of graph components.
 
 #ifndef LEMON_CONCEPTS_GRAPH_COMPONENTS_H
 #define LEMON_CONCEPTS_GRAPH_COMPONENTS_H

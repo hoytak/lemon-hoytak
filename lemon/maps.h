@@ -230,10 +230,10 @@ namespace lemon {
   ///
   /// This map is essentially a wrapper for \c std::vector. It assigns
   /// values to integer keys from the range <tt>[0..size-1]</tt>.
-  /// It can be used with some data structures, for example
-  /// \c UnionFind, \c BinHeap, when the used items are small
+  /// It can be used together with some data structures, e.g.
+  /// heap types and \c UnionFind, when the used items are small
   /// integers. This map conforms to the \ref concepts::ReferenceMap
-  /// "ReferenceMap" concept.
+  /// "ReferenceMap" concept. 
   ///
   /// The simplest way of using this map is through the rangeMap()
   /// function.
@@ -348,9 +348,9 @@ namespace lemon {
   /// keys (i.e. the map is "sparse").
   /// The name of this type also refers to this important usage.
   ///
-  /// Apart form that this map can be used in many other cases since it
+  /// Apart form that, this map can be used in many other cases since it
   /// is based on \c std::map, which is a general associative container.
-  /// However keep in mind that it is usually not as efficient as other
+  /// However, keep in mind that it is usually not as efficient as other
   /// maps.
   ///
   /// The simplest way of using this map is through the sparseMap()
@@ -1785,7 +1785,7 @@ namespace lemon {
   ///
   /// The most important usage of it is storing certain nodes or arcs
   /// that were marked \c true by an algorithm.
-  /// For example it makes easier to store the nodes in the processing
+  /// For example, it makes easier to store the nodes in the processing
   /// order of Dfs algorithm, as the following examples show.
   /// \code
   ///   std::vector<Node> v;
@@ -1800,7 +1800,7 @@ namespace lemon {
   /// for the elements or the iterator should be an inserter iterator.
   ///
   /// \note LoggerBoolMap is just \ref concepts::WriteMap "writable", so
-  /// it cannot be used when a readable map is needed, for example as
+  /// it cannot be used when a readable map is needed, for example, as
   /// \c ReachedMap for \c Bfs, \c Dfs and \c Dijkstra algorithms.
   ///
   /// \relates LoggerBoolMap
@@ -1922,7 +1922,7 @@ namespace lemon {
   /// items with the same value.
   /// Otherwise consider to use \c IterableValueMap, which is more 
   /// suitable and more efficient for such cases. It provides iterators
-  /// to traverse the items with the same associated value, however
+  /// to traverse the items with the same associated value, but
   /// it does not have \c InverseMap.
   ///
   /// This type is not reference map, so it cannot be modified with
@@ -3466,7 +3466,7 @@ namespace lemon {
   /// \warning Besides \c addNode() and \c addArc(), a digraph structure
   /// may provide alternative ways to modify the digraph.
   /// The correct behavior of InDegMap is not guarantied if these additional
-  /// features are used. For example the functions
+  /// features are used. For example, the functions
   /// \ref ListDigraph::changeSource() "changeSource()",
   /// \ref ListDigraph::changeTarget() "changeTarget()" and
   /// \ref ListDigraph::reverseArc() "reverseArc()"
@@ -3596,7 +3596,7 @@ namespace lemon {
   /// \warning Besides \c addNode() and \c addArc(), a digraph structure
   /// may provide alternative ways to modify the digraph.
   /// The correct behavior of OutDegMap is not guarantied if these additional
-  /// features are used. For example the functions
+  /// features are used. For example, the functions
   /// \ref ListDigraph::changeSource() "changeSource()",
   /// \ref ListDigraph::changeTarget() "changeTarget()" and
   /// \ref ListDigraph::reverseArc() "reverseArc()"

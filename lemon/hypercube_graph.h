@@ -287,7 +287,7 @@ namespace lemon {
   /// Two nodes are connected in the graph if and only if their indices
   /// differ only on one position in the binary form.
   /// This class is completely static and it needs constant memory space.
-  /// Thus you can neither add nor delete nodes or edges, however 
+  /// Thus you can neither add nor delete nodes or edges, however,
   /// the structure can be resized using resize().
   ///
   /// This type fully conforms to the \ref concepts::Graph "Graph concept".
