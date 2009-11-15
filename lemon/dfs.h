@@ -633,12 +633,8 @@ namespace lemon {
 
     ///Runs the algorithm to visit all nodes in the digraph.
 
-    ///This method runs the %DFS algorithm in order to compute the
-    ///%DFS path to each node.
-    ///
-    ///The algorithm computes
-    ///- the %DFS tree (forest),
-    ///- the distance of each node from the root(s) in the %DFS tree.
+    ///This method runs the %DFS algorithm in order to visit all nodes
+    ///in the digraph.
     ///
     ///\note <tt>d.run()</tt> is just a shortcut of the following code.
     ///\code
@@ -976,8 +972,8 @@ namespace lemon {
 
     ///Runs DFS algorithm to visit all nodes in the digraph.
 
-    ///This method runs DFS algorithm in order to compute
-    ///the DFS path to each node.
+    ///This method runs DFS algorithm in order to visit all nodes
+    ///in the digraph.
     void run()
     {
       run(INVALID);
@@ -1578,12 +1574,8 @@ namespace lemon {
 
     /// \brief Runs the algorithm to visit all nodes in the digraph.
 
-    /// This method runs the %DFS algorithm in order to
-    /// compute the %DFS path to each node.
-    ///
-    /// The algorithm computes
-    /// - the %DFS tree (forest),
-    /// - the distance of each node from the root(s) in the %DFS tree.
+    /// This method runs the %DFS algorithm in order to visit all nodes
+    /// in the digraph.
     ///
     /// \note <tt>d.run()</tt> is just a shortcut of the following code.
     ///\code

@@ -255,13 +255,14 @@ namespace lemon {
   /// that node can be removed from the underlying graph, in this case
   /// all arcs incident to the given node is erased from the arc set.
   ///
+  /// This class fully conforms to the \ref concepts::Digraph
+  /// "Digraph" concept.
+  /// It provides only linear time counting for nodes and arcs.
+  ///
   /// \param GR The type of the graph which shares its node set with
   /// this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
   /// concept.
-  ///
-  /// This class fully conforms to the \ref concepts::Digraph
-  /// "Digraph" concept.
   template <typename GR>
   class ListArcSet : public ArcSetExtender<ListArcSetBase<GR> > {
     typedef ArcSetExtender<ListArcSetBase<GR> > Parent;
@@ -685,12 +686,13 @@ namespace lemon {
   /// be removed from the underlying graph, in this case all edges
   /// incident to the given node is erased from the arc set.
   ///
+  /// This class fully conforms to the \ref concepts::Graph "Graph"
+  /// concept.
+  /// It provides only linear time counting for nodes, edges and arcs.
+  ///
   /// \param GR The type of the graph which shares its node set
   /// with this class. Its interface must conform to the
   /// \ref concepts::Digraph "Digraph" or \ref concepts::Graph "Graph"
-  /// concept.
-  ///
-  /// This class fully conforms to the \ref concepts::Graph "Graph"
   /// concept.
   template <typename GR>
   class ListEdgeSet : public EdgeSetExtender<ListEdgeSetBase<GR> > {
@@ -954,13 +956,14 @@ namespace lemon {
   /// single-linked lists for enumerate outgoing and incoming
   /// arcs. Therefore the arcs cannot be erased from the arc sets.
   ///
+  /// This class fully conforms to the \ref concepts::Digraph "Digraph"
+  /// concept.
+  /// It provides only linear time counting for nodes and arcs.
+  ///
   /// \warning If a node is erased from the underlying graph and this
   /// node is the source or target of one arc in the arc set, then
   /// the arc set is invalidated, and it cannot be used anymore. The
   /// validity can be checked with the \c valid() member function.
-  ///
-  /// This class fully conforms to the \ref concepts::Digraph
-  /// "Digraph" concept.
   template <typename GR>
   class SmartArcSet : public ArcSetExtender<SmartArcSetBase<GR> > {
     typedef ArcSetExtender<SmartArcSetBase<GR> > Parent;
@@ -1304,13 +1307,14 @@ namespace lemon {
   /// single-linked lists for enumerate incident edges. Therefore the
   /// edges cannot be erased from the edge sets.
   ///
+  /// This class fully conforms to the \ref concepts::Graph "Graph"
+  /// concept.
+  /// It provides only linear time counting for nodes, edges and arcs.
+  ///
   /// \warning If a node is erased from the underlying graph and this
   /// node is incident to one edge in the edge set, then the edge set
   /// is invalidated, and it cannot be used anymore. The validity can
   /// be checked with the \c valid() member function.
-  ///
-  /// This class fully conforms to the \ref concepts::Graph
-  /// "Graph" concept.
   template <typename GR>
   class SmartEdgeSet : public EdgeSetExtender<SmartEdgeSetBase<GR> > {
     typedef EdgeSetExtender<SmartEdgeSetBase<GR> > Parent;

@@ -206,7 +206,7 @@ namespace lemon {
     typedef typename TR::Digraph Digraph;
 
     ///The type of the arc lengths.
-    typedef typename TR::LengthMap::Value Value;
+    typedef typename TR::Value Value;
     ///The type of the map that stores the arc lengths.
     typedef typename TR::LengthMap LengthMap;
     ///\brief The type of the map that stores the predecessor arcs of the

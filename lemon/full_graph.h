@@ -162,6 +162,8 @@ namespace lemon {
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
   ///
+  /// This class provides constant time counting for nodes and arcs.
+  ///
   /// \note FullDigraph and FullGraph classes are very similar,
   /// but there are two differences. While this class conforms only
   /// to the \ref concepts::Digraph "Digraph" concept, FullGraph
@@ -204,6 +206,7 @@ namespace lemon {
     /// Returns the node with the given index. Since this structure is 
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
+    /// The index of a node is the same as its ID.
     /// \sa index()
     Node operator()(int ix) const { return Parent::operator()(ix); }
 
@@ -212,6 +215,7 @@ namespace lemon {
     /// Returns the index of the given node. Since this structure is 
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
+    /// The index of a node is the same as its ID.
     /// \sa operator()()
     static int index(const Node& node) { return Parent::index(node); }
 
@@ -535,6 +539,8 @@ namespace lemon {
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
   ///
+  /// This class provides constant time counting for nodes, edges and arcs.
+  ///
   /// \note FullDigraph and FullGraph classes are very similar,
   /// but there are two differences. While FullDigraph
   /// conforms only to the \ref concepts::Digraph "Digraph" concept,
@@ -579,6 +585,7 @@ namespace lemon {
     /// Returns the node with the given index. Since this structure is 
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
+    /// The index of a node is the same as its ID.
     /// \sa index()
     Node operator()(int ix) const { return Parent::operator()(ix); }
 
@@ -587,6 +594,7 @@ namespace lemon {
     /// Returns the index of the given node. Since this structure is 
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
+    /// The index of a node is the same as its ID.
     /// \sa operator()()
     static int index(const Node& node) { return Parent::index(node); }
 

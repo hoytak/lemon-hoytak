@@ -294,6 +294,8 @@ namespace lemon {
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
   ///
+  /// This class provides constant time counting for nodes, edges and arcs.
+  ///
   /// \note The type of the indices is chosen to \c int for efficiency
   /// reasons. Thus the maximum dimension of this implementation is 26
   /// (assuming that the size of \c int is 32 bit).

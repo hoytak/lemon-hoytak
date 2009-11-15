@@ -701,12 +701,8 @@ namespace lemon {
 
     ///Runs the algorithm to visit all nodes in the digraph.
 
-    ///This method runs the %BFS algorithm in order to
-    ///compute the shortest path to each node.
-    ///
-    ///The algorithm computes
-    ///- the shortest path tree (forest),
-    ///- the distance of each node from the root(s).
+    ///This method runs the %BFS algorithm in order to visit all nodes
+    ///in the digraph.
     ///
     ///\note <tt>b.run(s)</tt> is just a shortcut of the following code.
     ///\code
@@ -1046,8 +1042,8 @@ namespace lemon {
 
     ///Runs BFS algorithm to visit all nodes in the digraph.
 
-    ///This method runs BFS algorithm in order to compute
-    ///the shortest path to each node.
+    ///This method runs BFS algorithm in order to visit all nodes
+    ///in the digraph.
     void run()
     {
       run(INVALID);
@@ -1695,12 +1691,8 @@ namespace lemon {
 
     /// \brief Runs the algorithm to visit all nodes in the digraph.
     ///
-    /// This method runs the %BFS algorithm in order to
-    /// compute the shortest path to each node.
-    ///
-    /// The algorithm computes
-    /// - the shortest path tree (forest),
-    /// - the distance of each node from the root(s).
+    /// This method runs the %BFS algorithm in order to visit all nodes
+    /// in the digraph.
     ///
     /// \note <tt>b.run(s)</tt> is just a shortcut of the following code.
     ///\code

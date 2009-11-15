@@ -503,6 +503,8 @@ namespace lemon {
   /// This type fully conforms to the \ref concepts::Graph "Graph concept".
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
+  ///
+  /// This class provides constant time counting for nodes, edges and arcs.
   class GridGraph : public ExtendedGridGraphBase {
     typedef ExtendedGridGraphBase Parent;
 

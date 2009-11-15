@@ -292,6 +292,8 @@ namespace lemon {
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
   ///
+  /// This class provides constant time counting for nodes and arcs.
+  ///
   /// \sa concepts::Digraph
   class StaticDigraph : public ExtendedStaticDigraphBase {
   public:

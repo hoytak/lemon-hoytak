@@ -194,6 +194,8 @@ namespace lemon {
   ///Most of its member functions and nested classes are documented
   ///only in the concept class.
   ///
+  ///This class provides constant time counting for nodes and arcs.
+  ///
   ///\sa concepts::Digraph
   ///\sa SmartGraph
   class SmartDigraph : public ExtendedSmartDigraphBase {
@@ -619,6 +621,8 @@ namespace lemon {
   /// and it also provides some additional functionalities.
   /// Most of its member functions and nested classes are documented
   /// only in the concept class.
+  ///
+  /// This class provides constant time counting for nodes, edges and arcs.
   ///
   /// \sa concepts::Graph
   /// \sa SmartDigraph

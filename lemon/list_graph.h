@@ -324,6 +324,8 @@ namespace lemon {
   ///Most of its member functions and nested classes are documented
   ///only in the concept class.
   ///
+  ///This class provides only linear time counting for nodes and arcs.
+  ///
   ///\sa concepts::Digraph
   ///\sa ListGraph
   class ListDigraph : public ExtendedListDigraphBase {
@@ -360,12 +362,19 @@ namespace lemon {
 
     ///\brief Erase a node from the digraph.
     ///
-    ///This function erases the given node from the digraph.
+    ///This function erases the given node along with its outgoing and
+    ///incoming arcs from the digraph.
+    ///
+    ///\note All iterators referencing the removed node or the connected
+    ///arcs are invalidated, of course.
     void erase(Node n) { Parent::erase(n); }
 
     ///\brief Erase an arc from the digraph.
     ///
     ///This function erases the given arc from the digraph.
+    ///
+    ///\note All iterators referencing the removed arc are invalidated,
+    ///of course.
     void erase(Arc a) { Parent::erase(a); }
 
     /// Node validity check
@@ -510,6 +519,7 @@ namespace lemon {
 
     ///This function erases all nodes and arcs from the digraph.
     ///
+    ///\note All iterators of the digraph are invalidated, of course.
     void clear() {
       Parent::clear();
     }
@@ -1179,6 +1189,8 @@ namespace lemon {
   ///Most of its member functions and nested classes are documented
   ///only in the concept class.
   ///
+  ///This class provides only linear time counting for nodes, edges and arcs.
+  ///
   ///\sa concepts::Graph
   ///\sa ListDigraph
   class ListGraph : public ExtendedListGraphBase {
@@ -1217,12 +1229,19 @@ namespace lemon {
 
     ///\brief Erase a node from the graph.
     ///
-    /// This function erases the given node from the graph.
+    /// This function erases the given node along with its incident arcs
+    /// from the graph.
+    ///
+    /// \note All iterators referencing the removed node or the incident
+    /// edges are invalidated, of course.
     void erase(Node n) { Parent::erase(n); }
 
     ///\brief Erase an edge from the graph.
     ///
     /// This function erases the given edge from the graph.
+    ///
+    /// \note All iterators referencing the removed edge are invalidated,
+    /// of course.
     void erase(Edge e) { Parent::erase(e); }
     /// Node validity check
 
@@ -1312,6 +1331,7 @@ namespace lemon {
 
     ///This function erases all nodes and arcs from the graph.
     ///
+    ///\note All iterators of the graph are invalidated, of course.
     void clear() {
       Parent::clear();
     }
