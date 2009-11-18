@@ -44,6 +44,7 @@ include lemon/Makefile.am
 include test/Makefile.am
 include doc/Makefile.am
 include tools/Makefile.am
+include scripts/Makefile.am
 
 DIST_SUBDIRS = demo
 

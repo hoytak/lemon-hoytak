@@ -1,3 +1,7 @@
+if USE_VALGRIND
+TESTS_ENVIRONMENT=$(top_srcdir)/scripts/valgrind-wrapper.sh
+endif
+
 EXTRA_DIST += \
 	test/CMakeLists.txt
 
