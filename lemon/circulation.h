@@ -306,7 +306,7 @@ template< typename GR,
     /// The Elevator should have standard constructor interface to be
     /// able to automatically created by the algorithm (i.e. the
     /// digraph and the maximum level should be passed to it).
-    /// However an external elevator object could also be passed to the
+    /// However, an external elevator object could also be passed to the
     /// algorithm with the \ref elevator(Elevator&) "elevator()" function
     /// before calling \ref run() or \ref init().
     /// \sa SetElevator

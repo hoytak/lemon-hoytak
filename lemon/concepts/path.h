@@ -18,7 +18,7 @@
 
 ///\ingroup concept
 ///\file
-///\brief Classes for representing paths in digraphs.
+///\brief The concept of paths
 ///
 
 #ifndef LEMON_CONCEPTS_PATH_H
@@ -38,13 +38,22 @@ namespace lemon {
     ///
     /// A skeleton structure for representing directed paths in a
     /// digraph.
+    /// In a sense, a path can be treated as a list of arcs.
+    /// LEMON path types just store this list. As a consequence, they cannot
+    /// enumerate the nodes on the path directly and a zero length path
+    /// cannot store its source node.
+    ///
+    /// The arcs of a path should be stored in the order of their directions,
+    /// i.e. the target node of each arc should be the same as the source
+    /// node of the next arc. This consistency could be checked using
+    /// \ref checkPath().
+    /// The source and target nodes of a (consistent) path can be obtained
+    /// using \ref pathSource() and \ref pathTarget().
+    ///
+    /// A path can be constructed from another path of any type using the
+    /// copy constructor or the assignment operator.
+    ///
     /// \tparam GR The digraph type in which the path is.
-    ///
-    /// In a sense, the path can be treated as a list of arcs. The
-    /// lemon path type stores just this list. As a consequence it
-    /// cannot enumerate the nodes in the path and the zero length
-    /// paths cannot store the source.
-    ///
     template <typename GR>
     class Path {
     public:
@@ -59,18 +68,18 @@ namespace lemon {
       /// \brief Default constructor
       Path() {}
 
-      /// \brief Template constructor
+      /// \brief Template copy constructor
       template <typename CPath>
       Path(const CPath& cpath) {}
 
-      /// \brief Template assigment
+      /// \brief Template assigment operator
       template <typename CPath>
       Path& operator=(const CPath& cpath) {
         ignore_unused_variable_warning(cpath);
         return *this;
       }
 
-      /// Length of the path ie. the number of arcs in the path.
+      /// Length of the path, i.e. the number of arcs on the path.
       int length() const { return 0;}
 
       /// Returns whether the path is empty.
@@ -79,19 +88,19 @@ namespace lemon {
       /// Resets the path to an empty path.
       void clear() {}
 
-      /// \brief LEMON style iterator for path arcs
+      /// \brief LEMON style iterator for enumerating the arcs of a path.
       ///
-      /// This class is used to iterate on the arcs of the paths.
+      /// LEMON style iterator class for enumerating the arcs of a path.
       class ArcIt {
       public:
         /// Default constructor
         ArcIt() {}
         /// Invalid constructor
         ArcIt(Invalid) {}
-        /// Constructor for first arc
+        /// Sets the iterator to the first arc of the given path
         ArcIt(const Path &) {}
 
-        /// Conversion to Arc
+        /// Conversion to \c Arc
         operator Arc() const { return INVALID; }
 
         /// Next arc
@@ -192,24 +201,18 @@ namespace lemon {
     /// \brief A skeleton structure for path dumpers.
     ///
     /// A skeleton structure for path dumpers. The path dumpers are
-    /// the generalization of the paths. The path dumpers can
-    /// enumerate the arcs of the path wheter in forward or in
-    /// backward order.  In most time these classes are not used
-    /// directly rather it used to assign a dumped class to a real
-    /// path type.
+    /// the generalization of the paths, they can enumerate the arcs
+    /// of the path either in forward or in backward order.
+    /// These classes are typically not used directly, they are rather
+    /// used to be assigned to a real path type.
     ///
     /// The main purpose of this concept is that the shortest path
-    /// algorithms can enumerate easily the arcs in reverse order.
-    /// If we would like to give back a real path from these
-    /// algorithms then we should create a temporarly path object. In
-    /// LEMON such algorithms gives back a path dumper what can
-    /// assigned to a real path and the dumpers can be implemented as
+    /// algorithms can enumerate the arcs easily in reverse order.
+    /// In LEMON, such algorithms give back a (reverse) path dumper that
+    /// can be assigned to a real path. The dumpers can be implemented as
     /// an adaptor class to the predecessor map.
     ///
     /// \tparam GR The digraph type in which the path is.
-    ///
-    /// The paths can be constructed from any path type by a
-    /// template constructor or a template assignment operator.
     template <typename GR>
     class PathDumper {
     public:
@@ -219,7 +222,7 @@ namespace lemon {
       /// Arc type of the underlying digraph.
       typedef typename Digraph::Arc Arc;
 
-      /// Length of the path ie. the number of arcs in the path.
+      /// Length of the path, i.e. the number of arcs on the path.
       int length() const { return 0;}
 
       /// Returns whether the path is empty.
@@ -227,25 +230,24 @@ namespace lemon {
 
       /// \brief Forward or reverse dumping
       ///
-      /// If the RevPathTag is defined and true then reverse dumping
-      /// is provided in the path dumper. In this case instead of the
-      /// ArcIt the RevArcIt iterator should be implemented in the
-      /// dumper.
+      /// If this tag is defined to be \c True, then reverse dumping
+      /// is provided in the path dumper. In this case, \c RevArcIt
+      /// iterator should be implemented instead of \c ArcIt iterator.
       typedef False RevPathTag;
 
-      /// \brief LEMON style iterator for path arcs
+      /// \brief LEMON style iterator for enumerating the arcs of a path.
       ///
-      /// This class is used to iterate on the arcs of the paths.
+      /// LEMON style iterator class for enumerating the arcs of a path.
       class ArcIt {
       public:
         /// Default constructor
         ArcIt() {}
         /// Invalid constructor
         ArcIt(Invalid) {}
-        /// Constructor for first arc
+        /// Sets the iterator to the first arc of the given path
         ArcIt(const PathDumper&) {}
 
-        /// Conversion to Arc
+        /// Conversion to \c Arc
         operator Arc() const { return INVALID; }
 
         /// Next arc
@@ -260,20 +262,21 @@ namespace lemon {
 
       };
 
-      /// \brief LEMON style iterator for path arcs
+      /// \brief LEMON style iterator for enumerating the arcs of a path
+      /// in reverse direction.
       ///
-      /// This class is used to iterate on the arcs of the paths in
-      /// reverse direction.
+      /// LEMON style iterator class for enumerating the arcs of a path
+      /// in reverse direction.
       class RevArcIt {
       public:
         /// Default constructor
         RevArcIt() {}
         /// Invalid constructor
         RevArcIt(Invalid) {}
-        /// Constructor for first arc
+        /// Sets the iterator to the last arc of the given path
         RevArcIt(const PathDumper &) {}
 
-        /// Conversion to Arc
+        /// Conversion to \c Arc
         operator Arc() const { return INVALID; }
 
         /// Next arc

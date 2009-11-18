@@ -132,7 +132,7 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \c ProcessedMap.
 
@@ -426,7 +426,7 @@ namespace lemon {
     ///automatically created by the algorithm (i.e. the digraph should be
     ///passed to the constructor of the cross reference and the cross
     ///reference should be passed to the constructor of the heap).
-    ///However external heap and cross reference objects could also be
+    ///However, external heap and cross reference objects could also be
     ///passed to the algorithm using the \ref heap() function before
     ///calling \ref run(Node) "run()" or \ref init().
     ///\sa SetHeap
@@ -447,7 +447,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c OperationTraits type.
-    /// For more information see \ref DijkstraDefaultOperationTraits.
+    /// For more information, see \ref DijkstraDefaultOperationTraits.
     template <class T>
     struct SetOperationTraits
       : public Dijkstra<Digraph, LengthMap, SetOperationTraitsTraits<T> > {
@@ -996,7 +996,7 @@ namespace lemon {
 
     ///The type of the map that indicates which nodes are processed.
     ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
 
