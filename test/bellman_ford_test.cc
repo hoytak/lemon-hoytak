@@ -65,7 +65,7 @@ void checkBellmanFordCompile()
   Node s, t, n;
   Arc e;
   Value l;
-  int k;
+  int k=3;
   bool b;
   BF::DistMap d(gr);
   BF::PredMap p(gr);
