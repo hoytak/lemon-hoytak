@@ -102,6 +102,13 @@ fi
 
 cxx_flags="CXXFLAGS=-ggdb$opt_flags$werror_flags"
 
+if yesorno "Check with valgrind" "n" 
+then
+    valgrind_flags=' --enable-valgrind'
+else
+    valgrind_flags=''
+fi
+
 if [ -f ${COIN_OR_PREFIX}/include/coin/config_coinutils.h ]; then
     if yesorno "Use COIN-OR (CBC/CLP)" "n"
     then
@@ -128,6 +135,7 @@ if [ "x$AUTORE" == "xyes" ]; then
     autoreconf -vif;
 fi
 ${CONFIGURE_PATH}/configure --prefix=$LEMON_INSTALL_PREFIX \
+$valgrind_flags \
 "$cxx_flags" \
 $coin_flag \
 $soplex_flag \
