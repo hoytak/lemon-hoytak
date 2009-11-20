@@ -598,7 +598,9 @@ namespace lemon {
             }
           }
           level[u] = Pair(i, j);
-          u = _gr.source(_data[u][j].pred);
+          if (j != 0) {
+	    u = _gr.source(_data[u][j].pred);
+	  }
         }
       }
 
