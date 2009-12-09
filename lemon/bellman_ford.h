@@ -23,6 +23,7 @@
 /// \file
 /// \brief Bellman-Ford algorithm.
 
+#include <lemon/list_graph.h>
 #include <lemon/bits/path_dump.h>
 #include <lemon/core.h>
 #include <lemon/error.h>
@@ -299,7 +300,7 @@ namespace lemon {
     ///
     /// \ref named-templ-param "Named parameter" for setting
     /// \c OperationTraits type.
-    /// For more information see \ref BellmanFordDefaultOperationTraits.
+    /// For more information, see \ref BellmanFordDefaultOperationTraits.
     template <class T>
     struct SetOperationTraits
       : public BellmanFord< Digraph, LengthMap, SetOperationTraitsTraits<T> > {
@@ -717,7 +718,7 @@ namespace lemon {
     /// is not reached from the root(s) or if \c v is a root.
     ///
     /// The shortest path tree used here is equal to the shortest path
-    /// tree used in \ref predNode() and \predMap().
+    /// tree used in \ref predNode() and \ref predMap().
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
@@ -732,7 +733,7 @@ namespace lemon {
     /// is not reached from the root(s) or if \c v is a root.
     ///
     /// The shortest path tree used here is equal to the shortest path
-    /// tree used in \ref predArc() and \predMap().
+    /// tree used in \ref predArc() and \ref predMap().
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
@@ -775,7 +776,7 @@ namespace lemon {
     /// This function gives back a directed cycle with negative total
     /// length if the algorithm has already found one.
     /// Otherwise it gives back an empty path.
-    lemon::Path<Digraph> negativeCycle() {
+    lemon::Path<Digraph> negativeCycle() const {
       typename Digraph::template NodeMap<int> state(*_gr, -1);
       lemon::Path<Digraph> cycle;
       for (int i = 0; i < int(_process.size()); ++i) {

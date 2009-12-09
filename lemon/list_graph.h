@@ -21,7 +21,7 @@
 
 ///\ingroup graphs
 ///\file
-///\brief ListDigraph, ListGraph classes.
+///\brief ListDigraph and ListGraph classes.
 
 #include <lemon/core.h>
 #include <lemon/error.h>
@@ -31,6 +31,8 @@
 #include <list>
 
 namespace lemon {
+
+  class ListDigraph;
 
   class ListDigraphBase {
 
@@ -62,6 +64,7 @@ namespace lemon {
 
     class Node {
       friend class ListDigraphBase;
+      friend class ListDigraph;
     protected:
 
       int id;
@@ -77,6 +80,7 @@ namespace lemon {
 
     class Arc {
       friend class ListDigraphBase;
+      friend class ListDigraph;
     protected:
 
       int id;
@@ -116,20 +120,20 @@ namespace lemon {
     void first(Arc& arc) const {
       int n;
       for(n = first_node;
-          n!=-1 && nodes[n].first_in == -1;
+          n != -1 && nodes[n].first_out == -1;
           n = nodes[n].next) {}
-      arc.id = (n == -1) ? -1 : nodes[n].first_in;
+      arc.id = (n == -1) ? -1 : nodes[n].first_out;
     }
 
     void next(Arc& arc) const {
-      if (arcs[arc.id].next_in != -1) {
-        arc.id = arcs[arc.id].next_in;
+      if (arcs[arc.id].next_out != -1) {
+        arc.id = arcs[arc.id].next_out;
       } else {
         int n;
-        for(n = nodes[arcs[arc.id].target].next;
-            n!=-1 && nodes[n].first_in == -1;
+        for(n = nodes[arcs[arc.id].source].next;
+            n != -1 && nodes[n].first_out == -1;
             n = nodes[n].next) {}
-        arc.id = (n == -1) ? -1 : nodes[n].first_in;
+        arc.id = (n == -1) ? -1 : nodes[n].first_out;
       }
     }
 
@@ -311,31 +315,27 @@ namespace lemon {
 
   ///A general directed graph structure.
 
-  ///\ref ListDigraph is a simple and fast <em>directed graph</em>
-  ///implementation based on static linked lists that are stored in
+  ///\ref ListDigraph is a versatile and fast directed graph
+  ///implementation based on linked lists that are stored in
   ///\c std::vector structures.
   ///
-  ///It conforms to the \ref concepts::Digraph "Digraph concept" and it
-  ///also provides several useful additional functionalities.
-  ///Most of the member functions and nested classes are documented
+  ///This type fully conforms to the \ref concepts::Digraph "Digraph concept"
+  ///and it also provides several useful additional functionalities.
+  ///Most of its member functions and nested classes are documented
   ///only in the concept class.
   ///
+  ///This class provides only linear time counting for nodes and arcs.
+  ///
   ///\sa concepts::Digraph
-
+  ///\sa ListGraph
   class ListDigraph : public ExtendedListDigraphBase {
     typedef ExtendedListDigraphBase Parent;
 
   private:
-    ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
-
-    ///ListDigraph is \e not copy constructible. Use copyDigraph() instead.
-    ///
+    /// Digraphs are \e not copy constructible. Use DigraphCopy instead.
     ListDigraph(const ListDigraph &) :ExtendedListDigraphBase() {};
-    ///\brief Assignment of ListDigraph to another one is \e not allowed.
-    ///Use copyDigraph() instead.
-
-    ///Assignment of ListDigraph to another one is \e not allowed.
-    ///Use copyDigraph() instead.
+    /// \brief Assignment of a digraph to another one is \e not allowed.
+    /// Use DigraphCopy instead.
     void operator=(const ListDigraph &) {}
   public:
 
@@ -347,71 +347,72 @@ namespace lemon {
 
     ///Add a new node to the digraph.
 
-    ///Add a new node to the digraph.
+    ///This function adds a new node to the digraph.
     ///\return The new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new arc to the digraph.
 
-    ///Add a new arc to the digraph with source node \c s
+    ///This function adds a new arc to the digraph with source node \c s
     ///and target node \c t.
     ///\return The new arc.
-    Arc addArc(const Node& s, const Node& t) {
+    Arc addArc(Node s, Node t) {
       return Parent::addArc(s, t);
     }
 
     ///\brief Erase a node from the digraph.
     ///
-    ///Erase a node from the digraph.
+    ///This function erases the given node along with its outgoing and
+    ///incoming arcs from the digraph.
     ///
-    void erase(const Node& n) { Parent::erase(n); }
+    ///\note All iterators referencing the removed node or the connected
+    ///arcs are invalidated, of course.
+    void erase(Node n) { Parent::erase(n); }
 
     ///\brief Erase an arc from the digraph.
     ///
-    ///Erase an arc from the digraph.
+    ///This function erases the given arc from the digraph.
     ///
-    void erase(const Arc& a) { Parent::erase(a); }
+    ///\note All iterators referencing the removed arc are invalidated,
+    ///of course.
+    void erase(Arc a) { Parent::erase(a); }
 
     /// Node validity check
 
-    /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.
+    /// This function gives back \c true if the given node is valid,
+    /// i.e. it is a real node of the digraph.
     ///
-    /// \warning A Node pointing to a removed item
-    /// could become valid again later if new nodes are
-    /// added to the graph.
+    /// \warning A removed node could become valid again if new nodes are
+    /// added to the digraph.
     bool valid(Node n) const { return Parent::valid(n); }
 
     /// Arc validity check
 
-    /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.
+    /// This function gives back \c true if the given arc is valid,
+    /// i.e. it is a real arc of the digraph.
     ///
-    /// \warning An Arc pointing to a removed item
-    /// could become valid again later if new nodes are
-    /// added to the graph.
+    /// \warning A removed arc could become valid again if new arcs are
+    /// added to the digraph.
     bool valid(Arc a) const { return Parent::valid(a); }
 
-    /// Change the target of \c a to \c n
+    /// Change the target node of an arc
 
-    /// Change the target of \c a to \c n
+    /// This function changes the target node of the given arc \c a to \c n.
     ///
-    ///\note The <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s referencing
-    ///the changed arc remain valid. However <tt>InArcIt</tt>s are
-    ///invalidated.
+    ///\note \c ArcIt and \c OutArcIt iterators referencing the changed
+    ///arc remain valid, but \c InArcIt iterators are invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     void changeTarget(Arc a, Node n) {
       Parent::changeTarget(a,n);
     }
-    /// Change the source of \c a to \c n
+    /// Change the source node of an arc
 
-    /// Change the source of \c a to \c n
+    /// This function changes the source node of the given arc \c a to \c n.
     ///
-    ///\note The <tt>InArcIt</tt>s referencing the changed arc remain
-    ///valid. However the <tt>ArcIt</tt>s and <tt>OutArcIt</tt>s are
-    ///invalidated.
+    ///\note \c InArcIt iterators referencing the changed arc remain
+    ///valid, but \c ArcIt and \c OutArcIt iterators are invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
@@ -419,94 +420,76 @@ namespace lemon {
       Parent::changeSource(a,n);
     }
 
-    /// Invert the direction of an arc.
+    /// Reverse the direction of an arc.
 
-    ///\note The <tt>ArcIt</tt>s referencing the changed arc remain
-    ///valid. However <tt>OutArcIt</tt>s and <tt>InArcIt</tt>s are
-    ///invalidated.
+    /// This function reverses the direction of the given arc.
+    ///\note \c ArcIt, \c OutArcIt and \c InArcIt iterators referencing
+    ///the changed arc are invalidated.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void reverseArc(Arc e) {
-      Node t=target(e);
-      changeTarget(e,source(e));
-      changeSource(e,t);
+    void reverseArc(Arc a) {
+      Node t=target(a);
+      changeTarget(a,source(a));
+      changeSource(a,t);
     }
-
-    /// Reserve memory for nodes.
-
-    /// Using this function it is possible to avoid the superfluous memory
-    /// allocation: if you know that the digraph you want to build will
-    /// be very large (e.g. it will contain millions of nodes and/or arcs)
-    /// then it is worth reserving space for this amount before starting
-    /// to build the digraph.
-    /// \sa reserveArc
-    void reserveNode(int n) { nodes.reserve(n); };
-
-    /// Reserve memory for arcs.
-
-    /// Using this function it is possible to avoid the superfluous memory
-    /// allocation: if you know that the digraph you want to build will
-    /// be very large (e.g. it will contain millions of nodes and/or arcs)
-    /// then it is worth reserving space for this amount before starting
-    /// to build the digraph.
-    /// \sa reserveNode
-    void reserveArc(int m) { arcs.reserve(m); };
 
     ///Contract two nodes.
 
-    ///This function contracts two nodes.
-    ///Node \p b will be removed but instead of deleting
-    ///incident arcs, they will be joined to \p a.
-    ///The last parameter \p r controls whether to remove loops. \c true
-    ///means that loops will be removed.
+    ///This function contracts the given two nodes.
+    ///Node \c v is removed, but instead of deleting its
+    ///incident arcs, they are joined to node \c u.
+    ///If the last parameter \c r is \c true (this is the default value),
+    ///then the newly created loops are removed.
     ///
-    ///\note The <tt>ArcIt</tt>s referencing a moved arc remain
-    ///valid. However <tt>InArcIt</tt>s and <tt>OutArcIt</tt>s
-    ///may be invalidated.
+    ///\note The moved arcs are joined to node \c u using changeSource()
+    ///or changeTarget(), thus \c ArcIt and \c OutArcIt iterators are
+    ///invalidated for the outgoing arcs of node \c v and \c InArcIt
+    ///iterators are invalidated for the incomming arcs of \c v.
+    ///Moreover all iterators referencing node \c v or the removed 
+    ///loops are also invalidated. Other iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
-    void contract(Node a, Node b, bool r = true)
+    void contract(Node u, Node v, bool r = true)
     {
-      for(OutArcIt e(*this,b);e!=INVALID;) {
+      for(OutArcIt e(*this,v);e!=INVALID;) {
         OutArcIt f=e;
         ++f;
-        if(r && target(e)==a) erase(e);
-        else changeSource(e,a);
+        if(r && target(e)==u) erase(e);
+        else changeSource(e,u);
         e=f;
       }
-      for(InArcIt e(*this,b);e!=INVALID;) {
+      for(InArcIt e(*this,v);e!=INVALID;) {
         InArcIt f=e;
         ++f;
-        if(r && source(e)==a) erase(e);
-        else changeTarget(e,a);
+        if(r && source(e)==u) erase(e);
+        else changeTarget(e,u);
         e=f;
       }
-      erase(b);
+      erase(v);
     }
 
     ///Split a node.
 
-    ///This function splits a node. First a new node is added to the digraph,
-    ///then the source of each outgoing arc of \c n is moved to this new node.
-    ///If \c connect is \c true (this is the default value), then a new arc
-    ///from \c n to the newly created node is also added.
+    ///This function splits the given node. First, a new node is added
+    ///to the digraph, then the source of each outgoing arc of node \c n
+    ///is moved to this new node.
+    ///If the second parameter \c connect is \c true (this is the default
+    ///value), then a new arc from node \c n to the newly created node
+    ///is also added.
     ///\return The newly created node.
     ///
-    ///\note The <tt>ArcIt</tt>s referencing a moved arc remain
-    ///valid. However <tt>InArcIt</tt>s and <tt>OutArcIt</tt>s may
-    ///be invalidated.
+    ///\note All iterators remain valid.
     ///
-    ///\warning This functionality cannot be used in conjunction with the
+    ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
     Node split(Node n, bool connect = true) {
       Node b = addNode();
-      for(OutArcIt e(*this,n);e!=INVALID;) {
-        OutArcIt f=e;
-        ++f;
-        changeSource(e,b);
-        e=f;
+      nodes[b.id].first_out=nodes[n.id].first_out;
+      nodes[n.id].first_out=-1;
+      for(int i=nodes[b.id].first_out; i!=-1; i=arcs[i].next_out) {
+        arcs[i].source=b.id;
       }
       if (connect) addArc(n,b);
       return b;
@@ -514,20 +497,52 @@ namespace lemon {
 
     ///Split an arc.
 
-    ///This function splits an arc. First a new node \c b is added to
-    ///the digraph, then the original arc is re-targeted to \c
-    ///b. Finally an arc from \c b to the original target is added.
-    ///
+    ///This function splits the given arc. First, a new node \c v is
+    ///added to the digraph, then the target node of the original arc
+    ///is set to \c v. Finally, an arc from \c v to the original target
+    ///is added.
     ///\return The newly created node.
+    ///
+    ///\note \c InArcIt iterators referencing the original arc are
+    ///invalidated. Other iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
-    Node split(Arc e) {
-      Node b = addNode();
-      addArc(b,target(e));
-      changeTarget(e,b);
-      return b;
+    Node split(Arc a) {
+      Node v = addNode();
+      addArc(v,target(a));
+      changeTarget(a,v);
+      return v;
     }
+
+    ///Clear the digraph.
+
+    ///This function erases all nodes and arcs from the digraph.
+    ///
+    ///\note All iterators of the digraph are invalidated, of course.
+    void clear() {
+      Parent::clear();
+    }
+
+    /// Reserve memory for nodes.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the digraph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or arcs),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the digraph.
+    /// \sa reserveArc()
+    void reserveNode(int n) { nodes.reserve(n); };
+
+    /// Reserve memory for arcs.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the digraph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or arcs),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the digraph.
+    /// \sa reserveNode()
+    void reserveArc(int m) { arcs.reserve(m); };
 
     /// \brief Class to make a snapshot of the digraph and restore
     /// it later.
@@ -537,9 +552,15 @@ namespace lemon {
     /// The newly added nodes and arcs can be removed using the
     /// restore() function.
     ///
-    /// \warning Arc and node deletions and other modifications (e.g.
-    /// contracting, splitting, reversing arcs or nodes) cannot be
+    /// \note After a state is restored, you cannot restore a later state, 
+    /// i.e. you cannot add the removed nodes and arcs again using
+    /// another Snapshot instance.
+    ///
+    /// \warning Node and arc deletions and other modifications (e.g.
+    /// reversing, contracting, splitting arcs or nodes) cannot be
     /// restored. These events invalidate the snapshot.
+    /// However, the arcs and nodes that were added to the digraph after
+    /// making the current snapshot can be removed without invalidating it.
     class Snapshot {
     protected:
 
@@ -709,39 +730,40 @@ namespace lemon {
       /// \brief Default constructor.
       ///
       /// Default constructor.
-      /// To actually make a snapshot you must call save().
+      /// You have to call save() to actually make a snapshot.
       Snapshot()
         : digraph(0), node_observer_proxy(*this),
           arc_observer_proxy(*this) {}
 
       /// \brief Constructor that immediately makes a snapshot.
       ///
-      /// This constructor immediately makes a snapshot of the digraph.
-      /// \param _digraph The digraph we make a snapshot of.
-      Snapshot(ListDigraph &_digraph)
+      /// This constructor immediately makes a snapshot of the given digraph.
+      Snapshot(ListDigraph &gr)
         : node_observer_proxy(*this),
           arc_observer_proxy(*this) {
-        attach(_digraph);
+        attach(gr);
       }
 
       /// \brief Make a snapshot.
       ///
-      /// Make a snapshot of the digraph.
-      ///
-      /// This function can be called more than once. In case of a repeated
+      /// This function makes a snapshot of the given digraph.
+      /// It can be called more than once. In case of a repeated
       /// call, the previous snapshot gets lost.
-      /// \param _digraph The digraph we make the snapshot of.
-      void save(ListDigraph &_digraph) {
+      void save(ListDigraph &gr) {
         if (attached()) {
           detach();
           clear();
         }
-        attach(_digraph);
+        attach(gr);
       }
 
       /// \brief Undo the changes until the last snapshot.
-      //
-      /// Undo the changes until the last snapshot created by save().
+      ///
+      /// This function undos the changes until the last snapshot
+      /// created by save() or Snapshot(ListDigraph&).
+      ///
+      /// \warning This method invalidates the snapshot, i.e. repeated
+      /// restoring is not supported unless you call save() again.
       void restore() {
         detach();
         for(std::list<Arc>::iterator it = added_arcs.begin();
@@ -755,9 +777,9 @@ namespace lemon {
         clear();
       }
 
-      /// \brief Gives back true when the snapshot is valid.
+      /// \brief Returns \c true if the snapshot is valid.
       ///
-      /// Gives back true when the snapshot is valid.
+      /// This function returns \c true if the snapshot is valid.
       bool valid() const {
         return attached();
       }
@@ -794,10 +816,6 @@ namespace lemon {
   public:
 
     typedef ListGraphBase Graph;
-
-    class Node;
-    class Arc;
-    class Edge;
 
     class Node {
       friend class ListGraphBase;
@@ -847,8 +865,6 @@ namespace lemon {
       bool operator!=(const Arc& arc) const {return id != arc.id;}
       bool operator<(const Arc& arc) const {return id < arc.id;}
     };
-
-
 
     ListGraphBase()
       : nodes(), first_node(-1),
@@ -1164,31 +1180,27 @@ namespace lemon {
 
   ///A general undirected graph structure.
 
-  ///\ref ListGraph is a simple and fast <em>undirected graph</em>
-  ///implementation based on static linked lists that are stored in
+  ///\ref ListGraph is a versatile and fast undirected graph
+  ///implementation based on linked lists that are stored in
   ///\c std::vector structures.
   ///
-  ///It conforms to the \ref concepts::Graph "Graph concept" and it
-  ///also provides several useful additional functionalities.
-  ///Most of the member functions and nested classes are documented
+  ///This type fully conforms to the \ref concepts::Graph "Graph concept"
+  ///and it also provides several useful additional functionalities.
+  ///Most of its member functions and nested classes are documented
   ///only in the concept class.
   ///
+  ///This class provides only linear time counting for nodes, edges and arcs.
+  ///
   ///\sa concepts::Graph
-
+  ///\sa ListDigraph
   class ListGraph : public ExtendedListGraphBase {
     typedef ExtendedListGraphBase Parent;
 
   private:
-    ///ListGraph is \e not copy constructible. Use copyGraph() instead.
-
-    ///ListGraph is \e not copy constructible. Use copyGraph() instead.
-    ///
+    /// Graphs are \e not copy constructible. Use GraphCopy instead.
     ListGraph(const ListGraph &) :ExtendedListGraphBase()  {};
-    ///\brief Assignment of ListGraph to another one is \e not allowed.
-    ///Use copyGraph() instead.
-
-    ///Assignment of ListGraph to another one is \e not allowed.
-    ///Use copyGraph() instead.
+    /// \brief Assignment of a graph to another one is \e not allowed.
+    /// Use GraphCopy instead.
     void operator=(const ListGraph &) {}
   public:
     /// Constructor
@@ -1201,94 +1213,102 @@ namespace lemon {
 
     /// \brief Add a new node to the graph.
     ///
-    /// Add a new node to the graph.
+    /// This function adds a new node to the graph.
     /// \return The new node.
     Node addNode() { return Parent::addNode(); }
 
     /// \brief Add a new edge to the graph.
     ///
-    /// Add a new edge to the graph with source node \c s
-    /// and target node \c t.
+    /// This function adds a new edge to the graph between nodes
+    /// \c u and \c v with inherent orientation from node \c u to
+    /// node \c v.
     /// \return The new edge.
-    Edge addEdge(const Node& s, const Node& t) {
-      return Parent::addEdge(s, t);
+    Edge addEdge(Node u, Node v) {
+      return Parent::addEdge(u, v);
     }
 
-    /// \brief Erase a node from the graph.
+    ///\brief Erase a node from the graph.
     ///
-    /// Erase a node from the graph.
+    /// This function erases the given node along with its incident arcs
+    /// from the graph.
     ///
-    void erase(const Node& n) { Parent::erase(n); }
+    /// \note All iterators referencing the removed node or the incident
+    /// edges are invalidated, of course.
+    void erase(Node n) { Parent::erase(n); }
 
-    /// \brief Erase an edge from the graph.
+    ///\brief Erase an edge from the graph.
     ///
-    /// Erase an edge from the graph.
+    /// This function erases the given edge from the graph.
     ///
-    void erase(const Edge& e) { Parent::erase(e); }
+    /// \note All iterators referencing the removed edge are invalidated,
+    /// of course.
+    void erase(Edge e) { Parent::erase(e); }
     /// Node validity check
 
-    /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.
+    /// This function gives back \c true if the given node is valid,
+    /// i.e. it is a real node of the graph.
     ///
-    /// \warning A Node pointing to a removed item
-    /// could become valid again later if new nodes are
+    /// \warning A removed node could become valid again if new nodes are
     /// added to the graph.
     bool valid(Node n) const { return Parent::valid(n); }
-    /// Arc validity check
-
-    /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.
-    ///
-    /// \warning An Arc pointing to a removed item
-    /// could become valid again later if new edges are
-    /// added to the graph.
-    bool valid(Arc a) const { return Parent::valid(a); }
     /// Edge validity check
 
-    /// This function gives back true if the given edge is valid,
-    /// ie. it is a real arc of the graph.
+    /// This function gives back \c true if the given edge is valid,
+    /// i.e. it is a real edge of the graph.
     ///
-    /// \warning A Edge pointing to a removed item
-    /// could become valid again later if new edges are
+    /// \warning A removed edge could become valid again if new edges are
     /// added to the graph.
     bool valid(Edge e) const { return Parent::valid(e); }
-    /// \brief Change the end \c u of \c e to \c n
+    /// Arc validity check
+
+    /// This function gives back \c true if the given arc is valid,
+    /// i.e. it is a real arc of the graph.
     ///
-    /// This function changes the end \c u of \c e to node \c n.
+    /// \warning A removed arc could become valid again if new edges are
+    /// added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
+
+    /// \brief Change the first node of an edge.
     ///
-    ///\note The <tt>EdgeIt</tt>s and <tt>ArcIt</tt>s referencing the
-    ///changed edge are invalidated and if the changed node is the
-    ///base node of an iterator then this iterator is also
-    ///invalidated.
+    /// This function changes the first node of the given edge \c e to \c n.
+    ///
+    ///\note \c EdgeIt and \c ArcIt iterators referencing the
+    ///changed edge are invalidated and all other iterators whose
+    ///base node is the changed node are also invalidated.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
     void changeU(Edge e, Node n) {
       Parent::changeU(e,n);
     }
-    /// \brief Change the end \c v of \c e to \c n
+    /// \brief Change the second node of an edge.
     ///
-    /// This function changes the end \c v of \c e to \c n.
+    /// This function changes the second node of the given edge \c e to \c n.
     ///
-    ///\note The <tt>EdgeIt</tt>s referencing the changed edge remain
-    ///valid, however <tt>ArcIt</tt>s and if the changed node is the
-    ///base node of an iterator then this iterator is invalidated.
+    ///\note \c EdgeIt iterators referencing the changed edge remain
+    ///valid, but \c ArcIt iterators referencing the changed edge and
+    ///all other iterators whose base node is the changed node are also
+    ///invalidated.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
     void changeV(Edge e, Node n) {
       Parent::changeV(e,n);
     }
+
     /// \brief Contract two nodes.
     ///
-    /// This function contracts two nodes.
-    /// Node \p b will be removed but instead of deleting
-    /// its neighboring arcs, they will be joined to \p a.
-    /// The last parameter \p r controls whether to remove loops. \c true
-    /// means that loops will be removed.
+    /// This function contracts the given two nodes.
+    /// Node \c b is removed, but instead of deleting
+    /// its incident edges, they are joined to node \c a.
+    /// If the last parameter \c r is \c true (this is the default value),
+    /// then the newly created loops are removed.
     ///
-    /// \note The <tt>ArcIt</tt>s referencing a moved arc remain
-    /// valid.
+    /// \note The moved edges are joined to node \c a using changeU()
+    /// or changeV(), thus all edge and arc iterators whose base node is
+    /// \c b are invalidated.
+    /// Moreover all iterators referencing node \c b or the removed 
+    /// loops are also invalidated. Other iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the
     ///Snapshot feature.
@@ -1307,6 +1327,34 @@ namespace lemon {
       erase(b);
     }
 
+    ///Clear the graph.
+
+    ///This function erases all nodes and arcs from the graph.
+    ///
+    ///\note All iterators of the graph are invalidated, of course.
+    void clear() {
+      Parent::clear();
+    }
+
+    /// Reserve memory for nodes.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveEdge()
+    void reserveNode(int n) { nodes.reserve(n); };
+
+    /// Reserve memory for edges.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveNode()
+    void reserveEdge(int m) { arcs.reserve(2 * m); };
 
     /// \brief Class to make a snapshot of the graph and restore
     /// it later.
@@ -1316,9 +1364,15 @@ namespace lemon {
     /// The newly added nodes and edges can be removed
     /// using the restore() function.
     ///
-    /// \warning Edge and node deletions and other modifications
-    /// (e.g. changing nodes of edges, contracting nodes) cannot be
-    /// restored. These events invalidate the snapshot.
+    /// \note After a state is restored, you cannot restore a later state, 
+    /// i.e. you cannot add the removed nodes and edges again using
+    /// another Snapshot instance.
+    ///
+    /// \warning Node and edge deletions and other modifications
+    /// (e.g. changing the end-nodes of edges or contracting nodes)
+    /// cannot be restored. These events invalidate the snapshot.
+    /// However, the edges and nodes that were added to the graph after
+    /// making the current snapshot can be removed without invalidating it.
     class Snapshot {
     protected:
 
@@ -1488,39 +1542,40 @@ namespace lemon {
       /// \brief Default constructor.
       ///
       /// Default constructor.
-      /// To actually make a snapshot you must call save().
+      /// You have to call save() to actually make a snapshot.
       Snapshot()
         : graph(0), node_observer_proxy(*this),
           edge_observer_proxy(*this) {}
 
       /// \brief Constructor that immediately makes a snapshot.
       ///
-      /// This constructor immediately makes a snapshot of the graph.
-      /// \param _graph The graph we make a snapshot of.
-      Snapshot(ListGraph &_graph)
+      /// This constructor immediately makes a snapshot of the given graph.
+      Snapshot(ListGraph &gr)
         : node_observer_proxy(*this),
           edge_observer_proxy(*this) {
-        attach(_graph);
+        attach(gr);
       }
 
       /// \brief Make a snapshot.
       ///
-      /// Make a snapshot of the graph.
-      ///
-      /// This function can be called more than once. In case of a repeated
+      /// This function makes a snapshot of the given graph.
+      /// It can be called more than once. In case of a repeated
       /// call, the previous snapshot gets lost.
-      /// \param _graph The graph we make the snapshot of.
-      void save(ListGraph &_graph) {
+      void save(ListGraph &gr) {
         if (attached()) {
           detach();
           clear();
         }
-        attach(_graph);
+        attach(gr);
       }
 
       /// \brief Undo the changes until the last snapshot.
-      //
-      /// Undo the changes until the last snapshot created by save().
+      ///
+      /// This function undos the changes until the last snapshot
+      /// created by save() or Snapshot(ListGraph&).
+      ///
+      /// \warning This method invalidates the snapshot, i.e. repeated
+      /// restoring is not supported unless you call save() again.
       void restore() {
         detach();
         for(std::list<Edge>::iterator it = added_edges.begin();
@@ -1534,9 +1589,9 @@ namespace lemon {
         clear();
       }
 
-      /// \brief Gives back true when the snapshot is valid.
+      /// \brief Returns \c true if the snapshot is valid.
       ///
-      /// Gives back true when the snapshot is valid.
+      /// This function returns \c true if the snapshot is valid.
       bool valid() const {
         return attached();
       }

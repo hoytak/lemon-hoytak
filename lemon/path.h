@@ -70,7 +70,7 @@ namespace lemon {
     /// It simply makes a copy of the given path.
     template <typename CPath>
     Path(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
     }
 
     /// \brief Template copy assignment
@@ -78,7 +78,7 @@ namespace lemon {
     /// This operator makes a copy of a path of any other type.
     template <typename CPath>
     Path& operator=(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
       return *this;
     }
 
@@ -258,7 +258,7 @@ namespace lemon {
     /// makes a copy of the given path.
     template <typename CPath>
     SimplePath(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
     }
 
     /// \brief Template copy assignment
@@ -267,7 +267,7 @@ namespace lemon {
     /// makes a copy of the given path.
     template <typename CPath>
     SimplePath& operator=(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
       return *this;
     }
 
@@ -437,7 +437,7 @@ namespace lemon {
     /// makes a copy of the given path.
     template <typename CPath>
     ListPath(const CPath& cpath) : first(0), last(0) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
     }
 
     /// \brief Destructor of the path
@@ -453,7 +453,7 @@ namespace lemon {
     /// makes a copy of the given path.
     template <typename CPath>
     ListPath& operator=(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
       return *this;
     }
 
@@ -763,7 +763,7 @@ namespace lemon {
     /// This path can be initialized from any other path type.
     template <typename CPath>
     StaticPath(const CPath& cpath) : arcs(0) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
     }
 
     /// \brief Destructor of the path
@@ -779,7 +779,7 @@ namespace lemon {
     /// makes a copy of the given path.
     template <typename CPath>
     StaticPath& operator=(const CPath& cpath) {
-      copyPath(*this, cpath);
+      pathCopy(cpath, *this);
       return *this;
     }
 
@@ -928,57 +928,57 @@ namespace lemon {
       static const bool value = true;
     };
 
-    template <typename Target, typename Source,
-              bool buildEnable = BuildTagIndicator<Target>::value>
+    template <typename From, typename To,
+              bool buildEnable = BuildTagIndicator<To>::value>
     struct PathCopySelectorForward {
-      static void copy(Target& target, const Source& source) {
-        target.clear();
-        for (typename Source::ArcIt it(source); it != INVALID; ++it) {
-          target.addBack(it);
+      static void copy(const From& from, To& to) {
+        to.clear();
+        for (typename From::ArcIt it(from); it != INVALID; ++it) {
+          to.addBack(it);
         }
       }
     };
 
-    template <typename Target, typename Source>
-    struct PathCopySelectorForward<Target, Source, true> {
-      static void copy(Target& target, const Source& source) {
-        target.clear();
-        target.build(source);
+    template <typename From, typename To>
+    struct PathCopySelectorForward<From, To, true> {
+      static void copy(const From& from, To& to) {
+        to.clear();
+        to.build(from);
       }
     };
 
-    template <typename Target, typename Source,
-              bool buildEnable = BuildTagIndicator<Target>::value>
+    template <typename From, typename To,
+              bool buildEnable = BuildTagIndicator<To>::value>
     struct PathCopySelectorBackward {
-      static void copy(Target& target, const Source& source) {
-        target.clear();
-        for (typename Source::RevArcIt it(source); it != INVALID; ++it) {
-          target.addFront(it);
+      static void copy(const From& from, To& to) {
+        to.clear();
+        for (typename From::RevArcIt it(from); it != INVALID; ++it) {
+          to.addFront(it);
         }
       }
     };
 
-    template <typename Target, typename Source>
-    struct PathCopySelectorBackward<Target, Source, true> {
-      static void copy(Target& target, const Source& source) {
-        target.clear();
-        target.buildRev(source);
+    template <typename From, typename To>
+    struct PathCopySelectorBackward<From, To, true> {
+      static void copy(const From& from, To& to) {
+        to.clear();
+        to.buildRev(from);
       }
     };
 
     
-    template <typename Target, typename Source,
-              bool revEnable = RevPathTagIndicator<Source>::value>
+    template <typename From, typename To,
+              bool revEnable = RevPathTagIndicator<From>::value>
     struct PathCopySelector {
-      static void copy(Target& target, const Source& source) {
-        PathCopySelectorForward<Target, Source>::copy(target, source);
+      static void copy(const From& from, To& to) {
+        PathCopySelectorForward<From, To>::copy(from, to);
       }      
     };
 
-    template <typename Target, typename Source>
-    struct PathCopySelector<Target, Source, true> {
-      static void copy(Target& target, const Source& source) {
-        PathCopySelectorBackward<Target, Source>::copy(target, source);
+    template <typename From, typename To>
+    struct PathCopySelector<From, To, true> {
+      static void copy(const From& from, To& to) {
+        PathCopySelectorBackward<From, To>::copy(from, to);
       }      
     };
 
@@ -987,11 +987,19 @@ namespace lemon {
 
   /// \brief Make a copy of a path.
   ///
-  ///  This function makes a copy of a path.
-  template <typename Target, typename Source>
-  void copyPath(Target& target, const Source& source) {
-    checkConcept<concepts::PathDumper<typename Source::Digraph>, Source>();
-    _path_bits::PathCopySelector<Target, Source>::copy(target, source);
+  /// This function makes a copy of a path.
+  template <typename From, typename To>
+  void pathCopy(const From& from, To& to) {
+    checkConcept<concepts::PathDumper<typename From::Digraph>, From>();
+    _path_bits::PathCopySelector<From, To>::copy(from, to);
+  }
+
+  /// \brief Deprecated version of \ref pathCopy().
+  ///
+  /// Deprecated version of \ref pathCopy() (only for reverse compatibility).
+  template <typename To, typename From>
+  void copyPath(To& to, const From& from) {
+    pathCopy(from, to);
   }
 
   /// \brief Check the consistency of a path.
@@ -1015,18 +1023,20 @@ namespace lemon {
 
   /// \brief The source of a path
   ///
-  /// This function returns the source of the given path.
+  /// This function returns the source node of the given path.
+  /// If the path is empty, then it returns \c INVALID.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathSource(const Digraph& digraph, const Path& path) {
-    return digraph.source(path.front());
+    return path.empty() ? INVALID : digraph.source(path.front());
   }
 
   /// \brief The target of a path
   ///
-  /// This function returns the target of the given path.
+  /// This function returns the target node of the given path.
+  /// If the path is empty, then it returns \c INVALID.
   template <typename Digraph, typename Path>
   typename Digraph::Node pathTarget(const Digraph& digraph, const Path& path) {
-    return digraph.target(path.back());
+    return path.empty() ? INVALID : digraph.target(path.back());
   }
 
   /// \brief Class which helps to iterate through the nodes of a path

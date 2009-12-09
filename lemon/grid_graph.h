@@ -470,17 +470,21 @@ namespace lemon {
   ///
   /// \brief Grid graph class
   ///
-  /// This class implements a special graph type. The nodes of the
-  /// graph can be indexed by two integer \c (i,j) value where \c i is
-  /// in the \c [0..width()-1] range and j is in the \c
-  /// [0..height()-1] range.  Two nodes are connected in the graph if
-  /// the indexes differ exactly on one position and exactly one is
-  /// the difference. The nodes of the graph can be indexed by position
-  /// with the \c operator()() function. The positions of the nodes can be
-  /// get with \c pos(), \c col() and \c row() members. The outgoing
+  /// GridGraph implements a special graph type. The nodes of the
+  /// graph can be indexed by two integer values \c (i,j) where \c i is
+  /// in the range <tt>[0..width()-1]</tt> and j is in the range
+  /// <tt>[0..height()-1]</tt>. Two nodes are connected in the graph if
+  /// the indices differ exactly on one position and the difference is
+  /// also exactly one. The nodes of the graph can be obtained by position
+  /// using the \c operator()() function and the indices of the nodes can
+  /// be obtained using \c pos(), \c col() and \c row() members. The outgoing
   /// arcs can be retrieved with the \c right(), \c up(), \c left()
   /// and \c down() functions, where the bottom-left corner is the
   /// origin.
+  ///
+  /// This class is completely static and it needs constant memory space.
+  /// Thus you can neither add nor delete nodes or edges, however
+  /// the structure can be resized using resize().
   ///
   /// \image html grid_graph.png
   /// \image latex grid_graph.eps "Grid graph" width=\textwidth
@@ -496,16 +500,21 @@ namespace lemon {
   /// }
   ///\endcode
   ///
-  /// This graph type fully conforms to the \ref concepts::Graph
-  /// "Graph concept".
+  /// This type fully conforms to the \ref concepts::Graph "Graph concept".
+  /// Most of its member functions and nested classes are documented
+  /// only in the concept class.
+  ///
+  /// This class provides constant time counting for nodes, edges and arcs.
   class GridGraph : public ExtendedGridGraphBase {
     typedef ExtendedGridGraphBase Parent;
 
   public:
 
-    /// \brief Map to get the indices of the nodes as dim2::Point<int>.
+    /// \brief Map to get the indices of the nodes as \ref dim2::Point
+    /// "dim2::Point<int>".
     ///
-    /// Map to get the indices of the nodes as dim2::Point<int>.
+    /// Map to get the indices of the nodes as \ref dim2::Point
+    /// "dim2::Point<int>".
     class IndexMap {
     public:
       /// \brief The key type of the map
@@ -514,13 +523,9 @@ namespace lemon {
       typedef dim2::Point<int> Value;
 
       /// \brief Constructor
-      ///
-      /// Constructor
       IndexMap(const GridGraph& graph) : _graph(graph) {}
 
       /// \brief The subscript operator
-      ///
-      /// The subscript operator.
       Value operator[](Key key) const {
         return _graph.pos(key);
       }
@@ -540,13 +545,9 @@ namespace lemon {
       typedef int Value;
 
       /// \brief Constructor
-      ///
-      /// Constructor
       ColMap(const GridGraph& graph) : _graph(graph) {}
 
       /// \brief The subscript operator
-      ///
-      /// The subscript operator.
       Value operator[](Key key) const {
         return _graph.col(key);
       }
@@ -566,13 +567,9 @@ namespace lemon {
       typedef int Value;
 
       /// \brief Constructor
-      ///
-      /// Constructor
       RowMap(const GridGraph& graph) : _graph(graph) {}
 
       /// \brief The subscript operator
-      ///
-      /// The subscript operator.
       Value operator[](Key key) const {
         return _graph.row(key);
       }
@@ -583,15 +580,14 @@ namespace lemon {
 
     /// \brief Constructor
     ///
-    /// Construct a grid graph with given size.
+    /// Construct a grid graph with the given size.
     GridGraph(int width, int height) { construct(width, height); }
 
-    /// \brief Resize the graph
+    /// \brief Resizes the graph
     ///
-    /// Resize the graph. The function will fully destroy and rebuild
-    /// the graph.  This cause that the maps of the graph will
-    /// reallocated automatically and the previous values will be
-    /// lost.
+    /// This function resizes the graph. It fully destroys and
+    /// rebuilds the structure, therefore the maps of the graph will be
+    /// reallocated automatically and the previous values will be lost.
     void resize(int width, int height) {
       Parent::notifier(Arc()).clear();
       Parent::notifier(Edge()).clear();
@@ -609,42 +605,42 @@ namespace lemon {
       return Parent::operator()(i, j);
     }
 
-    /// \brief Gives back the column index of the node.
+    /// \brief The column index of the node.
     ///
     /// Gives back the column index of the node.
     int col(Node n) const {
       return Parent::col(n);
     }
 
-    /// \brief Gives back the row index of the node.
+    /// \brief The row index of the node.
     ///
     /// Gives back the row index of the node.
     int row(Node n) const {
       return Parent::row(n);
     }
 
-    /// \brief Gives back the position of the node.
+    /// \brief The position of the node.
     ///
     /// Gives back the position of the node, ie. the <tt>(col,row)</tt> pair.
     dim2::Point<int> pos(Node n) const {
       return Parent::pos(n);
     }
 
-    /// \brief Gives back the number of the columns.
+    /// \brief The number of the columns.
     ///
     /// Gives back the number of the columns.
     int width() const {
       return Parent::width();
     }
 
-    /// \brief Gives back the number of the rows.
+    /// \brief The number of the rows.
     ///
     /// Gives back the number of the rows.
     int height() const {
       return Parent::height();
     }
 
-    /// \brief Gives back the arc goes right from the node.
+    /// \brief The arc goes right from the node.
     ///
     /// Gives back the arc goes right from the node. If there is not
     /// outgoing arc then it gives back INVALID.
@@ -652,7 +648,7 @@ namespace lemon {
       return Parent::right(n);
     }
 
-    /// \brief Gives back the arc goes left from the node.
+    /// \brief The arc goes left from the node.
     ///
     /// Gives back the arc goes left from the node. If there is not
     /// outgoing arc then it gives back INVALID.
@@ -660,7 +656,7 @@ namespace lemon {
       return Parent::left(n);
     }
 
-    /// \brief Gives back the arc goes up from the node.
+    /// \brief The arc goes up from the node.
     ///
     /// Gives back the arc goes up from the node. If there is not
     /// outgoing arc then it gives back INVALID.
@@ -668,7 +664,7 @@ namespace lemon {
       return Parent::up(n);
     }
 
-    /// \brief Gives back the arc goes down from the node.
+    /// \brief The arc goes down from the node.
     ///
     /// Gives back the arc goes down from the node. If there is not
     /// outgoing arc then it gives back INVALID.

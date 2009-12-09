@@ -360,6 +360,9 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides item counting in the same time as the adapted
+  /// digraph structure.
+  ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
@@ -718,6 +721,8 @@ namespace lemon {
   /// The adapted digraph can also be modified through this adaptor
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
+  ///
+  /// This class provides only linear time counting for nodes and arcs.
   ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
@@ -1314,6 +1319,8 @@ namespace lemon {
   /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides only linear time counting for nodes, edges and arcs.
+  ///
   /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
@@ -1471,6 +1478,8 @@ namespace lemon {
   /// by adding or removing nodes or arcs/edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides only linear time item counting.
+  ///
   /// \tparam GR The type of the adapted digraph or graph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept
   /// or the \ref concepts::Graph "Graph" concept.
@@ -1619,6 +1628,8 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides only linear time counting for nodes and arcs.
+  ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
@@ -1728,6 +1739,8 @@ namespace lemon {
   /// The adapted graph can also be modified through this adaptor
   /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
+  ///
+  /// This class provides only linear time counting for nodes, edges and arcs.
   ///
   /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
@@ -2232,6 +2245,9 @@ namespace lemon {
   /// by adding or removing nodes or edges, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides item counting in the same time as the adapted
+  /// digraph structure.
+  ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
   /// It can also be specified to be \c const.
@@ -2535,6 +2551,9 @@ namespace lemon {
   /// by adding or removing nodes or arcs, unless the \c GR template
   /// parameter is set to be \c const.
   ///
+  /// This class provides item counting in the same time as the adapted
+  /// graph structure.
+  ///
   /// \tparam GR The type of the adapted graph.
   /// It must conform to the \ref concepts::Graph "Graph" concept.
   /// It can also be specified to be \c const.
@@ -2677,6 +2696,8 @@ namespace lemon {
   /// \f$ |A_{forward}| + |A_{backward}|\f$ arcs (it may have parallel
   /// arcs).
   /// This class conforms to the \ref concepts::Digraph "Digraph" concept.
+  ///
+  /// This class provides only linear time counting for nodes and arcs.
   ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.
@@ -3324,6 +3345,9 @@ namespace lemon {
   /// In this case you can use \c SplitNodes adaptor, and set the node
   /// costs/capacities of the original digraph to the \e bind \e arcs
   /// in the adaptor.
+  ///
+  /// This class provides item counting in the same time as the adapted
+  /// digraph structure.
   ///
   /// \tparam DGR The type of the adapted digraph.
   /// It must conform to the \ref concepts::Digraph "Digraph" concept.

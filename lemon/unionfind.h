@@ -43,7 +43,7 @@ namespace lemon {
   /// the find operation uses path compression.
   /// This is a very simple but efficient implementation, providing
   /// only four methods: join (union), find, insert and size.
-  /// For more features see the \ref UnionFindEnum class.
+  /// For more features, see the \ref UnionFindEnum class.
   ///
   /// It is primarily used in Kruskal algorithm for finding minimal
   /// cost spanning tree in a graph.

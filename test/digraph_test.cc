@@ -19,6 +19,7 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/list_graph.h>
 #include <lemon/smart_graph.h>
+#include <lemon/static_graph.h>
 #include <lemon/full_graph.h>
 
 #include "test_tools.h"
@@ -34,6 +35,9 @@ void checkDigraphBuild() {
 
   checkGraphNodeList(G, 0);
   checkGraphArcList(G, 0);
+
+  G.reserveNode(3);
+  G.reserveArc(4);
 
   Node
     n1 = G.addNode(),
@@ -283,6 +287,14 @@ void checkDigraphSnapshot() {
   G.addArc(G.addNode(), G.addNode());
 
   snapshot.restore();
+  snapshot.save(G);
+
+  checkGraphNodeList(G, 4);
+  checkGraphArcList(G, 4);
+
+  G.addArc(G.addNode(), G.addNode());
+
+  snapshot.restore();
 
   checkGraphNodeList(G, 4);
   checkGraphArcList(G, 4);
@@ -316,6 +328,10 @@ void checkConcepts() {
     checkConcept<AlterableDigraphComponent<>, SmartDigraph>();
     checkConcept<ExtendableDigraphComponent<>, SmartDigraph>();
     checkConcept<ClearableDigraphComponent<>, SmartDigraph>();
+  }
+  { // Checking StaticDigraph
+    checkConcept<Digraph, StaticDigraph>();
+    checkConcept<ClearableDigraphComponent<>, StaticDigraph>();
   }
   { // Checking FullDigraph
     checkConcept<Digraph, FullDigraph>();
@@ -372,10 +388,122 @@ void checkDigraphValidityErase() {
   check(!g.valid(g.arcFromId(-1)), "Wrong validity check");
 }
 
+void checkStaticDigraph() {
+  SmartDigraph g;
+  SmartDigraph::NodeMap<StaticDigraph::Node> nref(g);
+  SmartDigraph::ArcMap<StaticDigraph::Arc> aref(g);
+  
+  StaticDigraph G;
+  
+  checkGraphNodeList(G, 0);
+  checkGraphArcList(G, 0);
+
+  G.build(g, nref, aref);
+
+  checkGraphNodeList(G, 0);
+  checkGraphArcList(G, 0);
+
+  SmartDigraph::Node
+    n1 = g.addNode(),
+    n2 = g.addNode(),
+    n3 = g.addNode();
+
+  G.build(g, nref, aref);
+
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 0);
+
+  SmartDigraph::Arc a1 = g.addArc(n1, n2);
+
+  G.build(g, nref, aref);
+
+  check(G.source(aref[a1]) == nref[n1] && G.target(aref[a1]) == nref[n2],
+        "Wrong arc or wrong references");
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 1);
+
+  checkGraphOutArcList(G, nref[n1], 1);
+  checkGraphOutArcList(G, nref[n2], 0);
+  checkGraphOutArcList(G, nref[n3], 0);
+
+  checkGraphInArcList(G, nref[n1], 0);
+  checkGraphInArcList(G, nref[n2], 1);
+  checkGraphInArcList(G, nref[n3], 0);
+
+  checkGraphConArcList(G, 1);
+
+  SmartDigraph::Arc
+    a2 = g.addArc(n2, n1),
+    a3 = g.addArc(n2, n3),
+    a4 = g.addArc(n2, n3);
+
+  digraphCopy(g, G).nodeRef(nref).run();
+
+  checkGraphNodeList(G, 3);
+  checkGraphArcList(G, 4);
+
+  checkGraphOutArcList(G, nref[n1], 1);
+  checkGraphOutArcList(G, nref[n2], 3);
+  checkGraphOutArcList(G, nref[n3], 0);
+
+  checkGraphInArcList(G, nref[n1], 1);
+  checkGraphInArcList(G, nref[n2], 1);
+  checkGraphInArcList(G, nref[n3], 2);
+
+  checkGraphConArcList(G, 4);
+
+  std::vector<std::pair<int,int> > arcs;
+  arcs.push_back(std::make_pair(0,1));
+  arcs.push_back(std::make_pair(0,2));
+  arcs.push_back(std::make_pair(1,3));
+  arcs.push_back(std::make_pair(1,2));
+  arcs.push_back(std::make_pair(3,0));
+  arcs.push_back(std::make_pair(3,3));
+  arcs.push_back(std::make_pair(4,2));
+  arcs.push_back(std::make_pair(4,3));
+  arcs.push_back(std::make_pair(4,1));
+
+  G.build(6, arcs.begin(), arcs.end());
+  
+  checkGraphNodeList(G, 6);
+  checkGraphArcList(G, 9);
+
+  checkGraphOutArcList(G, G.node(0), 2);
+  checkGraphOutArcList(G, G.node(1), 2);
+  checkGraphOutArcList(G, G.node(2), 0);
+  checkGraphOutArcList(G, G.node(3), 2);
+  checkGraphOutArcList(G, G.node(4), 3);
+  checkGraphOutArcList(G, G.node(5), 0);
+
+  checkGraphInArcList(G, G.node(0), 1);
+  checkGraphInArcList(G, G.node(1), 2);
+  checkGraphInArcList(G, G.node(2), 3);
+  checkGraphInArcList(G, G.node(3), 3);
+  checkGraphInArcList(G, G.node(4), 0);
+  checkGraphInArcList(G, G.node(5), 0);
+
+  checkGraphConArcList(G, 9);
+
+  checkNodeIds(G);
+  checkArcIds(G);
+  checkGraphNodeMap(G);
+  checkGraphArcMap(G);
+  
+  int n = G.nodeNum();
+  int m = G.arcNum();
+  check(G.index(G.node(n-1)) == n-1, "Wrong index.");
+  check(G.index(G.arc(m-1)) == m-1, "Wrong index.");
+}
+
 void checkFullDigraph(int num) {
   typedef FullDigraph Digraph;
   DIGRAPH_TYPEDEFS(Digraph);
+
   Digraph G(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
+
+  G.resize(num);
+  check(G.nodeNum() == num && G.arcNum() == num * num, "Wrong size");
 
   checkGraphNodeList(G, num);
   checkGraphArcList(G, num * num);
@@ -418,6 +546,9 @@ void checkDigraphs() {
     checkDigraphSplit<SmartDigraph>();
     checkDigraphSnapshot<SmartDigraph>();
     checkDigraphValidity<SmartDigraph>();
+  }
+  { // Checking StaticDigraph
+    checkStaticDigraph();
   }
   { // Checking FullDigraph
     checkFullDigraph(8);

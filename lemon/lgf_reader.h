@@ -427,7 +427,7 @@ namespace lemon {
   ///   run();
   ///\endcode
   ///
-  /// By default the reader uses the first section in the file of the
+  /// By default, the reader uses the first section in the file of the
   /// proper type. If a section has an optional name, then it can be
   /// selected for reading by giving an optional name parameter to the
   /// \c nodes(), \c arcs() or \c attributes() functions.
@@ -2221,7 +2221,7 @@ namespace lemon {
     /// and the comment lines are filtered out, and the leading
     /// whitespaces are trimmed from each processed string.
     ///
-    /// For example let's see a section, which contain several
+    /// For example, let's see a section, which contain several
     /// integers, which should be inserted into a vector.
     ///\code
     ///  @numbers

@@ -21,14 +21,11 @@
 
 \section intro Introduction
 
-\subsection whatis What is LEMON
-
-LEMON stands for <b>L</b>ibrary for <b>E</b>fficient <b>M</b>odeling
-and <b>O</b>ptimization in <b>N</b>etworks.
-It is a C++ template
-library aimed at combinatorial optimization tasks which
-often involve in working
-with graphs.
+<b>LEMON</b> stands for <i><b>L</b>ibrary for <b>E</b>fficient <b>M</b>odeling
+and <b>O</b>ptimization in <b>N</b>etworks</i>.
+It is a C++ template library providing efficient implementation of common
+data structures and algorithms with focus on combinatorial optimization
+problems in graphs and networks.
 
 <b>
 LEMON is an <a class="el" href="http://opensource.org/">open&nbsp;source</a>
@@ -38,7 +35,16 @@ non-commercial applications under very permissive
 \ref license "license terms".
 </b>
 
-\subsection howtoread How to read the documentation
+The project is maintained by the 
+<a href="http://www.cs.elte.hu/egres/">Egerv&aacute;ry Research Group on
+Combinatorial Optimization</a> \ref egres
+at the Operations Research Department of the
+<a href="http://www.elte.hu/">E&ouml;tv&ouml;s Lor&aacute;nd University,
+Budapest</a>, Hungary.
+LEMON is also a member of the <a href="http://www.coin-or.org/">COIN-OR</a>
+initiative \ref coinor.
+
+\section howtoread How to Read the Documentation
 
 If you would like to get to know the library, see
 <a class="el" href="http://lemon.cs.elte.hu/pub/tutorial/">LEMON Tutorial</a>.
