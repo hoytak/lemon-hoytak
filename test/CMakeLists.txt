@@ -9,6 +9,7 @@ LINK_DIRECTORIES(
 
 SET(TESTS
   adaptors_test
+  bellman_ford_test
   bfs_test
   circulation_test
   connectivity_test
@@ -31,7 +32,9 @@ SET(TESTS
   matching_test
   min_cost_arborescence_test
   min_cost_flow_test
+  min_mean_cycle_test
   path_test
+  planarity_test
   preflow_test
   radix_sort_test
   random_test

@@ -94,6 +94,18 @@ namespace lemon {
     return _prob->numberRows() - 1;
   }
 
+  int CbcMip::_addRow(Value l, ExprIterator b, ExprIterator e, Value u) {
+    std::vector<int> indexes;
+    std::vector<Value> values;
+
+    for(ExprIterator it = b; it != e; ++it) {
+      indexes.push_back(it->first);
+      values.push_back(it->second);
+    }
+
+    _prob->addRow(values.size(), &indexes.front(), &values.front(), l, u);
+    return _prob->numberRows() - 1;
+  }
 
   void CbcMip::_eraseCol(int i) {
     _prob->deleteColumn(i);

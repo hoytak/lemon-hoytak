@@ -70,9 +70,9 @@ namespace lemon {
     ///The type of the map that stores the arc lengths.
 
     ///The type of the map that stores the arc lengths.
-    ///It must meet the \ref concepts::ReadMap "ReadMap" concept.
+    ///It must conform to the \ref concepts::ReadMap "ReadMap" concept.
     typedef LEN LengthMap;
-    ///The type of the length of the arcs.
+    ///The type of the arc lengths.
     typedef typename LEN::Value Value;
 
     /// Operation traits for %Dijkstra algorithm.
@@ -116,7 +116,7 @@ namespace lemon {
     ///
     ///The type of the map that stores the predecessor
     ///arcs of the shortest paths.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
     ///Instantiates a \c PredMap.
 
@@ -131,8 +131,8 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a \c ProcessedMap.
 
@@ -151,7 +151,7 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
 
     ///The type of the map that stores the distances of the nodes.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename LEN::Value> DistMap;
     ///Instantiates a \c DistMap.
 
@@ -168,6 +168,10 @@ namespace lemon {
 
   /// \ingroup shortest_path
   ///This class provides an efficient implementation of the %Dijkstra algorithm.
+  ///
+  ///The %Dijkstra algorithm solves the single-source shortest path problem
+  ///when all arc lengths are non-negative. If there are negative lengths,
+  ///the BellmanFord algorithm should be used instead.
   ///
   ///The arc lengths are passed to the algorithm using a
   ///\ref concepts::ReadMap "ReadMap",
@@ -201,8 +205,8 @@ namespace lemon {
     ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
 
-    ///The type of the length of the arcs.
-    typedef typename TR::LengthMap::Value Value;
+    ///The type of the arc lengths.
+    typedef typename TR::Value Value;
     ///The type of the map that stores the arc lengths.
     typedef typename TR::LengthMap LengthMap;
     ///\brief The type of the map that stores the predecessor arcs of the
@@ -304,7 +308,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c PredMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetPredMap
       : public Dijkstra< Digraph, LengthMap, SetPredMapTraits<T> > {
@@ -325,7 +329,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c DistMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetDistMap
       : public Dijkstra< Digraph, LengthMap, SetDistMapTraits<T> > {
@@ -346,7 +350,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c ProcessedMap type.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
     struct SetProcessedMap
       : public Dijkstra< Digraph, LengthMap, SetProcessedMapTraits<T> > {
@@ -422,7 +426,7 @@ namespace lemon {
     ///automatically created by the algorithm (i.e. the digraph should be
     ///passed to the constructor of the cross reference and the cross
     ///reference should be passed to the constructor of the heap).
-    ///However external heap and cross reference objects could also be
+    ///However, external heap and cross reference objects could also be
     ///passed to the algorithm using the \ref heap() function before
     ///calling \ref run(Node) "run()" or \ref init().
     ///\sa SetHeap
@@ -443,6 +447,7 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c OperationTraits type.
+    /// For more information, see \ref DijkstraDefaultOperationTraits.
     template <class T>
     struct SetOperationTraits
       : public Dijkstra<Digraph, LengthMap, SetOperationTraitsTraits<T> > {
@@ -584,8 +589,8 @@ namespace lemon {
     ///\name Execution Control
     ///The simplest way to execute the %Dijkstra algorithm is to use
     ///one of the member functions called \ref run(Node) "run()".\n
-    ///If you need more control on the execution, first you have to call
-    ///\ref init(), then you can add several source nodes with
+    ///If you need better control on the execution, you have to call
+    ///\ref init() first, then you can add several source nodes with
     ///\ref addSource(). Finally the actual path computation can be
     ///performed with one of the \ref start() functions.
 
@@ -801,14 +806,14 @@ namespace lemon {
     ///\name Query Functions
     ///The results of the %Dijkstra algorithm can be obtained using these
     ///functions.\n
-    ///Either \ref run(Node) "run()" or \ref start() should be called
+    ///Either \ref run(Node) "run()" or \ref init() should be called
     ///before using them.
 
     ///@{
 
-    ///The shortest path to a node.
+    ///The shortest path to the given node.
 
-    ///Returns the shortest path to a node.
+    ///Returns the shortest path to the given node from the root(s).
     ///
     ///\warning \c t should be reached from the root(s).
     ///
@@ -816,9 +821,9 @@ namespace lemon {
     ///must be called before using this function.
     Path path(Node t) const { return Path(*G, *_pred, t); }
 
-    ///The distance of a node from the root(s).
+    ///The distance of the given node from the root(s).
 
-    ///Returns the distance of a node from the root(s).
+    ///Returns the distance of the given node from the root(s).
     ///
     ///\warning If node \c v is not reached from the root(s), then
     ///the return value of this function is undefined.
@@ -827,29 +832,31 @@ namespace lemon {
     ///must be called before using this function.
     Value dist(Node v) const { return (*_dist)[v]; }
 
-    ///Returns the 'previous arc' of the shortest path tree for a node.
-
+    ///\brief Returns the 'previous arc' of the shortest path tree for
+    ///the given node.
+    ///
     ///This function returns the 'previous arc' of the shortest path
     ///tree for the node \c v, i.e. it returns the last arc of a
     ///shortest path from a root to \c v. It is \c INVALID if \c v
     ///is not reached from the root(s) or if \c v is a root.
     ///
     ///The shortest path tree used here is equal to the shortest path
-    ///tree used in \ref predNode().
+    ///tree used in \ref predNode() and \ref predMap().
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     Arc predArc(Node v) const { return (*_pred)[v]; }
 
-    ///Returns the 'previous node' of the shortest path tree for a node.
-
+    ///\brief Returns the 'previous node' of the shortest path tree for
+    ///the given node.
+    ///
     ///This function returns the 'previous node' of the shortest path
     ///tree for the node \c v, i.e. it returns the last but one node
-    ///from a shortest path from a root to \c v. It is \c INVALID
+    ///of a shortest path from a root to \c v. It is \c INVALID
     ///if \c v is not reached from the root(s) or if \c v is a root.
     ///
     ///The shortest path tree used here is equal to the shortest path
-    ///tree used in \ref predArc().
+    ///tree used in \ref predArc() and \ref predMap().
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
@@ -870,13 +877,13 @@ namespace lemon {
     ///predecessor arcs.
     ///
     ///Returns a const reference to the node map that stores the predecessor
-    ///arcs, which form the shortest path tree.
+    ///arcs, which form the shortest path tree (forest).
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
     ///must be called before using this function.
     const PredMap &predMap() const { return *_pred;}
 
-    ///Checks if a node is reached from the root(s).
+    ///Checks if the given node is reached from the root(s).
 
     ///Returns \c true if \c v is reached from the root(s).
     ///
@@ -895,9 +902,9 @@ namespace lemon {
     bool processed(Node v) const { return (*_heap_cross_ref)[v] ==
                                           Heap::POST_HEAP; }
 
-    ///The current distance of a node from the root(s).
+    ///The current distance of the given node from the root(s).
 
-    ///Returns the current distance of a node from the root(s).
+    ///Returns the current distance of the given node from the root(s).
     ///It may be decreased in the following processes.
     ///
     ///\pre Either \ref run(Node) "run()" or \ref init()
@@ -924,9 +931,9 @@ namespace lemon {
     ///The type of the map that stores the arc lengths.
 
     ///The type of the map that stores the arc lengths.
-    ///It must meet the \ref concepts::ReadMap "ReadMap" concept.
+    ///It must conform to the \ref concepts::ReadMap "ReadMap" concept.
     typedef LEN LengthMap;
-    ///The type of the length of the arcs.
+    ///The type of the arc lengths.
     typedef typename LEN::Value Value;
 
     /// Operation traits for Dijkstra algorithm.
@@ -973,7 +980,7 @@ namespace lemon {
     ///
     ///The type of the map that stores the predecessor
     ///arcs of the shortest paths.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename Digraph::Arc> PredMap;
     ///Instantiates a PredMap.
 
@@ -988,8 +995,8 @@ namespace lemon {
     ///The type of the map that indicates which nodes are processed.
 
     ///The type of the map that indicates which nodes are processed.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
-    ///By default it is a NullMap.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
+    ///By default, it is a NullMap.
     typedef NullMap<typename Digraph::Node,bool> ProcessedMap;
     ///Instantiates a ProcessedMap.
 
@@ -1008,7 +1015,7 @@ namespace lemon {
     ///The type of the map that stores the distances of the nodes.
 
     ///The type of the map that stores the distances of the nodes.
-    ///It must meet the \ref concepts::WriteMap "WriteMap" concept.
+    ///It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename Digraph::template NodeMap<typename LEN::Value> DistMap;
     ///Instantiates a DistMap.
 
@@ -1023,18 +1030,15 @@ namespace lemon {
     ///The type of the shortest paths.
 
     ///The type of the shortest paths.
-    ///It must meet the \ref concepts::Path "Path" concept.
+    ///It must conform to the \ref concepts::Path "Path" concept.
     typedef lemon::Path<Digraph> Path;
   };
 
   /// Default traits class used by DijkstraWizard
 
-  /// To make it easier to use Dijkstra algorithm
-  /// we have created a wizard class.
-  /// This \ref DijkstraWizard class needs default traits,
-  /// as well as the \ref Dijkstra class.
-  /// The \ref DijkstraWizardBase is a class to be the default traits of the
-  /// \ref DijkstraWizard class.
+  /// Default traits class used by DijkstraWizard.
+  /// \tparam GR The type of the digraph.
+  /// \tparam LEN The type of the length map.
   template<typename GR, typename LEN>
   class DijkstraWizardBase : public DijkstraWizardDefaultTraits<GR,LEN>
   {
@@ -1093,7 +1097,6 @@ namespace lemon {
   {
     typedef TR Base;
 
-    ///The type of the digraph the algorithm runs on.
     typedef typename TR::Digraph Digraph;
 
     typedef typename Digraph::Node Node;
@@ -1101,20 +1104,12 @@ namespace lemon {
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::OutArcIt OutArcIt;
 
-    ///The type of the map that stores the arc lengths.
     typedef typename TR::LengthMap LengthMap;
-    ///The type of the length of the arcs.
     typedef typename LengthMap::Value Value;
-    ///\brief The type of the map that stores the predecessor
-    ///arcs of the shortest paths.
     typedef typename TR::PredMap PredMap;
-    ///The type of the map that stores the distances of the nodes.
     typedef typename TR::DistMap DistMap;
-    ///The type of the map that indicates which nodes are processed.
     typedef typename TR::ProcessedMap ProcessedMap;
-    ///The type of the shortest paths
     typedef typename TR::Path Path;
-    ///The heap type used by the dijkstra algorithm.
     typedef typename TR::Heap Heap;
 
   public:
@@ -1186,11 +1181,12 @@ namespace lemon {
       static PredMap *createPredMap(const Digraph &) { return 0; };
       SetPredMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting PredMap object.
+
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///the predecessor map.
     ///
-    ///\ref named-func-param "Named parameter"
-    ///for setting PredMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that stores the predecessor arcs of the nodes.
     template<class T>
     DijkstraWizard<SetPredMapBase<T> > predMap(const T &t)
     {
@@ -1204,11 +1200,13 @@ namespace lemon {
       static DistMap *createDistMap(const Digraph &) { return 0; };
       SetDistMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting DistMap object.
+
+    ///\brief \ref named-templ-param "Named parameter" for setting
+    ///the distance map.
     ///
-    ///\ref named-func-param "Named parameter"
-    ///for setting DistMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that stores the distances of the nodes calculated
+    ///by the algorithm.
     template<class T>
     DijkstraWizard<SetDistMapBase<T> > distMap(const T &t)
     {
@@ -1222,11 +1220,12 @@ namespace lemon {
       static ProcessedMap *createProcessedMap(const Digraph &) { return 0; };
       SetProcessedMapBase(const TR &b) : TR(b) {}
     };
-    ///\brief \ref named-func-param "Named parameter"
-    ///for setting ProcessedMap object.
+
+    ///\brief \ref named-func-param "Named parameter" for setting
+    ///the processed map.
     ///
-    /// \ref named-func-param "Named parameter"
-    ///for setting ProcessedMap object.
+    ///\ref named-templ-param "Named parameter" function for setting
+    ///the map that indicates which nodes are processed.
     template<class T>
     DijkstraWizard<SetProcessedMapBase<T> > processedMap(const T &t)
     {
@@ -1239,6 +1238,7 @@ namespace lemon {
       typedef T Path;
       SetPathBase(const TR &b) : TR(b) {}
     };
+
     ///\brief \ref named-func-param "Named parameter"
     ///for getting the shortest path to the target node.
     ///

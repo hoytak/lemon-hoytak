@@ -52,7 +52,11 @@ namespace lemon {
     ///
     /// The type of the map that stores the flow values.
     /// It must meet the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+#ifdef DOXYGEN
+    typedef GR::ArcMap<Value> FlowMap;
+#else
     typedef typename Digraph::template ArcMap<Value> FlowMap;
+#endif
 
     /// \brief Instantiates a FlowMap.
     ///
@@ -67,9 +71,12 @@ namespace lemon {
     ///
     /// The elevator type used by Preflow algorithm.
     ///
-    /// \sa Elevator
-    /// \sa LinkedElevator
-    typedef LinkedElevator<Digraph, typename Digraph::Node> Elevator;
+    /// \sa Elevator, LinkedElevator
+#ifdef DOXYGEN
+    typedef lemon::Elevator<GR, GR::Node> Elevator;
+#else
+    typedef lemon::Elevator<Digraph, typename Digraph::Node> Elevator;
+#endif
 
     /// \brief Instantiates an Elevator.
     ///
@@ -95,9 +102,10 @@ namespace lemon {
   ///
   /// This class provides an implementation of Goldberg-Tarjan's \e preflow
   /// \e push-relabel algorithm producing a \ref max_flow
-  /// "flow of maximum value" in a digraph.
+  /// "flow of maximum value" in a digraph \ref clrs01algorithms,
+  /// \ref amo93networkflows, \ref goldberg88newapproach.
   /// The preflow algorithms are the fastest known maximum
-  /// flow algorithms. The current implementation use a mixture of the
+  /// flow algorithms. The current implementation uses a mixture of the
   /// \e "highest label" and the \e "bound decrease" heuristics.
   /// The worst case time complexity of the algorithm is \f$O(n^2\sqrt{e})\f$.
   ///
@@ -257,7 +265,7 @@ namespace lemon {
     /// The Elevator should have standard constructor interface to be
     /// able to automatically created by the algorithm (i.e. the
     /// digraph and the maximum level should be passed to it).
-    /// However an external elevator object could also be passed to the
+    /// However, an external elevator object could also be passed to the
     /// algorithm with the \ref elevator(Elevator&) "elevator()" function
     /// before calling \ref run() or \ref init().
     /// \sa SetElevator
@@ -371,26 +379,28 @@ namespace lemon {
       return *_level;
     }
 
-    /// \brief Sets the tolerance used by algorithm.
+    /// \brief Sets the tolerance used by the algorithm.
     ///
-    /// Sets the tolerance used by algorithm.
-    Preflow& tolerance(const Tolerance& tolerance) const {
+    /// Sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
+    Preflow& tolerance(const Tolerance& tolerance) {
       _tolerance = tolerance;
       return *this;
     }
 
     /// \brief Returns a const reference to the tolerance.
     ///
-    /// Returns a const reference to the tolerance.
+    /// Returns a const reference to the tolerance object used by
+    /// the algorithm.
     const Tolerance& tolerance() const {
-      return tolerance;
+      return _tolerance;
     }
 
     /// \name Execution Control
     /// The simplest way to execute the preflow algorithm is to use
     /// \ref run() or \ref runMinCut().\n
-    /// If you need more control on the initial solution or the execution,
-    /// first you have to call one of the \ref init() functions, then
+    /// If you need better control on the initial solution or the execution,
+    /// you have to call one of the \ref init() functions first, then
     /// \ref startFirstPhase() and if you need it \ref startSecondPhase().
 
     ///@{

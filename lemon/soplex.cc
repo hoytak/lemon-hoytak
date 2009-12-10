@@ -91,6 +91,19 @@ namespace lemon {
     return soplex->nRows() - 1;
   }
 
+  int SoplexLp::_addRow(Value l, ExprIterator b, ExprIterator e, Value u) {
+    soplex::DSVector v;
+    for (ExprIterator it = b; it != e; ++it) {
+      v.add(it->first, it->second);
+    }
+    soplex::LPRow r(l, v, u);
+    soplex->addRow(r);
+
+    _row_names.push_back(std::string());
+
+    return soplex->nRows() - 1;
+  }
+
 
   void SoplexLp::_eraseCol(int i) {
     soplex->removeCol(i);

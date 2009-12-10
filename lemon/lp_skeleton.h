@@ -45,6 +45,8 @@ namespace lemon {
     /// \e
     virtual int _addRow();
     /// \e
+    virtual int _addRow(Value l, ExprIterator b, ExprIterator e, Value u);
+    /// \e
     virtual void _eraseCol(int i);
     /// \e
     virtual void _eraseRow(int i);

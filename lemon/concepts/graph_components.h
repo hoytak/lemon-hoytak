@@ -18,7 +18,7 @@
 
 ///\ingroup graph_concepts
 ///\file
-///\brief The concept of graph components.
+///\brief The concepts of graph components.
 
 #ifndef LEMON_CONCEPTS_GRAPH_COMPONENTS_H
 #define LEMON_CONCEPTS_GRAPH_COMPONENTS_H
@@ -92,7 +92,7 @@ namespace lemon {
       /// It makes possible to use graph item types as key types in 
       /// associative containers (e.g. \c std::map).
       ///
-      /// \note This operator only have to define some strict ordering of
+      /// \note This operator only has to define some strict ordering of
       /// the items; this order has nothing to do with the iteration
       /// ordering of the items.
       bool operator<(const GraphItem&) const { return false; }

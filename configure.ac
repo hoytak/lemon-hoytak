@@ -41,6 +41,7 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
 AC_CHECK_PROG([doxygen_found],[doxygen],[yes],[no])
+AC_CHECK_PROG([python_found],[python],[yes],[no])
 AC_CHECK_PROG([gs_found],[gs],[yes],[no])
 
 dnl Detect Intel compiler.
@@ -81,6 +82,21 @@ else
   AC_MSG_RESULT([no])
 fi
 AM_CONDITIONAL([WANT_TOOLS], [test x"$enable_tools" != x"no"])
+
+dnl Support for running test cases using valgrind.
+use_valgrind=no
+AC_ARG_ENABLE([valgrind],
+AS_HELP_STRING([--enable-valgrind], [use valgrind when running tests]),
+              [use_valgrind=yes])
+
+if [[ "$use_valgrind" = "yes" ]]; then
+  AC_CHECK_PROG(HAVE_VALGRIND, valgrind, yes, no)
+
+  if [[ "$HAVE_VALGRIND" = "no" ]]; then
+    AC_MSG_ERROR([Valgrind not found in PATH.])
+  fi
+fi
+AM_CONDITIONAL(USE_VALGRIND, [test "$use_valgrind" = "yes"])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(limits.h sys/time.h sys/times.h unistd.h)
@@ -127,6 +143,7 @@ echo CLP support................... : $lx_clp_found
 echo CBC support................... : $lx_cbc_found
 echo
 echo Build additional tools........ : $enable_tools
+echo Use valgrind for tests........ : $use_valgrind
 echo
 echo The packace will be installed in
 echo -n '  '

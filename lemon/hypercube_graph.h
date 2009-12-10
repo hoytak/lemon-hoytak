@@ -262,7 +262,7 @@ namespace lemon {
       return arc._id >> _dim;
     }
 
-    int index(Node node) const {
+    static int index(Node node) {
       return node._id;
     }
 
@@ -282,17 +282,23 @@ namespace lemon {
   ///
   /// \brief Hypercube graph class
   ///
-  /// This class implements a special graph type. The nodes of the graph
-  /// are indiced with integers with at most \c dim binary digits.
+  /// HypercubeGraph implements a special graph type. The nodes of the
+  /// graph are indexed with integers having at most \c dim binary digits.
   /// Two nodes are connected in the graph if and only if their indices
   /// differ only on one position in the binary form.
+  /// This class is completely static and it needs constant memory space.
+  /// Thus you can neither add nor delete nodes or edges, however,
+  /// the structure can be resized using resize().
+  ///
+  /// This type fully conforms to the \ref concepts::Graph "Graph concept".
+  /// Most of its member functions and nested classes are documented
+  /// only in the concept class.
+  ///
+  /// This class provides constant time counting for nodes, edges and arcs.
   ///
   /// \note The type of the indices is chosen to \c int for efficiency
   /// reasons. Thus the maximum dimension of this implementation is 26
   /// (assuming that the size of \c int is 32 bit).
-  ///
-  /// This graph type fully conforms to the \ref concepts::Graph
-  /// "Graph concept".
   class HypercubeGraph : public ExtendedHypercubeGraphBase {
     typedef ExtendedHypercubeGraphBase Parent;
 
@@ -302,6 +308,21 @@ namespace lemon {
     ///
     /// Constructs a hypercube graph with \c dim dimensions.
     HypercubeGraph(int dim) { construct(dim); }
+
+    /// \brief Resizes the graph
+    ///
+    /// This function resizes the graph. It fully destroys and
+    /// rebuilds the structure, therefore the maps of the graph will be
+    /// reallocated automatically and the previous values will be lost.
+    void resize(int dim) {
+      Parent::notifier(Arc()).clear();
+      Parent::notifier(Edge()).clear();
+      Parent::notifier(Node()).clear();
+      construct(dim);
+      Parent::notifier(Node()).build();
+      Parent::notifier(Edge()).build();
+      Parent::notifier(Arc()).build();
+    }
 
     /// \brief The number of dimensions.
     ///
@@ -320,7 +341,7 @@ namespace lemon {
     /// \brief The dimension id of an edge.
     ///
     /// Gives back the dimension id of the given edge.
-    /// It is in the [0..dim-1] range.
+    /// It is in the range <tt>[0..dim-1]</tt>.
     int dimension(Edge edge) const {
       return Parent::dimension(edge);
     }
@@ -328,7 +349,7 @@ namespace lemon {
     /// \brief The dimension id of an arc.
     ///
     /// Gives back the dimension id of the given arc.
-    /// It is in the [0..dim-1] range.
+    /// It is in the range <tt>[0..dim-1]</tt>.
     int dimension(Arc arc) const {
       return Parent::dimension(arc);
     }
@@ -337,7 +358,7 @@ namespace lemon {
     ///
     /// Gives back the index of the given node.
     /// The lower bits of the integer describes the node.
-    int index(Node node) const {
+    static int index(Node node) {
       return Parent::index(node);
     }
 

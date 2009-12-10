@@ -32,10 +32,7 @@
 namespace lemon {
 
   class SmartDigraph;
-  ///Base of SmartDigraph
 
-  ///Base of SmartDigraph
-  ///
   class SmartDigraphBase {
   protected:
 
@@ -187,28 +184,28 @@ namespace lemon {
   ///
   ///\brief A smart directed graph class.
   ///
-  ///This is a simple and fast digraph implementation.
-  ///It is also quite memory efficient, but at the price
-  ///that <b> it does support only limited (only stack-like)
-  ///node and arc deletions</b>.
-  ///It fully conforms to the \ref concepts::Digraph "Digraph concept".
+  ///\ref SmartDigraph is a simple and fast digraph implementation.
+  ///It is also quite memory efficient but at the price
+  ///that it does not support node and arc deletion 
+  ///(except for the Snapshot feature).
   ///
-  ///\sa concepts::Digraph.
+  ///This type fully conforms to the \ref concepts::Digraph "Digraph concept"
+  ///and it also provides some additional functionalities.
+  ///Most of its member functions and nested classes are documented
+  ///only in the concept class.
+  ///
+  ///This class provides constant time counting for nodes and arcs.
+  ///
+  ///\sa concepts::Digraph
+  ///\sa SmartGraph
   class SmartDigraph : public ExtendedSmartDigraphBase {
     typedef ExtendedSmartDigraphBase Parent;
 
   private:
-
-    ///SmartDigraph is \e not copy constructible. Use DigraphCopy() instead.
-
-    ///SmartDigraph is \e not copy constructible. Use DigraphCopy() instead.
-    ///
+    /// Digraphs are \e not copy constructible. Use DigraphCopy instead.
     SmartDigraph(const SmartDigraph &) : ExtendedSmartDigraphBase() {};
-    ///\brief Assignment of SmartDigraph to another one is \e not allowed.
-    ///Use DigraphCopy() instead.
-
-    ///Assignment of SmartDigraph to another one is \e not allowed.
-    ///Use DigraphCopy() instead.
+    /// \brief Assignment of a digraph to another one is \e not allowed.
+    /// Use DigraphCopy instead.
     void operator=(const SmartDigraph &) {}
 
   public:
@@ -221,79 +218,49 @@ namespace lemon {
 
     ///Add a new node to the digraph.
 
-    /// Add a new node to the digraph.
-    /// \return The new node.
+    ///This function adds a new node to the digraph.
+    ///\return The new node.
     Node addNode() { return Parent::addNode(); }
 
     ///Add a new arc to the digraph.
 
-    ///Add a new arc to the digraph with source node \c s
+    ///This function adds a new arc to the digraph with source node \c s
     ///and target node \c t.
     ///\return The new arc.
-    Arc addArc(const Node& s, const Node& t) {
+    Arc addArc(Node s, Node t) {
       return Parent::addArc(s, t);
     }
 
-    /// \brief Using this it is possible to avoid the superfluous memory
-    /// allocation.
-
-    /// Using this it is possible to avoid the superfluous memory
-    /// allocation: if you know that the digraph you want to build will
-    /// be very large (e.g. it will contain millions of nodes and/or arcs)
-    /// then it is worth reserving space for this amount before starting
-    /// to build the digraph.
-    /// \sa reserveArc
-    void reserveNode(int n) { nodes.reserve(n); };
-
-    /// \brief Using this it is possible to avoid the superfluous memory
-    /// allocation.
-
-    /// Using this it is possible to avoid the superfluous memory
-    /// allocation: if you know that the digraph you want to build will
-    /// be very large (e.g. it will contain millions of nodes and/or arcs)
-    /// then it is worth reserving space for this amount before starting
-    /// to build the digraph.
-    /// \sa reserveNode
-    void reserveArc(int m) { arcs.reserve(m); };
-
     /// \brief Node validity check
     ///
-    /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.
+    /// This function gives back \c true if the given node is valid,
+    /// i.e. it is a real node of the digraph.
     ///
     /// \warning A removed node (using Snapshot) could become valid again
-    /// when new nodes are added to the graph.
+    /// if new nodes are added to the digraph.
     bool valid(Node n) const { return Parent::valid(n); }
 
     /// \brief Arc validity check
     ///
-    /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.
+    /// This function gives back \c true if the given arc is valid,
+    /// i.e. it is a real arc of the digraph.
     ///
     /// \warning A removed arc (using Snapshot) could become valid again
-    /// when new arcs are added to the graph.
+    /// if new arcs are added to the graph.
     bool valid(Arc a) const { return Parent::valid(a); }
-
-    ///Clear the digraph.
-
-    ///Erase all the nodes and arcs from the digraph.
-    ///
-    void clear() {
-      Parent::clear();
-    }
 
     ///Split a node.
 
-    ///This function splits a node. First a new node is added to the digraph,
-    ///then the source of each outgoing arc of \c n is moved to this new node.
-    ///If \c connect is \c true (this is the default value), then a new arc
-    ///from \c n to the newly created node is also added.
+    ///This function splits the given node. First, a new node is added
+    ///to the digraph, then the source of each outgoing arc of node \c n
+    ///is moved to this new node.
+    ///If the second parameter \c connect is \c true (this is the default
+    ///value), then a new arc from node \c n to the newly created node
+    ///is also added.
     ///\return The newly created node.
     ///
-    ///\note The <tt>Arc</tt>s
-    ///referencing a moved arc remain
-    ///valid. However <tt>InArc</tt>'s and <tt>OutArc</tt>'s
-    ///may be invalidated.
+    ///\note All iterators remain valid.
+    ///
     ///\warning This functionality cannot be used together with the Snapshot
     ///feature.
     Node split(Node n, bool connect = true)
@@ -307,6 +274,34 @@ namespace lemon {
       if(connect) addArc(n,b);
       return b;
     }
+
+    ///Clear the digraph.
+
+    ///This function erases all nodes and arcs from the digraph.
+    ///
+    void clear() {
+      Parent::clear();
+    }
+
+    /// Reserve memory for nodes.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the digraph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or arcs),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the digraph.
+    /// \sa reserveArc()
+    void reserveNode(int n) { nodes.reserve(n); };
+
+    /// Reserve memory for arcs.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the digraph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or arcs),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the digraph.
+    /// \sa reserveNode()
+    void reserveArc(int m) { arcs.reserve(m); };
 
   public:
 
@@ -332,20 +327,23 @@ namespace lemon {
 
   public:
 
-    ///Class to make a snapshot of the digraph and to restrore to it later.
+    ///Class to make a snapshot of the digraph and to restore it later.
 
-    ///Class to make a snapshot of the digraph and to restrore to it later.
+    ///Class to make a snapshot of the digraph and to restore it later.
     ///
     ///The newly added nodes and arcs can be removed using the
-    ///restore() function.
-    ///\note After you restore a state, you cannot restore
-    ///a later state, in other word you cannot add again the arcs deleted
-    ///by restore() using another one Snapshot instance.
+    ///restore() function. This is the only way for deleting nodes and/or
+    ///arcs from a SmartDigraph structure.
     ///
-    ///\warning If you do not use correctly the snapshot that can cause
-    ///either broken program, invalid state of the digraph, valid but
-    ///not the restored digraph or no change. Because the runtime performance
-    ///the validity of the snapshot is not stored.
+    ///\note After a state is restored, you cannot restore a later state, 
+    ///i.e. you cannot add the removed nodes and arcs again using
+    ///another Snapshot instance.
+    ///
+    ///\warning Node splitting cannot be restored.
+    ///\warning The validity of the snapshot is not stored due to
+    ///performance reasons. If you do not use the snapshot correctly,
+    ///it can cause broken program, invalid or not restored state of
+    ///the digraph or no change.
     class Snapshot
     {
       SmartDigraph *_graph;
@@ -357,39 +355,32 @@ namespace lemon {
       ///Default constructor.
 
       ///Default constructor.
-      ///To actually make a snapshot you must call save().
-      ///
+      ///You have to call save() to actually make a snapshot.
       Snapshot() : _graph(0) {}
       ///Constructor that immediately makes a snapshot
 
-      ///This constructor immediately makes a snapshot of the digraph.
-      ///\param graph The digraph we make a snapshot of.
-      Snapshot(SmartDigraph &graph) : _graph(&graph) {
+      ///This constructor immediately makes a snapshot of the given digraph.
+      ///
+      Snapshot(SmartDigraph &gr) : _graph(&gr) {
         node_num=_graph->nodes.size();
         arc_num=_graph->arcs.size();
       }
 
       ///Make a snapshot.
 
-      ///Make a snapshot of the digraph.
-      ///
-      ///This function can be called more than once. In case of a repeated
+      ///This function makes a snapshot of the given digraph.
+      ///It can be called more than once. In case of a repeated
       ///call, the previous snapshot gets lost.
-      ///\param graph The digraph we make the snapshot of.
-      void save(SmartDigraph &graph)
-      {
-        _graph=&graph;
+      void save(SmartDigraph &gr) {
+        _graph=&gr;
         node_num=_graph->nodes.size();
         arc_num=_graph->arcs.size();
       }
 
       ///Undo the changes until a snapshot.
 
-      ///Undo the changes until a snapshot created by save().
-      ///
-      ///\note After you restored a state, you cannot restore
-      ///a later state, in other word you cannot add again the arcs deleted
-      ///by restore().
+      ///This function undos the changes until the last snapshot
+      ///created by save() or Snapshot(SmartDigraph&).
       void restore()
       {
         _graph->restoreSnapshot(*this);
@@ -508,7 +499,7 @@ namespace lemon {
       node._id = nodes.size() - 1;
     }
 
-    void next(Node& node) const {
+    static void next(Node& node) {
       --node._id;
     }
 
@@ -516,7 +507,7 @@ namespace lemon {
       arc._id = arcs.size() - 1;
     }
 
-    void next(Arc& arc) const {
+    static void next(Arc& arc) {
       --arc._id;
     }
 
@@ -524,7 +515,7 @@ namespace lemon {
       arc._id = arcs.size() / 2 - 1;
     }
 
-    void next(Edge& arc) const {
+    static void next(Edge& arc) {
       --arc._id;
     }
 
@@ -621,29 +612,28 @@ namespace lemon {
   ///
   /// \brief A smart undirected graph class.
   ///
-  /// This is a simple and fast graph implementation.
-  /// It is also quite memory efficient, but at the price
-  /// that <b> it does support only limited (only stack-like)
-  /// node and arc deletions</b>.
-  /// It fully conforms to the \ref concepts::Graph "Graph concept".
+  /// \ref SmartGraph is a simple and fast graph implementation.
+  /// It is also quite memory efficient but at the price
+  /// that it does not support node and edge deletion 
+  /// (except for the Snapshot feature).
   ///
-  /// \sa concepts::Graph.
+  /// This type fully conforms to the \ref concepts::Graph "Graph concept"
+  /// and it also provides some additional functionalities.
+  /// Most of its member functions and nested classes are documented
+  /// only in the concept class.
+  ///
+  /// This class provides constant time counting for nodes, edges and arcs.
+  ///
+  /// \sa concepts::Graph
+  /// \sa SmartDigraph
   class SmartGraph : public ExtendedSmartGraphBase {
     typedef ExtendedSmartGraphBase Parent;
 
   private:
-
-    ///SmartGraph is \e not copy constructible. Use GraphCopy() instead.
-
-    ///SmartGraph is \e not copy constructible. Use GraphCopy() instead.
-    ///
+    /// Graphs are \e not copy constructible. Use GraphCopy instead.
     SmartGraph(const SmartGraph &) : ExtendedSmartGraphBase() {};
-
-    ///\brief Assignment of SmartGraph to another one is \e not allowed.
-    ///Use GraphCopy() instead.
-
-    ///Assignment of SmartGraph to another one is \e not allowed.
-    ///Use GraphCopy() instead.
+    /// \brief Assignment of a graph to another one is \e not allowed.
+    /// Use GraphCopy instead.
     void operator=(const SmartGraph &) {}
 
   public:
@@ -654,55 +644,76 @@ namespace lemon {
     ///
     SmartGraph() {}
 
-    ///Add a new node to the graph.
-
-    /// Add a new node to the graph.
+    /// \brief Add a new node to the graph.
+    ///
+    /// This function adds a new node to the graph.
     /// \return The new node.
     Node addNode() { return Parent::addNode(); }
 
-    ///Add a new edge to the graph.
-
-    ///Add a new edge to the graph with node \c s
-    ///and \c t.
-    ///\return The new edge.
-    Edge addEdge(const Node& s, const Node& t) {
-      return Parent::addEdge(s, t);
+    /// \brief Add a new edge to the graph.
+    ///
+    /// This function adds a new edge to the graph between nodes
+    /// \c u and \c v with inherent orientation from node \c u to
+    /// node \c v.
+    /// \return The new edge.
+    Edge addEdge(Node u, Node v) {
+      return Parent::addEdge(u, v);
     }
 
     /// \brief Node validity check
     ///
-    /// This function gives back true if the given node is valid,
-    /// ie. it is a real node of the graph.
+    /// This function gives back \c true if the given node is valid,
+    /// i.e. it is a real node of the graph.
     ///
     /// \warning A removed node (using Snapshot) could become valid again
-    /// when new nodes are added to the graph.
+    /// if new nodes are added to the graph.
     bool valid(Node n) const { return Parent::valid(n); }
-
-    /// \brief Arc validity check
-    ///
-    /// This function gives back true if the given arc is valid,
-    /// ie. it is a real arc of the graph.
-    ///
-    /// \warning A removed arc (using Snapshot) could become valid again
-    /// when new edges are added to the graph.
-    bool valid(Arc a) const { return Parent::valid(a); }
 
     /// \brief Edge validity check
     ///
-    /// This function gives back true if the given edge is valid,
-    /// ie. it is a real edge of the graph.
+    /// This function gives back \c true if the given edge is valid,
+    /// i.e. it is a real edge of the graph.
     ///
     /// \warning A removed edge (using Snapshot) could become valid again
-    /// when new edges are added to the graph.
+    /// if new edges are added to the graph.
     bool valid(Edge e) const { return Parent::valid(e); }
+
+    /// \brief Arc validity check
+    ///
+    /// This function gives back \c true if the given arc is valid,
+    /// i.e. it is a real arc of the graph.
+    ///
+    /// \warning A removed arc (using Snapshot) could become valid again
+    /// if new edges are added to the graph.
+    bool valid(Arc a) const { return Parent::valid(a); }
 
     ///Clear the graph.
 
-    ///Erase all the nodes and edges from the graph.
+    ///This function erases all nodes and arcs from the graph.
     ///
     void clear() {
       Parent::clear();
     }
+
+    /// Reserve memory for nodes.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveEdge()
+    void reserveNode(int n) { nodes.reserve(n); };
+
+    /// Reserve memory for edges.
+
+    /// Using this function, it is possible to avoid superfluous memory
+    /// allocation: if you know that the graph you want to build will
+    /// be large (e.g. it will contain millions of nodes and/or edges),
+    /// then it is worth reserving space for this amount before starting
+    /// to build the graph.
+    /// \sa reserveNode()
+    void reserveEdge(int m) { arcs.reserve(2 * m); };
 
   public:
 
@@ -742,21 +753,22 @@ namespace lemon {
 
   public:
 
-    ///Class to make a snapshot of the digraph and to restrore to it later.
+    ///Class to make a snapshot of the graph and to restore it later.
 
-    ///Class to make a snapshot of the digraph and to restrore to it later.
+    ///Class to make a snapshot of the graph and to restore it later.
     ///
-    ///The newly added nodes and arcs can be removed using the
-    ///restore() function.
+    ///The newly added nodes and edges can be removed using the
+    ///restore() function. This is the only way for deleting nodes and/or
+    ///edges from a SmartGraph structure.
     ///
-    ///\note After you restore a state, you cannot restore
-    ///a later state, in other word you cannot add again the arcs deleted
-    ///by restore() using another one Snapshot instance.
+    ///\note After a state is restored, you cannot restore a later state, 
+    ///i.e. you cannot add the removed nodes and edges again using
+    ///another Snapshot instance.
     ///
-    ///\warning If you do not use correctly the snapshot that can cause
-    ///either broken program, invalid state of the digraph, valid but
-    ///not the restored digraph or no change. Because the runtime performance
-    ///the validity of the snapshot is not stored.
+    ///\warning The validity of the snapshot is not stored due to
+    ///performance reasons. If you do not use the snapshot correctly,
+    ///it can cause broken program, invalid or not restored state of
+    ///the graph or no change.
     class Snapshot
     {
       SmartGraph *_graph;
@@ -768,36 +780,30 @@ namespace lemon {
       ///Default constructor.
 
       ///Default constructor.
-      ///To actually make a snapshot you must call save().
-      ///
+      ///You have to call save() to actually make a snapshot.
       Snapshot() : _graph(0) {}
       ///Constructor that immediately makes a snapshot
 
-      ///This constructor immediately makes a snapshot of the digraph.
-      ///\param graph The digraph we make a snapshot of.
-      Snapshot(SmartGraph &graph) {
-        graph.saveSnapshot(*this);
+      /// This constructor immediately makes a snapshot of the given graph.
+      ///
+      Snapshot(SmartGraph &gr) {
+        gr.saveSnapshot(*this);
       }
 
       ///Make a snapshot.
 
-      ///Make a snapshot of the graph.
-      ///
-      ///This function can be called more than once. In case of a repeated
+      ///This function makes a snapshot of the given graph.
+      ///It can be called more than once. In case of a repeated
       ///call, the previous snapshot gets lost.
-      ///\param graph The digraph we make the snapshot of.
-      void save(SmartGraph &graph)
+      void save(SmartGraph &gr)
       {
-        graph.saveSnapshot(*this);
+        gr.saveSnapshot(*this);
       }
 
-      ///Undo the changes until a snapshot.
+      ///Undo the changes until the last snapshot.
 
-      ///Undo the changes until a snapshot created by save().
-      ///
-      ///\note After you restored a state, you cannot restore
-      ///a later state, in other word you cannot add again the arcs deleted
-      ///by restore().
+      ///This function undos the changes until the last snapshot
+      ///created by save() or Snapshot(SmartGraph&).
       void restore()
       {
         _graph->restoreSnapshot(*this);
