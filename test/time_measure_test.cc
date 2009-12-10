@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -39,18 +39,16 @@ int main()
 {
   Timer T;
   unsigned int n;
-  for(n=0;T.realTime()<1.0;n++) ;
+  for(n=0;T.realTime()<0.1;n++) ;
   std::cout << T << " (" << n << " time queries)\n";
-  T.restart();
-  while(T.realTime()<2.0) ;
-  std::cout << T << '\n';
+
   TimeStamp full;
   TimeStamp t;
-  t=runningTimeTest(f,1,&n,&full);
+  t=runningTimeTest(f,0.1,&n,&full);
   std::cout << t << " (" << n << " tests)\n";
   std::cout << "Total: " << full << "\n";
 
-  t=runningTimeTest(g,1,&n,&full);
+  t=runningTimeTest(g,0.1,&n,&full);
   std::cout << t << " (" << n << " tests)\n";
   std::cout << "Total: " << full << "\n";
 

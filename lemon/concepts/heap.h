@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -20,10 +20,11 @@
 ///\file
 ///\brief The concept of heaps.
 
-#ifndef LEMON_CONCEPT_HEAP_H
-#define LEMON_CONCEPT_HEAP_H
+#ifndef LEMON_CONCEPTS_HEAP_H
+#define LEMON_CONCEPTS_HEAP_H
 
 #include <lemon/core.h>
+#include <lemon/concept_check.h>
 
 namespace lemon {
 
@@ -34,16 +35,31 @@ namespace lemon {
 
     /// \brief The heap concept.
     ///
-    /// Concept class describing the main interface of heaps.
-    template <typename Priority, typename ItemIntMap>
+    /// Concept class describing the main interface of heaps. A \e heap
+    /// is a data structure for storing items with specified values called
+    /// \e priorities in such a way that finding the item with minimum
+    /// priority is efficient. In a heap one can change the priority of an
+    /// item, add or erase an item, etc.
+    ///
+    /// \tparam PR Type of the priority of the items.
+    /// \tparam IM A read and writable item map with int values, used
+    /// internally to handle the cross references.
+    /// \tparam Comp A functor class for the ordering of the priorities.
+    /// The default is \c std::less<PR>.
+#ifdef DOXYGEN
+    template <typename PR, typename IM, typename Comp = std::less<PR> >
+#else
+    template <typename PR, typename IM>
+#endif
     class Heap {
     public:
 
+      /// Type of the item-int map.
+      typedef IM ItemIntMap;
+      /// Type of the priorities.
+      typedef PR Prio;
       /// Type of the items stored in the heap.
       typedef typename ItemIntMap::Key Item;
-
-      /// Type of the priorities.
-      typedef Priority Prio;
 
       /// \brief Type to represent the states of the items.
       ///
@@ -52,12 +68,12 @@ namespace lemon {
       /// from the point of view of the heap, but may be useful for
       /// the user.
       ///
-      /// The \c ItemIntMap must be initialized in such a way, that it
-      /// assigns \c PRE_HEAP (<tt>-1</tt>) to every item.
+      /// The item-int map must be initialized in such way that it assigns
+      /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
       enum State {
-        IN_HEAP = 0,
-        PRE_HEAP = -1,
-        POST_HEAP = -2
+        IN_HEAP = 0,    ///< = 0. The "in heap" state constant.
+        PRE_HEAP = -1,  ///< = -1. The "pre heap" state constant.
+        POST_HEAP = -2  ///< = -2. The "post heap" state constant.
       };
 
       /// \brief The constructor.
@@ -118,8 +134,8 @@ namespace lemon {
       /// \brief The priority of an item.
       ///
       /// Returns the priority of the given item.
-      /// \pre \c i must be in the heap.
       /// \param i The item.
+      /// \pre \c i must be in the heap.
       Prio operator[](const Item &i) const {}
 
       /// \brief Sets the priority of an item or inserts it, if it is
@@ -136,17 +152,17 @@ namespace lemon {
       /// \brief Decreases the priority of an item to the given value.
       ///
       /// Decreases the priority of an item to the given value.
-      /// \pre \c i must be stored in the heap with priority at least \c p.
       /// \param i The item.
       /// \param p The priority.
+      /// \pre \c i must be stored in the heap with priority at least \c p.
       void decrease(const Item &i, const Prio &p) {}
 
       /// \brief Increases the priority of an item to the given value.
       ///
       /// Increases the priority of an item to the given value.
-      /// \pre \c i must be stored in the heap with priority at most \c p.
       /// \param i The item.
       /// \param p The priority.
+      /// \pre \c i must be stored in the heap with priority at most \c p.
       void increase(const Item &i, const Prio &p) {}
 
       /// \brief Returns if an item is in, has already been in, or has
@@ -242,4 +258,4 @@ namespace lemon {
     /// @}
   } // namespace lemon
 }
-#endif // LEMON_CONCEPT_PATH_H
+#endif

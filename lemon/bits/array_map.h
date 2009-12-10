@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -36,25 +36,24 @@ namespace lemon {
   //
   // \brief Graph map based on the array storage.
   //
-  // The ArrayMap template class is graph map structure what
-  // automatically updates the map when a key is added to or erased from
-  // the map. This map uses the allocators to implement
-  // the container functionality.
+  // The ArrayMap template class is graph map structure that automatically
+  // updates the map when a key is added to or erased from the graph.
+  // This map uses the allocators to implement the container functionality.
   //
-  // The template parameters are the Graph the current Item type and
+  // The template parameters are the Graph, the current Item type and
   // the Value type of the map.
   template <typename _Graph, typename _Item, typename _Value>
   class ArrayMap
     : public ItemSetTraits<_Graph, _Item>::ItemNotifier::ObserverBase {
   public:
-    // The graph type of the maps.
-    typedef _Graph Graph;
-    // The item type of the map.
+    // The graph type.
+    typedef _Graph GraphType;
+    // The item type.
     typedef _Item Item;
     // The reference map tag.
     typedef True ReferenceMapTag;
 
-    // The key type of the maps.
+    // The key type of the map.
     typedef _Item Key;
     // The value type of the map.
     typedef _Value Value;
@@ -64,13 +63,17 @@ namespace lemon {
     // The reference type of the map.
     typedef _Value& Reference;
 
+    // The map type.
+    typedef ArrayMap Map;
+
     // The notifier type.
     typedef typename ItemSetTraits<_Graph, _Item>::ItemNotifier Notifier;
 
+  private:
+  
     // The MapBase of the Map which imlements the core regisitry function.
     typedef typename Notifier::ObserverBase Parent;
 
-  private:
     typedef std::allocator<Value> Allocator;
 
   public:
@@ -78,7 +81,7 @@ namespace lemon {
     // \brief Graph initialized map constructor.
     //
     // Graph initialized map constructor.
-    explicit ArrayMap(const Graph& graph) {
+    explicit ArrayMap(const GraphType& graph) {
       Parent::attach(graph.notifier(Item()));
       allocate_memory();
       Notifier* nf = Parent::notifier();
@@ -92,7 +95,7 @@ namespace lemon {
     // \brief Constructor to use default value to initialize the map.
     //
     // It constructs a map and initialize all of the the map.
-    ArrayMap(const Graph& graph, const Value& value) {
+    ArrayMap(const GraphType& graph, const Value& value) {
       Parent::attach(graph.notifier(Item()));
       allocate_memory();
       Notifier* nf = Parent::notifier();
@@ -136,7 +139,7 @@ namespace lemon {
 
     // \brief Template assign operator.
     //
-    // The given parameter should be conform to the ReadMap
+    // The given parameter should conform to the ReadMap
     // concecpt and could be indiced by the current item set of
     // the NodeMap. In this case the value for each item
     // is assigned by the value of the given ReadMap.
@@ -200,7 +203,7 @@ namespace lemon {
 
     // \brief Adds a new key to the map.
     //
-    // It adds a new key to the map. It called by the observer notifier
+    // It adds a new key to the map. It is called by the observer notifier
     // and it overrides the add() member function of the observer base.
     virtual void add(const Key& key) {
       Notifier* nf = Parent::notifier();
@@ -228,7 +231,7 @@ namespace lemon {
 
     // \brief Adds more new keys to the map.
     //
-    // It adds more new keys to the map. It called by the observer notifier
+    // It adds more new keys to the map. It is called by the observer notifier
     // and it overrides the add() member function of the observer base.
     virtual void add(const std::vector<Key>& keys) {
       Notifier* nf = Parent::notifier();
@@ -272,7 +275,7 @@ namespace lemon {
 
     // \brief Erase a key from the map.
     //
-    // Erase a key from the map. It called by the observer notifier
+    // Erase a key from the map. It is called by the observer notifier
     // and it overrides the erase() member function of the observer base.
     virtual void erase(const Key& key) {
       int id = Parent::notifier()->id(key);
@@ -281,7 +284,7 @@ namespace lemon {
 
     // \brief Erase more keys from the map.
     //
-    // Erase more keys from the map. It called by the observer notifier
+    // Erase more keys from the map. It is called by the observer notifier
     // and it overrides the erase() member function of the observer base.
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
@@ -290,9 +293,9 @@ namespace lemon {
       }
     }
 
-    // \brief Buildes the map.
+    // \brief Builds the map.
     //
-    // It buildes the map. It called by the observer notifier
+    // It builds the map. It is called by the observer notifier
     // and it overrides the build() member function of the observer base.
     virtual void build() {
       Notifier* nf = Parent::notifier();
@@ -306,7 +309,7 @@ namespace lemon {
 
     // \brief Clear the map.
     //
-    // It erase all items from the map. It called by the observer notifier
+    // It erase all items from the map. It is called by the observer notifier
     // and it overrides the clear() member function of the observer base.
     virtual void clear() {
       Notifier* nf = Parent::notifier();

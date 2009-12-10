@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -36,17 +36,20 @@ namespace lemon {
   // \brief Extender for maps
   template <typename _Map>
   class MapExtender : public _Map {
+    typedef _Map Parent;
+    typedef typename Parent::GraphType GraphType;
+
   public:
 
-    typedef _Map Parent;
     typedef MapExtender Map;
-
-
-    typedef typename Parent::Graph Graph;
     typedef typename Parent::Key Item;
 
     typedef typename Parent::Key Key;
     typedef typename Parent::Value Value;
+    typedef typename Parent::Reference Reference;
+    typedef typename Parent::ConstReference ConstReference;
+
+    typedef typename Parent::ReferenceMapTag ReferenceMapTag;
 
     class MapIt;
     class ConstMapIt;
@@ -56,10 +59,10 @@ namespace lemon {
 
   public:
 
-    MapExtender(const Graph& graph)
+    MapExtender(const GraphType& graph)
       : Parent(graph) {}
 
-    MapExtender(const Graph& graph, const Value& value)
+    MapExtender(const GraphType& graph, const Value& value)
       : Parent(graph, value) {}
 
   private:
@@ -75,9 +78,10 @@ namespace lemon {
 
   public:
     class MapIt : public Item {
+      typedef Item Parent;
+
     public:
 
-      typedef Item Parent;
       typedef typename Map::Value Value;
 
       MapIt() : map(NULL) {}
@@ -114,9 +118,9 @@ namespace lemon {
     };
 
     class ConstMapIt : public Item {
-    public:
-
       typedef Item Parent;
+
+    public:
 
       typedef typename Map::Value Value;
 
@@ -145,11 +149,11 @@ namespace lemon {
     };
 
     class ItemIt : public Item {
-    public:
-
       typedef Item Parent;
 
+    public:
       ItemIt() : map(NULL) {}
+
 
       ItemIt(Invalid i) : Parent(i), map(NULL) {}
 
@@ -176,17 +180,20 @@ namespace lemon {
   // \brief Extender for maps which use a subset of the items.
   template <typename _Graph, typename _Map>
   class SubMapExtender : public _Map {
+    typedef _Map Parent;
+    typedef _Graph GraphType;
+
   public:
 
-    typedef _Map Parent;
     typedef SubMapExtender Map;
-
-    typedef _Graph Graph;
-
     typedef typename Parent::Key Item;
 
     typedef typename Parent::Key Key;
     typedef typename Parent::Value Value;
+    typedef typename Parent::Reference Reference;
+    typedef typename Parent::ConstReference ConstReference;
+
+    typedef typename Parent::ReferenceMapTag ReferenceMapTag;
 
     class MapIt;
     class ConstMapIt;
@@ -196,10 +203,10 @@ namespace lemon {
 
   public:
 
-    SubMapExtender(const Graph& _graph)
+    SubMapExtender(const GraphType& _graph)
       : Parent(_graph), graph(_graph) {}
 
-    SubMapExtender(const Graph& _graph, const Value& _value)
+    SubMapExtender(const GraphType& _graph, const Value& _value)
       : Parent(_graph, _value), graph(_graph) {}
 
   private:
@@ -219,9 +226,9 @@ namespace lemon {
 
   public:
     class MapIt : public Item {
-    public:
-
       typedef Item Parent;
+
+    public:
       typedef typename Map::Value Value;
 
       MapIt() : map(NULL) {}
@@ -258,9 +265,9 @@ namespace lemon {
     };
 
     class ConstMapIt : public Item {
-    public:
-
       typedef Item Parent;
+
+    public:
 
       typedef typename Map::Value Value;
 
@@ -289,11 +296,11 @@ namespace lemon {
     };
 
     class ItemIt : public Item {
-    public:
-
       typedef Item Parent;
 
+    public:
       ItemIt() : map(NULL) {}
+
 
       ItemIt(Invalid i) : Parent(i), map(NULL) { }
 
@@ -316,7 +323,7 @@ namespace lemon {
 
   private:
 
-    const Graph& graph;
+    const GraphType& graph;
 
   };
 

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -29,117 +29,123 @@ namespace lemon {
 
   struct InvalidType {};
 
-  template <typename _Graph, typename _Item>
+  template <typename GR, typename _Item>
   class ItemSetTraits {};
 
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct NodeNotifierIndicator {
     typedef InvalidType Type;
   };
-  template <typename Graph>
+  template <typename GR>
   struct NodeNotifierIndicator<
-    Graph,
-    typename enable_if<typename Graph::NodeNotifier::Notifier, void>::type
+    GR,
+    typename enable_if<typename GR::NodeNotifier::Notifier, void>::type
   > {
-    typedef typename Graph::NodeNotifier Type;
+    typedef typename GR::NodeNotifier Type;
   };
 
-  template <typename _Graph>
-  class ItemSetTraits<_Graph, typename _Graph::Node> {
+  template <typename GR>
+  class ItemSetTraits<GR, typename GR::Node> {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
+    typedef GR Digraph;
 
-    typedef typename Graph::Node Item;
-    typedef typename Graph::NodeIt ItemIt;
+    typedef typename GR::Node Item;
+    typedef typename GR::NodeIt ItemIt;
 
-    typedef typename NodeNotifierIndicator<Graph>::Type ItemNotifier;
+    typedef typename NodeNotifierIndicator<GR>::Type ItemNotifier;
 
-    template <typename _Value>
-    class Map : public Graph::template NodeMap<_Value> {
+    template <typename V>
+    class Map : public GR::template NodeMap<V> {
+      typedef typename GR::template NodeMap<V> Parent;
+
     public:
-      typedef typename Graph::template NodeMap<_Value> Parent;
-      typedef typename Graph::template NodeMap<_Value> Type;
+      typedef typename GR::template NodeMap<V> Type;
       typedef typename Parent::Value Value;
 
-      Map(const Graph& _digraph) : Parent(_digraph) {}
-      Map(const Graph& _digraph, const Value& _value)
+      Map(const GR& _digraph) : Parent(_digraph) {}
+      Map(const GR& _digraph, const Value& _value)
         : Parent(_digraph, _value) {}
 
      };
 
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct ArcNotifierIndicator {
     typedef InvalidType Type;
   };
-  template <typename Graph>
+  template <typename GR>
   struct ArcNotifierIndicator<
-    Graph,
-    typename enable_if<typename Graph::ArcNotifier::Notifier, void>::type
+    GR,
+    typename enable_if<typename GR::ArcNotifier::Notifier, void>::type
   > {
-    typedef typename Graph::ArcNotifier Type;
+    typedef typename GR::ArcNotifier Type;
   };
 
-  template <typename _Graph>
-  class ItemSetTraits<_Graph, typename _Graph::Arc> {
+  template <typename GR>
+  class ItemSetTraits<GR, typename GR::Arc> {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
+    typedef GR Digraph;
 
-    typedef typename Graph::Arc Item;
-    typedef typename Graph::ArcIt ItemIt;
+    typedef typename GR::Arc Item;
+    typedef typename GR::ArcIt ItemIt;
 
-    typedef typename ArcNotifierIndicator<Graph>::Type ItemNotifier;
+    typedef typename ArcNotifierIndicator<GR>::Type ItemNotifier;
 
-    template <typename _Value>
-    class Map : public Graph::template ArcMap<_Value> {
+    template <typename V>
+    class Map : public GR::template ArcMap<V> {
+      typedef typename GR::template ArcMap<V> Parent;
+
     public:
-      typedef typename Graph::template ArcMap<_Value> Parent;
-      typedef typename Graph::template ArcMap<_Value> Type;
+      typedef typename GR::template ArcMap<V> Type;
       typedef typename Parent::Value Value;
 
-      Map(const Graph& _digraph) : Parent(_digraph) {}
-      Map(const Graph& _digraph, const Value& _value)
+      Map(const GR& _digraph) : Parent(_digraph) {}
+      Map(const GR& _digraph, const Value& _value)
         : Parent(_digraph, _value) {}
     };
 
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct EdgeNotifierIndicator {
     typedef InvalidType Type;
   };
-  template <typename Graph>
+  template <typename GR>
   struct EdgeNotifierIndicator<
-    Graph,
-    typename enable_if<typename Graph::EdgeNotifier::Notifier, void>::type
+    GR,
+    typename enable_if<typename GR::EdgeNotifier::Notifier, void>::type
   > {
-    typedef typename Graph::EdgeNotifier Type;
+    typedef typename GR::EdgeNotifier Type;
   };
 
-  template <typename _Graph>
-  class ItemSetTraits<_Graph, typename _Graph::Edge> {
+  template <typename GR>
+  class ItemSetTraits<GR, typename GR::Edge> {
   public:
 
-    typedef _Graph Graph;
+    typedef GR Graph;
+    typedef GR Digraph;
 
-    typedef typename Graph::Edge Item;
-    typedef typename Graph::EdgeIt ItemIt;
+    typedef typename GR::Edge Item;
+    typedef typename GR::EdgeIt ItemIt;
 
-    typedef typename EdgeNotifierIndicator<Graph>::Type ItemNotifier;
+    typedef typename EdgeNotifierIndicator<GR>::Type ItemNotifier;
 
-    template <typename _Value>
-    class Map : public Graph::template EdgeMap<_Value> {
+    template <typename V>
+    class Map : public GR::template EdgeMap<V> {
+      typedef typename GR::template EdgeMap<V> Parent;
+
     public:
-      typedef typename Graph::template EdgeMap<_Value> Parent;
-      typedef typename Graph::template EdgeMap<_Value> Type;
+      typedef typename GR::template EdgeMap<V> Type;
       typedef typename Parent::Value Value;
 
-      Map(const Graph& _digraph) : Parent(_digraph) {}
-      Map(const Graph& _digraph, const Value& _value)
+      Map(const GR& _digraph) : Parent(_digraph) {}
+      Map(const GR& _digraph, const Value& _value)
         : Parent(_digraph, _value) {}
     };
 
@@ -204,67 +210,93 @@ namespace lemon {
 
   // Indicators for the tags
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct NodeNumTagIndicator {
     static const bool value = false;
   };
 
-  template <typename Graph>
+  template <typename GR>
   struct NodeNumTagIndicator<
-    Graph,
-    typename enable_if<typename Graph::NodeNumTag, void>::type
+    GR,
+    typename enable_if<typename GR::NodeNumTag, void>::type
   > {
     static const bool value = true;
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
+  struct ArcNumTagIndicator {
+    static const bool value = false;
+  };
+
+  template <typename GR>
+  struct ArcNumTagIndicator<
+    GR,
+    typename enable_if<typename GR::ArcNumTag, void>::type
+  > {
+    static const bool value = true;
+  };
+
+  template <typename GR, typename Enable = void>
   struct EdgeNumTagIndicator {
     static const bool value = false;
   };
 
-  template <typename Graph>
+  template <typename GR>
   struct EdgeNumTagIndicator<
-    Graph,
-    typename enable_if<typename Graph::EdgeNumTag, void>::type
+    GR,
+    typename enable_if<typename GR::EdgeNumTag, void>::type
   > {
     static const bool value = true;
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
+  struct FindArcTagIndicator {
+    static const bool value = false;
+  };
+
+  template <typename GR>
+  struct FindArcTagIndicator<
+    GR,
+    typename enable_if<typename GR::FindArcTag, void>::type
+  > {
+    static const bool value = true;
+  };
+
+  template <typename GR, typename Enable = void>
   struct FindEdgeTagIndicator {
     static const bool value = false;
   };
 
-  template <typename Graph>
+  template <typename GR>
   struct FindEdgeTagIndicator<
-    Graph,
-    typename enable_if<typename Graph::FindEdgeTag, void>::type
+    GR,
+    typename enable_if<typename GR::FindEdgeTag, void>::type
   > {
     static const bool value = true;
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct UndirectedTagIndicator {
     static const bool value = false;
   };
 
-  template <typename Graph>
+  template <typename GR>
   struct UndirectedTagIndicator<
-    Graph,
-    typename enable_if<typename Graph::UndirectedTag, void>::type
+    GR,
+    typename enable_if<typename GR::UndirectedTag, void>::type
   > {
     static const bool value = true;
   };
 
-  template <typename Graph, typename Enable = void>
+  template <typename GR, typename Enable = void>
   struct BuildTagIndicator {
     static const bool value = false;
   };
 
-  template <typename Graph>
+  template <typename GR>
   struct BuildTagIndicator<
-    Graph,
-    typename enable_if<typename Graph::BuildTag, void>::type
+    GR,
+    typename enable_if<typename GR::BuildTag, void>::type
   > {
     static const bool value = true;
   };

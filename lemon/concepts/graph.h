@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -20,11 +20,10 @@
 ///\file
 ///\brief The concept of Undirected Graphs.
 
-#ifndef LEMON_CONCEPT_GRAPH_H
-#define LEMON_CONCEPT_GRAPH_H
+#ifndef LEMON_CONCEPTS_GRAPH_H
+#define LEMON_CONCEPTS_GRAPH_H
 
 #include <lemon/concepts/graph_components.h>
-#include <lemon/concepts/graph.h>
 #include <lemon/core.h>
 
 namespace lemon {
@@ -311,8 +310,8 @@ namespace lemon {
 
       /// The directed arc type. It can be converted to the
       /// edge or it should be inherited from the undirected
-      /// arc.
-      class Arc : public Edge {
+      /// edge.
+      class Arc {
       public:
         /// Default constructor
 
@@ -323,7 +322,7 @@ namespace lemon {
 
         /// Copy constructor.
         ///
-        Arc(const Arc& e) : Edge(e) { }
+        Arc(const Arc&) { }
         /// Initialize the iterator to be invalid.
 
         /// Initialize the iterator to be invalid.
@@ -350,6 +349,8 @@ namespace lemon {
         /// ordering of the items.
         bool operator<(Arc) const { return false; }
 
+        /// Converison to Edge
+        operator Edge() const { return Edge(); }
       };
       /// This iterator goes through each directed arc.
 
@@ -498,12 +499,11 @@ namespace lemon {
         InArcIt& operator++() { return *this; }
       };
 
-      /// \brief Read write map of the nodes to type \c T.
+      /// \brief Reference map of the nodes to type \c T.
       ///
-      /// ReadWrite map of the nodes to type \c T.
-      /// \sa Reference
+      /// Reference map of the nodes to type \c T.
       template<class T>
-      class NodeMap : public ReadWriteMap< Node, T >
+      class NodeMap : public ReferenceMap<Node, T, T&, const T&>
       {
       public:
 
@@ -514,7 +514,8 @@ namespace lemon {
 
       private:
         ///Copy constructor
-        NodeMap(const NodeMap& nm) : ReadWriteMap< Node, T >(nm) { }
+        NodeMap(const NodeMap& nm) :
+          ReferenceMap<Node, T, T&, const T&>(nm) { }
         ///Assignment operator
         template <typename CMap>
         NodeMap& operator=(const CMap&) {
@@ -523,12 +524,11 @@ namespace lemon {
         }
       };
 
-      /// \brief Read write map of the directed arcs to type \c T.
+      /// \brief Reference map of the arcs to type \c T.
       ///
-      /// Reference map of the directed arcs to type \c T.
-      /// \sa Reference
+      /// Reference map of the arcs to type \c T.
       template<class T>
-      class ArcMap : public ReadWriteMap<Arc,T>
+      class ArcMap : public ReferenceMap<Arc, T, T&, const T&>
       {
       public:
 
@@ -538,7 +538,8 @@ namespace lemon {
         ArcMap(const Graph&, T) { }
       private:
         ///Copy constructor
-        ArcMap(const ArcMap& em) : ReadWriteMap<Arc,T>(em) { }
+        ArcMap(const ArcMap& em) :
+          ReferenceMap<Arc, T, T&, const T&>(em) { }
         ///Assignment operator
         template <typename CMap>
         ArcMap& operator=(const CMap&) {
@@ -547,12 +548,11 @@ namespace lemon {
         }
       };
 
-      /// Read write map of the edges to type \c T.
+      /// Reference map of the edges to type \c T.
 
-      /// Reference map of the arcs to type \c T.
-      /// \sa Reference
+      /// Reference map of the edges to type \c T.
       template<class T>
-      class EdgeMap : public ReadWriteMap<Edge,T>
+      class EdgeMap : public ReferenceMap<Edge, T, T&, const T&>
       {
       public:
 
@@ -562,7 +562,8 @@ namespace lemon {
         EdgeMap(const Graph&, T) { }
       private:
         ///Copy constructor
-        EdgeMap(const EdgeMap& em) : ReadWriteMap<Edge,T>(em) {}
+        EdgeMap(const EdgeMap& em) :
+          ReferenceMap<Edge, T, T&, const T&>(em) {}
         ///Assignment operator
         template <typename CMap>
         EdgeMap& operator=(const CMap&) {
@@ -602,23 +603,35 @@ namespace lemon {
 
       /// \brief Opposite node on an arc
       ///
-      /// \return the opposite of the given Node on the given Edge
+      /// \return The opposite of the given node on the given edge.
       Node oppositeNode(Node, Edge) const { return INVALID; }
 
       /// \brief First node of the edge.
       ///
-      /// \return the first node of the given Edge.
+      /// \return The first node of the given edge.
       ///
       /// Naturally edges don't have direction and thus
-      /// don't have source and target node. But we use these two methods
-      /// to query the two nodes of the arc. The direction of the arc
-      /// which arises this way is called the inherent direction of the
+      /// don't have source and target node. However we use \c u() and \c v()
+      /// methods to query the two nodes of the arc. The direction of the
+      /// arc which arises this way is called the inherent direction of the
       /// edge, and is used to define the "default" direction
       /// of the directed versions of the arcs.
-      /// \sa direction
+      /// \sa v()
+      /// \sa direction()
       Node u(Edge) const { return INVALID; }
 
       /// \brief Second node of the edge.
+      ///
+      /// \return The second node of the given edge.
+      ///
+      /// Naturally edges don't have direction and thus
+      /// don't have source and target node. However we use \c u() and \c v()
+      /// methods to query the two nodes of the arc. The direction of the
+      /// arc which arises this way is called the inherent direction of the
+      /// edge, and is used to define the "default" direction
+      /// of the directed versions of the arcs.
+      /// \sa u()
+      /// \sa direction()
       Node v(Edge) const { return INVALID; }
 
       /// \brief Source node of the directed arc.
@@ -737,6 +750,7 @@ namespace lemon {
       template <typename _Graph>
       struct Constraints {
         void constraints() {
+          checkConcept<BaseGraphComponent, _Graph>();
           checkConcept<IterableGraphComponent<>, _Graph>();
           checkConcept<IDableGraphComponent<>, _Graph>();
           checkConcept<MappableGraphComponent<>, _Graph>();

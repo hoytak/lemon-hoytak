@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -63,9 +63,10 @@ namespace lemon {
   template<typename K, typename V>
   class NullMap : public MapBase<K, V> {
   public:
-    typedef MapBase<K, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef V Value;
 
     /// Gives back a default constructed element.
     Value operator[](const Key&) const { return Value(); }
@@ -102,9 +103,10 @@ namespace lemon {
   private:
     V _value;
   public:
-    typedef MapBase<K, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef V Value;
 
     /// Default constructor
 
@@ -168,9 +170,10 @@ namespace lemon {
   template<typename K, typename V, V v>
   class ConstMap<K, Const<V, v> > : public MapBase<K, V> {
   public:
-    typedef MapBase<K, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef V Value;
 
     /// Constructor.
     ConstMap() {}
@@ -202,9 +205,10 @@ namespace lemon {
   template <typename T>
   class IdentityMap : public MapBase<T, T> {
   public:
-    typedef MapBase<T, T> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef T Key;
+    ///\e
+    typedef T Value;
 
     /// Gives back the given value without any modification.
     Value operator[](const Key &k) const {
@@ -245,11 +249,10 @@ namespace lemon {
 
   public:
 
-    typedef MapBase<int, V> Parent;
     /// Key type
-    typedef typename Parent::Key Key;
+    typedef int Key;
     /// Value type
-    typedef typename Parent::Value Value;
+    typedef V Value;
     /// Reference type
     typedef typename Vector::reference Reference;
     /// Const reference type
@@ -353,17 +356,16 @@ namespace lemon {
   ///
   /// The simplest way of using this map is through the sparseMap()
   /// function.
-  template <typename K, typename V, typename Compare = std::less<K> >
+  template <typename K, typename V, typename Comp = std::less<K> >
   class SparseMap : public MapBase<K, V> {
     template <typename K1, typename V1, typename C1>
     friend class SparseMap;
   public:
 
-    typedef MapBase<K, V> Parent;
     /// Key type
-    typedef typename Parent::Key Key;
+    typedef K Key;
     /// Value type
-    typedef typename Parent::Value Value;
+    typedef V Value;
     /// Reference type
     typedef Value& Reference;
     /// Const reference type
@@ -373,7 +375,7 @@ namespace lemon {
 
   private:
 
-    typedef std::map<K, V, Compare> Map;
+    typedef std::map<K, V, Comp> Map;
     Map _map;
     Value _value;
 
@@ -489,14 +491,15 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M2::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M2::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     ComposeMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
 
-    /// \e
+    ///\e
     typename MapTraits<M1>::ConstReturnValue
     operator[](const Key &k) const { return _m1[_m2[k]]; }
   };
@@ -545,14 +548,15 @@ namespace lemon {
     const M2 &_m2;
     F _f;
   public:
-    typedef MapBase<typename M1::Key, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef V Value;
 
     /// Constructor
     CombineMap(const M1 &m1, const M2 &m2, const F &f = F())
       : _m1(m1), _m2(m2), _f(f) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _f(_m1[k],_m2[k]); }
   };
 
@@ -615,13 +619,14 @@ namespace lemon {
   class FunctorToMap : public MapBase<K, V> {
     F _f;
   public:
-    typedef MapBase<K, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef V Value;
 
     /// Constructor
     FunctorToMap(const F &f = F()) : _f(f) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _f(k); }
   };
 
@@ -669,18 +674,19 @@ namespace lemon {
   class MapToFunctor : public MapBase<typename M::Key, typename M::Value> {
     const M &_m;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
-    typedef typename Parent::Key argument_type;
-    typedef typename Parent::Value result_type;
+    typedef typename M::Key argument_type;
+    typedef typename M::Value result_type;
 
     /// Constructor
     MapToFunctor(const M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator()(const Key &k) const { return _m[k]; }
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m[k]; }
   };
 
@@ -709,9 +715,10 @@ namespace lemon {
   class ConvertMap : public MapBase<typename M::Key, V> {
     const M &_m;
   public:
-    typedef MapBase<typename M::Key, V> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef V Value;
 
     /// Constructor
 
@@ -719,7 +726,7 @@ namespace lemon {
     /// \param m The underlying map.
     ConvertMap(const M &m) : _m(m) {}
 
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m[k]; }
   };
 
@@ -751,9 +758,10 @@ namespace lemon {
     M1 &_m1;
     M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     ForkMap(M1 &m1, M2 &m2) : _m1(m1), _m2(m2) {}
@@ -797,13 +805,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     AddMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]+_m2[k]; }
   };
 
@@ -845,13 +854,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     SubMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]-_m2[k]; }
   };
 
@@ -894,13 +904,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     MulMap(const M1 &m1,const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]*_m2[k]; }
   };
 
@@ -942,13 +953,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, typename M1::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef typename M1::Value Value;
 
     /// Constructor
     DivMap(const M1 &m1,const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]/_m2[k]; }
   };
 
@@ -992,9 +1004,10 @@ namespace lemon {
     const M &_m;
     C _v;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
 
@@ -1002,7 +1015,7 @@ namespace lemon {
     /// \param m The undelying map.
     /// \param v The constant value.
     ShiftMap(const M &m, const C &v) : _m(m), _v(v) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m[k]+_v; }
   };
 
@@ -1022,9 +1035,10 @@ namespace lemon {
     M &_m;
     C _v;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
 
@@ -1032,9 +1046,9 @@ namespace lemon {
     /// \param m The undelying map.
     /// \param v The constant value.
     ShiftWriteMap(M &m, const C &v) : _m(m), _v(v) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m[k]+_v; }
-    /// \e
+    ///\e
     void set(const Key &k, const Value &v) { _m.set(k, v-_v); }
   };
 
@@ -1093,9 +1107,10 @@ namespace lemon {
     const M &_m;
     C _v;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
 
@@ -1103,7 +1118,7 @@ namespace lemon {
     /// \param m The undelying map.
     /// \param v The constant value.
     ScaleMap(const M &m, const C &v) : _m(m), _v(v) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _v*_m[k]; }
   };
 
@@ -1124,9 +1139,10 @@ namespace lemon {
     M &_m;
     C _v;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
 
@@ -1134,9 +1150,9 @@ namespace lemon {
     /// \param m The undelying map.
     /// \param v The constant value.
     ScaleWriteMap(M &m, const C &v) : _m(m), _v(v) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _v*_m[k]; }
-    /// \e
+    ///\e
     void set(const Key &k, const Value &v) { _m.set(k, v/_v); }
   };
 
@@ -1193,13 +1209,14 @@ namespace lemon {
   class NegMap : public MapBase<typename M::Key, typename M::Value> {
     const M& _m;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
     NegMap(const M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return -_m[k]; }
   };
 
@@ -1228,15 +1245,16 @@ namespace lemon {
   class NegWriteMap : public MapBase<typename M::Key, typename M::Value> {
     M &_m;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
     NegWriteMap(M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return -_m[k]; }
-    /// \e
+    ///\e
     void set(const Key &k, const Value &v) { _m.set(k, -v); }
   };
 
@@ -1282,13 +1300,14 @@ namespace lemon {
   class AbsMap : public MapBase<typename M::Key, typename M::Value> {
     const M &_m;
   public:
-    typedef MapBase<typename M::Key, typename M::Value> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef typename M::Value Value;
 
     /// Constructor
     AbsMap(const M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const {
       Value tmp = _m[k];
       return tmp >= 0 ? tmp : -tmp;
@@ -1337,9 +1356,10 @@ namespace lemon {
   template <typename K>
   class TrueMap : public MapBase<K, bool> {
   public:
-    typedef MapBase<K, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef bool Value;
 
     /// Gives back \c true.
     Value operator[](const Key&) const { return true; }
@@ -1374,9 +1394,10 @@ namespace lemon {
   template <typename K>
   class FalseMap : public MapBase<K, bool> {
   public:
-    typedef MapBase<K, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef K Key;
+    ///\e
+    typedef bool Value;
 
     /// Gives back \c false.
     Value operator[](const Key&) const { return false; }
@@ -1419,13 +1440,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     AndMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]&&_m2[k]; }
   };
 
@@ -1467,13 +1489,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     OrMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]||_m2[k]; }
   };
 
@@ -1506,13 +1529,14 @@ namespace lemon {
   class NotMap : public MapBase<typename M::Key, bool> {
     const M &_m;
   public:
-    typedef MapBase<typename M::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     NotMap(const M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return !_m[k]; }
   };
 
@@ -1532,15 +1556,16 @@ namespace lemon {
   class NotWriteMap : public MapBase<typename M::Key, bool> {
     M &_m;
   public:
-    typedef MapBase<typename M::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     NotWriteMap(M &m) : _m(m) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return !_m[k]; }
-    /// \e
+    ///\e
     void set(const Key &k, bool v) { _m.set(k, !v); }
   };
 
@@ -1595,13 +1620,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     EqualMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]==_m2[k]; }
   };
 
@@ -1643,13 +1669,14 @@ namespace lemon {
     const M1 &_m1;
     const M2 &_m2;
   public:
-    typedef MapBase<typename M1::Key, bool> Parent;
-    typedef typename Parent::Key Key;
-    typedef typename Parent::Value Value;
+    ///\e
+    typedef typename M1::Key Key;
+    ///\e
+    typedef bool Value;
 
     /// Constructor
     LessMap(const M1 &m1, const M2 &m2) : _m1(m1), _m2(m2) {}
-    /// \e
+    ///\e
     Value operator[](const Key &k) const { return _m1[k]<_m2[k]; }
   };
 
@@ -1705,24 +1732,27 @@ namespace lemon {
   /// The simplest way of using this map is through the loggerBoolMap()
   /// function.
   ///
-  /// \tparam It The type of the iterator.
-  /// \tparam Ke The key type of the map. The default value set
+  /// \tparam IT The type of the iterator.
+  /// \tparam KEY The key type of the map. The default value set
   /// according to the iterator type should work in most cases.
   ///
   /// \note The container of the iterator must contain enough space
   /// for the elements or the iterator should be an inserter iterator.
 #ifdef DOXYGEN
-  template <typename It, typename Ke>
+  template <typename IT, typename KEY>
 #else
-  template <typename It,
-            typename Ke=typename _maps_bits::IteratorTraits<It>::Value>
+  template <typename IT,
+            typename KEY = typename _maps_bits::IteratorTraits<IT>::Value>
 #endif
-  class LoggerBoolMap {
+  class LoggerBoolMap : public MapBase<KEY, bool> {
   public:
-    typedef It Iterator;
 
-    typedef Ke Key;
+    ///\e
+    typedef KEY Key;
+    ///\e
     typedef bool Value;
+    ///\e
+    typedef IT Iterator;
 
     /// Constructor
     LoggerBoolMap(Iterator it)
@@ -1785,23 +1815,36 @@ namespace lemon {
   /// \addtogroup graph_maps
   /// @{
 
-  /// Provides an immutable and unique id for each item in the graph.
-
-  /// The IdMap class provides a unique and immutable id for each item of the
-  /// same type (e.g. node) in the graph. This id is <ul><li>\b unique:
-  /// different items (nodes) get different ids <li>\b immutable: the id of an
-  /// item (node) does not change (even if you delete other nodes).  </ul>
-  /// Through this map you get access (i.e. can read) the inner id values of
-  /// the items stored in the graph. This map can be inverted with its member
+  /// \brief Provides an immutable and unique id for each item in a graph.
+  ///
+  /// IdMap provides a unique and immutable id for each item of the
+  /// same type (\c Node, \c Arc or \c Edge) in a graph. This id is 
+  ///  - \b unique: different items get different ids,
+  ///  - \b immutable: the id of an item does not change (even if you
+  ///    delete other nodes).
+  ///
+  /// Using this map you get access (i.e. can read) the inner id values of
+  /// the items stored in the graph, which is returned by the \c id()
+  /// function of the graph. This map can be inverted with its member
   /// class \c InverseMap or with the \c operator() member.
   ///
-  template <typename _Graph, typename _Item>
-  class IdMap {
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see RangeIdMap
+  template <typename GR, typename K>
+  class IdMap : public MapBase<K, int> {
   public:
-    typedef _Graph Graph;
+    /// The graph type of IdMap.
+    typedef GR Graph;
+    typedef GR Digraph;
+    /// The key type of IdMap (\c Node, \c Arc or \c Edge).
+    typedef K Item;
+    /// The key type of IdMap (\c Node, \c Arc or \c Edge).
+    typedef K Key;
+    /// The value type of IdMap.
     typedef int Value;
-    typedef _Item Item;
-    typedef _Item Key;
 
     /// \brief Constructor.
     ///
@@ -1813,9 +1856,9 @@ namespace lemon {
     /// Gives back the immutable and unique \e id of the item.
     int operator[](const Item& item) const { return _graph->id(item);}
 
-    /// \brief Gives back the item by its id.
+    /// \brief Gives back the \e item by its id.
     ///
-    /// Gives back the item by its id.
+    /// Gives back the \e item by its id.
     Item operator()(int id) { return _graph->fromId(id, Item()); }
 
   private:
@@ -1823,9 +1866,9 @@ namespace lemon {
 
   public:
 
-    /// \brief The class represents the inverse of its owner (IdMap).
+    /// \brief This class represents the inverse of its owner (IdMap).
     ///
-    /// The class represents the inverse of its owner (IdMap).
+    /// This class represents the inverse of its owner (IdMap).
     /// \see inverse()
     class InverseMap {
     public:
@@ -1843,7 +1886,6 @@ namespace lemon {
       /// \brief Gives back the given item from its id.
       ///
       /// Gives back the given item from its id.
-      ///
       Item operator[](int id) const { return _graph->fromId(id, Item());}
 
     private:
@@ -1854,59 +1896,61 @@ namespace lemon {
     ///
     /// Gives back the inverse of the IdMap.
     InverseMap inverse() const { return InverseMap(*_graph);}
-
   };
 
 
-  /// \brief General invertable graph-map type.
+  /// \brief General cross reference graph map type.
 
-  /// This type provides simple invertable graph-maps.
-  /// The InvertableMap wraps an arbitrary ReadWriteMap
+  /// This class provides simple invertable graph maps.
+  /// It wraps an arbitrary \ref concepts::ReadWriteMap "ReadWriteMap"
   /// and if a key is set to a new value then store it
   /// in the inverse map.
   ///
   /// The values of the map can be accessed
   /// with stl compatible forward iterator.
   ///
-  /// \tparam _Graph The graph type.
-  /// \tparam _Item The item type of the graph.
-  /// \tparam _Value The value type of the map.
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  /// \tparam V The value type of the map.
   ///
   /// \see IterableValueMap
-  template <typename _Graph, typename _Item, typename _Value>
-  class InvertableMap
-    : protected ItemSetTraits<_Graph, _Item>::template Map<_Value>::Type {
+  template <typename GR, typename K, typename V>
+  class CrossRefMap
+    : protected ItemSetTraits<GR, K>::template Map<V>::Type {
   private:
 
-    typedef typename ItemSetTraits<_Graph, _Item>::
-    template Map<_Value>::Type Map;
-    typedef _Graph Graph;
+    typedef typename ItemSetTraits<GR, K>::
+      template Map<V>::Type Map;
 
-    typedef std::map<_Value, _Item> Container;
+    typedef std::map<V, K> Container;
     Container _inv_map;
 
   public:
 
-    /// The key type of InvertableMap (Node, Arc, Edge).
-    typedef typename Map::Key Key;
-    /// The value type of the InvertableMap.
-    typedef typename Map::Value Value;
+    /// The graph type of CrossRefMap.
+    typedef GR Graph;
+    typedef GR Digraph;
+    /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
+    typedef K Item;
+    /// The key type of CrossRefMap (\c Node, \c Arc or \c Edge).
+    typedef K Key;
+    /// The value type of CrossRefMap.
+    typedef V Value;
 
     /// \brief Constructor.
     ///
-    /// Construct a new InvertableMap for the graph.
-    ///
-    explicit InvertableMap(const Graph& graph) : Map(graph) {}
+    /// Construct a new CrossRefMap for the given graph.
+    explicit CrossRefMap(const Graph& graph) : Map(graph) {}
 
     /// \brief Forward iterator for values.
     ///
     /// This iterator is an stl compatible forward
     /// iterator on the values of the map. The values can
-    /// be accessed in the [beginValue, endValue) range.
-    ///
+    /// be accessed in the <tt>[beginValue, endValue)</tt> range.
     class ValueIterator
       : public std::iterator<std::forward_iterator_tag, Value> {
-      friend class InvertableMap;
+      friend class CrossRefMap;
     private:
       ValueIterator(typename Container::const_iterator _it)
         : it(_it) {}
@@ -1935,7 +1979,7 @@ namespace lemon {
     ///
     /// Returns an stl compatible iterator to the
     /// first value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
     ValueIterator beginValue() const {
       return ValueIterator(_inv_map.begin());
@@ -1945,15 +1989,15 @@ namespace lemon {
     ///
     /// Returns an stl compatible iterator after the
     /// last value of the map. The values of the
-    /// map can be accessed in the [beginValue, endValue)
+    /// map can be accessed in the <tt>[beginValue, endValue)</tt>
     /// range.
     ValueIterator endValue() const {
       return ValueIterator(_inv_map.end());
     }
 
-    /// \brief The setter function of the map.
+    /// \brief Sets the value associated with the given key.
     ///
-    /// Sets the mapped value.
+    /// Sets the value associated with the given key.
     void set(const Key& key, const Value& val) {
       Value oldval = Map::operator[](key);
       typename Container::iterator it = _inv_map.find(oldval);
@@ -1964,9 +2008,9 @@ namespace lemon {
       Map::set(key, val);
     }
 
-    /// \brief The getter function of the map.
+    /// \brief Returns the value associated with the given key.
     ///
-    /// It gives back the value associated with the key.
+    /// Returns the value associated with the given key.
     typename MapTraits<Map>::ConstReturnValue
     operator[](const Key& key) const {
       return Map::operator[](key);
@@ -1982,9 +2026,9 @@ namespace lemon {
 
   protected:
 
-    /// \brief Erase the key from the map.
+    /// \brief Erase the key from the map and the inverse map.
     ///
-    /// Erase the key to the map. It is called by the
+    /// Erase the key from the map and the inverse map. It is called by the
     /// \c AlterationNotifier.
     virtual void erase(const Key& key) {
       Value val = Map::operator[](key);
@@ -1995,9 +2039,9 @@ namespace lemon {
       Map::erase(key);
     }
 
-    /// \brief Erase more keys from the map.
+    /// \brief Erase more keys from the map and the inverse map.
     ///
-    /// Erase more keys from the map. It is called by the
+    /// Erase more keys from the map and the inverse map. It is called by the
     /// \c AlterationNotifier.
     virtual void erase(const std::vector<Key>& keys) {
       for (int i = 0; i < int(keys.size()); ++i) {
@@ -2010,9 +2054,9 @@ namespace lemon {
       Map::erase(keys);
     }
 
-    /// \brief Clear the keys from the map and inverse map.
+    /// \brief Clear the keys from the map and the inverse map.
     ///
-    /// Clear the keys from the map and inverse map. It is called by the
+    /// Clear the keys from the map and the inverse map. It is called by the
     /// \c AlterationNotifier.
     virtual void clear() {
       _inv_map.clear();
@@ -2024,76 +2068,84 @@ namespace lemon {
     /// \brief The inverse map type.
     ///
     /// The inverse of this map. The subscript operator of the map
-    /// gives back always the item what was last assigned to the value.
+    /// gives back the item that was last assigned to the value.
     class InverseMap {
     public:
-      /// \brief Constructor of the InverseMap.
+      /// \brief Constructor
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const InvertableMap& inverted)
+      explicit InverseMap(const CrossRefMap& inverted)
         : _inverted(inverted) {}
 
       /// The value type of the InverseMap.
-      typedef typename InvertableMap::Key Value;
+      typedef typename CrossRefMap::Key Value;
       /// The key type of the InverseMap.
-      typedef typename InvertableMap::Value Key;
+      typedef typename CrossRefMap::Value Key;
 
       /// \brief Subscript operator.
       ///
-      /// Subscript operator. It gives back always the item
-      /// what was last assigned to the value.
+      /// Subscript operator. It gives back the item
+      /// that was last assigned to the given value.
       Value operator[](const Key& key) const {
         return _inverted(key);
       }
 
     private:
-      const InvertableMap& _inverted;
+      const CrossRefMap& _inverted;
     };
 
-    /// \brief It gives back the just readable inverse map.
+    /// \brief It gives back the read-only inverse map.
     ///
-    /// It gives back the just readable inverse map.
+    /// It gives back the read-only inverse map.
     InverseMap inverse() const {
       return InverseMap(*this);
     }
 
   };
 
-  /// \brief Provides a mutable, continuous and unique descriptor for each
-  /// item in the graph.
+  /// \brief Provides continuous and unique ID for the
+  /// items of a graph.
   ///
-  /// The DescriptorMap class provides a unique and continuous (but mutable)
-  /// descriptor (id) for each item of the same type (e.g. node) in the
-  /// graph. This id is <ul><li>\b unique: different items (nodes) get
-  /// different ids <li>\b continuous: the range of the ids is the set of
-  /// integers between 0 and \c n-1, where \c n is the number of the items of
-  /// this type (e.g. nodes) (so the id of a node can change if you delete an
-  /// other node, i.e. this id is mutable).  </ul> This map can be inverted
-  /// with its member class \c InverseMap, or with the \c operator() member.
+  /// RangeIdMap provides a unique and continuous
+  /// ID for each item of a given type (\c Node, \c Arc or
+  /// \c Edge) in a graph. This id is
+  ///  - \b unique: different items get different ids,
+  ///  - \b continuous: the range of the ids is the set of integers
+  ///    between 0 and \c n-1, where \c n is the number of the items of
+  ///    this type (\c Node, \c Arc or \c Edge).
+  ///  - So, the ids can change when deleting an item of the same type.
   ///
-  /// \tparam _Graph The graph class the \c DescriptorMap belongs to.
-  /// \tparam _Item The Item is the Key of the Map. It may be Node, Arc or
-  /// Edge.
-  template <typename _Graph, typename _Item>
-  class DescriptorMap
-    : protected ItemSetTraits<_Graph, _Item>::template Map<int>::Type {
+  /// Thus this id is not (necessarily) the same as what can get using
+  /// the \c id() function of the graph or \ref IdMap.
+  /// This map can be inverted with its member class \c InverseMap,
+  /// or with the \c operator() member.
+  ///
+  /// \tparam GR The graph type.
+  /// \tparam K The key type of the map (\c GR::Node, \c GR::Arc or
+  /// \c GR::Edge).
+  ///
+  /// \see IdMap
+  template <typename GR, typename K>
+  class RangeIdMap
+    : protected ItemSetTraits<GR, K>::template Map<int>::Type {
 
-    typedef _Item Item;
-    typedef typename ItemSetTraits<_Graph, _Item>::template Map<int>::Type Map;
+    typedef typename ItemSetTraits<GR, K>::template Map<int>::Type Map;
 
   public:
-    /// The graph class of DescriptorMap.
-    typedef _Graph Graph;
-
-    /// The key type of DescriptorMap (Node, Arc, Edge).
-    typedef typename Map::Key Key;
-    /// The value type of DescriptorMap.
-    typedef typename Map::Value Value;
+    /// The graph type of RangeIdMap.
+    typedef GR Graph;
+    typedef GR Digraph;
+    /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
+    typedef K Item;
+    /// The key type of RangeIdMap (\c Node, \c Arc or \c Edge).
+    typedef K Key;
+    /// The value type of RangeIdMap.
+    typedef int Value;
 
     /// \brief Constructor.
     ///
-    /// Constructor for descriptor map.
-    explicit DescriptorMap(const Graph& _graph) : Map(_graph) {
+    /// Constructor.
+    explicit RangeIdMap(const Graph& gr) : Map(gr) {
       Item it;
       const typename Map::Notifier* nf = Map::notifier();
       for (nf->first(it); it != INVALID; nf->next(it)) {
@@ -2104,7 +2156,7 @@ namespace lemon {
 
   protected:
 
-    /// \brief Add a new key to the map.
+    /// \brief Adds a new key to the map.
     ///
     /// Add a new key to the map. It is called by the
     /// \c AlterationNotifier.
@@ -2194,16 +2246,16 @@ namespace lemon {
       _inv_map[pi] = q;
     }
 
-    /// \brief Gives back the \e descriptor of the item.
+    /// \brief Gives back the \e RangeId of the item
     ///
-    /// Gives back the mutable and unique \e descriptor of the map.
+    /// Gives back the \e RangeId of the item.
     int operator[](const Item& item) const {
       return Map::operator[](item);
     }
 
-    /// \brief Gives back the item by its descriptor.
-    ///
-    /// Gives back th item by its descriptor.
+    /// \brief Gives back the item belonging to a \e RangeId
+    /// 
+    /// Gives back the item belonging to a \e RangeId.
     Item operator()(int id) const {
       return _inv_map[id];
     }
@@ -2214,27 +2266,28 @@ namespace lemon {
     Container _inv_map;
 
   public:
-    /// \brief The inverse map type of DescriptorMap.
+
+    /// \brief The inverse map type of RangeIdMap.
     ///
-    /// The inverse map type of DescriptorMap.
+    /// The inverse map type of RangeIdMap.
     class InverseMap {
     public:
-      /// \brief Constructor of the InverseMap.
+      /// \brief Constructor
       ///
       /// Constructor of the InverseMap.
-      explicit InverseMap(const DescriptorMap& inverted)
+      explicit InverseMap(const RangeIdMap& inverted)
         : _inverted(inverted) {}
 
 
       /// The value type of the InverseMap.
-      typedef typename DescriptorMap::Key Value;
+      typedef typename RangeIdMap::Key Value;
       /// The key type of the InverseMap.
-      typedef typename DescriptorMap::Value Key;
+      typedef typename RangeIdMap::Value Key;
 
       /// \brief Subscript operator.
       ///
       /// Subscript operator. It gives back the item
-      /// that the descriptor belongs to currently.
+      /// that the descriptor currently belongs to.
       Value operator[](const Key& key) const {
         return _inverted(key);
       }
@@ -2247,7 +2300,7 @@ namespace lemon {
       }
 
     private:
-      const DescriptorMap& _inverted;
+      const RangeIdMap& _inverted;
     };
 
     /// \brief Gives back the inverse of the map.
@@ -2258,230 +2311,199 @@ namespace lemon {
     }
   };
 
-  /// \brief Returns the source of the given arc.
+  /// \brief Map of the source nodes of arcs in a digraph.
   ///
-  /// The SourceMap gives back the source Node of the given arc.
+  /// SourceMap provides access for the source node of each arc in a digraph,
+  /// which is returned by the \c source() function of the digraph.
+  /// \tparam GR The digraph type.
   /// \see TargetMap
-  template <typename Digraph>
+  template <typename GR>
   class SourceMap {
   public:
 
-    typedef typename Digraph::Node Value;
-    typedef typename Digraph::Arc Key;
+    ///\e
+    typedef typename GR::Arc Key;
+    ///\e
+    typedef typename GR::Node Value;
 
     /// \brief Constructor
     ///
-    /// Constructor
+    /// Constructor.
     /// \param digraph The digraph that the map belongs to.
-    explicit SourceMap(const Digraph& digraph) : _digraph(digraph) {}
+    explicit SourceMap(const GR& digraph) : _graph(digraph) {}
 
-    /// \brief The subscript operator.
+    /// \brief Returns the source node of the given arc.
     ///
-    /// The subscript operator.
-    /// \param arc The arc
-    /// \return The source of the arc
+    /// Returns the source node of the given arc.
     Value operator[](const Key& arc) const {
-      return _digraph.source(arc);
+      return _graph.source(arc);
     }
 
   private:
-    const Digraph& _digraph;
+    const GR& _graph;
   };
 
   /// \brief Returns a \c SourceMap class.
   ///
   /// This function just returns an \c SourceMap class.
   /// \relates SourceMap
-  template <typename Digraph>
-  inline SourceMap<Digraph> sourceMap(const Digraph& digraph) {
-    return SourceMap<Digraph>(digraph);
+  template <typename GR>
+  inline SourceMap<GR> sourceMap(const GR& graph) {
+    return SourceMap<GR>(graph);
   }
 
-  /// \brief Returns the target of the given arc.
+  /// \brief Map of the target nodes of arcs in a digraph.
   ///
-  /// The TargetMap gives back the target Node of the given arc.
+  /// TargetMap provides access for the target node of each arc in a digraph,
+  /// which is returned by the \c target() function of the digraph.
+  /// \tparam GR The digraph type.
   /// \see SourceMap
-  template <typename Digraph>
+  template <typename GR>
   class TargetMap {
   public:
 
-    typedef typename Digraph::Node Value;
-    typedef typename Digraph::Arc Key;
+    ///\e
+    typedef typename GR::Arc Key;
+    ///\e
+    typedef typename GR::Node Value;
 
     /// \brief Constructor
     ///
-    /// Constructor
+    /// Constructor.
     /// \param digraph The digraph that the map belongs to.
-    explicit TargetMap(const Digraph& digraph) : _digraph(digraph) {}
+    explicit TargetMap(const GR& digraph) : _graph(digraph) {}
 
-    /// \brief The subscript operator.
+    /// \brief Returns the target node of the given arc.
     ///
-    /// The subscript operator.
-    /// \param e The arc
-    /// \return The target of the arc
+    /// Returns the target node of the given arc.
     Value operator[](const Key& e) const {
-      return _digraph.target(e);
+      return _graph.target(e);
     }
 
   private:
-    const Digraph& _digraph;
+    const GR& _graph;
   };
 
   /// \brief Returns a \c TargetMap class.
   ///
   /// This function just returns a \c TargetMap class.
   /// \relates TargetMap
-  template <typename Digraph>
-  inline TargetMap<Digraph> targetMap(const Digraph& digraph) {
-    return TargetMap<Digraph>(digraph);
+  template <typename GR>
+  inline TargetMap<GR> targetMap(const GR& graph) {
+    return TargetMap<GR>(graph);
   }
 
-  /// \brief Returns the "forward" directed arc view of an edge.
+  /// \brief Map of the "forward" directed arc view of edges in a graph.
   ///
-  /// Returns the "forward" directed arc view of an edge.
+  /// ForwardMap provides access for the "forward" directed arc view of
+  /// each edge in a graph, which is returned by the \c direct() function
+  /// of the graph with \c true parameter.
+  /// \tparam GR The graph type.
   /// \see BackwardMap
-  template <typename Graph>
+  template <typename GR>
   class ForwardMap {
   public:
 
-    typedef typename Graph::Arc Value;
-    typedef typename Graph::Edge Key;
+    typedef typename GR::Arc Value;
+    typedef typename GR::Edge Key;
 
     /// \brief Constructor
     ///
-    /// Constructor
+    /// Constructor.
     /// \param graph The graph that the map belongs to.
-    explicit ForwardMap(const Graph& graph) : _graph(graph) {}
+    explicit ForwardMap(const GR& graph) : _graph(graph) {}
 
-    /// \brief The subscript operator.
+    /// \brief Returns the "forward" directed arc view of the given edge.
     ///
-    /// The subscript operator.
-    /// \param key An edge
-    /// \return The "forward" directed arc view of edge
+    /// Returns the "forward" directed arc view of the given edge.
     Value operator[](const Key& key) const {
       return _graph.direct(key, true);
     }
 
   private:
-    const Graph& _graph;
+    const GR& _graph;
   };
 
   /// \brief Returns a \c ForwardMap class.
   ///
   /// This function just returns an \c ForwardMap class.
   /// \relates ForwardMap
-  template <typename Graph>
-  inline ForwardMap<Graph> forwardMap(const Graph& graph) {
-    return ForwardMap<Graph>(graph);
+  template <typename GR>
+  inline ForwardMap<GR> forwardMap(const GR& graph) {
+    return ForwardMap<GR>(graph);
   }
 
-  /// \brief Returns the "backward" directed arc view of an edge.
+  /// \brief Map of the "backward" directed arc view of edges in a graph.
   ///
-  /// Returns the "backward" directed arc view of an edge.
+  /// BackwardMap provides access for the "backward" directed arc view of
+  /// each edge in a graph, which is returned by the \c direct() function
+  /// of the graph with \c false parameter.
+  /// \tparam GR The graph type.
   /// \see ForwardMap
-  template <typename Graph>
+  template <typename GR>
   class BackwardMap {
   public:
 
-    typedef typename Graph::Arc Value;
-    typedef typename Graph::Edge Key;
+    typedef typename GR::Arc Value;
+    typedef typename GR::Edge Key;
 
     /// \brief Constructor
     ///
-    /// Constructor
+    /// Constructor.
     /// \param graph The graph that the map belongs to.
-    explicit BackwardMap(const Graph& graph) : _graph(graph) {}
+    explicit BackwardMap(const GR& graph) : _graph(graph) {}
 
-    /// \brief The subscript operator.
+    /// \brief Returns the "backward" directed arc view of the given edge.
     ///
-    /// The subscript operator.
-    /// \param key An edge
-    /// \return The "backward" directed arc view of edge
+    /// Returns the "backward" directed arc view of the given edge.
     Value operator[](const Key& key) const {
       return _graph.direct(key, false);
     }
 
   private:
-    const Graph& _graph;
+    const GR& _graph;
   };
 
   /// \brief Returns a \c BackwardMap class
 
   /// This function just returns a \c BackwardMap class.
   /// \relates BackwardMap
-  template <typename Graph>
-  inline BackwardMap<Graph> backwardMap(const Graph& graph) {
-    return BackwardMap<Graph>(graph);
+  template <typename GR>
+  inline BackwardMap<GR> backwardMap(const GR& graph) {
+    return BackwardMap<GR>(graph);
   }
 
-  /// \brief Potential difference map
-  ///
-  /// If there is an potential map on the nodes then we
-  /// can get an arc map as we get the substraction of the
-  /// values of the target and source.
-  template <typename Digraph, typename NodeMap>
-  class PotentialDifferenceMap {
-  public:
-    typedef typename Digraph::Arc Key;
-    typedef typename NodeMap::Value Value;
-
-    /// \brief Constructor
-    ///
-    /// Contructor of the map
-    explicit PotentialDifferenceMap(const Digraph& digraph,
-                                    const NodeMap& potential)
-      : _digraph(digraph), _potential(potential) {}
-
-    /// \brief Const subscription operator
-    ///
-    /// Const subscription operator
-    Value operator[](const Key& arc) const {
-      return _potential[_digraph.target(arc)] -
-        _potential[_digraph.source(arc)];
-    }
-
-  private:
-    const Digraph& _digraph;
-    const NodeMap& _potential;
-  };
-
-  /// \brief Returns a PotentialDifferenceMap.
-  ///
-  /// This function just returns a PotentialDifferenceMap.
-  /// \relates PotentialDifferenceMap
-  template <typename Digraph, typename NodeMap>
-  PotentialDifferenceMap<Digraph, NodeMap>
-  potentialDifferenceMap(const Digraph& digraph, const NodeMap& potential) {
-    return PotentialDifferenceMap<Digraph, NodeMap>(digraph, potential);
-  }
-
-  /// \brief Map of the node in-degrees.
+  /// \brief Map of the in-degrees of nodes in a digraph.
   ///
   /// This map returns the in-degree of a node. Once it is constructed,
-  /// the degrees are stored in a standard NodeMap, so each query is done
+  /// the degrees are stored in a standard \c NodeMap, so each query is done
   /// in constant time. On the other hand, the values are updated automatically
   /// whenever the digraph changes.
   ///
-  /// \warning Besides addNode() and addArc(), a digraph structure may provide
-  /// alternative ways to modify the digraph. The correct behavior of InDegMap
-  /// is not guarantied if these additional features are used. For example
-  /// the functions \ref ListDigraph::changeSource() "changeSource()",
+  /// \warning Besides \c addNode() and \c addArc(), a digraph structure 
+  /// may provide alternative ways to modify the digraph.
+  /// The correct behavior of InDegMap is not guarantied if these additional
+  /// features are used. For example the functions
+  /// \ref ListDigraph::changeSource() "changeSource()",
   /// \ref ListDigraph::changeTarget() "changeTarget()" and
   /// \ref ListDigraph::reverseArc() "reverseArc()"
   /// of \ref ListDigraph will \e not update the degree values correctly.
   ///
   /// \sa OutDegMap
-
-  template <typename _Digraph>
+  template <typename GR>
   class InDegMap
-    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
+    : protected ItemSetTraits<GR, typename GR::Arc>
       ::ItemNotifier::ObserverBase {
 
   public:
-
-    typedef _Digraph Digraph;
-    typedef int Value;
+    
+    /// The graph type of InDegMap
+    typedef GR Graph;
+    typedef GR Digraph;
+    /// The key type
     typedef typename Digraph::Node Key;
+    /// The value type
+    typedef int Value;
 
     typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
     ::ItemNotifier::ObserverBase Parent;
@@ -2523,9 +2545,9 @@ namespace lemon {
 
     /// \brief Constructor.
     ///
-    /// Constructor for creating in-degree map.
-    explicit InDegMap(const Digraph& digraph)
-      : _digraph(digraph), _deg(digraph) {
+    /// Constructor for creating an in-degree map.
+    explicit InDegMap(const Digraph& graph)
+      : _digraph(graph), _deg(graph) {
       Parent::attach(_digraph.notifier(typename Digraph::Arc()));
 
       for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
@@ -2533,6 +2555,8 @@ namespace lemon {
       }
     }
 
+    /// \brief Gives back the in-degree of a Node.
+    ///
     /// Gives back the in-degree of a Node.
     int operator[](const Key& key) const {
       return _deg[key];
@@ -2579,33 +2603,37 @@ namespace lemon {
     AutoNodeMap _deg;
   };
 
-  /// \brief Map of the node out-degrees.
+  /// \brief Map of the out-degrees of nodes in a digraph.
   ///
   /// This map returns the out-degree of a node. Once it is constructed,
-  /// the degrees are stored in a standard NodeMap, so each query is done
+  /// the degrees are stored in a standard \c NodeMap, so each query is done
   /// in constant time. On the other hand, the values are updated automatically
   /// whenever the digraph changes.
   ///
-  /// \warning Besides addNode() and addArc(), a digraph structure may provide
-  /// alternative ways to modify the digraph. The correct behavior of OutDegMap
-  /// is not guarantied if these additional features are used. For example
-  /// the functions \ref ListDigraph::changeSource() "changeSource()",
+  /// \warning Besides \c addNode() and \c addArc(), a digraph structure 
+  /// may provide alternative ways to modify the digraph.
+  /// The correct behavior of OutDegMap is not guarantied if these additional
+  /// features are used. For example the functions
+  /// \ref ListDigraph::changeSource() "changeSource()",
   /// \ref ListDigraph::changeTarget() "changeTarget()" and
   /// \ref ListDigraph::reverseArc() "reverseArc()"
   /// of \ref ListDigraph will \e not update the degree values correctly.
   ///
   /// \sa InDegMap
-
-  template <typename _Digraph>
+  template <typename GR>
   class OutDegMap
-    : protected ItemSetTraits<_Digraph, typename _Digraph::Arc>
+    : protected ItemSetTraits<GR, typename GR::Arc>
       ::ItemNotifier::ObserverBase {
 
   public:
 
-    typedef _Digraph Digraph;
-    typedef int Value;
+    /// The graph type of OutDegMap
+    typedef GR Graph;
+    typedef GR Digraph;
+    /// The key type
     typedef typename Digraph::Node Key;
+    /// The value type
+    typedef int Value;
 
     typedef typename ItemSetTraits<Digraph, typename Digraph::Arc>
     ::ItemNotifier::ObserverBase Parent;
@@ -2645,9 +2673,9 @@ namespace lemon {
 
     /// \brief Constructor.
     ///
-    /// Constructor for creating out-degree map.
-    explicit OutDegMap(const Digraph& digraph)
-      : _digraph(digraph), _deg(digraph) {
+    /// Constructor for creating an out-degree map.
+    explicit OutDegMap(const Digraph& graph)
+      : _digraph(graph), _deg(graph) {
       Parent::attach(_digraph.notifier(typename Digraph::Arc()));
 
       for(typename Digraph::NodeIt it(_digraph); it != INVALID; ++it) {
@@ -2655,6 +2683,8 @@ namespace lemon {
       }
     }
 
+    /// \brief Gives back the out-degree of a Node.
+    ///
     /// Gives back the out-degree of a Node.
     int operator[](const Key& key) const {
       return _deg[key];
@@ -2700,6 +2730,56 @@ namespace lemon {
     const Digraph& _digraph;
     AutoNodeMap _deg;
   };
+
+  /// \brief Potential difference map
+  ///
+  /// PotentialDifferenceMap returns the difference between the potentials of
+  /// the source and target nodes of each arc in a digraph, i.e. it returns
+  /// \code
+  ///   potential[gr.target(arc)] - potential[gr.source(arc)].
+  /// \endcode
+  /// \tparam GR The digraph type.
+  /// \tparam POT A node map storing the potentials.
+  template <typename GR, typename POT>
+  class PotentialDifferenceMap {
+  public:
+    /// Key type
+    typedef typename GR::Arc Key;
+    /// Value type
+    typedef typename POT::Value Value;
+
+    /// \brief Constructor
+    ///
+    /// Contructor of the map.
+    explicit PotentialDifferenceMap(const GR& gr,
+                                    const POT& potential)
+      : _digraph(gr), _potential(potential) {}
+
+    /// \brief Returns the potential difference for the given arc.
+    ///
+    /// Returns the potential difference for the given arc, i.e.
+    /// \code
+    ///   potential[gr.target(arc)] - potential[gr.source(arc)].
+    /// \endcode
+    Value operator[](const Key& arc) const {
+      return _potential[_digraph.target(arc)] -
+        _potential[_digraph.source(arc)];
+    }
+
+  private:
+    const GR& _digraph;
+    const POT& _potential;
+  };
+
+  /// \brief Returns a PotentialDifferenceMap.
+  ///
+  /// This function just returns a PotentialDifferenceMap.
+  /// \relates PotentialDifferenceMap
+  template <typename GR, typename POT>
+  PotentialDifferenceMap<GR, POT>
+  potentialDifferenceMap(const GR& gr, const POT& potential) {
+    return PotentialDifferenceMap<GR, POT>(gr, potential);
+  }
 
   /// @}
 }

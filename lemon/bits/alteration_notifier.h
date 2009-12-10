@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -35,61 +35,62 @@ namespace lemon {
   // \brief Notifier class to notify observes about alterations in
   // a container.
   //
-  // The simple graph's can be refered as two containers, one node container
-  // and one edge container. But they are not standard containers they
-  // does not store values directly they are just key continars for more
-  // value containers which are the node and edge maps.
+  // The simple graphs can be refered as two containers: a node container
+  // and an edge container. But they do not store values directly, they
+  // are just key continars for more value containers, which are the
+  // node and edge maps.
   //
-  // The graph's node and edge sets can be changed as we add or erase
+  // The node and edge sets of the graphs can be changed as we add or erase
   // nodes and edges in the graph. LEMON would like to handle easily
   // that the node and edge maps should contain values for all nodes or
   // edges. If we want to check on every indicing if the map contains
   // the current indicing key that cause a drawback in the performance
-  // in the library. We use another solution we notify all maps about
+  // in the library. We use another solution: we notify all maps about
   // an alteration in the graph, which cause only drawback on the
   // alteration of the graph.
   //
-  // This class provides an interface to the container. The \e first() and \e
-  // next() member functions make possible to iterate on the keys of the
-  // container. The \e id() function returns an integer id for each key.
-  // The \e maxId() function gives back an upper bound of the ids.
+  // This class provides an interface to a node or edge container.
+  // The first() and next() member functions make possible
+  // to iterate on the keys of the container.
+  // The id() function returns an integer id for each key.
+  // The maxId() function gives back an upper bound of the ids.
   //
   // For the proper functonality of this class, we should notify it
-  // about each alteration in the container. The alterations have four type
-  // as \e add(), \e erase(), \e build() and \e clear(). The \e add() and
-  // \e erase() signals that only one or few items added or erased to or
-  // from the graph. If all items are erased from the graph or from an empty
-  // graph a new graph is builded then it can be signaled with the
+  // about each alteration in the container. The alterations have four type:
+  // add(), erase(), build() and clear(). The add() and
+  // erase() signal that only one or few items added or erased to or
+  // from the graph. If all items are erased from the graph or if a new graph
+  // is built from an empty graph, then it can be signaled with the
   // clear() and build() members. Important rule that if we erase items
-  // from graph we should first signal the alteration and after that erase
+  // from graphs we should first signal the alteration and after that erase
   // them from the container, on the other way on item addition we should
   // first extend the container and just after that signal the alteration.
   //
   // The alteration can be observed with a class inherited from the
-  // \e ObserverBase nested class. The signals can be handled with
+  // ObserverBase nested class. The signals can be handled with
   // overriding the virtual functions defined in the base class.  The
   // observer base can be attached to the notifier with the
-  // \e attach() member and can be detached with detach() function. The
+  // attach() member and can be detached with detach() function. The
   // alteration handlers should not call any function which signals
   // an other alteration in the same notifier and should not
   // detach any observer from the notifier.
   //
-  // Alteration observers try to be exception safe. If an \e add() or
-  // a \e clear() function throws an exception then the remaining
+  // Alteration observers try to be exception safe. If an add() or
+  // a clear() function throws an exception then the remaining
   // observeres will not be notified and the fulfilled additions will
-  // be rolled back by calling the \e erase() or \e clear()
-  // functions. Thence the \e erase() and \e clear() should not throw
-  // exception. Actullay, it can be throw only \ref ImmediateDetach
-  // exception which detach the observer from the notifier.
+  // be rolled back by calling the erase() or clear() functions.
+  // Hence erase() and clear() should not throw exception.
+  // Actullay, they can throw only \ref ImmediateDetach exception,
+  // which detach the observer from the notifier.
   //
-  // There are some place when the alteration observing is not completly
+  // There are some cases, when the alteration observing is not completly
   // reliable. If we want to carry out the node degree in the graph
-  // as in the \ref InDegMap and we use the reverseEdge that cause
+  // as in the \ref InDegMap and we use the reverseArc(), then it cause
   // unreliable functionality. Because the alteration observing signals
-  // only erasing and adding but not the reversing it will stores bad
-  // degrees. The sub graph adaptors cannot signal the alterations because
-  // just a setting in the filter map can modify the graph and this cannot
-  // be watched in any way.
+  // only erasing and adding but not the reversing, it will stores bad
+  // degrees. Apart form that the subgraph adaptors cannot even signal
+  // the alterations because just a setting in the filter map can modify
+  // the graph and this cannot be watched in any way.
   //
   // \param _Container The container which is observed.
   // \param _Item The item type which is obserbved.
@@ -103,13 +104,13 @@ namespace lemon {
     typedef _Container Container;
     typedef _Item Item;
 
-    // \brief Exception which can be called from \e clear() and
-    // \e erase().
+    // \brief Exception which can be called from clear() and
+    // erase().
     //
-    // From the \e clear() and \e erase() function only this
+    // From the clear() and erase() function only this
     // exception is allowed to throw. The exception immediatly
     // detaches the current observer from the notifier. Because the
-    // \e clear() and \e erase() should not throw other exceptions
+    // clear() and erase() should not throw other exceptions
     // it can be used to invalidate the observer.
     struct ImmediateDetach {};
 
@@ -121,8 +122,7 @@ namespace lemon {
     //
     // The observer interface contains some pure virtual functions
     // to override. The add() and erase() functions are
-    // to notify the oberver when one item is added or
-    // erased.
+    // to notify the oberver when one item is added or erased.
     //
     // The build() and clear() members are to notify the observer
     // about the container is built from an empty container or

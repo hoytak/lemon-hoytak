@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -33,35 +33,36 @@ namespace lemon {
   ///
   ///\brief A Binary Heap implementation.
   ///
-  ///This class implements the \e binary \e heap data structure. A \e heap
-  ///is a data structure for storing items with specified values called \e
-  ///priorities in such a way that finding the item with minimum priority is
-  ///efficient. \c Compare specifies the ordering of the priorities. In a heap
-  ///one can change the priority of an item, add or erase an item, etc.
+  ///This class implements the \e binary \e heap data structure.
   ///
-  ///\tparam _Prio Type of the priority of the items.
-  ///\tparam _ItemIntMap A read and writable Item int map, used internally
+  ///A \e heap is a data structure for storing items with specified values
+  ///called \e priorities in such a way that finding the item with minimum
+  ///priority is efficient. \c CMP specifies the ordering of the priorities.
+  ///In a heap one can change the priority of an item, add or erase an
+  ///item, etc.
+  ///
+  ///\tparam PR Type of the priority of the items.
+  ///\tparam IM A read and writable item map with int values, used internally
   ///to handle the cross references.
-  ///\tparam _Compare A class for the ordering of the priorities. The
-  ///default is \c std::less<_Prio>.
+  ///\tparam CMP A functor class for the ordering of the priorities.
+  ///The default is \c std::less<PR>.
   ///
   ///\sa FibHeap
   ///\sa Dijkstra
-  template <typename _Prio, typename _ItemIntMap,
-            typename _Compare = std::less<_Prio> >
+  template <typename PR, typename IM, typename CMP = std::less<PR> >
   class BinHeap {
 
   public:
     ///\e
-    typedef _ItemIntMap ItemIntMap;
+    typedef IM ItemIntMap;
     ///\e
-    typedef _Prio Prio;
+    typedef PR Prio;
     ///\e
     typedef typename ItemIntMap::Key Item;
     ///\e
     typedef std::pair<Item,Prio> Pair;
     ///\e
-    typedef _Compare Compare;
+    typedef CMP Compare;
 
     /// \brief Type to represent the items states.
     ///
@@ -69,49 +70,49 @@ namespace lemon {
     /// "pre heap" or "post heap". The latter two are indifferent from the
     /// heap's point of view, but may be useful to the user.
     ///
-    /// The ItemIntMap \e should be initialized in such way that it maps
-    /// PRE_HEAP (-1) to any element to be put in the heap...
+    /// The item-int map must be initialized in such way that it assigns
+    /// \c PRE_HEAP (<tt>-1</tt>) to any element to be put in the heap.
     enum State {
-      IN_HEAP = 0,
-      PRE_HEAP = -1,
-      POST_HEAP = -2
+      IN_HEAP = 0,    ///< = 0.
+      PRE_HEAP = -1,  ///< = -1.
+      POST_HEAP = -2  ///< = -2.
     };
 
   private:
-    std::vector<Pair> data;
-    Compare comp;
-    ItemIntMap &iim;
+    std::vector<Pair> _data;
+    Compare _comp;
+    ItemIntMap &_iim;
 
   public:
     /// \brief The constructor.
     ///
     /// The constructor.
-    /// \param _iim should be given to the constructor, since it is used
+    /// \param map should be given to the constructor, since it is used
     /// internally to handle the cross references. The value of the map
-    /// should be PRE_HEAP (-1) for each element.
-    explicit BinHeap(ItemIntMap &_iim) : iim(_iim) {}
+    /// must be \c PRE_HEAP (<tt>-1</tt>) for every item.
+    explicit BinHeap(ItemIntMap &map) : _iim(map) {}
 
     /// \brief The constructor.
     ///
     /// The constructor.
-    /// \param _iim should be given to the constructor, since it is used
+    /// \param map should be given to the constructor, since it is used
     /// internally to handle the cross references. The value of the map
     /// should be PRE_HEAP (-1) for each element.
     ///
-    /// \param _comp The comparator function object.
-    BinHeap(ItemIntMap &_iim, const Compare &_comp)
-      : iim(_iim), comp(_comp) {}
+    /// \param comp The comparator function object.
+    BinHeap(ItemIntMap &map, const Compare &comp)
+      : _iim(map), _comp(comp) {}
 
 
     /// The number of items stored in the heap.
     ///
     /// \brief Returns the number of items stored in the heap.
-    int size() const { return data.size(); }
+    int size() const { return _data.size(); }
 
     /// \brief Checks if the heap stores no items.
     ///
     /// Returns \c true if and only if the heap stores no items.
-    bool empty() const { return data.empty(); }
+    bool empty() const { return _data.empty(); }
 
     /// \brief Make empty this heap.
     ///
@@ -120,7 +121,7 @@ namespace lemon {
     /// the heap and after that you should set the cross reference map for
     /// each item to \c PRE_HEAP.
     void clear() {
-      data.clear();
+      _data.clear();
     }
 
   private:
@@ -128,13 +129,13 @@ namespace lemon {
 
     static int second_child(int i) { return 2*i+2; }
     bool less(const Pair &p1, const Pair &p2) const {
-      return comp(p1.second, p2.second);
+      return _comp(p1.second, p2.second);
     }
 
     int bubble_up(int hole, Pair p) {
       int par = parent(hole);
-      while( hole>0 && less(p,data[par]) ) {
-        move(data[par],hole);
+      while( hole>0 && less(p,_data[par]) ) {
+        move(_data[par],hole);
         hole = par;
         par = parent(hole);
       }
@@ -145,18 +146,18 @@ namespace lemon {
     int bubble_down(int hole, Pair p, int length) {
       int child = second_child(hole);
       while(child < length) {
-        if( less(data[child-1], data[child]) ) {
+        if( less(_data[child-1], _data[child]) ) {
           --child;
         }
-        if( !less(data[child], p) )
+        if( !less(_data[child], p) )
           goto ok;
-        move(data[child], hole);
+        move(_data[child], hole);
         hole = child;
         child = second_child(hole);
       }
       child--;
-      if( child<length && less(data[child], p) ) {
-        move(data[child], hole);
+      if( child<length && less(_data[child], p) ) {
+        move(_data[child], hole);
         hole=child;
       }
     ok:
@@ -165,8 +166,8 @@ namespace lemon {
     }
 
     void move(const Pair &p, int i) {
-      data[i] = p;
-      iim.set(p.first, i);
+      _data[i] = p;
+      _iim.set(p.first, i);
     }
 
   public:
@@ -175,8 +176,8 @@ namespace lemon {
     /// Adds \c p.first to the heap with priority \c p.second.
     /// \param p The pair to insert.
     void push(const Pair &p) {
-      int n = data.size();
-      data.resize(n+1);
+      int n = _data.size();
+      _data.resize(n+1);
       bubble_up(n, p);
     }
 
@@ -193,7 +194,7 @@ namespace lemon {
     /// Compare.
     /// \pre The heap must be nonempty.
     Item top() const {
-      return data[0].first;
+      return _data[0].first;
     }
 
     /// \brief Returns the minimum priority relative to \c Compare.
@@ -201,7 +202,7 @@ namespace lemon {
     /// It returns the minimum priority relative to \c Compare.
     /// \pre The heap must be nonempty.
     Prio prio() const {
-      return data[0].second;
+      return _data[0].second;
     }
 
     /// \brief Deletes the item with minimum priority relative to \c Compare.
@@ -210,12 +211,12 @@ namespace lemon {
     /// Compare from the heap.
     /// \pre The heap must be non-empty.
     void pop() {
-      int n = data.size()-1;
-      iim.set(data[0].first, POST_HEAP);
+      int n = _data.size()-1;
+      _iim.set(_data[0].first, POST_HEAP);
       if (n > 0) {
-        bubble_down(0, data[n], n);
+        bubble_down(0, _data[n], n);
       }
-      data.pop_back();
+      _data.pop_back();
     }
 
     /// \brief Deletes \c i from the heap.
@@ -224,26 +225,26 @@ namespace lemon {
     /// \param i The item to erase.
     /// \pre The item should be in the heap.
     void erase(const Item &i) {
-      int h = iim[i];
-      int n = data.size()-1;
-      iim.set(data[h].first, POST_HEAP);
+      int h = _iim[i];
+      int n = _data.size()-1;
+      _iim.set(_data[h].first, POST_HEAP);
       if( h < n ) {
-        if ( bubble_up(h, data[n]) == h) {
-          bubble_down(h, data[n], n);
+        if ( bubble_up(h, _data[n]) == h) {
+          bubble_down(h, _data[n], n);
         }
       }
-      data.pop_back();
+      _data.pop_back();
     }
 
 
     /// \brief Returns the priority of \c i.
     ///
     /// This function returns the priority of item \c i.
-    /// \pre \c i must be in the heap.
     /// \param i The item.
+    /// \pre \c i must be in the heap.
     Prio operator[](const Item &i) const {
-      int idx = iim[i];
-      return data[idx].second;
+      int idx = _iim[i];
+      return _data[idx].second;
     }
 
     /// \brief \c i gets to the heap with priority \c p independently
@@ -254,40 +255,40 @@ namespace lemon {
     /// \param i The item.
     /// \param p The priority.
     void set(const Item &i, const Prio &p) {
-      int idx = iim[i];
+      int idx = _iim[i];
       if( idx < 0 ) {
         push(i,p);
       }
-      else if( comp(p, data[idx].second) ) {
+      else if( _comp(p, _data[idx].second) ) {
         bubble_up(idx, Pair(i,p));
       }
       else {
-        bubble_down(idx, Pair(i,p), data.size());
+        bubble_down(idx, Pair(i,p), _data.size());
       }
     }
 
     /// \brief Decreases the priority of \c i to \c p.
     ///
     /// This method decreases the priority of item \c i to \c p.
-    /// \pre \c i must be stored in the heap with priority at least \c
-    /// p relative to \c Compare.
     /// \param i The item.
     /// \param p The priority.
+    /// \pre \c i must be stored in the heap with priority at least \c
+    /// p relative to \c Compare.
     void decrease(const Item &i, const Prio &p) {
-      int idx = iim[i];
+      int idx = _iim[i];
       bubble_up(idx, Pair(i,p));
     }
 
     /// \brief Increases the priority of \c i to \c p.
     ///
     /// This method sets the priority of item \c i to \c p.
-    /// \pre \c i must be stored in the heap with priority at most \c
-    /// p relative to \c Compare.
     /// \param i The item.
     /// \param p The priority.
+    /// \pre \c i must be stored in the heap with priority at most \c
+    /// p relative to \c Compare.
     void increase(const Item &i, const Prio &p) {
-      int idx = iim[i];
-      bubble_down(idx, Pair(i,p), data.size());
+      int idx = _iim[i];
+      bubble_down(idx, Pair(i,p), _data.size());
     }
 
     /// \brief Returns if \c item is in, has already been in, or has
@@ -299,7 +300,7 @@ namespace lemon {
     /// get back to the heap again.
     /// \param i The item.
     State state(const Item &i) const {
-      int s = iim[i];
+      int s = _iim[i];
       if( s>=0 )
         s=0;
       return State(s);
@@ -319,7 +320,7 @@ namespace lemon {
         if (state(i) == IN_HEAP) {
           erase(i);
         }
-        iim[i] = st;
+        _iim[i] = st;
         break;
       case IN_HEAP:
         break;
@@ -333,10 +334,10 @@ namespace lemon {
     /// \c i item will out of the heap and \c j will be in the heap
     /// with the same prioriority as prevoiusly the \c i item.
     void replace(const Item& i, const Item& j) {
-      int idx = iim[i];
-      iim.set(i, iim[j]);
-      iim.set(j, idx);
-      data[idx].first = j;
+      int idx = _iim[i];
+      _iim.set(i, _iim[j]);
+      _iim.set(j, idx);
+      _data[idx].first = j;
     }
 
   }; // class BinHeap

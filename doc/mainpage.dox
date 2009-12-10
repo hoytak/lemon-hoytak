@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -23,8 +23,7 @@
 
 \subsection whatis What is LEMON
 
-LEMON stands for
-<b>L</b>ibrary of <b>E</b>fficient <b>M</b>odels
+LEMON stands for <b>L</b>ibrary for <b>E</b>fficient <b>M</b>odeling
 and <b>O</b>ptimization in <b>N</b>etworks.
 It is a C++ template
 library aimed at combinatorial optimization tasks which
@@ -41,20 +40,11 @@ non-commercial applications under very permissive
 
 \subsection howtoread How to read the documentation
 
-If you want to get a quick start and see the most important features then
-take a look at our \ref quicktour
-"Quick Tour to LEMON" which will guide you along.
+If you would like to get to know the library, see
+<a class="el" href="http://lemon.cs.elte.hu/pub/tutorial/">LEMON Tutorial</a>.
 
-If you already feel like using our library, see the page that tells you
-\ref getstart "How to start using LEMON".
-
-If you
-want to see how LEMON works, see
-some \ref demoprograms "demo programs".
-
-If you know what you are looking for then try to find it under the
-<a class="el" href="modules.html">Modules</a>
-section.
+If you know what you are looking for, then try to find it under the
+<a class="el" href="modules.html">Modules</a> section.
 
 If you are a user of the old (0.x) series of LEMON, please check out the
 \ref migration "Migration Guide" for the backward incompatibilities.

@@ -42,6 +42,11 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
       #include <glpk.h>
       }
 
+      #if (GLP_MAJOR_VERSION < 4) \
+         || (GLP_MAJOR_VERSION == 4 && GLP_MINOR_VERSION < 33)
+      #error Supported GLPK versions: 4.33 or above
+      #endif
+
       int main(int argc, char** argv)
       {
         LPX *lp;
@@ -60,6 +65,10 @@ AS_HELP_STRING([--with-glpk-libdir=DIR], [search for GLPK libraries in DIR]),
 
     if test x"$lx_glpk_found" = x"yes"; then
       AC_DEFINE([LEMON_HAVE_GLPK], [1], [Define to 1 if you have GLPK.])
+      lx_lp_found=yes
+      AC_DEFINE([LEMON_HAVE_LP], [1], [Define to 1 if you have any LP solver.])
+      lx_mip_found=yes
+      AC_DEFINE([LEMON_HAVE_MIP], [1], [Define to 1 if you have any MIP solver.])
       AC_MSG_RESULT([yes])
     else
       GLPK_CFLAGS=""

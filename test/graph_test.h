@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2009
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -114,6 +114,15 @@ namespace lemon {
     }
     check(e==INVALID,"Wrong IncEdge list linking.");
     check(countIncEdges(G,n)==cnt,"Wrong IncEdge number.");
+  }
+
+  template <class Graph>
+  void checkGraphIncEdgeArcLists(const Graph &G, typename Graph::Node n,
+                                 int cnt)
+  {
+    checkGraphIncEdgeList(G, n, cnt);
+    checkGraphOutArcList(G, n, cnt);
+    checkGraphInArcList(G, n, cnt);
   }
 
   template <class Graph>
