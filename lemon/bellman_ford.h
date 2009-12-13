@@ -237,7 +237,9 @@ namespace lemon {
 	_local_dist = true;
 	_dist = Traits::createDistMap(*_gr);
       }
-      _mask = new MaskMap(*_gr, false);
+      if(!_mask) {
+        _mask = new MaskMap(*_gr);
+      }
     }
     
   public :
@@ -403,6 +405,10 @@ namespace lemon {
 	for (NodeIt it(*_gr); it != INVALID; ++it) {
 	  _process.push_back(it);
 	  _mask->set(it, true);
+	}
+      } else {
+	for (NodeIt it(*_gr); it != INVALID; ++it) {
+	  _mask->set(it, false);
 	}
       }
     }
