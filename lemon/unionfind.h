@@ -739,7 +739,7 @@ namespace lemon {
     /// Erase each item from the data structure.
     void clear() {
       items.clear();
-      classes.clear;
+      classes.clear();
       firstClass = firstFreeClass = firstFreeItem = -1;
     }
 

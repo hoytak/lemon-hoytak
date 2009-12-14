@@ -34,6 +34,7 @@ SET(TESTS
   min_cost_flow_test
   min_mean_cycle_test
   path_test
+  planarity_test
   preflow_test
   radix_sort_test
   random_test
