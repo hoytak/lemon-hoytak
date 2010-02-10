@@ -194,6 +194,7 @@ namespace lemon {
     IntArcMap _arc_id;
     IntVector _source;
     IntVector _target;
+    bool _arc_mixing;
 
     // Node and arc data
     ValueVector _lower;
@@ -633,6 +634,7 @@ namespace lemon {
     /// but it is usually slower. Therefore it is disabled by default.
     NetworkSimplex(const GR& graph, bool arc_mixing = false) :
       _graph(graph), _node_id(graph), _arc_id(graph),
+      _arc_mixing(arc_mixing),
       MAX(std::numeric_limits<Value>::max()),
       INF(std::numeric_limits<Value>::has_infinity ?
           std::numeric_limits<Value>::infinity() : MAX)
@@ -643,58 +645,7 @@ namespace lemon {
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of NetworkSimplex must be signed");
         
-      // Resize vectors
-      _node_num = countNodes(_graph);
-      _arc_num = countArcs(_graph);
-      int all_node_num = _node_num + 1;
-      int max_arc_num = _arc_num + 2 * _node_num;
-
-      _source.resize(max_arc_num);
-      _target.resize(max_arc_num);
-
-      _lower.resize(_arc_num);
-      _upper.resize(_arc_num);
-      _cap.resize(max_arc_num);
-      _cost.resize(max_arc_num);
-      _supply.resize(all_node_num);
-      _flow.resize(max_arc_num);
-      _pi.resize(all_node_num);
-
-      _parent.resize(all_node_num);
-      _pred.resize(all_node_num);
-      _forward.resize(all_node_num);
-      _thread.resize(all_node_num);
-      _rev_thread.resize(all_node_num);
-      _succ_num.resize(all_node_num);
-      _last_succ.resize(all_node_num);
-      _state.resize(max_arc_num);
-
-      // Copy the graph
-      int i = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-        _node_id[n] = i;
-      }
-      if (arc_mixing) {
-        // Store the arcs in a mixed order
-        int k = std::max(int(std::sqrt(double(_arc_num))), 10);
-        int i = 0, j = 0;
-        for (ArcIt a(_graph); a != INVALID; ++a) {
-          _arc_id[a] = i;
-          _source[i] = _node_id[_graph.source(a)];
-          _target[i] = _node_id[_graph.target(a)];
-          if ((i += k) >= _arc_num) i = ++j;
-        }
-      } else {
-        // Store the arcs in the original order
-        int i = 0;
-        for (ArcIt a(_graph); a != INVALID; ++a, ++i) {
-          _arc_id[a] = i;
-          _source[i] = _node_id[_graph.source(a)];
-          _target[i] = _node_id[_graph.target(a)];
-        }
-      }
-      
-      // Reset parameters
+      // Reset data structures
       reset();
     }
 
@@ -842,12 +793,12 @@ namespace lemon {
     ///     .supplyMap(sup).run();
     /// \endcode
     ///
-    /// This function can be called more than once. All the parameters
-    /// that have been given are kept for the next call, unless
-    /// \ref reset() is called, thus only the modified parameters
-    /// have to be set again. See \ref reset() for examples.
-    /// However, the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies and extends the graph.
+    /// This function can be called more than once. All the given parameters
+    /// are kept for the next call, unless \ref resetParams() or \ref reset()
+    /// is used, thus only the modified parameters have to be set again.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class (or the last \ref reset() call), then the \ref reset()
+    /// function must be called.
     ///
     /// \param pivot_rule The pivot rule that will be used during the
     /// algorithm. For more information, see \ref PivotRule.
@@ -861,6 +812,7 @@ namespace lemon {
     /// cost and infinite upper bound.
     ///
     /// \see ProblemType, PivotRule
+    /// \see resetParams(), reset()
     ProblemType run(PivotRule pivot_rule = BLOCK_SEARCH) {
       if (!init()) return INFEASIBLE;
       return start(pivot_rule);
@@ -872,11 +824,12 @@ namespace lemon {
     /// before using functions \ref lowerMap(), \ref upperMap(),
     /// \ref costMap(), \ref supplyMap(), \ref stSupply(), \ref supplyType().
     ///
-    /// It is useful for multiple run() calls. If this function is not
-    /// used, all the parameters given before are kept for the next
-    /// \ref run() call.
-    /// However, the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies and extends the graph.
+    /// It is useful for multiple \ref run() calls. Basically, all the given
+    /// parameters are kept for the next \ref run() call, unless
+    /// \ref resetParams() or \ref reset() is used.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class or the last \ref reset() call, then the \ref reset()
+    /// function must be used, otherwise \ref resetParams() is sufficient.
     ///
     /// For example,
     /// \code
@@ -886,20 +839,22 @@ namespace lemon {
     ///   ns.lowerMap(lower).upperMap(upper).costMap(cost)
     ///     .supplyMap(sup).run();
     ///
-    ///   // Run again with modified cost map (reset() is not called,
+    ///   // Run again with modified cost map (resetParams() is not called,
     ///   // so only the cost map have to be set again)
     ///   cost[e] += 100;
     ///   ns.costMap(cost).run();
     ///
-    ///   // Run again from scratch using reset()
+    ///   // Run again from scratch using resetParams()
     ///   // (the lower bounds will be set to zero on all arcs)
-    ///   ns.reset();
+    ///   ns.resetParams();
     ///   ns.upperMap(capacity).costMap(cost)
     ///     .supplyMap(sup).run();
     /// \endcode
     ///
     /// \return <tt>(*this)</tt>
-    NetworkSimplex& reset() {
+    ///
+    /// \see reset(), run()
+    NetworkSimplex& resetParams() {
       for (int i = 0; i != _node_num; ++i) {
         _supply[i] = 0;
       }
@@ -913,6 +868,83 @@ namespace lemon {
       return *this;
     }
 
+    /// \brief Reset the internal data structures and all the parameters
+    /// that have been given before.
+    ///
+    /// This function resets the internal data structures and all the
+    /// paramaters that have been given before using functions \ref lowerMap(),
+    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply(),
+    /// \ref supplyType().
+    ///
+    /// It is useful for multiple \ref run() calls. Basically, all the given
+    /// parameters are kept for the next \ref run() call, unless
+    /// \ref resetParams() or \ref reset() is used.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class or the last \ref reset() call, then the \ref reset()
+    /// function must be used, otherwise \ref resetParams() is sufficient.
+    ///
+    /// See \ref resetParams() for examples.
+    ///
+    /// \return <tt>(*this)</tt>
+    ///
+    /// \see resetParams(), run()
+    NetworkSimplex& reset() {
+      // Resize vectors
+      _node_num = countNodes(_graph);
+      _arc_num = countArcs(_graph);
+      int all_node_num = _node_num + 1;
+      int max_arc_num = _arc_num + 2 * _node_num;
+
+      _source.resize(max_arc_num);
+      _target.resize(max_arc_num);
+
+      _lower.resize(_arc_num);
+      _upper.resize(_arc_num);
+      _cap.resize(max_arc_num);
+      _cost.resize(max_arc_num);
+      _supply.resize(all_node_num);
+      _flow.resize(max_arc_num);
+      _pi.resize(all_node_num);
+
+      _parent.resize(all_node_num);
+      _pred.resize(all_node_num);
+      _forward.resize(all_node_num);
+      _thread.resize(all_node_num);
+      _rev_thread.resize(all_node_num);
+      _succ_num.resize(all_node_num);
+      _last_succ.resize(all_node_num);
+      _state.resize(max_arc_num);
+
+      // Copy the graph
+      int i = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _node_id[n] = i;
+      }
+      if (_arc_mixing) {
+        // Store the arcs in a mixed order
+        int k = std::max(int(std::sqrt(double(_arc_num))), 10);
+        int i = 0, j = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+          if ((i += k) >= _arc_num) i = ++j;
+        }
+      } else {
+        // Store the arcs in the original order
+        int i = 0;
+        for (ArcIt a(_graph); a != INVALID; ++a, ++i) {
+          _arc_id[a] = i;
+          _source[i] = _node_id[_graph.source(a)];
+          _target[i] = _node_id[_graph.target(a)];
+        }
+      }
+      
+      // Reset parameters
+      resetParams();
+      return *this;
+    }
+    
     /// @}
 
     /// \name Query Functions

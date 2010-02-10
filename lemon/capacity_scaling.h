@@ -314,69 +314,7 @@ namespace lemon {
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of CapacityScaling must be signed");
 
-      // Resize vectors
-      _node_num = countNodes(_graph);
-      _arc_num = countArcs(_graph);
-      _res_arc_num = 2 * (_arc_num + _node_num);
-      _root = _node_num;
-      ++_node_num;
-
-      _first_out.resize(_node_num + 1);
-      _forward.resize(_res_arc_num);
-      _source.resize(_res_arc_num);
-      _target.resize(_res_arc_num);
-      _reverse.resize(_res_arc_num);
-
-      _lower.resize(_res_arc_num);
-      _upper.resize(_res_arc_num);
-      _cost.resize(_res_arc_num);
-      _supply.resize(_node_num);
-      
-      _res_cap.resize(_res_arc_num);
-      _pi.resize(_node_num);
-      _excess.resize(_node_num);
-      _pred.resize(_node_num);
-
-      // Copy the graph
-      int i = 0, j = 0, k = 2 * _arc_num + _node_num - 1;
-      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-        _node_id[n] = i;
-      }
-      i = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
-        _first_out[i] = j;
-        for (OutArcIt a(_graph, n); a != INVALID; ++a, ++j) {
-          _arc_idf[a] = j;
-          _forward[j] = true;
-          _source[j] = i;
-          _target[j] = _node_id[_graph.runningNode(a)];
-        }
-        for (InArcIt a(_graph, n); a != INVALID; ++a, ++j) {
-          _arc_idb[a] = j;
-          _forward[j] = false;
-          _source[j] = i;
-          _target[j] = _node_id[_graph.runningNode(a)];
-        }
-        _forward[j] = false;
-        _source[j] = i;
-        _target[j] = _root;
-        _reverse[j] = k;
-        _forward[k] = true;
-        _source[k] = _root;
-        _target[k] = i;
-        _reverse[k] = j;
-        ++j; ++k;
-      }
-      _first_out[i] = j;
-      _first_out[_node_num] = k;
-      for (ArcIt a(_graph); a != INVALID; ++a) {
-        int fi = _arc_idf[a];
-        int bi = _arc_idb[a];
-        _reverse[fi] = bi;
-        _reverse[bi] = fi;
-      }
-      
-      // Reset parameters
+      // Reset data structures
       reset();
     }
 
@@ -511,12 +449,12 @@ namespace lemon {
     ///     .supplyMap(sup).run();
     /// \endcode
     ///
-    /// This function can be called more than once. All the parameters
-    /// that have been given are kept for the next call, unless
-    /// \ref reset() is called, thus only the modified parameters
-    /// have to be set again. See \ref reset() for examples.
-    /// However, the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies and extends the graph.
+    /// This function can be called more than once. All the given parameters
+    /// are kept for the next call, unless \ref resetParams() or \ref reset()
+    /// is used, thus only the modified parameters have to be set again.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class (or the last \ref reset() call), then the \ref reset()
+    /// function must be called.
     ///
     /// \param factor The capacity scaling factor. It must be larger than
     /// one to use scaling. If it is less or equal to one, then scaling
@@ -533,6 +471,7 @@ namespace lemon {
     /// these cases.
     ///
     /// \see ProblemType
+    /// \see resetParams(), reset()
     ProblemType run(int factor = 4) {
       _factor = factor;
       ProblemType pt = init();
@@ -546,11 +485,12 @@ namespace lemon {
     /// before using functions \ref lowerMap(), \ref upperMap(),
     /// \ref costMap(), \ref supplyMap(), \ref stSupply().
     ///
-    /// It is useful for multiple run() calls. If this function is not
-    /// used, all the parameters given before are kept for the next
-    /// \ref run() call.
-    /// However, the underlying digraph must not be modified after this
-    /// class have been constructed, since it copies and extends the graph.
+    /// It is useful for multiple \ref run() calls. Basically, all the given
+    /// parameters are kept for the next \ref run() call, unless
+    /// \ref resetParams() or \ref reset() is used.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class or the last \ref reset() call, then the \ref reset()
+    /// function must be used, otherwise \ref resetParams() is sufficient.
     ///
     /// For example,
     /// \code
@@ -560,20 +500,22 @@ namespace lemon {
     ///   cs.lowerMap(lower).upperMap(upper).costMap(cost)
     ///     .supplyMap(sup).run();
     ///
-    ///   // Run again with modified cost map (reset() is not called,
+    ///   // Run again with modified cost map (resetParams() is not called,
     ///   // so only the cost map have to be set again)
     ///   cost[e] += 100;
     ///   cs.costMap(cost).run();
     ///
-    ///   // Run again from scratch using reset()
+    ///   // Run again from scratch using resetParams()
     ///   // (the lower bounds will be set to zero on all arcs)
-    ///   cs.reset();
+    ///   cs.resetParams();
     ///   cs.upperMap(capacity).costMap(cost)
     ///     .supplyMap(sup).run();
     /// \endcode
     ///
     /// \return <tt>(*this)</tt>
-    CapacityScaling& reset() {
+    ///
+    /// \see reset(), run()
+    CapacityScaling& resetParams() {
       for (int i = 0; i != _node_num; ++i) {
         _supply[i] = 0;
       }
@@ -583,6 +525,93 @@ namespace lemon {
         _cost[j] = _forward[j] ? 1 : -1;
       }
       _have_lower = false;
+      return *this;
+    }
+
+    /// \brief Reset the internal data structures and all the parameters
+    /// that have been given before.
+    ///
+    /// This function resets the internal data structures and all the
+    /// paramaters that have been given before using functions \ref lowerMap(),
+    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply().
+    ///
+    /// It is useful for multiple \ref run() calls. Basically, all the given
+    /// parameters are kept for the next \ref run() call, unless
+    /// \ref resetParams() or \ref reset() is used.
+    /// If the underlying digraph was also modified after the construction
+    /// of the class or the last \ref reset() call, then the \ref reset()
+    /// function must be used, otherwise \ref resetParams() is sufficient.
+    ///
+    /// See \ref resetParams() for examples.
+    ///
+    /// \return <tt>(*this)</tt>
+    ///
+    /// \see resetParams(), run()
+    CapacityScaling& reset() {
+      // Resize vectors
+      _node_num = countNodes(_graph);
+      _arc_num = countArcs(_graph);
+      _res_arc_num = 2 * (_arc_num + _node_num);
+      _root = _node_num;
+      ++_node_num;
+
+      _first_out.resize(_node_num + 1);
+      _forward.resize(_res_arc_num);
+      _source.resize(_res_arc_num);
+      _target.resize(_res_arc_num);
+      _reverse.resize(_res_arc_num);
+
+      _lower.resize(_res_arc_num);
+      _upper.resize(_res_arc_num);
+      _cost.resize(_res_arc_num);
+      _supply.resize(_node_num);
+      
+      _res_cap.resize(_res_arc_num);
+      _pi.resize(_node_num);
+      _excess.resize(_node_num);
+      _pred.resize(_node_num);
+
+      // Copy the graph
+      int i = 0, j = 0, k = 2 * _arc_num + _node_num - 1;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _node_id[n] = i;
+      }
+      i = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n, ++i) {
+        _first_out[i] = j;
+        for (OutArcIt a(_graph, n); a != INVALID; ++a, ++j) {
+          _arc_idf[a] = j;
+          _forward[j] = true;
+          _source[j] = i;
+          _target[j] = _node_id[_graph.runningNode(a)];
+        }
+        for (InArcIt a(_graph, n); a != INVALID; ++a, ++j) {
+          _arc_idb[a] = j;
+          _forward[j] = false;
+          _source[j] = i;
+          _target[j] = _node_id[_graph.runningNode(a)];
+        }
+        _forward[j] = false;
+        _source[j] = i;
+        _target[j] = _root;
+        _reverse[j] = k;
+        _forward[k] = true;
+        _source[k] = _root;
+        _target[k] = i;
+        _reverse[k] = j;
+        ++j; ++k;
+      }
+      _first_out[i] = j;
+      _first_out[_node_num] = k;
+      for (ArcIt a(_graph); a != INVALID; ++a) {
+        int fi = _arc_idf[a];
+        int bi = _arc_idb[a];
+        _reverse[fi] = bi;
+        _reverse[bi] = fi;
+      }
+      
+      // Reset parameters
+      resetParams();
       return *this;
     }
 

@@ -157,7 +157,7 @@ public:
       MCF mcf(me.g);
       const MCF& const_mcf = mcf;
 
-      b = mcf.reset()
+      b = mcf.reset().resetParams()
              .lowerMap(me.lower)
              .upperMap(me.upper)
              .costMap(me.cost)
@@ -346,7 +346,7 @@ void runMcfGeqTests( Param param,
   mcf1.stSupply(v, w, 27);
   checkMcf(mcf1, mcf1.run(param), gr, l2, u, c, s2,
            mcf1.OPTIMAL, true,     8010, test_str + "-4");
-  mcf1.reset().supplyMap(s1);
+  mcf1.resetParams().supplyMap(s1);
   checkMcf(mcf1, mcf1.run(param), gr, l1, cu, cc, s1,
            mcf1.OPTIMAL, true,       74, test_str + "-5");
   mcf1.lowerMap(l2).stSupply(v, w, 27);
@@ -363,7 +363,7 @@ void runMcfGeqTests( Param param,
            mcf1.OPTIMAL, true,     6360, test_str + "-9");
 
   // Tests for the GEQ form
-  mcf1.reset().upperMap(u).costMap(c).supplyMap(s5);
+  mcf1.resetParams().upperMap(u).costMap(c).supplyMap(s5);
   checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s5,
            mcf1.OPTIMAL, true,     3530, test_str + "-10", GEQ);
   mcf1.lowerMap(l2);
@@ -380,7 +380,7 @@ void runMcfGeqTests( Param param,
   mcf2.upperMap(neg1_u2);
   checkMcf(mcf2, mcf2.run(param), neg1_gr, neg1_l1, neg1_u2, neg1_c, neg1_s,
            mcf2.OPTIMAL, true,   -40000, test_str + "-14");
-  mcf2.reset().lowerMap(neg1_l2).costMap(neg1_c).supplyMap(neg1_s);
+  mcf2.resetParams().lowerMap(neg1_l2).costMap(neg1_c).supplyMap(neg1_s);
   checkMcf(mcf2, mcf2.run(param), neg1_gr, neg1_l2, neg1_u1, neg1_c, neg1_s,
            mcf2.UNBOUNDED, false,     0, test_str + "-15");
 
