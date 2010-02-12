@@ -121,6 +121,11 @@ namespace lemon {
   ///
   ///\tparam GR The type of the digraph the algorithm runs on.
   ///The default type is \ref ListDigraph.
+  ///\tparam TR The traits class that defines various types used by the
+  ///algorithm. By default, it is \ref BfsDefaultTraits
+  ///"BfsDefaultTraits<GR>".
+  ///In most cases, this parameter should not be set directly,
+  ///consider to use the named template parameters instead.
 #ifdef DOXYGEN
   template <typename GR,
             typename TR>
@@ -957,6 +962,9 @@ namespace lemon {
   ///
   /// This class should only be used through the \ref bfs() function,
   /// which makes it easier to use the algorithm.
+  ///
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm.
   template<class TR>
   class BfsWizard : public TR
   {
@@ -1295,11 +1303,11 @@ namespace lemon {
   /// \ref BfsVisitor "BfsVisitor<GR>" is an empty visitor, which
   /// does not observe the BFS events. If you want to observe the BFS
   /// events, you should implement your own visitor class.
-  /// \tparam TR Traits class to set various data types used by the
-  /// algorithm. The default traits class is
-  /// \ref BfsVisitDefaultTraits "BfsVisitDefaultTraits<GR>".
-  /// See \ref BfsVisitDefaultTraits for the documentation of
-  /// a BFS visit traits class.
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm. By default, it is \ref BfsVisitDefaultTraits
+  /// "BfsVisitDefaultTraits<GR>".
+  /// In most cases, this parameter should not be set directly,
+  /// consider to use the named template parameters instead.
 #ifdef DOXYGEN
   template <typename GR, typename VS, typename TR>
 #else
