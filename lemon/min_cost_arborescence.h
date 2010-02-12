@@ -112,17 +112,18 @@ namespace lemon {
   /// relatively time consuming process to compute the arc costs if
   /// it is necessary. The default map type is \ref
   /// concepts::Digraph::ArcMap "Digraph::ArcMap<int>".
-  /// \param TR Traits class to set various data types used
-  /// by the algorithm. The default traits class is
-  /// \ref MinCostArborescenceDefaultTraits
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm. By default, it is \ref MinCostArborescenceDefaultTraits
   /// "MinCostArborescenceDefaultTraits<GR, CM>".
+  /// In most cases, this parameter should not be set directly,
+  /// consider to use the named template parameters instead.
 #ifndef DOXYGEN
   template <typename GR,
             typename CM = typename GR::template ArcMap<int>,
             typename TR =
               MinCostArborescenceDefaultTraits<GR, CM> >
 #else
-  template <typename GR, typename CM, typedef TR>
+  template <typename GR, typename CM, typename TR>
 #endif
   class MinCostArborescence {
   public:

@@ -171,6 +171,11 @@ namespace lemon {
   /// \tparam LEN A \ref concepts::ReadMap "readable" arc map that specifies
   /// the lengths of the arcs. The default map type is
   /// \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm. By default, it is \ref BellmanFordDefaultTraits
+  /// "BellmanFordDefaultTraits<GR, LEN>".
+  /// In most cases, this parameter should not be set directly,
+  /// consider to use the named template parameters instead.
 #ifdef DOXYGEN
   template <typename GR, typename LEN, typename TR>
 #else
@@ -933,6 +938,9 @@ namespace lemon {
   ///
   /// This class should only be used through the \ref bellmanFord()
   /// function, which makes it easier to use the algorithm.
+  ///
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm.
   template<class TR>
   class BellmanFordWizard : public TR {
     typedef TR Base;

@@ -192,6 +192,11 @@ namespace lemon {
   ///relatively time consuming process to compute the arc lengths if
   ///it is necessary. The default map type is \ref
   ///concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  ///\tparam TR The traits class that defines various types used by the
+  ///algorithm. By default, it is \ref DijkstraDefaultTraits
+  ///"DijkstraDefaultTraits<GR, LEN>".
+  ///In most cases, this parameter should not be set directly,
+  ///consider to use the named template parameters instead.
 #ifdef DOXYGEN
   template <typename GR, typename LEN, typename TR>
 #else
@@ -1092,6 +1097,9 @@ namespace lemon {
   ///
   /// This class should only be used through the \ref dijkstra() function,
   /// which makes it easier to use the algorithm.
+  ///
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm.
   template<class TR>
   class DijkstraWizard : public TR
   {

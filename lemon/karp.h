@@ -104,6 +104,11 @@ namespace lemon {
   /// \tparam GR The type of the digraph the algorithm runs on.
   /// \tparam LEN The type of the length map. The default
   /// map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm. By default, it is \ref KarpDefaultTraits
+  /// "KarpDefaultTraits<GR, LEN>".
+  /// In most cases, this parameter should not be set directly,
+  /// consider to use the named template parameters instead.
 #ifdef DOXYGEN
   template <typename GR, typename LEN, typename TR>
 #else
@@ -125,8 +130,7 @@ namespace lemon {
     /// \brief The large value type
     ///
     /// The large value type used for internal computations.
-    /// Using the \ref KarpDefaultTraits "default traits class",
-    /// it is \c long \c long if the \c Value type is integer,
+    /// By default, it is \c long \c long if the \c Value type is integer,
     /// otherwise it is \c double.
     typedef typename TR::LargeValue LargeValue;
 
