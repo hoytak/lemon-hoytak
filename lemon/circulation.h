@@ -173,6 +173,11 @@ namespace lemon {
      The default map type is \c LM.
      \tparam SM The type of the supply map. The default map type is
      \ref concepts::Digraph::NodeMap "GR::NodeMap<UM::Value>".
+     \tparam TR The traits class that defines various types used by the
+     algorithm. By default, it is \ref CirculationDefaultTraits
+     "CirculationDefaultTraits<GR, LM, UM, SM>".
+     In most cases, this parameter should not be set directly,
+     consider to use the named template parameters instead.
   */
 #ifdef DOXYGEN
 template< typename GR,

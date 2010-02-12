@@ -28,6 +28,7 @@ DOC_EPS_IMAGES27 = \
 	connected_components.eps \
 	edge_biconnected_components.eps \
 	node_biconnected_components.eps \
+	planar.eps \
 	strongly_connected_components.eps
 
 DOC_EPS_IMAGES = \

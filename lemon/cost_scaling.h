@@ -104,9 +104,14 @@ namespace lemon {
   ///
   /// \tparam GR The digraph type the algorithm runs on.
   /// \tparam V The number type used for flow amounts, capacity bounds
-  /// and supply values in the algorithm. By default it is \c int.
+  /// and supply values in the algorithm. By default, it is \c int.
   /// \tparam C The number type used for costs and potentials in the
-  /// algorithm. By default it is the same as \c V.
+  /// algorithm. By default, it is the same as \c V.
+  /// \tparam TR The traits class that defines various types used by the
+  /// algorithm. By default, it is \ref CostScalingDefaultTraits
+  /// "CostScalingDefaultTraits<GR, V, C>".
+  /// In most cases, this parameter should not be set directly,
+  /// consider to use the named template parameters instead.
   ///
   /// \warning Both number types must be signed and all input data must
   /// be integer.
@@ -136,8 +141,7 @@ namespace lemon {
     /// \brief The large cost type
     ///
     /// The large cost type used for internal computations.
-    /// Using the \ref CostScalingDefaultTraits "default traits class",
-    /// it is \c long \c long if the \c Cost type is integer,
+    /// By default, it is \c long \c long if the \c Cost type is integer,
     /// otherwise it is \c double.
     typedef typename TR::LargeCost LargeCost;
 

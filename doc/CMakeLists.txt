@@ -26,6 +26,7 @@ IF(DOXYGEN_EXECUTABLE AND PYTHONINTERP_FOUND AND GHOSTSCRIPT_EXECUTABLE)
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/nodeshape_2.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_2.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/nodeshape_3.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_3.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/nodeshape_4.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_4.eps
+    COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/planar.png ${CMAKE_CURRENT_SOURCE_DIR}/images/planar.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/strongly_connected_components.png ${CMAKE_CURRENT_SOURCE_DIR}/images/strongly_connected_components.eps
     COMMAND ${CMAKE_COMMAND} -E remove_directory html
     COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/bib2dox.py ${CMAKE_CURRENT_SOURCE_DIR}/references.bib >references.dox

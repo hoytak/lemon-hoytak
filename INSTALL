@@ -173,3 +173,25 @@ CXXFLAGS='flags'
 --without-coin
 
    Disable COIN-OR support.
+
+
+Makefile Variables
+==================
+
+Some Makefile variables are reserved by the GNU Coding Standards for
+the use of the "user" - the person building the package. For instance,
+CXX and CXXFLAGS are such variables, and have the same meaning as
+explained in the previous section. These variables can be set on the
+command line when invoking `make' like this:
+`make [VARIABLE=VALUE]...'
+
+WARNINGCXXFLAGS is a non-standard Makefile variable introduced by us
+to hold several compiler flags related to warnings. Its default value
+can be overridden when invoking `make'. For example to disable all
+warning flags use `make WARNINGCXXFLAGS='.
+
+In order to turn off a single flag from the default set of warning
+flags, you can use the CXXFLAGS variable, since this is passed after
+WARNINGCXXFLAGS. For example to turn off `-Wold-style-cast' (which is
+used by default when g++ is detected) you can use
+`make CXXFLAGS="-g -O2 -Wno-old-style-cast"'.

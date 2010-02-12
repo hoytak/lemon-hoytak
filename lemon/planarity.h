@@ -518,9 +518,9 @@ namespace lemon {
   /// \brief Planarity checking of an undirected simple graph
   ///
   /// This function implements the Boyer-Myrvold algorithm for
-  /// planarity checking of an undirected graph. It is a simplified
+  /// planarity checking of an undirected simple graph. It is a simplified
   /// version of the PlanarEmbedding algorithm class because neither
-  /// the embedding nor the kuratowski subdivisons are not computed.
+  /// the embedding nor the Kuratowski subdivisons are computed.
   template <typename GR>
   bool checkPlanarity(const GR& graph) {
     _planarity_bits::PlanarityChecking<GR> pc(graph);
@@ -532,16 +532,17 @@ namespace lemon {
   /// \brief Planar embedding of an undirected simple graph
   ///
   /// This class implements the Boyer-Myrvold algorithm for planar
-  /// embedding of an undirected graph. The planar embedding is an
+  /// embedding of an undirected simple graph. The planar embedding is an
   /// ordering of the outgoing edges of the nodes, which is a possible
   /// configuration to draw the graph in the plane. If there is not
-  /// such ordering then the graph contains a \f$ K_5 \f$ (full graph
-  /// with 5 nodes) or a \f$ K_{3,3} \f$ (complete bipartite graph on
-  /// 3 ANode and 3 BNode) subdivision.
+  /// such ordering then the graph contains a K<sub>5</sub> (full graph
+  /// with 5 nodes) or a K<sub>3,3</sub> (complete bipartite graph on
+  /// 3 Red and 3 Blue nodes) subdivision.
   ///
   /// The current implementation calculates either an embedding or a
-  /// Kuratowski subdivision. The running time of the algorithm is 
-  /// \f$ O(n) \f$.
+  /// Kuratowski subdivision. The running time of the algorithm is O(n).
+  ///
+  /// \see PlanarDrawing, checkPlanarity()
   template <typename Graph>
   class PlanarEmbedding {
   private:
@@ -591,22 +592,26 @@ namespace lemon {
 
   public:
 
-    /// \brief The map for store of embedding
+    /// \brief The map type for storing the embedding
+    ///
+    /// The map type for storing the embedding.
+    /// \see embeddingMap()
     typedef typename Graph::template ArcMap<Arc> EmbeddingMap;
 
     /// \brief Constructor
     ///
-    /// \note The graph should be simple, i.e. parallel and loop arc
-    /// free.
+    /// Constructor.
+    /// \pre The graph must be simple, i.e. it should not
+    /// contain parallel or loop arcs.
     PlanarEmbedding(const Graph& graph)
       : _graph(graph), _embedding(_graph), _kuratowski(graph, false) {}
 
-    /// \brief Runs the algorithm.
+    /// \brief Run the algorithm.
     ///
-    /// Runs the algorithm.
-    /// \param kuratowski If the parameter is false, then the
+    /// This function runs the algorithm.
+    /// \param kuratowski If this parameter is set to \c false, then the
     /// algorithm does not compute a Kuratowski subdivision.
-    ///\return %True when the graph is planar.
+    /// \return \c true if the graph is planar.
     bool run(bool kuratowski = true) {
       typedef _planarity_bits::PlanarityVisitor<Graph> Visitor;
 
@@ -699,30 +704,32 @@ namespace lemon {
       return true;
     }
 
-    /// \brief Gives back the successor of an arc
+    /// \brief Give back the successor of an arc
     ///
-    /// Gives back the successor of an arc. This function makes
+    /// This function gives back the successor of an arc. It makes
     /// possible to query the cyclic order of the outgoing arcs from
     /// a node.
     Arc next(const Arc& arc) const {
       return _embedding[arc];
     }
 
-    /// \brief Gives back the calculated embedding map
+    /// \brief Give back the calculated embedding map
     ///
-    /// The returned map contains the successor of each arc in the
-    /// graph.
+    /// This function gives back the calculated embedding map, which
+    /// contains the successor of each arc in the cyclic order of the
+    /// outgoing arcs of its source node.
     const EmbeddingMap& embeddingMap() const {
       return _embedding;
     }
 
-    /// \brief Gives back true if the undirected arc is in the
-    /// kuratowski subdivision
-    ///
-    /// Gives back true if the undirected arc is in the kuratowski
+    /// \brief Give back \c true if the given edge is in the Kuratowski
     /// subdivision
-    /// \note The \c run() had to be called with true value.
-    bool kuratowski(const Edge& edge) {
+    ///
+    /// This function gives back \c true if the given edge is in the found
+    /// Kuratowski subdivision.
+    /// \pre The \c run() function must be called with \c true parameter
+    /// before using this function.
+    bool kuratowski(const Edge& edge) const {
       return _kuratowski[edge];
     }
 
@@ -2059,29 +2066,32 @@ namespace lemon {
   /// \brief Schnyder's planar drawing algorithm
   ///
   /// The planar drawing algorithm calculates positions for the nodes
-  /// in the plane which coordinates satisfy that if the arcs are
-  /// represented with straight lines then they will not intersect
+  /// in the plane. These coordinates satisfy that if the edges are
+  /// represented with straight lines, then they will not intersect
   /// each other.
   ///
-  /// Scnyder's algorithm embeds the graph on \c (n-2,n-2) size grid,
-  /// i.e. each node will be located in the \c [0,n-2]x[0,n-2] square.
+  /// Scnyder's algorithm embeds the graph on an \c (n-2)x(n-2) size grid,
+  /// i.e. each node will be located in the \c [0..n-2]x[0..n-2] square.
   /// The time complexity of the algorithm is O(n).
+  ///
+  /// \see PlanarEmbedding
   template <typename Graph>
   class PlanarDrawing {
   public:
 
     TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
-    /// \brief The point type for store coordinates
+    /// \brief The point type for storing coordinates
     typedef dim2::Point<int> Point;
-    /// \brief The map type for store coordinates
+    /// \brief The map type for storing the coordinates of the nodes
     typedef typename Graph::template NodeMap<Point> PointMap;
 
 
     /// \brief Constructor
     ///
     /// Constructor
-    /// \pre The graph should be simple, i.e. loop and parallel arc free.
+    /// \pre The graph must be simple, i.e. it should not
+    /// contain parallel or loop arcs.
     PlanarDrawing(const Graph& graph)
       : _graph(graph), _point_map(graph) {}
 
@@ -2366,10 +2376,10 @@ namespace lemon {
 
   public:
 
-    /// \brief Calculates the node positions
+    /// \brief Calculate the node positions
     ///
-    /// This function calculates the node positions.
-    /// \return %True if the graph is planar.
+    /// This function calculates the node positions on the plane.
+    /// \return \c true if the graph is planar.
     bool run() {
       PlanarEmbedding<Graph> pe(_graph);
       if (!pe.run()) return false;
@@ -2378,12 +2388,13 @@ namespace lemon {
       return true;
     }
 
-    /// \brief Calculates the node positions according to a
+    /// \brief Calculate the node positions according to a
     /// combinatorical embedding
     ///
-    /// This function calculates the node locations. The \c embedding
-    /// parameter should contain a valid combinatorical embedding, i.e.
-    /// a valid cyclic order of the arcs.
+    /// This function calculates the node positions on the plane.
+    /// The given \c embedding map should contain a valid combinatorical
+    /// embedding, i.e. a valid cyclic order of the arcs.
+    /// It can be computed using PlanarEmbedding.
     template <typename EmbeddingMap>
     void run(const EmbeddingMap& embedding) {
       typedef SmartEdgeSet<Graph> AuxGraph;
@@ -2423,14 +2434,15 @@ namespace lemon {
 
     /// \brief The coordinate of the given node
     ///
-    /// The coordinate of the given node.
+    /// This function returns the coordinate of the given node.
     Point operator[](const Node& node) const {
       return _point_map[node];
     }
 
-    /// \brief Returns the grid embedding in a \e NodeMap.
+    /// \brief Return the grid embedding in a node map
     ///
-    /// Returns the grid embedding in a \e NodeMap of \c dim2::Point<int> .
+    /// This function returns the grid embedding in a node map of
+    /// \c dim2::Point<int> coordinates.
     const PointMap& coords() const {
       return _point_map;
     }
@@ -2470,23 +2482,22 @@ namespace lemon {
   /// \brief Coloring planar graphs
   ///
   /// The graph coloring problem is the coloring of the graph nodes
-  /// that there are not adjacent nodes with the same color. The
-  /// planar graphs can be always colored with four colors, it is
-  /// proved by Appel and Haken and their proofs provide a quadratic
+  /// so that there are no adjacent nodes with the same color. The
+  /// planar graphs can always be colored with four colors, which is
+  /// proved by Appel and Haken. Their proofs provide a quadratic
   /// time algorithm for four coloring, but it could not be used to
-  /// implement efficient algorithm. The five and six coloring can be
-  /// made in linear time, but in this class the five coloring has
+  /// implement an efficient algorithm. The five and six coloring can be
+  /// made in linear time, but in this class, the five coloring has
   /// quadratic worst case time complexity. The two coloring (if
   /// possible) is solvable with a graph search algorithm and it is
   /// implemented in \ref bipartitePartitions() function in LEMON. To
-  /// decide whether the planar graph is three colorable is
-  /// NP-complete.
+  /// decide whether a planar graph is three colorable is NP-complete.
   ///
   /// This class contains member functions for calculate colorings
   /// with five and six colors. The six coloring algorithm is a simple
   /// greedy coloring on the backward minimum outgoing order of nodes.
-  /// This order can be computed as in each phase the node with least
-  /// outgoing arcs to unprocessed nodes is chosen. This order
+  /// This order can be computed by selecting the node with least
+  /// outgoing arcs to unprocessed nodes in each phase. This order
   /// guarantees that when a node is chosen for coloring it has at
   /// most five already colored adjacents. The five coloring algorithm
   /// use the same method, but if the greedy approach fails to color
@@ -2499,15 +2510,19 @@ namespace lemon {
 
     TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
-    /// \brief The map type for store color indexes
+    /// \brief The map type for storing color indices
     typedef typename Graph::template NodeMap<int> IndexMap;
-    /// \brief The map type for store colors
+    /// \brief The map type for storing colors
+    ///
+    /// The map type for storing colors.
+    /// \see Palette, Color
     typedef ComposeMap<Palette, IndexMap> ColorMap;
 
     /// \brief Constructor
     ///
-    /// Constructor
-    /// \pre The graph should be simple, i.e. loop and parallel arc free.
+    /// Constructor.
+    /// \pre The graph must be simple, i.e. it should not
+    /// contain parallel or loop arcs.
     PlanarColoring(const Graph& graph)
       : _graph(graph), _color_map(graph), _palette(0) {
       _palette.add(Color(1,0,0));
@@ -2518,47 +2533,47 @@ namespace lemon {
       _palette.add(Color(0,1,1));
     }
 
-    /// \brief Returns the \e NodeMap of color indexes
+    /// \brief Return the node map of color indices
     ///
-    /// Returns the \e NodeMap of color indexes. The values are in the
-    /// range \c [0..4] or \c [0..5] according to the coloring method.
+    /// This function returns the node map of color indices. The values are
+    /// in the range \c [0..4] or \c [0..5] according to the coloring method.
     IndexMap colorIndexMap() const {
       return _color_map;
     }
 
-    /// \brief Returns the \e NodeMap of colors
+    /// \brief Return the node map of colors
     ///
-    /// Returns the \e NodeMap of colors. The values are five or six
-    /// distinct \ref lemon::Color "colors".
+    /// This function returns the node map of colors. The values are among
+    /// five or six distinct \ref lemon::Color "colors".
     ColorMap colorMap() const {
       return composeMap(_palette, _color_map);
     }
 
-    /// \brief Returns the color index of the node
+    /// \brief Return the color index of the node
     ///
-    /// Returns the color index of the node. The values are in the
-    /// range \c [0..4] or \c [0..5] according to the coloring method.
+    /// This function returns the color index of the given node. The value is
+    /// in the range \c [0..4] or \c [0..5] according to the coloring method.
     int colorIndex(const Node& node) const {
       return _color_map[node];
     }
 
-    /// \brief Returns the color of the node
+    /// \brief Return the color of the node
     ///
-    /// Returns the color of the node. The values are five or six
-    /// distinct \ref lemon::Color "colors".
+    /// This function returns the color of the given node. The value is among
+    /// five or six distinct \ref lemon::Color "colors".
     Color color(const Node& node) const {
       return _palette[_color_map[node]];
     }
 
 
-    /// \brief Calculates a coloring with at most six colors
+    /// \brief Calculate a coloring with at most six colors
     ///
     /// This function calculates a coloring with at most six colors. The time
     /// complexity of this variant is linear in the size of the graph.
-    /// \return %True when the algorithm could color the graph with six color.
-    /// If the algorithm fails, then the graph could not be planar.
-    /// \note This function can return true if the graph is not
-    /// planar but it can be colored with 6 colors.
+    /// \return \c true if the algorithm could color the graph with six colors.
+    /// If the algorithm fails, then the graph is not planar.
+    /// \note This function can return \c true if the graph is not
+    /// planar, but it can be colored with at most six colors.
     bool runSixColoring() {
 
       typename Graph::template NodeMap<int> heap_index(_graph, -1);
@@ -2660,11 +2675,14 @@ namespace lemon {
 
   public:
 
-    /// \brief Calculates a coloring with at most five colors
+    /// \brief Calculate a coloring with at most five colors
     ///
     /// This function calculates a coloring with at most five
     /// colors. The worst case time complexity of this variant is
     /// quadratic in the size of the graph.
+    /// \param embedding This map should contain a valid combinatorical
+    /// embedding, i.e. a valid cyclic order of the arcs.
+    /// It can be computed using PlanarEmbedding.
     template <typename EmbeddingMap>
     void runFiveColoring(const EmbeddingMap& embedding) {
 
@@ -2711,12 +2729,12 @@ namespace lemon {
       }
     }
 
-    /// \brief Calculates a coloring with at most five colors
+    /// \brief Calculate a coloring with at most five colors
     ///
     /// This function calculates a coloring with at most five
     /// colors. The worst case time complexity of this variant is
     /// quadratic in the size of the graph.
-    /// \return %True when the graph is planar.
+    /// \return \c true if the graph is planar.
     bool runFiveColoring() {
       PlanarEmbedding<Graph> pe(_graph);
       if (!pe.run()) return false;
