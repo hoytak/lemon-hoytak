@@ -65,9 +65,18 @@ int main(int argc, char **argv)
   ap.other("infile", "The input file.")
     .other("...");
 
+  // Throw an exception when problems occurs. The default behavior is to
+  // exit(1) on these cases, but this makes Valgrind falsely warn
+  // about memory leaks.
+  ap.throwOnProblems();
+  
   // Perform the parsing process
   // (in case of any error it terminates the program)
-  ap.parse();
+  // The try {} construct is necessary only if the ap.trowOnProblems()
+  // setting is in use.
+  try {
+    ap.parse();
+  } catch (ArgParserException &) { return 1; }
 
   // Check each option if it has been given and print its value
   std::cout << "Parameters of '" << ap.commandName() << "':\n";
