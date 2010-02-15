@@ -1229,10 +1229,10 @@ namespace lemon {
     Row addRow(const Constr &c) {
       Row r;
       c.expr().simplify();
-      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound():-INF, 
+      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound()-*c.expr():-INF, 
                                 ExprIterator(c.expr().comps.begin(), cols),
                                 ExprIterator(c.expr().comps.end(), cols),
-                                c.upperBounded()?c.upperBound():INF));
+                                c.upperBounded()?c.upperBound()-*c.expr():INF));
       return r;
     }
     ///Erase a column (i.e a variable) from the LP
