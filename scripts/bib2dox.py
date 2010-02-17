@@ -1,10 +1,15 @@
-#!/usr/bin/env /usr/local/Python/bin/python2.1
+#! /usr/bin/env python
 """
   BibTeX to Doxygen converter
   Usage: python bib2dox.py bibfile.bib > bibfile.dox
 
+  This file is a part of LEMON, a generic C++ optimization library.
+
+  **********************************************************************
+
   This code is the modification of the BibTeX to XML converter
-  by Vidar Bronken Gundersen et al. See the original copyright notices below. 
+  by Vidar Bronken Gundersen et al.
+  See the original copyright notices below. 
 
   **********************************************************************
 
