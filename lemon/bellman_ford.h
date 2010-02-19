@@ -28,24 +28,27 @@
 #include <lemon/core.h>
 #include <lemon/error.h>
 #include <lemon/maps.h>
+#include <lemon/tolerance.h>
 #include <lemon/path.h>
 
 #include <limits>
 
 namespace lemon {
 
-  /// \brief Default OperationTraits for the BellmanFord algorithm class.
+  /// \brief Default operation traits for the BellmanFord algorithm class.
   ///  
   /// This operation traits class defines all computational operations
   /// and constants that are used in the Bellman-Ford algorithm.
   /// The default implementation is based on the \c numeric_limits class.
   /// If the numeric type does not have infinity value, then the maximum
   /// value is used as extremal infinity value.
+  ///
+  /// \see BellmanFordToleranceOperationTraits
   template <
     typename V, 
     bool has_inf = std::numeric_limits<V>::has_infinity>
   struct BellmanFordDefaultOperationTraits {
-    /// \e
+    /// \brief Value type for the algorithm.
     typedef V Value;
     /// \brief Gives back the zero value of the type.
     static Value zero() {
@@ -84,6 +87,51 @@ namespace lemon {
     }
   };
   
+  /// \brief Operation traits for the BellmanFord algorithm class
+  /// using tolerance.
+  ///
+  /// This operation traits class defines all computational operations
+  /// and constants that are used in the Bellman-Ford algorithm.
+  /// The only difference between this implementation and
+  /// \ref BellmanFordDefaultOperationTraits is that this class uses
+  /// the \ref Tolerance "tolerance technique" in its \ref less()
+  /// function.
+  ///
+  /// \tparam V The value type.
+  /// \tparam eps The epsilon value for the \ref less() function.
+  /// By default, it is the epsilon value used by \ref Tolerance
+  /// "Tolerance<V>".
+  ///
+  /// \see BellmanFordDefaultOperationTraits
+#ifdef DOXYGEN
+  template <typename V, V eps>
+#else
+  template <
+    typename V,
+    V eps = Tolerance<V>::def_epsilon>
+#endif
+  struct BellmanFordToleranceOperationTraits {
+    /// \brief Value type for the algorithm.
+    typedef V Value;
+    /// \brief Gives back the zero value of the type.
+    static Value zero() {
+      return static_cast<Value>(0);
+    }
+    /// \brief Gives back the positive infinity value of the type.
+    static Value infinity() {
+      return std::numeric_limits<Value>::infinity();
+    }
+    /// \brief Gives back the sum of the given two elements.
+    static Value plus(const Value& left, const Value& right) {
+      return left + right;
+    }
+    /// \brief Gives back \c true only if the first value is less than
+    /// the second.
+    static bool less(const Value& left, const Value& right) {
+      return left + eps < right;
+    }
+  };
+
   /// \brief Default traits class of BellmanFord class.
   ///
   /// Default traits class of BellmanFord class.
@@ -107,7 +155,8 @@ namespace lemon {
     ///
     /// It defines the used operations and the infinity value for the
     /// given \c Value type.
-    /// \see BellmanFordDefaultOperationTraits
+    /// \see BellmanFordDefaultOperationTraits,
+    /// BellmanFordToleranceOperationTraits
     typedef BellmanFordDefaultOperationTraits<Value> OperationTraits;
  
     /// \brief The type of the map that stores the last arcs of the 
@@ -837,7 +886,8 @@ namespace lemon {
     ///
     /// It defines the used operations and the infinity value for the
     /// given \c Value type.
-    /// \see BellmanFordDefaultOperationTraits
+    /// \see BellmanFordDefaultOperationTraits,
+    /// BellmanFordToleranceOperationTraits
     typedef BellmanFordDefaultOperationTraits<Value> OperationTraits;
 
     /// \brief The type of the map that stores the last
