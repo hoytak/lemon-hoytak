@@ -144,10 +144,11 @@ namespace lemon {
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
     
     typedef std::vector<int> IntVector;
-    typedef std::vector<char> CharVector;
     typedef std::vector<double> DoubleVector;
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
+    typedef std::vector<char> BoolVector;
+    // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
   private:
   
@@ -198,7 +199,7 @@ namespace lemon {
     IntArcMap _arc_idf;
     IntArcMap _arc_idb;
     IntVector _first_out;
-    CharVector _forward;
+    BoolVector _forward;
     IntVector _source;
     IntVector _target;
     IntVector _reverse;
@@ -933,8 +934,8 @@ namespace lemon {
       // Contruct auxiliary data vectors
       DoubleVector pi(_res_node_num, 0.0);
       IntVector level(_res_node_num);
-      CharVector reached(_res_node_num);
-      CharVector processed(_res_node_num);
+      BoolVector reached(_res_node_num);
+      BoolVector processed(_res_node_num);
       IntVector pred_node(_res_node_num);
       IntVector pred_arc(_res_node_num);
       std::vector<int> stack(_res_node_num);

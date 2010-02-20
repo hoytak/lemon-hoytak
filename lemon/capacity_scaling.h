@@ -134,9 +134,10 @@ namespace lemon {
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
     typedef std::vector<int> IntVector;
-    typedef std::vector<char> BoolVector;
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
+    typedef std::vector<char> BoolVector;
+    // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
   private:
 
@@ -764,15 +765,15 @@ namespace lemon {
       // Initialize delta value
       if (_factor > 1) {
         // With scaling
-        Value max_sup = 0, max_dem = 0;
-        for (int i = 0; i != _node_num; ++i) {
+        Value max_sup = 0, max_dem = 0, max_cap = 0;
+        for (int i = 0; i != _root; ++i) {
           Value ex = _excess[i];
           if ( ex > max_sup) max_sup =  ex;
           if (-ex > max_dem) max_dem = -ex;
-        }
-        Value max_cap = 0;
-        for (int j = 0; j != _res_arc_num; ++j) {
-          if (_res_cap[j] > max_cap) max_cap = _res_cap[j];
+          int last_out = _first_out[i+1] - 1;
+          for (int j = _first_out[i]; j != last_out; ++j) {
+            if (_res_cap[j] > max_cap) max_cap = _res_cap[j];
+          }
         }
         max_sup = std::min(std::min(max_sup, max_dem), max_cap);
         for (_delta = 1; 2 * _delta <= max_sup; _delta *= 2) ;
