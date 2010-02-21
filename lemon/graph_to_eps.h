@@ -684,9 +684,9 @@ public:
       os << cbuf;
 #else
       os << bits::getWinFormattedDate();
+      os << std::endl;
 #endif
     }
-    os << std::endl;
 
     if (_autoArcWidthScale) {
       double max_w=0;
