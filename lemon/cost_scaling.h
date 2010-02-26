@@ -201,10 +201,11 @@ namespace lemon {
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
 
     typedef std::vector<int> IntVector;
-    typedef std::vector<char> BoolVector;
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
     typedef std::vector<LargeCost> LargeCostVector;
+    typedef std::vector<char> BoolVector;
+    // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
   private:
   
@@ -248,6 +249,7 @@ namespace lemon {
     // Parameters of the problem
     bool _have_lower;
     Value _sum_supply;
+    int _sup_node_num;
 
     // Data structures for storing the digraph
     IntNodeMap _node_id;
@@ -276,6 +278,12 @@ namespace lemon {
     LargeCost _epsilon;
     int _alpha;
 
+    IntVector _buckets;
+    IntVector _bucket_next;
+    IntVector _bucket_prev;
+    IntVector _rank;
+    int _max_rank;
+  
     // Data for a StaticDigraph structure
     typedef std::pair<int, int> IntPair;
     StaticDigraph _sgr;
@@ -828,6 +836,11 @@ namespace lemon {
         }
       }
 
+      _sup_node_num = 0;
+      for (NodeIt n(_graph); n != INVALID; ++n) {
+        if (sup[n] > 0) ++_sup_node_num;
+      }
+
       // Find a feasible flow using Circulation
       Circulation<Digraph, ConstMap<Arc, Value>, ValueArcMap, ValueNodeMap>
         circ(_graph, low, cap, sup);
@@ -862,7 +875,7 @@ namespace lemon {
         }
         for (int a = _first_out[_root]; a != _res_arc_num; ++a) {
           int ra = _reverse[a];
-          _res_cap[a] = 1;
+          _res_cap[a] = 0;
           _res_cap[ra] = 0;
           _cost[a] = 0;
           _cost[ra] = 0;
@@ -876,7 +889,14 @@ namespace lemon {
     void start(Method method) {
       // Maximum path length for partial augment
       const int MAX_PATH_LENGTH = 4;
-      
+
+      // Initialize data structures for buckets      
+      _max_rank = _alpha * _res_node_num;
+      _buckets.resize(_max_rank);
+      _bucket_next.resize(_res_node_num + 1);
+      _bucket_prev.resize(_res_node_num + 1);
+      _rank.resize(_res_node_num + 1);
+  
       // Execute the algorithm
       switch (method) {
         case PUSH:
@@ -915,63 +935,175 @@ namespace lemon {
         }
       }
     }
-
-    /// Execute the algorithm performing augment and relabel operations
-    void startAugment(int max_length = std::numeric_limits<int>::max()) {
-      // Paramters for heuristics
-      const int BF_HEURISTIC_EPSILON_BOUND = 1000;
-      const int BF_HEURISTIC_BOUND_FACTOR  = 3;
-
-      // Perform cost scaling phases
-      IntVector pred_arc(_res_node_num);
-      std::vector<int> path_nodes;
-      for ( ; _epsilon >= 1; _epsilon = _epsilon < _alpha && _epsilon > 1 ?
-                                        1 : _epsilon / _alpha )
-      {
-        // "Early Termination" heuristic: use Bellman-Ford algorithm
-        // to check if the current flow is optimal
-        if (_epsilon <= BF_HEURISTIC_EPSILON_BOUND) {
-          _arc_vec.clear();
-          _cost_vec.clear();
-          for (int j = 0; j != _res_arc_num; ++j) {
-            if (_res_cap[j] > 0) {
-              _arc_vec.push_back(IntPair(_source[j], _target[j]));
-              _cost_vec.push_back(_cost[j] + 1);
-            }
-          }
-          _sgr.build(_res_node_num, _arc_vec.begin(), _arc_vec.end());
-
-          BellmanFord<StaticDigraph, LargeCostArcMap> bf(_sgr, _cost_map);
-          bf.init(0);
-          bool done = false;
-          int K = int(BF_HEURISTIC_BOUND_FACTOR * sqrt(_res_node_num));
-          for (int i = 0; i < K && !done; ++i)
-            done = bf.processNextWeakRound();
-          if (done) break;
-        }
-
-        // Saturate arcs not satisfying the optimality condition
-        for (int a = 0; a != _res_arc_num; ++a) {
-          if (_res_cap[a] > 0 &&
-              _cost[a] + _pi[_source[a]] - _pi[_target[a]] < 0) {
+    
+    // Initialize a cost scaling phase
+    void initPhase() {
+      // Saturate arcs not satisfying the optimality condition
+      for (int u = 0; u != _res_node_num; ++u) {
+        int last_out = _first_out[u+1];
+        LargeCost pi_u = _pi[u];
+        for (int a = _first_out[u]; a != last_out; ++a) {
+          int v = _target[a];
+          if (_res_cap[a] > 0 && _cost[a] + pi_u - _pi[v] < 0) {
             Value delta = _res_cap[a];
-            _excess[_source[a]] -= delta;
-            _excess[_target[a]] += delta;
+            _excess[u] -= delta;
+            _excess[v] += delta;
             _res_cap[a] = 0;
             _res_cap[_reverse[a]] += delta;
           }
         }
-        
-        // Find active nodes (i.e. nodes with positive excess)
-        for (int u = 0; u != _res_node_num; ++u) {
-          if (_excess[u] > 0) _active_nodes.push_back(u);
-        }
+      }
+      
+      // Find active nodes (i.e. nodes with positive excess)
+      for (int u = 0; u != _res_node_num; ++u) {
+        if (_excess[u] > 0) _active_nodes.push_back(u);
+      }
 
-        // Initialize the next arcs
-        for (int u = 0; u != _res_node_num; ++u) {
+      // Initialize the next arcs
+      for (int u = 0; u != _res_node_num; ++u) {
+        _next_out[u] = _first_out[u];
+      }
+    }
+    
+    // Early termination heuristic
+    bool earlyTermination() {
+      const double EARLY_TERM_FACTOR = 3.0;
+
+      // Build a static residual graph
+      _arc_vec.clear();
+      _cost_vec.clear();
+      for (int j = 0; j != _res_arc_num; ++j) {
+        if (_res_cap[j] > 0) {
+          _arc_vec.push_back(IntPair(_source[j], _target[j]));
+          _cost_vec.push_back(_cost[j] + 1);
+        }
+      }
+      _sgr.build(_res_node_num, _arc_vec.begin(), _arc_vec.end());
+
+      // Run Bellman-Ford algorithm to check if the current flow is optimal
+      BellmanFord<StaticDigraph, LargeCostArcMap> bf(_sgr, _cost_map);
+      bf.init(0);
+      bool done = false;
+      int K = int(EARLY_TERM_FACTOR * std::sqrt(double(_res_node_num)));
+      for (int i = 0; i < K && !done; ++i) {
+        done = bf.processNextWeakRound();
+      }
+      return done;
+    }
+
+    // Global potential update heuristic
+    void globalUpdate() {
+      int bucket_end = _root + 1;
+    
+      // Initialize buckets
+      for (int r = 0; r != _max_rank; ++r) {
+        _buckets[r] = bucket_end;
+      }
+      Value total_excess = 0;
+      for (int i = 0; i != _res_node_num; ++i) {
+        if (_excess[i] < 0) {
+          _rank[i] = 0;
+          _bucket_next[i] = _buckets[0];
+          _bucket_prev[_buckets[0]] = i;
+          _buckets[0] = i;
+        } else {
+          total_excess += _excess[i];
+          _rank[i] = _max_rank;
+        }
+      }
+      if (total_excess == 0) return;
+
+      // Search the buckets
+      int r = 0;
+      for ( ; r != _max_rank; ++r) {
+        while (_buckets[r] != bucket_end) {
+          // Remove the first node from the current bucket
+          int u = _buckets[r];
+          _buckets[r] = _bucket_next[u];
+          
+          // Search the incomming arcs of u
+          LargeCost pi_u = _pi[u];
+          int last_out = _first_out[u+1];
+          for (int a = _first_out[u]; a != last_out; ++a) {
+            int ra = _reverse[a];
+            if (_res_cap[ra] > 0) {
+              int v = _source[ra];
+              int old_rank_v = _rank[v];
+              if (r < old_rank_v) {
+                // Compute the new rank of v
+                LargeCost nrc = (_cost[ra] + _pi[v] - pi_u) / _epsilon;
+                int new_rank_v = old_rank_v;
+                if (nrc < LargeCost(_max_rank))
+                  new_rank_v = r + 1 + int(nrc);
+                  
+                // Change the rank of v
+                if (new_rank_v < old_rank_v) {
+                  _rank[v] = new_rank_v;
+                  _next_out[v] = _first_out[v];
+                  
+                  // Remove v from its old bucket
+                  if (old_rank_v < _max_rank) {
+                    if (_buckets[old_rank_v] == v) {
+                      _buckets[old_rank_v] = _bucket_next[v];
+                    } else {
+                      _bucket_next[_bucket_prev[v]] = _bucket_next[v];
+                      _bucket_prev[_bucket_next[v]] = _bucket_prev[v];
+                    }
+                  }
+                  
+                  // Insert v to its new bucket
+                  _bucket_next[v] = _buckets[new_rank_v];
+                  _bucket_prev[_buckets[new_rank_v]] = v;
+                  _buckets[new_rank_v] = v;
+                }
+              }
+            }
+          }
+
+          // Finish search if there are no more active nodes
+          if (_excess[u] > 0) {
+            total_excess -= _excess[u];
+            if (total_excess <= 0) break;
+          }
+        }
+        if (total_excess <= 0) break;
+      }
+      
+      // Relabel nodes
+      for (int u = 0; u != _res_node_num; ++u) {
+        int k = std::min(_rank[u], r);
+        if (k > 0) {
+          _pi[u] -= _epsilon * k;
           _next_out[u] = _first_out[u];
         }
+      }
+    }
 
+    /// Execute the algorithm performing augment and relabel operations
+    void startAugment(int max_length = std::numeric_limits<int>::max()) {
+      // Paramters for heuristics
+      const int EARLY_TERM_EPSILON_LIMIT = 1000;
+      const double GLOBAL_UPDATE_FACTOR = 3.0;
+
+      const int global_update_freq = int(GLOBAL_UPDATE_FACTOR *
+        (_res_node_num + _sup_node_num * _sup_node_num));
+      int next_update_limit = global_update_freq;
+      
+      int relabel_cnt = 0;
+      
+      // Perform cost scaling phases
+      std::vector<int> path;
+      for ( ; _epsilon >= 1; _epsilon = _epsilon < _alpha && _epsilon > 1 ?
+                                        1 : _epsilon / _alpha )
+      {
+        // Early termination heuristic
+        if (_epsilon <= EARLY_TERM_EPSILON_LIMIT) {
+          if (earlyTermination()) break;
+        }
+        
+        // Initialize current phase
+        initPhase();
+        
         // Perform partial augment and relabel operations
         while (true) {
           // Select an active node (FIFO selection)
@@ -981,46 +1113,44 @@ namespace lemon {
           }
           if (_active_nodes.size() == 0) break;
           int start = _active_nodes.front();
-          path_nodes.clear();
-          path_nodes.push_back(start);
 
           // Find an augmenting path from the start node
+          path.clear();
           int tip = start;
-          while (_excess[tip] >= 0 &&
-                 int(path_nodes.size()) <= max_length) {
+          while (_excess[tip] >= 0 && int(path.size()) < max_length) {
             int u;
-            LargeCost min_red_cost, rc;
-            int last_out = _sum_supply < 0 ?
-              _first_out[tip+1] : _first_out[tip+1] - 1;
+            LargeCost min_red_cost, rc, pi_tip = _pi[tip];
+            int last_out = _first_out[tip+1];
             for (int a = _next_out[tip]; a != last_out; ++a) {
-              if (_res_cap[a] > 0 &&
-                  _cost[a] + _pi[_source[a]] - _pi[_target[a]] < 0) {
-                u = _target[a];
-                pred_arc[u] = a;
+              u = _target[a];
+              if (_res_cap[a] > 0 && _cost[a] + pi_tip - _pi[u] < 0) {
+                path.push_back(a);
                 _next_out[tip] = a;
                 tip = u;
-                path_nodes.push_back(tip);
                 goto next_step;
               }
             }
 
             // Relabel tip node
-            min_red_cost = std::numeric_limits<LargeCost>::max() / 2;
+            min_red_cost = std::numeric_limits<LargeCost>::max();
+            if (tip != start) {
+              int ra = _reverse[path.back()];
+              min_red_cost = _cost[ra] + pi_tip - _pi[_target[ra]];
+            }
             for (int a = _first_out[tip]; a != last_out; ++a) {
-              rc = _cost[a] + _pi[_source[a]] - _pi[_target[a]];
+              rc = _cost[a] + pi_tip - _pi[_target[a]];
               if (_res_cap[a] > 0 && rc < min_red_cost) {
                 min_red_cost = rc;
               }
             }
             _pi[tip] -= min_red_cost + _epsilon;
-
-            // Reset the next arc of tip
             _next_out[tip] = _first_out[tip];
+            ++relabel_cnt;
 
             // Step back
             if (tip != start) {
-              path_nodes.pop_back();
-              tip = path_nodes.back();
+              tip = _source[path.back()];
+              path.pop_back();
             }
 
           next_step: ;
@@ -1028,11 +1158,11 @@ namespace lemon {
 
           // Augment along the found path (as much flow as possible)
           Value delta;
-          int u, v = path_nodes.front(), pa;
-          for (int i = 1; i < int(path_nodes.size()); ++i) {
+          int pa, u, v = start;
+          for (int i = 0; i != int(path.size()); ++i) {
+            pa = path[i];
             u = v;
-            v = path_nodes[i];
-            pa = pred_arc[v];
+            v = _target[pa];
             delta = std::min(_res_cap[pa], _excess[u]);
             _res_cap[pa] -= delta;
             _res_cap[_reverse[pa]] += delta;
@@ -1041,6 +1171,12 @@ namespace lemon {
             if (_excess[v] > 0 && _excess[v] <= delta)
               _active_nodes.push_back(v);
           }
+
+          // Global update heuristic
+          if (relabel_cnt >= next_update_limit) {
+            globalUpdate();
+            next_update_limit += global_update_freq;
+          }
         }
       }
     }
@@ -1048,98 +1184,70 @@ namespace lemon {
     /// Execute the algorithm performing push and relabel operations
     void startPush() {
       // Paramters for heuristics
-      const int BF_HEURISTIC_EPSILON_BOUND = 1000;
-      const int BF_HEURISTIC_BOUND_FACTOR  = 3;
+      const int EARLY_TERM_EPSILON_LIMIT = 1000;
+      const double GLOBAL_UPDATE_FACTOR = 2.0;
 
+      const int global_update_freq = int(GLOBAL_UPDATE_FACTOR *
+        (_res_node_num + _sup_node_num * _sup_node_num));
+      int next_update_limit = global_update_freq;
+
+      int relabel_cnt = 0;
+      
       // Perform cost scaling phases
       BoolVector hyper(_res_node_num, false);
+      LargeCostVector hyper_cost(_res_node_num);
       for ( ; _epsilon >= 1; _epsilon = _epsilon < _alpha && _epsilon > 1 ?
                                         1 : _epsilon / _alpha )
       {
-        // "Early Termination" heuristic: use Bellman-Ford algorithm
-        // to check if the current flow is optimal
-        if (_epsilon <= BF_HEURISTIC_EPSILON_BOUND) {
-          _arc_vec.clear();
-          _cost_vec.clear();
-          for (int j = 0; j != _res_arc_num; ++j) {
-            if (_res_cap[j] > 0) {
-              _arc_vec.push_back(IntPair(_source[j], _target[j]));
-              _cost_vec.push_back(_cost[j] + 1);
-            }
-          }
-          _sgr.build(_res_node_num, _arc_vec.begin(), _arc_vec.end());
-
-          BellmanFord<StaticDigraph, LargeCostArcMap> bf(_sgr, _cost_map);
-          bf.init(0);
-          bool done = false;
-          int K = int(BF_HEURISTIC_BOUND_FACTOR * sqrt(_res_node_num));
-          for (int i = 0; i < K && !done; ++i)
-            done = bf.processNextWeakRound();
-          if (done) break;
+        // Early termination heuristic
+        if (_epsilon <= EARLY_TERM_EPSILON_LIMIT) {
+          if (earlyTermination()) break;
         }
-
-        // Saturate arcs not satisfying the optimality condition
-        for (int a = 0; a != _res_arc_num; ++a) {
-          if (_res_cap[a] > 0 &&
-              _cost[a] + _pi[_source[a]] - _pi[_target[a]] < 0) {
-            Value delta = _res_cap[a];
-            _excess[_source[a]] -= delta;
-            _excess[_target[a]] += delta;
-            _res_cap[a] = 0;
-            _res_cap[_reverse[a]] += delta;
-          }
-        }
-
-        // Find active nodes (i.e. nodes with positive excess)
-        for (int u = 0; u != _res_node_num; ++u) {
-          if (_excess[u] > 0) _active_nodes.push_back(u);
-        }
-
-        // Initialize the next arcs
-        for (int u = 0; u != _res_node_num; ++u) {
-          _next_out[u] = _first_out[u];
-        }
+        
+        // Initialize current phase
+        initPhase();
 
         // Perform push and relabel operations
         while (_active_nodes.size() > 0) {
-          LargeCost min_red_cost, rc;
+          LargeCost min_red_cost, rc, pi_n;
           Value delta;
           int n, t, a, last_out = _res_arc_num;
 
-          // Select an active node (FIFO selection)
         next_node:
+          // Select an active node (FIFO selection)
           n = _active_nodes.front();
-          last_out = _sum_supply < 0 ?
-            _first_out[n+1] : _first_out[n+1] - 1;
-
+          last_out = _first_out[n+1];
+          pi_n = _pi[n];
+          
           // Perform push operations if there are admissible arcs
           if (_excess[n] > 0) {
             for (a = _next_out[n]; a != last_out; ++a) {
               if (_res_cap[a] > 0 &&
-                  _cost[a] + _pi[_source[a]] - _pi[_target[a]] < 0) {
+                  _cost[a] + pi_n - _pi[_target[a]] < 0) {
                 delta = std::min(_res_cap[a], _excess[n]);
                 t = _target[a];
 
                 // Push-look-ahead heuristic
                 Value ahead = -_excess[t];
-                int last_out_t = _sum_supply < 0 ?
-                  _first_out[t+1] : _first_out[t+1] - 1;
+                int last_out_t = _first_out[t+1];
+                LargeCost pi_t = _pi[t];
                 for (int ta = _next_out[t]; ta != last_out_t; ++ta) {
                   if (_res_cap[ta] > 0 && 
-                      _cost[ta] + _pi[_source[ta]] - _pi[_target[ta]] < 0)
+                      _cost[ta] + pi_t - _pi[_target[ta]] < 0)
                     ahead += _res_cap[ta];
                   if (ahead >= delta) break;
                 }
                 if (ahead < 0) ahead = 0;
 
                 // Push flow along the arc
-                if (ahead < delta) {
+                if (ahead < delta && !hyper[t]) {
                   _res_cap[a] -= ahead;
                   _res_cap[_reverse[a]] += ahead;
                   _excess[n] -= ahead;
                   _excess[t] += ahead;
                   _active_nodes.push_front(t);
                   hyper[t] = true;
+                  hyper_cost[t] = _cost[a] + pi_n - pi_t;
                   _next_out[n] = a;
                   goto next_node;
                 } else {
@@ -1162,18 +1270,18 @@ namespace lemon {
 
           // Relabel the node if it is still active (or hyper)
           if (_excess[n] > 0 || hyper[n]) {
-            min_red_cost = std::numeric_limits<LargeCost>::max() / 2;
+             min_red_cost = hyper[n] ? -hyper_cost[n] :
+               std::numeric_limits<LargeCost>::max();
             for (int a = _first_out[n]; a != last_out; ++a) {
-              rc = _cost[a] + _pi[_source[a]] - _pi[_target[a]];
+              rc = _cost[a] + pi_n - _pi[_target[a]];
               if (_res_cap[a] > 0 && rc < min_red_cost) {
                 min_red_cost = rc;
               }
             }
             _pi[n] -= min_red_cost + _epsilon;
-            hyper[n] = false;
-
-            // Reset the next arc
             _next_out[n] = _first_out[n];
+            hyper[n] = false;
+            ++relabel_cnt;
           }
         
           // Remove nodes that are not active nor hyper
@@ -1182,6 +1290,14 @@ namespace lemon {
                   _excess[_active_nodes.front()] <= 0 &&
                   !hyper[_active_nodes.front()] ) {
             _active_nodes.pop_front();
+          }
+          
+          // Global update heuristic
+          if (relabel_cnt >= next_update_limit) {
+            globalUpdate();
+            for (int u = 0; u != _res_node_num; ++u)
+              hyper[u] = false;
+            next_update_limit += global_update_freq;
           }
         }
       }
