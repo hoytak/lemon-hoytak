@@ -405,8 +405,8 @@ namespace lemon {
     ///
     /// \pre \ref run() or \ref findMinMean() must be called before
     /// using this function.
-    LargeValue cycleLength() const {
-      return _best_length;
+    Value cycleLength() const {
+      return static_cast<Value>(_best_length);
     }
 
     /// \brief Return the number of arcs on the found cycle.
