@@ -104,6 +104,7 @@ void checkBellmanFordCompile()
     BF::SetPredMap<concepts::ReadWriteMap<Node,Arc> >
       ::SetDistMap<concepts::ReadWriteMap<Node,Value> >
       ::SetOperationTraits<BellmanFordDefaultOperationTraits<Value> >
+      ::SetOperationTraits<BellmanFordToleranceOperationTraits<Value, 0> >
       ::Create bf_test(gr,length);
 
     LengthMap length_map;
