@@ -17,6 +17,10 @@ LICENSE
 
    Copying, distribution and modification conditions and terms.
 
+NEWS
+
+   News and version history.
+
 INSTALL
 
    General building and installation instructions.
@@ -32,6 +36,10 @@ doc/
 demo/
 
    Some example programs to make you easier to get familiar with LEMON.
+
+scripts/
+
+   Scripts that make it easier to develop LEMON.
 
 test/
 
