@@ -20,14 +20,23 @@
 
 namespace lemon {
 
+  void ArgParser::_terminate(ArgParserException::Reason reason) const
+  {
+    if(_exit_on_problems)
+      exit(1);
+    else throw(ArgParserException(reason));
+  }
+  
+  
   void ArgParser::_showHelp(void *p)
   {
     (static_cast<ArgParser*>(p))->showHelp();
-    exit(1);
+    (static_cast<ArgParser*>(p))->_terminate(ArgParserException::HELP);
   }
 
   ArgParser::ArgParser(int argc, const char * const *argv)
-    :_argc(argc), _argv(argv), _command_name(argv[0]) {
+    :_argc(argc), _argv(argv), _command_name(argv[0]),
+    _exit_on_problems(true) {
     funcOption("-help","Print a short help message",_showHelp,this);
     synonym("help","-help");
     synonym("h","-help");
@@ -342,7 +351,7 @@ namespace lemon {
     for(std::vector<OtherArg>::const_iterator i=_others_help.begin();
         i!=_others_help.end();++i) showHelp(i);
     for(Opts::const_iterator i=_opts.begin();i!=_opts.end();++i) showHelp(i);
-    exit(1);
+    _terminate(ArgParserException::HELP);
   }
 
 
@@ -351,7 +360,7 @@ namespace lemon {
     std::cerr << "\nUnknown option: " << arg << "\n";
     std::cerr << "\nType '" << _command_name <<
       " --help' to obtain a short summary on the usage.\n\n";
-    exit(1);
+    _terminate(ArgParserException::UNKNOWN_OPT);
   }
 
   void ArgParser::requiresValue(std::string arg, OptType t) const
@@ -414,7 +423,7 @@ namespace lemon {
     if(!ok) {
       std::cerr << "\nType '" << _command_name <<
         " --help' to obtain a short summary on the usage.\n\n";
-      exit(1);
+      _terminate(ArgParserException::INVALID_OPT);
     }
   }
 

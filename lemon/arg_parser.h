@@ -34,6 +34,44 @@
 
 namespace lemon {
 
+  ///Exception used by ArgParser
+  class ArgParserException : public Exception {
+  public:
+    enum Reason {
+      HELP,         /// <tt>--help</tt> option was given
+      UNKNOWN_OPT,  /// Unknown option was given
+      INVALID_OPT   /// Invalid combination of options
+    };
+    
+  private:
+    Reason _reason;
+    
+  public:
+    ///Constructor
+    ArgParserException(Reason r) throw() : _reason(r) {}
+    ///Virtual destructor
+    virtual ~ArgParserException() throw() {}
+    ///A short description of the exception
+    virtual const char* what() const throw() {
+      switch(_reason)
+        {
+        case HELP:
+          return "lemon::ArgParseException: ask for help";
+          break;
+        case UNKNOWN_OPT:
+          return "lemon::ArgParseException: unknown option";
+          break;
+        case INVALID_OPT:
+          return "lemon::ArgParseException: invalid combination of options";
+          break;
+        }
+      return "";
+    }
+    ///Return the reason for the failure
+    Reason reason() const {return _reason; }
+  };
+
+
   ///Command line arguments parser
 
   ///\ingroup misc
@@ -103,7 +141,7 @@ namespace lemon {
     std::vector<std::string> _file_args;
     std::string _command_name;
 
-
+    
   private:
     //Bind a function to an option.
 
@@ -115,6 +153,10 @@ namespace lemon {
     ArgParser &funcOption(const std::string &name,
                     const std::string &help,
                     void (*func)(void *),void *data);
+
+    bool _exit_on_problems;
+    
+    void _terminate(ArgParserException::Reason reason) const;
 
   public:
 
@@ -380,6 +422,11 @@ namespace lemon {
     ///not starting with a '-' character.
     const std::vector<std::string> &files() const { return _file_args; }
 
+    ///Throw instead of exit in case of problems
+    void throwOnProblems() 
+    {
+      _exit_on_problems=false;
+    }
   };
 }
 
