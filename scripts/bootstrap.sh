@@ -44,6 +44,9 @@ function augment_config() {
 augment_config LEMON_INSTALL_PREFIX /usr/local \
     "# LEMON installation prefix"
 
+augment_config GLPK_PREFIX /usr/local/ \
+    "# GLPK installation root prefix"
+
 augment_config COIN_OR_PREFIX /usr/local/coin-or \
     "# COIN-OR installation root prefix (used for CLP/CBC)"
 
@@ -109,15 +112,26 @@ else
     valgrind_flags=''
 fi
 
+if [ -f ${GLPK_PREFIX}/include/glpk.h ]; then
+    if yesorno "Use GLPK" "y"
+    then
+        glpk_flag="--with-glpk=$GLPK_PREFIX"
+    else
+        glpk_flag="--without-glpk"
+    fi
+else
+    glpk_flag="--without-glpk"        
+fi
+
 if [ -f ${COIN_OR_PREFIX}/include/coin/config_coinutils.h ]; then
     if yesorno "Use COIN-OR (CBC/CLP)" "n"
     then
         coin_flag="--with-coin=$COIN_OR_PREFIX"
     else
-        coin_flag=""
+        coin_flag="--without-coin"
     fi
 else
-    coin_flag=""        
+    coin_flag="--without-coin"        
 fi
 
 if [ -f ${SOPLEX_PREFIX}/src/soplex.h ]; then
@@ -125,10 +139,10 @@ if [ -f ${SOPLEX_PREFIX}/src/soplex.h ]; then
     then
         soplex_flag="--with-soplex=$SOPLEX_PREFIX"
     else
-        soplex_flag=""
+        soplex_flag="--without-soplex"
     fi
 else
-    soplex_flag=""
+    soplex_flag="--without-soplex"
 fi
 
 if [ "x$AUTORE" == "xyes" ]; then
@@ -137,6 +151,7 @@ fi
 ${CONFIGURE_PATH}/configure --prefix=$LEMON_INSTALL_PREFIX \
 $valgrind_flags \
 "$cxx_flags" \
+$glpk_flag \
 $coin_flag \
 $soplex_flag \
 $*
