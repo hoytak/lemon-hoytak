@@ -205,9 +205,11 @@ int main()
     node("target", t).
     run();
 
-  // Find 2 paths
+  // Check run()
   {
     Suurballe<ListDigraph> suurballe(digraph, length);
+    
+    // Find 2 paths
     check(suurballe.run(s, t) == 2, "Wrong number of paths");
     check(checkFlow(digraph, suurballe.flowMap(), s, t, 2),
           "The flow is not feasible");
@@ -217,11 +219,8 @@ int main()
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
       check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
-  }
-
-  // Find 3 paths
-  {
-    Suurballe<ListDigraph> suurballe(digraph, length);
+   
+    // Find 3 paths
     check(suurballe.run(s, t, 3) == 3, "Wrong number of paths");
     check(checkFlow(digraph, suurballe.flowMap(), s, t, 3),
           "The flow is not feasible");
@@ -231,11 +230,8 @@ int main()
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
       check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
-  }
-
-  // Find 5 paths (only 3 can be found)
-  {
-    Suurballe<ListDigraph> suurballe(digraph, length);
+    
+    // Find 5 paths (only 3 can be found)
     check(suurballe.run(s, t, 5) == 3, "Wrong number of paths");
     check(checkFlow(digraph, suurballe.flowMap(), s, t, 3),
           "The flow is not feasible");
@@ -245,6 +241,24 @@ int main()
           "Wrong potentials");
     for (int i = 0; i < suurballe.pathNum(); ++i)
       check(checkPath(digraph, suurballe.path(i), s, t), "Wrong path");
+  }
+  
+  // Check fullInit() + start()
+  {
+    Suurballe<ListDigraph> suurballe(digraph, length);
+    suurballe.fullInit(s);
+    
+    // Find 2 paths
+    check(suurballe.start(t) == 2, "Wrong number of paths");
+    check(suurballe.totalLength() == 510, "The flow is not optimal");
+
+    // Find 3 paths
+    check(suurballe.start(t, 3) == 3, "Wrong number of paths");
+    check(suurballe.totalLength() == 1040, "The flow is not optimal");
+
+    // Find 5 paths (only 3 can be found)
+    check(suurballe.start(t, 5) == 3, "Wrong number of paths");
+    check(suurballe.totalLength() == 1040, "The flow is not optimal");
   }
 
   return 0;
