@@ -165,6 +165,23 @@ namespace lemon {
       }
     }
 
+    /// \brief Set the tolerance used by the algorithm.
+    ///
+    /// This function sets the tolerance object used by the algorithm.
+    /// \return <tt>(*this)</tt>
+    HaoOrlin& tolerance(const Tolerance& tolerance) {
+      _tolerance = tolerance;
+      return *this;
+    }
+
+    /// \brief Returns a const reference to the tolerance.
+    ///
+    /// This function returns a const reference to the tolerance object
+    /// used by the algorithm.
+    const Tolerance& tolerance() const {
+      return _tolerance;
+    }
+
   private:
 
     void activate(const Node& i) {
