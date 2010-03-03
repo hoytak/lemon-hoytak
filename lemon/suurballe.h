@@ -29,6 +29,7 @@
 #include <lemon/bin_heap.h>
 #include <lemon/path.h>
 #include <lemon/list_graph.h>
+#include <lemon/dijkstra.h>
 #include <lemon/maps.h>
 
 namespace lemon {
@@ -46,7 +47,7 @@ namespace lemon {
   /// Note that this problem is a special case of the \ref min_cost_flow
   /// "minimum cost flow problem". This implementation is actually an
   /// efficient specialized version of the \ref CapacityScaling
-  /// "Successive Shortest Path" algorithm directly for this problem.
+  /// "successive shortest path" algorithm directly for this problem.
   /// Therefore this class provides query functions for flow values and
   /// node potentials (the dual solution) just like the minimum cost flow
   /// algorithms.
@@ -55,9 +56,9 @@ namespace lemon {
   /// \tparam LEN The type of the length map.
   /// The default value is <tt>GR::ArcMap<int></tt>.
   ///
-  /// \warning Length values should be \e non-negative \e integers.
+  /// \warning Length values should be \e non-negative.
   ///
-  /// \note For finding node-disjoint paths this algorithm can be used
+  /// \note For finding \e node-disjoint paths, this algorithm can be used
   /// along with the \ref SplitNodes adaptor.
 #ifdef DOXYGEN
   template <typename GR, typename LEN>
@@ -97,6 +98,9 @@ namespace lemon {
 
   private:
 
+    typedef typename Digraph::template NodeMap<int> HeapCrossRef;
+    typedef BinHeap<Length, HeapCrossRef> Heap;
+
     // ResidualDijkstra is a special implementation of the
     // Dijkstra algorithm for finding shortest paths in the
     // residual network with respect to the reduced arc lengths
@@ -104,44 +108,38 @@ namespace lemon {
     // distance of the nodes.
     class ResidualDijkstra
     {
-      typedef typename Digraph::template NodeMap<int> HeapCrossRef;
-      typedef BinHeap<Length, HeapCrossRef> Heap;
-
     private:
 
-      // The digraph the algorithm runs on
       const Digraph &_graph;
-
-      // The main maps
-      const FlowMap &_flow;
       const LengthMap &_length;
-      PotentialMap &_potential;
-
-      // The distance map
-      PotentialMap _dist;
-      // The pred arc map
+      const FlowMap &_flow;
+      PotentialMap &_pi;
       PredMap &_pred;
-      // The processed (i.e. permanently labeled) nodes
-      std::vector<Node> _proc_nodes;
-
       Node _s;
       Node _t;
+      
+      PotentialMap _dist;
+      std::vector<Node> _proc_nodes;
 
     public:
 
-      /// Constructor.
-      ResidualDijkstra( const Digraph &graph,
-                        const FlowMap &flow,
-                        const LengthMap &length,
-                        PotentialMap &potential,
-                        PredMap &pred,
-                        Node s, Node t ) :
-        _graph(graph), _flow(flow), _length(length), _potential(potential),
-        _dist(graph), _pred(pred), _s(s), _t(t) {}
+      // Constructor
+      ResidualDijkstra(Suurballe &srb) :
+        _graph(srb._graph), _length(srb._length),
+        _flow(*srb._flow), _pi(*srb._potential), _pred(srb._pred), 
+        _s(srb._s), _t(srb._t), _dist(_graph) {}
+        
+      // Run the algorithm and return true if a path is found
+      // from the source node to the target node.
+      bool run(int cnt) {
+        return cnt == 0 ? startFirst() : start();
+      }
 
-      /// \brief Run the algorithm. It returns \c true if a path is found
-      /// from the source node to the target node.
-      bool run() {
+    private:
+    
+      // Execute the algorithm for the first time (the flow and potential
+      // functions have to be identically zero).
+      bool startFirst() {
         HeapCrossRef heap_cross_ref(_graph, Heap::PRE_HEAP);
         Heap heap(heap_cross_ref);
         heap.push(_s, 0);
@@ -151,29 +149,74 @@ namespace lemon {
         // Process nodes
         while (!heap.empty() && heap.top() != _t) {
           Node u = heap.top(), v;
-          Length d = heap.prio() + _potential[u], nd;
+          Length d = heap.prio(), dn;
           _dist[u] = heap.prio();
-          heap.pop();
           _proc_nodes.push_back(u);
+          heap.pop();
+
+          // Traverse outgoing arcs
+          for (OutArcIt e(_graph, u); e != INVALID; ++e) {
+            v = _graph.target(e);
+            switch(heap.state(v)) {
+              case Heap::PRE_HEAP:
+                heap.push(v, d + _length[e]);
+                _pred[v] = e;
+                break;
+              case Heap::IN_HEAP:
+                dn = d + _length[e];
+                if (dn < heap[v]) {
+                  heap.decrease(v, dn);
+                  _pred[v] = e;
+                }
+                break;
+              case Heap::POST_HEAP:
+                break;
+            }
+          }
+        }
+        if (heap.empty()) return false;
+
+        // Update potentials of processed nodes
+        Length t_dist = heap.prio();
+        for (int i = 0; i < int(_proc_nodes.size()); ++i)
+          _pi[_proc_nodes[i]] = _dist[_proc_nodes[i]] - t_dist;
+        return true;
+      }
+
+      // Execute the algorithm.
+      bool start() {
+        HeapCrossRef heap_cross_ref(_graph, Heap::PRE_HEAP);
+        Heap heap(heap_cross_ref);
+        heap.push(_s, 0);
+        _pred[_s] = INVALID;
+        _proc_nodes.clear();
+
+        // Process nodes
+        while (!heap.empty() && heap.top() != _t) {
+          Node u = heap.top(), v;
+          Length d = heap.prio() + _pi[u], dn;
+          _dist[u] = heap.prio();
+          _proc_nodes.push_back(u);
+          heap.pop();
 
           // Traverse outgoing arcs
           for (OutArcIt e(_graph, u); e != INVALID; ++e) {
             if (_flow[e] == 0) {
               v = _graph.target(e);
               switch(heap.state(v)) {
-              case Heap::PRE_HEAP:
-                heap.push(v, d + _length[e] - _potential[v]);
-                _pred[v] = e;
-                break;
-              case Heap::IN_HEAP:
-                nd = d + _length[e] - _potential[v];
-                if (nd < heap[v]) {
-                  heap.decrease(v, nd);
+                case Heap::PRE_HEAP:
+                  heap.push(v, d + _length[e] - _pi[v]);
                   _pred[v] = e;
-                }
-                break;
-              case Heap::POST_HEAP:
-                break;
+                  break;
+                case Heap::IN_HEAP:
+                  dn = d + _length[e] - _pi[v];
+                  if (dn < heap[v]) {
+                    heap.decrease(v, dn);
+                    _pred[v] = e;
+                  }
+                  break;
+                case Heap::POST_HEAP:
+                  break;
               }
             }
           }
@@ -183,19 +226,19 @@ namespace lemon {
             if (_flow[e] == 1) {
               v = _graph.source(e);
               switch(heap.state(v)) {
-              case Heap::PRE_HEAP:
-                heap.push(v, d - _length[e] - _potential[v]);
-                _pred[v] = e;
-                break;
-              case Heap::IN_HEAP:
-                nd = d - _length[e] - _potential[v];
-                if (nd < heap[v]) {
-                  heap.decrease(v, nd);
+                case Heap::PRE_HEAP:
+                  heap.push(v, d - _length[e] - _pi[v]);
                   _pred[v] = e;
-                }
-                break;
-              case Heap::POST_HEAP:
-                break;
+                  break;
+                case Heap::IN_HEAP:
+                  dn = d - _length[e] - _pi[v];
+                  if (dn < heap[v]) {
+                    heap.decrease(v, dn);
+                    _pred[v] = e;
+                  }
+                  break;
+                case Heap::POST_HEAP:
+                  break;
               }
             }
           }
@@ -205,7 +248,7 @@ namespace lemon {
         // Update potentials of processed nodes
         Length t_dist = heap.prio();
         for (int i = 0; i < int(_proc_nodes.size()); ++i)
-          _potential[_proc_nodes[i]] += _dist[_proc_nodes[i]] - t_dist;
+          _pi[_proc_nodes[i]] += _dist[_proc_nodes[i]] - t_dist;
         return true;
       }
 
@@ -226,19 +269,21 @@ namespace lemon {
     bool _local_potential;
 
     // The source node
-    Node _source;
+    Node _s;
     // The target node
-    Node _target;
+    Node _t;
 
     // Container to store the found paths
-    std::vector< SimplePath<Digraph> > paths;
+    std::vector<Path> _paths;
     int _path_num;
 
     // The pred arc map
     PredMap _pred;
-    // Implementation of the Dijkstra algorithm for finding augmenting
-    // shortest paths in the residual network
-    ResidualDijkstra *_dijkstra;
+    
+    // Data for full init
+    PotentialMap *_init_dist;
+    PredMap *_init_pred;
+    bool _full_init;
 
   public:
 
@@ -251,17 +296,16 @@ namespace lemon {
     Suurballe( const Digraph &graph,
                const LengthMap &length ) :
       _graph(graph), _length(length), _flow(0), _local_flow(false),
-      _potential(0), _local_potential(false), _pred(graph)
-    {
-      LEMON_ASSERT(std::numeric_limits<Length>::is_integer,
-        "The length type of Suurballe must be integer");
-    }
+      _potential(0), _local_potential(false), _pred(graph),
+      _init_dist(0), _init_pred(0)
+    {}
 
     /// Destructor.
     ~Suurballe() {
       if (_local_flow) delete _flow;
       if (_local_potential) delete _potential;
-      delete _dijkstra;
+      delete _init_dist;
+      delete _init_pred;
     }
 
     /// \brief Set the flow map.
@@ -306,10 +350,13 @@ namespace lemon {
 
     /// \name Execution Control
     /// The simplest way to execute the algorithm is to call the run()
-    /// function.
-    /// \n
+    /// function.\n
+    /// If you need to execute the algorithm many times using the same
+    /// source node, then you may call fullInit() once and start()
+    /// for each target node.\n
     /// If you only need the flow that is the union of the found
-    /// arc-disjoint paths, you may call init() and findFlow().
+    /// arc-disjoint paths, then you may call findFlow() instead of
+    /// start().
 
     /// @{
 
@@ -329,23 +376,21 @@ namespace lemon {
     /// just a shortcut of the following code.
     /// \code
     ///   s.init(s);
-    ///   s.findFlow(t, k);
-    ///   s.findPaths();
+    ///   s.start(t, k);
     /// \endcode
     int run(const Node& s, const Node& t, int k = 2) {
       init(s);
-      findFlow(t, k);
-      findPaths();
+      start(t, k);
       return _path_num;
     }
 
     /// \brief Initialize the algorithm.
     ///
-    /// This function initializes the algorithm.
+    /// This function initializes the algorithm with the given source node.
     ///
     /// \param s The source node.
     void init(const Node& s) {
-      _source = s;
+      _s = s;
 
       // Initialize maps
       if (!_flow) {
@@ -356,8 +401,63 @@ namespace lemon {
         _potential = new PotentialMap(_graph);
         _local_potential = true;
       }
-      for (ArcIt e(_graph); e != INVALID; ++e) (*_flow)[e] = 0;
-      for (NodeIt n(_graph); n != INVALID; ++n) (*_potential)[n] = 0;
+      _full_init = false;
+    }
+
+    /// \brief Initialize the algorithm and perform Dijkstra.
+    ///
+    /// This function initializes the algorithm and performs a full
+    /// Dijkstra search from the given source node. It makes consecutive
+    /// executions of \ref start() "start(t, k)" faster, since they
+    /// have to perform %Dijkstra only k-1 times.
+    ///
+    /// This initialization is usually worth using instead of \ref init()
+    /// if the algorithm is executed many times using the same source node.
+    ///
+    /// \param s The source node.
+    void fullInit(const Node& s) {
+      // Initialize maps
+      init(s);
+      if (!_init_dist) {
+        _init_dist = new PotentialMap(_graph);
+      }
+      if (!_init_pred) {
+        _init_pred = new PredMap(_graph);
+      }
+
+      // Run a full Dijkstra
+      typename Dijkstra<Digraph, LengthMap>
+        ::template SetStandardHeap<Heap>
+        ::template SetDistMap<PotentialMap>
+        ::template SetPredMap<PredMap>
+        ::Create dijk(_graph, _length);
+      dijk.distMap(*_init_dist).predMap(*_init_pred);
+      dijk.run(s);
+      
+      _full_init = true;
+    }
+
+    /// \brief Execute the algorithm.
+    ///
+    /// This function executes the algorithm.
+    ///
+    /// \param t The target node.
+    /// \param k The number of paths to be found.
+    ///
+    /// \return \c k if there are at least \c k arc-disjoint paths from
+    /// \c s to \c t in the digraph. Otherwise it returns the number of
+    /// arc-disjoint paths found.
+    ///
+    /// \note Apart from the return value, <tt>s.start(t, k)</tt> is
+    /// just a shortcut of the following code.
+    /// \code
+    ///   s.findFlow(t, k);
+    ///   s.findPaths();
+    /// \endcode
+    int start(const Node& t, int k = 2) {
+      findFlow(t, k);
+      findPaths();
+      return _path_num;
     }
 
     /// \brief Execute the algorithm to find an optimal flow.
@@ -375,20 +475,39 @@ namespace lemon {
     ///
     /// \pre \ref init() must be called before using this function.
     int findFlow(const Node& t, int k = 2) {
-      _target = t;
-      _dijkstra =
-        new ResidualDijkstra( _graph, *_flow, _length, *_potential, _pred,
-                              _source, _target );
+      _t = t;
+      ResidualDijkstra dijkstra(*this);
+      
+      // Initialization
+      for (ArcIt e(_graph); e != INVALID; ++e) {
+        (*_flow)[e] = 0;
+      }
+      if (_full_init) {
+        for (NodeIt n(_graph); n != INVALID; ++n) {
+          (*_potential)[n] = (*_init_dist)[n];
+        }
+        Node u = _t;
+        Arc e;
+        while ((e = (*_init_pred)[u]) != INVALID) {
+          (*_flow)[e] = 1;
+          u = _graph.source(e);
+        }        
+        _path_num = 1;
+      } else {
+        for (NodeIt n(_graph); n != INVALID; ++n) {
+          (*_potential)[n] = 0;
+        }
+        _path_num = 0;
+      }
 
       // Find shortest paths
-      _path_num = 0;
       while (_path_num < k) {
         // Run Dijkstra
-        if (!_dijkstra->run()) break;
+        if (!dijkstra.run(_path_num)) break;
         ++_path_num;
 
         // Set the flow along the found shortest path
-        Node u = _target;
+        Node u = _t;
         Arc e;
         while ((e = _pred[u]) != INVALID) {
           if (u == _graph.target(e)) {
@@ -405,8 +524,8 @@ namespace lemon {
 
     /// \brief Compute the paths from the flow.
     ///
-    /// This function computes the paths from the found minimum cost flow,
-    /// which is the union of some arc-disjoint paths.
+    /// This function computes arc-disjoint paths from the found minimum
+    /// cost flow, which is the union of them.
     ///
     /// \pre \ref init() and \ref findFlow() must be called before using
     /// this function.
@@ -414,15 +533,15 @@ namespace lemon {
       FlowMap res_flow(_graph);
       for(ArcIt a(_graph); a != INVALID; ++a) res_flow[a] = (*_flow)[a];
 
-      paths.clear();
-      paths.resize(_path_num);
+      _paths.clear();
+      _paths.resize(_path_num);
       for (int i = 0; i < _path_num; ++i) {
-        Node n = _source;
-        while (n != _target) {
+        Node n = _s;
+        while (n != _t) {
           OutArcIt e(_graph, n);
           for ( ; res_flow[e] == 0; ++e) ;
           n = _graph.target(e);
-          paths[i].addBack(e);
+          _paths[i].addBack(e);
           res_flow[e] = 0;
         }
       }
@@ -520,8 +639,8 @@ namespace lemon {
     ///
     /// \pre \ref run() or \ref findPaths() must be called before using
     /// this function.
-    Path path(int i) const {
-      return paths[i];
+    const Path& path(int i) const {
+      return _paths[i];
     }
 
     /// @}
