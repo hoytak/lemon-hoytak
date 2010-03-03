@@ -16,12 +16,12 @@
  *
  */
 
-#ifndef LEMON_FOURARY_HEAP_H
-#define LEMON_FOURARY_HEAP_H
+#ifndef LEMON_DHEAP_H
+#define LEMON_DHEAP_H
 
 ///\ingroup heaps
 ///\file
-///\brief Fourary heap implementation.
+///\brief D-ary heap implementation.
 
 #include <vector>
 #include <utility>
@@ -31,29 +31,36 @@ namespace lemon {
 
   /// \ingroup heaps
   ///
-  ///\brief Fourary heap data structure.
+  ///\brief D-ary heap data structure.
   ///
-  /// This class implements the \e fourary \e heap data structure.
+  /// This class implements the \e D-ary \e heap data structure.
   /// It fully conforms to the \ref concepts::Heap "heap concept".
   ///
-  /// The fourary heap is a specialization of the \ref KaryHeap "K-ary heap"
-  /// for <tt>K=4</tt>. It is similar to the \ref BinHeap "binary heap",
-  /// but its nodes have at most four children, instead of two.
+  /// The \ref DHeap "D-ary heap" is a generalization of the
+  /// \ref BinHeap "binary heap" structure, its nodes have at most
+  /// \c D children, instead of two.
+  /// \ref BinHeap and \ref QuadHeap are specialized implementations
+  /// of this structure for <tt>D=2</tt> and <tt>D=4</tt>, respectively.
   ///
   /// \tparam PR Type of the priorities of the items.
   /// \tparam IM A read-writable item map with \c int values, used
   /// internally to handle the cross references.
+  /// \tparam D The degree of the heap, each node have at most \e D
+  /// children. The default is 16. Powers of two are suggested to use
+  /// so that the multiplications and divisions needed to traverse the
+  /// nodes of the heap could be performed faster.
   /// \tparam CMP A functor class for comparing the priorities.
   /// The default is \c std::less<PR>.
   ///
   ///\sa BinHeap
-  ///\sa KaryHeap
+  ///\sa FouraryHeap
 #ifdef DOXYGEN
-  template <typename PR, typename IM, typename CMP>
+  template <typename PR, typename IM, int D, typename CMP>
 #else
-  template <typename PR, typename IM, typename CMP = std::less<PR> >
+  template <typename PR, typename IM, int D = 16,
+            typename CMP = std::less<PR> >
 #endif
-  class FouraryHeap {
+  class DHeap {
   public:
     /// Type of the item-int map.
     typedef IM ItemIntMap;
@@ -92,7 +99,7 @@ namespace lemon {
     /// \param map A map that assigns \c int values to the items.
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
-    explicit FouraryHeap(ItemIntMap &map) : _iim(map) {}
+    explicit DHeap(ItemIntMap &map) : _iim(map) {}
 
     /// \brief Constructor.
     ///
@@ -101,7 +108,7 @@ namespace lemon {
     /// It is used internally to handle the cross references.
     /// The assigned value must be \c PRE_HEAP (<tt>-1</tt>) for each item.
     /// \param comp The function object used for comparing the priorities.
-    FouraryHeap(ItemIntMap &map, const Compare &comp)
+    DHeap(ItemIntMap &map, const Compare &comp)
       : _iim(map), _comp(comp) {}
 
     /// \brief The number of items stored in the heap.
@@ -124,8 +131,8 @@ namespace lemon {
     void clear() { _data.clear(); }
 
   private:
-    static int parent(int i) { return (i-1)/4; }
-    static int firstChild(int i) { return 4*i+1; }
+    int parent(int i) { return (i-1)/D; }
+    int firstChild(int i) { return D*i+1; }
 
     bool less(const Pair &p1, const Pair &p2) const {
       return _comp(p1.second, p2.second);
@@ -144,11 +151,12 @@ namespace lemon {
     void bubbleDown(int hole, Pair p, int length) {
       if( length>1 ) {
         int child = firstChild(hole);
-        while( child+3<length ) {
+        while( child+D<=length ) {
           int min=child;
-          if( less(_data[++child], _data[min]) ) min=child;
-          if( less(_data[++child], _data[min]) ) min=child;
-          if( less(_data[++child], _data[min]) ) min=child;
+          for (int i=1; i<D; ++i) {
+            if( less(_data[child+i], _data[min]) )
+              min=child+i;
+          }
           if( !less(_data[min], p) )
             goto ok;
           move(_data[min], hole);
@@ -157,8 +165,10 @@ namespace lemon {
         }
         if ( child<length ) {
           int min = child;
-          if( ++child<length && less(_data[child], _data[min]) ) min=child;
-          if( ++child<length && less(_data[child], _data[min]) ) min=child;
+          while (++child < length) {
+            if( less(_data[child], _data[min]) )
+              min=child;
+          }
           if( less(_data[min], p) ) {
             move(_data[min], hole);
             hole = min;
@@ -258,7 +268,7 @@ namespace lemon {
     /// \param p The priority.
     void set(const Item &i, const Prio &p) {
       int idx = _iim[i];
-      if( idx < 0 )
+      if( idx<0 )
         push(i,p);
       else if( _comp(p, _data[idx].second) )
         bubbleUp(idx, Pair(i,p));
@@ -329,14 +339,14 @@ namespace lemon {
     /// heap and \c j will be in the heap with the same prioriority
     /// as item \c i had before.
     void replace(const Item& i, const Item& j) {
-      int idx = _iim[i];
+      int idx=_iim[i];
       _iim.set(i, _iim[j]);
       _iim.set(j, idx);
-      _data[idx].first = j;
+      _data[idx].first=j;
     }
 
-  }; // class FouraryHeap
+  }; // class DHeap
 
 } // namespace lemon
 
-#endif // LEMON_FOURARY_HEAP_H
+#endif // LEMON_DHEAP_H
