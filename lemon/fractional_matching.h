@@ -111,7 +111,7 @@ namespace lemon {
   /// solution) can be obtained using the query functions.
   ///
   /// The primal solution is multiplied by
-  /// \ref MaxWeightedMatching::primalScale "2".
+  /// \ref MaxFractionalMatching::primalScale "2".
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
 #ifdef DOXYGEN
@@ -632,9 +632,8 @@ namespace lemon {
   /// \brief Weighted fractional matching in general graphs
   ///
   /// This class provides an efficient implementation of fractional
-  /// matching algorithm. The implementation is based on extensive use
-  /// of priority queues and provides \f$O(nm\log n)\f$ time
-  /// complexity.
+  /// matching algorithm. The implementation uses priority queues and
+  /// provides \f$O(nm\log n)\f$ time complexity.
   ///
   /// The maximum weighted fractional matching is a relaxation of the
   /// maximum weighted matching problem where the odd set constraints
@@ -653,7 +652,7 @@ namespace lemon {
   /// problem is the following.
   /// \f[ y_u + y_v \ge w_{uv} \quad \forall uv\in E\f]
   /// \f[y_u \ge 0 \quad \forall u \in V\f]
-  /// \f[\min \sum_{u \in V}y_u \f] ///
+  /// \f[\min \sum_{u \in V}y_u \f]
   ///
   /// The algorithm can be executed with the run() function.
   /// After it the matching (the primal solution) and the dual solution
@@ -661,8 +660,8 @@ namespace lemon {
   ///
   /// If the value type is integer, then the primal and the dual
   /// solutions are multiplied by
-  /// \ref MaxWeightedMatching::primalScale "2" and
-  /// \ref MaxWeightedMatching::dualScale "4" respectively.
+  /// \ref MaxWeightedFractionalMatching::primalScale "2" and
+  /// \ref MaxWeightedFractionalMatching::dualScale "4" respectively.
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is
@@ -1270,7 +1269,7 @@ namespace lemon {
 
     /// \brief Run the algorithm.
     ///
-    /// This method runs the \c %MaxWeightedMatching algorithm.
+    /// This method runs the \c %MaxWeightedFractionalMatching algorithm.
     ///
     /// \note mwfm.run() is just a shortcut of the following code.
     /// \code
@@ -1400,9 +1399,8 @@ namespace lemon {
   /// \brief Weighted fractional perfect matching in general graphs
   ///
   /// This class provides an efficient implementation of fractional
-  /// matching algorithm. The implementation is based on extensive use
-  /// of priority queues and provides \f$O(nm\log n)\f$ time
-  /// complexity.
+  /// matching algorithm. The implementation uses priority queues and
+  /// provides \f$O(nm\log n)\f$ time complexity.
   ///
   /// The maximum weighted fractional perfect matching is a relaxation
   /// of the maximum weighted perfect matching problem where the odd
@@ -1420,7 +1418,7 @@ namespace lemon {
   /// used to check the result of the algorithm. The dual linear
   /// problem is the following.
   /// \f[ y_u + y_v \ge w_{uv} \quad \forall uv\in E\f]
-  /// \f[\min \sum_{u \in V}y_u \f] ///
+  /// \f[\min \sum_{u \in V}y_u \f]
   ///
   /// The algorithm can be executed with the run() function.
   /// After it the matching (the primal solution) and the dual solution
@@ -1428,8 +1426,8 @@ namespace lemon {
 
   /// If the value type is integer, then the primal and the dual
   /// solutions are multiplied by
-  /// \ref MaxWeightedMatching::primalScale "2" and
-  /// \ref MaxWeightedMatching::dualScale "4" respectively.
+  /// \ref MaxWeightedPerfectFractionalMatching::primalScale "2" and
+  /// \ref MaxWeightedPerfectFractionalMatching::dualScale "4" respectively.
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is
@@ -2005,7 +2003,8 @@ namespace lemon {
 
     /// \brief Run the algorithm.
     ///
-    /// This method runs the \c %MaxWeightedMatching algorithm.
+    /// This method runs the \c %MaxWeightedPerfectFractionalMatching 
+    /// algorithm.
     ///
     /// \note mwfm.run() is just a shortcut of the following code.
     /// \code
