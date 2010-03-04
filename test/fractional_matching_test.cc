@@ -236,6 +236,12 @@ void checkFractionalMatching(const SmartGraph& graph,
   }
   check(pv == mfm.matchingSize(), "Wrong matching size");
 
+  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+    check((e == mfm.matching(graph.u(e)) ? 1 : 0) +
+          (e == mfm.matching(graph.v(e)) ? 1 : 0) == 
+          mfm.matching(e), "Invalid matching");
+  }
+
   SmartGraph::NodeMap<bool> processed(graph, false);
   for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
     if (processed[n]) continue;
@@ -283,6 +289,11 @@ void checkPerfectFractionalMatching(const SmartGraph& graph,
       }
       check(mfm.matching(n) != INVALID, "Invalid matching");
       check(indeg == 1, "Invalid matching");
+    }
+    for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+      check((e == mfm.matching(graph.u(e)) ? 1 : 0) +
+            (e == mfm.matching(graph.v(e)) ? 1 : 0) == 
+            mfm.matching(e), "Invalid matching");
     }
   } else {
     int anum = 0, bnum = 0;
@@ -337,6 +348,12 @@ void checkWeightedFractionalMatching(const SmartGraph& graph,
     }
   }
 
+  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+    check((e == mwfm.matching(graph.u(e)) ? 1 : 0) +
+          (e == mwfm.matching(graph.v(e)) ? 1 : 0) == 
+          mwfm.matching(e), "Invalid matching");
+  }
+
   int dv = 0;
   for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
     dv += mwfm.nodeValue(n);
@@ -389,6 +406,12 @@ void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,
     check(indeg == 1, "Invalid perfect matching");
     pv += weight[mwpfm.matching(n)];
     SmartGraph::Node o = graph.target(mwpfm.matching(n));
+  }
+
+  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
+    check((e == mwpfm.matching(graph.u(e)) ? 1 : 0) +
+          (e == mwpfm.matching(graph.v(e)) ? 1 : 0) == 
+          mwpfm.matching(e), "Invalid matching");
   }
 
   int dv = 0;

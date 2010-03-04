@@ -658,10 +658,11 @@ namespace lemon {
   /// After it the matching (the primal solution) and the dual solution
   /// can be obtained using the query functions.
   ///
-  /// If the value type is integer, then the primal and the dual
-  /// solutions are multiplied by
-  /// \ref MaxWeightedFractionalMatching::primalScale "2" and
-  /// \ref MaxWeightedFractionalMatching::dualScale "4" respectively.
+  /// The primal solution is multiplied by
+  /// \ref MaxWeightedFractionalMatching::primalScale "2".
+  /// If the value type is integer, then the dual
+  /// solution is scaled by
+  /// \ref MaxWeightedFractionalMatching::dualScale "4".
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is
@@ -688,10 +689,8 @@ namespace lemon {
 
     /// \brief Scaling factor for primal solution
     ///
-    /// Scaling factor for primal solution. It is equal to 2 or 1
-    /// according to the value type.
-    static const int primalScale =
-      std::numeric_limits<Value>::is_integer ? 2 : 1;
+    /// Scaling factor for primal solution.
+    static const int primalScale = 2;
 
     /// \brief Scaling factor for dual solution
     ///
@@ -1329,10 +1328,9 @@ namespace lemon {
     /// "primal scale".
     ///
     /// \pre Either run() or start() must be called before using this function.
-    Value matching(const Edge& edge) const {
-      return Value(edge == (*_matching)[_graph.u(edge)] ? 1 : 0)
-        * primalScale / 2 + Value(edge == (*_matching)[_graph.v(edge)] ? 1 : 0)
-        * primalScale / 2;
+    int matching(const Edge& edge) const {
+      return (edge == (*_matching)[_graph.u(edge)] ? 1 : 0)
+        + (edge == (*_matching)[_graph.v(edge)] ? 1 : 0);
     }
 
     /// \brief Return the fractional matching arc (or edge) incident
@@ -1423,11 +1421,12 @@ namespace lemon {
   /// The algorithm can be executed with the run() function.
   /// After it the matching (the primal solution) and the dual solution
   /// can be obtained using the query functions.
-
-  /// If the value type is integer, then the primal and the dual
-  /// solutions are multiplied by
-  /// \ref MaxWeightedPerfectFractionalMatching::primalScale "2" and
-  /// \ref MaxWeightedPerfectFractionalMatching::dualScale "4" respectively.
+  ///
+  /// The primal solution is multiplied by
+  /// \ref MaxWeightedPerfectFractionalMatching::primalScale "2".
+  /// If the value type is integer, then the dual
+  /// solution is scaled by
+  /// \ref MaxWeightedPerfectFractionalMatching::dualScale "4".
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
   /// \tparam WM The type edge weight map. The default type is
@@ -1454,10 +1453,8 @@ namespace lemon {
 
     /// \brief Scaling factor for primal solution
     ///
-    /// Scaling factor for primal solution. It is equal to 2 or 1
-    /// according to the value type.
-    static const int primalScale =
-      std::numeric_limits<Value>::is_integer ? 2 : 1;
+    /// Scaling factor for primal solution.
+    static const int primalScale = 2;
 
     /// \brief Scaling factor for dual solution
     ///
@@ -2064,10 +2061,9 @@ namespace lemon {
     /// "primal scale".
     ///
     /// \pre Either run() or start() must be called before using this function.
-    Value matching(const Edge& edge) const {
-      return Value(edge == (*_matching)[_graph.u(edge)] ? 1 : 0)
-        * primalScale / 2 + Value(edge == (*_matching)[_graph.v(edge)] ? 1 : 0)
-        * primalScale / 2;
+    int matching(const Edge& edge) const {
+      return (edge == (*_matching)[_graph.u(edge)] ? 1 : 0)
+        + (edge == (*_matching)[_graph.v(edge)] ? 1 : 0);
     }
 
     /// \brief Return the fractional matching arc (or edge) incident
