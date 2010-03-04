@@ -170,11 +170,15 @@ namespace lemon {
     // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
     // State constants for arcs
-    enum ArcStateEnum {
+    enum ArcState {
       STATE_UPPER = -1,
       STATE_TREE  =  0,
       STATE_LOWER =  1
     };
+
+    typedef std::vector<signed char> StateVector;
+    // Note: vector<signed char> is used instead of vector<ArcState> for
+    // efficiency reasons
 
   private:
 
@@ -215,7 +219,7 @@ namespace lemon {
     IntVector _last_succ;
     IntVector _dirty_revs;
     BoolVector _forward;
-    BoolVector _state;
+    StateVector _state;
     int _root;
 
     // Temporary data used in the current pivot iteration
@@ -246,7 +250,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const BoolVector &_state;
+      const StateVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -298,7 +302,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const BoolVector &_state;
+      const StateVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -337,7 +341,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const BoolVector &_state;
+      const StateVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -410,7 +414,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const BoolVector &_state;
+      const StateVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
@@ -513,7 +517,7 @@ namespace lemon {
       const IntVector  &_source;
       const IntVector  &_target;
       const CostVector &_cost;
-      const BoolVector &_state;
+      const StateVector &_state;
       const CostVector &_pi;
       int &_in_arc;
       int _search_arc_num;
