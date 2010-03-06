@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -1239,7 +1239,8 @@ namespace lemon {
 
   protected:
 
-    class AutoNodeMap : public ItemSetTraits<GR, Node>::template Map<Arc>::Type {
+    class AutoNodeMap : public ItemSetTraits<GR, Node>::template Map<Arc>::Type
+    {
       typedef typename ItemSetTraits<GR, Node>::template Map<Arc>::Type Parent;
 
     public:
@@ -1278,7 +1279,7 @@ namespace lemon {
       }
     };
 
-  protected: 
+  protected:
 
     const Digraph &_g;
     AutoNodeMap _head;

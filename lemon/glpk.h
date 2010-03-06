@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -30,7 +30,7 @@ namespace lemon {
   namespace _solver_bits {
     class VoidPtr {
     private:
-      void *_ptr;      
+      void *_ptr;
     public:
       VoidPtr() : _ptr(0) {}
 
@@ -38,8 +38,8 @@ namespace lemon {
       VoidPtr(T* ptr) : _ptr(reinterpret_cast<void*>(ptr)) {}
 
       template <typename T>
-      VoidPtr& operator=(T* ptr) { 
-        _ptr = reinterpret_cast<void*>(ptr); 
+      VoidPtr& operator=(T* ptr) {
+        _ptr = reinterpret_cast<void*>(ptr);
         return *this;
       }
 
@@ -124,13 +124,13 @@ namespace lemon {
         freeEnv();
       }
     };
-    
+
     static FreeEnvHelper freeEnvHelper;
 
   protected:
-    
+
     int _message_level;
-    
+
   public:
 
     ///Pointer to the underlying GLPK data structure.

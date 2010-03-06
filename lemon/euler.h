@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -26,7 +26,7 @@
 
 /// \ingroup graph_properties
 /// \file
-/// \brief Euler tour iterators and a function for checking the \e Eulerian 
+/// \brief Euler tour iterators and a function for checking the \e Eulerian
 /// property.
 ///
 ///This file provides Euler tour iterators and a function to check
@@ -41,7 +41,7 @@ namespace lemon {
   ///graph (if there exists) and it converts to the \c Arc type of the digraph.
   ///
   ///For example, if the given digraph has an Euler tour (i.e it has only one
-  ///non-trivial component and the in-degree is equal to the out-degree 
+  ///non-trivial component and the in-degree is equal to the out-degree
   ///for all nodes), then the following code will put the arcs of \c g
   ///to the vector \c et according to an Euler tour of \c g.
   ///\code
@@ -138,7 +138,7 @@ namespace lemon {
   ///\e undirected graph (if there exists) and it converts to the \c Arc
   ///and \c Edge types of the graph.
   ///
-  ///For example, if the given graph has an Euler tour (i.e it has only one 
+  ///For example, if the given graph has an Euler tour (i.e it has only one
   ///non-trivial component and the degree of each node is even),
   ///the following code will print the arc IDs according to an
   ///Euler tour of \c g.
@@ -147,7 +147,7 @@ namespace lemon {
   ///    std::cout << g.id(Edge(e)) << std::eol;
   ///  }
   ///\endcode
-  ///Although this iterator is for undirected graphs, it still returns 
+  ///Although this iterator is for undirected graphs, it still returns
   ///arcs in order to indicate the direction of the tour.
   ///(But arcs convert to edges, of course.)
   ///
@@ -233,7 +233,7 @@ namespace lemon {
 
     /// Postfix incrementation.
     ///
-    ///\warning This incrementation returns an \c Arc (which converts to 
+    ///\warning This incrementation returns an \c Arc (which converts to
     ///an \c Edge), not an \ref EulerIt, as one may expect.
     Arc operator++(int)
     {

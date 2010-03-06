@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -26,8 +26,8 @@ namespace lemon {
       exit(1);
     else throw(ArgParserException(reason));
   }
-  
-  
+
+
   void ArgParser::_showHelp(void *p)
   {
     (static_cast<ArgParser*>(p))->showHelp();

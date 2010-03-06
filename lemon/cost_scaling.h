@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -92,7 +92,7 @@ namespace lemon {
   /// \ref CostScaling implements a cost scaling algorithm that performs
   /// push/augment and relabel operations for finding a \ref min_cost_flow
   /// "minimum cost flow" \ref amo93networkflows, \ref goldberg90approximation,
-  /// \ref goldberg97efficient, \ref bunnagel98efficient. 
+  /// \ref goldberg97efficient, \ref bunnagel98efficient.
   /// It is a highly efficient primal-dual solution method, which
   /// can be viewed as the generalization of the \ref Preflow
   /// "preflow push-relabel" algorithm for the maximum flow problem.
@@ -189,7 +189,7 @@ namespace lemon {
       /// Augment operations are used, i.e. flow is moved on admissible
       /// paths from a node with excess to a node with deficit.
       AUGMENT,
-      /// Partial augment operations are used, i.e. flow is moved on 
+      /// Partial augment operations are used, i.e. flow is moved on
       /// admissible paths started from a node with excess, but the
       /// lengths of these paths are limited. This method can be viewed
       /// as a combined version of the previous two operations.
@@ -208,15 +208,15 @@ namespace lemon {
     // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
   private:
-  
+
     template <typename KT, typename VT>
     class StaticVectorMap {
     public:
       typedef KT Key;
       typedef VT Value;
-      
+
       StaticVectorMap(std::vector<Value>& v) : _v(v) {}
-      
+
       const Value& operator[](const Key& key) const {
         return _v[StaticDigraph::id(key)];
       }
@@ -224,7 +224,7 @@ namespace lemon {
       Value& operator[](const Key& key) {
         return _v[StaticDigraph::id(key)];
       }
-      
+
       void set(const Key& key, const Value& val) {
         _v[StaticDigraph::id(key)] = val;
       }
@@ -283,7 +283,7 @@ namespace lemon {
     IntVector _bucket_prev;
     IntVector _rank;
     int _max_rank;
-  
+
     // Data for a StaticDigraph structure
     typedef std::pair<int, int> IntPair;
     StaticDigraph _sgr;
@@ -291,9 +291,9 @@ namespace lemon {
     std::vector<LargeCost> _cost_vec;
     LargeCostArcMap _cost_map;
     LargeCostNodeMap _pi_map;
-  
+
   public:
-  
+
     /// \brief Constant for infinite upper bounds (capacities).
     ///
     /// Constant for infinite upper bounds (capacities).
@@ -348,7 +348,7 @@ namespace lemon {
         "The flow type of CostScaling must be signed");
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of CostScaling must be signed");
-      
+
       // Reset data structures
       reset();
     }
@@ -464,7 +464,7 @@ namespace lemon {
       _supply[_node_id[t]] = -k;
       return *this;
     }
-    
+
     /// @}
 
     /// \name Execution control
@@ -566,7 +566,7 @@ namespace lemon {
         _upper[j] = INF;
         _scost[j] = 0;
         _scost[_reverse[j]] = 0;
-      }      
+      }
       _have_lower = false;
       return *this;
     }
@@ -601,7 +601,7 @@ namespace lemon {
       _upper.resize(_res_arc_num);
       _scost.resize(_res_arc_num);
       _supply.resize(_res_node_num);
-      
+
       _res_cap.resize(_res_arc_num);
       _cost.resize(_res_arc_num);
       _pi.resize(_res_node_num);
@@ -649,7 +649,7 @@ namespace lemon {
         _reverse[fi] = bi;
         _reverse[bi] = fi;
       }
-      
+
       // Reset parameters
       resetParams();
       return *this;
@@ -758,14 +758,14 @@ namespace lemon {
         _sum_supply += _supply[i];
       }
       if (_sum_supply > 0) return INFEASIBLE;
-      
+
 
       // Initialize vectors
       for (int i = 0; i != _res_node_num; ++i) {
         _pi[i] = 0;
         _excess[i] = _supply[i];
       }
-      
+
       // Remove infinite upper bounds and check negative arcs
       const Value MAX = std::numeric_limits<Value>::max();
       int last_out;
@@ -885,7 +885,7 @@ namespace lemon {
           _cost[ra] = 0;
         }
       }
-      
+
       return OPTIMAL;
     }
 
@@ -894,13 +894,13 @@ namespace lemon {
       // Maximum path length for partial augment
       const int MAX_PATH_LENGTH = 4;
 
-      // Initialize data structures for buckets      
+      // Initialize data structures for buckets
       _max_rank = _alpha * _res_node_num;
       _buckets.resize(_max_rank);
       _bucket_next.resize(_res_node_num + 1);
       _bucket_prev.resize(_res_node_num + 1);
       _rank.resize(_res_node_num + 1);
-  
+
       // Execute the algorithm
       switch (method) {
         case PUSH:
@@ -939,7 +939,7 @@ namespace lemon {
         }
       }
     }
-    
+
     // Initialize a cost scaling phase
     void initPhase() {
       // Saturate arcs not satisfying the optimality condition
@@ -957,7 +957,7 @@ namespace lemon {
           }
         }
       }
-      
+
       // Find active nodes (i.e. nodes with positive excess)
       for (int u = 0; u != _res_node_num; ++u) {
         if (_excess[u] > 0) _active_nodes.push_back(u);
@@ -968,7 +968,7 @@ namespace lemon {
         _next_out[u] = _first_out[u];
       }
     }
-    
+
     // Early termination heuristic
     bool earlyTermination() {
       const double EARLY_TERM_FACTOR = 3.0;
@@ -998,7 +998,7 @@ namespace lemon {
     // Global potential update heuristic
     void globalUpdate() {
       int bucket_end = _root + 1;
-    
+
       // Initialize buckets
       for (int r = 0; r != _max_rank; ++r) {
         _buckets[r] = bucket_end;
@@ -1024,7 +1024,7 @@ namespace lemon {
           // Remove the first node from the current bucket
           int u = _buckets[r];
           _buckets[r] = _bucket_next[u];
-          
+
           // Search the incomming arcs of u
           LargeCost pi_u = _pi[u];
           int last_out = _first_out[u+1];
@@ -1039,12 +1039,12 @@ namespace lemon {
                 int new_rank_v = old_rank_v;
                 if (nrc < LargeCost(_max_rank))
                   new_rank_v = r + 1 + int(nrc);
-                  
+
                 // Change the rank of v
                 if (new_rank_v < old_rank_v) {
                   _rank[v] = new_rank_v;
                   _next_out[v] = _first_out[v];
-                  
+
                   // Remove v from its old bucket
                   if (old_rank_v < _max_rank) {
                     if (_buckets[old_rank_v] == v) {
@@ -1054,7 +1054,7 @@ namespace lemon {
                       _bucket_prev[_bucket_next[v]] = _bucket_prev[v];
                     }
                   }
-                  
+
                   // Insert v to its new bucket
                   _bucket_next[v] = _buckets[new_rank_v];
                   _bucket_prev[_buckets[new_rank_v]] = v;
@@ -1072,7 +1072,7 @@ namespace lemon {
         }
         if (total_excess <= 0) break;
       }
-      
+
       // Relabel nodes
       for (int u = 0; u != _res_node_num; ++u) {
         int k = std::min(_rank[u], r);
@@ -1092,9 +1092,9 @@ namespace lemon {
       const int global_update_freq = int(GLOBAL_UPDATE_FACTOR *
         (_res_node_num + _sup_node_num * _sup_node_num));
       int next_update_limit = global_update_freq;
-      
+
       int relabel_cnt = 0;
-      
+
       // Perform cost scaling phases
       std::vector<int> path;
       for ( ; _epsilon >= 1; _epsilon = _epsilon < _alpha && _epsilon > 1 ?
@@ -1104,10 +1104,10 @@ namespace lemon {
         if (_epsilon <= EARLY_TERM_EPSILON_LIMIT) {
           if (earlyTermination()) break;
         }
-        
+
         // Initialize current phase
         initPhase();
-        
+
         // Perform partial augment and relabel operations
         while (true) {
           // Select an active node (FIFO selection)
@@ -1196,7 +1196,7 @@ namespace lemon {
       int next_update_limit = global_update_freq;
 
       int relabel_cnt = 0;
-      
+
       // Perform cost scaling phases
       BoolVector hyper(_res_node_num, false);
       LargeCostVector hyper_cost(_res_node_num);
@@ -1207,7 +1207,7 @@ namespace lemon {
         if (_epsilon <= EARLY_TERM_EPSILON_LIMIT) {
           if (earlyTermination()) break;
         }
-        
+
         // Initialize current phase
         initPhase();
 
@@ -1222,7 +1222,7 @@ namespace lemon {
           n = _active_nodes.front();
           last_out = _first_out[n+1];
           pi_n = _pi[n];
-          
+
           // Perform push operations if there are admissible arcs
           if (_excess[n] > 0) {
             for (a = _next_out[n]; a != last_out; ++a) {
@@ -1236,7 +1236,7 @@ namespace lemon {
                 int last_out_t = _first_out[t+1];
                 LargeCost pi_t = _pi[t];
                 for (int ta = _next_out[t]; ta != last_out_t; ++ta) {
-                  if (_res_cap[ta] > 0 && 
+                  if (_res_cap[ta] > 0 &&
                       _cost[ta] + pi_t - _pi[_target[ta]] < 0)
                     ahead += _res_cap[ta];
                   if (ahead >= delta) break;
@@ -1287,7 +1287,7 @@ namespace lemon {
             hyper[n] = false;
             ++relabel_cnt;
           }
-        
+
           // Remove nodes that are not active nor hyper
         remove_nodes:
           while ( _active_nodes.size() > 0 &&
@@ -1295,7 +1295,7 @@ namespace lemon {
                   !hyper[_active_nodes.front()] ) {
             _active_nodes.pop_front();
           }
-          
+
           // Global update heuristic
           if (relabel_cnt >= next_update_limit) {
             globalUpdate();

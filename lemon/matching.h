@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -1623,7 +1623,7 @@ namespace lemon {
         (*_delta2_index)[i] = _delta2->PRE_HEAP;
         (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
-      
+
       _unmatched = _node_num;
 
       _delta1->clear();
@@ -1678,7 +1678,7 @@ namespace lemon {
 
       _blossom_node_list.clear();
       _blossom_potential.clear();
-      
+
       if (_fractional == 0) {
         _fractional = new FractionalMatching(_graph, _weight, false);
       }
@@ -1750,17 +1750,17 @@ namespace lemon {
           while (n != v) {
             subblossoms[--num] = _blossom_set->find(v);
             _delta1->push(v, _fractional->nodeValue(v));
-            v = _graph.target(_fractional->matching(v));            
+            v = _graph.target(_fractional->matching(v));
           }
-          
-          int surface = 
+
+          int surface =
             _blossom_set->join(subblossoms.begin(), subblossoms.end());
           (*_blossom_data)[surface].status = EVEN;
           (*_blossom_data)[surface].pred = INVALID;
           (*_blossom_data)[surface].next = INVALID;
           (*_blossom_data)[surface].pot = 0;
           (*_blossom_data)[surface].offset = 0;
-          
+
           _tree_set->insert(surface);
           ++_unmatched;
         }
@@ -1810,7 +1810,7 @@ namespace lemon {
             }
           }
         }
-            
+
         if (!(*_node_data)[ni].heap.empty()) {
           _blossom_set->decrease(n, (*_node_data)[ni].heap.prio());
           _delta2->push(nb, _blossom_set->classPrio(nb));
@@ -2269,7 +2269,7 @@ namespace lemon {
     Value _delta_sum;
     int _unmatched;
 
-    typedef MaxWeightedPerfectFractionalMatching<Graph, WeightMap> 
+    typedef MaxWeightedPerfectFractionalMatching<Graph, WeightMap>
     FractionalMatching;
     FractionalMatching *_fractional;
 
@@ -3095,7 +3095,7 @@ namespace lemon {
 
       _blossom_node_list.clear();
       _blossom_potential.clear();
-      
+
       if (_fractional == 0) {
         _fractional = new FractionalMatching(_graph, _weight, false);
       }
@@ -3161,17 +3161,17 @@ namespace lemon {
           v = _graph.target(_fractional->matching(n));
           while (n != v) {
             subblossoms[--num] = _blossom_set->find(v);
-            v = _graph.target(_fractional->matching(v));            
+            v = _graph.target(_fractional->matching(v));
           }
-          
-          int surface = 
+
+          int surface =
             _blossom_set->join(subblossoms.begin(), subblossoms.end());
           (*_blossom_data)[surface].status = EVEN;
           (*_blossom_data)[surface].pred = INVALID;
           (*_blossom_data)[surface].next = INVALID;
           (*_blossom_data)[surface].pot = 0;
           (*_blossom_data)[surface].offset = 0;
-          
+
           _tree_set->insert(surface);
           ++_unmatched;
         }
@@ -3221,7 +3221,7 @@ namespace lemon {
             }
           }
         }
-            
+
         if (!(*_node_data)[ni].heap.empty()) {
           _blossom_set->decrease(n, (*_node_data)[ni].heap.prio());
           _delta2->push(nb, _blossom_set->classPrio(nb));

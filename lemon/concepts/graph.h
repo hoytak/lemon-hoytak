@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -43,7 +43,7 @@ namespace lemon {
     /// undirected graphs should compile with this class, but it will not
     /// run properly, of course.
     /// An actual graph implementation like \ref ListGraph or
-    /// \ref SmartGraph may have additional functionality.    
+    /// \ref SmartGraph may have additional functionality.
     ///
     /// The undirected graphs also fulfill the concept of \ref Digraph
     /// "directed graphs", since each edge can also be regarded as two
@@ -85,7 +85,7 @@ namespace lemon {
       /// \brief Undirected graphs should be tagged with \c UndirectedTag.
       ///
       /// Undirected graphs should be tagged with \c UndirectedTag.
-      /// 
+      ///
       /// This tag helps the \c enable_if technics to make compile time
       /// specializations for undirected graphs.
       typedef True UndirectedTag;
@@ -360,7 +360,7 @@ namespace lemon {
         bool operator<(Arc) const { return false; }
 
         /// Converison to \c Edge
-        
+
         /// Converison to \c Edge.
         ///
         operator Edge() const { return Edge(); }

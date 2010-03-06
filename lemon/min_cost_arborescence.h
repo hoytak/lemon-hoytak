@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -128,8 +128,8 @@ namespace lemon {
   class MinCostArborescence {
   public:
 
-    /// \brief The \ref MinCostArborescenceDefaultTraits "traits class" 
-    /// of the algorithm. 
+    /// \brief The \ref MinCostArborescenceDefaultTraits "traits class"
+    /// of the algorithm.
     typedef TR Traits;
     /// The type of the underlying digraph.
     typedef typename Traits::Digraph Digraph;
@@ -436,7 +436,7 @@ namespace lemon {
     ///
     /// \ref named-templ-param "Named parameter" for setting
     /// \c PredMap type.
-    /// It must meet the \ref concepts::WriteMap "WriteMap" concept, 
+    /// It must meet the \ref concepts::WriteMap "WriteMap" concept,
     /// and its value type must be the \c Arc type of the digraph.
     template <class T>
     struct SetPredMap

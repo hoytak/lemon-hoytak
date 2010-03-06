@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -31,7 +31,7 @@
 /// \ingroup min_cut
 /// \brief Implementation of the Hao-Orlin algorithm.
 ///
-/// Implementation of the Hao-Orlin algorithm for finding a minimum cut 
+/// Implementation of the Hao-Orlin algorithm for finding a minimum cut
 /// in a digraph.
 
 namespace lemon {
@@ -41,7 +41,7 @@ namespace lemon {
   /// \brief Hao-Orlin algorithm for finding a minimum cut in a digraph.
   ///
   /// This class implements the Hao-Orlin algorithm for finding a minimum
-  /// value cut in a directed graph \f$D=(V,A)\f$. 
+  /// value cut in a directed graph \f$D=(V,A)\f$.
   /// It takes a fixed node \f$ source \in V \f$ and
   /// consists of two phases: in the first phase it determines a
   /// minimum cut with \f$ source \f$ on the source-side (i.e. a set
@@ -58,7 +58,7 @@ namespace lemon {
   ///
   /// For an undirected graph you can run just the first phase of the
   /// algorithm or you can use the algorithm of Nagamochi and Ibaraki,
-  /// which solves the undirected problem in \f$ O(nm + n^2 \log n) \f$ 
+  /// which solves the undirected problem in \f$ O(nm + n^2 \log n) \f$
   /// time. It is implemented in the NagamochiIbaraki algorithm class.
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
@@ -76,7 +76,7 @@ namespace lemon {
 #endif
   class HaoOrlin {
   public:
-   
+
     /// The digraph type of the algorithm
     typedef GR Digraph;
     /// The capacity map type of the algorithm
@@ -864,7 +864,7 @@ namespace lemon {
     /// \brief Initialize the internal data structures.
     ///
     /// This function initializes the internal data structures. It creates
-    /// the maps and some bucket structures for the algorithm. 
+    /// the maps and some bucket structures for the algorithm.
     /// The given node is used as the source node for the push-relabel
     /// algorithm.
     void init(const Node& source) {
@@ -944,7 +944,7 @@ namespace lemon {
 
     /// \brief Run the algorithm.
     ///
-    /// This function runs the algorithm. It uses the given \c source node, 
+    /// This function runs the algorithm. It uses the given \c source node,
     /// finds a proper \c target node and then calls the \ref init(),
     /// \ref calculateOut() and \ref calculateIn().
     void run(const Node& s) {
@@ -958,7 +958,7 @@ namespace lemon {
     /// \name Query Functions
     /// The result of the %HaoOrlin algorithm
     /// can be obtained using these functions.\n
-    /// \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// \ref run(), \ref calculateOut() or \ref calculateIn()
     /// should be called before using them.
 
     /// @{
@@ -967,7 +967,7 @@ namespace lemon {
     ///
     /// This function returns the value of the minimum cut.
     ///
-    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn()
     /// must be called before using this function.
     Value minCutValue() const {
       return _min_cut;
@@ -986,7 +986,7 @@ namespace lemon {
     ///
     /// \return The value of the minimum cut.
     ///
-    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn() 
+    /// \pre \ref run(), \ref calculateOut() or \ref calculateIn()
     /// must be called before using this function.
     template <typename CutMap>
     Value minCutMap(CutMap& cutMap) const {

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -61,7 +61,7 @@ char test_lgf[] =
   "6 7    1    1    1    1   0  0  0  0\n"
   "7 7    4    4    4   -1   0  0  0  1\n";
 
-                        
+
 // Check the interface of an MMC algorithm
 template <typename GR, typename Cost>
 struct MmcClassConcept
@@ -77,10 +77,10 @@ struct MmcClassConcept
         ::Create MmcAlg;
       MmcAlg mmc(me.g, me.cost);
       const MmcAlg& const_mmc = mmc;
-      
+
       typename MmcAlg::Tolerance tol = const_mmc.tolerance();
       mmc.tolerance(tol);
-      
+
       b = mmc.cycle(p).run();
       b = mmc.findCycleMean();
       b = mmc.findCycle();
@@ -92,7 +92,7 @@ struct MmcClassConcept
     }
 
     typedef concepts::ReadMap<typename GR::Arc, Cost> CM;
-  
+
     GR g;
     CM cost;
     ListPath<GR> p;
@@ -153,13 +153,13 @@ int main() {
                   KarpMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
     checkConcept< MmcClassConcept<GR, float>,
                   KarpMmc<GR, concepts::ReadMap<GR::Arc, float> > >();
-    
+
     // HartmannOrlinMmc
     checkConcept< MmcClassConcept<GR, int>,
                   HartmannOrlinMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
     checkConcept< MmcClassConcept<GR, float>,
                   HartmannOrlinMmc<GR, concepts::ReadMap<GR::Arc, float> > >();
-    
+
     // HowardMmc
     checkConcept< MmcClassConcept<GR, int>,
                   HowardMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
@@ -176,11 +176,11 @@ int main() {
   {
     typedef SmartDigraph GR;
     DIGRAPH_TYPEDEFS(GR);
-    
+
     GR gr;
     IntArcMap l1(gr), l2(gr), l3(gr), l4(gr);
     IntArcMap c1(gr), c2(gr), c3(gr), c4(gr);
-    
+
     std::istringstream input(test_lgf);
     digraphReader(gr, input).
       arcMap("len1", l1).

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -23,13 +23,13 @@
 
 ///\file
 ///\brief Skeleton file to implement LP/MIP solver interfaces
-///  
+///
 ///The classes in this file do nothing, but they can serve as skeletons when
 ///implementing an interface to new solvers.
 namespace lemon {
 
   ///A skeleton class to implement LP/MIP solver base interface
-  
+
   ///This class does nothing, but it can serve as a skeleton when
   ///implementing an interface to new solvers.
   class SkeletonSolverBase : public virtual LpBase {

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -384,7 +384,7 @@ namespace lemon {
   /// key increasing and decreasing.
   ///
   /// Note that this implementation does not conform to the
-  /// \ref concepts::Heap "heap concept" due to the lack of some 
+  /// \ref concepts::Heap "heap concept" due to the lack of some
   /// functionality.
   ///
   /// \tparam IM A read-writable item map with \c int values, used

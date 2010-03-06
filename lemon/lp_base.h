@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -82,7 +82,7 @@ namespace lemon {
       /// Verbose output.
       MESSAGE_VERBOSE
     };
-    
+
 
     ///The floating point type used by the solver
     typedef double Value;
@@ -114,14 +114,14 @@ namespace lemon {
       typedef Value ExprValue;
       typedef True LpCol;
       /// Default constructor
-      
+
       /// \warning The default constructor sets the Col to an
       /// undefined value.
       Col() {}
       /// Invalid constructor \& conversion.
-      
+
       /// This constructor initializes the Col to be invalid.
-      /// \sa Invalid for more details.      
+      /// \sa Invalid for more details.
       Col(const Invalid&) : _id(-1) {}
       /// Equality operator
 
@@ -156,12 +156,12 @@ namespace lemon {
       const LpBase *_solver;
     public:
       /// Default constructor
-      
+
       /// \warning The default constructor sets the iterator
       /// to an undefined value.
       ColIt() {}
       /// Sets the iterator to the first Col
-      
+
       /// Sets the iterator to the first Col.
       ///
       ColIt(const LpBase &solver) : _solver(&solver)
@@ -169,12 +169,12 @@ namespace lemon {
         _solver->cols.firstItem(_id);
       }
       /// Invalid constructor \& conversion
-      
+
       /// Initialize the iterator to be invalid.
       /// \sa Invalid for more details.
       ColIt(const Invalid&) : Col(INVALID) {}
       /// Next column
-      
+
       /// Assign the iterator to the next column.
       ///
       ColIt &operator++()
@@ -209,14 +209,14 @@ namespace lemon {
       typedef Value ExprValue;
       typedef True LpRow;
       /// Default constructor
-      
+
       /// \warning The default constructor sets the Row to an
       /// undefined value.
       Row() {}
       /// Invalid constructor \& conversion.
-      
+
       /// This constructor initializes the Row to be invalid.
-      /// \sa Invalid for more details.      
+      /// \sa Invalid for more details.
       Row(const Invalid&) : _id(-1) {}
       /// Equality operator
 
@@ -224,7 +224,7 @@ namespace lemon {
       /// the same LP row or both are invalid.
       bool operator==(Row r) const  {return _id == r._id;}
       /// Inequality operator
-      
+
       /// \sa operator==(Row r)
       ///
       bool operator!=(Row r) const  {return _id != r._id;}
@@ -251,12 +251,12 @@ namespace lemon {
       const LpBase *_solver;
     public:
       /// Default constructor
-      
+
       /// \warning The default constructor sets the iterator
       /// to an undefined value.
       RowIt() {}
       /// Sets the iterator to the first Row
-      
+
       /// Sets the iterator to the first Row.
       ///
       RowIt(const LpBase &solver) : _solver(&solver)
@@ -264,12 +264,12 @@ namespace lemon {
         _solver->rows.firstItem(_id);
       }
       /// Invalid constructor \& conversion
-      
+
       /// Initialize the iterator to be invalid.
       /// \sa Invalid for more details.
       RowIt(const Invalid&) : Row(INVALID) {}
       /// Next row
-      
+
       /// Assign the iterator to the next row.
       ///
       RowIt &operator++()
@@ -347,7 +347,7 @@ namespace lemon {
     public:
       typedef True SolverExpr;
       /// Default constructor
-      
+
       /// Construct an empty expression, the coefficients and
       /// the constant component are initialized to zero.
       Expr() : const_comp(0) {}
@@ -448,9 +448,9 @@ namespace lemon {
       }
 
       ///Iterator over the expression
-      
-      ///The iterator iterates over the terms of the expression. 
-      /// 
+
+      ///The iterator iterates over the terms of the expression.
+      ///
       ///\code
       ///double s=0;
       ///for(LpBase::Expr::CoeffIt i(e);i!=INVALID;++i)
@@ -464,7 +464,7 @@ namespace lemon {
       public:
 
         /// Sets the iterator to the first term
-        
+
         /// Sets the iterator to the first term of the expression.
         ///
         CoeffIt(Expr& e)
@@ -481,7 +481,7 @@ namespace lemon {
         /// Returns the coefficient of the term
         const Value& operator*() const { return _it->second; }
         /// Next term
-        
+
         /// Assign the iterator to the next term.
         ///
         CoeffIt& operator++() { ++_it; return *this; }
@@ -493,9 +493,9 @@ namespace lemon {
       };
 
       /// Const iterator over the expression
-      
-      ///The iterator iterates over the terms of the expression. 
-      /// 
+
+      ///The iterator iterates over the terms of the expression.
+      ///
       ///\code
       ///double s=0;
       ///for(LpBase::Expr::ConstCoeffIt i(e);i!=INVALID;++i)
@@ -509,7 +509,7 @@ namespace lemon {
       public:
 
         /// Sets the iterator to the first term
-        
+
         /// Sets the iterator to the first term of the expression.
         ///
         ConstCoeffIt(const Expr& e)
@@ -524,7 +524,7 @@ namespace lemon {
         const Value& operator*() const { return _it->second; }
 
         /// Next term
-        
+
         /// Assign the iterator to the next term.
         ///
         ConstCoeffIt& operator++() { ++_it; return *this; }
@@ -673,7 +673,7 @@ namespace lemon {
     public:
       typedef True SolverExpr;
       /// Default constructor
-      
+
       /// Construct an empty expression, the coefficients are
       /// initialized to zero.
       DualExpr() {}
@@ -708,7 +708,7 @@ namespace lemon {
         }
       }
       /// \brief Removes the coefficients which's absolute value does
-      /// not exceed \c epsilon. 
+      /// not exceed \c epsilon.
       void simplify(Value epsilon = 0.0) {
         std::map<int, Value>::iterator it=comps.begin();
         while (it != comps.end()) {
@@ -757,9 +757,9 @@ namespace lemon {
       }
 
       ///Iterator over the expression
-      
-      ///The iterator iterates over the terms of the expression. 
-      /// 
+
+      ///The iterator iterates over the terms of the expression.
+      ///
       ///\code
       ///double s=0;
       ///for(LpBase::DualExpr::CoeffIt i(e);i!=INVALID;++i)
@@ -773,7 +773,7 @@ namespace lemon {
       public:
 
         /// Sets the iterator to the first term
-        
+
         /// Sets the iterator to the first term of the expression.
         ///
         CoeffIt(DualExpr& e)
@@ -791,7 +791,7 @@ namespace lemon {
         const Value& operator*() const { return _it->second; }
 
         /// Next term
-        
+
         /// Assign the iterator to the next term.
         ///
         CoeffIt& operator++() { ++_it; return *this; }
@@ -803,9 +803,9 @@ namespace lemon {
       };
 
       ///Iterator over the expression
-      
-      ///The iterator iterates over the terms of the expression. 
-      /// 
+
+      ///The iterator iterates over the terms of the expression.
+      ///
       ///\code
       ///double s=0;
       ///for(LpBase::DualExpr::ConstCoeffIt i(e);i!=INVALID;++i)
@@ -819,7 +819,7 @@ namespace lemon {
       public:
 
         /// Sets the iterator to the first term
-        
+
         /// Sets the iterator to the first term of the expression.
         ///
         ConstCoeffIt(const DualExpr& e)
@@ -834,7 +834,7 @@ namespace lemon {
         const Value& operator*() const { return _it->second; }
 
         /// Next term
-        
+
         /// Assign the iterator to the next term.
         ///
         ConstCoeffIt& operator++() { ++_it; return *this; }
@@ -1229,7 +1229,7 @@ namespace lemon {
     Row addRow(const Constr &c) {
       Row r;
       c.expr().simplify();
-      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound()-*c.expr():-INF, 
+      r._id = _addRowId(_addRow(c.lowerBounded()?c.lowerBound()-*c.expr():-INF,
                                 ExprIterator(c.expr().comps.begin(), cols),
                                 ExprIterator(c.expr().comps.end(), cols),
                                 c.upperBounded()?c.upperBound()-*c.expr():INF));
@@ -1817,10 +1817,10 @@ namespace lemon {
     ///The basis status of variables
     enum VarStatus {
       /// The variable is in the basis
-      BASIC, 
+      BASIC,
       /// The variable is free, but not basic
       FREE,
-      /// The variable has active lower bound 
+      /// The variable has active lower bound
       LOWER,
       /// The variable has active upper bound
       UPPER,
@@ -1899,7 +1899,7 @@ namespace lemon {
       return res;
     }
     /// Returns a component of the primal ray
-    
+
     /// The primal ray is solution of the modified primal problem,
     /// where we change each finite bound to 0, and we looking for a
     /// negative objective value in case of minimization, and positive
@@ -1933,7 +1933,7 @@ namespace lemon {
     }
 
     /// Returns a component of the dual ray
-    
+
     /// The dual ray is solution of the modified primal problem, where
     /// we change each finite bound to 0 (i.e. the objective function
     /// coefficients in the primal problem), and we looking for a
@@ -2075,7 +2075,7 @@ namespace lemon {
       return res;
     }
     ///The value of the objective function
-    
+
     ///\return
     ///- \ref INF or -\ref INF means either infeasibility or unboundedness
     /// of the problem, depending on whether we minimize or maximize.

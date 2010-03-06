@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -203,7 +203,7 @@ namespace lemon {
 
     /// \brief Returns the node with the given index.
     ///
-    /// Returns the node with the given index. Since this structure is 
+    /// Returns the node with the given index. Since this structure is
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
     /// The index of a node is the same as its ID.
@@ -212,7 +212,7 @@ namespace lemon {
 
     /// \brief Returns the index of the given node.
     ///
-    /// Returns the index of the given node. Since this structure is 
+    /// Returns the index of the given node. Since this structure is
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
     /// The index of a node is the same as its ID.
@@ -582,7 +582,7 @@ namespace lemon {
 
     /// \brief Returns the node with the given index.
     ///
-    /// Returns the node with the given index. Since this structure is 
+    /// Returns the node with the given index. Since this structure is
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
     /// The index of a node is the same as its ID.
@@ -591,7 +591,7 @@ namespace lemon {
 
     /// \brief Returns the index of the given node.
     ///
-    /// Returns the index of the given node. Since this structure is 
+    /// Returns the index of the given node. Since this structure is
     /// completely static, the nodes can be indexed with integers from
     /// the range <tt>[0..nodeNum()-1]</tt>.
     /// The index of a node is the same as its ID.

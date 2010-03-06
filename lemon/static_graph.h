@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -31,12 +31,12 @@ namespace lemon {
   class StaticDigraphBase {
   public:
 
-    StaticDigraphBase() 
-      : built(false), node_num(0), arc_num(0), 
+    StaticDigraphBase()
+      : built(false), node_num(0), arc_num(0),
         node_first_out(NULL), node_first_in(NULL),
-        arc_source(NULL), arc_target(NULL), 
+        arc_source(NULL), arc_target(NULL),
         arc_next_in(NULL), arc_next_out(NULL) {}
-    
+
     ~StaticDigraphBase() {
       if (built) {
         delete[] node_first_out;
@@ -62,7 +62,7 @@ namespace lemon {
     };
 
     class Arc {
-      friend class StaticDigraphBase;      
+      friend class StaticDigraphBase;
     protected:
       int id;
       Arc(int _id) : id(_id) {}
@@ -83,8 +83,8 @@ namespace lemon {
     void first(Arc& e) const { e.id = arc_num - 1; }
     static void next(Arc& e) { --e.id; }
 
-    void firstOut(Arc& e, const Node& n) const { 
-      e.id = node_first_out[n.id] != node_first_out[n.id + 1] ? 
+    void firstOut(Arc& e, const Node& n) const {
+      e.id = node_first_out[n.id] != node_first_out[n.id + 1] ?
         node_first_out[n.id] : -1;
     }
     void nextOut(Arc& e) const { e.id = arc_next_out[e.id]; }
@@ -113,21 +113,21 @@ namespace lemon {
     public:
       typedef typename Digraph::Arc Arc;
 
-      ArcLess(const Digraph &_graph, const NodeRefMap& _nodeRef) 
+      ArcLess(const Digraph &_graph, const NodeRefMap& _nodeRef)
         : digraph(_graph), nodeRef(_nodeRef) {}
-      
+
       bool operator()(const Arc& left, const Arc& right) const {
-	return nodeRef[digraph.target(left)] < nodeRef[digraph.target(right)];
+        return nodeRef[digraph.target(left)] < nodeRef[digraph.target(right)];
       }
     private:
       const Digraph& digraph;
       const NodeRefMap& nodeRef;
     };
-    
+
   public:
 
     typedef True BuildTag;
-    
+
     void clear() {
       if (built) {
         delete[] node_first_out;
@@ -141,7 +141,7 @@ namespace lemon {
       node_num = 0;
       arc_num = 0;
     }
-    
+
     template <typename Digraph, typename NodeRefMap, typename ArcRefMap>
     void build(const Digraph& digraph, NodeRefMap& nodeRef, ArcRefMap& arcRef) {
       typedef typename Digraph::Node GNode;
@@ -183,7 +183,7 @@ namespace lemon {
                it != arcs.end(); ++it) {
             int target = nodeRef[digraph.target(*it)].id;
             arcRef[*it] = Arc(arc_index);
-            arc_source[arc_index] = source; 
+            arc_source[arc_index] = source;
             arc_target[arc_index] = target;
             arc_next_in[arc_index] = node_first_in[target];
             node_first_in[target] = arc_index;
@@ -197,7 +197,7 @@ namespace lemon {
       }
       node_first_out[node_num] = arc_num;
     }
-    
+
     template <typename ArcListIterator>
     void build(int n, ArcListIterator first, ArcListIterator last) {
       built = true;
@@ -212,11 +212,11 @@ namespace lemon {
       arc_target = new int[arc_num];
       arc_next_out = new int[arc_num];
       arc_next_in = new int[arc_num];
-      
+
       for (int i = 0; i != node_num; ++i) {
         node_first_in[i] = -1;
-      }      
-      
+      }
+
       int arc_index = 0;
       for (int i = 0; i != node_num; ++i) {
         node_first_out[i] = arc_index;
@@ -282,7 +282,7 @@ namespace lemon {
   ///
   /// Since this digraph structure is completely static, its nodes and arcs
   /// can be indexed with integers from the ranges <tt>[0..nodeNum()-1]</tt>
-  /// and <tt>[0..arcNum()-1]</tt>, respectively. 
+  /// and <tt>[0..arcNum()-1]</tt>, respectively.
   /// The index of an item is the same as its ID, it can be obtained
   /// using the corresponding \ref index() or \ref concepts::Digraph::id()
   /// "id()" function. A node or arc with a certain index can be obtained
@@ -299,9 +299,9 @@ namespace lemon {
   public:
 
     typedef ExtendedStaticDigraphBase Parent;
-  
+
   public:
-  
+
     /// \brief Constructor
     ///
     /// Default constructor.
@@ -349,7 +349,7 @@ namespace lemon {
     ///
     /// This method also makes possible to copy a digraph to a StaticDigraph
     /// structure using \ref DigraphCopy.
-    /// 
+    ///
     /// \param digraph An existing digraph to be copied.
     /// \param nodeRef The node references will be copied into this map.
     /// Its key type must be \c Digraph::Node and its value type must be
@@ -370,7 +370,7 @@ namespace lemon {
       if (built) Parent::clear();
       Parent::build(digraph, nodeRef, arcRef);
     }
-  
+
     /// \brief Build the digraph from an arc list.
     ///
     /// This function builds the digraph from the given arc list.
@@ -421,7 +421,7 @@ namespace lemon {
     using Parent::fastFirstOut;
     using Parent::fastNextOut;
     using Parent::fastLastOut;
-    
+
   public:
 
     class OutArcIt : public Arc {
@@ -432,8 +432,8 @@ namespace lemon {
       OutArcIt(Invalid i) : Arc(i) { }
 
       OutArcIt(const StaticDigraph& digraph, const Node& node) {
-	digraph.fastFirstOut(*this, node);
-	digraph.fastLastOut(last, node);
+        digraph.fastFirstOut(*this, node);
+        digraph.fastLastOut(last, node);
         if (last == *this) *this = INVALID;
       }
 
@@ -443,10 +443,10 @@ namespace lemon {
         }
       }
 
-      OutArcIt& operator++() { 
+      OutArcIt& operator++() {
         StaticDigraph::fastNextOut(*this);
         if (last == *this) *this = INVALID;
-        return *this; 
+        return *this;
       }
 
     private:

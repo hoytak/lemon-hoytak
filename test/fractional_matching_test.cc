@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -238,7 +238,7 @@ void checkFractionalMatching(const SmartGraph& graph,
 
   for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
     check((e == mfm.matching(graph.u(e)) ? 1 : 0) +
-          (e == mfm.matching(graph.v(e)) ? 1 : 0) == 
+          (e == mfm.matching(graph.v(e)) ? 1 : 0) ==
           mfm.matching(e), "Invalid matching");
   }
 
@@ -292,7 +292,7 @@ void checkPerfectFractionalMatching(const SmartGraph& graph,
     }
     for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
       check((e == mfm.matching(graph.u(e)) ? 1 : 0) +
-            (e == mfm.matching(graph.v(e)) ? 1 : 0) == 
+            (e == mfm.matching(graph.v(e)) ? 1 : 0) ==
             mfm.matching(e), "Invalid matching");
     }
   } else {
@@ -350,7 +350,7 @@ void checkWeightedFractionalMatching(const SmartGraph& graph,
 
   for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
     check((e == mwfm.matching(graph.u(e)) ? 1 : 0) +
-          (e == mwfm.matching(graph.v(e)) ? 1 : 0) == 
+          (e == mwfm.matching(graph.v(e)) ? 1 : 0) ==
           mwfm.matching(e), "Invalid matching");
   }
 
@@ -410,7 +410,7 @@ void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,
 
   for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
     check((e == mwpfm.matching(graph.u(e)) ? 1 : 0) +
-          (e == mwpfm.matching(graph.v(e)) ? 1 : 0) == 
+          (e == mwpfm.matching(graph.v(e)) ? 1 : 0) ==
           mwpfm.matching(e), "Invalid matching");
   }
 

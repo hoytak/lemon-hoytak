@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -88,7 +88,7 @@ void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
   ti.restart();
   pre.run();
   if(report) std::cerr << "Run Preflow: " << ti << '\n';
-  if(report) std::cerr << "\nMax flow value: " << pre.flowValue() << '\n';  
+  if(report) std::cerr << "\nMax flow value: " << pre.flowValue() << '\n';
 }
 
 template<class Value, class LargeValue>
@@ -148,7 +148,7 @@ void solve_mat(ArgParser &ap, std::istream &is, std::ostream &,
   mat.run();
   if(report) std::cerr << "Run MaxMatching: " << ti << '\n';
   if(report) std::cerr << "\nCardinality of max matching: "
-                       << mat.matchingSize() << '\n';  
+                       << mat.matchingSize() << '\n';
 }
 
 
@@ -166,7 +166,7 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
                 << std::endl;
       exit(1);
     }
-  
+
   switch(desc.type)
     {
     case DimacsDescriptor::MIN:
@@ -238,7 +238,7 @@ int main(int argc, const char *argv[]) {
   std::ostream& os = (ap.files().size()<2 ? std::cout : output);
 
   DimacsDescriptor desc = dimacsType(is);
-  
+
   if(!ap.given("q"))
     {
       std::cout << "Problem type: ";
@@ -263,7 +263,7 @@ int main(int argc, const char *argv[]) {
       std::cout << "\nNum of arcs:  " << desc.edgeNum;
       std::cout << "\n\n";
     }
-    
+
   if(ap.given("double"))
     solve<double, double>(ap,is,os,desc);
   else if(ap.given("ldouble"))

@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -233,7 +233,7 @@ namespace lemon {
   /// It can be used together with some data structures, e.g.
   /// heap types and \c UnionFind, when the used items are small
   /// integers. This map conforms to the \ref concepts::ReferenceMap
-  /// "ReferenceMap" concept. 
+  /// "ReferenceMap" concept.
   ///
   /// The simplest way of using this map is through the rangeMap()
   /// function.
@@ -1916,11 +1916,11 @@ namespace lemon {
   /// The graph items can be accessed by their values either using
   /// \c InverseMap or \c operator()(), and the values of the map can be
   /// accessed with an STL compatible forward iterator (\c ValueIt).
-  /// 
+  ///
   /// This map is intended to be used when all associated values are
   /// different (the map is actually invertable) or there are only a few
   /// items with the same value.
-  /// Otherwise consider to use \c IterableValueMap, which is more 
+  /// Otherwise consider to use \c IterableValueMap, which is more
   /// suitable and more efficient for such cases. It provides iterators
   /// to traverse the items with the same associated value, but
   /// it does not have \c InverseMap.
@@ -2002,7 +2002,7 @@ namespace lemon {
     private:
       typename Container::const_iterator it;
     };
-    
+
     /// Alias for \c ValueIt
     typedef ValueIt ValueIterator;
 
@@ -2061,7 +2061,7 @@ namespace lemon {
       typename Container::const_iterator it = _inv_map.find(val);
       return it != _inv_map.end() ? it->second : INVALID;
     }
-    
+
     /// \brief Returns the number of items with the given value.
     ///
     /// This function returns the number of items with the given value
@@ -2378,7 +2378,7 @@ namespace lemon {
   inline RangeIdMap<GR, K> rangeIdMap(const GR& graph) {
     return RangeIdMap<GR, K>(graph);
   }
-  
+
   /// \brief Dynamic iterable \c bool map.
   ///
   /// This class provides a special graph map type which can store a
@@ -2638,7 +2638,7 @@ namespace lemon {
       /// \param map The IterableBoolMap.
       /// \param value The value.
       ItemIt(const IterableBoolMap& map, bool value)
-        : Parent(value ? 
+        : Parent(value ?
                  (map._sep > 0 ?
                   map._array[map._sep - 1] : INVALID) :
                  (map._sep < int(map._array.size()) ?
@@ -3786,7 +3786,7 @@ namespace lemon {
   void mapCopy(const GR& gr, const From& from, To& to) {
     typedef typename To::Key Item;
     typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
-    
+
     for (ItemIt it(gr); it != INVALID; ++it) {
       to.set(it, from[it]);
     }
@@ -3794,7 +3794,7 @@ namespace lemon {
 
   /// \brief Compare two graph maps.
   ///
-  /// This function compares the values of two graph maps. It returns 
+  /// This function compares the values of two graph maps. It returns
   /// \c true if the maps assign the same value for all items in the graph.
   /// The \c Key type of the maps (\c Node, \c Arc or \c Edge) must be equal
   /// and their \c Value types must be comparable using \c %operator==().
@@ -3806,7 +3806,7 @@ namespace lemon {
   bool mapCompare(const GR& gr, const Map1& map1, const Map2& map2) {
     typedef typename Map2::Key Item;
     typedef typename ItemSetTraits<GR, Item>::ItemIt ItemIt;
-    
+
     for (ItemIt it(gr); it != INVALID; ++it) {
       if (!(map1[it] == map2[it])) return false;
     }

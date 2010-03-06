@@ -1,3 +1,21 @@
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
+ *
+ * This file is a part of LEMON, a generic C++ optimization library.
+ *
+ * Copyright (C) 2003-2010
+ * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
+ * (Egervary Research Group on Combinatorial Optimization, EGRES).
+ *
+ * Permission to use, modify and distribute this software is granted
+ * provided that this copyright notice appears in all copies. For
+ * precise terms see the accompanying LICENSE file.
+ *
+ * This software is provided "AS IS" with no warranty of any kind,
+ * express or implied, and with no claim as to its suitability for any
+ * purpose.
+ *
+ */
+
 #include <iostream>
 
 #include "test_tools.h"
@@ -33,7 +51,7 @@ char test_lgf[] =
   "@attributes\n"
   "source 0\n"
   "target 3\n";
-  
+
 void checkGomoryHuCompile()
 {
   typedef int Value;
@@ -69,7 +87,7 @@ typedef Graph::EdgeMap<int> IntEdgeMap;
 typedef Graph::NodeMap<bool> BoolNodeMap;
 
 int cutValue(const Graph& graph, const BoolNodeMap& cut,
-	     const IntEdgeMap& capacity) {
+             const IntEdgeMap& capacity) {
 
   int sum = 0;
   for (EdgeIt e(graph); e != INVALID; ++e) {
@@ -107,7 +125,7 @@ int main() {
 
       int sum=0;
       for(GomoryHu<Graph>::MinCutEdgeIt a(ght, u, v);a!=INVALID;++a)
-        sum+=capacity[a]; 
+        sum+=capacity[a];
       check(sum == ght.minCutValue(u, v), "Problem with MinCutEdgeIt");
 
       sum=0;
@@ -118,6 +136,6 @@ int main() {
       check(sum == countNodes(graph), "Problem with MinCutNodeIt");
     }
   }
-  
+
   return 0;
 }

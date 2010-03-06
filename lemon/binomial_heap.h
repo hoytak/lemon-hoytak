@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -258,7 +258,7 @@ namespace lemon {
       int i=_iim[item];
       int p=_data[i].parent;
       _data[i].prio=value;
-      
+
       while( p!=-1 && _comp(value, _data[p].prio) ) {
         _data[i].name=_data[p].name;
         _data[i].prio=_data[p].prio;
@@ -322,7 +322,7 @@ namespace lemon {
     }
 
   private:
-    
+
     // Find the minimum of the roots
     int findMin() {
       if( _head!=-1 ) {
@@ -350,7 +350,7 @@ namespace lemon {
         interleave(a);
       }
       if( _data[_head].right_neighbor==-1 ) return;
-      
+
       int x=_head;
       int x_prev=-1, x_next=_data[x].right_neighbor;
       while( x_next!=-1 ) {
@@ -384,7 +384,7 @@ namespace lemon {
       int p=_head, q=a;
       int curr=_data.size();
       _data.push_back(Store());
-      
+
       while( p!=-1 || q!=-1 ) {
         if( q==-1 || ( p!=-1 && _data[p].degree<_data[q].degree ) ) {
           _data[curr].right_neighbor=p;
@@ -397,7 +397,7 @@ namespace lemon {
           q=_data[q].right_neighbor;
         }
       }
-      
+
       _head=_data.back().right_neighbor;
       _data.pop_back();
     }

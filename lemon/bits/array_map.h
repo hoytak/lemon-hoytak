@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -70,7 +70,7 @@ namespace lemon {
     typedef typename ItemSetTraits<_Graph, _Item>::ItemNotifier Notifier;
 
   private:
-  
+
     // The MapBase of the Map which imlements the core regisitry function.
     typedef typename Notifier::ObserverBase Parent;
 

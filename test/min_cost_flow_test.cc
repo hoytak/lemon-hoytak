@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -52,7 +52,7 @@ char test_lgf[] =
   "   10    -2    0    0    0   -7   -2\n"
   "   11     0    0    0    0  -10    0\n"
   "   12   -20  -27    0  -30  -30  -20\n"
-  "\n"                
+  "\n"
   "@arcs\n"
   "       cost  cap low1 low2 low3\n"
   " 1  2    70   11    0    8    8\n"
@@ -102,7 +102,7 @@ char test_neg1_lgf[] =
   "5 6     80      0   1000\n"
   "6 7     30      0  -1000\n"
   "7 5   -120      0      0\n";
-  
+
 char test_neg2_lgf[] =
   "@nodes\n"
   "label   sup\n"
@@ -151,7 +151,7 @@ public:
   struct Constraints {
     void constraints() {
       checkConcept<concepts::Digraph, GR>();
-      
+
       const Constraints& me = *this;
 
       MCF mcf(me.g);
@@ -180,7 +180,7 @@ public:
     typedef concepts::ReadMap<Arc, Cost> CAM;
     typedef concepts::WriteMap<Arc, Value> FlowMap;
     typedef concepts::WriteMap<Node, Cost> PotMap;
-  
+
     GR g;
     VAM lower;
     VAM upper;
@@ -234,7 +234,7 @@ bool checkFlow( const GR& gr, const LM& lower, const UM& upper,
 template < typename GR, typename LM, typename UM,
            typename CM, typename SM, typename FM, typename PM >
 bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
-                     const CM& cost, const SM& supply, const FM& flow, 
+                     const CM& cost, const SM& supply, const FM& flow,
                      const PM& pi, SupplyType type )
 {
   TEMPLATE_DIGRAPH_TYPEDEFS(GR);
@@ -247,7 +247,7 @@ bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
           (red_cost > 0 && flow[e] == lower[e]) ||
           (red_cost < 0 && flow[e] == upper[e]);
   }
-  
+
   for (NodeIt n(gr); opt && n != INVALID; ++n) {
     typename SM::Value sum = 0;
     for (OutArcIt e(gr, n); e != INVALID; ++e)
@@ -260,7 +260,7 @@ bool checkPotential( const GR& gr, const LM& lower, const UM& upper,
       opt = (pi[n] >= 0) && (sum == supply[n] || pi[n] == 0);
     }
   }
-  
+
   return opt;
 }
 
@@ -285,7 +285,7 @@ bool checkDualCost( const GR& gr, const LM& lower, const UM& upper,
       red_supply[gr.target(a)] += lower[a];
     }
   }
-  
+
   for (NodeIt n(gr); n != INVALID; ++n) {
     dual_cost -= red_supply[n] * pi[n];
   }
@@ -294,7 +294,7 @@ bool checkDualCost( const GR& gr, const LM& lower, const UM& upper,
       cost[a] + pi[gr.source(a)] - pi[gr.target(a)];
     dual_cost -= (upper[a] - lower[a]) * std::max(-red_cost, 0);
   }
-  
+
   return dual_cost == total;
 }
 
@@ -332,7 +332,7 @@ void runMcfGeqTests( Param param,
                      bool full_neg_cost_support = false )
 {
   MCF mcf1(gr), mcf2(neg1_gr), mcf3(neg2_gr);
-  
+
   // Basic tests
   mcf1.upperMap(u).costMap(c).supplyMap(s1);
   checkMcf(mcf1, mcf1.run(param), gr, l1, u, c, s1,
@@ -435,7 +435,7 @@ int main()
     .node("source", v)
     .node("target", w)
     .run();
-  
+
   std::istringstream neg_inp1(test_neg1_lgf);
   DigraphReader<Digraph>(neg1_gr, neg_inp1)
     .arcMap("cost", neg1_c)
@@ -443,13 +443,13 @@ int main()
     .arcMap("low2", neg1_l2)
     .nodeMap("sup", neg1_s)
     .run();
-  
+
   std::istringstream neg_inp2(test_neg2_lgf);
   DigraphReader<Digraph>(neg2_gr, neg_inp2)
     .arcMap("cost", neg2_c)
     .nodeMap("sup", neg2_s)
     .run();
-  
+
   // Check the interface of NetworkSimplex
   {
     typedef concepts::Digraph GR;
@@ -501,7 +501,7 @@ int main()
   }
 
   // Test NetworkSimplex
-  { 
+  {
     typedef NetworkSimplex<Digraph> MCF;
     runMcfGeqTests<MCF>(MCF::FIRST_ELIGIBLE, "NS-FE", true);
     runMcfLeqTests<MCF>(MCF::FIRST_ELIGIBLE, "NS-FE");
@@ -514,7 +514,7 @@ int main()
     runMcfGeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL", true);
     runMcfLeqTests<MCF>(MCF::ALTERING_LIST,  "NS-AL");
   }
-  
+
   // Test CapacityScaling
   {
     typedef CapacityScaling<Digraph> MCF;

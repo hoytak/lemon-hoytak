@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -264,7 +264,7 @@ void checkGraphSnapshot() {
   checkGraphNodeList(G, 4);
   checkGraphEdgeList(G, 3);
   checkGraphArcList(G, 6);
-  
+
   G.addEdge(G.addNode(), G.addNode());
 
   snapshot.restore();
@@ -513,7 +513,7 @@ void checkHypercubeGraph(int dim) {
 
   G.resize(dim);
   check(G.dimension() == dim, "Wrong dimension");
-  
+
   checkGraphNodeList(G, 1 << dim);
   checkGraphEdgeList(G, dim * (1 << (dim-1)));
   checkGraphArcList(G, dim * (1 << dim));

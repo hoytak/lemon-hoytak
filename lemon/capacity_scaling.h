@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -133,7 +133,7 @@ namespace lemon {
       /// these cases.
       UNBOUNDED
     };
-  
+
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
@@ -184,7 +184,7 @@ namespace lemon {
     IntVector _pred;
 
   public:
-  
+
     /// \brief Constant for infinite upper bounds (capacities).
     ///
     /// Constant for infinite upper bounds (capacities).
@@ -211,10 +211,10 @@ namespace lemon {
       const ValueVector &_excess;
       CostVector &_pi;
       IntVector &_pred;
-      
+
       IntVector _proc_nodes;
       CostVector _dist;
-      
+
     public:
 
       ResidualDijkstra(CapacityScaling& cs) :
@@ -439,7 +439,7 @@ namespace lemon {
       _supply[_node_id[t]] = -k;
       return *this;
     }
-    
+
     /// @}
 
     /// \name Execution control
@@ -575,7 +575,7 @@ namespace lemon {
       _upper.resize(_res_arc_num);
       _cost.resize(_res_arc_num);
       _supply.resize(_node_num);
-      
+
       _res_cap.resize(_res_arc_num);
       _pi.resize(_node_num);
       _excess.resize(_node_num);
@@ -619,7 +619,7 @@ namespace lemon {
         _reverse[fi] = bi;
         _reverse[bi] = fi;
       }
-      
+
       // Reset parameters
       resetParams();
       return *this;
@@ -728,7 +728,7 @@ namespace lemon {
         _sum_supply += _supply[i];
       }
       if (_sum_supply > 0) return INFEASIBLE;
-      
+
       // Initialize vectors
       for (int i = 0; i != _root; ++i) {
         _pi[i] = 0;
@@ -776,7 +776,7 @@ namespace lemon {
           }
         }
       }
-      
+
       // Handle GEQ supply type
       if (_sum_supply < 0) {
         _pi[_root] = 0;
@@ -844,9 +844,9 @@ namespace lemon {
       if (_sum_supply < 0 || pr > 0) {
         for (int i = 0; i != _node_num; ++i) {
           _pi[i] -= pr;
-        }        
+        }
       }
-      
+
       return pt;
     }
 

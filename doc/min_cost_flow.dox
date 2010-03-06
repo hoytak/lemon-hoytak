@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -81,7 +81,7 @@ the following \e complementary \e slackness optimality conditions hold.
    - \f$\pi(u)\leq 0\f$;
    - if \f$\sum_{uv\in A} f(uv) - \sum_{vu\in A} f(vu) \neq sup(u)\f$,
      then \f$\pi(u)=0\f$.
- 
+
 Here \f$cost^\pi(uv)\f$ denotes the \e reduced \e cost of the arc
 \f$uv\in A\f$ with respect to the potential function \f$\pi\f$, i.e.
 \f[ cost^\pi(uv) = cost(uv) + \pi(u) - \pi(v).\f]
@@ -119,7 +119,7 @@ instead of the <em>"greater or equal"</em> (GEQ) constraints.
     sup(u) \quad \forall u\in V \f]
 \f[ lower(uv) \leq f(uv) \leq upper(uv) \quad \forall uv\in A \f]
 
-It means that the total demand must be less or equal to the 
+It means that the total demand must be less or equal to the
 total supply (i.e. \f$\sum_{u\in V} sup(u)\f$ must be zero or
 positive) and all the demands have to be satisfied, but there
 could be supplies that are not carried out from the supply

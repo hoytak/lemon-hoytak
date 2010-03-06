@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -2009,7 +2009,7 @@ namespace lemon {
 
     /// \brief Run the algorithm.
     ///
-    /// This method runs the \c %MaxWeightedPerfectFractionalMatching 
+    /// This method runs the \c %MaxWeightedPerfectFractionalMatching
     /// algorithm.
     ///
     /// \note mwfm.run() is just a shortcut of the following code.

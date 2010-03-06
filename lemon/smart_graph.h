@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -186,7 +186,7 @@ namespace lemon {
   ///
   ///\ref SmartDigraph is a simple and fast digraph implementation.
   ///It is also quite memory efficient but at the price
-  ///that it does not support node and arc deletion 
+  ///that it does not support node and arc deletion
   ///(except for the Snapshot feature).
   ///
   ///This type fully conforms to the \ref concepts::Digraph "Digraph concept"
@@ -335,7 +335,7 @@ namespace lemon {
     ///restore() function. This is the only way for deleting nodes and/or
     ///arcs from a SmartDigraph structure.
     ///
-    ///\note After a state is restored, you cannot restore a later state, 
+    ///\note After a state is restored, you cannot restore a later state,
     ///i.e. you cannot add the removed nodes and arcs again using
     ///another Snapshot instance.
     ///
@@ -614,7 +614,7 @@ namespace lemon {
   ///
   /// \ref SmartGraph is a simple and fast graph implementation.
   /// It is also quite memory efficient but at the price
-  /// that it does not support node and edge deletion 
+  /// that it does not support node and edge deletion
   /// (except for the Snapshot feature).
   ///
   /// This type fully conforms to the \ref concepts::Graph "Graph concept"
@@ -761,7 +761,7 @@ namespace lemon {
     ///restore() function. This is the only way for deleting nodes and/or
     ///edges from a SmartGraph structure.
     ///
-    ///\note After a state is restored, you cannot restore a later state, 
+    ///\note After a state is restored, you cannot restore a later state,
     ///i.e. you cannot add the removed nodes and edges again using
     ///another Snapshot instance.
     ///

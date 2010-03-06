@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -84,7 +84,7 @@ namespace lemon {
   typedef SoplexLp Lp;
 #elif LEMON_HAVE_CLP
 # define DEFAULT_LP CLP
-  typedef ClpLp Lp;  
+  typedef ClpLp Lp;
 #endif
 #endif
 

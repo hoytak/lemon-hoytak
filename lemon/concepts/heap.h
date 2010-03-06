@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -92,7 +92,7 @@ namespace lemon {
       explicit Heap(ItemIntMap &map) {}
 #else
       explicit Heap(ItemIntMap&) {}
-#endif      
+#endif
 
       /// \brief Constructor.
       ///
@@ -106,7 +106,7 @@ namespace lemon {
       explicit Heap(ItemIntMap &map, const CMP &comp) {}
 #else
       explicit Heap(ItemIntMap&, const CMP&) {}
-#endif      
+#endif
 
       /// \brief The number of items stored in the heap.
       ///
@@ -138,7 +138,7 @@ namespace lemon {
       void push(const Item &i, const Prio &p) {}
 #else
       void push(const Item&, const Prio&) {}
-#endif      
+#endif
 
       /// \brief Return the item having minimum priority.
       ///
@@ -168,7 +168,7 @@ namespace lemon {
       void erase(const Item &i) {}
 #else
       void erase(const Item&) {}
-#endif      
+#endif
 
       /// \brief The priority of the given item.
       ///
@@ -179,7 +179,7 @@ namespace lemon {
       Prio operator[](const Item &i) const {}
 #else
       Prio operator[](const Item&) const { return Prio(); }
-#endif      
+#endif
 
       /// \brief Set the priority of an item or insert it, if it is
       /// not stored in the heap.
@@ -194,7 +194,7 @@ namespace lemon {
       void set(const Item &i, const Prio &p) {}
 #else
       void set(const Item&, const Prio&) {}
-#endif      
+#endif
 
       /// \brief Decrease the priority of an item to the given value.
       ///
@@ -206,7 +206,7 @@ namespace lemon {
       void decrease(const Item &i, const Prio &p) {}
 #else
       void decrease(const Item&, const Prio&) {}
-#endif      
+#endif
 
       /// \brief Increase the priority of an item to the given value.
       ///
@@ -218,7 +218,7 @@ namespace lemon {
       void increase(const Item &i, const Prio &p) {}
 #else
       void increase(const Item&, const Prio&) {}
-#endif      
+#endif
 
       /// \brief Return the state of an item.
       ///
@@ -232,7 +232,7 @@ namespace lemon {
       State state(const Item &i) const {}
 #else
       State state(const Item&) const { return PRE_HEAP; }
-#endif      
+#endif
 
       /// \brief Set the state of an item in the heap.
       ///
@@ -245,7 +245,7 @@ namespace lemon {
       void state(const Item& i, State st) {}
 #else
       void state(const Item&, State) {}
-#endif      
+#endif
 
 
       template <typename _Heap>

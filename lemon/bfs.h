@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -82,7 +82,8 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///It must conform to
+    ///the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
     ///Instantiates a \c ReachedMap.
 
@@ -271,7 +272,8 @@ namespace lemon {
     ///
     ///\ref named-templ-param "Named parameter" for setting
     ///\c ReachedMap type.
-    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///It must conform to
+    ///the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     template <class T>
     struct SetReachedMap : public Bfs< Digraph, SetReachedMapTraits<T> > {
       typedef Bfs< Digraph, SetReachedMapTraits<T> > Create;
@@ -872,7 +874,8 @@ namespace lemon {
     ///The type of the map that indicates which nodes are reached.
 
     ///The type of the map that indicates which nodes are reached.
-    ///It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    ///It must conform to
+    ///the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
     ///Instantiates a ReachedMap.
 
@@ -1265,7 +1268,8 @@ namespace lemon {
     /// \brief The type of the map that indicates which nodes are reached.
     ///
     /// The type of the map that indicates which nodes are reached.
-    /// It must conform to the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
+    /// It must conform to
+    ///the \ref concepts::ReadWriteMap "ReadWriteMap" concept.
     typedef typename Digraph::template NodeMap<bool> ReachedMap;
 
     /// \brief Instantiates a ReachedMap.

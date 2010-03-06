@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -97,7 +97,7 @@ namespace lemon {
       /// infinite upper bound.
       UNBOUNDED
     };
-    
+
     /// \brief Constants for selecting the type of the supply constraints.
     ///
     /// Enum type containing constants for selecting the supply type,
@@ -115,7 +115,7 @@ namespace lemon {
       /// supply/demand constraints in the definition of the problem.
       LEQ
     };
-    
+
     /// \brief Constants for selecting the pivot rule.
     ///
     /// Enum type containing constants for selecting the pivot rule for
@@ -158,7 +158,7 @@ namespace lemon {
       /// candidate list and extends this list in every iteration.
       ALTERING_LIST
     };
-    
+
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
@@ -227,11 +227,11 @@ namespace lemon {
     int first, second, right, last;
     int stem, par_stem, new_stem;
     Value delta;
-    
+
     const Value MAX;
 
   public:
-  
+
     /// \brief Constant for infinite upper bounds (capacities).
     ///
     /// Constant for infinite upper bounds (capacities).
@@ -498,8 +498,8 @@ namespace lemon {
           }
         }
         if (_curr_length == 0) return false;
-      
-      search_end:        
+
+      search_end:
         _minor_count = 1;
         _next_arc = e;
         return true;
@@ -608,7 +608,7 @@ namespace lemon {
           }
         }
         if (_curr_length == 0) return false;
-        
+
       search_end:
 
         // Make heap of the candidate list (approximating a partial sort)
@@ -634,7 +634,7 @@ namespace lemon {
     ///
     /// \param graph The digraph the algorithm runs on.
     /// \param arc_mixing Indicate if the arcs have to be stored in a
-    /// mixed order in the internal data structure. 
+    /// mixed order in the internal data structure.
     /// In special cases, it could lead to better overall performance,
     /// but it is usually slower. Therefore it is disabled by default.
     NetworkSimplex(const GR& graph, bool arc_mixing = false) :
@@ -649,7 +649,7 @@ namespace lemon {
         "The flow type of NetworkSimplex must be signed");
       LEMON_ASSERT(std::numeric_limits<Cost>::is_signed,
         "The cost type of NetworkSimplex must be signed");
-        
+
       // Reset data structures
       reset();
     }
@@ -763,7 +763,7 @@ namespace lemon {
       _supply[_node_id[t]] = -k;
       return *this;
     }
-    
+
     /// \brief Set the type of the supply constraints.
     ///
     /// This function sets the type of the supply/demand constraints.
@@ -789,7 +789,7 @@ namespace lemon {
     ///
     /// This function runs the algorithm.
     /// The paramters can be specified using functions \ref lowerMap(),
-    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply(), 
+    /// \ref upperMap(), \ref costMap(), \ref supplyMap(), \ref stSupply(),
     /// \ref supplyType().
     /// For example,
     /// \code
@@ -944,12 +944,12 @@ namespace lemon {
           _target[i] = _node_id[_graph.target(a)];
         }
       }
-      
+
       // Reset parameters
       resetParams();
       return *this;
     }
-    
+
     /// @}
 
     /// \name Query Functions
@@ -1089,7 +1089,7 @@ namespace lemon {
         _flow[i] = 0;
         _state[i] = STATE_LOWER;
       }
-      
+
       // Set data for the artificial root node
       _root = _node_num;
       _parent[_root] = -1;
@@ -1263,7 +1263,7 @@ namespace lemon {
       // Search the cycle along the path form the second node to the root
       for (int u = second; u != join; u = _parent[u]) {
         e = _pred[u];
-        d = _forward[u] ? 
+        d = _forward[u] ?
           (_cap[e] >= MAX ? INF : _cap[e] - _flow[e]) : _flow[e];
         if (d <= delta) {
           delta = d;
@@ -1567,7 +1567,7 @@ namespace lemon {
           updatePotential();
         }
       }
-      
+
       // Check feasibility
       for (int e = _search_arc_num; e != _all_arc_num; ++e) {
         if (_flow[e] != 0) return INFEASIBLE;
@@ -1584,7 +1584,7 @@ namespace lemon {
           }
         }
       }
-      
+
       // Shift potentials to meet the requirements of the GEQ/LEQ type
       // optimality conditions
       if (_sum_supply == 0) {

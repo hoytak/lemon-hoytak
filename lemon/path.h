@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -966,20 +966,20 @@ namespace lemon {
       }
     };
 
-    
+
     template <typename From, typename To,
               bool revEnable = RevPathTagIndicator<From>::value>
     struct PathCopySelector {
       static void copy(const From& from, To& to) {
         PathCopySelectorForward<From, To>::copy(from, to);
-      }      
+      }
     };
 
     template <typename From, typename To>
     struct PathCopySelector<From, To, true> {
       static void copy(const From& from, To& to) {
         PathCopySelectorBackward<From, To>::copy(from, to);
-      }      
+      }
     };
 
   }

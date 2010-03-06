@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -191,7 +191,7 @@ namespace lemon {
     std::vector<Node> _process;
 
     Tolerance _tolerance;
-    
+
     // Infinite constant
     const LargeCost INF;
 
@@ -339,7 +339,7 @@ namespace lemon {
       // Initialization and find strongly connected components
       init();
       findComponents();
-      
+
       // Find the minimum cycle mean in the components
       for (int comp = 0; comp < _comp_num; ++comp) {
         if (!initComponent(comp)) continue;
@@ -489,7 +489,7 @@ namespace lemon {
       int n = _nodes->size();
       if (n < 1 || (n == 1 && _out_arcs[(*_nodes)[0]].size() == 0)) {
         return false;
-      }      
+      }
       for (int i = 0; i < n; ++i) {
         _data[(*_nodes)[i]].resize(n + 1, PathData(INF));
       }

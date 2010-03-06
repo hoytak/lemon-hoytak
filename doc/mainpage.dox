@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -25,7 +25,7 @@
 and <b>O</b>ptimization in <b>N</b>etworks</i>.
 It is a C++ template library providing efficient implementations of common
 data structures and algorithms with focus on combinatorial optimization
-tasks connected mainly with graphs and networks. 
+tasks connected mainly with graphs and networks.
 
 <b>
 LEMON is an <a class="el" href="http://opensource.org/">open&nbsp;source</a>
@@ -35,7 +35,7 @@ non-commercial applications under very permissive
 \ref license "license terms".
 </b>
 
-The project is maintained by the 
+The project is maintained by the
 <a href="http://www.cs.elte.hu/egres/">Egerv&aacute;ry Research Group on
 Combinatorial Optimization</a> \ref egres
 at the Operations Research Department of the

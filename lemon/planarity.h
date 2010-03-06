@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -140,17 +140,17 @@ namespace lemon {
     template <typename Graph>
     class PlanarityChecking {
     private:
-      
+
       TEMPLATE_GRAPH_TYPEDEFS(Graph);
 
       const Graph& _graph;
 
     private:
-      
+
       typedef typename Graph::template NodeMap<Arc> PredMap;
-      
+
       typedef typename Graph::template EdgeMap<bool> TreeMap;
-      
+
       typedef typename Graph::template NodeMap<int> OrderMap;
       typedef std::vector<Node> OrderList;
 
@@ -221,7 +221,7 @@ namespace lemon {
           }
 
           for (typename MergeRoots::Value::iterator it =
-                 merge_roots[node].begin(); 
+                 merge_roots[node].begin();
                it != merge_roots[node].end(); ++it) {
             int rn = *it;
             walkDown(rn, i, node_data, order_list, child_lists,
@@ -432,7 +432,7 @@ namespace lemon {
               Node ynode = order_list[yn];
 
               bool rd;
-              if (!external(xnode, rorder, child_lists, 
+              if (!external(xnode, rorder, child_lists,
                             ancestor_map, low_map)) {
                 rd = true;
               } else if (!external(ynode, rorder, child_lists,

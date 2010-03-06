@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -61,7 +61,7 @@ namespace lemon {
   ///Discover the type of a DIMACS file
 
   ///This function starts seeking the beginning of the given file for the
-  ///problem type and size info. 
+  ///problem type and size info.
   ///The found data is returned in a special struct that can be evaluated
   ///and passed to the appropriate reader function.
   DimacsDescriptor dimacsType(std::istream& is)
@@ -212,7 +212,7 @@ namespace lemon {
       infty = std::numeric_limits<Capacity>::has_infinity ?
         std::numeric_limits<Capacity>::infinity() :
         std::numeric_limits<Capacity>::max();
- 
+
     while (is >> c) {
       switch (c) {
       case 'c': // comment line
@@ -237,7 +237,7 @@ namespace lemon {
           getline(is, str);
           e = g.addArc(nodes[i], nodes[j]);
           capacity.set(e, _cap);
-        } 
+        }
         else if (desc.type==DimacsDescriptor::MAX) {
           is >> i >> j >> _cap;
           getline(is, str);
@@ -362,11 +362,11 @@ namespace lemon {
   {
     g.addArc(s,t);
   }
-  
+
   /// \brief DIMACS plain (di)graph reader function.
   ///
   /// This function reads a plain (di)graph without any designated nodes
-  /// and maps (e.g. a matching instance) from DIMACS format, i.e. from 
+  /// and maps (e.g. a matching instance) from DIMACS format, i.e. from
   /// DIMACS files having a line starting with
   /// \code
   ///   p mat
@@ -392,7 +392,7 @@ namespace lemon {
     for (int k = 1; k <= desc.nodeNum; ++k) {
       nodes[k] = g.addNode();
     }
-    
+
     while (is >> c) {
       switch (c) {
       case 'c': // comment line

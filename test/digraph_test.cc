@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -392,9 +392,9 @@ void checkStaticDigraph() {
   SmartDigraph g;
   SmartDigraph::NodeMap<StaticDigraph::Node> nref(g);
   SmartDigraph::ArcMap<StaticDigraph::Arc> aref(g);
-  
+
   StaticDigraph G;
-  
+
   checkGraphNodeList(G, 0);
   checkGraphArcList(G, 0);
 
@@ -464,7 +464,7 @@ void checkStaticDigraph() {
   arcs.push_back(std::make_pair(4,1));
 
   G.build(6, arcs.begin(), arcs.end());
-  
+
   checkGraphNodeList(G, 6);
   checkGraphArcList(G, 9);
 
@@ -488,7 +488,7 @@ void checkStaticDigraph() {
   checkArcIds(G);
   checkGraphNodeMap(G);
   checkGraphArcMap(G);
-  
+
   int n = G.nodeNum();
   int m = G.arcNum();
   check(G.index(G.node(n-1)) == n-1, "Wrong index.");

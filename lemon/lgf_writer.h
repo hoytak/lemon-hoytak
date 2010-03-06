@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -351,7 +351,7 @@ namespace lemon {
   class DigraphWriter;
 
   template <typename TDGR>
-  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
                                    std::ostream& os = std::cout);
   template <typename TDGR>
   DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, const std::string& fn);
@@ -504,7 +504,7 @@ namespace lemon {
   private:
 
     template <typename TDGR>
-    friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+    friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
                                              std::ostream& os);
     template <typename TDGR>
     friend DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
@@ -917,7 +917,7 @@ namespace lemon {
   ///
   /// \brief Return a \ref DigraphWriter class
   ///
-  /// This function just returns a \ref DigraphWriter class. 
+  /// This function just returns a \ref DigraphWriter class.
   ///
   /// With this function a digraph can be write to a file or output
   /// stream in \ref lgf-format "LGF" format with several maps and
@@ -957,7 +957,7 @@ namespace lemon {
   /// \relates DigraphWriter
   /// \sa digraphWriter(const TDGR& digraph, std::ostream& os)
   template <typename TDGR>
-  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph, 
+  DigraphWriter<TDGR> digraphWriter(const TDGR& digraph,
                                     const std::string& fn) {
     DigraphWriter<TDGR> tmp(digraph, fn);
     return tmp;
@@ -1101,11 +1101,11 @@ namespace lemon {
     template <typename TGR>
     friend GraphWriter<TGR> graphWriter(const TGR& graph, std::ostream& os);
     template <typename TGR>
-    friend GraphWriter<TGR> graphWriter(const TGR& graph, 
+    friend GraphWriter<TGR> graphWriter(const TGR& graph,
                                         const std::string& fn);
     template <typename TGR>
     friend GraphWriter<TGR> graphWriter(const TGR& graph, const char *fn);
-    
+
     GraphWriter(GraphWriter& other)
       : _os(other._os), local_os(other.local_os), _graph(other._graph),
         _skip_nodes(other._skip_nodes), _skip_edges(other._skip_edges) {
@@ -1556,7 +1556,7 @@ namespace lemon {
   ///
   /// \brief Return a \ref GraphWriter class
   ///
-  /// This function just returns a \ref GraphWriter class. 
+  /// This function just returns a \ref GraphWriter class.
   ///
   /// With this function a graph can be write to a file or output
   /// stream in \ref lgf-format "LGF" format with several maps and

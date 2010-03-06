@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -110,7 +110,7 @@ void checkMinCostArborescenceCompile()
   n = mcarb_test.processNextNode();
   b = const_mcarb_test.emptyQueue();
   i = const_mcarb_test.queueSize();
-  
+
   c = const_mcarb_test.arborescenceCost();
   b = const_mcarb_test.arborescence(e);
   e = const_mcarb_test.pred(n);
@@ -120,12 +120,12 @@ void checkMinCostArborescenceCompile()
     const_mcarb_test.predMap();
   b = const_mcarb_test.reached(n);
   b = const_mcarb_test.processed(n);
-  
+
   i = const_mcarb_test.dualNum();
   c = const_mcarb_test.dualValue();
   i = const_mcarb_test.dualSize(i);
   c = const_mcarb_test.dualValue(i);
-  
+
   ignore_unused_variable_warning(am);
   ignore_unused_variable_warning(pm);
 }

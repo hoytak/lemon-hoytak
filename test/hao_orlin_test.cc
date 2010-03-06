@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -83,7 +83,7 @@ void checkHaoOrlinCompile()
 }
 
 template <typename Graph, typename CapMap, typename CutMap>
-typename CapMap::Value 
+typename CapMap::Value
   cutValue(const Graph& graph, const CapMap& cap, const CutMap& cut)
 {
   typename CapMap::Value sum = 0;
@@ -110,7 +110,7 @@ int main() {
     HaoOrlin<SmartDigraph> ho(graph, cap1);
     ho.run();
     ho.minCutMap(cut);
-    
+
     check(ho.minCutValue() == 1, "Wrong cut value");
     check(ho.minCutValue() == cutValue(graph, cap1, cut), "Wrong cut value");
   }
@@ -126,19 +126,19 @@ int main() {
     HaoOrlin<SmartDigraph> ho(graph, cap3);
     ho.run();
     ho.minCutMap(cut);
-    
+
     check(ho.minCutValue() == 1, "Wrong cut value");
     check(ho.minCutValue() == cutValue(graph, cap3, cut), "Wrong cut value");
   }
-  
+
   typedef Undirector<SmartDigraph> UGraph;
   UGraph ugraph(graph);
-  
+
   {
     HaoOrlin<UGraph, SmartDigraph::ArcMap<int> > ho(ugraph, cap1);
     ho.run();
     ho.minCutMap(cut);
-    
+
     check(ho.minCutValue() == 2, "Wrong cut value");
     check(ho.minCutValue() == cutValue(ugraph, cap1, cut), "Wrong cut value");
   }
@@ -146,7 +146,7 @@ int main() {
     HaoOrlin<UGraph, SmartDigraph::ArcMap<int> > ho(ugraph, cap2);
     ho.run();
     ho.minCutMap(cut);
-    
+
     check(ho.minCutValue() == 5, "Wrong cut value");
     check(ho.minCutValue() == cutValue(ugraph, cap2, cut), "Wrong cut value");
   }
@@ -154,7 +154,7 @@ int main() {
     HaoOrlin<UGraph, SmartDigraph::ArcMap<int> > ho(ugraph, cap3);
     ho.run();
     ho.minCutMap(cut);
-    
+
     check(ho.minCutValue() == 5, "Wrong cut value");
     check(ho.minCutValue() == cutValue(ugraph, cap3, cut), "Wrong cut value");
   }

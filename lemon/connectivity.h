@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -258,7 +258,7 @@ namespace lemon {
   ///
   /// \return \c true if the digraph is strongly connected.
   /// \note By definition, the empty digraph is strongly connected.
-  /// 
+  ///
   /// \see countStronglyConnectedComponents(), stronglyConnectedComponents()
   /// \see connected()
   template <typename Digraph>
@@ -310,7 +310,7 @@ namespace lemon {
 
   /// \ingroup graph_properties
   ///
-  /// \brief Count the number of strongly connected components of a 
+  /// \brief Count the number of strongly connected components of a
   /// directed graph
   ///
   /// This function counts the number of strongly connected components of
@@ -744,7 +744,7 @@ namespace lemon {
   ///
   /// \brief Check whether an undirected graph is bi-node-connected.
   ///
-  /// This function checks whether the given undirected graph is 
+  /// This function checks whether the given undirected graph is
   /// bi-node-connected, i.e. any two edges are on same circle.
   ///
   /// \return \c true if the graph bi-node-connected.
@@ -758,7 +758,7 @@ namespace lemon {
 
   /// \ingroup graph_properties
   ///
-  /// \brief Count the number of bi-node-connected components of an 
+  /// \brief Count the number of bi-node-connected components of an
   /// undirected graph.
   ///
   /// This function counts the number of bi-node-connected components of
@@ -812,7 +812,7 @@ namespace lemon {
   /// \param graph The undirected graph.
   /// \retval compMap A writable edge map. The values will be set from 0
   /// to the number of the bi-node-connected components minus one. Each
-  /// value of the map will be set exactly once, and the values of a 
+  /// value of the map will be set exactly once, and the values of a
   /// certain component will be set continuously.
   /// \return The number of bi-node-connected components.
   ///
@@ -858,7 +858,7 @@ namespace lemon {
   /// the components.
   ///
   /// \param graph The undirected graph.
-  /// \retval cutMap A writable node map. The values will be set to 
+  /// \retval cutMap A writable node map. The values will be set to
   /// \c true for the nodes that separate two or more components
   /// (exactly once for each cut node), and will not be changed for
   /// other nodes.
@@ -1085,7 +1085,7 @@ namespace lemon {
   ///
   /// \brief Check whether an undirected graph is bi-edge-connected.
   ///
-  /// This function checks whether the given undirected graph is 
+  /// This function checks whether the given undirected graph is
   /// bi-edge-connected, i.e. any two nodes are connected with at least
   /// two edge-disjoint paths.
   ///
@@ -1192,7 +1192,7 @@ namespace lemon {
   /// \brief Find the bi-edge-connected cut edges in an undirected graph.
   ///
   /// This function finds the bi-edge-connected cut edges in the given
-  /// undirected graph. 
+  /// undirected graph.
   ///
   /// The bi-edge-connected components are the classes of an equivalence
   /// relation on the nodes of an undirected graph. Two nodes are in the
@@ -1349,7 +1349,7 @@ namespace lemon {
   ///
   /// \param digraph The digraph.
   /// \retval order A readable and writable node map. The values will be
-  /// set from 0 to the number of the nodes in the digraph minus one. 
+  /// set from 0 to the number of the nodes in the digraph minus one.
   /// Each value of the map will be set exactly once, and the values will
   /// be set descending order.
   /// \return \c false if the digraph is not DAG.

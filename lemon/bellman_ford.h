@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -36,7 +36,7 @@
 namespace lemon {
 
   /// \brief Default operation traits for the BellmanFord algorithm class.
-  ///  
+  ///
   /// This operation traits class defines all computational operations
   /// and constants that are used in the Bellman-Ford algorithm.
   /// The default implementation is based on the \c numeric_limits class.
@@ -45,7 +45,7 @@ namespace lemon {
   ///
   /// \see BellmanFordToleranceOperationTraits
   template <
-    typename V, 
+    typename V,
     bool has_inf = std::numeric_limits<V>::has_infinity>
   struct BellmanFordDefaultOperationTraits {
     /// \brief Value type for the algorithm.
@@ -86,7 +86,7 @@ namespace lemon {
       return left < right;
     }
   };
-  
+
   /// \brief Operation traits for the BellmanFord algorithm class
   /// using tolerance.
   ///
@@ -139,7 +139,7 @@ namespace lemon {
   /// \param LEN The type of the length map.
   template<typename GR, typename LEN>
   struct BellmanFordDefaultTraits {
-    /// The type of the digraph the algorithm runs on. 
+    /// The type of the digraph the algorithm runs on.
     typedef GR Digraph;
 
     /// \brief The type of the map that stores the arc lengths.
@@ -158,18 +158,18 @@ namespace lemon {
     /// \see BellmanFordDefaultOperationTraits,
     /// BellmanFordToleranceOperationTraits
     typedef BellmanFordDefaultOperationTraits<Value> OperationTraits;
- 
-    /// \brief The type of the map that stores the last arcs of the 
+
+    /// \brief The type of the map that stores the last arcs of the
     /// shortest paths.
-    /// 
+    ///
     /// The type of the map that stores the last
     /// arcs of the shortest paths.
     /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename GR::template NodeMap<typename GR::Arc> PredMap;
 
     /// \brief Instantiates a \c PredMap.
-    /// 
-    /// This function instantiates a \ref PredMap. 
+    ///
+    /// This function instantiates a \ref PredMap.
     /// \param g is the digraph to which we would like to define the
     /// \ref PredMap.
     static PredMap *createPredMap(const GR& g) {
@@ -184,19 +184,19 @@ namespace lemon {
 
     /// \brief Instantiates a \c DistMap.
     ///
-    /// This function instantiates a \ref DistMap. 
-    /// \param g is the digraph to which we would like to define the 
+    /// This function instantiates a \ref DistMap.
+    /// \param g is the digraph to which we would like to define the
     /// \ref DistMap.
     static DistMap *createDistMap(const GR& g) {
       return new DistMap(g);
     }
 
   };
-  
+
   /// \brief %BellmanFord algorithm class.
   ///
   /// \ingroup shortest_path
-  /// This class provides an efficient implementation of the Bellman-Ford 
+  /// This class provides an efficient implementation of the Bellman-Ford
   /// algorithm. The maximum time complexity of the algorithm is
   /// <tt>O(ne)</tt>.
   ///
@@ -207,7 +207,7 @@ namespace lemon {
   /// algorithm instead, since it is more efficient.
   ///
   /// The arc lengths are passed to the algorithm using a
-  /// \ref concepts::ReadMap "ReadMap", so it is easy to change it to any 
+  /// \ref concepts::ReadMap "ReadMap", so it is easy to change it to any
   /// kind of length. The type of the length values is determined by the
   /// \ref concepts::ReadMap::Value "Value" type of the length map.
   ///
@@ -237,7 +237,7 @@ namespace lemon {
 
     ///The type of the underlying digraph.
     typedef typename TR::Digraph Digraph;
-    
+
     /// \brief The type of the arc lengths.
     typedef typename TR::LengthMap::Value Value;
     /// \brief The type of the map that stores the arc lengths.
@@ -284,20 +284,20 @@ namespace lemon {
     // Creates the maps if necessary.
     void create_maps() {
       if(!_pred) {
-	_local_pred = true;
-	_pred = Traits::createPredMap(*_gr);
+        _local_pred = true;
+        _pred = Traits::createPredMap(*_gr);
       }
       if(!_dist) {
-	_local_dist = true;
-	_dist = Traits::createDistMap(*_gr);
+        _local_dist = true;
+        _dist = Traits::createDistMap(*_gr);
       }
       if(!_mask) {
         _mask = new MaskMap(*_gr);
       }
     }
-    
+
   public :
- 
+
     typedef BellmanFord Create;
 
     /// \name Named Template Parameters
@@ -320,11 +320,11 @@ namespace lemon {
     /// \c PredMap type.
     /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
-    struct SetPredMap 
+    struct SetPredMap
       : public BellmanFord< Digraph, LengthMap, SetPredMapTraits<T> > {
       typedef BellmanFord< Digraph, LengthMap, SetPredMapTraits<T> > Create;
     };
-    
+
     template <class T>
     struct SetDistMapTraits : public Traits {
       typedef T DistMap;
@@ -341,7 +341,7 @@ namespace lemon {
     /// \c DistMap type.
     /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     template <class T>
-    struct SetDistMap 
+    struct SetDistMap
       : public BellmanFord< Digraph, LengthMap, SetDistMapTraits<T> > {
       typedef BellmanFord< Digraph, LengthMap, SetDistMapTraits<T> > Create;
     };
@@ -350,8 +350,8 @@ namespace lemon {
     struct SetOperationTraitsTraits : public Traits {
       typedef T OperationTraits;
     };
-    
-    /// \brief \ref named-templ-param "Named parameter" for setting 
+
+    /// \brief \ref named-templ-param "Named parameter" for setting
     /// \c OperationTraits type.
     ///
     /// \ref named-templ-param "Named parameter" for setting
@@ -363,15 +363,15 @@ namespace lemon {
       typedef BellmanFord< Digraph, LengthMap, SetOperationTraitsTraits<T> >
       Create;
     };
-    
+
     ///@}
 
   protected:
-    
+
     BellmanFord() {}
 
-  public:      
-    
+  public:
+
     /// \brief Constructor.
     ///
     /// Constructor.
@@ -381,7 +381,7 @@ namespace lemon {
       _gr(&g), _length(&length),
       _pred(0), _local_pred(false),
       _dist(0), _local_dist(false), _mask(0) {}
-    
+
     ///Destructor.
     ~BellmanFord() {
       if(_local_pred) delete _pred;
@@ -408,8 +408,8 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     BellmanFord &predMap(PredMap &map) {
       if(_local_pred) {
-	delete _pred;
-	_local_pred=false;
+        delete _pred;
+        _local_pred=false;
       }
       _pred = &map;
       return *this;
@@ -426,8 +426,8 @@ namespace lemon {
     /// \return <tt>(*this)</tt>
     BellmanFord &distMap(DistMap &map) {
       if(_local_dist) {
-	delete _dist;
-	_local_dist=false;
+        delete _dist;
+        _local_dist=false;
       }
       _dist = &map;
       return *this;
@@ -445,28 +445,28 @@ namespace lemon {
     ///@{
 
     /// \brief Initializes the internal data structures.
-    /// 
+    ///
     /// Initializes the internal data structures. The optional parameter
     /// is the initial distance of each node.
     void init(const Value value = OperationTraits::infinity()) {
       create_maps();
       for (NodeIt it(*_gr); it != INVALID; ++it) {
-	_pred->set(it, INVALID);
-	_dist->set(it, value);
+        _pred->set(it, INVALID);
+        _dist->set(it, value);
       }
       _process.clear();
       if (OperationTraits::less(value, OperationTraits::infinity())) {
-	for (NodeIt it(*_gr); it != INVALID; ++it) {
-	  _process.push_back(it);
-	  _mask->set(it, true);
-	}
+        for (NodeIt it(*_gr); it != INVALID; ++it) {
+          _process.push_back(it);
+          _mask->set(it, true);
+        }
       } else {
-	for (NodeIt it(*_gr); it != INVALID; ++it) {
-	  _mask->set(it, false);
-	}
+        for (NodeIt it(*_gr); it != INVALID; ++it) {
+          _mask->set(it, false);
+        }
       }
     }
-    
+
     /// \brief Adds a new source node.
     ///
     /// This function adds a new source node. The optional second parameter
@@ -474,8 +474,8 @@ namespace lemon {
     void addSource(Node source, Value dst = OperationTraits::zero()) {
       _dist->set(source, dst);
       if (!(*_mask)[source]) {
-	_process.push_back(source);
-	_mask->set(source, true);
+        _process.push_back(source);
+        _mask->set(source, true);
       }
     }
 
@@ -500,26 +500,26 @@ namespace lemon {
     /// \see ActiveIt
     bool processNextRound() {
       for (int i = 0; i < int(_process.size()); ++i) {
-	_mask->set(_process[i], false);
+        _mask->set(_process[i], false);
       }
       std::vector<Node> nextProcess;
       std::vector<Value> values(_process.size());
       for (int i = 0; i < int(_process.size()); ++i) {
-	values[i] = (*_dist)[_process[i]];
+        values[i] = (*_dist)[_process[i]];
       }
       for (int i = 0; i < int(_process.size()); ++i) {
-	for (OutArcIt it(*_gr, _process[i]); it != INVALID; ++it) {
-	  Node target = _gr->target(it);
-	  Value relaxed = OperationTraits::plus(values[i], (*_length)[it]);
-	  if (OperationTraits::less(relaxed, (*_dist)[target])) {
-	    _pred->set(target, it);
-	    _dist->set(target, relaxed);
-	    if (!(*_mask)[target]) {
-	      _mask->set(target, true);
-	      nextProcess.push_back(target);
-	    }
-	  }	  
-	}
+        for (OutArcIt it(*_gr, _process[i]); it != INVALID; ++it) {
+          Node target = _gr->target(it);
+          Value relaxed = OperationTraits::plus(values[i], (*_length)[it]);
+          if (OperationTraits::less(relaxed, (*_dist)[target])) {
+            _pred->set(target, it);
+            _dist->set(target, relaxed);
+            if (!(*_mask)[target]) {
+              _mask->set(target, true);
+              nextProcess.push_back(target);
+            }
+          }
+        }
       }
       _process.swap(nextProcess);
       return _process.empty();
@@ -541,23 +541,23 @@ namespace lemon {
     /// \see ActiveIt
     bool processNextWeakRound() {
       for (int i = 0; i < int(_process.size()); ++i) {
-	_mask->set(_process[i], false);
+        _mask->set(_process[i], false);
       }
       std::vector<Node> nextProcess;
       for (int i = 0; i < int(_process.size()); ++i) {
-	for (OutArcIt it(*_gr, _process[i]); it != INVALID; ++it) {
-	  Node target = _gr->target(it);
-	  Value relaxed = 
-	    OperationTraits::plus((*_dist)[_process[i]], (*_length)[it]);
-	  if (OperationTraits::less(relaxed, (*_dist)[target])) {
-	    _pred->set(target, it);
-	    _dist->set(target, relaxed);
-	    if (!(*_mask)[target]) {
-	      _mask->set(target, true);
-	      nextProcess.push_back(target);
-	    }
-	  }	  
-	}
+        for (OutArcIt it(*_gr, _process[i]); it != INVALID; ++it) {
+          Node target = _gr->target(it);
+          Value relaxed =
+            OperationTraits::plus((*_dist)[_process[i]], (*_length)[it]);
+          if (OperationTraits::less(relaxed, (*_dist)[target])) {
+            _pred->set(target, it);
+            _dist->set(target, relaxed);
+            if (!(*_mask)[target]) {
+              _mask->set(target, true);
+              nextProcess.push_back(target);
+            }
+          }
+        }
       }
       _process.swap(nextProcess);
       return _process.empty();
@@ -579,7 +579,7 @@ namespace lemon {
     void start() {
       int num = countNodes(*_gr) - 1;
       for (int i = 0; i < num; ++i) {
-	if (processNextWeakRound()) break;
+        if (processNextWeakRound()) break;
       }
     }
 
@@ -591,18 +591,18 @@ namespace lemon {
     /// in order to compute the shortest path to each node and also checks
     /// if the digraph contains cycles with negative total length.
     ///
-    /// The algorithm computes 
+    /// The algorithm computes
     /// - the shortest path tree (forest),
     /// - the distance of each node from the root(s).
-    /// 
+    ///
     /// \return \c false if there is a negative cycle in the digraph.
     ///
     /// \pre init() must be called and at least one root node should be
-    /// added with addSource() before using this function. 
+    /// added with addSource() before using this function.
     bool checkedStart() {
       int num = countNodes(*_gr);
       for (int i = 0; i < num; ++i) {
-	if (processNextWeakRound()) return true;
+        if (processNextWeakRound()) return true;
       }
       return _process.empty();
     }
@@ -626,15 +626,15 @@ namespace lemon {
     /// and build the path manually.
     ///
     /// \pre init() must be called and at least one root node should be
-    /// added with addSource() before using this function. 
+    /// added with addSource() before using this function.
     void limitedStart(int num) {
       for (int i = 0; i < num; ++i) {
-	if (processNextRound()) break;
+        if (processNextRound()) break;
       }
     }
-    
+
     /// \brief Runs the algorithm from the given root node.
-    ///    
+    ///
     /// This method runs the Bellman-Ford algorithm from the given root
     /// node \c s in order to compute the shortest path to each node.
     ///
@@ -653,10 +653,10 @@ namespace lemon {
       addSource(s);
       start();
     }
-    
+
     /// \brief Runs the algorithm from the given root node with arc
     /// number limit.
-    ///    
+    ///
     /// This method runs the Bellman-Ford algorithm from the given root
     /// node \c s in order to compute the shortest path distance for each
     /// node using only the paths consisting of at most \c num arcs.
@@ -682,7 +682,7 @@ namespace lemon {
       addSource(s);
       limitedStart(num);
     }
-    
+
     ///@}
 
     /// \brief LEMON iterator for getting the active nodes.
@@ -697,7 +697,7 @@ namespace lemon {
       /// \brief Constructor.
       ///
       /// Constructor for getting the active nodes of the given BellmanFord
-      /// instance. 
+      /// instance.
       ActiveIt(const BellmanFord& algorithm) : _algorithm(&algorithm)
       {
         _index = _algorithm->_process.size() - 1;
@@ -711,7 +711,7 @@ namespace lemon {
       /// \brief Conversion to \c Node.
       ///
       /// Conversion to \c Node.
-      operator Node() const { 
+      operator Node() const {
         return _index >= 0 ? _algorithm->_process[_index] : INVALID;
       }
 
@@ -720,33 +720,33 @@ namespace lemon {
       /// Increment operator.
       ActiveIt& operator++() {
         --_index;
-        return *this; 
+        return *this;
       }
 
-      bool operator==(const ActiveIt& it) const { 
-        return static_cast<Node>(*this) == static_cast<Node>(it); 
+      bool operator==(const ActiveIt& it) const {
+        return static_cast<Node>(*this) == static_cast<Node>(it);
       }
-      bool operator!=(const ActiveIt& it) const { 
-        return static_cast<Node>(*this) != static_cast<Node>(it); 
+      bool operator!=(const ActiveIt& it) const {
+        return static_cast<Node>(*this) != static_cast<Node>(it);
       }
-      bool operator<(const ActiveIt& it) const { 
-        return static_cast<Node>(*this) < static_cast<Node>(it); 
+      bool operator<(const ActiveIt& it) const {
+        return static_cast<Node>(*this) < static_cast<Node>(it);
       }
-      
+
     private:
       const BellmanFord* _algorithm;
       int _index;
     };
-    
+
     /// \name Query Functions
     /// The result of the Bellman-Ford algorithm can be obtained using these
     /// functions.\n
     /// Either \ref run() or \ref init() should be called before using them.
-    
+
     ///@{
 
     /// \brief The shortest path to the given node.
-    ///    
+    ///
     /// Gives back the shortest path to the given node from the root(s).
     ///
     /// \warning \c t should be reached from the root(s).
@@ -757,7 +757,7 @@ namespace lemon {
     {
       return Path(*_gr, *_pred, t);
     }
-	  
+
     /// \brief The distance of the given node from the root(s).
     ///
     /// Returns the distance of the given node from the root(s).
@@ -797,10 +797,10 @@ namespace lemon {
     ///
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
-    Node predNode(Node v) const { 
-      return (*_pred)[v] == INVALID ? INVALID : _gr->source((*_pred)[v]); 
+    Node predNode(Node v) const {
+      return (*_pred)[v] == INVALID ? INVALID : _gr->source((*_pred)[v]);
     }
-    
+
     /// \brief Returns a const reference to the node map that stores the
     /// distances of the nodes.
     ///
@@ -810,7 +810,7 @@ namespace lemon {
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
     const DistMap &distMap() const { return *_dist;}
- 
+
     /// \brief Returns a const reference to the node map that stores the
     /// predecessor arcs.
     ///
@@ -820,7 +820,7 @@ namespace lemon {
     /// \pre Either \ref run() or \ref init() must be called before
     /// using this function.
     const PredMap &predMap() const { return *_pred; }
- 
+
     /// \brief Checks if a node is reached from the root(s).
     ///
     /// Returns \c true if \c v is reached from the root(s).
@@ -832,7 +832,7 @@ namespace lemon {
     }
 
     /// \brief Gives back a negative cycle.
-    ///    
+    ///
     /// This function gives back a directed cycle with negative total
     /// length if the algorithm has already found one.
     /// Otherwise it gives back an empty path.
@@ -859,10 +859,10 @@ namespace lemon {
       }
       return cycle;
     }
-    
+
     ///@}
   };
- 
+
   /// \brief Default traits class of bellmanFord() function.
   ///
   /// Default traits class of bellmanFord() function.
@@ -870,7 +870,7 @@ namespace lemon {
   /// \tparam LEN The type of the length map.
   template <typename GR, typename LEN>
   struct BellmanFordWizardDefaultTraits {
-    /// The type of the digraph the algorithm runs on. 
+    /// The type of the digraph the algorithm runs on.
     typedef GR Digraph;
 
     /// \brief The type of the map that stores the arc lengths.
@@ -892,13 +892,13 @@ namespace lemon {
 
     /// \brief The type of the map that stores the last
     /// arcs of the shortest paths.
-    /// 
+    ///
     /// The type of the map that stores the last arcs of the shortest paths.
     /// It must conform to the \ref concepts::WriteMap "WriteMap" concept.
     typedef typename GR::template NodeMap<typename GR::Arc> PredMap;
 
     /// \brief Instantiates a \c PredMap.
-    /// 
+    ///
     /// This function instantiates a \ref PredMap.
     /// \param g is the digraph to which we would like to define the
     /// \ref PredMap.
@@ -914,7 +914,7 @@ namespace lemon {
 
     /// \brief Instantiates a \c DistMap.
     ///
-    /// This function instantiates a \ref DistMap. 
+    /// This function instantiates a \ref DistMap.
     /// \param g is the digraph to which we would like to define the
     /// \ref DistMap.
     static DistMap *createDistMap(const GR &g) {
@@ -927,14 +927,14 @@ namespace lemon {
     ///It must meet the \ref concepts::Path "Path" concept.
     typedef lemon::Path<Digraph> Path;
   };
-  
+
   /// \brief Default traits class used by BellmanFordWizard.
   ///
   /// Default traits class used by BellmanFordWizard.
   /// \tparam GR The type of the digraph.
   /// \tparam LEN The type of the length map.
   template <typename GR, typename LEN>
-  class BellmanFordWizardBase 
+  class BellmanFordWizardBase
     : public BellmanFordWizardDefaultTraits<GR, LEN> {
 
     typedef BellmanFordWizardDefaultTraits<GR, LEN> Base;
@@ -957,26 +957,26 @@ namespace lemon {
 
     public:
     /// Constructor.
-    
+
     /// This constructor does not require parameters, it initiates
     /// all of the attributes to default values \c 0.
     BellmanFordWizardBase() :
       _graph(0), _length(0), _pred(0), _dist(0), _path(0), _di(0) {}
 
     /// Constructor.
-    
+
     /// This constructor requires two parameters,
     /// others are initiated to \c 0.
     /// \param gr The digraph the algorithm runs on.
     /// \param len The length map.
-    BellmanFordWizardBase(const GR& gr, 
-			  const LEN& len) :
-      _graph(reinterpret_cast<void*>(const_cast<GR*>(&gr))), 
-      _length(reinterpret_cast<void*>(const_cast<LEN*>(&len))), 
+    BellmanFordWizardBase(const GR& gr,
+                          const LEN& len) :
+      _graph(reinterpret_cast<void*>(const_cast<GR*>(&gr))),
+      _length(reinterpret_cast<void*>(const_cast<LEN*>(&len))),
       _pred(0), _dist(0), _path(0), _di(0) {}
 
   };
-  
+
   /// \brief Auxiliary class for the function-type interface of the
   /// \ref BellmanFord "Bellman-Ford" algorithm.
   ///
@@ -1001,7 +1001,7 @@ namespace lemon {
     typedef typename Digraph::NodeIt NodeIt;
     typedef typename Digraph::Arc Arc;
     typedef typename Digraph::OutArcIt ArcIt;
-    
+
     typedef typename TR::LengthMap LengthMap;
     typedef typename LengthMap::Value Value;
     typedef typename TR::PredMap PredMap;
@@ -1018,7 +1018,7 @@ namespace lemon {
     /// These parameters will be the default values for the traits class.
     /// \param gr The digraph the algorithm runs on.
     /// \param len The length map.
-    BellmanFordWizard(const Digraph& gr, const LengthMap& len) 
+    BellmanFordWizard(const Digraph& gr, const LengthMap& len)
       : TR(gr, len) {}
 
     /// \brief Copy constructor
@@ -1027,12 +1027,12 @@ namespace lemon {
     ~BellmanFordWizard() {}
 
     /// \brief Runs the Bellman-Ford algorithm from the given source node.
-    ///    
+    ///
     /// This method runs the Bellman-Ford algorithm from the given source
     /// node in order to compute the shortest path to each node.
     void run(Node s) {
-      BellmanFord<Digraph,LengthMap,TR> 
-	bf(*reinterpret_cast<const Digraph*>(Base::_graph), 
+      BellmanFord<Digraph,LengthMap,TR>
+        bf(*reinterpret_cast<const Digraph*>(Base::_graph),
            *reinterpret_cast<const LengthMap*>(Base::_length));
       if (Base::_pred) bf.predMap(*reinterpret_cast<PredMap*>(Base::_pred));
       if (Base::_dist) bf.distMap(*reinterpret_cast<DistMap*>(Base::_dist));
@@ -1067,7 +1067,7 @@ namespace lemon {
       static PredMap *createPredMap(const Digraph &) { return 0; };
       SetPredMapBase(const TR &b) : TR(b) {}
     };
-    
+
     /// \brief \ref named-templ-param "Named parameter" for setting
     /// the predecessor map.
     ///
@@ -1078,14 +1078,14 @@ namespace lemon {
       Base::_pred=reinterpret_cast<void*>(const_cast<T*>(&t));
       return BellmanFordWizard<SetPredMapBase<T> >(*this);
     }
-    
+
     template<class T>
     struct SetDistMapBase : public Base {
       typedef T DistMap;
       static DistMap *createDistMap(const Digraph &) { return 0; };
       SetDistMapBase(const TR &b) : TR(b) {}
     };
-    
+
     /// \brief \ref named-templ-param "Named parameter" for setting
     /// the distance map.
     ///
@@ -1126,9 +1126,9 @@ namespace lemon {
       Base::_di=reinterpret_cast<void*>(const_cast<Value*>(&d));
       return *this;
     }
-    
+
   };
-  
+
   /// \brief Function type interface for the \ref BellmanFord "Bellman-Ford"
   /// algorithm.
   ///
@@ -1136,8 +1136,8 @@ namespace lemon {
   /// Function type interface for the \ref BellmanFord "Bellman-Ford"
   /// algorithm.
   ///
-  /// This function also has several \ref named-templ-func-param 
-  /// "named parameters", they are declared as the members of class 
+  /// This function also has several \ref named-templ-func-param
+  /// "named parameters", they are declared as the members of class
   /// \ref BellmanFordWizard.
   /// The following examples show how to use these parameters.
   /// \code
@@ -1154,7 +1154,7 @@ namespace lemon {
   template<typename GR, typename LEN>
   BellmanFordWizard<BellmanFordWizardBase<GR,LEN> >
   bellmanFord(const GR& digraph,
-	      const LEN& length)
+              const LEN& length)
   {
     return BellmanFordWizard<BellmanFordWizardBase<GR,LEN> >(digraph, length);
   }

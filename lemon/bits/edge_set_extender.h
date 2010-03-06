@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -63,11 +63,11 @@ namespace lemon {
 
     Node oppositeNode(const Node &n, const Arc &e) const {
       if (n == Parent::source(e))
-	return Parent::target(e);
+        return Parent::target(e);
       else if(n==Parent::target(e))
-	return Parent::source(e);
+        return Parent::source(e);
       else
-	return INVALID;
+        return INVALID;
     }
 
 
@@ -91,7 +91,7 @@ namespace lemon {
 
     // Iterable extensions
 
-    class NodeIt : public Node { 
+    class NodeIt : public Node {
       const Digraph* digraph;
     public:
 
@@ -100,21 +100,21 @@ namespace lemon {
       NodeIt(Invalid i) : Node(i) { }
 
       explicit NodeIt(const Digraph& _graph) : digraph(&_graph) {
-	_graph.first(static_cast<Node&>(*this));
+        _graph.first(static_cast<Node&>(*this));
       }
 
-      NodeIt(const Digraph& _graph, const Node& node) 
-	: Node(node), digraph(&_graph) {}
+      NodeIt(const Digraph& _graph, const Node& node)
+        : Node(node), digraph(&_graph) {}
 
-      NodeIt& operator++() { 
-	digraph->next(*this);
-	return *this; 
+      NodeIt& operator++() {
+        digraph->next(*this);
+        return *this;
       }
 
     };
 
 
-    class ArcIt : public Arc { 
+    class ArcIt : public Arc {
       const Digraph* digraph;
     public:
 
@@ -123,21 +123,21 @@ namespace lemon {
       ArcIt(Invalid i) : Arc(i) { }
 
       explicit ArcIt(const Digraph& _graph) : digraph(&_graph) {
-	_graph.first(static_cast<Arc&>(*this));
+        _graph.first(static_cast<Arc&>(*this));
       }
 
-      ArcIt(const Digraph& _graph, const Arc& e) : 
-	Arc(e), digraph(&_graph) { }
+      ArcIt(const Digraph& _graph, const Arc& e) :
+        Arc(e), digraph(&_graph) { }
 
-      ArcIt& operator++() { 
-	digraph->next(*this);
-	return *this; 
+      ArcIt& operator++() {
+        digraph->next(*this);
+        return *this;
       }
 
     };
 
 
-    class OutArcIt : public Arc { 
+    class OutArcIt : public Arc {
       const Digraph* digraph;
     public:
 
@@ -145,23 +145,23 @@ namespace lemon {
 
       OutArcIt(Invalid i) : Arc(i) { }
 
-      OutArcIt(const Digraph& _graph, const Node& node) 
-	: digraph(&_graph) {
-	_graph.firstOut(*this, node);
+      OutArcIt(const Digraph& _graph, const Node& node)
+        : digraph(&_graph) {
+        _graph.firstOut(*this, node);
       }
 
-      OutArcIt(const Digraph& _graph, const Arc& arc) 
-	: Arc(arc), digraph(&_graph) {}
+      OutArcIt(const Digraph& _graph, const Arc& arc)
+        : Arc(arc), digraph(&_graph) {}
 
-      OutArcIt& operator++() { 
-	digraph->nextOut(*this);
-	return *this; 
+      OutArcIt& operator++() {
+        digraph->nextOut(*this);
+        return *this;
       }
 
     };
 
 
-    class InArcIt : public Arc { 
+    class InArcIt : public Arc {
       const Digraph* digraph;
     public:
 
@@ -169,17 +169,17 @@ namespace lemon {
 
       InArcIt(Invalid i) : Arc(i) { }
 
-      InArcIt(const Digraph& _graph, const Node& node) 
-	: digraph(&_graph) {
-	_graph.firstIn(*this, node);
+      InArcIt(const Digraph& _graph, const Node& node)
+        : digraph(&_graph) {
+        _graph.firstIn(*this, node);
       }
 
-      InArcIt(const Digraph& _graph, const Arc& arc) : 
-	Arc(arc), digraph(&_graph) {}
+      InArcIt(const Digraph& _graph, const Arc& arc) :
+        Arc(arc), digraph(&_graph) {}
 
-      InArcIt& operator++() { 
-	digraph->nextIn(*this);
-	return *this; 
+      InArcIt& operator++() {
+        digraph->nextIn(*this);
+        return *this;
       }
 
     };
@@ -215,26 +215,26 @@ namespace lemon {
     using Parent::first;
 
     // Mappable extension
-    
+
     template <typename _Value>
-    class ArcMap 
+    class ArcMap
       : public MapExtender<DefaultMap<Digraph, Arc, _Value> > {
       typedef MapExtender<DefaultMap<Digraph, Arc, _Value> > Parent;
 
     public:
-      explicit ArcMap(const Digraph& _g) 
-	: Parent(_g) {}
-      ArcMap(const Digraph& _g, const _Value& _v) 
-	: Parent(_g, _v) {}
+      explicit ArcMap(const Digraph& _g)
+        : Parent(_g) {}
+      ArcMap(const Digraph& _g, const _Value& _v)
+        : Parent(_g, _v) {}
 
       ArcMap& operator=(const ArcMap& cmap) {
-	return operator=<ArcMap>(cmap);
+        return operator=<ArcMap>(cmap);
       }
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
         Parent::operator=(cmap);
-	return *this;
+        return *this;
       }
 
     };
@@ -247,7 +247,7 @@ namespace lemon {
       notifier(Arc()).add(arc);
       return arc;
     }
-    
+
     void clear() {
       notifier(Arc()).clear();
       Parent::clear();
@@ -310,11 +310,11 @@ namespace lemon {
 
     Node oppositeNode(const Node &n, const Edge &e) const {
       if( n == Parent::u(e))
-	return Parent::v(e);
+        return Parent::v(e);
       else if( n == Parent::v(e))
-	return Parent::u(e);
+        return Parent::u(e);
       else
-	return INVALID;
+        return INVALID;
     }
 
     Arc oppositeArc(const Arc &e) const {
@@ -338,7 +338,7 @@ namespace lemon {
   public:
 
     using Parent::notifier;
-    
+
     ArcNotifier& notifier(Arc) const {
       return arc_notifier;
     }
@@ -348,7 +348,7 @@ namespace lemon {
     }
 
 
-    class NodeIt : public Node { 
+    class NodeIt : public Node {
       const Graph* graph;
     public:
 
@@ -357,21 +357,21 @@ namespace lemon {
       NodeIt(Invalid i) : Node(i) { }
 
       explicit NodeIt(const Graph& _graph) : graph(&_graph) {
-	_graph.first(static_cast<Node&>(*this));
+        _graph.first(static_cast<Node&>(*this));
       }
 
-      NodeIt(const Graph& _graph, const Node& node) 
-	: Node(node), graph(&_graph) {}
+      NodeIt(const Graph& _graph, const Node& node)
+        : Node(node), graph(&_graph) {}
 
-      NodeIt& operator++() { 
-	graph->next(*this);
-	return *this; 
+      NodeIt& operator++() {
+        graph->next(*this);
+        return *this;
       }
 
     };
 
 
-    class ArcIt : public Arc { 
+    class ArcIt : public Arc {
       const Graph* graph;
     public:
 
@@ -380,21 +380,21 @@ namespace lemon {
       ArcIt(Invalid i) : Arc(i) { }
 
       explicit ArcIt(const Graph& _graph) : graph(&_graph) {
-	_graph.first(static_cast<Arc&>(*this));
+        _graph.first(static_cast<Arc&>(*this));
       }
 
-      ArcIt(const Graph& _graph, const Arc& e) : 
-	Arc(e), graph(&_graph) { }
+      ArcIt(const Graph& _graph, const Arc& e) :
+        Arc(e), graph(&_graph) { }
 
-      ArcIt& operator++() { 
-	graph->next(*this);
-	return *this; 
+      ArcIt& operator++() {
+        graph->next(*this);
+        return *this;
       }
 
     };
 
 
-    class OutArcIt : public Arc { 
+    class OutArcIt : public Arc {
       const Graph* graph;
     public:
 
@@ -402,23 +402,23 @@ namespace lemon {
 
       OutArcIt(Invalid i) : Arc(i) { }
 
-      OutArcIt(const Graph& _graph, const Node& node) 
-	: graph(&_graph) {
-	_graph.firstOut(*this, node);
+      OutArcIt(const Graph& _graph, const Node& node)
+        : graph(&_graph) {
+        _graph.firstOut(*this, node);
       }
 
-      OutArcIt(const Graph& _graph, const Arc& arc) 
-	: Arc(arc), graph(&_graph) {}
+      OutArcIt(const Graph& _graph, const Arc& arc)
+        : Arc(arc), graph(&_graph) {}
 
-      OutArcIt& operator++() { 
-	graph->nextOut(*this);
-	return *this; 
+      OutArcIt& operator++() {
+        graph->nextOut(*this);
+        return *this;
       }
 
     };
 
 
-    class InArcIt : public Arc { 
+    class InArcIt : public Arc {
       const Graph* graph;
     public:
 
@@ -426,23 +426,23 @@ namespace lemon {
 
       InArcIt(Invalid i) : Arc(i) { }
 
-      InArcIt(const Graph& _graph, const Node& node) 
-	: graph(&_graph) {
-	_graph.firstIn(*this, node);
+      InArcIt(const Graph& _graph, const Node& node)
+        : graph(&_graph) {
+        _graph.firstIn(*this, node);
       }
 
-      InArcIt(const Graph& _graph, const Arc& arc) : 
-	Arc(arc), graph(&_graph) {}
+      InArcIt(const Graph& _graph, const Arc& arc) :
+        Arc(arc), graph(&_graph) {}
 
-      InArcIt& operator++() { 
-	graph->nextIn(*this);
-	return *this; 
+      InArcIt& operator++() {
+        graph->nextIn(*this);
+        return *this;
       }
 
     };
 
 
-    class EdgeIt : public Parent::Edge { 
+    class EdgeIt : public Parent::Edge {
       const Graph* graph;
     public:
 
@@ -451,15 +451,15 @@ namespace lemon {
       EdgeIt(Invalid i) : Edge(i) { }
 
       explicit EdgeIt(const Graph& _graph) : graph(&_graph) {
-	_graph.first(static_cast<Edge&>(*this));
+        _graph.first(static_cast<Edge&>(*this));
       }
 
-      EdgeIt(const Graph& _graph, const Edge& e) : 
-	Edge(e), graph(&_graph) { }
+      EdgeIt(const Graph& _graph, const Edge& e) :
+        Edge(e), graph(&_graph) { }
 
-      EdgeIt& operator++() { 
-	graph->next(*this);
-	return *this; 
+      EdgeIt& operator++() {
+        graph->next(*this);
+        return *this;
       }
 
     };
@@ -475,17 +475,17 @@ namespace lemon {
       IncEdgeIt(Invalid i) : Edge(i), direction(false) { }
 
       IncEdgeIt(const Graph& _graph, const Node &n) : graph(&_graph) {
-	_graph.firstInc(*this, direction, n);
+        _graph.firstInc(*this, direction, n);
       }
 
       IncEdgeIt(const Graph& _graph, const Edge &ue, const Node &n)
-	: graph(&_graph), Edge(ue) {
-	direction = (_graph.source(ue) == n);
+        : graph(&_graph), Edge(ue) {
+        direction = (_graph.source(ue) == n);
       }
 
       IncEdgeIt& operator++() {
-	graph->nextInc(*this, direction);
-	return *this; 
+        graph->nextInc(*this, direction);
+        return *this;
       }
     };
 
@@ -532,49 +532,49 @@ namespace lemon {
 
 
     template <typename _Value>
-    class ArcMap 
+    class ArcMap
       : public MapExtender<DefaultMap<Graph, Arc, _Value> > {
       typedef MapExtender<DefaultMap<Graph, Arc, _Value> > Parent;
 
     public:
-      explicit ArcMap(const Graph& _g) 
-	: Parent(_g) {}
-      ArcMap(const Graph& _g, const _Value& _v) 
-	: Parent(_g, _v) {}
+      explicit ArcMap(const Graph& _g)
+        : Parent(_g) {}
+      ArcMap(const Graph& _g, const _Value& _v)
+        : Parent(_g, _v) {}
 
       ArcMap& operator=(const ArcMap& cmap) {
-	return operator=<ArcMap>(cmap);
+        return operator=<ArcMap>(cmap);
       }
 
       template <typename CMap>
       ArcMap& operator=(const CMap& cmap) {
         Parent::operator=(cmap);
-	return *this;
+        return *this;
       }
 
     };
 
 
     template <typename _Value>
-    class EdgeMap 
+    class EdgeMap
       : public MapExtender<DefaultMap<Graph, Edge, _Value> > {
       typedef MapExtender<DefaultMap<Graph, Edge, _Value> > Parent;
 
     public:
-      explicit EdgeMap(const Graph& _g) 
-	: Parent(_g) {}
+      explicit EdgeMap(const Graph& _g)
+        : Parent(_g) {}
 
-      EdgeMap(const Graph& _g, const _Value& _v) 
-	: Parent(_g, _v) {}
+      EdgeMap(const Graph& _g, const _Value& _v)
+        : Parent(_g, _v) {}
 
       EdgeMap& operator=(const EdgeMap& cmap) {
-	return operator=<EdgeMap>(cmap);
+        return operator=<EdgeMap>(cmap);
       }
 
       template <typename CMap>
       EdgeMap& operator=(const CMap& cmap) {
         Parent::operator=(cmap);
-	return *this;
+        return *this;
       }
 
     };
@@ -591,7 +591,7 @@ namespace lemon {
       notifier(Arc()).add(arcs);
       return edge;
     }
-    
+
     void clear() {
       notifier(Arc()).clear();
       notifier(Edge()).clear();
@@ -617,7 +617,7 @@ namespace lemon {
       edge_notifier.clear();
       arc_notifier.clear();
     }
-    
+
   };
 
 }

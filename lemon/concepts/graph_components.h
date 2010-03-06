@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -38,7 +38,7 @@ namespace lemon {
     ///
     /// \note This class is a template class so that we can use it to
     /// create graph skeleton classes. The reason for this is that \c Node
-    /// and \c Arc (or \c Edge) types should \e not derive from the same 
+    /// and \c Arc (or \c Edge) types should \e not derive from the same
     /// base class. For \c Node you should instantiate it with character
     /// \c 'n', for \c Arc with \c 'a' and for \c Edge with \c 'e'.
 #ifndef DOXYGEN
@@ -89,7 +89,7 @@ namespace lemon {
       /// \brief Ordering operator.
       ///
       /// This operator defines an ordering of the items.
-      /// It makes possible to use graph item types as key types in 
+      /// It makes possible to use graph item types as key types in
       /// associative containers (e.g. \c std::map).
       ///
       /// \note This operator only has to define some strict ordering of
@@ -122,7 +122,7 @@ namespace lemon {
     ///
     /// This class describes the base interface of directed graph types.
     /// All digraph %concepts have to conform to this class.
-    /// It just provides types for nodes and arcs and functions 
+    /// It just provides types for nodes and arcs and functions
     /// to get the source and the target nodes of arcs.
     class BaseDigraphComponent {
     public:
@@ -426,7 +426,7 @@ namespace lemon {
 
     /// \brief Concept class for \c NodeIt, \c ArcIt and \c EdgeIt types.
     ///
-    /// This class describes the concept of \c NodeIt, \c ArcIt and 
+    /// This class describes the concept of \c NodeIt, \c ArcIt and
     /// \c EdgeIt subtypes of digraph and graph types.
     template <typename GR, typename Item>
     class GraphItemIt : public Item {
@@ -466,7 +466,7 @@ namespace lemon {
       /// This operator increments the iterator, i.e. assigns it to the
       /// next item.
       GraphItemIt& operator++() { return *this; }
- 
+
       /// \brief Equality operator
       ///
       /// Equality operator.
@@ -501,15 +501,15 @@ namespace lemon {
       };
     };
 
-    /// \brief Concept class for \c InArcIt, \c OutArcIt and 
+    /// \brief Concept class for \c InArcIt, \c OutArcIt and
     /// \c IncEdgeIt types.
     ///
-    /// This class describes the concept of \c InArcIt, \c OutArcIt 
+    /// This class describes the concept of \c InArcIt, \c OutArcIt
     /// and \c IncEdgeIt subtypes of digraph and graph types.
     ///
     /// \note Since these iterator classes do not inherit from the same
     /// base class, there is an additional template parameter (selector)
-    /// \c sel. For \c InArcIt you should instantiate it with character 
+    /// \c sel. For \c InArcIt you should instantiate it with character
     /// \c 'i', for \c OutArcIt with \c 'o' and for \c IncEdgeIt with \c 'e'.
     template <typename GR,
               typename Item = typename GR::Arc,
@@ -530,10 +530,10 @@ namespace lemon {
       /// Copy constructor.
       GraphIncIt(const GraphIncIt& it) : Item(it) {}
 
-      /// \brief Constructor that sets the iterator to the first 
+      /// \brief Constructor that sets the iterator to the first
       /// incoming or outgoing arc.
       ///
-      /// Constructor that sets the iterator to the first arc 
+      /// Constructor that sets the iterator to the first arc
       /// incoming to or outgoing from the given node.
       explicit GraphIncIt(const GR&, const Base&) {}
 
@@ -804,16 +804,16 @@ namespace lemon {
 
       /// \brief Return the first edge incident to the given node.
       ///
-      /// This function gives back the first edge incident to the given 
+      /// This function gives back the first edge incident to the given
       /// node. The bool parameter gives back the direction for which the
-      /// source node of the directed arc representing the edge is the 
+      /// source node of the directed arc representing the edge is the
       /// given node.
       void firstInc(Edge&, bool&, const Node&) const {}
 
       /// \brief Gives back the next of the edges from the
       /// given node.
       ///
-      /// This function gives back the next edge incident to the given 
+      /// This function gives back the next edge incident to the given
       /// node. The bool parameter should be used as \c firstInc() use it.
       void nextInc(Edge&, bool&) const {}
 
@@ -990,7 +990,7 @@ namespace lemon {
     /// \brief Concept class for standard graph maps.
     ///
     /// This class describes the concept of standard graph maps, i.e.
-    /// the \c NodeMap, \c ArcMap and \c EdgeMap subtypes of digraph and 
+    /// the \c NodeMap, \c ArcMap and \c EdgeMap subtypes of digraph and
     /// graph types, which can be used for associating data to graph items.
     /// The standard graph maps must conform to the ReferenceMap concept.
     template <typename GR, typename K, typename V>
@@ -1045,7 +1045,7 @@ namespace lemon {
             <ReferenceMap<Key, Value, Value&, const Value&>, _Map>();
           _Map m1(g);
           _Map m2(g,t);
-          
+
           // Copy constructor
           // _Map m3(m);
 
@@ -1068,7 +1068,7 @@ namespace lemon {
     /// \brief Skeleton class for mappable directed graphs.
     ///
     /// This class describes the interface of mappable directed graphs.
-    /// It extends \ref BaseDigraphComponent with the standard digraph 
+    /// It extends \ref BaseDigraphComponent with the standard digraph
     /// map classes, namely \c NodeMap and \c ArcMap.
     /// This concept is part of the Digraph concept.
     template <typename BAS = BaseDigraphComponent>
@@ -1205,7 +1205,7 @@ namespace lemon {
     /// \brief Skeleton class for mappable undirected graphs.
     ///
     /// This class describes the interface of mappable undirected graphs.
-    /// It extends \ref MappableDigraphComponent with the standard graph 
+    /// It extends \ref MappableDigraphComponent with the standard graph
     /// map class for edges (\c EdgeMap).
     /// This concept is part of the Graph concept.
     template <typename BAS = BaseGraphComponent>
@@ -1290,7 +1290,7 @@ namespace lemon {
     /// \brief Skeleton class for extendable directed graphs.
     ///
     /// This class describes the interface of extendable directed graphs.
-    /// It extends \ref BaseDigraphComponent with functions for adding 
+    /// It extends \ref BaseDigraphComponent with functions for adding
     /// nodes and arcs to the digraph.
     /// This concept requires \ref AlterableDigraphComponent.
     template <typename BAS = BaseDigraphComponent>
@@ -1334,7 +1334,7 @@ namespace lemon {
     /// \brief Skeleton class for extendable undirected graphs.
     ///
     /// This class describes the interface of extendable undirected graphs.
-    /// It extends \ref BaseGraphComponent with functions for adding 
+    /// It extends \ref BaseGraphComponent with functions for adding
     /// nodes and edges to the graph.
     /// This concept requires \ref AlterableGraphComponent.
     template <typename BAS = BaseGraphComponent>
@@ -1378,7 +1378,7 @@ namespace lemon {
     /// \brief Skeleton class for erasable directed graphs.
     ///
     /// This class describes the interface of erasable directed graphs.
-    /// It extends \ref BaseDigraphComponent with functions for removing 
+    /// It extends \ref BaseDigraphComponent with functions for removing
     /// nodes and arcs from the digraph.
     /// This concept requires \ref AlterableDigraphComponent.
     template <typename BAS = BaseDigraphComponent>
@@ -1391,7 +1391,7 @@ namespace lemon {
 
       /// \brief Erase a node from the digraph.
       ///
-      /// This function erases the given node from the digraph and all arcs 
+      /// This function erases the given node from the digraph and all arcs
       /// connected to the node.
       void erase(const Node&) {}
 
@@ -1417,7 +1417,7 @@ namespace lemon {
     /// \brief Skeleton class for erasable undirected graphs.
     ///
     /// This class describes the interface of erasable undirected graphs.
-    /// It extends \ref BaseGraphComponent with functions for removing 
+    /// It extends \ref BaseGraphComponent with functions for removing
     /// nodes and edges from the graph.
     /// This concept requires \ref AlterableGraphComponent.
     template <typename BAS = BaseGraphComponent>

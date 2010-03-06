@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -96,7 +96,7 @@ namespace lemon {
       SYSTEMTIME time;
       GetSystemTime(&time);
       char buf1[11], buf2[9], buf3[5];
-	  if (GetDateFormat(MY_LOCALE, 0, &time,
+          if (GetDateFormat(MY_LOCALE, 0, &time,
                         ("ddd MMM dd"), buf1, 11) &&
           GetTimeFormat(MY_LOCALE, 0, &time,
                         ("HH':'mm':'ss"), buf2, 9) &&

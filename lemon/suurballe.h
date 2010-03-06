@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -65,7 +65,7 @@ namespace lemon {
     /// It must conform to the \ref lemon::concepts::Path "Path" concept
     /// and it must have an \c addBack() function.
     typedef lemon::Path<Digraph> Path;
-    
+
     /// The cross reference type used for the heap.
     typedef typename GR::template NodeMap<int> HeapCrossRef;
 
@@ -158,7 +158,7 @@ namespace lemon {
       PredMap &_pred;
       Node _s;
       Node _t;
-      
+
       PotentialMap _dist;
       std::vector<Node> _proc_nodes;
 
@@ -167,9 +167,9 @@ namespace lemon {
       // Constructor
       ResidualDijkstra(Suurballe &srb) :
         _graph(srb._graph), _length(srb._length),
-        _flow(*srb._flow), _pi(*srb._potential), _pred(srb._pred), 
+        _flow(*srb._flow), _pi(*srb._potential), _pred(srb._pred),
         _s(srb._s), _t(srb._t), _dist(_graph) {}
-        
+
       // Run the algorithm and return true if a path is found
       // from the source node to the target node.
       bool run(int cnt) {
@@ -177,7 +177,7 @@ namespace lemon {
       }
 
     private:
-    
+
       // Execute the algorithm for the first time (the flow and potential
       // functions have to be identically zero).
       bool startFirst() {
@@ -348,7 +348,7 @@ namespace lemon {
       : public Suurballe<GR, LEN, SetPathTraits<T> > {
       typedef Suurballe<GR, LEN, SetPathTraits<T> > Create;
     };
-    
+
     template <typename H, typename CR>
     struct SetHeapTraits : public Traits {
       typedef H Heap;
@@ -359,7 +359,7 @@ namespace lemon {
     /// \c Heap and \c HeapCrossRef types.
     ///
     /// \ref named-templ-param "Named parameter" for setting \c Heap
-    /// and \c HeapCrossRef types with automatic allocation. 
+    /// and \c HeapCrossRef types with automatic allocation.
     /// They will be used for internal Dijkstra computations.
     /// The heap type must conform to the \ref lemon::concepts::Heap "Heap"
     /// concept and its priority type must be \c Length.
@@ -397,7 +397,7 @@ namespace lemon {
 
     // The pred arc map
     PredMap _pred;
-    
+
     // Data for full init
     PotentialMap *_init_dist;
     PredMap *_init_pred;
@@ -555,7 +555,7 @@ namespace lemon {
         ::Create dijk(_graph, _length);
       dijk.distMap(*_init_dist).predMap(*_init_pred);
       dijk.run(s);
-      
+
       _full_init = true;
     }
 
@@ -599,7 +599,7 @@ namespace lemon {
     int findFlow(const Node& t, int k = 2) {
       _t = t;
       ResidualDijkstra dijkstra(*this);
-      
+
       // Initialization
       for (ArcIt e(_graph); e != INVALID; ++e) {
         (*_flow)[e] = 0;
@@ -613,7 +613,7 @@ namespace lemon {
         while ((e = (*_init_pred)[u]) != INVALID) {
           (*_flow)[e] = 1;
           u = _graph.source(e);
-        }        
+        }
         _path_num = 1;
       } else {
         for (NodeIt n(_graph); n != INVALID; ++n) {

@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -121,7 +121,7 @@ namespace lemon {
   class HowardMmc
   {
   public:
-  
+
     /// The type of the digraph
     typedef typename TR::Digraph Digraph;
     /// The type of the cost map
@@ -152,7 +152,7 @@ namespace lemon {
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(Digraph);
-  
+
     // The digraph the algorithm runs on
     const Digraph &_gr;
     // The cost of the arcs
@@ -179,18 +179,18 @@ namespace lemon {
     std::vector<std::vector<Node> > _comp_nodes;
     std::vector<Node>* _nodes;
     typename Digraph::template NodeMap<std::vector<Arc> > _in_arcs;
-    
+
     // Queue used for BFS search
     std::vector<Node> _queue;
     int _qfront, _qback;
 
     Tolerance _tolerance;
-  
+
     // Infinite constant
     const LargeCost INF;
 
   public:
-  
+
     /// \name Named Template Parameters
     /// @{
 
@@ -228,7 +228,7 @@ namespace lemon {
       : public HowardMmc<GR, CM, SetPathTraits<T> > {
       typedef HowardMmc<GR, CM, SetPathTraits<T> > Create;
     };
-    
+
     /// @}
 
   protected:
@@ -334,7 +334,7 @@ namespace lemon {
       // Initialize and find strongly connected components
       init();
       findComponents();
-      
+
       // Find the minimum cycle mean in the components
       for (int comp = 0; comp < _comp_num; ++comp) {
         // Find the minimum mean cycle in the current component
@@ -445,7 +445,7 @@ namespace lemon {
       _best_size = 1;
       _cycle_path->clear();
     }
-    
+
     // Find strongly connected components and initialize _comp_nodes
     // and _in_arcs
     void findComponents() {

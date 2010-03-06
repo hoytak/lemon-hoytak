@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -142,7 +142,7 @@ namespace lemon {
   private:
 
     TEMPLATE_DIGRAPH_TYPEDEFS(GR);
-    
+
     typedef std::vector<int> IntVector;
     typedef std::vector<double> DoubleVector;
     typedef std::vector<Value> ValueVector;
@@ -151,15 +151,15 @@ namespace lemon {
     // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
   private:
-  
+
     template <typename KT, typename VT>
     class StaticVectorMap {
     public:
       typedef KT Key;
       typedef VT Value;
-      
+
       StaticVectorMap(std::vector<Value>& v) : _v(v) {}
-      
+
       const Value& operator[](const Key& key) const {
         return _v[StaticDigraph::id(key)];
       }
@@ -167,7 +167,7 @@ namespace lemon {
       Value& operator[](const Key& key) {
         return _v[StaticDigraph::id(key)];
       }
-      
+
       void set(const Key& key, const Value& val) {
         _v[StaticDigraph::id(key)] = val;
       }
@@ -221,9 +221,9 @@ namespace lemon {
     IntVector _id_vec;
     CostArcMap _cost_map;
     CostNodeMap _pi_map;
-  
+
   public:
-  
+
     /// \brief Constant for infinite upper bounds (capacities).
     ///
     /// Constant for infinite upper bounds (capacities).
@@ -366,7 +366,7 @@ namespace lemon {
       _supply[_node_id[t]] = -k;
       return *this;
     }
-    
+
     /// @}
 
     /// \name Execution control
@@ -466,7 +466,7 @@ namespace lemon {
         _upper[j] = INF;
         _cost[j] = 0;
         _cost[_reverse[j]] = 0;
-      }      
+      }
       _have_lower = false;
       return *this;
     }
@@ -508,7 +508,7 @@ namespace lemon {
       _upper.resize(_res_arc_num);
       _cost.resize(_res_arc_num);
       _supply.resize(_res_node_num);
-      
+
       _res_cap.resize(_res_arc_num);
       _pi.resize(_res_node_num);
 
@@ -554,7 +554,7 @@ namespace lemon {
         _reverse[fi] = bi;
         _reverse[bi] = fi;
       }
-      
+
       // Reset parameters
       resetParams();
       return *this;
@@ -663,14 +663,14 @@ namespace lemon {
         _sum_supply += _supply[i];
       }
       if (_sum_supply > 0) return INFEASIBLE;
-      
+
 
       // Initialize vectors
       for (int i = 0; i != _res_node_num; ++i) {
         _pi[i] = 0;
       }
       ValueVector excess(_supply);
-      
+
       // Remove infinite upper bounds and check negative arcs
       const Value MAX = std::numeric_limits<Value>::max();
       int last_out;
@@ -770,10 +770,10 @@ namespace lemon {
           _cost[ra] = 0;
         }
       }
-      
+
       return OPTIMAL;
     }
-    
+
     // Build a StaticDigraph structure containing the current
     // residual network
     void buildResidualNetwork() {
@@ -829,14 +829,14 @@ namespace lemon {
       // Constants for computing the iteration limits
       const int BF_FIRST_LIMIT  = 2;
       const double BF_LIMIT_FACTOR = 1.5;
-      
+
       typedef StaticVectorMap<StaticDigraph::Arc, Value> FilterMap;
       typedef FilterArcs<StaticDigraph, FilterMap> ResDigraph;
       typedef StaticVectorMap<StaticDigraph::Node, StaticDigraph::Arc> PredMap;
       typedef typename BellmanFord<ResDigraph, CostArcMap>
         ::template SetDistMap<CostNodeMap>
         ::template SetPredMap<PredMap>::Create BF;
-      
+
       // Build the residual network
       _arc_vec.clear();
       _cost_vec.clear();
@@ -926,7 +926,7 @@ namespace lemon {
       typedef typename SPath::ArcIt SPathArcIt;
       typedef typename HowardMmc<StaticDigraph, CostArcMap>
         ::template SetPath<SPath>::Create MMC;
-      
+
       SPath cycle;
       MMC mmc(_sgr, _cost_map);
       mmc.cycle(cycle);
@@ -949,7 +949,7 @@ namespace lemon {
           _res_cap[_reverse[j]] += delta;
         }
 
-        // Rebuild the residual network        
+        // Rebuild the residual network
         buildResidualNetwork();
       }
     }
@@ -1143,7 +1143,7 @@ namespace lemon {
           epsilon = -mmc.cycleMean();
           Cost cycle_cost = mmc.cycleCost();
           int cycle_size = mmc.cycleSize();
-          
+
           // Compute feasible potentials for the current epsilon
           for (int i = 0; i != int(_cost_vec.size()); ++i) {
             _cost_vec[i] = cycle_size * _cost_vec[i] - cycle_cost;
@@ -1155,7 +1155,7 @@ namespace lemon {
           for (int u = 0; u != _res_node_num; ++u) {
             pi[u] = static_cast<double>(_pi[u]) / cycle_size;
           }
-        
+
           iter = limit;
         }
       }

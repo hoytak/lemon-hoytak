@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -157,7 +157,7 @@ namespace lemon {
 
   public:
     typedef DefaultMap<_Graph, _Item, _Value> Map;
-    
+
     typedef typename Parent::GraphType GraphType;
     typedef typename Parent::Value Value;
 

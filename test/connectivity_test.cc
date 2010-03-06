@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -29,12 +29,12 @@ int main()
 {
   typedef ListDigraph Digraph;
   typedef Undirector<Digraph> Graph;
-  
+
   {
     Digraph d;
     Digraph::NodeMap<int> order(d);
     Graph g(d);
-    
+
     check(stronglyConnected(d), "The empty digraph is strongly connected");
     check(countStronglyConnectedComponents(d) == 0,
           "The empty digraph has 0 strongly connected component");
@@ -48,7 +48,7 @@ int main()
     check(biEdgeConnected(g), "The empty graph is bi-edge-connected");
     check(countBiEdgeConnectedComponents(g) == 0,
           "The empty graph has 0 bi-edge-connected component");
-          
+
     check(dag(d), "The empty digraph is DAG.");
     check(checkedTopologicalSort(d, order), "The empty digraph is DAG.");
     check(loopFree(d), "The empty digraph is loop-free.");
@@ -82,7 +82,7 @@ int main()
     check(biEdgeConnected(g), "This graph is bi-edge-connected");
     check(countBiEdgeConnectedComponents(g) == 1,
           "This graph has 1 bi-edge-connected component");
-          
+
     check(dag(d), "This digraph is DAG.");
     check(checkedTopologicalSort(d, order), "This digraph is DAG.");
     check(loopFree(d), "This digraph is loop-free.");
@@ -101,14 +101,14 @@ int main()
     Digraph d;
     Digraph::NodeMap<int> order(d);
     Graph g(d);
-    
+
     Digraph::Node n1 = d.addNode();
     Digraph::Node n2 = d.addNode();
     Digraph::Node n3 = d.addNode();
     Digraph::Node n4 = d.addNode();
     Digraph::Node n5 = d.addNode();
     Digraph::Node n6 = d.addNode();
-    
+
     d.addArc(n1, n3);
     d.addArc(n3, n2);
     d.addArc(n2, n1);
@@ -136,23 +136,23 @@ int main()
     check(loopFree(g), "This graph is loop-free.");
     check(!parallelFree(g), "This graph is not parallel-free.");
     check(!simpleGraph(g), "This graph is not simple.");
-    
+
     d.addArc(n3, n3);
-    
+
     check(!loopFree(d), "This digraph is not loop-free.");
     check(!loopFree(g), "This graph is not loop-free.");
     check(!simpleGraph(d), "This digraph is not simple.");
-    
+
     d.addArc(n3, n2);
-    
+
     check(!parallelFree(d), "This digraph is not parallel-free.");
   }
-  
+
   {
     Digraph d;
     Digraph::ArcMap<bool> cutarcs(d, false);
     Graph g(d);
-    
+
     Digraph::Node n1 = d.addNode();
     Digraph::Node n2 = d.addNode();
     Digraph::Node n3 = d.addNode();
@@ -172,7 +172,7 @@ int main()
     d.addArc(n1, n8);
     d.addArc(n6, n7);
     d.addArc(n7, n6);
-   
+
     check(!stronglyConnected(d), "This digraph is not strongly connected");
     check(countStronglyConnectedComponents(d) == 3,
           "This digraph has 3 strongly connected components");
@@ -235,7 +235,7 @@ int main()
     // (T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein)
     Digraph d;
     Digraph::NodeMap<int> order(d);
-    
+
     Digraph::Node belt = d.addNode();
     Digraph::Node trousers = d.addNode();
     Digraph::Node necktie = d.addNode();
@@ -255,7 +255,7 @@ int main()
     d.addArc(shirt, belt);
     d.addArc(shirt, necktie);
     d.addArc(necktie, coat);
-    
+
     check(dag(d), "This digraph is DAG.");
     topologicalSort(d, order);
     for (Digraph::ArcIt a(d); a != INVALID; ++a) {
@@ -267,7 +267,7 @@ int main()
   {
     ListGraph g;
     ListGraph::NodeMap<bool> map(g);
-    
+
     ListGraph::Node n1 = g.addNode();
     ListGraph::Node n2 = g.addNode();
     ListGraph::Node n3 = g.addNode();
@@ -283,10 +283,10 @@ int main()
     g.addEdge(n4, n6);
     g.addEdge(n4, n7);
     g.addEdge(n5, n7);
-   
+
     check(bipartite(g), "This graph is bipartite");
     check(bipartitePartitions(g, map), "This graph is bipartite");
-    
+
     check(map[n1] == map[n2] && map[n1] == map[n6] && map[n1] == map[n7],
           "Wrong bipartitePartitions()");
     check(map[n3] == map[n4] && map[n3] == map[n5],

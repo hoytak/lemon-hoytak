@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -94,7 +94,7 @@ void checkPreflowCompile()
             ::Create PreflowType;
   PreflowType preflow_test(g, cap, n, n);
   const PreflowType& const_preflow_test = preflow_test;
-  
+
   const PreflowType::Elevator& elev = const_preflow_test.elevator();
   preflow_test.elevator(const_cast<PreflowType::Elevator&>(elev));
   PreflowType::Tolerance tol = const_preflow_test.tolerance();
@@ -118,7 +118,7 @@ void checkPreflowCompile()
   const FlowMap& fm = const_preflow_test.flowMap();
   b = const_preflow_test.minCut(n);
   const_preflow_test.minCutMap(cut);
-  
+
   ignore_unused_variable_warning(fm);
 }
 

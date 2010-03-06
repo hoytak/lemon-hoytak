@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -42,10 +42,10 @@ namespace lemon {
       UNKNOWN_OPT,  /// Unknown option was given
       INVALID_OPT   /// Invalid combination of options
     };
-    
+
   private:
     Reason _reason;
-    
+
   public:
     ///Constructor
     ArgParserException(Reason r) throw() : _reason(r) {}
@@ -141,7 +141,7 @@ namespace lemon {
     std::vector<std::string> _file_args;
     std::string _command_name;
 
-    
+
   private:
     //Bind a function to an option.
 
@@ -155,7 +155,7 @@ namespace lemon {
                     void (*func)(void *),void *data);
 
     bool _exit_on_problems;
-    
+
     void _terminate(ArgParserException::Reason reason) const;
 
   public:
@@ -423,7 +423,7 @@ namespace lemon {
     const std::vector<std::string> &files() const { return _file_args; }
 
     ///Throw instead of exit in case of problems
-    void throwOnProblems() 
+    void throwOnProblems()
     {
       _exit_on_problems=false;
     }

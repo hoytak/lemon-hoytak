@@ -1,8 +1,8 @@
-/* -*- C++ -*-
+/* -*- mode: C++; indent-tabs-mode: nil; -*-
  *
- * This file is a part of LEMON, a generic C++ optimization library
+ * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -343,14 +343,14 @@ namespace lemon {
       // Initialization and find strongly connected components
       init();
       findComponents();
-      
+
       // Find the minimum cycle mean in the components
       for (int comp = 0; comp < _comp_num; ++comp) {
         if (!initComponent(comp)) continue;
         processRounds();
-        
+
         // Update the best cycle (global minimum mean cycle)
-        if ( _curr_found && (!_best_found || 
+        if ( _curr_found && (!_best_found ||
              _curr_cost * _best_size < _best_cost * _curr_size) ) {
           _best_found = true;
           _best_cost = _curr_cost;
@@ -503,7 +503,7 @@ namespace lemon {
       int n = _nodes->size();
       if (n < 1 || (n == 1 && _out_arcs[(*_nodes)[0]].size() == 0)) {
         return false;
-      }      
+      }
       for (int i = 0; i < n; ++i) {
         _data[(*_nodes)[i]].resize(n + 1, PathData(INF));
       }
@@ -576,7 +576,7 @@ namespace lemon {
         }
       }
     }
-    
+
     // Check early termination
     bool checkTermination(int k) {
       typedef std::pair<int, int> Pair;
@@ -586,7 +586,7 @@ namespace lemon {
       LargeCost cost;
       int size;
       Node u;
-      
+
       // Search for cycles that are already found
       _curr_found = false;
       for (int i = 0; i < n; ++i) {
@@ -607,8 +607,8 @@ namespace lemon {
           }
           level[u] = Pair(i, j);
           if (j != 0) {
-	    u = _gr.source(_data[u][j].pred);
-	  }
+            u = _gr.source(_data[u][j].pred);
+          }
         }
       }
 

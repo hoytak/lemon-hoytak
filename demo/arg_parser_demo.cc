@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
   // exit(1) on these cases, but this makes Valgrind falsely warn
   // about memory leaks.
   ap.throwOnProblems();
-  
+
   // Perform the parsing process
   // (in case of any error it terminates the program)
   // The try {} construct is necessary only if the ap.trowOnProblems()

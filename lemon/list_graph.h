@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -446,7 +446,7 @@ namespace lemon {
     ///or changeTarget(), thus \c ArcIt and \c OutArcIt iterators are
     ///invalidated for the outgoing arcs of node \c v and \c InArcIt
     ///iterators are invalidated for the incomming arcs of \c v.
-    ///Moreover all iterators referencing node \c v or the removed 
+    ///Moreover all iterators referencing node \c v or the removed
     ///loops are also invalidated. Other iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the Snapshot
@@ -552,7 +552,7 @@ namespace lemon {
     /// The newly added nodes and arcs can be removed using the
     /// restore() function.
     ///
-    /// \note After a state is restored, you cannot restore a later state, 
+    /// \note After a state is restored, you cannot restore a later state,
     /// i.e. you cannot add the removed nodes and arcs again using
     /// another Snapshot instance.
     ///
@@ -1307,7 +1307,7 @@ namespace lemon {
     /// \note The moved edges are joined to node \c a using changeU()
     /// or changeV(), thus all edge and arc iterators whose base node is
     /// \c b are invalidated.
-    /// Moreover all iterators referencing node \c b or the removed 
+    /// Moreover all iterators referencing node \c b or the removed
     /// loops are also invalidated. Other iterators remain valid.
     ///
     ///\warning This functionality cannot be used together with the
@@ -1364,7 +1364,7 @@ namespace lemon {
     /// The newly added nodes and edges can be removed
     /// using the restore() function.
     ///
-    /// \note After a state is restored, you cannot restore a later state, 
+    /// \note After a state is restored, you cannot restore a later state,
     /// i.e. you cannot add the removed nodes and edges again using
     /// another Snapshot instance.
     ///

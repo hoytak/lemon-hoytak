@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2008
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -138,7 +138,7 @@ namespace lemon {
     virtual void _clear();
 
     virtual void _messageLevel(MessageLevel);
-    
+
   public:
 
     ///Solves LP with primal simplex method.

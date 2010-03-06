@@ -2,7 +2,7 @@
  *
  * This file is a part of LEMON, a generic C++ optimization library.
  *
- * Copyright (C) 2003-2009
+ * Copyright (C) 2003-2010
  * Egervary Jeno Kombinatorikus Optimalizalasi Kutatocsoport
  * (Egervary Research Group on Combinatorial Optimization, EGRES).
  *
@@ -59,7 +59,7 @@ namespace lemon {
     return i;
   }
 
-  int GlpkBase::_addRow(Value lo, ExprIterator b, 
+  int GlpkBase::_addRow(Value lo, ExprIterator b,
                         ExprIterator e, Value up) {
     int i = glp_add_rows(lp, 1);
 
@@ -68,11 +68,11 @@ namespace lemon {
         glp_set_row_bnds(lp, i, GLP_FR, lo, up);
       } else {
         glp_set_row_bnds(lp, i, GLP_UP, lo, up);
-      }    
+      }
     } else {
       if (up == INF) {
         glp_set_row_bnds(lp, i, GLP_LO, lo, up);
-      } else if (lo != up) {        
+      } else if (lo != up) {
         glp_set_row_bnds(lp, i, GLP_DB, lo, up);
       } else {
         glp_set_row_bnds(lp, i, GLP_FX, lo, up);
