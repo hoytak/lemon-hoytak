@@ -231,6 +231,10 @@ namespace lemon {
     
     /// @}
 
+  protected:
+
+    Howard() {}
+
   public:
 
     /// \brief Constructor.

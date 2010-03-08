@@ -301,6 +301,10 @@ namespace lemon {
 
     /// @}
 
+  protected:
+
+    CapacityScaling() {}
+
   public:
 
     /// \brief Constructor.

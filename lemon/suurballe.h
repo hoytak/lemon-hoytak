@@ -403,6 +403,10 @@ namespace lemon {
     PredMap *_init_pred;
     bool _full_init;
 
+  protected:
+
+    Suurballe() {}
+
   public:
 
     /// \brief Constructor.

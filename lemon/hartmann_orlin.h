@@ -241,6 +241,10 @@ namespace lemon {
 
     /// @}
 
+  protected:
+
+    HartmannOrlin() {}
+
   public:
 
     /// \brief Constructor.

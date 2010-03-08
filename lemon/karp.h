@@ -237,6 +237,10 @@ namespace lemon {
 
     /// @}
 
+  protected:
+
+    Karp() {}
+
   public:
 
     /// \brief Constructor.

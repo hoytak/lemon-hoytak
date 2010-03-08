@@ -325,6 +325,10 @@ namespace lemon {
 
     /// @}
 
+  protected:
+
+    CostScaling() {}
+
   public:
 
     /// \brief Constructor.
