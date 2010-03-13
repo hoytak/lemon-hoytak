@@ -34,7 +34,7 @@
 #include <lemon/adaptors.h>
 #include <lemon/circulation.h>
 #include <lemon/bellman_ford.h>
-#include <lemon/howard.h>
+#include <lemon/howard_mmc.h>
 
 namespace lemon {
 
@@ -924,14 +924,14 @@ namespace lemon {
     void startMinMeanCycleCanceling() {
       typedef SimplePath<StaticDigraph> SPath;
       typedef typename SPath::ArcIt SPathArcIt;
-      typedef typename Howard<StaticDigraph, CostArcMap>
+      typedef typename HowardMmc<StaticDigraph, CostArcMap>
         ::template SetPath<SPath>::Create MMC;
       
       SPath cycle;
       MMC mmc(_sgr, _cost_map);
       mmc.cycle(cycle);
       buildResidualNetwork();
-      while (mmc.findMinMean() && mmc.cycleLength() < 0) {
+      while (mmc.findCycleMean() && mmc.cycleCost() < 0) {
         // Find the cycle
         mmc.findCycle();
 
@@ -1132,17 +1132,17 @@ namespace lemon {
             }
           }
         } else {
-          typedef Howard<StaticDigraph, CostArcMap> MMC;
+          typedef HowardMmc<StaticDigraph, CostArcMap> MMC;
           typedef typename BellmanFord<StaticDigraph, CostArcMap>
             ::template SetDistMap<CostNodeMap>::Create BF;
 
           // Set epsilon to the minimum cycle mean
           buildResidualNetwork();
           MMC mmc(_sgr, _cost_map);
-          mmc.findMinMean();
+          mmc.findCycleMean();
           epsilon = -mmc.cycleMean();
-          Cost cycle_cost = mmc.cycleLength();
-          int cycle_size = mmc.cycleArcNum();
+          Cost cycle_cost = mmc.cycleCost();
+          int cycle_size = mmc.cycleSize();
           
           // Compute feasible potentials for the current epsilon
           for (int i = 0; i != int(_cost_vec.size()); ++i) {

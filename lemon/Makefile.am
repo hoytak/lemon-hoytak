@@ -89,10 +89,10 @@ lemon_HEADERS += \
 	lemon/gomory_hu.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
-	lemon/hartmann_orlin.h \
-	lemon/howard.h \
+	lemon/hartmann_orlin_mmc.h \
+	lemon/howard_mmc.h \
 	lemon/hypercube_graph.h \
-	lemon/karp.h \
+	lemon/karp_mmc.h \
 	lemon/kruskal.h \
 	lemon/hao_orlin.h \
 	lemon/lgf_reader.h \

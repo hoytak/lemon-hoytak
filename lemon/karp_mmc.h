@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_KARP_H
-#define LEMON_KARP_H
+#ifndef LEMON_KARP_MMC_H
+#define LEMON_KARP_MMC_H
 
 /// \ingroup min_mean_cycle
 ///
@@ -33,37 +33,37 @@
 
 namespace lemon {
 
-  /// \brief Default traits class of Karp algorithm.
+  /// \brief Default traits class of KarpMmc class.
   ///
-  /// Default traits class of Karp algorithm.
+  /// Default traits class of KarpMmc class.
   /// \tparam GR The type of the digraph.
-  /// \tparam LEN The type of the length map.
+  /// \tparam CM The type of the cost map.
   /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN>
+  template <typename GR, typename CM>
 #else
-  template <typename GR, typename LEN,
-    bool integer = std::numeric_limits<typename LEN::Value>::is_integer>
+  template <typename GR, typename CM,
+    bool integer = std::numeric_limits<typename CM::Value>::is_integer>
 #endif
-  struct KarpDefaultTraits
+  struct KarpMmcDefaultTraits
   {
     /// The type of the digraph
     typedef GR Digraph;
-    /// The type of the length map
-    typedef LEN LengthMap;
-    /// The type of the arc lengths
-    typedef typename LengthMap::Value Value;
+    /// The type of the cost map
+    typedef CM CostMap;
+    /// The type of the arc costs
+    typedef typename CostMap::Value Cost;
 
-    /// \brief The large value type used for internal computations
+    /// \brief The large cost type used for internal computations
     ///
-    /// The large value type used for internal computations.
-    /// It is \c long \c long if the \c Value type is integer,
+    /// The large cost type used for internal computations.
+    /// It is \c long \c long if the \c Cost type is integer,
     /// otherwise it is \c double.
-    /// \c Value must be convertible to \c LargeValue.
-    typedef double LargeValue;
+    /// \c Cost must be convertible to \c LargeCost.
+    typedef double LargeCost;
 
     /// The tolerance type used for internal computations
-    typedef lemon::Tolerance<LargeValue> Tolerance;
+    typedef lemon::Tolerance<LargeCost> Tolerance;
 
     /// \brief The path type of the found cycles
     ///
@@ -73,19 +73,19 @@ namespace lemon {
     typedef lemon::Path<Digraph> Path;
   };
 
-  // Default traits class for integer value types
-  template <typename GR, typename LEN>
-  struct KarpDefaultTraits<GR, LEN, true>
+  // Default traits class for integer cost types
+  template <typename GR, typename CM>
+  struct KarpMmcDefaultTraits<GR, CM, true>
   {
     typedef GR Digraph;
-    typedef LEN LengthMap;
-    typedef typename LengthMap::Value Value;
+    typedef CM CostMap;
+    typedef typename CostMap::Value Cost;
 #ifdef LEMON_HAVE_LONG_LONG
-    typedef long long LargeValue;
+    typedef long long LargeCost;
 #else
-    typedef long LargeValue;
+    typedef long LargeCost;
 #endif
-    typedef lemon::Tolerance<LargeValue> Tolerance;
+    typedef lemon::Tolerance<LargeCost> Tolerance;
     typedef lemon::Path<Digraph> Path;
   };
 
@@ -97,42 +97,42 @@ namespace lemon {
   /// mean cycle.
   ///
   /// This class implements Karp's algorithm for finding a directed
-  /// cycle of minimum mean length (cost) in a digraph
+  /// cycle of minimum mean cost in a digraph
   /// \ref amo93networkflows, \ref dasdan98minmeancycle.
   /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
-  /// \tparam LEN The type of the length map. The default
+  /// \tparam CM The type of the cost map. The default
   /// map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
   /// \tparam TR The traits class that defines various types used by the
-  /// algorithm. By default, it is \ref KarpDefaultTraits
-  /// "KarpDefaultTraits<GR, LEN>".
+  /// algorithm. By default, it is \ref KarpMmcDefaultTraits
+  /// "KarpMmcDefaultTraits<GR, CM>".
   /// In most cases, this parameter should not be set directly,
   /// consider to use the named template parameters instead.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN, typename TR>
+  template <typename GR, typename CM, typename TR>
 #else
   template < typename GR,
-             typename LEN = typename GR::template ArcMap<int>,
-             typename TR = KarpDefaultTraits<GR, LEN> >
+             typename CM = typename GR::template ArcMap<int>,
+             typename TR = KarpMmcDefaultTraits<GR, CM> >
 #endif
-  class Karp
+  class KarpMmc
   {
   public:
 
     /// The type of the digraph
     typedef typename TR::Digraph Digraph;
-    /// The type of the length map
-    typedef typename TR::LengthMap LengthMap;
-    /// The type of the arc lengths
-    typedef typename TR::Value Value;
+    /// The type of the cost map
+    typedef typename TR::CostMap CostMap;
+    /// The type of the arc costs
+    typedef typename TR::Cost Cost;
 
-    /// \brief The large value type
+    /// \brief The large cost type
     ///
-    /// The large value type used for internal computations.
-    /// By default, it is \c long \c long if the \c Value type is integer,
+    /// The large cost type used for internal computations.
+    /// By default, it is \c long \c long if the \c Cost type is integer,
     /// otherwise it is \c double.
-    typedef typename TR::LargeValue LargeValue;
+    typedef typename TR::LargeCost LargeCost;
 
     /// The tolerance type
     typedef typename TR::Tolerance Tolerance;
@@ -140,11 +140,11 @@ namespace lemon {
     /// \brief The path type of the found cycles
     ///
     /// The path type of the found cycles.
-    /// Using the \ref KarpDefaultTraits "default traits class",
+    /// Using the \ref KarpMmcDefaultTraits "default traits class",
     /// it is \ref lemon::Path "Path<Digraph>".
     typedef typename TR::Path Path;
 
-    /// The \ref KarpDefaultTraits "traits class" of the algorithm
+    /// The \ref KarpMmcDefaultTraits "traits class" of the algorithm
     typedef TR Traits;
 
   private:
@@ -154,9 +154,9 @@ namespace lemon {
     // Data sturcture for path data
     struct PathData
     {
-      LargeValue dist;
+      LargeCost dist;
       Arc pred;
-      PathData(LargeValue d, Arc p = INVALID) :
+      PathData(LargeCost d, Arc p = INVALID) :
         dist(d), pred(p) {}
     };
 
@@ -167,8 +167,8 @@ namespace lemon {
 
     // The digraph the algorithm runs on
     const Digraph &_gr;
-    // The length of the arcs
-    const LengthMap &_length;
+    // The cost of the arcs
+    const CostMap &_cost;
 
     // Data for storing the strongly connected components
     int _comp_num;
@@ -178,7 +178,7 @@ namespace lemon {
     typename Digraph::template NodeMap<std::vector<Arc> > _out_arcs;
 
     // Data for the found cycle
-    LargeValue _cycle_length;
+    LargeCost _cycle_cost;
     int _cycle_size;
     Node _cycle_node;
 
@@ -193,7 +193,7 @@ namespace lemon {
     Tolerance _tolerance;
     
     // Infinite constant
-    const LargeValue INF;
+    const LargeCost INF;
 
   public:
 
@@ -201,20 +201,20 @@ namespace lemon {
     /// @{
 
     template <typename T>
-    struct SetLargeValueTraits : public Traits {
-      typedef T LargeValue;
+    struct SetLargeCostTraits : public Traits {
+      typedef T LargeCost;
       typedef lemon::Tolerance<T> Tolerance;
     };
 
     /// \brief \ref named-templ-param "Named parameter" for setting
-    /// \c LargeValue type.
+    /// \c LargeCost type.
     ///
-    /// \ref named-templ-param "Named parameter" for setting \c LargeValue
+    /// \ref named-templ-param "Named parameter" for setting \c LargeCost
     /// type. It is used for internal computations in the algorithm.
     template <typename T>
-    struct SetLargeValue
-      : public Karp<GR, LEN, SetLargeValueTraits<T> > {
-      typedef Karp<GR, LEN, SetLargeValueTraits<T> > Create;
+    struct SetLargeCost
+      : public KarpMmc<GR, CM, SetLargeCostTraits<T> > {
+      typedef KarpMmc<GR, CM, SetLargeCostTraits<T> > Create;
     };
 
     template <typename T>
@@ -231,15 +231,15 @@ namespace lemon {
     /// and it must have an \c addFront() function.
     template <typename T>
     struct SetPath
-      : public Karp<GR, LEN, SetPathTraits<T> > {
-      typedef Karp<GR, LEN, SetPathTraits<T> > Create;
+      : public KarpMmc<GR, CM, SetPathTraits<T> > {
+      typedef KarpMmc<GR, CM, SetPathTraits<T> > Create;
     };
 
     /// @}
 
   protected:
 
-    Karp() {}
+    KarpMmc() {}
 
   public:
 
@@ -248,19 +248,19 @@ namespace lemon {
     /// The constructor of the class.
     ///
     /// \param digraph The digraph the algorithm runs on.
-    /// \param length The lengths (costs) of the arcs.
-    Karp( const Digraph &digraph,
-          const LengthMap &length ) :
-      _gr(digraph), _length(length), _comp(digraph), _out_arcs(digraph),
-      _cycle_length(0), _cycle_size(1), _cycle_node(INVALID),
+    /// \param cost The costs of the arcs.
+    KarpMmc( const Digraph &digraph,
+             const CostMap &cost ) :
+      _gr(digraph), _cost(cost), _comp(digraph), _out_arcs(digraph),
+      _cycle_cost(0), _cycle_size(1), _cycle_node(INVALID),
       _cycle_path(NULL), _local_path(false), _data(digraph),
-      INF(std::numeric_limits<LargeValue>::has_infinity ?
-          std::numeric_limits<LargeValue>::infinity() :
-          std::numeric_limits<LargeValue>::max())
+      INF(std::numeric_limits<LargeCost>::has_infinity ?
+          std::numeric_limits<LargeCost>::infinity() :
+          std::numeric_limits<LargeCost>::max())
     {}
 
     /// Destructor.
-    ~Karp() {
+    ~KarpMmc() {
       if (_local_path) delete _cycle_path;
     }
 
@@ -270,7 +270,7 @@ namespace lemon {
     /// found cycle.
     ///
     /// If you don't call this function before calling \ref run() or
-    /// \ref findMinMean(), it will allocate a local \ref Path "path"
+    /// \ref findCycleMean(), it will allocate a local \ref Path "path"
     /// structure. The destuctor deallocates this automatically
     /// allocated object, of course.
     ///
@@ -278,7 +278,7 @@ namespace lemon {
     /// "addFront()" function of the given path structure.
     ///
     /// \return <tt>(*this)</tt>
-    Karp& cycle(Path &path) {
+    KarpMmc& cycle(Path &path) {
       if (_local_path) {
         delete _cycle_path;
         _local_path = false;
@@ -292,7 +292,7 @@ namespace lemon {
     /// This function sets the tolerance object used by the algorithm.
     ///
     /// \return <tt>(*this)</tt>
-    Karp& tolerance(const Tolerance& tolerance) {
+    KarpMmc& tolerance(const Tolerance& tolerance) {
       _tolerance = tolerance;
       return *this;
     }
@@ -308,8 +308,8 @@ namespace lemon {
     /// \name Execution control
     /// The simplest way to execute the algorithm is to call the \ref run()
     /// function.\n
-    /// If you only need the minimum mean length, you may call
-    /// \ref findMinMean().
+    /// If you only need the minimum mean cost, you may call
+    /// \ref findCycleMean().
 
     /// @{
 
@@ -317,25 +317,25 @@ namespace lemon {
     ///
     /// This function runs the algorithm.
     /// It can be called more than once (e.g. if the underlying digraph
-    /// and/or the arc lengths have been modified).
+    /// and/or the arc costs have been modified).
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
     /// \note <tt>mmc.run()</tt> is just a shortcut of the following code.
     /// \code
-    ///   return mmc.findMinMean() && mmc.findCycle();
+    ///   return mmc.findCycleMean() && mmc.findCycle();
     /// \endcode
     bool run() {
-      return findMinMean() && findCycle();
+      return findCycleMean() && findCycle();
     }
 
     /// \brief Find the minimum cycle mean.
     ///
-    /// This function finds the minimum mean length of the directed
+    /// This function finds the minimum mean cost of the directed
     /// cycles in the digraph.
     ///
     /// \return \c true if a directed cycle exists in the digraph.
-    bool findMinMean() {
+    bool findCycleMean() {
       // Initialization and find strongly connected components
       init();
       findComponents();
@@ -351,12 +351,12 @@ namespace lemon {
 
     /// \brief Find a minimum mean directed cycle.
     ///
-    /// This function finds a directed cycle of minimum mean length
-    /// in the digraph using the data computed by findMinMean().
+    /// This function finds a directed cycle of minimum mean cost
+    /// in the digraph using the data computed by findCycleMean().
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
-    /// \pre \ref findMinMean() must be called before using this function.
+    /// \pre \ref findCycleMean() must be called before using this function.
     bool findCycle() {
       if (_cycle_node == INVALID) return false;
       IntNodeMap reached(_gr, -1);
@@ -369,13 +369,13 @@ namespace lemon {
       r = reached[u];
       Arc e = _data[u][r].pred;
       _cycle_path->addFront(e);
-      _cycle_length = _length[e];
+      _cycle_cost = _cost[e];
       _cycle_size = 1;
       Node v;
       while ((v = _gr.source(e)) != u) {
         e = _data[v][--r].pred;
         _cycle_path->addFront(e);
-        _cycle_length += _length[e];
+        _cycle_cost += _cost[e];
         ++_cycle_size;
       }
       return true;
@@ -390,40 +390,40 @@ namespace lemon {
 
     /// @{
 
-    /// \brief Return the total length of the found cycle.
+    /// \brief Return the total cost of the found cycle.
     ///
-    /// This function returns the total length of the found cycle.
+    /// This function returns the total cost of the found cycle.
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
-    Value cycleLength() const {
-      return static_cast<Value>(_cycle_length);
+    Cost cycleCost() const {
+      return static_cast<Cost>(_cycle_cost);
     }
 
     /// \brief Return the number of arcs on the found cycle.
     ///
     /// This function returns the number of arcs on the found cycle.
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
-    int cycleArcNum() const {
+    int cycleSize() const {
       return _cycle_size;
     }
 
-    /// \brief Return the mean length of the found cycle.
+    /// \brief Return the mean cost of the found cycle.
     ///
-    /// This function returns the mean length of the found cycle.
+    /// This function returns the mean cost of the found cycle.
     ///
     /// \note <tt>alg.cycleMean()</tt> is just a shortcut of the
     /// following code.
     /// \code
-    ///   return static_cast<double>(alg.cycleLength()) / alg.cycleArcNum();
+    ///   return static_cast<double>(alg.cycleCost()) / alg.cycleSize();
     /// \endcode
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
     double cycleMean() const {
-      return static_cast<double>(_cycle_length) / _cycle_size;
+      return static_cast<double>(_cycle_cost) / _cycle_size;
     }
 
     /// \brief Return the found cycle.
@@ -448,7 +448,7 @@ namespace lemon {
         _cycle_path = new Path;
       }
       _cycle_path->clear();
-      _cycle_length = 0;
+      _cycle_cost = 0;
       _cycle_size = 1;
       _cycle_node = INVALID;
       for (NodeIt u(_gr); u != INVALID; ++u)
@@ -497,7 +497,7 @@ namespace lemon {
     }
 
     // Process all rounds of computing path data for the current component.
-    // _data[v][k] is the length of a shortest directed walk from the root
+    // _data[v][k] is the cost of a shortest directed walk from the root
     // node to node v containing exactly k arcs.
     void processRounds() {
       Node start = (*_nodes)[0];
@@ -519,13 +519,13 @@ namespace lemon {
       std::vector<Node> next;
       Node u, v;
       Arc e;
-      LargeValue d;
+      LargeCost d;
       for (int i = 0; i < int(_process.size()); ++i) {
         u = _process[i];
         for (int j = 0; j < int(_out_arcs[u].size()); ++j) {
           e = _out_arcs[u][j];
           v = _gr.target(e);
-          d = _data[u][k-1].dist + _length[e];
+          d = _data[u][k-1].dist + _cost[e];
           if (_tolerance.less(d, _data[v][k].dist)) {
             if (_data[v][k].dist == INF) next.push_back(v);
             _data[v][k] = PathData(d, e);
@@ -539,13 +539,13 @@ namespace lemon {
     void processNextFullRound(int k) {
       Node u, v;
       Arc e;
-      LargeValue d;
+      LargeCost d;
       for (int i = 0; i < int(_nodes->size()); ++i) {
         u = (*_nodes)[i];
         for (int j = 0; j < int(_out_arcs[u].size()); ++j) {
           e = _out_arcs[u][j];
           v = _gr.target(e);
-          d = _data[u][k-1].dist + _length[e];
+          d = _data[u][k-1].dist + _cost[e];
           if (_tolerance.less(d, _data[v][k].dist)) {
             _data[v][k] = PathData(d, e);
           }
@@ -559,32 +559,32 @@ namespace lemon {
       for (int i = 0; i < n; ++i) {
         Node u = (*_nodes)[i];
         if (_data[u][n].dist == INF) continue;
-        LargeValue length, max_length = 0;
+        LargeCost cost, max_cost = 0;
         int size, max_size = 1;
         bool found_curr = false;
         for (int k = 0; k < n; ++k) {
           if (_data[u][k].dist == INF) continue;
-          length = _data[u][n].dist - _data[u][k].dist;
+          cost = _data[u][n].dist - _data[u][k].dist;
           size = n - k;
-          if (!found_curr || length * max_size > max_length * size) {
+          if (!found_curr || cost * max_size > max_cost * size) {
             found_curr = true;
-            max_length = length;
+            max_cost = cost;
             max_size = size;
           }
         }
         if ( found_curr && (_cycle_node == INVALID ||
-             max_length * _cycle_size < _cycle_length * max_size) ) {
-          _cycle_length = max_length;
+             max_cost * _cycle_size < _cycle_cost * max_size) ) {
+          _cycle_cost = max_cost;
           _cycle_size = max_size;
           _cycle_node = u;
         }
       }
     }
 
-  }; //class Karp
+  }; //class KarpMmc
 
   ///@}
 
 } //namespace lemon
 
-#endif //LEMON_KARP_H
+#endif //LEMON_KARP_MMC_H

@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef LEMON_HARTMANN_ORLIN_H
-#define LEMON_HARTMANN_ORLIN_H
+#ifndef LEMON_HARTMANN_ORLIN_MMC_H
+#define LEMON_HARTMANN_ORLIN_MMC_H
 
 /// \ingroup min_mean_cycle
 ///
@@ -33,37 +33,37 @@
 
 namespace lemon {
 
-  /// \brief Default traits class of HartmannOrlin algorithm.
+  /// \brief Default traits class of HartmannOrlinMmc class.
   ///
-  /// Default traits class of HartmannOrlin algorithm.
+  /// Default traits class of HartmannOrlinMmc class.
   /// \tparam GR The type of the digraph.
-  /// \tparam LEN The type of the length map.
+  /// \tparam CM The type of the cost map.
   /// It must conform to the \ref concepts::Rea_data "Rea_data" concept.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN>
+  template <typename GR, typename CM>
 #else
-  template <typename GR, typename LEN,
-    bool integer = std::numeric_limits<typename LEN::Value>::is_integer>
+  template <typename GR, typename CM,
+    bool integer = std::numeric_limits<typename CM::Value>::is_integer>
 #endif
-  struct HartmannOrlinDefaultTraits
+  struct HartmannOrlinMmcDefaultTraits
   {
     /// The type of the digraph
     typedef GR Digraph;
-    /// The type of the length map
-    typedef LEN LengthMap;
-    /// The type of the arc lengths
-    typedef typename LengthMap::Value Value;
+    /// The type of the cost map
+    typedef CM CostMap;
+    /// The type of the arc costs
+    typedef typename CostMap::Value Cost;
 
-    /// \brief The large value type used for internal computations
+    /// \brief The large cost type used for internal computations
     ///
-    /// The large value type used for internal computations.
-    /// It is \c long \c long if the \c Value type is integer,
+    /// The large cost type used for internal computations.
+    /// It is \c long \c long if the \c Cost type is integer,
     /// otherwise it is \c double.
-    /// \c Value must be convertible to \c LargeValue.
-    typedef double LargeValue;
+    /// \c Cost must be convertible to \c LargeCost.
+    typedef double LargeCost;
 
     /// The tolerance type used for internal computations
-    typedef lemon::Tolerance<LargeValue> Tolerance;
+    typedef lemon::Tolerance<LargeCost> Tolerance;
 
     /// \brief The path type of the found cycles
     ///
@@ -73,19 +73,19 @@ namespace lemon {
     typedef lemon::Path<Digraph> Path;
   };
 
-  // Default traits class for integer value types
-  template <typename GR, typename LEN>
-  struct HartmannOrlinDefaultTraits<GR, LEN, true>
+  // Default traits class for integer cost types
+  template <typename GR, typename CM>
+  struct HartmannOrlinMmcDefaultTraits<GR, CM, true>
   {
     typedef GR Digraph;
-    typedef LEN LengthMap;
-    typedef typename LengthMap::Value Value;
+    typedef CM CostMap;
+    typedef typename CostMap::Value Cost;
 #ifdef LEMON_HAVE_LONG_LONG
-    typedef long long LargeValue;
+    typedef long long LargeCost;
 #else
-    typedef long LargeValue;
+    typedef long LargeCost;
 #endif
-    typedef lemon::Tolerance<LargeValue> Tolerance;
+    typedef lemon::Tolerance<LargeCost> Tolerance;
     typedef lemon::Path<Digraph> Path;
   };
 
@@ -97,44 +97,44 @@ namespace lemon {
   /// a minimum mean cycle.
   ///
   /// This class implements the Hartmann-Orlin algorithm for finding
-  /// a directed cycle of minimum mean length (cost) in a digraph
+  /// a directed cycle of minimum mean cost in a digraph
   /// \ref amo93networkflows, \ref dasdan98minmeancycle.
   /// It is an improved version of \ref Karp "Karp"'s original algorithm,
   /// it applies an efficient early termination scheme.
   /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///
   /// \tparam GR The type of the digraph the algorithm runs on.
-  /// \tparam LEN The type of the length map. The default
+  /// \tparam CM The type of the cost map. The default
   /// map type is \ref concepts::Digraph::ArcMap "GR::ArcMap<int>".
   /// \tparam TR The traits class that defines various types used by the
-  /// algorithm. By default, it is \ref HartmannOrlinDefaultTraits
-  /// "HartmannOrlinDefaultTraits<GR, LEN>".
+  /// algorithm. By default, it is \ref HartmannOrlinMmcDefaultTraits
+  /// "HartmannOrlinMmcDefaultTraits<GR, CM>".
   /// In most cases, this parameter should not be set directly,
   /// consider to use the named template parameters instead.
 #ifdef DOXYGEN
-  template <typename GR, typename LEN, typename TR>
+  template <typename GR, typename CM, typename TR>
 #else
   template < typename GR,
-             typename LEN = typename GR::template ArcMap<int>,
-             typename TR = HartmannOrlinDefaultTraits<GR, LEN> >
+             typename CM = typename GR::template ArcMap<int>,
+             typename TR = HartmannOrlinMmcDefaultTraits<GR, CM> >
 #endif
-  class HartmannOrlin
+  class HartmannOrlinMmc
   {
   public:
 
     /// The type of the digraph
     typedef typename TR::Digraph Digraph;
-    /// The type of the length map
-    typedef typename TR::LengthMap LengthMap;
-    /// The type of the arc lengths
-    typedef typename TR::Value Value;
+    /// The type of the cost map
+    typedef typename TR::CostMap CostMap;
+    /// The type of the arc costs
+    typedef typename TR::Cost Cost;
 
-    /// \brief The large value type
+    /// \brief The large cost type
     ///
-    /// The large value type used for internal computations.
-    /// By default, it is \c long \c long if the \c Value type is integer,
+    /// The large cost type used for internal computations.
+    /// By default, it is \c long \c long if the \c Cost type is integer,
     /// otherwise it is \c double.
-    typedef typename TR::LargeValue LargeValue;
+    typedef typename TR::LargeCost LargeCost;
 
     /// The tolerance type
     typedef typename TR::Tolerance Tolerance;
@@ -142,11 +142,11 @@ namespace lemon {
     /// \brief The path type of the found cycles
     ///
     /// The path type of the found cycles.
-    /// Using the \ref HartmannOrlinDefaultTraits "default traits class",
+    /// Using the \ref HartmannOrlinMmcDefaultTraits "default traits class",
     /// it is \ref lemon::Path "Path<Digraph>".
     typedef typename TR::Path Path;
 
-    /// The \ref HartmannOrlinDefaultTraits "traits class" of the algorithm
+    /// The \ref HartmannOrlinMmcDefaultTraits "traits class" of the algorithm
     typedef TR Traits;
 
   private:
@@ -156,9 +156,9 @@ namespace lemon {
     // Data sturcture for path data
     struct PathData
     {
-      LargeValue dist;
+      LargeCost dist;
       Arc pred;
-      PathData(LargeValue d, Arc p = INVALID) :
+      PathData(LargeCost d, Arc p = INVALID) :
         dist(d), pred(p) {}
     };
 
@@ -169,8 +169,8 @@ namespace lemon {
 
     // The digraph the algorithm runs on
     const Digraph &_gr;
-    // The length of the arcs
-    const LengthMap &_length;
+    // The cost of the arcs
+    const CostMap &_cost;
 
     // Data for storing the strongly connected components
     int _comp_num;
@@ -181,7 +181,7 @@ namespace lemon {
 
     // Data for the found cycles
     bool _curr_found, _best_found;
-    LargeValue _curr_length, _best_length;
+    LargeCost _curr_cost, _best_cost;
     int _curr_size, _best_size;
     Node _curr_node, _best_node;
     int _curr_level, _best_level;
@@ -197,7 +197,7 @@ namespace lemon {
     Tolerance _tolerance;
 
     // Infinite constant
-    const LargeValue INF;
+    const LargeCost INF;
 
   public:
 
@@ -205,20 +205,20 @@ namespace lemon {
     /// @{
 
     template <typename T>
-    struct SetLargeValueTraits : public Traits {
-      typedef T LargeValue;
+    struct SetLargeCostTraits : public Traits {
+      typedef T LargeCost;
       typedef lemon::Tolerance<T> Tolerance;
     };
 
     /// \brief \ref named-templ-param "Named parameter" for setting
-    /// \c LargeValue type.
+    /// \c LargeCost type.
     ///
-    /// \ref named-templ-param "Named parameter" for setting \c LargeValue
+    /// \ref named-templ-param "Named parameter" for setting \c LargeCost
     /// type. It is used for internal computations in the algorithm.
     template <typename T>
-    struct SetLargeValue
-      : public HartmannOrlin<GR, LEN, SetLargeValueTraits<T> > {
-      typedef HartmannOrlin<GR, LEN, SetLargeValueTraits<T> > Create;
+    struct SetLargeCost
+      : public HartmannOrlinMmc<GR, CM, SetLargeCostTraits<T> > {
+      typedef HartmannOrlinMmc<GR, CM, SetLargeCostTraits<T> > Create;
     };
 
     template <typename T>
@@ -235,15 +235,15 @@ namespace lemon {
     /// and it must have an \c addFront() function.
     template <typename T>
     struct SetPath
-      : public HartmannOrlin<GR, LEN, SetPathTraits<T> > {
-      typedef HartmannOrlin<GR, LEN, SetPathTraits<T> > Create;
+      : public HartmannOrlinMmc<GR, CM, SetPathTraits<T> > {
+      typedef HartmannOrlinMmc<GR, CM, SetPathTraits<T> > Create;
     };
 
     /// @}
 
   protected:
 
-    HartmannOrlin() {}
+    HartmannOrlinMmc() {}
 
   public:
 
@@ -252,19 +252,19 @@ namespace lemon {
     /// The constructor of the class.
     ///
     /// \param digraph The digraph the algorithm runs on.
-    /// \param length The lengths (costs) of the arcs.
-    HartmannOrlin( const Digraph &digraph,
-                   const LengthMap &length ) :
-      _gr(digraph), _length(length), _comp(digraph), _out_arcs(digraph),
-      _best_found(false), _best_length(0), _best_size(1),
+    /// \param cost The costs of the arcs.
+    HartmannOrlinMmc( const Digraph &digraph,
+                      const CostMap &cost ) :
+      _gr(digraph), _cost(cost), _comp(digraph), _out_arcs(digraph),
+      _best_found(false), _best_cost(0), _best_size(1),
       _cycle_path(NULL), _local_path(false), _data(digraph),
-      INF(std::numeric_limits<LargeValue>::has_infinity ?
-          std::numeric_limits<LargeValue>::infinity() :
-          std::numeric_limits<LargeValue>::max())
+      INF(std::numeric_limits<LargeCost>::has_infinity ?
+          std::numeric_limits<LargeCost>::infinity() :
+          std::numeric_limits<LargeCost>::max())
     {}
 
     /// Destructor.
-    ~HartmannOrlin() {
+    ~HartmannOrlinMmc() {
       if (_local_path) delete _cycle_path;
     }
 
@@ -274,7 +274,7 @@ namespace lemon {
     /// found cycle.
     ///
     /// If you don't call this function before calling \ref run() or
-    /// \ref findMinMean(), it will allocate a local \ref Path "path"
+    /// \ref findCycleMean(), it will allocate a local \ref Path "path"
     /// structure. The destuctor deallocates this automatically
     /// allocated object, of course.
     ///
@@ -282,7 +282,7 @@ namespace lemon {
     /// "addFront()" function of the given path structure.
     ///
     /// \return <tt>(*this)</tt>
-    HartmannOrlin& cycle(Path &path) {
+    HartmannOrlinMmc& cycle(Path &path) {
       if (_local_path) {
         delete _cycle_path;
         _local_path = false;
@@ -296,7 +296,7 @@ namespace lemon {
     /// This function sets the tolerance object used by the algorithm.
     ///
     /// \return <tt>(*this)</tt>
-    HartmannOrlin& tolerance(const Tolerance& tolerance) {
+    HartmannOrlinMmc& tolerance(const Tolerance& tolerance) {
       _tolerance = tolerance;
       return *this;
     }
@@ -312,8 +312,8 @@ namespace lemon {
     /// \name Execution control
     /// The simplest way to execute the algorithm is to call the \ref run()
     /// function.\n
-    /// If you only need the minimum mean length, you may call
-    /// \ref findMinMean().
+    /// If you only need the minimum mean cost, you may call
+    /// \ref findCycleMean().
 
     /// @{
 
@@ -321,25 +321,25 @@ namespace lemon {
     ///
     /// This function runs the algorithm.
     /// It can be called more than once (e.g. if the underlying digraph
-    /// and/or the arc lengths have been modified).
+    /// and/or the arc costs have been modified).
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
     /// \note <tt>mmc.run()</tt> is just a shortcut of the following code.
     /// \code
-    ///   return mmc.findMinMean() && mmc.findCycle();
+    ///   return mmc.findCycleMean() && mmc.findCycle();
     /// \endcode
     bool run() {
-      return findMinMean() && findCycle();
+      return findCycleMean() && findCycle();
     }
 
     /// \brief Find the minimum cycle mean.
     ///
-    /// This function finds the minimum mean length of the directed
+    /// This function finds the minimum mean cost of the directed
     /// cycles in the digraph.
     ///
     /// \return \c true if a directed cycle exists in the digraph.
-    bool findMinMean() {
+    bool findCycleMean() {
       // Initialization and find strongly connected components
       init();
       findComponents();
@@ -351,9 +351,9 @@ namespace lemon {
         
         // Update the best cycle (global minimum mean cycle)
         if ( _curr_found && (!_best_found || 
-             _curr_length * _best_size < _best_length * _curr_size) ) {
+             _curr_cost * _best_size < _best_cost * _curr_size) ) {
           _best_found = true;
-          _best_length = _curr_length;
+          _best_cost = _curr_cost;
           _best_size = _curr_size;
           _best_node = _curr_node;
           _best_level = _curr_level;
@@ -364,12 +364,12 @@ namespace lemon {
 
     /// \brief Find a minimum mean directed cycle.
     ///
-    /// This function finds a directed cycle of minimum mean length
-    /// in the digraph using the data computed by findMinMean().
+    /// This function finds a directed cycle of minimum mean cost
+    /// in the digraph using the data computed by findCycleMean().
     ///
     /// \return \c true if a directed cycle exists in the digraph.
     ///
-    /// \pre \ref findMinMean() must be called before using this function.
+    /// \pre \ref findCycleMean() must be called before using this function.
     bool findCycle() {
       if (!_best_found) return false;
       IntNodeMap reached(_gr, -1);
@@ -382,13 +382,13 @@ namespace lemon {
       r = reached[u];
       Arc e = _data[u][r].pred;
       _cycle_path->addFront(e);
-      _best_length = _length[e];
+      _best_cost = _cost[e];
       _best_size = 1;
       Node v;
       while ((v = _gr.source(e)) != u) {
         e = _data[v][--r].pred;
         _cycle_path->addFront(e);
-        _best_length += _length[e];
+        _best_cost += _cost[e];
         ++_best_size;
       }
       return true;
@@ -403,40 +403,40 @@ namespace lemon {
 
     /// @{
 
-    /// \brief Return the total length of the found cycle.
+    /// \brief Return the total cost of the found cycle.
     ///
-    /// This function returns the total length of the found cycle.
+    /// This function returns the total cost of the found cycle.
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
-    Value cycleLength() const {
-      return static_cast<Value>(_best_length);
+    Cost cycleCost() const {
+      return static_cast<Cost>(_best_cost);
     }
 
     /// \brief Return the number of arcs on the found cycle.
     ///
     /// This function returns the number of arcs on the found cycle.
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
-    int cycleArcNum() const {
+    int cycleSize() const {
       return _best_size;
     }
 
-    /// \brief Return the mean length of the found cycle.
+    /// \brief Return the mean cost of the found cycle.
     ///
-    /// This function returns the mean length of the found cycle.
+    /// This function returns the mean cost of the found cycle.
     ///
     /// \note <tt>alg.cycleMean()</tt> is just a shortcut of the
     /// following code.
     /// \code
-    ///   return static_cast<double>(alg.cycleLength()) / alg.cycleArcNum();
+    ///   return static_cast<double>(alg.cycleCost()) / alg.cycleSize();
     /// \endcode
     ///
-    /// \pre \ref run() or \ref findMinMean() must be called before
+    /// \pre \ref run() or \ref findCycleMean() must be called before
     /// using this function.
     double cycleMean() const {
-      return static_cast<double>(_best_length) / _best_size;
+      return static_cast<double>(_best_cost) / _best_size;
     }
 
     /// \brief Return the found cycle.
@@ -462,7 +462,7 @@ namespace lemon {
       }
       _cycle_path->clear();
       _best_found = false;
-      _best_length = 0;
+      _best_cost = 0;
       _best_size = 1;
       _cycle_path->clear();
       for (NodeIt u(_gr); u != INVALID; ++u)
@@ -511,7 +511,7 @@ namespace lemon {
     }
 
     // Process all rounds of computing path data for the current component.
-    // _data[v][k] is the length of a shortest directed walk from the root
+    // _data[v][k] is the cost of a shortest directed walk from the root
     // node to node v containing exactly k arcs.
     void processRounds() {
       Node start = (*_nodes)[0];
@@ -543,13 +543,13 @@ namespace lemon {
       std::vector<Node> next;
       Node u, v;
       Arc e;
-      LargeValue d;
+      LargeCost d;
       for (int i = 0; i < int(_process.size()); ++i) {
         u = _process[i];
         for (int j = 0; j < int(_out_arcs[u].size()); ++j) {
           e = _out_arcs[u][j];
           v = _gr.target(e);
-          d = _data[u][k-1].dist + _length[e];
+          d = _data[u][k-1].dist + _cost[e];
           if (_tolerance.less(d, _data[v][k].dist)) {
             if (_data[v][k].dist == INF) next.push_back(v);
             _data[v][k] = PathData(d, e);
@@ -563,13 +563,13 @@ namespace lemon {
     void processNextFullRound(int k) {
       Node u, v;
       Arc e;
-      LargeValue d;
+      LargeCost d;
       for (int i = 0; i < int(_nodes->size()); ++i) {
         u = (*_nodes)[i];
         for (int j = 0; j < int(_out_arcs[u].size()); ++j) {
           e = _out_arcs[u][j];
           v = _gr.target(e);
-          d = _data[u][k-1].dist + _length[e];
+          d = _data[u][k-1].dist + _cost[e];
           if (_tolerance.less(d, _data[v][k].dist)) {
             _data[v][k] = PathData(d, e);
           }
@@ -581,9 +581,9 @@ namespace lemon {
     bool checkTermination(int k) {
       typedef std::pair<int, int> Pair;
       typename GR::template NodeMap<Pair> level(_gr, Pair(-1, 0));
-      typename GR::template NodeMap<LargeValue> pi(_gr);
+      typename GR::template NodeMap<LargeCost> pi(_gr);
       int n = _nodes->size();
-      LargeValue length;
+      LargeCost cost;
       int size;
       Node u;
       
@@ -595,10 +595,10 @@ namespace lemon {
         for (int j = k; j >= 0; --j) {
           if (level[u].first == i && level[u].second > 0) {
             // A cycle is found
-            length = _data[u][level[u].second].dist - _data[u][j].dist;
+            cost = _data[u][level[u].second].dist - _data[u][j].dist;
             size = level[u].second - j;
-            if (!_curr_found || length * _curr_size < _curr_length * size) {
-              _curr_length = length;
+            if (!_curr_found || cost * _curr_size < _curr_cost * size) {
+              _curr_cost = cost;
               _curr_size = size;
               _curr_node = u;
               _curr_level = level[u].second;
@@ -613,7 +613,7 @@ namespace lemon {
       }
 
       // If at least one cycle is found, check the optimality condition
-      LargeValue d;
+      LargeCost d;
       if (_curr_found && k < n) {
         // Find node potentials
         for (int i = 0; i < n; ++i) {
@@ -621,7 +621,7 @@ namespace lemon {
           pi[u] = INF;
           for (int j = 0; j <= k; ++j) {
             if (_data[u][j].dist < INF) {
-              d = _data[u][j].dist * _curr_size - j * _curr_length;
+              d = _data[u][j].dist * _curr_size - j * _curr_cost;
               if (_tolerance.less(d, pi[u])) pi[u] = d;
             }
           }
@@ -630,7 +630,7 @@ namespace lemon {
         // Check the optimality condition for all arcs
         bool done = true;
         for (ArcIt a(_gr); a != INVALID; ++a) {
-          if (_tolerance.less(_length[a] * _curr_size - _curr_length,
+          if (_tolerance.less(_cost[a] * _curr_size - _curr_cost,
                               pi[_gr.target(a)] - pi[_gr.source(a)]) ) {
             done = false;
             break;
@@ -641,10 +641,10 @@ namespace lemon {
       return (k == n);
     }
 
-  }; //class HartmannOrlin
+  }; //class HartmannOrlinMmc
 
   ///@}
 
 } //namespace lemon
 
-#endif //LEMON_HARTMANN_ORLIN_H
+#endif //LEMON_HARTMANN_ORLIN_MMC_H

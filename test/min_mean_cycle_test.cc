@@ -25,9 +25,9 @@
 #include <lemon/concepts/digraph.h>
 #include <lemon/concept_check.h>
 
-#include <lemon/karp.h>
-#include <lemon/hartmann_orlin.h>
-#include <lemon/howard.h>
+#include <lemon/karp_mmc.h>
+#include <lemon/hartmann_orlin_mmc.h>
+#include <lemon/howard_mmc.h>
 
 #include "test_tools.h"
 
@@ -63,7 +63,7 @@ char test_lgf[] =
 
                         
 // Check the interface of an MMC algorithm
-template <typename GR, typename Value>
+template <typename GR, typename Cost>
 struct MmcClassConcept
 {
   template <typename MMC>
@@ -73,30 +73,30 @@ struct MmcClassConcept
 
       typedef typename MMC
         ::template SetPath<ListPath<GR> >
-        ::template SetLargeValue<Value>
+        ::template SetLargeCost<Cost>
         ::Create MmcAlg;
-      MmcAlg mmc(me.g, me.length);
+      MmcAlg mmc(me.g, me.cost);
       const MmcAlg& const_mmc = mmc;
       
       typename MmcAlg::Tolerance tol = const_mmc.tolerance();
       mmc.tolerance(tol);
       
       b = mmc.cycle(p).run();
-      b = mmc.findMinMean();
+      b = mmc.findCycleMean();
       b = mmc.findCycle();
 
-      v = const_mmc.cycleLength();
-      i = const_mmc.cycleArcNum();
+      v = const_mmc.cycleCost();
+      i = const_mmc.cycleSize();
       d = const_mmc.cycleMean();
       p = const_mmc.cycle();
     }
 
-    typedef concepts::ReadMap<typename GR::Arc, Value> LM;
+    typedef concepts::ReadMap<typename GR::Arc, Cost> CM;
   
     GR g;
-    LM length;
+    CM cost;
     ListPath<GR> p;
-    Value v;
+    Cost v;
     int i;
     double d;
     bool b;
@@ -108,13 +108,13 @@ template <typename MMC>
 void checkMmcAlg(const SmartDigraph& gr,
                  const SmartDigraph::ArcMap<int>& lm,
                  const SmartDigraph::ArcMap<int>& cm,
-                 int length, int size) {
+                 int cost, int size) {
   MMC alg(gr, lm);
-  alg.findMinMean();
-  check(alg.cycleMean() == static_cast<double>(length) / size,
+  alg.findCycleMean();
+  check(alg.cycleMean() == static_cast<double>(cost) / size,
         "Wrong cycle mean");
   alg.findCycle();
-  check(alg.cycleLength() == length && alg.cycleArcNum() == size,
+  check(alg.cycleCost() == cost && alg.cycleSize() == size,
         "Wrong path");
   SmartDigraph::ArcMap<int> cycle(gr, 0);
   for (typename MMC::Path::ArcIt a(alg.cycle()); a != INVALID; ++a) {
@@ -148,28 +148,28 @@ int main() {
   {
     typedef concepts::Digraph GR;
 
-    // Karp
+    // KarpMmc
     checkConcept< MmcClassConcept<GR, int>,
-                  Karp<GR, concepts::ReadMap<GR::Arc, int> > >();
+                  KarpMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
     checkConcept< MmcClassConcept<GR, float>,
-                  Karp<GR, concepts::ReadMap<GR::Arc, float> > >();
+                  KarpMmc<GR, concepts::ReadMap<GR::Arc, float> > >();
     
-    // HartmannOrlin
+    // HartmannOrlinMmc
     checkConcept< MmcClassConcept<GR, int>,
-                  HartmannOrlin<GR, concepts::ReadMap<GR::Arc, int> > >();
+                  HartmannOrlinMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
     checkConcept< MmcClassConcept<GR, float>,
-                  HartmannOrlin<GR, concepts::ReadMap<GR::Arc, float> > >();
+                  HartmannOrlinMmc<GR, concepts::ReadMap<GR::Arc, float> > >();
     
-    // Howard
+    // HowardMmc
     checkConcept< MmcClassConcept<GR, int>,
-                  Howard<GR, concepts::ReadMap<GR::Arc, int> > >();
+                  HowardMmc<GR, concepts::ReadMap<GR::Arc, int> > >();
     checkConcept< MmcClassConcept<GR, float>,
-                  Howard<GR, concepts::ReadMap<GR::Arc, float> > >();
+                  HowardMmc<GR, concepts::ReadMap<GR::Arc, float> > >();
 
-    if (IsSameType<Howard<GR, concepts::ReadMap<GR::Arc, int> >::LargeValue,
-          long_int>::result == 0) check(false, "Wrong LargeValue type");
-    if (IsSameType<Howard<GR, concepts::ReadMap<GR::Arc, float> >::LargeValue,
-          double>::result == 0) check(false, "Wrong LargeValue type");
+    check((IsSameType<HowardMmc<GR, concepts::ReadMap<GR::Arc, int> >
+           ::LargeCost, long_int>::result == 1), "Wrong LargeCost type");
+    check((IsSameType<HowardMmc<GR, concepts::ReadMap<GR::Arc, float> >
+           ::LargeCost, double>::result == 1), "Wrong LargeCost type");
   }
 
   // Run various tests
@@ -194,22 +194,22 @@ int main() {
       run();
 
     // Karp
-    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l1, c1,  6, 3);
-    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l2, c2,  5, 2);
-    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l3, c3,  0, 1);
-    checkMmcAlg<Karp<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+    checkMmcAlg<KarpMmc<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<KarpMmc<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<KarpMmc<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<KarpMmc<GR, IntArcMap> >(gr, l4, c4, -1, 1);
 
     // HartmannOrlin
-    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l1, c1,  6, 3);
-    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l2, c2,  5, 2);
-    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l3, c3,  0, 1);
-    checkMmcAlg<HartmannOrlin<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+    checkMmcAlg<HartmannOrlinMmc<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<HartmannOrlinMmc<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<HartmannOrlinMmc<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<HartmannOrlinMmc<GR, IntArcMap> >(gr, l4, c4, -1, 1);
 
     // Howard
-    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l1, c1,  6, 3);
-    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l2, c2,  5, 2);
-    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l3, c3,  0, 1);
-    checkMmcAlg<Howard<GR, IntArcMap> >(gr, l4, c4, -1, 1);
+    checkMmcAlg<HowardMmc<GR, IntArcMap> >(gr, l1, c1,  6, 3);
+    checkMmcAlg<HowardMmc<GR, IntArcMap> >(gr, l2, c2,  5, 2);
+    checkMmcAlg<HowardMmc<GR, IntArcMap> >(gr, l3, c3,  0, 1);
+    checkMmcAlg<HowardMmc<GR, IntArcMap> >(gr, l4, c4, -1, 1);
   }
 
   return 0;
