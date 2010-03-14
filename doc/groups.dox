@@ -523,8 +523,8 @@ The matching algorithms implemented in LEMON:
   Edmond's blossom shrinking algorithm for calculating maximum weighted
   perfect matching in general graphs.
 
-\image html bipartite_matching.png
-\image latex bipartite_matching.eps "Bipartite Matching" width=\textwidth
+\image html matching.png
+\image latex matching.eps "Bipartite Matching" width=\textwidth
 */
 
 /**

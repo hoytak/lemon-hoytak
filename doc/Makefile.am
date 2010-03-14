@@ -27,6 +27,7 @@ DOC_EPS_IMAGES27 = \
 	bipartite_partitions.eps \
 	connected_components.eps \
 	edge_biconnected_components.eps \
+	matching.eps \
 	node_biconnected_components.eps \
 	planar.eps \
 	strongly_connected_components.eps

@@ -20,6 +20,7 @@ IF(DOXYGEN_EXECUTABLE AND PYTHONINTERP_FOUND AND GHOSTSCRIPT_EXECUTABLE)
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/connected_components.png ${CMAKE_CURRENT_SOURCE_DIR}/images/connected_components.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/edge_biconnected_components.png ${CMAKE_CURRENT_SOURCE_DIR}/images/edge_biconnected_components.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/grid_graph.png ${CMAKE_CURRENT_SOURCE_DIR}/images/grid_graph.eps
+    COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/matching.png ${CMAKE_CURRENT_SOURCE_DIR}/images/matching.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/node_biconnected_components.png ${CMAKE_CURRENT_SOURCE_DIR}/images/node_biconnected_components.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/nodeshape_0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_0.eps
     COMMAND ${GHOSTSCRIPT_EXECUTABLE} ${GHOSTSCRIPT_OPTIONS} -r18 -sOutputFile=gen-images/nodeshape_1.png ${CMAKE_CURRENT_SOURCE_DIR}/images/nodeshape_1.eps
