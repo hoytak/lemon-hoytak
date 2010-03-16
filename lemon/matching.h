@@ -805,12 +805,17 @@ namespace lemon {
       if (!_matching) {
         _matching = new MatchingMap(_graph);
       }
+
       if (!_node_potential) {
         _node_potential = new NodePotential(_graph);
       }
+
       if (!_blossom_set) {
         _blossom_index = new IntNodeMap(_graph);
         _blossom_set = new BlossomSet(*_blossom_index);
+        _blossom_data = new RangeMap<BlossomData>(_blossom_num);
+      } else if (_blossom_data->size() != _blossom_num) {
+        delete _blossom_data;
         _blossom_data = new RangeMap<BlossomData>(_blossom_num);
       }
 
@@ -818,28 +823,42 @@ namespace lemon {
         _node_index = new IntNodeMap(_graph);
         _node_heap_index = new IntArcMap(_graph);
         _node_data = new RangeMap<NodeData>(_node_num,
-                                              NodeData(*_node_heap_index));
+                                            NodeData(*_node_heap_index));
+      } else {
+        delete _node_data;
+        _node_data = new RangeMap<NodeData>(_node_num,
+                                            NodeData(*_node_heap_index));
       }
 
       if (!_tree_set) {
         _tree_set_index = new IntIntMap(_blossom_num);
         _tree_set = new TreeSet(*_tree_set_index);
+      } else {
+        _tree_set_index->resize(_blossom_num);
       }
+
       if (!_delta1) {
         _delta1_index = new IntNodeMap(_graph);
         _delta1 = new BinHeap<Value, IntNodeMap>(*_delta1_index);
       }
+
       if (!_delta2) {
         _delta2_index = new IntIntMap(_blossom_num);
         _delta2 = new BinHeap<Value, IntIntMap>(*_delta2_index);
+      } else {
+        _delta2_index->resize(_blossom_num);
       }
+
       if (!_delta3) {
         _delta3_index = new IntEdgeMap(_graph);
         _delta3 = new BinHeap<Value, IntEdgeMap>(*_delta3_index);
       }
+
       if (!_delta4) {
         _delta4_index = new IntIntMap(_blossom_num);
         _delta4 = new BinHeap<Value, IntIntMap>(*_delta4_index);
+      } else {
+        _delta4_index->resize(_blossom_num);
       }
     }
 
@@ -1685,6 +1704,9 @@ namespace lemon {
     void init() {
       createStructures();
 
+      _blossom_node_list.clear();
+      _blossom_potential.clear();
+
       for (ArcIt e(_graph); e != INVALID; ++e) {
         (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
       }
@@ -1698,6 +1720,13 @@ namespace lemon {
         (*_delta2_index)[i] = _delta2->PRE_HEAP;
         (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
+      
+      _delta1->clear();
+      _delta2->clear();
+      _delta3->clear();
+      _delta4->clear();
+      _blossom_set->clear();
+      _tree_set->clear();
 
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -1709,6 +1738,8 @@ namespace lemon {
           }
         }
         (*_node_index)[n] = index;
+        (*_node_data)[index].heap_index.clear();
+        (*_node_data)[index].heap.clear();
         (*_node_data)[index].pot = max;
         _delta1->push(n, max);
         int blossom =
@@ -2198,12 +2229,17 @@ namespace lemon {
       if (!_matching) {
         _matching = new MatchingMap(_graph);
       }
+
       if (!_node_potential) {
         _node_potential = new NodePotential(_graph);
       }
+
       if (!_blossom_set) {
         _blossom_index = new IntNodeMap(_graph);
         _blossom_set = new BlossomSet(*_blossom_index);
+        _blossom_data = new RangeMap<BlossomData>(_blossom_num);
+      } else if (_blossom_data->size() != _blossom_num) {
+        delete _blossom_data;
         _blossom_data = new RangeMap<BlossomData>(_blossom_num);
       }
 
@@ -2212,23 +2248,36 @@ namespace lemon {
         _node_heap_index = new IntArcMap(_graph);
         _node_data = new RangeMap<NodeData>(_node_num,
                                             NodeData(*_node_heap_index));
+      } else if (_node_data->size() != _node_num) {
+        delete _node_data;
+        _node_data = new RangeMap<NodeData>(_node_num,
+                                            NodeData(*_node_heap_index));
       }
 
       if (!_tree_set) {
         _tree_set_index = new IntIntMap(_blossom_num);
         _tree_set = new TreeSet(*_tree_set_index);
+      } else {
+        _tree_set_index->resize(_blossom_num);
       }
+
       if (!_delta2) {
         _delta2_index = new IntIntMap(_blossom_num);
         _delta2 = new BinHeap<Value, IntIntMap>(*_delta2_index);
+      } else {
+        _delta2_index->resize(_blossom_num);
       }
+
       if (!_delta3) {
         _delta3_index = new IntEdgeMap(_graph);
         _delta3 = new BinHeap<Value, IntEdgeMap>(*_delta3_index);
       }
+
       if (!_delta4) {
         _delta4_index = new IntIntMap(_blossom_num);
         _delta4 = new BinHeap<Value, IntIntMap>(*_delta4_index);
+      } else {
+        _delta4_index->resize(_blossom_num);
       }
     }
 
@@ -2926,6 +2975,9 @@ namespace lemon {
     void init() {
       createStructures();
 
+      _blossom_node_list.clear();
+      _blossom_potential.clear();
+
       for (ArcIt e(_graph); e != INVALID; ++e) {
         (*_node_heap_index)[e] = BinHeap<Value, IntArcMap>::PRE_HEAP;
       }
@@ -2937,6 +2989,12 @@ namespace lemon {
         (*_delta4_index)[i] = _delta4->PRE_HEAP;
       }
 
+      _delta2->clear();
+      _delta3->clear();
+      _delta4->clear();
+      _blossom_set->clear();
+      _tree_set->clear();
+
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value max = - std::numeric_limits<Value>::max();
@@ -2947,6 +3005,8 @@ namespace lemon {
           }
         }
         (*_node_index)[n] = index;
+        (*_node_data)[index].heap_index.clear();
+        (*_node_data)[index].heap.clear();
         (*_node_data)[index].pot = max;
         int blossom =
           _blossom_set->insert(n, std::numeric_limits<Value>::max());
