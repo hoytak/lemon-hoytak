@@ -23,6 +23,7 @@ check_PROGRAMS += \
 	test/edge_set_test \
 	test/error_test \
 	test/euler_test \
+	test/fractional_matching_test \
 	test/gomory_hu_test \
 	test/graph_copy_test \
 	test/graph_test \
@@ -71,6 +72,7 @@ test_dim_test_SOURCES = test/dim_test.cc
 test_edge_set_test_SOURCES = test/edge_set_test.cc
 test_error_test_SOURCES = test/error_test.cc
 test_euler_test_SOURCES = test/euler_test.cc
+test_fractional_matching_test_SOURCES = test/fractional_matching_test.cc
 test_gomory_hu_test_SOURCES = test/gomory_hu_test.cc
 test_graph_copy_test_SOURCES = test/graph_copy_test.cc
 test_graph_test_SOURCES = test/graph_test.cc

@@ -386,7 +386,7 @@ fastest method for computing a maximum flow. All implementations
 also provide functions to query the minimum cut, which is the dual
 problem of maximum flow.
 
-\ref Circulation is a preflow push-relabel algorithm implemented directly 
+\ref Circulation is a preflow push-relabel algorithm implemented directly
 for finding feasible circulations, which is a somewhat different problem,
 but it is strongly related to maximum flow.
 For more information, see \ref Circulation.
@@ -522,6 +522,13 @@ The matching algorithms implemented in LEMON:
 - \ref MaxWeightedPerfectMatching
   Edmond's blossom shrinking algorithm for calculating maximum weighted
   perfect matching in general graphs.
+- \ref MaxFractionalMatching Push-relabel algorithm for calculating
+  maximum cardinality fractional matching in general graphs.
+- \ref MaxWeightedFractionalMatching Augmenting path algorithm for calculating
+  maximum weighted fractional matching in general graphs.
+- \ref MaxWeightedPerfectFractionalMatching
+  Augmenting path algorithm for calculating maximum weighted
+  perfect fractional matching in general graphs.
 
 \image html matching.png
 \image latex matching.eps "Min Cost Perfect Matching" width=\textwidth
