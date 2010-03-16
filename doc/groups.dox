@@ -524,7 +524,7 @@ The matching algorithms implemented in LEMON:
   perfect matching in general graphs.
 
 \image html matching.png
-\image latex matching.eps "Bipartite Matching" width=\textwidth
+\image latex matching.eps "Min Cost Perfect Matching" width=\textwidth
 */
 
 /**
