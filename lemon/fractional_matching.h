@@ -1166,6 +1166,11 @@ namespace lemon {
         (*_delta3_index)[e] = _delta3->PRE_HEAP;
       }
 
+      _delta1->clear();
+      _delta2->clear();
+      _delta3->clear();
+      _tree_set->clear();
+
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value max = 0;
         for (OutArcIt e(_graph, n); e != INVALID; ++e) {
@@ -1904,6 +1909,10 @@ namespace lemon {
       for (EdgeIt e(_graph); e != INVALID; ++e) {
         (*_delta3_index)[e] = _delta3->PRE_HEAP;
       }
+
+      _delta2->clear();
+      _delta3->clear();
+      _tree_set->clear();
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value max = - std::numeric_limits<Value>::max();

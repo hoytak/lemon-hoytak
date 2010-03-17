@@ -1675,6 +1675,9 @@ namespace lemon {
     /// matching. This initialization is also called jumpstart heuristic.
     void fractionalInit() {
       createStructures();
+
+      _blossom_node_list.clear();
+      _blossom_potential.clear();
       
       if (_fractional == 0) {
         _fractional = new FractionalMatching(_graph, _weight, false);
@@ -1697,11 +1700,20 @@ namespace lemon {
 
       _unmatched = 0;
 
+      _delta1->clear();
+      _delta2->clear();
+      _delta3->clear();
+      _delta4->clear();
+      _blossom_set->clear();
+      _tree_set->clear();
+
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value pot = _fractional->nodeValue(n);
         (*_node_index)[n] = index;
         (*_node_data)[index].pot = pot;
+        (*_node_data)[index].heap_index.clear();
+        (*_node_data)[index].heap.clear();
         int blossom =
           _blossom_set->insert(n, std::numeric_limits<Value>::max());
 
@@ -3080,6 +3092,9 @@ namespace lemon {
     /// matching. This initialization is also called jumpstart heuristic.
     void fractionalInit() {
       createStructures();
+
+      _blossom_node_list.clear();
+      _blossom_potential.clear();
       
       if (_fractional == 0) {
         _fractional = new FractionalMatching(_graph, _weight, false);
@@ -3102,11 +3117,19 @@ namespace lemon {
 
       _unmatched = 0;
 
+      _delta2->clear();
+      _delta3->clear();
+      _delta4->clear();
+      _blossom_set->clear();
+      _tree_set->clear();
+
       int index = 0;
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value pot = _fractional->nodeValue(n);
         (*_node_index)[n] = index;
         (*_node_data)[index].pot = pot;
+        (*_node_data)[index].heap_index.clear();
+        (*_node_data)[index].heap.clear();
         int blossom =
           _blossom_set->insert(n, std::numeric_limits<Value>::max());
 
