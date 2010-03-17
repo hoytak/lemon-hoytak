@@ -1,3 +1,83 @@
+2010-03-19 Version 1.2 released
+
+        This is major feature release
+
+        * New algorithms
+          * Bellman-Ford algorithm (#51)
+          * Minimum mean cycle algorithms (#179)
+            * Karp, Hartman-Orlin and Howard algorithms
+          * New minimum cost flow algorithms (#180)
+            * Cost Scaling algorithms
+            * Capacity Scaling algorithm
+            * Cycle-Canceling algorithms
+          * Planarity related algorithms (#62)
+            * Planarity checking algorithm
+            * Planar embedding algorithm
+            * Schnyder's planar drawing algorithm
+            * Coloring planar graphs with five or six colors
+          * Fractional matching algorithms (#314)
+        * New data structures
+          * StaticDigraph structure (#68)
+          * Several new priority queue structures (#50, #301)
+            * Fibonacci, Radix, Bucket, Pairing, Binomial
+              D-ary and fourary heaps (#301)
+          * Iterable map structures (#73)
+        * Other new tools and functionality
+          * Map utility functions (#320)
+          * Reserve functions are added to ListGraph and SmartGraph (#311)
+          * A resize() function is added to HypercubeGraph (#311)
+          * A count() function is added to CrossRefMap (#302)
+          * Support for multiple targets in Suurballe using fullInit() (#181)
+          * Traits class and named parameters for Suurballe (#323)
+          * Separate reset() and resetParams() functions in NetworkSimplex
+            to handle graph changes (#327)
+          * tolerance() functions are added to HaoOrlin (#306)
+        * Implementation improvements
+          * Improvements in weighted matching algorithms (#314)
+            * Jumpstart initialization
+          * ArcIt iteration is based on out-arc lists instead of in-arc lists
+            in ListDigraph (#311)
+          * Faster add row operation in CbcMip (#203)
+          * Better implementation for split() in ListDigraph (#311)
+          * ArgParser can also throw exception instead of exit(1) (#332)
+        * Miscellaneous
+          * A simple interactive bootstrap script
+          * Doc improvements (#62,#180,#299,#302,#303,#304,#307,#311,#331,#315,
+                #316,#319)
+            * BibTeX references in the doc (#184)
+          * Optionally use valgrind when running tests
+          * Also check ReferenceMapTag in concept checks (#312)
+          * dimacs-solver uses long long type by default.
+        * Several bugfixes (compared to release 1.1):
+          #295: Suppress MSVC warnings using pragmas
+          ----: Various CMAKE related improvements
+                * Remove duplications from doc/CMakeLists.txt
+                * Rename documentation install folder from 'docs' to 'html'
+                * Add tools/CMakeLists.txt to the tarball
+                * Generate and install LEMONConfig.cmake
+                * Change the label of the html project in Visual Studio
+                * Fix the check for the 'long long' type
+                * Put the version string into config.h
+                * Minor CMake improvements
+                * Set the version to 'hg-tip' if everything fails
+          #311: Add missing 'explicit' keywords
+          #302: Fix the implementation and doc of CrossRefMap
+          #308: Remove duplicate list_graph.h entry from source list
+          #307: Bugfix in Preflow and Circulation
+          #305: Bugfix and extension in the rename script
+          #312: Also check ReferenceMapTag in concept checks
+          #250: Bugfix in pathSource() and pathTarget()
+          #321: Use pathCopy(from,to) instead of copyPath(to,from)
+          #322: Distribure LEMONConfig.cmake.in
+          #330: Bug fix in map_extender.h
+          #336: Fix the date field comment of graphToEps() output
+          #323: Bug fix in Suurballe
+          #335: Fix clear() function in ExtendFindEnum
+          #337: Use void* as the LPX object pointer
+          #317: Fix (and improve) error message in mip_test.cc
+                Remove unnecessary OsiCbc dependency
+          #356: Allow multiple executions of weighted matching algorithms (#356)
+
 2009-05-13 Version 1.1 released
 
         This is the second stable release of the 1.x series. It
@@ -72,7 +152,7 @@
           ----: Minor clarification in the LICENSE file
           ----: Add missing unistd.h include to time_measure.h
           #204: Compilation bug fixed in graph_to_eps.h with VS2005
-          #214,#215: windows.h should never be included by lemon headers
+          #214,#215: windows.h should never be included by LEMON headers
           #230: Build systems check the availability of 'long long' type
           #229: Default implementation of Tolerance<> is used for integer types
           #211,#212: Various fixes for compiling on AIX
@@ -94,51 +174,51 @@
 
 2008-10-13 Version 1.0 released
 
-	This is the first stable release of LEMON. Compared to the 0.x
-	release series, it features a considerably smaller but more
-	matured set of tools. The API has also completely revised and
-	changed in several places.
+        This is the first stable release of LEMON. Compared to the 0.x
+        release series, it features a considerably smaller but more
+        matured set of tools. The API has also completely revised and
+        changed in several places.
 
-	* The major name changes compared to the 0.x series (see the
+        * The major name changes compared to the 0.x series (see the
           Migration Guide in the doc for more details)
           * Graph -> Digraph, UGraph -> Graph
           * Edge -> Arc, UEdge -> Edge
-	  * source(UEdge)/target(UEdge) -> u(Edge)/v(Edge)
-	* Other improvements
-	  * Better documentation
-	  * Reviewed and cleaned up codebase
-	  * CMake based build system (along with the autotools based one)
-	* Contents of the library (ported from 0.x)
-	  * Algorithms
-       	    * breadth-first search (bfs.h)
-       	    * depth-first search (dfs.h)
-       	    * Dijkstra's algorithm (dijkstra.h)
-       	    * Kruskal's algorithm (kruskal.h)
-    	  * Data structures
-       	    * graph data structures (list_graph.h, smart_graph.h)
-       	    * path data structures (path.h)
-       	    * binary heap data structure (bin_heap.h)
-       	    * union-find data structures (unionfind.h)
-       	    * miscellaneous property maps (maps.h)
-       	    * two dimensional vector and bounding box (dim2.h)
+          * source(UEdge)/target(UEdge) -> u(Edge)/v(Edge)
+        * Other improvements
+          * Better documentation
+          * Reviewed and cleaned up codebase
+          * CMake based build system (along with the autotools based one)
+        * Contents of the library (ported from 0.x)
+          * Algorithms
+            * breadth-first search (bfs.h)
+            * depth-first search (dfs.h)
+            * Dijkstra's algorithm (dijkstra.h)
+            * Kruskal's algorithm (kruskal.h)
+          * Data structures
+            * graph data structures (list_graph.h, smart_graph.h)
+            * path data structures (path.h)
+            * binary heap data structure (bin_heap.h)
+            * union-find data structures (unionfind.h)
+            * miscellaneous property maps (maps.h)
+            * two dimensional vector and bounding box (dim2.h)
           * Concepts
-       	    * graph structure concepts (concepts/digraph.h, concepts/graph.h,
+            * graph structure concepts (concepts/digraph.h, concepts/graph.h,
               concepts/graph_components.h)
-       	    * concepts for other structures (concepts/heap.h, concepts/maps.h,
-	      concepts/path.h)
-    	  * Tools
-       	    * Mersenne twister random number generator (random.h)
-       	    * tools for measuring cpu and wall clock time (time_measure.h)
-       	    * tools for counting steps and events (counter.h)
-       	    * tool for parsing command line arguments (arg_parser.h)
-       	    * tool for visualizing graphs (graph_to_eps.h)
-       	    * tools for reading and writing data in LEMON Graph Format
+            * concepts for other structures (concepts/heap.h, concepts/maps.h,
+              concepts/path.h)
+          * Tools
+            * Mersenne twister random number generator (random.h)
+            * tools for measuring cpu and wall clock time (time_measure.h)
+            * tools for counting steps and events (counter.h)
+            * tool for parsing command line arguments (arg_parser.h)
+            * tool for visualizing graphs (graph_to_eps.h)
+            * tools for reading and writing data in LEMON Graph Format
               (lgf_reader.h, lgf_writer.h)
             * tools to handle the anomalies of calculations with
-	      floating point numbers (tolerance.h)
+              floating point numbers (tolerance.h)
             * tools to manage RGB colors (color.h)
-    	  * Infrastructure
-       	    * extended assertion handling (assert.h)
-       	    * exception classes and error handling (error.h)
-      	    * concept checking (concept_check.h)
-       	    * commonly used mathematical constants (math.h)
+          * Infrastructure
+            * extended assertion handling (assert.h)
+            * exception classes and error handling (error.h)
+            * concept checking (concept_check.h)
+            * commonly used mathematical constants (math.h)
