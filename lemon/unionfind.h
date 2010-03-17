@@ -1288,6 +1288,15 @@ namespace lemon {
       : index(_index), first_class(-1),
         first_free_class(-1), first_free_node(-1) {}
 
+    /// \brief Clears the union-find data structure
+    ///
+    /// Erase each item from the data structure.
+    void clear() {
+      nodes.clear();
+      classes.clear();
+      first_free_node = first_free_class = first_class = -1;
+    }
+
     /// \brief Insert a new node into a new component.
     ///
     /// Insert a new node into a new component.
