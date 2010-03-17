@@ -38,7 +38,7 @@ namespace lemon {
   /// Default traits class of HartmannOrlinMmc class.
   /// \tparam GR The type of the digraph.
   /// \tparam CM The type of the cost map.
-  /// It must conform to the \ref concepts::Rea_data "Rea_data" concept.
+  /// It must conform to the \ref concepts::ReadMap "ReadMap" concept.
 #ifdef DOXYGEN
   template <typename GR, typename CM>
 #else
@@ -99,7 +99,7 @@ namespace lemon {
   /// This class implements the Hartmann-Orlin algorithm for finding
   /// a directed cycle of minimum mean cost in a digraph
   /// \ref amo93networkflows, \ref dasdan98minmeancycle.
-  /// It is an improved version of \ref Karp "Karp"'s original algorithm,
+  /// It is an improved version of \ref KarpMmc "Karp"'s original algorithm,
   /// it applies an efficient early termination scheme.
   /// It runs in time O(ne) and uses space O(n<sup>2</sup>+e).
   ///

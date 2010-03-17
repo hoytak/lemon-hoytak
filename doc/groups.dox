@@ -263,14 +263,6 @@ used easily in such algorithms.
 */
 
 /**
-@defgroup matrices Matrices
-@ingroup datas
-\brief Two dimensional data storages implemented in LEMON.
-
-This group contains two dimensional data storages implemented in LEMON.
-*/
-
-/**
 @defgroup auxdat Auxiliary Data Structures
 @ingroup datas
 \brief Auxiliary data structures implemented in LEMON.
@@ -472,19 +464,19 @@ arc lengths uniformly by \f$\epsilon\f$ results in a conservative length
 function.
 
 LEMON contains three algorithms for solving the minimum mean cycle problem:
-- \ref Karp "Karp"'s original algorithm \ref amo93networkflows,
+- \ref KarpMmc Karp's original algorithm \ref amo93networkflows,
   \ref dasdan98minmeancycle.
-- \ref HartmannOrlin "Hartmann-Orlin"'s algorithm, which is an improved
+- \ref HartmannOrlinMmc Hartmann-Orlin's algorithm, which is an improved
   version of Karp's algorithm \ref dasdan98minmeancycle.
-- \ref Howard "Howard"'s policy iteration algorithm
+- \ref HowardMmc Howard's policy iteration algorithm
   \ref dasdan98minmeancycle.
 
-In practice, the Howard algorithm proved to be by far the most efficient
-one, though the best known theoretical bound on its running time is
-exponential.
-Both Karp and HartmannOrlin algorithms run in time O(ne) and use space
-O(n<sup>2</sup>+e), but the latter one is typically faster due to the
-applied early termination scheme.
+In practice, the \ref HowardMmc "Howard" algorithm proved to be by far the
+most efficient one, though the best known theoretical bound on its running
+time is exponential.
+Both \ref KarpMmc "Karp" and \ref HartmannOrlinMmc "Hartmann-Orlin" algorithms
+run in time O(ne) and use space O(n<sup>2</sup>+e), but the latter one is
+typically faster due to the applied early termination scheme.
 */
 
 /**

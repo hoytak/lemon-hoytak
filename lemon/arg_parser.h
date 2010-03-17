@@ -35,12 +35,19 @@
 namespace lemon {
 
   ///Exception used by ArgParser
+
+  ///Exception used by ArgParser.
+  ///
   class ArgParserException : public Exception {
   public:
+    /// Reasons for failure
+
+    /// Reasons for failure.
+    ///
     enum Reason {
-      HELP,         /// <tt>--help</tt> option was given
-      UNKNOWN_OPT,  /// Unknown option was given
-      INVALID_OPT   /// Invalid combination of options
+      HELP,         ///< <tt>--help</tt> option was given.
+      UNKNOWN_OPT,  ///< Unknown option was given.
+      INVALID_OPT   ///< Invalid combination of options.
     };
 
   private:
