@@ -445,6 +445,25 @@ namespace lemon {
 
   }
 
+  /// Check whether a graph is undirected.
+  ///
+  /// This function returns \c true if the given graph is undirected.
+#ifdef DOXYGEN
+  template <typename GR>
+  bool undirected(const GR& g) { return false; }
+#else
+  template <typename GR>
+  typename enable_if<UndirectedTagIndicator<GR>, bool>::type
+  undirected(const GR&) {
+    return true;
+  }
+  template <typename GR>
+  typename disable_if<UndirectedTagIndicator<GR>, bool>::type
+  undirected(const GR&) {
+    return false;
+  }
+#endif
+
   /// \brief Class to copy a digraph.
   ///
   /// Class to copy a digraph to another digraph (duplicate a digraph). The
