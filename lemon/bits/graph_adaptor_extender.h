@@ -181,6 +181,8 @@ namespace lemon {
     typedef _Graph Graph;
     typedef GraphAdaptorExtender Adaptor;
 
+    typedef True UndirectedTag;
+
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;

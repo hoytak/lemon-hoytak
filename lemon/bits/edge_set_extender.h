@@ -280,6 +280,8 @@ namespace lemon {
 
     typedef EdgeSetExtender Graph;
 
+    typedef True UndirectedTag;
+
     typedef typename Parent::Node Node;
     typedef typename Parent::Arc Arc;
     typedef typename Parent::Edge Edge;
