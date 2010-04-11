@@ -46,7 +46,7 @@ namespace lemon {
     }
 
     bool empty() const {
-      return predMap[target] != INVALID;
+      return predMap[target] == INVALID;
     }
 
     class RevArcIt {
