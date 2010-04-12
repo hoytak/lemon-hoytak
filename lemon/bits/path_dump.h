@@ -120,7 +120,7 @@ namespace lemon {
     }
 
     bool empty() const {
-      return source != target;
+      return predMatrixMap(source, target) == INVALID;
     }
 
     class RevArcIt {
