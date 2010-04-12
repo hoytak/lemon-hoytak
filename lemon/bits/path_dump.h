@@ -49,7 +49,7 @@ namespace lemon {
     }
 
     bool empty() const {
-      return predMap[target] != INVALID;
+      return predMap[target] == INVALID;
     }
 
     class RevArcIt {
@@ -123,7 +123,7 @@ namespace lemon {
     }
 
     bool empty() const {
-      return source != target;
+      return predMatrixMap(source, target) == INVALID;
     }
 
     class RevArcIt {
