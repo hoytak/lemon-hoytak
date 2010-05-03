@@ -1077,7 +1077,7 @@ namespace lemon {
       if (std::numeric_limits<Cost>::is_exact) {
         ART_COST = std::numeric_limits<Cost>::max() / 2 + 1;
       } else {
-        ART_COST = std::numeric_limits<Cost>::min();
+        ART_COST = 0;
         for (int i = 0; i != _arc_num; ++i) {
           if (_cost[i] > ART_COST) ART_COST = _cost[i];
         }
@@ -1589,7 +1589,7 @@ namespace lemon {
       // optimality conditions
       if (_sum_supply == 0) {
         if (_stype == GEQ) {
-          Cost max_pot = std::numeric_limits<Cost>::min();
+          Cost max_pot = -std::numeric_limits<Cost>::max();
           for (int i = 0; i != _node_num; ++i) {
             if (_pi[i] > max_pot) max_pot = _pi[i];
           }
