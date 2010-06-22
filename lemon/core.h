@@ -384,6 +384,7 @@ namespace lemon {
       template <typename From, typename NodeRefMap, typename ArcRefMap>
       static void copy(const From& from, Digraph &to,
                        NodeRefMap& nodeRefMap, ArcRefMap& arcRefMap) {
+        to.clear();
         for (typename From::NodeIt it(from); it != INVALID; ++it) {
           nodeRefMap[it] = to.addNode();
         }
@@ -411,6 +412,7 @@ namespace lemon {
       template <typename From, typename NodeRefMap, typename EdgeRefMap>
       static void copy(const From& from, Graph &to,
                        NodeRefMap& nodeRefMap, EdgeRefMap& edgeRefMap) {
+        to.clear();
         for (typename From::NodeIt it(from); it != INVALID; ++it) {
           nodeRefMap[it] = to.addNode();
         }

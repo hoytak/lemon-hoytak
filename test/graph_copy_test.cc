@@ -29,6 +29,7 @@ using namespace lemon;
 void digraph_copy_test() {
   const int nn = 10;
 
+  // Build a digraph
   SmartDigraph from;
   SmartDigraph::NodeMap<int> fnm(from);
   SmartDigraph::ArcMap<int> fam(from);
@@ -51,6 +52,7 @@ void digraph_copy_test() {
     }
   }
 
+  // Test digraph copy
   ListDigraph to;
   ListDigraph::NodeMap<int> tnm(to);
   ListDigraph::ArcMap<int> tam(to);
@@ -68,6 +70,9 @@ void digraph_copy_test() {
     nodeRef(nr).arcRef(er).
     nodeCrossRef(ncr).arcCrossRef(ecr).
     node(fn, tn).arc(fa, ta).run();
+  
+  check(countNodes(from) == countNodes(to), "Wrong copy.");
+  check(countArcs(from) == countArcs(to), "Wrong copy.");
 
   for (SmartDigraph::NodeIt it(from); it != INVALID; ++it) {
     check(ncr[nr[it]] == it, "Wrong copy.");
@@ -90,11 +95,18 @@ void digraph_copy_test() {
   }
   check(tn == nr[fn], "Wrong copy.");
   check(ta == er[fa], "Wrong copy.");
+
+  // Test repeated copy
+  digraphCopy(from, to).run();
+  
+  check(countNodes(from) == countNodes(to), "Wrong copy.");
+  check(countArcs(from) == countArcs(to), "Wrong copy.");
 }
 
 void graph_copy_test() {
   const int nn = 10;
 
+  // Build a graph
   SmartGraph from;
   SmartGraph::NodeMap<int> fnm(from);
   SmartGraph::ArcMap<int> fam(from);
@@ -122,6 +134,7 @@ void graph_copy_test() {
     }
   }
 
+  // Test graph copy
   ListGraph to;
   ListGraph::NodeMap<int> tnm(to);
   ListGraph::ArcMap<int> tam(to);
@@ -143,6 +156,10 @@ void graph_copy_test() {
     nodeRef(nr).arcRef(ar).edgeRef(er).
     nodeCrossRef(ncr).arcCrossRef(acr).edgeCrossRef(ecr).
     node(fn, tn).arc(fa, ta).edge(fe, te).run();
+
+  check(countNodes(from) == countNodes(to), "Wrong copy.");
+  check(countEdges(from) == countEdges(to), "Wrong copy.");
+  check(countArcs(from) == countArcs(to), "Wrong copy.");
 
   for (SmartGraph::NodeIt it(from); it != INVALID; ++it) {
     check(ncr[nr[it]] == it, "Wrong copy.");
@@ -180,6 +197,13 @@ void graph_copy_test() {
   check(tn == nr[fn], "Wrong copy.");
   check(ta == ar[fa], "Wrong copy.");
   check(te == er[fe], "Wrong copy.");
+
+  // Test repeated copy
+  graphCopy(from, to).run();
+  
+  check(countNodes(from) == countNodes(to), "Wrong copy.");
+  check(countEdges(from) == countEdges(to), "Wrong copy.");
+  check(countArcs(from) == countArcs(to), "Wrong copy.");
 }
 
 
