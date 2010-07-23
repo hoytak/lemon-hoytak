@@ -551,12 +551,16 @@ embedding and drawing.
 */
 
 /**
-@defgroup approx Approximation Algorithms
+@defgroup approx_algs Approximation Algorithms
 @ingroup algs
 \brief Approximation algorithms.
 
 This group contains the approximation and heuristic algorithms
 implemented in LEMON.
+
+<b>Maximum Clique Problem</b>
+  - \ref GrossoLocatelliPullanMc An efficient heuristic algorithm of
+    Grosso, Locatelli, and Pullan.
 */
 
 /**

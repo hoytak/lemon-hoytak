@@ -90,6 +90,7 @@ lemon_HEADERS += \
 	lemon/gomory_hu.h \
 	lemon/graph_to_eps.h \
 	lemon/grid_graph.h \
+	lemon/grosso_locatelli_pullan_mc.h \
 	lemon/hartmann_orlin_mmc.h \
 	lemon/howard_mmc.h \
 	lemon/hypercube_graph.h \
