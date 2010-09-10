@@ -72,9 +72,41 @@ SET(LEMON_CXX_WARNING_FLAGS ${CXX_WARNING} CACHE STRING "LEMON warning flags.")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LEMON_CXX_WARNING_FLAGS}")
 
+SET( CMAKE_CXX_FLAGS_MAINTAINER "-Werror -ggdb" CACHE STRING
+    "Flags used by the C++ compiler during maintainer builds."
+    FORCE )
+SET( CMAKE_C_FLAGS_MAINTAINER "-Werror" CACHE STRING
+    "Flags used by the C compiler during maintainer builds."
+    FORCE )
+SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+    "-Wl,--warn-unresolved-symbols,--warn-once" CACHE STRING
+    "Flags used for linking binaries during maintainer builds."
+    FORCE )
+SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
+    "-Wl,--warn-unresolved-symbols,--warn-once" CACHE STRING
+    "Flags used by the shared libraries linker during maintainer builds."
+    FORCE )
+MARK_AS_ADVANCED(
+    CMAKE_CXX_FLAGS_MAINTAINER
+    CMAKE_C_FLAGS_MAINTAINER
+    CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+    CMAKE_SHARED_LINKER_FLAGS_MAINTAINER )
+
+IF(CMAKE_CONFIGURATION_TYPES)
+  LIST(APPEND CMAKE_CONFIGURATION_TYPES Maintainer)
+  LIST(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
+  SET(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+      "Add the configurations that we need"
+      FORCE)
+ endif()
+
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
+  SET(CMAKE_BUILD_TYPE "Release")
 ENDIF()
+
+SET( CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
+    "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel Maintainer."
+    FORCE )
 
 
 INCLUDE(CheckTypeSize)
@@ -83,7 +115,11 @@ SET(LEMON_HAVE_LONG_LONG ${HAVE_LONG_LONG})
 
 ENABLE_TESTING()
 
-ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND})
+IF(${CMAKE_BUILD_TYPE} STREQUAL "Maintainer")
+  ADD_CUSTOM_TARGET(check ALL COMMAND ${CMAKE_CTEST_COMMAND})
+ELSE()
+  ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND})
+ENDIF()
 
 ADD_SUBDIRECTORY(lemon)
 IF(${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
