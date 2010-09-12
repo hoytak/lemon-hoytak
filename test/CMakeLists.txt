@@ -31,6 +31,7 @@ SET(TESTS
   kruskal_test
   maps_test
   matching_test
+  max_clique_test
   min_cost_arborescence_test
   min_cost_flow_test
   min_mean_cycle_test
