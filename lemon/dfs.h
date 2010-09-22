@@ -558,7 +558,7 @@ namespace lemon {
     ///added with addSource() before using this function.
     void start(Node t)
     {
-      while ( !emptyQueue() && G->target(_stack[_stack_head])!=t )
+      while ( !emptyQueue() && !(*_reached)[t] )
         processNextArc();
     }
 
@@ -1511,7 +1511,7 @@ namespace lemon {
     /// \pre init() must be called and a root node should be added
     /// with addSource() before using this function.
     void start(Node t) {
-      while ( !emptyQueue() && _digraph->target(_stack[_stack_head]) != t )
+      while ( !emptyQueue() && !(*_reached)[t] )
         processNextArc();
     }
 
