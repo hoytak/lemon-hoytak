@@ -3,6 +3,8 @@ SET(PACKAGE_VERSION ${PROJECT_VERSION})
 SET(abs_top_srcdir ${PROJECT_SOURCE_DIR})
 SET(abs_top_builddir ${PROJECT_BINARY_DIR})
 
+SET(LEMON_DOC_SOURCE_BROWSER "NO" CACHE STRING "Include source into the doc (YES/NO).")
+
 CONFIGURE_FILE(
   ${PROJECT_SOURCE_DIR}/doc/Doxyfile.in
   ${PROJECT_BINARY_DIR}/doc/Doxyfile
