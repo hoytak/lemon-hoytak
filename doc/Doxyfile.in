@@ -225,7 +225,7 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Options related to the search engine   
 #---------------------------------------------------------------------------
-TAGFILES               = "@abs_top_srcdir@/doc/libstdc++.tag = http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/  "
+TAGFILES               = "@abs_top_builddir@/doc/libstdc++.tag = http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/  "
 GENERATE_TAGFILE       = html/lemon.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = NO
