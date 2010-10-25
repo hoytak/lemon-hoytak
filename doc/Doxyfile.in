@@ -70,7 +70,7 @@ SHOW_DIRECTORIES       = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    = 
-LAYOUT_FILE            = DoxygenLayout.xml
+LAYOUT_FILE            = "@abs_top_srcdir@/doc/DoxygenLayout.xml"
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
