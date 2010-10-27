@@ -46,7 +46,12 @@ SET(TESTS
 )
 
 IF(LEMON_HAVE_LP)
-  ADD_EXECUTABLE(lp_test lp_test.cc)
+  IF(${CMAKE_BUILD_TYPE} STREQUAL "Maintainer")
+    ADD_EXECUTABLE(lp_test lp_test.cc)
+  ELSE()
+    ADD_EXECUTABLE(lp_test EXCLUDE_FROM_ALL lp_test.cc)
+  ENDIF()
+
   SET(LP_TEST_LIBS lemon)
 
   IF(LEMON_HAVE_GLPK)
@@ -82,7 +87,12 @@ IF(LEMON_HAVE_LP)
 ENDIF()
 
 IF(LEMON_HAVE_MIP)
-  ADD_EXECUTABLE(mip_test mip_test.cc)
+  IF(${CMAKE_BUILD_TYPE} STREQUAL "Maintainer")
+    ADD_EXECUTABLE(mip_test mip_test.cc)
+  ELSE()
+    ADD_EXECUTABLE(mip_test EXCLUDE_FROM_ALL mip_test.cc)
+  ENDIF()
+
   SET(MIP_TEST_LIBS lemon)
 
   IF(LEMON_HAVE_GLPK)
