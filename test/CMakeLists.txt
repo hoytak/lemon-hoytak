@@ -35,6 +35,7 @@ SET(TESTS
   min_cost_arborescence_test
   min_cost_flow_test
   min_mean_cycle_test
+  nagamochi_ibaraki_test
   path_test
   planarity_test
   preflow_test

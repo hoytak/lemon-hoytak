@@ -107,6 +107,7 @@ lemon_HEADERS += \
 	lemon/matching.h \
 	lemon/math.h \
 	lemon/min_cost_arborescence.h \
+	lemon/nagamochi_ibaraki.h \
 	lemon/nauty_reader.h \
 	lemon/network_simplex.h \
 	lemon/pairing_heap.h \
