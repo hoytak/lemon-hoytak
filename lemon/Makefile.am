@@ -107,6 +107,7 @@ lemon_HEADERS += \
 	lemon/matching.h \
 	lemon/math.h \
 	lemon/min_cost_arborescence.h \
+	lemon/max_cardinality_search.h \
 	lemon/nauty_reader.h \
 	lemon/network_simplex.h \
 	lemon/pairing_heap.h \
