@@ -3,6 +3,8 @@ SET(PACKAGE_VERSION ${PROJECT_VERSION})
 SET(abs_top_srcdir ${PROJECT_SOURCE_DIR})
 SET(abs_top_builddir ${PROJECT_BINARY_DIR})
 
+SET(LEMON_DOC_SOURCE_BROWSER "NO" CACHE STRING "Include source into the doc (YES/NO).")
+
 CONFIGURE_FILE(
   ${PROJECT_SOURCE_DIR}/doc/Doxyfile.in
   ${PROJECT_BINARY_DIR}/doc/Doxyfile
@@ -51,4 +53,16 @@ IF(DOXYGEN_EXECUTABLE AND PYTHONINTERP_FOUND AND GHOSTSCRIPT_EXECUTABLE)
     )
   ENDIF()
 
+ENDIF()
+
+IF(WGET_FOUND)
+ADD_CUSTOM_TARGET(update-external-tags
+  COMMAND ${CMAKE_COMMAND} -E make_directory dl
+  # COMMAND ${CMAKE_COMMAND} -E copy libstdc++.tag dl
+  COMMAND ${WGET_EXECUTABLE} wget -P dl -N libstdc++.tag.tmp http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/libstdc++.tag
+  COMMAND ${CMAKE_COMMAND} -E rename dl/libstdc++.tag libstdc++.tag
+  COMMAND ${CMAKE_COMMAND} -E remove dl/libstdc++.tag
+  COMMAND ${CMAKE_COMMAND} -E remove_directory dl
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
 ENDIF()

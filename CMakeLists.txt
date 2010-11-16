@@ -4,6 +4,7 @@ SET(PROJECT_NAME "LEMON")
 PROJECT(${PROJECT_NAME})
 
 INCLUDE(FindPythonInterp)
+INCLUDE(FindWget)
 
 IF(EXISTS ${PROJECT_SOURCE_DIR}/cmake/version.cmake)
   INCLUDE(${PROJECT_SOURCE_DIR}/cmake/version.cmake)

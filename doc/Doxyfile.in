@@ -70,7 +70,7 @@ SHOW_DIRECTORIES       = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    = 
-LAYOUT_FILE            = DoxygenLayout.xml
+LAYOUT_FILE            = "@abs_top_srcdir@/doc/DoxygenLayout.xml"
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ FILTER_SOURCE_FILES    = NO
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
-SOURCE_BROWSER         = NO
+SOURCE_BROWSER         = @LEMON_DOC_SOURCE_BROWSER@
 INLINE_SOURCES         = NO
 STRIP_CODE_COMMENTS    = YES
 REFERENCED_BY_RELATION = NO
@@ -225,7 +225,7 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Options related to the search engine   
 #---------------------------------------------------------------------------
-TAGFILES               = "@abs_top_srcdir@/doc/libstdc++.tag = http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/  "
+TAGFILES               = "@abs_top_builddir@/doc/libstdc++.tag = http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/  "
 GENERATE_TAGFILE       = html/lemon.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = NO
