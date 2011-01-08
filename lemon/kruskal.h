@@ -30,9 +30,6 @@
 ///\ingroup spantree
 ///\file
 ///\brief Kruskal's algorithm to compute a minimum cost spanning tree
-///
-///Kruskal's algorithm to compute a minimum cost spanning tree.
-///
 
 namespace lemon {
 

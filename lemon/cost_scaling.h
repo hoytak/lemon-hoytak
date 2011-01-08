@@ -113,7 +113,8 @@ namespace lemon {
   /// In most cases, this parameter should not be set directly,
   /// consider to use the named template parameters instead.
   ///
-  /// \warning Both number types must be signed and all input data must
+  /// \warning Both \c V and \c C must be signed number types.
+  /// \warning All input data (capacities, supply values, and costs) must
   /// be integer.
   /// \warning This algorithm does not support negative costs for such
   /// arcs that have infinite upper bound.
