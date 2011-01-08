@@ -46,8 +46,12 @@ namespace lemon {
   /// pair of nodes is connected.
   ///
   /// This class provides a simple but highly efficient and robust heuristic
-  /// method that quickly finds a large clique, but not necessarily the
+  /// method that quickly finds a quite large clique, but not necessarily the
   /// largest one.
+  /// The algorithm performs a certain number of iterations to find several
+  /// cliques and selects the largest one among them. Various limits can be
+  /// specified to control the running time and the effectiveness of the
+  /// search process.
   ///
   /// \tparam GR The undirected graph type the algorithm runs on.
   ///
@@ -84,6 +88,22 @@ namespace lemon {
       PENALTY_BASED
     };
 
+    /// \brief Constants for the causes of search termination.
+    ///
+    /// Enum type containing constants for the different causes of search
+    /// termination. The \ref run() function returns one of these values.
+    enum TerminationCause {
+
+      /// The iteration count limit is reached.
+      ITERATION_LIMIT,
+
+      /// The step count limit is reached.
+      STEP_LIMIT,
+
+      /// The clique size limit is reached.
+      SIZE_LIMIT
+    };
+
   private:
 
     TEMPLATE_GRAPH_TYPEDEFS(GR);
@@ -93,12 +113,22 @@ namespace lemon {
     typedef std::vector<BoolVector> BoolMatrix;
     // Note: vector<char> is used instead of vector<bool> for efficiency reasons
 
+    // The underlying graph
     const GR &_graph;
     IntNodeMap _id;
 
     // Internal matrix representation of the graph
     BoolMatrix _gr;
     int _n;
+    
+    // Search options
+    bool _delta_based_restart;
+    int _restart_delta_limit;
+ 
+    // Search limits
+    int _iteration_limit;
+    int _step_limit;
+    int _size_limit;
 
     // The current clique
     BoolVector _clique;
@@ -380,7 +410,9 @@ namespace lemon {
     /// \param graph The undirected graph the algorithm runs on.
     GrossoLocatelliPullanMc(const GR& graph) :
       _graph(graph), _id(_graph), _rnd(rnd)
-    {}
+    {
+      initOptions();
+    }
 
     /// \brief Constructor with random seed.
     ///
@@ -391,7 +423,9 @@ namespace lemon {
     /// that is used during the algorithm.
     GrossoLocatelliPullanMc(const GR& graph, int seed) :
       _graph(graph), _id(_graph), _rnd(seed)
-    {}
+    {
+      initOptions();
+    }
 
     /// \brief Constructor with random number generator.
     ///
@@ -402,43 +436,155 @@ namespace lemon {
     /// algorithm.
     GrossoLocatelliPullanMc(const GR& graph, const Random& random) :
       _graph(graph), _id(_graph), _rnd(random)
-    {}
+    {
+      initOptions();
+    }
 
     /// \name Execution Control
+    /// The \ref run() function can be used to execute the algorithm.\n
+    /// The functions \ref iterationLimit(int), \ref stepLimit(int), and 
+    /// \ref sizeLimit(int) can be used to specify various limits for the
+    /// search process.
+    
     /// @{
+    
+    /// \brief Sets the maximum number of iterations.
+    ///
+    /// This function sets the maximum number of iterations.
+    /// Each iteration of the algorithm finds a maximal clique (but not
+    /// necessarily the largest one) by performing several search steps
+    /// (node selections).
+    ///
+    /// This limit controls the running time and the success of the
+    /// algorithm. For larger values, the algorithm runs slower, but it more
+    /// likely finds larger cliques. For smaller values, the algorithm is
+    /// faster but probably gives worse results.
+    /// 
+    /// The default value is \c 1000.
+    /// \c -1 means that number of iterations is not limited.
+    ///
+    /// \warning You should specify a reasonable limit for the number of
+    /// iterations and/or the number of search steps.
+    ///
+    /// \return <tt>(*this)</tt>
+    ///
+    /// \sa stepLimit(int)
+    /// \sa sizeLimit(int)
+    GrossoLocatelliPullanMc& iterationLimit(int limit) {
+      _iteration_limit = limit;
+      return *this;
+    }
+    
+    /// \brief Sets the maximum number of search steps.
+    ///
+    /// This function sets the maximum number of elementary search steps.
+    /// Each iteration of the algorithm finds a maximal clique (but not
+    /// necessarily the largest one) by performing several search steps
+    /// (node selections).
+    ///
+    /// This limit controls the running time and the success of the
+    /// algorithm. For larger values, the algorithm runs slower, but it more
+    /// likely finds larger cliques. For smaller values, the algorithm is
+    /// faster but probably gives worse results.
+    /// 
+    /// The default value is \c -1, which means that number of steps
+    /// is not limited explicitly. However, the number of iterations is
+    /// limited and each iteration performs a finite number of search steps.
+    ///
+    /// \warning You should specify a reasonable limit for the number of
+    /// iterations and/or the number of search steps.
+    ///
+    /// \return <tt>(*this)</tt>
+    ///
+    /// \sa iterationLimit(int)
+    /// \sa sizeLimit(int)
+    GrossoLocatelliPullanMc& stepLimit(int limit) {
+      _step_limit = limit;
+      return *this;
+    }
+    
+    /// \brief Sets the desired clique size.
+    ///
+    /// This function sets the desired clique size that serves as a search
+    /// limit. If a clique of this size (or a larger one) is found, then the
+    /// algorithm terminates.
+    /// 
+    /// This function is especially useful if you know an exact upper bound
+    /// for the size of the cliques in the graph or if any clique above 
+    /// a certain size limit is sufficient for your application.
+    /// 
+    /// The default value is \c -1, which means that the size limit is set to
+    /// the number of nodes in the graph.
+    ///
+    /// \return <tt>(*this)</tt>
+    ///
+    /// \sa iterationLimit(int)
+    /// \sa stepLimit(int)
+    GrossoLocatelliPullanMc& sizeLimit(int limit) {
+      _size_limit = limit;
+      return *this;
+    }
+    
+    /// \brief The maximum number of iterations.
+    ///
+    /// This function gives back the maximum number of iterations.
+    /// \c -1 means that no limit is specified.
+    ///
+    /// \sa iterationLimit(int)
+    int iterationLimit() const {
+      return _iteration_limit;
+    }
+    
+    /// \brief The maximum number of search steps.
+    ///
+    /// This function gives back the maximum number of search steps.
+    /// \c -1 means that no limit is specified.
+    ///
+    /// \sa stepLimit(int)
+    int stepLimit() const {
+      return _step_limit;
+    }
+    
+    /// \brief The desired clique size.
+    ///
+    /// This function gives back the desired clique size that serves as a
+    /// search limit. \c -1 means that this limit is set to the number of
+    /// nodes in the graph.
+    ///
+    /// \sa sizeLimit(int)
+    int sizeLimit() const {
+      return _size_limit;
+    }
 
     /// \brief Runs the algorithm.
     ///
-    /// This function runs the algorithm.
+    /// This function runs the algorithm. If one of the specified limits
+    /// is reached, the search process terminates.
     ///
-    /// \param step_num The maximum number of node selections (steps)
-    /// during the search process.
-    /// This parameter controls the running time and the success of the
-    /// algorithm. For larger values, the algorithm runs slower but it more
-    /// likely finds larger cliques. For smaller values, the algorithm is
-    /// faster but probably gives worse results.
     /// \param rule The node selection rule. For more information, see
     /// \ref SelectionRule.
     ///
-    /// \return The size of the found clique.
-    int run(int step_num = 100000,
-            SelectionRule rule = PENALTY_BASED)
+    /// \return The termination cause of the search. For more information,
+    /// see \ref TerminationCause.
+    TerminationCause run(SelectionRule rule = PENALTY_BASED)
     {
       init();
       switch (rule) {
         case RANDOM:
-          return start<RandomSelectionRule>(step_num);
+          return start<RandomSelectionRule>();
         case DEGREE_BASED:
-          return start<DegreeBasedSelectionRule>(step_num);
-        case PENALTY_BASED:
-          return start<PenaltyBasedSelectionRule>(step_num);
+          return start<DegreeBasedSelectionRule>();
+        default:
+          return start<PenaltyBasedSelectionRule>();
       }
-      return 0; // avoid warning
     }
 
     /// @}
 
     /// \name Query Functions
+    /// The results of the algorithm can be obtained using these functions.\n
+    /// The run() function must be called before using them. 
+
     /// @{
 
     /// \brief The size of the found clique
@@ -530,6 +676,18 @@ namespace lemon {
     /// @}
 
   private:
+  
+    // Initialize search options and limits
+    void initOptions() {
+      // Search options
+      _delta_based_restart = true;
+      _restart_delta_limit = 4;
+     
+      // Search limits
+      _iteration_limit = 1000;
+      _step_limit = -1;             // this is disabled by default
+      _size_limit = -1;             // this is disabled by default
+    }
 
     // Adds a node to the current clique
     void addCliqueNode(int u) {
@@ -586,30 +744,32 @@ namespace lemon {
 
     // Executes the algorithm
     template <typename SelectionRuleImpl>
-    int start(int max_select) {
-      // Options for the restart rule
-      const bool delta_based_restart = true;
-      const int restart_delta_limit = 4;
-
-      if (_n == 0) return 0;
+    TerminationCause start() {
+      if (_n == 0) return SIZE_LIMIT;
       if (_n == 1) {
         _best_clique[0] = true;
         _best_size = 1;
-        return _best_size;
+        return SIZE_LIMIT;
       }
 
-      // Iterated local search
-      SelectionRuleImpl sel_method(*this);
-      int select = 0;
-      IntVector restart_nodes;
+      // Iterated local search algorithm
+      const int max_size = _size_limit >= 0 ? _size_limit : _n;
+      const int max_restart = _iteration_limit >= 0 ?
+        _iteration_limit : std::numeric_limits<int>::max();
+      const int max_select = _step_limit >= 0 ?
+        _step_limit : std::numeric_limits<int>::max();
 
-      while (select < max_select) {
+      SelectionRuleImpl sel_method(*this);
+      int select = 0, restart = 0;
+      IntVector restart_nodes;
+      while (select < max_select && restart < max_restart) {
 
         // Perturbation/restart
-        if (delta_based_restart) {
+        restart++;
+        if (_delta_based_restart) {
           restart_nodes.clear();
           for (int i = 0; i != _n; i++) {
-            if (_delta[i] >= restart_delta_limit)
+            if (_delta[i] >= _restart_delta_limit)
               restart_nodes.push_back(i);
           }
         }
@@ -663,12 +823,12 @@ namespace lemon {
         if (_size > _best_size) {
           _best_clique = _clique;
           _best_size = _size;
-          if (_best_size == _n) return _best_size;
+          if (_best_size >= max_size) return SIZE_LIMIT;
         }
         sel_method.update();
       }
 
-      return _best_size;
+      return (restart >= max_restart ? ITERATION_LIMIT : STEP_LIMIT);
     }
 
   }; //class GrossoLocatelliPullanMc
