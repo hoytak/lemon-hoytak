@@ -406,10 +406,10 @@ LEMON contains several algorithms for this problem.
  - \ref CycleCanceling Cycle-Canceling algorithms, two of which are
    strongly polynomial \ref klein67primal, \ref goldberg89cyclecanceling.
 
-In general NetworkSimplex is the most efficient implementation,
-but in special cases other algorithms could be faster.
+In general, \ref NetworkSimplex and \ref CostScaling are the most efficient
+implementations, but the other two algorithms could be faster in special cases.
 For example, if the total supply and/or capacities are rather small,
-CapacityScaling is usually the fastest algorithm (without effective scaling).
+\ref CapacityScaling is usually the fastest algorithm (without effective scaling).
 */
 
 /**
@@ -471,7 +471,7 @@ LEMON contains three algorithms for solving the minimum mean cycle problem:
 - \ref HowardMmc Howard's policy iteration algorithm
   \ref dasdan98minmeancycle.
 
-In practice, the \ref HowardMmc "Howard" algorithm proved to be by far the
+In practice, the \ref HowardMmc "Howard" algorithm turned out to be by far the
 most efficient one, though the best known theoretical bound on its running
 time is exponential.
 Both \ref KarpMmc "Karp" and \ref HartmannOrlinMmc "Hartmann-Orlin" algorithms
@@ -539,7 +539,7 @@ like connectivity, bipartiteness, euler property, simplicity etc.
 */
 
 /**
-@defgroup planar Planarity Embedding and Drawing
+@defgroup planar Planar Embedding and Drawing
 @ingroup algs
 \brief Algorithms for planarity checking, embedding and drawing
 

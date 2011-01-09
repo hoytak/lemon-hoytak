@@ -67,8 +67,8 @@ namespace lemon {
   ///
   /// \warning Both number types must be signed and all input data must
   /// be integer.
-  /// \warning This algorithm does not support negative costs for such
-  /// arcs that have infinite upper bound.
+  /// \warning This algorithm does not support negative costs for
+  /// arcs having infinite upper bound.
   ///
   /// \note For more information about the three available methods,
   /// see \ref Method.
@@ -116,8 +116,7 @@ namespace lemon {
     ///
     /// \ref CycleCanceling provides three different cycle-canceling
     /// methods. By default, \ref CANCEL_AND_TIGHTEN "Cancel and Tighten"
-    /// is used, which proved to be the most efficient and the most robust
-    /// on various test inputs.
+    /// is used, which is by far the most efficient and the most robust.
     /// However, the other methods can be selected using the \ref run()
     /// function with the proper parameter.
     enum Method {
@@ -349,7 +348,7 @@ namespace lemon {
     /// calling \ref run(), the supply of each node will be set to zero.
     ///
     /// Using this function has the same effect as using \ref supplyMap()
-    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// with a map in which \c k is assigned to \c s, \c -k is
     /// assigned to \c t and all other nodes have zero supply value.
     ///
     /// \param s The source node.

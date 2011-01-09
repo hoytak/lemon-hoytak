@@ -97,6 +97,9 @@ namespace lemon {
   /// can be viewed as the generalization of the \ref Preflow
   /// "preflow push-relabel" algorithm for the maximum flow problem.
   ///
+  /// In general, \ref NetworkSimplex and \ref CostScaling are the fastest
+  /// implementations available in LEMON for this problem.
+  ///
   /// Most of the parameters of the problem (except for the digraph)
   /// can be given using separate functions, and the algorithm can be
   /// executed using the \ref run() function. If some parameters are not
@@ -115,8 +118,8 @@ namespace lemon {
   ///
   /// \warning Both number types must be signed and all input data must
   /// be integer.
-  /// \warning This algorithm does not support negative costs for such
-  /// arcs that have infinite upper bound.
+  /// \warning This algorithm does not support negative costs for
+  /// arcs having infinite upper bound.
   ///
   /// \note %CostScaling provides three different internal methods,
   /// from which the most efficient one is used by default.
@@ -178,7 +181,7 @@ namespace lemon {
     /// in their base operations, which are used in conjunction with the
     /// relabel operation.
     /// By default, the so called \ref PARTIAL_AUGMENT
-    /// "Partial Augment-Relabel" method is used, which proved to be
+    /// "Partial Augment-Relabel" method is used, which turned out to be
     /// the most efficient and the most robust on various test inputs.
     /// However, the other methods can be selected using the \ref run()
     /// function with the proper parameter.
@@ -447,7 +450,7 @@ namespace lemon {
     /// calling \ref run(), the supply of each node will be set to zero.
     ///
     /// Using this function has the same effect as using \ref supplyMap()
-    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// with a map in which \c k is assigned to \c s, \c -k is
     /// assigned to \c t and all other nodes have zero supply value.
     ///
     /// \param s The source node.

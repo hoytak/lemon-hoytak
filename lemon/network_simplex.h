@@ -47,10 +47,10 @@ namespace lemon {
   /// linear programming simplex method directly for the minimum cost
   /// flow problem.
   ///
-  /// In general, %NetworkSimplex is the fastest implementation available
-  /// in LEMON for this problem.
-  /// Moreover, it supports both directions of the supply/demand inequality
-  /// constraints. For more information, see \ref SupplyType.
+  /// In general, \ref NetworkSimplex and \ref CostScaling are the fastest
+  /// implementations available in LEMON for this problem.
+  /// Furthermore, this class supports both directions of the supply/demand
+  /// inequality constraints. For more information, see \ref SupplyType.
   ///
   /// Most of the parameters of the problem (except for the digraph)
   /// can be given using separate functions, and the algorithm can be
@@ -125,7 +125,7 @@ namespace lemon {
     /// implementations that significantly affect the running time
     /// of the algorithm.
     /// By default, \ref BLOCK_SEARCH "Block Search" is used, which
-    /// proved to be the most efficient and the most robust on various
+    /// turend out to be the most efficient and the most robust on various
     /// test inputs.
     /// However, another pivot rule can be selected using the \ref run()
     /// function with the proper parameter.
@@ -167,7 +167,7 @@ namespace lemon {
     typedef std::vector<Value> ValueVector;
     typedef std::vector<Cost> CostVector;
     typedef std::vector<signed char> CharVector;
-    // Note: vector<signed char> is used instead of vector<ArcState> and 
+    // Note: vector<signed char> is used instead of vector<ArcState> and
     // vector<ArcDirection> for efficiency reasons
 
     // State constants for arcs
@@ -734,6 +734,8 @@ namespace lemon {
     /// of the algorithm.
     ///
     /// \return <tt>(*this)</tt>
+    ///
+    /// \sa supplyType()
     template<typename SupplyMap>
     NetworkSimplex& supplyMap(const SupplyMap& map) {
       for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -750,7 +752,7 @@ namespace lemon {
     /// calling \ref run(), the supply of each node will be set to zero.
     ///
     /// Using this function has the same effect as using \ref supplyMap()
-    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// with a map in which \c k is assigned to \c s, \c -k is
     /// assigned to \c t and all other nodes have zero supply value.
     ///
     /// \param s The source node.

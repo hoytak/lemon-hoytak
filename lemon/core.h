@@ -447,7 +447,7 @@ namespace lemon {
 
   }
 
-  /// Check whether a graph is undirected.
+  /// \brief Check whether a graph is undirected.
   ///
   /// This function returns \c true if the given graph is undirected.
 #ifdef DOXYGEN
