@@ -89,8 +89,8 @@ namespace lemon {
   /// \warning Both \c V and \c C must be signed number types.
   /// \warning All input data (capacities, supply values, and costs) must
   /// be integer.
-  /// \warning This algorithm does not support negative costs for such
-  /// arcs that have infinite upper bound.
+  /// \warning This algorithm does not support negative costs for
+  /// arcs having infinite upper bound.
 #ifdef DOXYGEN
   template <typename GR, typename V, typename C, typename TR>
 #else
@@ -423,7 +423,7 @@ namespace lemon {
     /// calling \ref run(), the supply of each node will be set to zero.
     ///
     /// Using this function has the same effect as using \ref supplyMap()
-    /// with such a map in which \c k is assigned to \c s, \c -k is
+    /// with a map in which \c k is assigned to \c s, \c -k is
     /// assigned to \c t and all other nodes have zero supply value.
     ///
     /// \param s The source node.

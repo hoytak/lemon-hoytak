@@ -98,10 +98,10 @@ all_lower_case_with_underscores
 
 \subsection pri-loc-var Private member variables
 
-Private member variables should start with underscore
+Private member variables should start with underscore.
 
 \code
-_start_with_underscores
+_start_with_underscore
 \endcode
 
 \subsection cs-excep Exceptions

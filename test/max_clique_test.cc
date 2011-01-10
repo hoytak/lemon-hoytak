@@ -58,7 +58,7 @@ char test_lgf[] =
 
 // Check with general graphs
 template <typename Param>
-void checkMaxCliqueGeneral(int max_sel, Param rule) {
+void checkMaxCliqueGeneral(Param rule) {
   typedef ListGraph GR;
   typedef GrossoLocatelliPullanMc<GR> McAlg;
   typedef McAlg::CliqueNodeIt CliqueIt;
@@ -68,12 +68,13 @@ void checkMaxCliqueGeneral(int max_sel, Param rule) {
     GR g;
     GR::NodeMap<bool> map(g);
     McAlg mc(g);
-    check(mc.run(max_sel, rule) == 0, "Wrong clique size");
+    mc.iterationLimit(50);
+    check(mc.run(rule) == McAlg::SIZE_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == 0, "Wrong clique size");
     check(CliqueIt(mc) == INVALID, "Wrong CliqueNodeIt");
 
     GR::Node u = g.addNode();
-    check(mc.run(max_sel, rule) == 1, "Wrong clique size");
+    check(mc.run(rule) == McAlg::SIZE_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == 1, "Wrong clique size");
     mc.cliqueMap(map);
     check(map[u], "Wrong clique map");
@@ -82,7 +83,7 @@ void checkMaxCliqueGeneral(int max_sel, Param rule) {
           "Wrong CliqueNodeIt");
     
     GR::Node v = g.addNode();
-    check(mc.run(max_sel, rule) == 1, "Wrong clique size");
+    check(mc.run(rule) == McAlg::ITERATION_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == 1, "Wrong clique size");
     mc.cliqueMap(map);
     check((map[u] && !map[v]) || (map[v] && !map[u]), "Wrong clique map");
@@ -90,7 +91,7 @@ void checkMaxCliqueGeneral(int max_sel, Param rule) {
     check(it2 != INVALID && ++it2 == INVALID, "Wrong CliqueNodeIt");
 
     g.addEdge(u, v);
-    check(mc.run(max_sel, rule) == 2, "Wrong clique size");
+    check(mc.run(rule) == McAlg::SIZE_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == 2, "Wrong clique size");
     mc.cliqueMap(map);
     check(map[u] && map[v], "Wrong clique map");
@@ -110,7 +111,8 @@ void checkMaxCliqueGeneral(int max_sel, Param rule) {
       .run();
     
     McAlg mc(g);
-    check(mc.run(max_sel, rule) == 4, "Wrong clique size");
+    mc.iterationLimit(50);
+    check(mc.run(rule) == McAlg::ITERATION_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == 4, "Wrong clique size");
     mc.cliqueMap(map);
     for (GR::NodeIt n(g); n != INVALID; ++n) {
@@ -127,7 +129,7 @@ void checkMaxCliqueGeneral(int max_sel, Param rule) {
 
 // Check with full graphs
 template <typename Param>
-void checkMaxCliqueFullGraph(int max_sel, Param rule) {
+void checkMaxCliqueFullGraph(Param rule) {
   typedef FullGraph GR;
   typedef GrossoLocatelliPullanMc<FullGraph> McAlg;
   typedef McAlg::CliqueNodeIt CliqueIt;
@@ -136,7 +138,7 @@ void checkMaxCliqueFullGraph(int max_sel, Param rule) {
     GR g(size);
     GR::NodeMap<bool> map(g);
     McAlg mc(g);
-    check(mc.run(max_sel, rule) == size, "Wrong clique size");
+    check(mc.run(rule) == McAlg::SIZE_LIMIT, "Wrong termination cause");
     check(mc.cliqueSize() == size, "Wrong clique size");
     mc.cliqueMap(map);
     for (GR::NodeIt n(g); n != INVALID; ++n) {
@@ -150,27 +152,37 @@ void checkMaxCliqueFullGraph(int max_sel, Param rule) {
 
 // Check with grid graphs
 template <typename Param>
-void checkMaxCliqueGridGraph(int max_sel, Param rule) {
+void checkMaxCliqueGridGraph(Param rule) {
   GridGraph g(5, 7);
   GridGraph::NodeMap<char> map(g);
   GrossoLocatelliPullanMc<GridGraph> mc(g);
-  check(mc.run(max_sel, rule) == 2, "Wrong clique size");
+  
+  mc.iterationLimit(100);
+  check(mc.run(rule) == mc.ITERATION_LIMIT, "Wrong termination cause");
+  check(mc.cliqueSize() == 2, "Wrong clique size");
+
+  mc.stepLimit(100);
+  check(mc.run(rule) == mc.STEP_LIMIT, "Wrong termination cause");
+  check(mc.cliqueSize() == 2, "Wrong clique size");
+
+  mc.sizeLimit(2);
+  check(mc.run(rule) == mc.SIZE_LIMIT, "Wrong termination cause");
   check(mc.cliqueSize() == 2, "Wrong clique size");
 }
 
 
 int main() {
-  checkMaxCliqueGeneral(50, GrossoLocatelliPullanMc<ListGraph>::RANDOM);
-  checkMaxCliqueGeneral(50, GrossoLocatelliPullanMc<ListGraph>::DEGREE_BASED);
-  checkMaxCliqueGeneral(50, GrossoLocatelliPullanMc<ListGraph>::PENALTY_BASED);
+  checkMaxCliqueGeneral(GrossoLocatelliPullanMc<ListGraph>::RANDOM);
+  checkMaxCliqueGeneral(GrossoLocatelliPullanMc<ListGraph>::DEGREE_BASED);
+  checkMaxCliqueGeneral(GrossoLocatelliPullanMc<ListGraph>::PENALTY_BASED);
 
-  checkMaxCliqueFullGraph(50, GrossoLocatelliPullanMc<FullGraph>::RANDOM);
-  checkMaxCliqueFullGraph(50, GrossoLocatelliPullanMc<FullGraph>::DEGREE_BASED);
-  checkMaxCliqueFullGraph(50, GrossoLocatelliPullanMc<FullGraph>::PENALTY_BASED);
+  checkMaxCliqueFullGraph(GrossoLocatelliPullanMc<FullGraph>::RANDOM);
+  checkMaxCliqueFullGraph(GrossoLocatelliPullanMc<FullGraph>::DEGREE_BASED);
+  checkMaxCliqueFullGraph(GrossoLocatelliPullanMc<FullGraph>::PENALTY_BASED);
                        
-  checkMaxCliqueGridGraph(50, GrossoLocatelliPullanMc<GridGraph>::RANDOM);
-  checkMaxCliqueGridGraph(50, GrossoLocatelliPullanMc<GridGraph>::DEGREE_BASED);
-  checkMaxCliqueGridGraph(50, GrossoLocatelliPullanMc<GridGraph>::PENALTY_BASED);
+  checkMaxCliqueGridGraph(GrossoLocatelliPullanMc<GridGraph>::RANDOM);
+  checkMaxCliqueGridGraph(GrossoLocatelliPullanMc<GridGraph>::DEGREE_BASED);
+  checkMaxCliqueGridGraph(GrossoLocatelliPullanMc<GridGraph>::PENALTY_BASED);
                        
   return 0;
 }
