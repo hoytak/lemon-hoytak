@@ -156,6 +156,30 @@ bool checkFlow(const SmartDigraph& g,
   return true;
 }
 
+void initFlowTest()
+{
+  DIGRAPH_TYPEDEFS(SmartDigraph);
+  
+  SmartDigraph g;
+  SmartDigraph::ArcMap<int> cap(g),iflow(g);
+  Node s=g.addNode(); Node t=g.addNode();
+  Node n1=g.addNode(); Node n2=g.addNode();
+  Arc a;
+  a=g.addArc(s,n1); cap[a]=20; iflow[a]=20;
+  a=g.addArc(n1,n2); cap[a]=10; iflow[a]=0;
+  a=g.addArc(n2,t); cap[a]=20; iflow[a]=0;
+
+  Preflow<SmartDigraph> pre(g,cap,s,t);
+  pre.init(iflow);
+  pre.startFirstPhase();
+  check(pre.flowValue() == 10, "The incorrect max flow value.");
+  check(pre.minCut(s), "Wrong min cut (Node s).");
+  check(pre.minCut(n1), "Wrong min cut (Node n1).");
+  check(!pre.minCut(n2), "Wrong min cut (Node n2).");
+  check(!pre.minCut(t), "Wrong min cut (Node t).");
+}
+
+
 int main() {
 
   typedef SmartDigraph Digraph;
@@ -246,5 +270,7 @@ int main() {
   check(preflow_test.flowValue() == min_cut_value,
         "The max flow value or the three min cut values are incorrect.");
 
+  initFlowTest();
+  
   return 0;
 }

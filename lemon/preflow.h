@@ -543,9 +543,6 @@ namespace lemon {
           if ((*_level)[u] == _level->maxLevel()) continue;
           _flow->set(e, (*_capacity)[e]);
           (*_excess)[u] += rem;
-          if (u != _target && !_level->active(u)) {
-            _level->activate(u);
-          }
         }
       }
       for (InArcIt e(_graph, _source); e != INVALID; ++e) {
@@ -555,11 +552,12 @@ namespace lemon {
           if ((*_level)[v] == _level->maxLevel()) continue;
           _flow->set(e, 0);
           (*_excess)[v] += rem;
-          if (v != _target && !_level->active(v)) {
-            _level->activate(v);
-          }
         }
       }
+      for (NodeIt n(_graph); n != INVALID; ++n) 
+        if(n!=_source && n!=_target && _tolerance.positive((*_excess)[n]))
+          _level->activate(n);
+          
       return true;
     }
 
